@@ -9,7 +9,7 @@ import ProjectDescription
 
 
 public struct ModularFactory {
-    var name: String
+    var name: ModuleLayer.RawValue
     var platform: Platform
     var products: ProductsType
     var dependencies: [TargetDependency]
@@ -21,16 +21,16 @@ public struct ModularFactory {
     var settings: Settings?
     
     
-    init(
-        name: String = "",
+    public init(
+        name: ModuleLayer.RawValue = "",
         platform: Platform = .iOS,
-        products: ProductsType = .library(.static),
-        dependencies: [TargetDependency],
-        bundleId: String,
-        deploymentTarget: DeploymentTarget? = nil,
+        products: ProductsType = .framework(.static),
+        dependencies: [TargetDependency] = [],
+        bundleId: String = "",
+        deploymentTarget: DeploymentTarget? = .defualt,
         infoPlist: InfoPlist? = .default,
-        sources: SourceFilesList? = "Sources/**",
-        resources: ResourceFileElements? = nil,
+        sources: SourceFilesList? = .default,
+        resources: ResourceFileElements? = .default,
         settings: Settings? = nil
     ) {
         self.name = name
@@ -50,7 +50,7 @@ public struct ModularFactory {
 public struct AppFactory {
     var name: String
     var platform: Platform
-    var products: ProductsType
+    var products: [ProductsType]
     var dependencies: [TargetDependency]
     var bundleId: String
     var deploymentTarget: DeploymentTarget?
@@ -65,16 +65,16 @@ public struct AppFactory {
     public init(
         name: String = "App",
         platform: Platform = .iOS,
-        products: ProductsType = .app,
-        dependencies: [TargetDependency],
+        products: [ProductsType] = [.app, .uiTests, .unitTests],
+        dependencies: [TargetDependency] = [],
         bundleId: String,
-        deploymentTarget: DeploymentTarget? = nil,
+        deploymentTarget: DeploymentTarget? = .defualt,
         infoPlist: InfoPlist? = .default,
-        sources: SourceFilesList? = "Sources/**",
-        resources: ResourceFileElements? = nil,
+        sources: SourceFilesList? = .default,
+        resources: ResourceFileElements? = .default,
         settings: Settings? = nil,
         entitlements: Path? = nil,
-        scripts: [TargetScript]
+        scripts: [TargetScript] = []
     ) {
         self.name = name
         self.platform = platform
@@ -94,21 +94,88 @@ public struct AppFactory {
 }
 
 
+public extension Project {
+    static func makeApp(name: String, target: [Target]) -> Project {
+        //TODO: Scheme 추가 예정
+        return Project(
+            name: name,
+            targets: target
+        )
+    }
+    
+    
+}
+
 
 public extension Target {
-    //TODO: 모듈별 타켓 구현 예정
     static func makeModular(layer: ModuleLayer, factory: ModularFactory) -> Target {
+        
         switch layer {
         case .App:
-            <#code#>
+            return Target(
+                name: layer.rawValue,
+                platform: factory.platform,
+                product: factory.products.isApp ? .app : .staticLibrary,
+                bundleId: "com.\(layer.rawValue).project".lowercased(),
+                deploymentTarget: factory.deploymentTarget,
+                infoPlist: factory.infoPlist,
+                sources: factory.sources,
+                resources: factory.resources,
+                dependencies: factory.dependencies,
+                settings: factory.settings
+            )
         case .Data:
-            <#code#>
+            return Target(
+                name: layer.rawValue,
+                platform: factory.platform,
+                product: factory.products.isLibrary ? .staticLibrary : .dynamicLibrary,
+                bundleId: "com.\(layer.rawValue).project".lowercased(),
+                deploymentTarget: factory.deploymentTarget,
+                infoPlist: factory.infoPlist,
+                sources: factory.sources,
+                resources: factory.resources,
+                dependencies: factory.dependencies,
+                settings: factory.settings
+            )
         case .Domain:
-            <#code#>
+            return Target(
+                name: layer.rawValue,
+                platform: factory.platform,
+                product: factory.products.isFramework ? .staticFramework : .framework,
+                bundleId: "com.\(layer.rawValue).project".lowercased(),
+                deploymentTarget: factory.deploymentTarget,
+                infoPlist: factory.infoPlist,
+                sources: factory.sources,
+                resources: factory.resources,
+                dependencies: factory.dependencies,
+                settings: factory.settings
+            )
         case .Core:
-            <#code#>
+            return Target(
+                name: layer.rawValue,
+                platform: factory.platform,
+                product: factory.products.isLibrary ? .staticLibrary : .dynamicLibrary,
+                bundleId: "com.\(layer.rawValue).project".lowercased(),
+                deploymentTarget: factory.deploymentTarget,
+                infoPlist: factory.infoPlist,
+                sources: factory.sources,
+                resources: factory.resources,
+                dependencies: factory.dependencies,
+                settings: factory.settings
+            )
         case .DesignSystem:
-            <#code#>
+            return Target(
+                name: layer.rawValue,
+                platform: factory.platform,
+                product: factory.products.isFramework ? .staticFramework : .framework,
+                bundleId: "com.\(layer.rawValue).project".lowercased(),
+                deploymentTarget: factory.deploymentTarget,
+                infoPlist: factory.infoPlist,
+                sources: factory.sources,
+                resources: factory.resources,
+                dependencies: factory.dependencies,
+                settings: factory.settings
+            )
         }
         
     }

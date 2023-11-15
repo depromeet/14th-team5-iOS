@@ -13,7 +13,25 @@ private let targets: [Target] = [
         layer: .App,
         factory: .init(
             products: .app,
-            dependencies: ModuleLayer.App.dependencies
+            dependencies: ModuleLayer.App.dependencies,
+            infoPlist: .extendingDefault(with: [
+                "CFBundleVersion": .string("1"),
+                "CFBuildVersion": .string("0"),
+                "UILaunchStoryboardName": .string("Launch Screen"),
+                "UISupportedInterfaceOrientations": .array([.string("UIInterfaceOrientationPortrait")]),
+                "UIUserInterfaceStyle": .string("Light"),
+                "UIApplicationSceneManifest" : .dictionary([
+                    "UIApplicationSupportsMultipleScenes" : .boolean(false),
+                    "UISceneConfigurations" : .dictionary([
+                        "UIWindowSceneSessionRoleApplication" : .array([
+                            .dictionary([
+                                "UISceneConfigurationName" : .string("Default Configuration"),
+                                "UISceneDelegateClassName" : .string("$(PRODUCT_MODULE_NAME).SceneDelegate")
+                            ])
+                        ])
+                    ])
+                ])
+            ])
         )
     )
 ]

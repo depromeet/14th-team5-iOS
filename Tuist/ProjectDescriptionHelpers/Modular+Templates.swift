@@ -96,7 +96,14 @@ public struct AppFactory {
 
 public extension Project {
     static func makeApp(name: String, target: [Target]) -> Project {
-        //TODO: Scheme 추가 예정
+        //TODO: Scheme 추가 예정 or 디버깅용 print 구문 추후 삭제 예정
+        print("🤩 MAKE APP PROEJCT 🤩")
+        print("📝 MAKE APP PROJET NAME \(name) 📝")
+        print("🥳 MAKE APP PROJET RESOURCES  \(target.first?.resources) 🥳")
+        print("🥰 MAKE APP PROJECT SOURCES \(target.first?.sources) 🧐")
+        print("🧐 MAKE APP PROJECT BUNDLEID \(target.first?.bundleId) 🧐")
+        print("💁‍♂️ MAKE APP PROJECT DEPENDENCIES \(target.first?.dependencies)")
+        print("🫡 MAKE APP PROJECT PRODUCTTYPE \(target.first?.product)")
         return Project(
             name: name,
             targets: target
@@ -125,6 +132,8 @@ public extension Target {
                 settings: factory.settings
             )
         case .Data:
+            print("MAKEMODULAR DATA \(layer.rawValue)")
+            print("MAKEMODULAR DATA SOURCES PATH: \(factory.sources)")
             return Target(
                 name: layer.rawValue,
                 platform: factory.platform,
@@ -138,6 +147,8 @@ public extension Target {
                 settings: factory.settings
             )
         case .Domain:
+            print("MAKEMODULAR Domain \(layer.rawValue)")
+            print("MAKEMODULAR Domain SOURCES PATH: \(factory.sources)")
             return Target(
                 name: layer.rawValue,
                 platform: factory.platform,
@@ -151,6 +162,8 @@ public extension Target {
                 settings: factory.settings
             )
         case .Core:
+            print("MAKEMODULAR CORE \(layer.rawValue)")
+            print("MAKEMODULAR CORE SOURCES PATH: \(factory.sources)")
             return Target(
                 name: layer.rawValue,
                 platform: factory.platform,
@@ -164,6 +177,8 @@ public extension Target {
                 settings: factory.settings
             )
         case .DesignSystem:
+            print("MAKEMODULAR DESIGNESYSTEM \(layer.rawValue)")
+            print("MAKEMODULAR DESIGNESYSTEM SOURCES PATH: \(factory.sources)")
             return Target(
                 name: layer.rawValue,
                 platform: factory.platform,

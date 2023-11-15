@@ -19,4 +19,4 @@ private let targets: [Target] = [
 ]
 
 
-let app = Project.makeApp(name: ModuleLayer.App.rawValue, target: targets)
+private let app = Project.makeApp(name: ModuleLayer.App.rawValue, target: targets)

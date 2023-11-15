@@ -9,15 +9,9 @@ import ProjectDescription
 import ProjectDescriptionHelpers
 
 private let projects: [Path] = ModuleLayer.allCases.map { moduleType in
-    "\(moduleType.rawValue)"
+    "14th-team5-iOS/\(moduleType.rawValue)"
 }
 let workspace = Workspace(
     name: "App",
-    projects: [
-    "App/**",
-    "Data/**",
-    "Domain/**",
-    "Core/**",
-    "DesignSystem/**"
-    ]
+    projects: projects
 )

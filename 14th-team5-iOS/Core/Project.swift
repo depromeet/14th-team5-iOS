@@ -12,12 +12,12 @@ private let targets: [Target] = [
     .makeModular(
         layer: .Core,
         factory: .init(
-            products: .framework(.dynamic),
+            products: .library(.static),
             dependencies: ModuleLayer.Core.dependencies
         )
     )
 ]
 
 
-let core = Project.makeApp(name: ModuleLayer.Core.rawValue, target: targets)
+private let core = Project.makeApp(name: ModuleLayer.Core.rawValue, target: targets)
 

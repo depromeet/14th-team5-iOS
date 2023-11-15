@@ -13,15 +13,15 @@ public extension TargetDependency {
         let moduleName = type.rawValue
         switch type {
         case .App:
-            return .project(target: moduleName, path: .relativeToRoot("App/\(moduleName)"))
+            return .project(target: moduleName, path: .relativeToRoot("14th-team5-iOS/\(moduleName)"))
         case .Data:
-            return .project(target: moduleName, path: .relativeToRoot("Data/\(moduleName)"))
+            return .project(target: moduleName, path: .relativeToRoot("14th-team5-iOS/\(moduleName)"))
         case .Domain:
-            return .project(target: moduleName, path: .relativeToRoot("Domain/\(moduleName)"))
+            return .project(target: moduleName, path: .relativeToRoot("14th-team5-iOS/\(moduleName)"))
         case .Core:
-            return .project(target: moduleName, path: .relativeToRoot("Core/\(moduleName)"))
+            return .project(target: moduleName, path: .relativeToRoot("14th-team5-iOS/\(moduleName)"))
         case .DesignSystem:
-            return .project(target: moduleName, path: .relativeToRoot("DesignSystem/\(moduleName)"))
+            return .project(target: moduleName, path: .relativeToRoot("14th-team5-iOS/\(moduleName)"))
         }
     }
 }

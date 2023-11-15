@@ -19,4 +19,4 @@ private let targets: [Target] = [
     )
 ]
 
-let domain = Project.makeApp(name: ModuleLayer.Domain.rawValue, target: targets)
+private let domain = Project.makeApp(name: ModuleLayer.Domain.rawValue, target: targets)

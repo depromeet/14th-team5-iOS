@@ -65,8 +65,6 @@ extension Target {
                 settings: factory.settings
             )
         case .Data:
-            print("MAKEMODULAR DATA \(layer.rawValue)")
-            print("MAKEMODULAR DATA SOURCES PATH: \(factory.sources)")
             return Target(
                 name: layer.rawValue,
                 platform: factory.platform,
@@ -80,8 +78,6 @@ extension Target {
                 settings: factory.settings
             )
         case .Domain:
-            print("MAKEMODULAR Domain \(layer.rawValue)")
-            print("MAKEMODULAR Domain SOURCES PATH: \(factory.sources)")
             return Target(
                 name: layer.rawValue,
                 platform: factory.platform,
@@ -95,8 +91,6 @@ extension Target {
                 settings: factory.settings
             )
         case .Core:
-            print("MAKEMODULAR CORE \(layer.rawValue)")
-            print("MAKEMODULAR CORE SOURCES PATH: \(factory.sources)")
             return Target(
                 name: layer.rawValue,
                 platform: factory.platform,
@@ -110,8 +104,6 @@ extension Target {
                 settings: factory.settings
             )
         case .DesignSystem:
-            print("MAKEMODULAR DESIGNESYSTEM \(layer.rawValue)")
-            print("MAKEMODULAR DESIGNESYSTEM SOURCES PATH: \(factory.sources)")
             return Target(
                 name: layer.rawValue,
                 platform: factory.platform,

@@ -54,14 +54,6 @@ public struct AppFactory {
 
 extension Project {
     public static func makeApp(name: String, target: [Target]) -> Project {
-        //TODO: Scheme 추가 예정 or 디버깅용 print 구문 추후 삭제 예정
-        print("🤩 MAKE APP PROEJCT 🤩")
-        print("📝 MAKE APP PROJET NAME \(name) 📝")
-        print("🥳 MAKE APP PROJET RESOURCES  \(target.first?.resources) 🥳")
-        print("🥰 MAKE APP PROJECT SOURCES \(target.first?.sources) 🧐")
-        print("🧐 MAKE APP PROJECT BUNDLEID \(target.first?.bundleId) 🧐")
-        print("💁‍♂️ MAKE APP PROJECT DEPENDENCIES \(target.first?.dependencies)")
-        print("🫡 MAKE APP PROJECT PRODUCTTYPE \(target.first?.product)")
         return Project(
             name: name,
             targets: target

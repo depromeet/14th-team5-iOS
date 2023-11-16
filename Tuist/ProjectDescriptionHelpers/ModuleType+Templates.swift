@@ -29,10 +29,14 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
                 .with(.Domain)
             ]
         case .Data:
-            return []
+            return [
+                .with(.Domain),
+                .external(name: "Alamofire"),
+                .external(name: "RxSwift")
+            ]
         case .Domain:
             return [
-                .with(.Data)
+                .external(name: "ReactorKit")
             ]
         case .Core:
             return [

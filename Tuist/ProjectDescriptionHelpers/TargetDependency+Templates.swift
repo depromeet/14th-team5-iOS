@@ -8,8 +8,8 @@
 import ProjectDescription
 
 
-public extension TargetDependency {
-    static func with(_ type: ModuleLayer) -> Self {
+extension TargetDependency {
+    public static func with(_ type: ModuleLayer) -> Self {
         let moduleName = type.rawValue
         switch type {
         case .App:

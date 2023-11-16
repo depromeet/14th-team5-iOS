@@ -20,4 +20,36 @@
          location = "group:Domain/Domain.xcodeproj">
       </FileRef>
    </Group>
+   <Group
+      location = "group:Tuist"
+      name = "Tuist">
+      <Group
+         location = "group:Dependencies"
+         name = "Dependencies">
+         <Group
+            location = "group:SwiftPackageManager"
+            name = "SwiftPackageManager">
+            <Group
+               location = "group:.build"
+               name = ".build">
+               <Group
+                  location = "group:checkouts"
+                  name = "checkouts">
+                  <FileRef
+                     location = "group:Alamofire/Alamofire.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:ReactorKit/ReactorKit.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:RxSwift/RxSwift.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:WeakMapTable/WeakMapTable.xcodeproj">
+                  </FileRef>
+               </Group>
+            </Group>
+         </Group>
+      </Group>
+   </Group>
 </Workspace>

@@ -13,7 +13,9 @@ let dependencies = Dependencies(
     swiftPackageManager: SwiftPackageManagerDependencies([
         .alamofire,
         .reactorKit,
-        .rxSwift
+        .rxSwift,
+        .snapkit,
+        .then
     ]),
     platforms: [.iOS]
 )

@@ -45,6 +45,12 @@
                      location = "group:RxSwift/RxSwift.xcodeproj">
                   </FileRef>
                   <FileRef
+                     location = "group:SnapKit/SnapKit.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:Then/Then.xcodeproj">
+                  </FileRef>
+                  <FileRef
                      location = "group:WeakMapTable/WeakMapTable.xcodeproj">
                   </FileRef>
                </Group>

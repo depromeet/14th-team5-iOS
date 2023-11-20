@@ -40,7 +40,9 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
             ]
         case .Core:
             return [
-                .with(.DesignSystem)
+                .with(.DesignSystem),
+                .external(name: "SnapKit"),
+                .external(name: "Then")
             ]
         case .DesignSystem:
             return [] 

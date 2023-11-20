@@ -15,9 +15,10 @@ extension Package {
     }
     
     
-   public static let reactorKit = Package.remote(repo: "ReactorKit/ReactorKit", version: "3.2.0")
-   public static let rxSwift = Package.remote(repo: "ReactiveX/RxSwift", version: "6.6.0")
-   public static let alamofire = Package.remote(repo: "Alamofire/Alamofire", version: "5.8.1")
-    
+    public static let reactorKit = Package.remote(repo: "ReactorKit/ReactorKit", version: "3.2.0")
+    public static let rxSwift = Package.remote(repo: "ReactiveX/RxSwift", version: "6.6.0")
+    public static let alamofire = Package.remote(repo: "Alamofire/Alamofire", version: "5.6.1")
+    public static let snapkit = Package.remote(repo: "SnapKit/SnapKit", version: "5.6.0")
+    public static let then = Package.remote(repo: "devxoul/Then", version: "3.0.0")
 }
 

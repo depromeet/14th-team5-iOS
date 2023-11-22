@@ -15,7 +15,8 @@ let dependencies = Dependencies(
         .reactorKit,
         .rxSwift,
         .snapkit,
-        .then
+        .then,
+        .firebase
     ]),
     platforms: [.iOS]
 )

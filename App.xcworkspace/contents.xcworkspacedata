@@ -39,6 +39,12 @@
                      location = "group:Alamofire/Alamofire.xcodeproj">
                   </FileRef>
                   <FileRef
+                     location = "group:GoogleAppMeasurement/GoogleAppMeasurement.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:GoogleUtilities/GoogleUtilities.xcodeproj">
+                  </FileRef>
+                  <FileRef
                      location = "group:ReactorKit/ReactorKit.xcodeproj">
                   </FileRef>
                   <FileRef
@@ -52,6 +58,15 @@
                   </FileRef>
                   <FileRef
                      location = "group:WeakMapTable/WeakMapTable.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:firebase-ios-sdk/Firebase.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:nanopb/nanopb.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:promises/Promises.xcodeproj">
                   </FileRef>
                </Group>
             </Group>

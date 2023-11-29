@@ -19,7 +19,6 @@ open class BaseViewController<R>: UIViewController, ReactorKit.View where R: Rea
     // MARK: - Intializer
     public init() {
         super.init(nibName: nil, bundle: nil)
-        view.backgroundColor = UIColor.systemBackground
     }
     
     public convenience init(reacter: Reactor? = nil) {
@@ -50,5 +49,7 @@ open class BaseViewController<R>: UIViewController, ReactorKit.View where R: Rea
     open func setupAutoLayout() { }
     
     // 뷰의 속성 설정을 위한 메서드
-    open func setupAttributes() { }
+    open func setupAttributes() { 
+        view.backgroundColor = UIColor.systemBackground
+    }
 }

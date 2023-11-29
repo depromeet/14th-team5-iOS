@@ -19,7 +19,9 @@ open class BaseCollectionViewCell<R>: UICollectionViewCell, ReactorKit.View wher
     // MARK: - Intializer
     public override init(frame: CGRect) {
         super.init(frame: .zero)
-        intialize()
+        setupUI()
+        setupAutoLayout()
+        setupAttributes()
     }
     
     public required init?(coder: NSCoder) {
@@ -27,11 +29,11 @@ open class BaseCollectionViewCell<R>: UICollectionViewCell, ReactorKit.View wher
     }
     
     // MARK: - Helpers
-    // 셀 초기화를 위한 메서드
-    open func intialize() { }
-    
     // 리액터와 바인딩을 위한 메서드
     open func bind(reactor: R) { }
+    
+    // 서브 뷰 추가를 위한 메서드
+    open func setupUI() { }
     
     // 오토레이아웃 설정을 위한 메서드
     open func setupAutoLayout() { }

@@ -19,7 +19,9 @@ open class BaseTableViewCell<R>: UITableViewCell, ReactorKit.View where R: React
     // MARK: - Intializer
     public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        intialize()
+        setupUI()
+        setupAutoLayout()
+        setupAttributes()
     }
     
     public required init?(coder: NSCoder) {
@@ -27,11 +29,11 @@ open class BaseTableViewCell<R>: UITableViewCell, ReactorKit.View where R: React
     }
     
     // MARK: - Helpers
-    // 셀 초기화를 위한 메서드
-    open func intialize() { }
-    
     // 리액터와 바인딩을 위한 메서드
     open func bind(reactor: R) { }
+    
+    // 서브 뷰 추가를 위한 메서드
+    open func setupUI() { }
     
     // 오토레이아웃 설정을 위한 메서드
     open func setupAutoLayout() { }

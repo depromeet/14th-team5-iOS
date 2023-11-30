@@ -1,5 +1,5 @@
 //
-//  BaseViewController.swift
+//  BaseTableViewCell.swift
 //  Core
 //
 //  Created by 김건우 on 11/29/23.
@@ -10,32 +10,22 @@ import UIKit
 import ReactorKit
 import RxSwift
 
-open class BaseViewController<R>: UIViewController, ReactorKit.View where R: Reactor {
+open class BaseTableViewCell<R>: UITableViewCell, ReactorKit.View where R: Reactor {
     public typealias Reactor = R
     
     // MARK: - Properties
     public var disposeBag: RxSwift.DisposeBag = DisposeBag()
     
     // MARK: - Intializer
-    public init() {
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    public convenience init(reacter: Reactor? = nil) {
-        self.init()
-        self.reactor = reacter
-    }
-    
-    required public init?(coder: NSCoder) {
-        super.init(coder: coder)
-    }
-    
-    // MARK: - Lifecycles
-    override open func viewDidLoad() {
-        super.viewDidLoad()
+    public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
         setupAutoLayout()
         setupAttributes()
+    }
+    
+    public required init?(coder: NSCoder) {
+        super.init(coder: coder)
     }
     
     // MARK: - Helpers
@@ -49,7 +39,5 @@ open class BaseViewController<R>: UIViewController, ReactorKit.View where R: Rea
     open func setupAutoLayout() { }
     
     // 뷰의 속성 설정을 위한 메서드
-    open func setupAttributes() { 
-        view.backgroundColor = UIColor.systemBackground
-    }
+    open func setupAttributes() { }
 }

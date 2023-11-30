@@ -12,13 +12,6 @@ public class ViewController: UIViewController {
     
     public override func viewDidLoad() {
         super.viewDidLoad()
-        #if DEV
-        print("load view DEV")
-        self.view.backgroundColor = .purple
-        #elseif PRD
-        print("load view PRD")
-        self.view.backgroundColor = .brown
-        #endif
         
     }
 }

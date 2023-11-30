@@ -17,6 +17,13 @@ let dependencies = Dependencies(
         .snapkit,
         .then,
         .firebase
-    ]),
+    ],baseSettings: .settings(
+        configurations: [
+            .build(.dev),
+            .build(.prd)
+        ]
+    )
+    
+    ),
     platforms: [.iOS]
 )

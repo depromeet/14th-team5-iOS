@@ -56,7 +56,20 @@ extension Project {
     public static func makeApp(name: String, target: [Target]) -> Project {
         return Project(
             name: name,
-            targets: target
+            settings: .settings(
+                configurations: [
+                    .build(.dev, name: name),
+                    .build(.prd, name: name)
+                ]
+            ),
+            targets: target,
+            schemes: [
+                .makeScheme(.dev, name: name),
+                .makeScheme(.prd, name: name)
+            ],
+            additionalFiles: [
+                "../XCConfig/shared.xcconfig"
+            ]
         )
     }
     

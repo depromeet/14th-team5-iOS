@@ -55,7 +55,7 @@ extension Target {
             return Target(
                 name: layer.rawValue,
                 platform: factory.platform,
-                product: factory.products.isApp ? .app : .staticLibrary,
+                product: factory.products.isApp ? .app : .staticFramework,
                 bundleId: "com.\(layer.rawValue).project".lowercased(),
                 deploymentTarget: factory.deploymentTarget,
                 infoPlist: factory.infoPlist,
@@ -68,7 +68,7 @@ extension Target {
             return Target(
                 name: layer.rawValue,
                 platform: factory.platform,
-                product: factory.products.isLibrary ? .staticLibrary : .dynamicLibrary,
+                product: factory.products.isLibrary ? .staticFramework : .framework,
                 bundleId: "com.\(layer.rawValue).project".lowercased(),
                 deploymentTarget: factory.deploymentTarget,
                 infoPlist: factory.infoPlist,
@@ -94,7 +94,7 @@ extension Target {
             return Target(
                 name: layer.rawValue,
                 platform: factory.platform,
-                product: factory.products.isLibrary ? .staticLibrary : .dynamicLibrary,
+                product: factory.products.isLibrary ? .framework : .staticFramework,
                 bundleId: "com.\(layer.rawValue).project".lowercased(),
                 deploymentTarget: factory.deploymentTarget,
                 infoPlist: factory.infoPlist,

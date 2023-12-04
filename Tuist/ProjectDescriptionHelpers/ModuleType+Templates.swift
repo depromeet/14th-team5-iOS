@@ -11,6 +11,9 @@ public protocol ModuleType {
     var dependencies: [TargetDependency] { get }
 }
 
+public enum ExtensionsLayer: String {
+    case Widget
+}
 
 public enum ModuleLayer: String, CaseIterable, ModuleType {
     

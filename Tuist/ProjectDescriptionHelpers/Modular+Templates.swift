@@ -48,6 +48,24 @@ public struct ModularFactory {
 
 
 extension Target {
+    public static func makeModular(extenions layer: ExtensionsLayer, factory: ModularFactory) -> Target {
+        switch layer {
+        case .Widget:
+            return Target(
+                name: layer.rawValue + "Extension",
+                platform: factory.platform,
+                product: factory.products.isExtensions ? .appExtension : .app,
+                bundleId: "com.\(layer.rawValue + "Extension").project".lowercased(),
+                deploymentTarget: factory.deploymentTarget,
+                infoPlist: factory.infoPlist,
+                sources: factory.products.isExtensions ? .widgetExtensionSources : .default,
+                resources: factory.products.isExtensions ? .widgetExtensionResources : .default,
+                dependencies: [],
+                settings: factory.settings
+            )
+        }
+    }
+    
     public static func makeModular(layer: ModuleLayer, factory: ModularFactory) -> Target {
         
         switch layer {

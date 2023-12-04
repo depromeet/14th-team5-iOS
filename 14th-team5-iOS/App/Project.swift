@@ -33,7 +33,18 @@ private let targets: [Target] = [
                 ])
             ])
         )
+    ),
+    .makeModular(extenions: .Widget, factory: .init(
+        products: .appExtension,
+        infoPlist: .extendingDefault(with: [
+            "CFBundleDisplayName": .string("$(PRODUCT_NAME)"),
+            "NSExtension" : .dictionary([
+                "NSExtensionMainStoryboard": "MainInterface",
+                "NSExtensionPointIdentifier": .string("com.apple.widgetkit-extension")
+            ])
+        ])
     )
+)
 ]
 
 

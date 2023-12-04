@@ -36,6 +36,9 @@
          location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/ReactorKit/ReactorKit.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/RxAlamofire/RxAlamofire.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/RxSwift/RxSwift.xcodeproj">
       </FileRef>
       <FileRef
@@ -49,6 +52,12 @@
       </FileRef>
       <FileRef
          location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/firebase-ios-sdk/Firebase.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/kakao-ios-sdk-rx/RxKakaoOpenSDK.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/kakao-ios-sdk/KakaoOpenSDK.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/nanopb/nanopb.xcodeproj">

@@ -16,7 +16,9 @@ let dependencies = Dependencies(
         .rxSwift,
         .snapkit,
         .then,
-        .firebase
+        .firebase,
+        .kakaoSDK,
+        .kakaoSDKRx
     ],baseSettings: .settings(
         configurations: [
             .build(.dev),

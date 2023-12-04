@@ -43,7 +43,9 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
                 .with(.DesignSystem),
                 .external(name: "SnapKit"),
                 .external(name: "Then"),
-                .external(name: "FirebaseAnalytics")
+                .external(name: "FirebaseAnalytics"),
+                .external(name: "KakaoSDK"),
+                .external(name: "RxKakaoSDK")
             ]
         case .DesignSystem:
             return [] 

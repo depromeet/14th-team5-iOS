@@ -18,7 +18,9 @@ let dependencies = Dependencies(
         .then,
         .firebase,
         .kakaoSDK,
-        .kakaoSDKRx
+        .kakaoSDKRx,
+        .kingFisher,
+        .fsCalendar
     ],baseSettings: .settings(
         configurations: [
             .build(.dev),

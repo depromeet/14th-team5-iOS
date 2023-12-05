@@ -48,6 +48,9 @@
                      location = "group:ReactorKit/ReactorKit.xcodeproj">
                   </FileRef>
                   <FileRef
+                     location = "group:RxDataSources/RxDataSources.xcodeproj">
+                  </FileRef>
+                  <FileRef
                      location = "group:RxSwift/RxSwift.xcodeproj">
                   </FileRef>
                   <FileRef

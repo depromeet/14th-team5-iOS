@@ -55,12 +55,12 @@ extension Target {
                 name: layer.rawValue + "Extension",
                 platform: factory.platform,
                 product: factory.products.isExtensions ? .appExtension : .app,
-                bundleId: "com.\(layer.rawValue + "Extension").project".lowercased(),
+                bundleId: factory.bundleId.lowercased(),
                 deploymentTarget: factory.deploymentTarget,
                 infoPlist: factory.infoPlist,
                 sources: factory.products.isExtensions ? .widgetExtensionSources : .default,
                 resources: factory.products.isExtensions ? .widgetExtensionResources : .default,
-                dependencies: [],
+                dependencies: factory.dependencies,
                 settings: factory.settings
             )
         }
@@ -74,7 +74,7 @@ extension Target {
                 name: layer.rawValue,
                 platform: factory.platform,
                 product: factory.products.isApp ? .app : .staticFramework,
-                bundleId: "com.\(layer.rawValue).project".lowercased(),
+                bundleId: factory.bundleId.lowercased(),
                 deploymentTarget: factory.deploymentTarget,
                 infoPlist: factory.infoPlist,
                 sources: factory.sources,

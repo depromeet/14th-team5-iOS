@@ -21,4 +21,5 @@ extension Package {
     public static let snapkit = Package.remote(repo: "SnapKit/SnapKit", version: "5.6.0")
     public static let then = Package.remote(repo: "devxoul/Then", version: "3.0.0")
     public static let firebase = Package.remote(repo: "firebase/firebase-ios-sdk", version: "10.18.0")
+    public static let rxDatasources = Package.remote(repo: "RxSwiftCommunity/RxDataSources", version: "5.0.0")
 }

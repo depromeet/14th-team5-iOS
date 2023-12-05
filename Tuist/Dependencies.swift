@@ -17,7 +17,11 @@ let dependencies = Dependencies(
         .rxDatasources,
         .snapkit,
         .then,
-        .firebase
+        .firebase,
+        .kakaoSDK,
+        .kakaoSDKRx,
+        .kingFisher,
+        .fsCalendar
     ],baseSettings: .settings(
         configurations: [
             .build(.dev),

@@ -154,6 +154,20 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "19064F9384CD706033B7730F"
+               BuildableName = "FSCalendar.framework"
+               BlueprintName = "FSCalendar"
+               ReferencedContainer = "container:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/FSCalendar/FSCalendar.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "769B28412864CE639D5C8BFF"
                BuildableName = "Firebase.framework"
                BlueprintName = "Firebase"
@@ -480,6 +494,20 @@
                BuildableName = "KakaoSDKUser.framework"
                BlueprintName = "KakaoSDKUser"
                ReferencedContainer = "container:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/kakao-ios-sdk/KakaoOpenSDK.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B3B395FD6136F57D630138BD"
+               BuildableName = "Kingfisher.framework"
+               BlueprintName = "Kingfisher"
+               ReferencedContainer = "container:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/Kingfisher/Kingfisher.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry

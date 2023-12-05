@@ -27,10 +27,16 @@
          location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/Alamofire/Alamofire.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/FSCalendar/FSCalendar.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/GoogleAppMeasurement/GoogleAppMeasurement.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/GoogleUtilities/GoogleUtilities.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/Kingfisher/Kingfisher.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/ReactorKit/ReactorKit.xcodeproj">

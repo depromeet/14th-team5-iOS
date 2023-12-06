@@ -12,7 +12,7 @@ private let targets: [Target] = [
     .makeModular(
         layer: .Core,
         factory: .init(
-            products: .library(.static),
+            products: .framework(.static),
             dependencies: ModuleLayer.Core.dependencies
         )
     )

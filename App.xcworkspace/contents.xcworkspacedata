@@ -21,40 +21,56 @@
       </FileRef>
    </Group>
    <Group
-      location = "container:"
-      name = "Dependencies">
-      <FileRef
-         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/Alamofire/Alamofire.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/GoogleAppMeasurement/GoogleAppMeasurement.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/GoogleUtilities/GoogleUtilities.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/ReactorKit/ReactorKit.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/RxSwift/RxSwift.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/SnapKit/SnapKit.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/Then/Then.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/WeakMapTable/WeakMapTable.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/firebase-ios-sdk/Firebase.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/nanopb/nanopb.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/promises/Promises.xcodeproj">
-      </FileRef>
+      location = "group:Tuist"
+      name = "Tuist">
+      <Group
+         location = "group:Dependencies"
+         name = "Dependencies">
+         <Group
+            location = "group:SwiftPackageManager"
+            name = "SwiftPackageManager">
+            <Group
+               location = "group:.build"
+               name = ".build">
+               <Group
+                  location = "group:checkouts"
+                  name = "checkouts">
+                  <FileRef
+                     location = "group:Alamofire/Alamofire.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:GoogleAppMeasurement/GoogleAppMeasurement.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:GoogleUtilities/GoogleUtilities.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:ReactorKit/ReactorKit.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:RxSwift/RxSwift.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:SnapKit/SnapKit.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:Then/Then.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:WeakMapTable/WeakMapTable.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:firebase-ios-sdk/Firebase.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:nanopb/nanopb.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:promises/Promises.xcodeproj">
+                  </FileRef>
+               </Group>
+            </Group>
+         </Group>
+      </Group>
    </Group>
 </Workspace>

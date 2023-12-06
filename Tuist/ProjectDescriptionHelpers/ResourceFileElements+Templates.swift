@@ -10,5 +10,6 @@ import ProjectDescription
 
 extension ResourceFileElements {
     public static let `default`: ResourceFileElements = "Resources/**"
+    public static let widgetExtensionResources: ResourceFileElements = "WidgetExtension/Resources/**"
     
 }

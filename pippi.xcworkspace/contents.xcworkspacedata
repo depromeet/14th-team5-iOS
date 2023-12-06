@@ -39,13 +39,25 @@
                      location = "group:Alamofire/Alamofire.xcodeproj">
                   </FileRef>
                   <FileRef
+                     location = "group:FSCalendar/FSCalendar.xcodeproj">
+                  </FileRef>
+                  <FileRef
                      location = "group:GoogleAppMeasurement/GoogleAppMeasurement.xcodeproj">
                   </FileRef>
                   <FileRef
                      location = "group:GoogleUtilities/GoogleUtilities.xcodeproj">
                   </FileRef>
                   <FileRef
+                     location = "group:Kingfisher/Kingfisher.xcodeproj">
+                  </FileRef>
+                  <FileRef
                      location = "group:ReactorKit/ReactorKit.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:RxAlamofire/RxAlamofire.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:RxDataSources/RxDataSources.xcodeproj">
                   </FileRef>
                   <FileRef
                      location = "group:RxSwift/RxSwift.xcodeproj">
@@ -61,6 +73,12 @@
                   </FileRef>
                   <FileRef
                      location = "group:firebase-ios-sdk/Firebase.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:kakao-ios-sdk-rx/RxKakaoOpenSDK.xcodeproj">
+                  </FileRef>
+                  <FileRef
+                     location = "group:kakao-ios-sdk/KakaoOpenSDK.xcodeproj">
                   </FileRef>
                   <FileRef
                      location = "group:nanopb/nanopb.xcodeproj">

@@ -48,6 +48,24 @@ public struct ModularFactory {
 
 
 extension Target {
+    public static func makeModular(extenions layer: ExtensionsLayer, factory: ModularFactory) -> Target {
+        switch layer {
+        case .Widget:
+            return Target(
+                name: layer.rawValue + "Extension",
+                platform: factory.platform,
+                product: factory.products.isExtensions ? .appExtension : .app,
+                bundleId: factory.bundleId.lowercased(),
+                deploymentTarget: factory.deploymentTarget,
+                infoPlist: factory.infoPlist,
+                sources: factory.products.isExtensions ? .widgetExtensionSources : .default,
+                resources: factory.products.isExtensions ? .widgetExtensionResources : .default,
+                dependencies: factory.dependencies,
+                settings: factory.settings
+            )
+        }
+    }
+    
     public static func makeModular(layer: ModuleLayer, factory: ModularFactory) -> Target {
         
         switch layer {
@@ -55,8 +73,8 @@ extension Target {
             return Target(
                 name: layer.rawValue,
                 platform: factory.platform,
-                product: factory.products.isApp ? .app : .staticLibrary,
-                bundleId: "com.\(layer.rawValue).project".lowercased(),
+                product: factory.products.isApp ? .app : .staticFramework,
+                bundleId: factory.bundleId.lowercased(),
                 deploymentTarget: factory.deploymentTarget,
                 infoPlist: factory.infoPlist,
                 sources: factory.sources,
@@ -68,7 +86,7 @@ extension Target {
             return Target(
                 name: layer.rawValue,
                 platform: factory.platform,
-                product: factory.products.isLibrary ? .staticLibrary : .dynamicLibrary,
+                product: factory.products.isLibrary ? .staticFramework : .framework,
                 bundleId: "com.\(layer.rawValue).project".lowercased(),
                 deploymentTarget: factory.deploymentTarget,
                 infoPlist: factory.infoPlist,
@@ -94,7 +112,7 @@ extension Target {
             return Target(
                 name: layer.rawValue,
                 platform: factory.platform,
-                product: factory.products.isLibrary ? .staticLibrary : .dynamicLibrary,
+                product: factory.products.isLibrary ? .framework : .staticFramework,
                 bundleId: "com.\(layer.rawValue).project".lowercased(),
                 deploymentTarget: factory.deploymentTarget,
                 infoPlist: factory.infoPlist,

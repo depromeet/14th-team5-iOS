@@ -14,16 +14,23 @@ let dependencies = Dependencies(
         .alamofire,
         .reactorKit,
         .rxSwift,
+        .rxDatasources,
         .snapkit,
         .then,
-        .firebase
-    ],baseSettings: .settings(
+        .firebase,
+        .kakaoSDK,
+        .kakaoSDKRx,
+        .kingFisher,
+        .fsCalendar
+    ], productTypes: [
+        "FSCalendar": .framework
+    ],
+     baseSettings: .settings(
         configurations: [
             .build(.dev),
             .build(.prd)
         ]
-    )
-    
+     )
     ),
     platforms: [.iOS]
 )

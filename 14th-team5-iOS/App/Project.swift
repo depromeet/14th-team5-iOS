@@ -14,8 +14,10 @@ private let targets: [Target] = [
         factory: .init(
             products: .app,
             dependencies: ModuleLayer.App.dependencies,
+            bundleId: "com.5ing.pippi",
             infoPlist: .extendingDefault(with: [
                 "CFBundleVersion": .string("1"),
+                "CFBundleDisplayName": .string("pippi"),
                 "CFBuildVersion": .string("0"),
                 "UILaunchStoryboardName": .string("Launch Screen"),
                 "UISupportedInterfaceOrientations": .array([.string("UIInterfaceOrientationPortrait")]),
@@ -33,7 +35,19 @@ private let targets: [Target] = [
                 ])
             ])
         )
+    ),
+    .makeModular(extenions: .Widget, factory: .init(
+        products: .appExtension,
+        dependencies: ExtensionsLayer.Widget.dependencies,
+        bundleId: "com.5ing.pippi.widgetExtenions",
+        infoPlist: .extendingDefault(with: [
+            "CFBundleDisplayName": .string("pippi"),
+            "NSExtension" : .dictionary([
+                "NSExtensionPointIdentifier": .string("com.apple.widgetkit-extension")
+            ])
+        ])
     )
+)
 ]
 
 

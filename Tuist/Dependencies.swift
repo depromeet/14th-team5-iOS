@@ -22,13 +22,15 @@ let dependencies = Dependencies(
         .kakaoSDKRx,
         .kingFisher,
         .fsCalendar
-    ],baseSettings: .settings(
+    ], productTypes: [
+        "FSCalendar": .framework
+    ],
+     baseSettings: .settings(
         configurations: [
             .build(.dev),
             .build(.prd)
         ]
-    )
-    
+     )
     ),
     platforms: [.iOS]
 )

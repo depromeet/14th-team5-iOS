@@ -41,18 +41,17 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
             return [
                 .target(name: "WidgetExtension"),
                 .with(.Core),
-                .with(.Domain),
+                .with(.Data),
             ]
         case .Data:
             return [
                 .with(.Domain),
                 .external(name: "Alamofire"),
-                .external(name: "RxSwift")
-            ]
-        case .Domain:
-            return [
+                .external(name: "RxSwift"),
                 .external(name: "ReactorKit")
             ]
+        case .Domain:
+            return []
         case .Core:
             return [
                 .with(.DesignSystem),

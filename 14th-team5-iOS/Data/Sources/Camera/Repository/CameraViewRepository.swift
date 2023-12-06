@@ -1,6 +1,6 @@
 //
 //  CameraViewRepository.swift
-//  App
+//  Data
 //
 //  Created by Kim dohyun on 12/6/23.
 //
@@ -8,12 +8,14 @@
 import Foundation
 
 import ReactorKit
+import RxCocoa
 import RxSwift
 
 public protocol CameraViewImpl: AnyObject {
     var disposeBag: DisposeBag { get }
+    //TODO: 임시 코드
+    func fetchUploadImage() -> Observable<Void>
     
-    func fetchUploadImage() -> Observable<CameraViewReactor.Mutation>
 }
 
 
@@ -22,11 +24,10 @@ public final class CameraViewRepository: CameraViewImpl {
 
     public var disposeBag: DisposeBag = DisposeBag()
     
-    public func fetchUploadImage() -> RxSwift.Observable<CameraViewReactor.Mutation> {
-        
+    public init() { }
+    
+    public func fetchUploadImage() -> Observable<Void> {
         return .empty()
     }
-    
-    
     
 }

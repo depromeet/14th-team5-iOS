@@ -56,6 +56,20 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "9815DBA56C2318CCDEC8A81E"
+               BuildableName = "Core_Core.bundle"
+               BlueprintName = "Core_Core"
+               ReferencedContainer = "container:14th-team5-iOS/Core/Core.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "372E276F143AFFAD2448C971"
                BuildableName = "Data.framework"
                BlueprintName = "Data"

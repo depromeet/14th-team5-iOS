@@ -7,6 +7,7 @@
 
 import Foundation
 
+import Data
 import ReactorKit
 
 
@@ -16,11 +17,17 @@ public final class CameraViewReactor: Reactor {
     private var cameraRepository: CameraViewImpl
     
     public enum Action {
-        case didTapTakeButton
+        // TODO: 임시 Action
+        case didTapTakeButton(Void)
+    }
+    
+    public enum Mutation {
+        // TODO: 임시 Mutation
+        case setTakeImage(Void)
     }
     
     public struct State {
-        //TODO: 문서 확인 후 변경 될 수 있음
+        //TODO: 임시 State
         var isFlashMode: Bool
         var isSwitchPosition: Bool
     }
@@ -32,6 +39,29 @@ public final class CameraViewReactor: Reactor {
             isSwitchPosition: false
         )
     }
+    
+    
+    
+    public func mutate(action: Action) -> Observable<Mutation> {
+        switch action {
+        case .didTapTakeButton:
+            return cameraRepository.fetchUploadImage().map { .setTakeImage($0) }
+        }
+        
+    }
+    
+    public func reduce(state: State, mutation: Action) -> State {
+        var newState = state
+        switch mutation {
+        case let .didTapTakeButton(isSelect):
+            break
+            
+        }
+        
+        return newState
+    }
+    
+    
     
     
     

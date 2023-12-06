@@ -7,6 +7,7 @@
 
 import Foundation
 
+import Data
 import Core
 
 public final class CameraDIContainer: BaseDIContainer {

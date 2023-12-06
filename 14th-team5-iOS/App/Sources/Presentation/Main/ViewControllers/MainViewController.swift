@@ -14,30 +14,10 @@ import RxSwift
 import SnapKit
 import Then
 
-// 섹션데이터
-struct SectionOfFamily {
-    var items: [ProfileData]
-    
-    init(items: [ProfileData]) {
-        self.items = items
-    }
-}
-
-// 섹션 데이터: SectionModelType
-extension SectionOfFamily: SectionModelType {
-    typealias Item = ProfileData
-    
-    init(original: SectionOfFamily, items: [ProfileData]) {
-        self = original
-        self.items = items
-    }
-}
-
 class MainViewController: BaseViewController<MainViewReactor> {
     typealias SectionOfFamily = SectionModel<String, ProfileData>
     
-    private let collectionView = UICollectionView()
-    
+    // 임시데이터
     private let sections = [
         SectionOfFamily(model: "section1", items: [
             ProfileData(imageURL: "https://wimg.mk.co.kr/news/cms/202304/14/news-p.v1.20230414.15e6ac6d76a84ab398281046dc858116_P1.jpg", name: "Jenny"),
@@ -47,17 +27,23 @@ class MainViewController: BaseViewController<MainViewReactor> {
           ])
       ]
     
-    public override func viewDidLoad() {
+    private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    
+    override func viewDidLoad() {
         super.viewDidLoad()
-        
+        bind(reactor: MainViewReactor())
     }
 
-    public override func bind(reactor: MainViewReactor) {
+    override func bind(reactor: MainViewReactor) {
+        collectionView.rx.setDelegate(self)
+            .disposed(by: disposeBag)
+        
         let dataSource = RxCollectionViewSectionedReloadDataSource<SectionOfFamily>(
             configureCell: { (_, collectionView, indexPath, item) in
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FamilyCollectionViewCell.id, for: indexPath) as? FamilyCollectionViewCell else {
                     return UICollectionViewCell()
                 }
+                cell.setCell(data: item)
                 return cell
             })
         
@@ -66,17 +52,34 @@ class MainViewController: BaseViewController<MainViewReactor> {
             .disposed(by: disposeBag)
     }
 
-    public override func setupUI() {
+    override func setupUI() {
         collectionView.do {
-            $0.backgroundColor = .clear
+            $0.register(FamilyCollectionViewCell.self, forCellWithReuseIdentifier: FamilyCollectionViewCell.id)
+            $0.backgroundColor = .white
         }
     }
     
-    public override func setupAutoLayout() { }
+    override func setupAutoLayout() {
+        view.addSubview(collectionView)
+        
+        collectionView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+    }
     
     public override func setupAttributes() {
         super.setupAttributes()
         
     }
+}
+
+extension MainViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+           return CGSize(width: 68, height: 89)
+       }
+
+       func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+           return 17
+       }
 }
 

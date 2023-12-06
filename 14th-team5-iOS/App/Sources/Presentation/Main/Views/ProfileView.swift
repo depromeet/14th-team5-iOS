@@ -41,19 +41,30 @@ final class ProfileView: UIView {
         
         nameLabel.do {
             $0.text = MainStringLiterals.tempProfileName
-//            $0.font =
+            $0.textAlignment = .center
         }
     }
 
     private func setupAutoLayout() {
-        addSubview(imageView)
-        addSubview(nameLabel)
+        addSubviews(imageView, nameLabel)
         
         imageView.snp.makeConstraints { make in
             make.size.equalTo(68)
             make.top.leading.equalToSuperview()
         }
+        
+        nameLabel.snp.makeConstraints {
+            $0.top.equalTo(imageView.snp.bottom).offset(5)
+            $0.horizontalEdges.equalToSuperview()
+        }
     }
 
     private func setupAttributes() { }
+}
+
+extension ProfileView {
+    func setProfile(profile: ProfileData) {
+        imageView.kf.setImage(with: URL(string:profile.imageURL)!)
+        nameLabel.text = profile.name
+    }
 }

@@ -43,7 +43,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B90FCF66245CD7327BEE2CBF"
-               BuildableName = "libCore.a"
+               BuildableName = "Core.framework"
                BlueprintName = "Core"
                ReferencedContainer = "container:14th-team5-iOS/Core/Core.xcodeproj">
             </BuildableReference>
@@ -56,22 +56,8 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9815DBA56C2318CCDEC8A81E"
-               BuildableName = "Core_Core.bundle"
-               BlueprintName = "Core_Core"
-               ReferencedContainer = "container:14th-team5-iOS/Core/Core.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "372E276F143AFFAD2448C971"
-               BuildableName = "libData.a"
+               BuildableName = "Data.framework"
                BlueprintName = "Data"
                ReferencedContainer = "container:14th-team5-iOS/Data/Data.xcodeproj">
             </BuildableReference>
@@ -116,6 +102,20 @@
                BuildableName = "DesignSystem_DesignSystem.bundle"
                BlueprintName = "DesignSystem_DesignSystem"
                ReferencedContainer = "container:14th-team5-iOS/DesignSystem/DesignSystem.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "C451FEEB6A08950C17216EE4"
+               BuildableName = "Differentiator.framework"
+               BlueprintName = "Differentiator"
+               ReferencedContainer = "container:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/RxDataSources/RxDataSources.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -588,6 +588,20 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "72918849A6EB06A3E91AE81F"
+               BuildableName = "RxDataSources.framework"
+               BlueprintName = "RxDataSources"
+               ReferencedContainer = "container:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/RxDataSources/RxDataSources.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "844B42516BF311F73862CDEB"
                BuildableName = "RxKakaoSDKAuth.framework"
                BlueprintName = "RxKakaoSDKAuth"
@@ -732,6 +746,20 @@
                BuildableName = "WeakMapTable.framework"
                BlueprintName = "WeakMapTable"
                ReferencedContainer = "container:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/WeakMapTable/WeakMapTable.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "9F135E19D33E63C80322260A"
+               BuildableName = "WidgetExtension.appex"
+               BlueprintName = "WidgetExtension"
+               ReferencedContainer = "container:14th-team5-iOS/App/App.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry

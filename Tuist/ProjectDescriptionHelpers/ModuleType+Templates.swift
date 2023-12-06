@@ -11,6 +11,20 @@ public protocol ModuleType {
     var dependencies: [TargetDependency] { get }
 }
 
+public enum ExtensionsLayer: String, ModuleType {
+    case Widget
+    
+    public var dependencies: [TargetDependency] {
+        switch self {
+        case .Widget:
+            return [
+                .with(.Core),
+                .with(.Domain)
+            ]
+        }
+    }
+    
+}
 
 public enum ModuleLayer: String, CaseIterable, ModuleType {
     
@@ -25,8 +39,9 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
         switch self {
         case .App:
             return [
+                .target(name: "WidgetExtension"),
                 .with(.Core),
-                .with(.Domain)
+                .with(.Domain),
             ]
         case .Data:
             return [
@@ -41,6 +56,7 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
         case .Core:
             return [
                 .with(.DesignSystem),
+                .external(name: "RxDataSources"),
                 .external(name: "SnapKit"),
                 .external(name: "Then"),
                 .external(name: "FirebaseAnalytics"),

@@ -14,6 +14,7 @@ let dependencies = Dependencies(
         .alamofire,
         .reactorKit,
         .rxSwift,
+        .rxDatasources,
         .snapkit,
         .then,
         .firebase,

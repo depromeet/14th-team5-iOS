@@ -14,7 +14,7 @@ import RxSwift
 import SnapKit
 import Then
 
-class MainViewController: BaseViewController<MainViewReactor> {
+final class MainViewController: BaseViewController<MainViewReactor> {
     typealias SectionOfFamily = SectionModel<String, ProfileData>
     
     // 임시데이터
@@ -32,6 +32,10 @@ class MainViewController: BaseViewController<MainViewReactor> {
     override func viewDidLoad() {
         super.viewDidLoad()
         bind(reactor: MainViewReactor())
+    }
+    
+    deinit {
+        print("deinit MainViewController")
     }
 
     override func bind(reactor: MainViewReactor) {

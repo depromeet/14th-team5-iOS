@@ -8,7 +8,7 @@
 import Foundation
 import ReactorKit
 
-class MainViewReactor: Reactor {
+final class MainViewReactor: Reactor {
     enum Action {
         
     }

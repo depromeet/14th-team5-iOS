@@ -8,7 +8,7 @@
 import ReactorKit
 import RxSwift
 
-class ProfileReactor: Reactor {
+final class ProfileReactor: Reactor {
     enum Action {
 //        case setProfile(name: String, profileImageURL: String)
     }

@@ -27,7 +27,7 @@ final class MainViewController: BaseViewController<MainViewReactor> {
           ])
       ]
     
-    private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private let familyCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,7 +39,7 @@ final class MainViewController: BaseViewController<MainViewReactor> {
     }
 
     override func bind(reactor: MainViewReactor) {
-        collectionView.rx.setDelegate(self)
+        familyCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
         let dataSource = RxCollectionViewSectionedReloadDataSource<SectionOfFamily>(
@@ -52,21 +52,21 @@ final class MainViewController: BaseViewController<MainViewReactor> {
             })
         
         Observable.just(sections)
-            .bind(to: collectionView.rx.items(dataSource: dataSource))
+            .bind(to: familyCollectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
     }
 
     override func setupUI() {
-        collectionView.do {
+        familyCollectionView.do {
             $0.register(FamilyCollectionViewCell.self, forCellWithReuseIdentifier: FamilyCollectionViewCell.id)
             $0.backgroundColor = .white
         }
     }
     
     override func setupAutoLayout() {
-        view.addSubview(collectionView)
+        view.addSubview(familyCollectionView)
         
-        collectionView.snp.makeConstraints {
+        familyCollectionView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
     }

@@ -68,10 +68,9 @@ extension Project {
                 .makeScheme(.prd, name: name)
             ],
             additionalFiles: [
-                "../XCConfig/shared.xcconfig"
+                "../XCConfig/shared.xcconfig",
+                "../XCConfig/hidden.xcconfig"
             ]
         )
     }
-    
-    
 }

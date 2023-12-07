@@ -22,6 +22,7 @@ private let targets: [Target] = [
                 "UILaunchStoryboardName": .string("Launch Screen"),
                 "UISupportedInterfaceOrientations": .array([.string("UIInterfaceOrientationPortrait")]),
                 "UIUserInterfaceStyle": .string("Light"),
+                "NSCameraUsageDescription": .string("사진 및 동영상 촬영을 위한 카메라 사용 권한"),
                 "UIApplicationSceneManifest" : .dictionary([
                     "UIApplicationSupportsMultipleScenes" : .boolean(false),
                     "UISceneConfigurations" : .dictionary([

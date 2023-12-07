@@ -7,7 +7,6 @@
 
 import UIKit
 
-
 extension UIImage {
     public func combinedTextWithBackground(target text: String, size: CGSize, attributedString: [NSAttributedString.Key : Any]) -> UIImage {
         let renderImage: UIGraphicsImageRenderer = UIGraphicsImageRenderer(size: size)

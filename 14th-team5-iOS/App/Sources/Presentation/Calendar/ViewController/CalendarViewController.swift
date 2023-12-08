@@ -18,7 +18,7 @@ import Then
 
 // MARK: - Delegate
 protocol CalendarViewDelegate: AnyObject {
-    func goToWeekCalendarView(_ date: Date)
+    func goToCalendarFeedView(_ date: Date)
     func presentPopoverView(sourceView: UIView)
 }
 
@@ -46,9 +46,6 @@ final class CalendarViewController: BaseViewController<CalendarViewReactor> {
     // MARK: - Lifecycles
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        // temp code
-        view.backgroundColor = UIColor.black
     }
     
     // MARK: - Helpers
@@ -99,8 +96,9 @@ extension CalendarViewController {
 }
 
 extension CalendarViewController: CalendarViewDelegate {
-    func goToWeekCalendarView(_ date: Date) {
-        // do something...
+    func goToCalendarFeedView(_ date: Date) {
+        let vc = CalendarFeedViewController()
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     func presentPopoverView(sourceView: UIView) {

@@ -329,6 +329,10 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
 }
 
 extension CalendarPageCell: FSCalendarDelegate { 
+    func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
+        delegate?.goToCalendarFeedView(date)
+    }
+    
     func calendar(_ calendar: FSCalendar, shouldSelect date: Date, at monthPosition: FSCalendarMonthPosition) -> Bool {
         let calendarMonth = calendar.currentPage.month
         let positionMonth = date.month

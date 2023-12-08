@@ -17,6 +17,12 @@ import SnapKit
 import Then
 
 final class ImageMonthCalendarCell: FSCalendarCell {
+    // MARK: - Enums
+    enum CellType {
+        case month
+        case week
+    }
+    
     // MARK: - Views
     private let thumbnailView: UIImageView = UIImageView().then {
         $0.clipsToBounds = true
@@ -40,6 +46,8 @@ final class ImageMonthCalendarCell: FSCalendarCell {
     // MARK: - Constants
     private enum AttributeValue {
         static let defaultAlphaValue: CGFloat = 0.8
+        static let deselectAlphaValue: CGFloat = 0.4
+        static let selectAlphaValue: CGFloat = 0.8
         static let thumbnailCornerRadius: CGFloat = 10.0
         static let thumbnailBorderWidth: CGFloat = 2.5
     }
@@ -85,23 +93,29 @@ final class ImageMonthCalendarCell: FSCalendarCell {
         
     }
     
+    override func prepareForReuse() {
+        thumbnailView.image = nil
+        thumbnailView.layer.borderWidth = .zero
+        badgeView.isHidden = true
+    }
+}
+
+extension ImageMonthCalendarCell {
     // Temp Code
-    func configure(_ date: Date, imageUrl: String) {
+    func configure(_ date: Date, imageUrl: String, cellType type: CellType = .month) {
         if let url = URL(string: imageUrl) {
             thumbnailView.kf.setImage(with: url)
             
             let random = Bool.random()
             badgeView.isHidden = random
-        } 
-        
-        if date.isToday {
-            thumbnailView.layer.borderWidth = AttributeValue.thumbnailBorderWidth
         }
-    }
-    
-    override func prepareForReuse() {
-        thumbnailView.image = nil
-        thumbnailView.layer.borderWidth = .zero
-        badgeView.isHidden = true
+        
+        if type == .week {
+            thumbnailView.alpha = 0.4
+        } else {
+            if date.isToday {
+                thumbnailView.layer.borderWidth = AttributeValue.thumbnailBorderWidth
+            }
+        }
     }
 }

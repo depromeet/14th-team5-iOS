@@ -14,7 +14,6 @@ import SnapKit
 import Then
 
 public final class CameraViewController: BaseViewController<CameraViewReactor> {
-    
     fileprivate var captureSession: AVCaptureSession!
     fileprivate var previewLayer: AVCaptureVideoPreviewLayer!
     fileprivate var backCamera: AVCaptureDevice!
@@ -47,6 +46,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     
     public override func viewDidLoad() {
         super.viewDidLoad()
+        setupCameraPermission()
     }
     
     
@@ -80,12 +80,121 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             $0.centerX.equalTo(cameraView)
         }
         
-        
         toggleButton.snp.makeConstraints {
             $0.right.equalToSuperview().offset(-30)
             $0.top.equalTo(cameraView.snp.bottom).offset(48)
+            
+            
         }
         
-        
     }
+}
+
+
+
+extension CameraViewController {
+    
+    private func setupCamera() {
+        captureSession = AVCaptureSession()
+        captureSession.beginConfiguration()
+
+        if captureSession.canSetSessionPreset(.photo) {
+            captureSession.sessionPreset = .photo
+        }
+        
+        if let frontDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front) {
+            frontCamera = frontDevice
+        } else {
+            //TODO: Error 문구 설정 예정
+            fatalError("정면 카메라가 없습니다.")
+        }
+        
+        if let backDevice =  AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) {
+            backCamera = backDevice
+        } else {
+            //TODO: Error 문구 설정 예정
+            fatalError("후면 카메라가 없습니다.")
+        }
+        
+        guard let backDeviceInput = try? AVCaptureDeviceInput(device: backCamera) else {
+            //TODO: Error 문구 설정 예정
+            fatalError("후면 카메라를 입력으로 설정 할 수 없습니다. ")
+        }
+        
+        backCameraInput = backDeviceInput
+        
+        if !captureSession.canAddInput(backCameraInput) {
+            return
+        }
+        
+        guard let frontDeviceInput = try? AVCaptureDeviceInput(device: frontCamera) else {
+            fatalError("정면 카메라를 입력으로 설정 할 수 없습니다.")
+        }
+        
+        frontCameraInput = frontDeviceInput
+        
+        if !captureSession.canAddInput(frontCameraInput) {
+            return
+        }
+        
+        captureSession.addInput(backCameraInput)
+    }
+    
+    private func setupCameraOuputStream() {
+        cameraOuputStream = AVCaptureVideoDataOutput()
+        
+        if captureSession.canAddOutput(cameraOuputStream) {
+            captureOutputStream = AVCapturePhotoOutput()
+            captureSession.addOutput(captureOutputStream)
+        }
+        
+        cameraOuputStream.connections.first?.videoOrientation = .portrait
+    }
+    
+    private func setupPreviewLayout() {
+        previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+        previewLayer.videoGravity = .resizeAspectFill
+        previewLayer.connection?.videoOrientation = .portrait
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let `self` = self else { return }
+            self.previewLayer.frame = self.cameraView.bounds
+        }
+        cameraView.layer.addSublayer(previewLayer)
+        DispatchQueue.global(qos: .background).async { [weak self] in
+            guard let `self` = self else { return }
+            self.captureSession.startRunning()
+        }
+        
+        captureSession.commitConfiguration()
+    }
+    
+    private func setupCameraPermission() {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        
+        case .authorized:
+            setupCamera()
+            setupCameraOuputStream()
+            setupPreviewLayout()
+            
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { isPermission in
+                guard isPermission else {
+                    DispatchQueue.main.async {
+                        //TODO: Alert 추가 예정
+                    }
+                    return
+                }
+            }
+            setupCamera()
+            setupCameraOuputStream()
+            setupPreviewLayout()
+        case .denied:
+            //TODO: Alert 추가 예정
+            print("사용자에 의해 권한이 거부된 상태 입니다.")
+        default:
+            break
+        }
+    }
+    
 }

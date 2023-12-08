@@ -25,5 +25,5 @@ extension Package {
     public static let kakaoSDK = Package.remote(repo: "kakao/kakao-ios-sdk", version: "2.19.0")
     public static let kakaoSDKRx = Package.remote(repo: "kakao/kakao-ios-sdk-rx", version: "2.19.0")
     public static let kingFisher = Package.remote(repo: "onevcat/Kingfisher", version: "7.9.1")
-    public static let fsCalendar = Package.remote(repo: "WenchaoD/FSCalendar", version: "2.7.0")
+    public static let fsCalendar = Package.remote(repo: "WenchaoD/FSCalendar", version: "2.8.3")
 }

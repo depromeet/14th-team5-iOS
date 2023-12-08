@@ -10,6 +10,9 @@ import UIKit
 
 import Core
 import DesignSystem
+import ReactorKit
+import RxSwift
+import RxCocoa
 import SnapKit
 import Then
 
@@ -88,11 +91,59 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         }
         
     }
+    
+    public override func bind(reactor: CameraViewReactor) {
+        shutterButton
+            .rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, _ in
+                let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
+                owner.captureOutputStream.capturePhoto(with: settings, delegate: owner)
+            }.disposed(by: disposeBag)
+        
+        flashButton
+            .rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .map { Reactor.Action.didTapFlashButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        
+        toggleButton
+            .rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .map { Reactor.Action.didTapToggleButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        
+        reactor.pulse(\.$isSwitchPosition)
+            .withUnretained(self)
+            .skip(1)
+            .bind { owner, isPosition in
+                owner.captureSession.beginConfiguration()
+                if isPosition {
+                    UIView.transition(with: owner.cameraView, duration: 0.5, options: .transitionFlipFromLeft) {
+                        owner.captureSession.removeInput(owner.backCameraInput)
+                        owner.captureSession.addInput(owner.frontCameraInput)
+                    }
+                } else {
+                    UIView.transition(with: owner.cameraView, duration: 0.5, options: .transitionFlipFromLeft) {
+                        owner.captureSession.removeInput(owner.frontCameraInput)
+                        owner.captureSession.addInput(owner.backCameraInput)
+                    }
+                }
+                owner.cameraOuputStream.connections.first?.isVideoMirrored = !isPosition
+                owner.captureSession.commitConfiguration()
+            }.disposed(by: disposeBag)
+        
+    }
 }
 
 
 
-extension CameraViewController {
+extension CameraViewController: AVCapturePhotoCaptureDelegate {
     
     private func setupCamera() {
         captureSession = AVCaptureSession()
@@ -197,4 +248,9 @@ extension CameraViewController {
         }
     }
     
+    
+    public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        guard let originalData = photo.fileDataRepresentation() else { return }
+        
+    }
 }

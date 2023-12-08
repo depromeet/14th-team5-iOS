@@ -180,7 +180,6 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     }
     
     private let calendarView: FSCalendar = FSCalendar().then {
-        $0.rowHeight = 50.0
         $0.headerHeight = 0.0
         $0.weekdayHeight = 40.0
         

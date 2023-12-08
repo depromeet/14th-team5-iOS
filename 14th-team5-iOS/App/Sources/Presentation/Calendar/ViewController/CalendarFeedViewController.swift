@@ -19,14 +19,12 @@ import Then
 final class CalendarFeedViewController: BaseViewController<CalendarFeedViewReactor> {
     // MARK: - Views
     private lazy var calendarView: FSCalendar = FSCalendar().then {
-        $0.rowHeight = 55.0
         $0.headerHeight = 0.0
-        $0.weekdayHeight = 40.0
+        $0.weekdayHeight = 30.0
         
         $0.today = nil
         $0.scope = .week
         $0.allowsMultipleSelection = false
-        $0.adjustsBoundingRectWhenChangingMonths = true
         
         $0.appearance.selectionColor = UIColor.clear
         
@@ -57,7 +55,7 @@ final class CalendarFeedViewController: BaseViewController<CalendarFeedViewReact
     }
     
     private enum AutoLayout {
-        static let calendarHeightValue: CGFloat = 110.0
+        static let calendarHeightValue: CGFloat = 350.0
     }
     
     // MARK: - Lifecycles
@@ -88,7 +86,14 @@ final class CalendarFeedViewController: BaseViewController<CalendarFeedViewReact
     override func bind(reactor: CalendarFeedViewReactor) { }
 }
 
-extension CalendarFeedViewController: FSCalendarDelegate { }
+extension CalendarFeedViewController: FSCalendarDelegate {
+    func calendar(_ calendar: FSCalendar, boundingRectWillChange bounds: CGRect, animated: Bool) {
+        calendar.snp.updateConstraints {
+            $0.height.equalTo(bounds.height)
+        }
+        view.layoutIfNeeded()
+    }
+}
 
 extension CalendarFeedViewController: FSCalendarDataSource {
     func calendar(_ calendar: FSCalendar, cellFor date: Date, at position: FSCalendarMonthPosition) -> FSCalendarCell {

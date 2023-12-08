@@ -26,11 +26,30 @@ final class ProfileView: UIView {
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
-
-//    private func bind(reactor: R) { }
-
+    
+    //    private func bind(reactor: R) { }
+    
     private func setupUI() {
+        addSubviews(imageView, nameLabel)
+    }
+    
+    private func setupAutoLayout() {
+        imageView.snp.makeConstraints {
+            $0.size.equalTo(68)
+            $0.top.leading.equalToSuperview()
+        }
+        
+        nameLabel.snp.makeConstraints {
+            $0.top.equalTo(imageView.snp.bottom).offset(5)
+            $0.horizontalEdges.equalToSuperview()
+            $0.bottom.equalToSuperview()
+        }
+    }
+    
+    private func setupAttributes() {
         imageView.do {
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = 34
             $0.kf.setImage(with: URL(string:MainStringLiterals.tempProfileImageURL))
         }
         
@@ -39,22 +58,6 @@ final class ProfileView: UIView {
             $0.textAlignment = .center
         }
     }
-
-    private func setupAutoLayout() {
-        addSubviews(imageView, nameLabel)
-        
-        imageView.snp.makeConstraints { make in
-            make.size.equalTo(68)
-            make.top.leading.equalToSuperview()
-        }
-        
-        nameLabel.snp.makeConstraints {
-            $0.top.equalTo(imageView.snp.bottom).offset(5)
-            $0.horizontalEdges.equalToSuperview()
-        }
-    }
-
-    private func setupAttributes() { }
 }
 
 extension ProfileView {

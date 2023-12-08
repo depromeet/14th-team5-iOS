@@ -10,11 +10,6 @@ import UIKit
 import Kingfisher
 import RxSwift
 
-struct ProfileData {
-    let imageURL: String
-    let name: String
-}
-
 final class ProfileView: UIView {
     let disposeBag = DisposeBag()
     

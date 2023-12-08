@@ -50,6 +50,7 @@ open class BaseViewController<R>: UIViewController, ReactorKit.View where R: Rea
     
     // 뷰의 속성 설정을 위한 메서드
     open func setupAttributes() { 
-        view.backgroundColor = UIColor.systemBackground
+        // assets 정해지면 바꿀게요.
+        view.backgroundColor = UIColor(red: 0.09, green: 0.09, blue: 0.09, alpha: 1)
     }
 }

@@ -16,7 +16,7 @@ import RxSwift
 import SnapKit
 import Then
 
-final class ImageMonthCalendarCell: FSCalendarCell {
+final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
     // MARK: - Enums
     enum CellType {
         case month
@@ -28,7 +28,9 @@ final class ImageMonthCalendarCell: FSCalendarCell {
     private let badgeView: UIView = UIView()
     
     // MARK: - Properties
-    static let id: String = "ImageMonthCalendarCell"
+    var disposeBag: RxSwift.DisposeBag = DisposeBag()
+    
+    static let id: String = "ImageCalendarCell"
     
     // MARK: - Intializer
     override init(frame: CGRect) {
@@ -83,6 +85,11 @@ final class ImageMonthCalendarCell: FSCalendarCell {
         }
     }
     
+    func bind(reactor: ImageCalendarCellReactor) {
+        thumbnailView.kf.setImage(with: URL(string: reactor.currentState.imageUrl ?? ""))
+        badgeView.isHidden = reactor.currentState.isHidden
+    }
+    
     override func prepareForReuse() {
         thumbnailView.image = nil
         thumbnailView.layer.borderWidth = .zero
@@ -90,8 +97,8 @@ final class ImageMonthCalendarCell: FSCalendarCell {
     }
 }
 
-extension ImageMonthCalendarCell {
-    // Temp Code
+// NOTE: - 임시 코드
+extension ImageCalendarCell {
     func configure(_ date: Date, imageUrl: String, cellType type: CellType = .month) {
         if let url = URL(string: imageUrl) {
             thumbnailView.kf.setImage(with: url)

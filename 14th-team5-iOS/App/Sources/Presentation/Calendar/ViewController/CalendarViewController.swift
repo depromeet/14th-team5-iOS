@@ -16,12 +16,6 @@ import RxDataSources
 import SnapKit
 import Then
 
-// MARK: - Delegate
-protocol CalendarViewDelegate: AnyObject {
-    func goToCalendarFeedView(_ date: Date)
-    func presentPopoverView(sourceView: UIView)
-}
-
 // MARK: - ViewController
 final class CalendarViewController: BaseViewController<CalendarViewReactor> {
     // MARK: - Views
@@ -58,7 +52,24 @@ final class CalendarViewController: BaseViewController<CalendarViewReactor> {
         }
     }
     
-    override func bind(reactor: CalendarViewReactor) { }
+    override func bind(reactor: CalendarViewReactor) { 
+        super.bind(reactor: reactor)
+        
+        // State
+        reactor.pulse(\.$pushCalendarFeedVC)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.pushCalendarFeedView($0.1)
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$presentPopoverVC)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.presentPopoverView(sourceView: $0.1)
+            }
+            .disposed(by: disposeBag)
+    }
 }
 
 extension CalendarViewController {
@@ -92,13 +103,13 @@ extension CalendarViewController {
     }
 }
 
-extension CalendarViewController: CalendarViewDelegate {
-    func goToCalendarFeedView(_ date: Date) {
+extension CalendarViewController {
+    func pushCalendarFeedView(_ date: Date?) {
         let vc = CalendarFeedViewController()
         navigationController?.pushViewController(vc, animated: true)
     }
     
-    func presentPopoverView(sourceView: UIView) {
+    func presentPopoverView(sourceView: UIView?) {
         let vc = CalendarDescriptionPopoverViewController()
         vc.preferredContentSize = CGSize(
             width: CalendarVC.Attribute.popoverWidth,
@@ -111,13 +122,12 @@ extension CalendarViewController: CalendarViewDelegate {
         present(vc, animated: true)
         if let pop = vc.popoverPresentationController {
             pop.sourceView = sourceView
-            pop.sourceRect = sourceView.bounds
+            pop.sourceRect = sourceView?.bounds ?? .zero
         }
-        
     }
 }
 
-// Temp Code
+// NOTE: - 임시 코드
 extension CalendarViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 3
@@ -128,8 +138,7 @@ extension CalendarViewController: UICollectionViewDataSource {
             withReuseIdentifier: CalendarPageCell.id,
             for: indexPath
         ) as! CalendarPageCell
-        cell.reactor = CalendarPageCellReactor()
-        cell.delegate = self
+        cell.reactor = reactor?.makeCalenderPageCellReactor()
         return cell
     }
 }

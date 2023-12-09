@@ -7,9 +7,12 @@
 
 import UIKit
 
+import Core
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    let globalStateProvider: GlobalStateProviderType = GlobalStateProvider()
 
     func scene(
         _ scene: UIScene,
@@ -18,7 +21,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     ) {
         guard let scene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: scene)
-        window?.rootViewController = UINavigationController(rootViewController: MainViewController())
+        window?.rootViewController = UINavigationController(
+            rootViewController: CalendarViewController(
+                reacter: CalendarViewReactor(globalStateProvider)
+            )
+        )
         window?.makeKeyAndVisible()
     }
 }

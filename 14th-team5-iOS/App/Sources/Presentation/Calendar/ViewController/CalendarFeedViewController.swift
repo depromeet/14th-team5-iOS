@@ -67,7 +67,7 @@ final class CalendarFeedViewController: BaseViewController<CalendarFeedViewReact
             $0.backgroundColor = UIColor.black
             
             $0.locale = Locale.autoupdatingCurrent
-            $0.register(ImageMonthCalendarCell.self, forCellReuseIdentifier: ImageMonthCalendarCell.id)
+            $0.register(ImageCalendarCell.self, forCellReuseIdentifier: ImageCalendarCell.id)
             $0.register(PlaceholderCalendarCell.self, forCellReuseIdentifier: PlaceholderCalendarCell.id)
         }
     }
@@ -87,12 +87,12 @@ extension CalendarFeedViewController: FSCalendarDelegate {
 extension CalendarFeedViewController: FSCalendarDataSource {
     func calendar(_ calendar: FSCalendar, cellFor date: Date, at position: FSCalendarMonthPosition) -> FSCalendarCell {
         let cell = calendar.dequeueReusableCell(
-            withIdentifier: ImageMonthCalendarCell.id,
+            withIdentifier: ImageCalendarCell.id,
             for: date,
             at: position
-        ) as! ImageMonthCalendarCell
+        ) as! ImageCalendarCell
         
-        // Dummy Data
+        // NOTE: - 더미 데이터
         let imageUrls = [
             "https://cdn.pixabay.com/photo/2023/11/20/13/48/butterfly-8401173_1280.jpg",
             "https://cdn.pixabay.com/photo/2023/11/10/02/30/woman-8378634_1280.jpg",

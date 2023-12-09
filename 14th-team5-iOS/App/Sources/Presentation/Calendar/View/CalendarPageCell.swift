@@ -43,8 +43,6 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     private let calendarView: FSCalendar = FSCalendar()
     
     // MARK: - Properties
-    weak var delegate: CalendarViewDelegate?
-    
     static var id: String = "CalendarPageCell"
     
     // MARK: - Intializer
@@ -311,7 +309,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
             $0.backgroundColor = UIColor.black
             
             $0.locale = Locale.autoupdatingCurrent
-            $0.register(ImageMonthCalendarCell.self, forCellReuseIdentifier: ImageMonthCalendarCell.id)
+            $0.register(ImageCalendarCell.self, forCellReuseIdentifier: ImageCalendarCell.id)
             $0.register(PlaceholderCalendarCell.self, forCellReuseIdentifier: PlaceholderCalendarCell.id)
         }
     }
@@ -323,18 +321,18 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
         infoButton.rx.tap
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .withUnretained(self)
-            .subscribe {
-                $0.0.delegate?.presentPopoverView(sourceView: $0.0.infoButton)
-            }
+            .map { Reactor.Action.didPressInfoButton($0.0.infoButton) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        calendarView.rx.didSelect
+            .map { Reactor.Action.didSelectCell($0) }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
 }
 
-extension CalendarPageCell: FSCalendarDelegate { 
-    func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
-        delegate?.goToCalendarFeedView(date)
-    }
-    
+extension CalendarPageCell: FSCalendarDelegate {     
     func calendar(_ calendar: FSCalendar, shouldSelect date: Date, at monthPosition: FSCalendarMonthPosition) -> Bool {
         let calendarMonth = calendar.currentPage.month
         let positionMonth = date.month
@@ -353,12 +351,12 @@ extension CalendarPageCell: FSCalendarDataSource {
         // 셀의 날짜가 현재 월(月)과 동일하다면
         if calendarMonth == positionMonth {
             let cell = calendar.dequeueReusableCell(
-                withIdentifier: ImageMonthCalendarCell.id,
+                withIdentifier: ImageCalendarCell.id,
                 for: date,
                 at: position
-            ) as! ImageMonthCalendarCell
+            ) as! ImageCalendarCell
             
-            // Dummy Data
+            // NOTE: - 더미 데이터
             let imageUrls = [
                 "https://cdn.pixabay.com/photo/2023/11/20/13/48/butterfly-8401173_1280.jpg",
                 "https://cdn.pixabay.com/photo/2023/11/10/02/30/woman-8378634_1280.jpg",
@@ -367,8 +365,9 @@ extension CalendarPageCell: FSCalendarDataSource {
                 "https://cdn.pixabay.com/photo/2023/09/25/13/42/kingfisher-8275049_1280.png",
                 "", "", "", ""
             ]
-            cell.configure(date, imageUrl: imageUrls.randomElement() ?? "")
+            let cellModel = CellModel(imageUrl: imageUrls.randomElement(), isHidden: Bool.random())
             
+            cell.reactor = ImageCalendarCellReactor(cellModel)
             return cell
         // 셀의 날짜가 현재 월(月)과 동일하지 않다면
         } else {

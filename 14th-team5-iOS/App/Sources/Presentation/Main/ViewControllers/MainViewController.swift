@@ -23,7 +23,6 @@ final class MainViewController: BaseViewController<MainViewReactor> {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        bind(reactor: MainViewReactor())
     }
     
     deinit {
@@ -36,11 +35,29 @@ final class MainViewController: BaseViewController<MainViewReactor> {
         feedCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
-        Observable.just(SectionOfFamily.sections)
+        feedCollectionView.rx.itemSelected
+            .map { Reactor.Action.cellSelected($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.selectedIndexPath }
+            .compactMap { $0 }
+            .withUnretained(self)
+            .subscribe(onNext: { _ in
+                self.navigationController?.pushViewController(FeedDetailViewController(), animated: true)
+            })
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.familySections }
+            .asObservable()
             .bind(to: familyCollectionView.rx.items(dataSource: createFamilyDataSource()))
             .disposed(by: disposeBag)
         
-        Observable.just(SectionOfFeed.sections)
+        reactor.state
+            .map { $0.feedSections }
+            .asObservable()
             .bind(to: feedCollectionView.rx.items(dataSource: createFeedDataSource()))
             .disposed(by: disposeBag)
     }

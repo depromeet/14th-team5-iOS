@@ -39,16 +39,16 @@ open class BaseViewController<R>: UIViewController, ReactorKit.View where R: Rea
     }
     
     // MARK: - Helpers
-    // 리액터와 바인딩을 위한 메서드
+    /// 리액터와 바인딩을 위한 메서드
     open func bind(reactor: R) { }
     
-    // 서브 뷰 추가를 위한 메서드
+    /// 서브 뷰 추가를 위한 메서드
     open func setupUI() { }
     
-    // 오토레이아웃 설정을 위한 메서드
+    /// 오토레이아웃 설정을 위한 메서드
     open func setupAutoLayout() { }
     
-    // 뷰의 속성 설정을 위한 메서드
+    /// 뷰의 속성 설정을 위한 메서드
     open func setupAttributes() { 
         // assets 정해지면 바꿀게요.
         view.backgroundColor = UIColor(red: 0.09, green: 0.09, blue: 0.09, alpha: 1)

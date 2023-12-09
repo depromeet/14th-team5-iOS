@@ -15,6 +15,8 @@ import SnapKit
 import Then
 
 final class MainViewController: BaseViewController<MainViewReactor> {
+    private let manageFamilyButton = UIBarButtonItem()
+    private let calendarButton = UIBarButtonItem()
     private let familyCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let feedCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let camerButton = UIButton()
@@ -34,54 +36,25 @@ final class MainViewController: BaseViewController<MainViewReactor> {
         feedCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
-        let dataSource = RxCollectionViewSectionedReloadDataSource<SectionModel<String, ProfileData>>(
-            configureCell: { (_, collectionView, indexPath, item) in
-                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FamilyCollectionViewCell.id, for: indexPath) as? FamilyCollectionViewCell else {
-                    return UICollectionViewCell()
-                }
-                cell.setCell(data: item)
-                return cell
-            })
-        
         Observable.just(SectionOfFamily.sections)
-            .bind(to: familyCollectionView.rx.items(dataSource: dataSource))
+            .bind(to: familyCollectionView.rx.items(dataSource: createFamilyDataSource()))
             .disposed(by: disposeBag)
         
-        let dataSource2 = RxCollectionViewSectionedReloadDataSource<SectionModel<String, FeedData>>(
-            configureCell: { (_, collectionView, indexPath, item) in
-                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FeedCollectionViewCell.id, for: indexPath) as? FeedCollectionViewCell else {
-                    return UICollectionViewCell()
-                }
-                cell.setCell(data: item)
-                return cell
-            })
-        
         Observable.just(SectionOfFeed.sections)
-            .bind(to: feedCollectionView.rx.items(dataSource: dataSource2))
+            .bind(to: feedCollectionView.rx.items(dataSource: createFeedDataSource()))
             .disposed(by: disposeBag)
     }
     
     override func setupUI() {
-        familyCollectionView.do {
-            $0.register(FamilyCollectionViewCell.self, forCellWithReuseIdentifier: FamilyCollectionViewCell.id)
-            $0.backgroundColor = .clear
-        }
-        
-        feedCollectionView.do {
-            $0.register(FeedCollectionViewCell.self, forCellWithReuseIdentifier: FeedCollectionViewCell.id)
-            $0.backgroundColor = .clear
-        }
-        
-        camerButton.do {
-            $0.setImage(UIImage(named: "Shutter"), for: .normal)
-        }
+        super.setupUI()
+        view.addSubviews(familyCollectionView, feedCollectionView, camerButton)
     }
     
     override func setupAutoLayout() {
-        view.addSubviews(familyCollectionView, feedCollectionView, camerButton)
+        super.setupAutoLayout()
         
         familyCollectionView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.top.equalTo(view.safeAreaLayoutGuide).inset(30)
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(89)
         }
@@ -101,6 +74,68 @@ final class MainViewController: BaseViewController<MainViewReactor> {
     
     override func setupAttributes() {
         super.setupAttributes()
+        navigationItem.do {
+            $0.title = "로고"
+            $0.leftBarButtonItem = manageFamilyButton
+            $0.rightBarButtonItem = calendarButton
+        }
+        
+        manageFamilyButton.do {
+            $0.image = UIImage(named: "Profile")
+            $0.target = self
+        }
+        
+        calendarButton.do {
+            $0.image = UIImage(named: "Calendar")
+            $0.target = self
+        }
+        
+        familyCollectionView.do {
+            $0.register(FamilyCollectionViewCell.self, forCellWithReuseIdentifier: FamilyCollectionViewCell.id)
+            $0.backgroundColor = .clear
+        }
+        
+        feedCollectionView.do {
+            $0.register(FeedCollectionViewCell.self, forCellWithReuseIdentifier: FeedCollectionViewCell.id)
+            $0.register(FeedCollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: FeedCollectionReusableView.id)
+            $0.backgroundColor = .clear
+        }
+        
+        camerButton.do {
+            $0.setImage(UIImage(named: "Shutter"), for: .normal)
+        }
+    }
+}
+
+extension MainViewController {
+    private func createFamilyDataSource() -> RxCollectionViewSectionedReloadDataSource<SectionModel<String, ProfileData>> {
+        return RxCollectionViewSectionedReloadDataSource<SectionModel<String, ProfileData>>(
+            configureCell: { (_, collectionView, indexPath, item) in
+                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FamilyCollectionViewCell.id, for: indexPath) as? FamilyCollectionViewCell else {
+                    return UICollectionViewCell()
+                }
+                cell.setCell(data: item)
+                return cell
+            })
+    }
+    
+    private func createFeedDataSource() -> RxCollectionViewSectionedReloadDataSource<SectionModel<String, FeedData>> {
+        return RxCollectionViewSectionedReloadDataSource<SectionModel<String, FeedData>>(
+            configureCell: { (_, collectionView, indexPath, item) in
+                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FeedCollectionViewCell.id, for: indexPath) as? FeedCollectionViewCell else {
+                    return UICollectionViewCell()
+                }
+                cell.setCell(data: item)
+                return cell
+            },
+            configureSupplementaryView: { (dataSource, collectionView, kind, indexPath) in
+                guard let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: FeedCollectionReusableView.id, for: indexPath) as? FeedCollectionReusableView else {
+                    return UICollectionReusableView()
+                }
+                headerView.setHeader(title: "피드")
+                return headerView
+            }
+        )
     }
 }
 
@@ -113,12 +148,27 @@ extension MainViewController: UICollectionViewDelegateFlowLayout {
         }
     }
     
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        if collectionView == familyCollectionView {
+            return UIEdgeInsets(top: 0, left: 26, bottom: 0, right: 26)
+        } else {
+            return UIEdgeInsets.zero
+        }
+    }
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         if collectionView == familyCollectionView {
             return 17
         } else {
             return 20
         }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        if collectionView == feedCollectionView {
+            return CGSize(width: collectionView.bounds.width, height: 44)
+        }
+        return CGSize.zero
     }
 }
 

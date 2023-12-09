@@ -16,7 +16,7 @@ import RxDataSources
 import SnapKit
 import Then
 
-class CalendarDescriptionPopoverViewController: UIViewController {
+final class CalendarDescriptionPopoverViewController: UIViewController {
     // MARK: - Views
     let descrpitionLabel: UILabel = UILabel().then {
         $0.text = Strings.descriptionText

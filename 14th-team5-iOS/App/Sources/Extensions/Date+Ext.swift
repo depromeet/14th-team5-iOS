@@ -10,8 +10,26 @@ import Foundation
 extension Date {
     private var calendar: Calendar {
         return Calendar.autoupdatingCurrent
-    } 
+    }
     
+    var isToday: Bool {
+        return self.isEqual(with: Date.now)
+    }
+    
+    var year: Int {
+        return calendar.component(.year, from: self)
+    }
+    
+    var month: Int {
+        return calendar.component(.month, from: self)
+    }
+    
+    var day: Int {
+        return calendar.component(.day, from: self)
+    }
+}
+
+extension Date {
     func isEqual(
         _ components: Set<Calendar.Component> = [.year, .month, .day],
         with date: Date
@@ -38,21 +56,5 @@ extension Date {
             dict[component] = interval.value(for: component) ?? 0
         }
         return dict
-    }
-    
-    var year: Int {
-        return calendar.component(.year, from: self)
-    }
-    
-    var month: Int {
-        return calendar.component(.month, from: self)
-    }
-    
-    var day: Int {
-        return calendar.component(.day, from: self)
-    }
-    
-    var isToday: Bool {
-        return self.isEqual(with: Date.now)
     }
 }

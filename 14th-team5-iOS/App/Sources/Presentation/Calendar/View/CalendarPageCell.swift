@@ -17,231 +17,35 @@ import Then
 
 final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     // MARK: - Views
-    private lazy var scoreView: UIView = UIView().then {
-        $0.layer.masksToBounds = true
-        $0.layer.cornerRadius = AttributeValue.scoreViewCornerRadius
-        $0.backgroundColor = UIColor.systemGray
-        
-        $0.addSubview(scoreInfoStackView)
-    }
+    private lazy var scoreView: UIView = UIView()
+    private lazy var scoreInfoStackView: UIStackView = UIStackView()
     
-    private lazy var scoreInfoStackView: UIStackView = UIStackView().then {
-        $0.axis = .horizontal
-        $0.spacing = AttributeValue.scoreInfoStackSpacing
-        $0.alignment = .fill
-        $0.distribution = .fillEqually
-        
-        $0.addArrangedSubview(allParticipatedDayCountView)
-        $0.addArrangedSubview(totalPhotosCountView)
-        $0.addArrangedSubview(myPhotosCountView)
-        
-    }
+    private lazy var allParticipatedDayCountView: UIView = UIView()
+    private lazy var allParticiatedDayCountStackView: UIStackView = UIStackView()
+    private let allParticipatedDayCountNum: UILabel = UILabel()
+    private let allParticipatedDayCountLabel: UILabel = UILabel()
     
-    private lazy var allParticipatedDayCountView: UIView = UIView().then {
-        $0.clipsToBounds = true
-        $0.layer.cornerRadius = AttributeValue.scoreInfoViewCornerRadius
-        $0.backgroundColor = UIColor.secondarySystemBackground
-        $0.addSubview(allParticiatedDayCountStackView)
-    }
+    private lazy var totalPhotosCountView: UIView = UIView()
+    private lazy var totalPhotosCountStackView: UIStackView = UIStackView()
+    private let totalPhotosCountNum: UILabel = UILabel()
+    private let totalPhotosCountLabel: UILabel = UILabel()
     
-    private lazy var allParticiatedDayCountStackView: UIStackView = UIStackView().then {
-        $0.axis = .vertical
-        $0.spacing = 0.0
-        $0.alignment = .fill
-        $0.distribution = .fillProportionally
-        
-        $0.addArrangedSubview(allParticipatedDayCountNum)
-        $0.addArrangedSubview(allParticipatedDayCountLabel)
-    }
+    private lazy var myPhotosCountView: UIView = UIView()
+    private lazy var myPhotosCountStackView: UIStackView = UIStackView()
+    private let myPhotosCountNum: UILabel = UILabel()
+    private let myPhotosCountLabel: UILabel = UILabel()
     
-    private let allParticipatedDayCountNum: UILabel = UILabel().then {
-        $0.text = "12"
-        $0.textColor = UIColor.black
-        $0.font = UIFont.boldSystemFont(ofSize: AttributeValue.countFontSize)
-        $0.textAlignment = .center
-    }
+    private let calendarTitleLabel: UILabel = UILabel()
     
-    private let allParticipatedDayCountLabel: UILabel = UILabel().then {
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 3
-
-        let attrString = NSMutableAttributedString(string: Strings.allParticipatedDayCountText)
-        attrString.addAttribute(.paragraphStyle, value:paragraphStyle, range: NSMakeRange(0, attrString.length))
+    private lazy var infoButton: UIButton = UIButton(type: .system)
+    private lazy var titleStackView: UIStackView = UIStackView()
     
-        $0.attributedText = attrString
-        $0.textColor = UIColor.secondaryLabel
-        $0.textAlignment = .center
-        $0.font = UIFont.boldSystemFont(ofSize: AttributeValue.infoLabelFontSize)
-        $0.numberOfLines = 0
-    }
-    
-    private lazy var totalPhotosCountView: UIView = UIView().then {
-        $0.clipsToBounds = true
-        $0.layer.cornerRadius = AttributeValue.scoreInfoViewCornerRadius
-        $0.backgroundColor = UIColor.secondarySystemBackground
-        $0.addSubview(totalPhotosCountStackView)
-    }
-    
-    private lazy var totalPhotosCountStackView: UIStackView = UIStackView().then {
-        $0.axis = .vertical
-        $0.spacing = 0.0
-        $0.alignment = .fill
-        $0.distribution = .fillProportionally
-        
-        $0.addArrangedSubview(totalPhotosCountNum)
-        $0.addArrangedSubview(totalPhotosCountLabel)
-    }
-    
-    private let totalPhotosCountNum: UILabel = UILabel().then {
-        $0.text = "124"
-        $0.textColor = UIColor.black
-        $0.font = UIFont.boldSystemFont(ofSize: AttributeValue.countFontSize)
-        $0.textAlignment = .center
-    }
-    
-    private let totalPhotosCountLabel: UILabel = UILabel().then {
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 3
-
-        let attrString = NSMutableAttributedString(string: Strings.totalPhotosCountText)
-        attrString.addAttribute(.paragraphStyle, value:paragraphStyle, range: NSMakeRange(0, attrString.length))
-
-        $0.attributedText = attrString
-        $0.textColor = UIColor.secondaryLabel
-        $0.textAlignment = .center
-        $0.font = UIFont.boldSystemFont(ofSize: AttributeValue.infoLabelFontSize)
-        $0.numberOfLines = 0
-    }
-    
-    private lazy var myPhotosCountView: UIView = UIView().then {
-        $0.clipsToBounds = true
-        $0.layer.cornerRadius = AttributeValue.scoreInfoViewCornerRadius
-        $0.backgroundColor = UIColor.secondarySystemBackground
-        $0.addSubview(myPhotosCountStackView)
-    }
-    
-    private lazy var myPhotosCountStackView: UIStackView = UIStackView().then {
-        $0.axis = .vertical
-        $0.spacing = 0.0
-        $0.alignment = .fill
-        $0.distribution = .fillProportionally
-        
-        $0.addArrangedSubview(myPhotosCountNum)
-        $0.addArrangedSubview(myPhotosCountLabel)
-    }
-    
-    private let myPhotosCountNum: UILabel = UILabel().then {
-        $0.text = "38"
-        $0.textColor = UIColor.black
-        $0.font = UIFont.boldSystemFont(ofSize: AttributeValue.countFontSize)
-        $0.textAlignment = .center
-    }
-    
-    private let myPhotosCountLabel: UILabel = UILabel().then {
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 3
-
-        let attrString = NSMutableAttributedString(string: Strings.myPhotosCountText)
-        attrString.addAttribute(.paragraphStyle, value:paragraphStyle, range: NSMakeRange(0, attrString.length))
-        
-        $0.attributedText = attrString
-        $0.textColor = UIColor.secondaryLabel
-        $0.textAlignment = .center
-        $0.font = UIFont.boldSystemFont(ofSize: AttributeValue.infoLabelFontSize)
-        $0.numberOfLines = 0
-    }
-    
-    private let calendarTitleLabel: UILabel = UILabel().then {
-        $0.text = Strings.calendarName
-        $0.textColor = UIColor.white
-        $0.font = UIFont.boldSystemFont(ofSize: AttributeValue.calendarTitleFontSize)
-        $0.backgroundColor = UIColor.black
-    }
-    
-    private lazy var infoButton: UIButton = UIButton(type: .system).then {
-        let sizeConfig = UIImage.SymbolConfiguration(pointSize: 14, weight: .bold)
-        let colorConfig = UIImage.SymbolConfiguration(hierarchicalColor: UIColor.white)
-
-        let image: UIImage? = UIImage(
-            systemName: SFSymbol.exclamationMark,
-            withConfiguration: sizeConfig.applying(colorConfig)
-        )
-        $0.setImage(image, for: .normal)
-    }
-    
-    private lazy var titleStackView: UIStackView = UIStackView().then {
-        $0.axis = .horizontal
-        $0.spacing = 10.0
-        $0.alignment = .fill
-        $0.distribution = .fill
-        
-        $0.addArrangedSubview(calendarTitleLabel)
-        $0.addArrangedSubview(infoButton)
-    }
-    
-    private let calendarView: FSCalendar = FSCalendar().then {
-        $0.headerHeight = 0.0
-        $0.weekdayHeight = 40.0
-        
-        $0.today = nil
-        $0.scrollEnabled = false
-        $0.placeholderType = .fillSixRows
-        $0.adjustsBoundingRectWhenChangingMonths = true
-        
-        $0.appearance.selectionColor = UIColor.clear
-        
-        $0.appearance.titleFont = UIFont.boldSystemFont(ofSize: AttributeValue.dayFontSize)
-        $0.appearance.titleDefaultColor = UIColor.white
-        $0.appearance.titleSelectionColor = UIColor.white
-        
-        $0.appearance.weekdayFont = UIFont.systemFont(ofSize: AttributeValue.weekdayFontSize)
-        $0.appearance.weekdayTextColor = UIColor.white
-        $0.appearance.caseOptions = .weekdayUsesSingleUpperCase
-        
-        $0.appearance.titlePlaceholderColor = UIColor.systemGray.withAlphaComponent(0.3)
-        
-        $0.backgroundColor = UIColor.black
-        
-        $0.locale = Locale.autoupdatingCurrent
-        $0.register(ImageMonthCalendarCell.self, forCellReuseIdentifier: ImageMonthCalendarCell.identifier)
-        $0.register(PlaceholderCalendarCell.self, forCellReuseIdentifier: PlaceholderCalendarCell.identifier)
-    }
+    private let calendarView: FSCalendar = FSCalendar()
     
     // MARK: - Properties
     weak var delegate: CalendarViewDelegate?
     
-    static var identifier: String = "CalendarPageCell"
-    
-    // MARK: - Constants
-    private enum Strings {
-        static let calendarName: String = "추억 캘린더"
-        static let allParticipatedDayCountText: String = "모두\n참여한 날"
-        static let totalPhotosCountText: String = "전체\n사진 수"
-        static let myPhotosCountText: String = "나의\n사진 수"
-        
-    }
-    
-    private enum AttributeValue {
-        static let scoreViewCornerRadius: CGFloat = 24.0
-        static let scoreInfoStackSpacing: CGFloat = 8.0
-        static let scoreInfoViewCornerRadius: CGFloat = 18.0
-        static let countFontSize: CGFloat = 20.0
-        static let infoLabelFontSize: CGFloat = 14.0
-        static let calendarTitleFontSize: CGFloat = 20.0
-        static let dayFontSize: CGFloat = 20.0
-        static let weekdayFontSize: CGFloat = 16.0
-    }
-    
-    private enum AutoLayout {
-        static let defaultOffsetValue: CGFloat = 16.0
-        static let scoreViewBottomOffsetValue: CGFloat = 36.0
-        static let infoStackHeightMultiplier: CGFloat = 0.75
-        static let calendarHeightMultiplier: CGFloat = 0.9
-    }
-    
-    private enum SFSymbol {
-        static let exclamationMark: String = "exclamationmark.circle"
-    }
+    static var id: String = "CalendarPageCell"
     
     // MARK: - Intializer
     override init(frame: CGRect) {
@@ -258,52 +62,76 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
         contentView.addSubview(scoreView)
         contentView.addSubview(titleStackView)
         contentView.addSubview(calendarView)
+        
+        scoreView.addSubview(scoreInfoStackView)
+        scoreInfoStackView.addArrangedSubviews(
+            allParticipatedDayCountView, totalPhotosCountView, myPhotosCountView
+        )
+        
+        allParticipatedDayCountView.addSubview(allParticiatedDayCountStackView)
+        allParticiatedDayCountStackView.addArrangedSubviews(
+            allParticipatedDayCountNum, allParticipatedDayCountLabel
+        )
+        
+        totalPhotosCountView.addSubview(totalPhotosCountStackView)
+        totalPhotosCountStackView.addArrangedSubviews(
+            totalPhotosCountNum, totalPhotosCountLabel
+        )
+        
+        myPhotosCountView.addSubview(myPhotosCountStackView)
+        myPhotosCountStackView.addArrangedSubviews(
+            myPhotosCountNum, myPhotosCountLabel
+        )
+        
+        titleStackView.addArrangedSubviews(
+            calendarTitleLabel, infoButton
+        )
     }
     
     override func setupAutoLayout() { 
         super.setupAutoLayout()
         scoreView.snp.makeConstraints {
-            $0.leading.equalTo(contentView.snp.leading).offset(AutoLayout.defaultOffsetValue)
-            $0.top.equalTo(contentView.snp.top).offset(AutoLayout.defaultOffsetValue)
-            $0.trailing.equalTo(contentView.snp.trailing).offset(-AutoLayout.defaultOffsetValue)
-            $0.bottom.equalTo(titleStackView.snp.top).offset(-AutoLayout.scoreViewBottomOffsetValue)
+            $0.leading.equalTo(contentView.snp.leading).offset(CalendarCell.AutoLayout.defaultOffsetValue)
+            $0.top.equalTo(contentView.snp.top).offset(CalendarCell.AutoLayout.defaultOffsetValue)
+            $0.trailing.equalTo(contentView.snp.trailing).offset(-CalendarCell.AutoLayout.defaultOffsetValue)
+            $0.bottom.equalTo(titleStackView.snp.top).offset(-CalendarCell.AutoLayout.scoreViewBottomOffsetValue)
         }
         
         scoreInfoStackView.snp.makeConstraints {
-            $0.leading.equalTo(scoreView.snp.leading).offset(AutoLayout.defaultOffsetValue)
-            $0.trailing.equalTo(scoreView.snp.trailing).offset(-AutoLayout.defaultOffsetValue)
-            $0.bottom.equalTo(scoreView.snp.bottom).offset(-AutoLayout.defaultOffsetValue)
+            $0.leading.equalTo(scoreView.snp.leading).offset(CalendarCell.AutoLayout.defaultOffsetValue)
+            $0.trailing.equalTo(scoreView.snp.trailing).offset(-CalendarCell.AutoLayout.defaultOffsetValue)
+            $0.bottom.equalTo(scoreView.snp.bottom).offset(-CalendarCell.AutoLayout.defaultOffsetValue)
             $0.height.equalTo(allParticipatedDayCountView.snp.width)
         }
         
         allParticiatedDayCountStackView.snp.makeConstraints {
             $0.width.equalToSuperview()
-            $0.height.equalToSuperview().multipliedBy(AutoLayout.infoStackHeightMultiplier)
+            $0.height.equalToSuperview().multipliedBy(CalendarCell.AutoLayout.infoStackHeightMultiplier)
             $0.center.equalTo(allParticipatedDayCountView.snp.center)
         }
         
         totalPhotosCountStackView.snp.makeConstraints {
             $0.width.equalToSuperview()
-            $0.height.equalToSuperview().multipliedBy(AutoLayout.infoStackHeightMultiplier)
+            $0.height.equalToSuperview().multipliedBy(CalendarCell.AutoLayout.infoStackHeightMultiplier)
             $0.center.equalTo(totalPhotosCountView.snp.center)
         }
         
         myPhotosCountStackView.snp.makeConstraints {
             $0.width.equalToSuperview()
-            $0.height.equalToSuperview().multipliedBy(AutoLayout.infoStackHeightMultiplier)
+            $0.height.equalToSuperview().multipliedBy(CalendarCell.AutoLayout.infoStackHeightMultiplier)
             $0.center.equalTo(myPhotosCountView.snp.center)
         }
         
         titleStackView.snp.makeConstraints {
             $0.leading.equalTo(scoreView)
-            $0.bottom.equalTo(calendarView.snp.top).offset(-AutoLayout.defaultOffsetValue)
+            $0.bottom.equalTo(calendarView.snp.top).offset(-CalendarCell.AutoLayout.defaultOffsetValue)
         }
         
         calendarView.snp.makeConstraints {
-            $0.leading.equalTo(contentView.snp.leading).offset(AutoLayout.defaultOffsetValue)
+            $0.leading.equalTo(contentView.snp.leading).offset(CalendarCell.AutoLayout.defaultOffsetValue)
             $0.bottom.equalTo(contentView.snp.bottom)
-            $0.trailing.equalTo(contentView.snp.trailing).offset(-AutoLayout.defaultOffsetValue)
-            $0.height.equalTo(contentView.snp.width).multipliedBy(AutoLayout.calendarHeightMultiplier)
+            $0.trailing.equalTo(contentView.snp.trailing).offset(-CalendarCell.AutoLayout.defaultOffsetValue)
+            $0.height.equalTo(contentView.snp.width).multipliedBy(CalendarCell.AutoLayout.calendarHeightMultiplier)
         }
     }
     
@@ -311,6 +139,181 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
         super.setupAttributes()
         calendarView.delegate = self
         calendarView.dataSource = self
+        
+        scoreView.do {
+            $0.layer.masksToBounds = true
+            $0.layer.cornerRadius = CalendarCell.Attribute.scoreViewCornerRadius
+            $0.backgroundColor = UIColor.systemGray
+        }
+        
+        scoreInfoStackView.do {
+            $0.axis = .horizontal
+            $0.spacing = CalendarCell.Attribute.scoreInfoStackSpacing
+            $0.alignment = .fill
+            $0.distribution = .fillEqually
+        }
+        
+        allParticipatedDayCountView.do {
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = CalendarCell.Attribute.scoreInfoViewCornerRadius
+            $0.backgroundColor = UIColor.secondarySystemBackground
+        }
+        
+        allParticiatedDayCountStackView.do {
+            $0.axis = .vertical
+            $0.spacing = 0.0
+            $0.alignment = .fill
+            $0.distribution = .fillProportionally
+        }
+        
+        allParticipatedDayCountNum.do {
+            $0.text = "12"
+            $0.textColor = UIColor.black
+            $0.font = UIFont.boldSystemFont(ofSize: CalendarCell.Attribute.countFontSize)
+            $0.textAlignment = .center
+        }
+        
+        allParticipatedDayCountLabel.do {
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.lineSpacing = 3
+            
+            let attrString = NSMutableAttributedString(string: CalendarCell.Strings.allParticipatedDayCountText)
+            attrString.addAttribute(.paragraphStyle, value:paragraphStyle, range: NSMakeRange(0, attrString.length))
+            
+            $0.attributedText = attrString
+            $0.textColor = UIColor.secondaryLabel
+            $0.textAlignment = .center
+            $0.font = UIFont.boldSystemFont(ofSize: CalendarCell.Attribute.infoLabelFontSize)
+            $0.numberOfLines = 0
+        }
+        
+        totalPhotosCountView.do {
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = CalendarCell.Attribute.scoreInfoViewCornerRadius
+            $0.backgroundColor = UIColor.secondarySystemBackground
+        }
+        
+        totalPhotosCountStackView.do {
+            $0.axis = .vertical
+            $0.spacing = 0.0
+            $0.alignment = .fill
+            $0.distribution = .fillProportionally
+        }
+        
+        totalPhotosCountNum.do {
+            $0.text = "124"
+            $0.textColor = UIColor.black
+            $0.font = UIFont.boldSystemFont(ofSize: CalendarCell.Attribute.countFontSize)
+            $0.textAlignment = .center
+        }
+        
+        totalPhotosCountLabel.do {
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.lineSpacing = 3
+            
+            let attrString = NSMutableAttributedString(string: CalendarCell.Strings.totalPhotosCountText)
+            attrString.addAttribute(.paragraphStyle, value:paragraphStyle, range: NSMakeRange(0, attrString.length))
+            
+            $0.attributedText = attrString
+            $0.textColor = UIColor.secondaryLabel
+            $0.textAlignment = .center
+            $0.font = UIFont.boldSystemFont(ofSize: CalendarCell.Attribute.infoLabelFontSize)
+            $0.numberOfLines = 0
+        }
+        
+        myPhotosCountView.do {
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = CalendarCell.Attribute.scoreInfoViewCornerRadius
+            $0.backgroundColor = UIColor.secondarySystemBackground
+        }
+        
+        myPhotosCountNum.do {
+            $0.text = "38"
+            $0.textColor = UIColor.black
+            $0.font = UIFont.boldSystemFont(ofSize: CalendarCell.Attribute.countFontSize)
+            $0.textAlignment = .center
+        }
+        
+        myPhotosCountStackView.do {
+            $0.axis = .vertical
+            $0.spacing = 0.0
+            $0.alignment = .fill
+            $0.distribution = .fillProportionally
+        }
+        
+        myPhotosCountLabel.do {
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.lineSpacing = 3
+            
+            let attrString = NSMutableAttributedString(string: CalendarCell.Strings.myPhotosCountText)
+            attrString.addAttribute(.paragraphStyle, value:paragraphStyle, range: NSMakeRange(0, attrString.length))
+            
+            $0.attributedText = attrString
+            $0.textColor = UIColor.secondaryLabel
+            $0.textAlignment = .center
+            $0.font = UIFont.boldSystemFont(ofSize: CalendarCell.Attribute.infoLabelFontSize)
+            $0.numberOfLines = 0
+        }
+        
+        calendarTitleLabel.do {
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.lineSpacing = 3
+            
+            let attrString = NSMutableAttributedString(string: CalendarCell.Strings.calendarName)
+            attrString.addAttribute(.paragraphStyle, value:paragraphStyle, range: NSMakeRange(0, attrString.length))
+            
+            $0.attributedText = attrString
+            $0.textColor = UIColor.white
+            $0.textAlignment = .center
+            $0.font = UIFont.boldSystemFont(ofSize: CalendarCell.Attribute.calendarTitleFontSize)
+            $0.numberOfLines = 0
+        }
+        
+        infoButton.do {
+            let sizeConfig = UIImage.SymbolConfiguration(pointSize: 14, weight: .bold)
+            let colorConfig = UIImage.SymbolConfiguration(hierarchicalColor: UIColor.white)
+            
+            let image: UIImage? = UIImage(
+                systemName: CalendarCell.SFSymbol.exclamationMark,
+                withConfiguration: sizeConfig.applying(colorConfig)
+            )
+            $0.setImage(image, for: .normal)
+        }
+        
+        titleStackView.do {
+            $0.axis = .horizontal
+            $0.spacing = 10.0
+            $0.alignment = .fill
+            $0.distribution = .fill
+        }
+        
+        calendarView.do {
+            $0.headerHeight = 0.0
+            $0.weekdayHeight = 40.0
+            
+            $0.today = nil
+            $0.scrollEnabled = false
+            $0.placeholderType = .fillSixRows
+            $0.adjustsBoundingRectWhenChangingMonths = true
+            
+            $0.appearance.selectionColor = UIColor.clear
+            
+            $0.appearance.titleFont = UIFont.boldSystemFont(ofSize: CalendarCell.Attribute.calendarTitleFontSize)
+            $0.appearance.titleDefaultColor = UIColor.white
+            $0.appearance.titleSelectionColor = UIColor.white
+            
+            $0.appearance.weekdayFont = UIFont.systemFont(ofSize: CalendarCell.Attribute.weekdayFontSize)
+            $0.appearance.weekdayTextColor = UIColor.white
+            $0.appearance.caseOptions = .weekdayUsesSingleUpperCase
+            
+            $0.appearance.titlePlaceholderColor = UIColor.systemGray.withAlphaComponent(0.3)
+            
+            $0.backgroundColor = UIColor.black
+            
+            $0.locale = Locale.autoupdatingCurrent
+            $0.register(ImageMonthCalendarCell.self, forCellReuseIdentifier: ImageMonthCalendarCell.id)
+            $0.register(PlaceholderCalendarCell.self, forCellReuseIdentifier: PlaceholderCalendarCell.id)
+        }
     }
     
     override func bind(reactor: CalendarPageCellReactor) { 
@@ -350,7 +353,7 @@ extension CalendarPageCell: FSCalendarDataSource {
         // 셀의 날짜가 현재 월(月)과 동일하다면
         if calendarMonth == positionMonth {
             let cell = calendar.dequeueReusableCell(
-                withIdentifier: ImageMonthCalendarCell.identifier,
+                withIdentifier: ImageMonthCalendarCell.id,
                 for: date,
                 at: position
             ) as! ImageMonthCalendarCell
@@ -370,7 +373,7 @@ extension CalendarPageCell: FSCalendarDataSource {
         // 셀의 날짜가 현재 월(月)과 동일하지 않다면
         } else {
             let cell = calendar.dequeueReusableCell(
-                withIdentifier: PlaceholderCalendarCell.identifier,
+                withIdentifier: PlaceholderCalendarCell.id,
                 for: date,
                 at: position
             ) as! PlaceholderCalendarCell

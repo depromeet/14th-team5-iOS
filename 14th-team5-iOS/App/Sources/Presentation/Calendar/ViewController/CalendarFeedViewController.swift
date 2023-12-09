@@ -18,45 +18,7 @@ import Then
 
 final class CalendarFeedViewController: BaseViewController<CalendarFeedViewReactor> {
     // MARK: - Views
-    private lazy var calendarView: FSCalendar = FSCalendar().then {
-        $0.headerHeight = 0.0
-        $0.weekdayHeight = 30.0
-        
-        $0.today = nil
-        $0.scope = .week
-        $0.allowsMultipleSelection = false
-        
-        $0.appearance.selectionColor = UIColor.clear
-        
-        $0.appearance.titleFont = UIFont.boldSystemFont(ofSize: AttributeValue.dayFontSize)
-        $0.appearance.titleDefaultColor = UIColor.white
-        $0.appearance.titleSelectionColor = UIColor.white
-        
-        $0.appearance.weekdayFont = UIFont.systemFont(ofSize: AttributeValue.weekdayFontSize)
-        $0.appearance.weekdayTextColor = UIColor.white
-        $0.appearance.caseOptions = .weekdayUsesSingleUpperCase
-        
-        $0.appearance.titlePlaceholderColor = UIColor.systemGray.withAlphaComponent(0.3)
-        
-        $0.backgroundColor = UIColor.black
-        
-        $0.locale = Locale.autoupdatingCurrent
-        $0.register(ImageMonthCalendarCell.self, forCellReuseIdentifier: ImageMonthCalendarCell.identifier)
-        $0.register(PlaceholderCalendarCell.self, forCellReuseIdentifier: PlaceholderCalendarCell.identifier)
-    }
-    
-    // MARK: - Properties
-    
-    // MARK: - Constants
-    private enum AttributeValue {
-        static let calendarTitleFontSize: CGFloat = 20.0
-        static let dayFontSize: CGFloat = 20.0
-        static let weekdayFontSize: CGFloat = 16.0
-    }
-    
-    private enum AutoLayout {
-        static let calendarHeightValue: CGFloat = 350.0
-    }
+    private lazy var calendarView: FSCalendar = FSCalendar()
     
     // MARK: - Lifecycles
     override func viewDidLoad() {
@@ -73,7 +35,7 @@ final class CalendarFeedViewController: BaseViewController<CalendarFeedViewReact
         super.setupAutoLayout()
         calendarView.snp.makeConstraints {
             $0.leading.top.trailing.equalTo(view.safeAreaLayoutGuide)
-            $0.height.equalTo(AutoLayout.calendarHeightValue)
+            $0.height.equalTo(CalendarVC.AutoLayout.calendarHeightValue)
         }
     }
     
@@ -81,6 +43,33 @@ final class CalendarFeedViewController: BaseViewController<CalendarFeedViewReact
         super.setupAttributes()
         calendarView.delegate = self
         calendarView.dataSource = self
+    
+        calendarView.do {
+            $0.headerHeight = 0.0
+            $0.weekdayHeight = 30.0
+            
+            $0.today = nil
+            $0.scope = .week
+            $0.allowsMultipleSelection = false
+            
+            $0.appearance.selectionColor = UIColor.clear
+            
+            $0.appearance.titleFont = UIFont.boldSystemFont(ofSize: CalendarVC.Attribute.calendarTitleFontSize)
+            $0.appearance.titleDefaultColor = UIColor.white
+            $0.appearance.titleSelectionColor = UIColor.white
+            
+            $0.appearance.weekdayFont = UIFont.systemFont(ofSize: CalendarVC.Attribute.weekdayFontSize)
+            $0.appearance.weekdayTextColor = UIColor.white
+            $0.appearance.caseOptions = .weekdayUsesSingleUpperCase
+            
+            $0.appearance.titlePlaceholderColor = UIColor.systemGray.withAlphaComponent(0.3)
+            
+            $0.backgroundColor = UIColor.black
+            
+            $0.locale = Locale.autoupdatingCurrent
+            $0.register(ImageMonthCalendarCell.self, forCellReuseIdentifier: ImageMonthCalendarCell.id)
+            $0.register(PlaceholderCalendarCell.self, forCellReuseIdentifier: PlaceholderCalendarCell.id)
+        }
     }
 
     override func bind(reactor: CalendarFeedViewReactor) { }
@@ -98,7 +87,7 @@ extension CalendarFeedViewController: FSCalendarDelegate {
 extension CalendarFeedViewController: FSCalendarDataSource {
     func calendar(_ calendar: FSCalendar, cellFor date: Date, at position: FSCalendarMonthPosition) -> FSCalendarCell {
         let cell = calendar.dequeueReusableCell(
-            withIdentifier: ImageMonthCalendarCell.identifier,
+            withIdentifier: ImageMonthCalendarCell.id,
             for: date,
             at: position
         ) as! ImageMonthCalendarCell

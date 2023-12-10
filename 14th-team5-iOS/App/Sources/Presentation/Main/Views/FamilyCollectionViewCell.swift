@@ -23,20 +23,16 @@ final class FamilyCollectionViewCell: BaseCollectionViewCell<MainViewReactor> {
     
     override func bind(reactor: MainViewReactor) { }
     
-    // 서브 뷰 추가를 위한 메서드
     override func setupUI() {
+        addSubview(profileView)
     }
     
-    // 오토레이아웃 설정을 위한 메서드
     override func setupAutoLayout() {
-        addSubview(profileView)
-        
         profileView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
     }
     
-    // 뷰의 속성 설정을 위한 메서드
     override func setupAttributes() {
         
     }

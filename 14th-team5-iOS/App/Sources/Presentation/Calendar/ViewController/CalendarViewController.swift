@@ -16,32 +16,13 @@ import RxDataSources
 import SnapKit
 import Then
 
-// MARK: - Delegate
-protocol CalendarViewDelegate: AnyObject {
-    func goToCalendarFeedView(_ date: Date)
-    func presentPopoverView(sourceView: UIView)
-}
-
 // MARK: - ViewController
 final class CalendarViewController: BaseViewController<CalendarViewReactor> {
     // MARK: - Views
     private lazy var collectionView: UICollectionView = UICollectionView(
         frame: .zero,
         collectionViewLayout: orthogonalCompositionalLayout
-    ).then {
-        $0.dataSource = self
-        
-        $0.isScrollEnabled = false
-        $0.backgroundColor = UIColor.black
-        
-        $0.register(CalendarPageCell.self, forCellWithReuseIdentifier: CalendarPageCell.identifier)
-    }
-    
-    // MARK: - Constants
-    private enum AttributeValue {
-        static let popoverWidth: CGFloat = 350.0
-        static let popoverHeight: CGFloat = 40.0
-    }
+    )
     
     // MARK: - Lifecycles
     override func viewDidLoad() {
@@ -61,7 +42,34 @@ final class CalendarViewController: BaseViewController<CalendarViewReactor> {
         }
     }
     
-    override func bind(reactor: CalendarViewReactor) { }
+    override func setupAttributes() {
+        collectionView.do {
+            $0.dataSource = self
+            
+            $0.isScrollEnabled = false
+            $0.backgroundColor = UIColor.black
+            $0.register(CalendarPageCell.self, forCellWithReuseIdentifier: CalendarPageCell.id)
+        }
+    }
+    
+    override func bind(reactor: CalendarViewReactor) { 
+        super.bind(reactor: reactor)
+        
+        // State
+        reactor.pulse(\.$pushCalendarFeedVC)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.pushCalendarFeedView($0.1)
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$presentPopoverVC)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.presentPopoverView(sourceView: $0.1)
+            }
+            .disposed(by: disposeBag)
+    }
 }
 
 extension CalendarViewController {
@@ -95,17 +103,17 @@ extension CalendarViewController {
     }
 }
 
-extension CalendarViewController: CalendarViewDelegate {
-    func goToCalendarFeedView(_ date: Date) {
+extension CalendarViewController {
+    func pushCalendarFeedView(_ date: Date?) {
         let vc = CalendarFeedViewController()
         navigationController?.pushViewController(vc, animated: true)
     }
     
-    func presentPopoverView(sourceView: UIView) {
+    func presentPopoverView(sourceView: UIView?) {
         let vc = CalendarDescriptionPopoverViewController()
         vc.preferredContentSize = CGSize(
-            width: AttributeValue.popoverWidth,
-            height: AttributeValue.popoverHeight
+            width: CalendarVC.Attribute.popoverWidth,
+            height: CalendarVC.Attribute.popoverHeight
         )
         vc.modalPresentationStyle = .popover
         if let presentation = vc.presentationController {
@@ -114,13 +122,12 @@ extension CalendarViewController: CalendarViewDelegate {
         present(vc, animated: true)
         if let pop = vc.popoverPresentationController {
             pop.sourceView = sourceView
-            pop.sourceRect = sourceView.bounds
+            pop.sourceRect = sourceView?.bounds ?? .zero
         }
-        
     }
 }
 
-// Temp Code
+// NOTE: - 임시 코드
 extension CalendarViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 3
@@ -128,11 +135,10 @@ extension CalendarViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: CalendarPageCell.identifier,
+            withReuseIdentifier: CalendarPageCell.id,
             for: indexPath
         ) as! CalendarPageCell
-        cell.reactor = CalendarPageCellReactor()
-        cell.delegate = self
+        cell.reactor = reactor?.makeCalenderPageCellReactor()
         return cell
     }
 }

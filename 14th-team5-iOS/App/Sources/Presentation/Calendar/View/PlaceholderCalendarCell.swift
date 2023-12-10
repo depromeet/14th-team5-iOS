@@ -18,7 +18,7 @@ import Then
 
 final class PlaceholderCalendarCell: FSCalendarCell {
     // MARK: - Properties
-    static let identifier: String = "PlaceholderCalendarCell"
+    static let id: String = "PlaceholderCalendarCell"
     
     // MARK: - Intializer
     override init(frame: CGRect) {

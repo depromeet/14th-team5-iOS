@@ -33,7 +33,13 @@ private let targets: [Target] = [
                             ])
                         ])
                     ])
-                ])
+                ]),
+                "LSApplicationQueriesSchemes": .array([.string("kakaokompassauth"), .string("kakaolink")]),
+                "CFBundleURLTypes": .array([
+                    .dictionary([
+                        "CFBundleURLSchemes": .array([.string("$(KAKAO_API_KEY)")]),
+                    ]),
+                ]),
             ])
         )
     ),

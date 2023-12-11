@@ -16,21 +16,13 @@ import RxDataSources
 import SnapKit
 import Then
 
+// MARK: - ViewController
 final class CalendarViewController: BaseViewController<CalendarViewReactor> {
     // MARK: - Views
     private lazy var collectionView: UICollectionView = UICollectionView(
         frame: .zero,
         collectionViewLayout: orthogonalCompositionalLayout
-    ).then {
-        $0.dataSource = self // temp code
-        
-        $0.isScrollEnabled = false
-        $0.backgroundColor = UIColor.white
-        
-        $0.register(CalendarPageViewCell.self, forCellWithReuseIdentifier: CalendarPageViewCell.identifier)
-    }
-    
-    // MARK: - Properties
+    )
     
     // MARK: - Lifecycles
     override func viewDidLoad() {
@@ -50,11 +42,34 @@ final class CalendarViewController: BaseViewController<CalendarViewReactor> {
         }
     }
     
-    override func setupAttributes() { 
-        super.setupAttributes()
+    override func setupAttributes() {
+        collectionView.do {
+            $0.dataSource = self
+            
+            $0.isScrollEnabled = false
+            $0.backgroundColor = UIColor.black
+            $0.register(CalendarPageCell.self, forCellWithReuseIdentifier: CalendarPageCell.id)
+        }
     }
     
-    override func bind(reactor: CalendarViewReactor) { }
+    override func bind(reactor: CalendarViewReactor) { 
+        super.bind(reactor: reactor)
+        
+        // State
+        reactor.pulse(\.$pushCalendarFeedVC)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.pushCalendarFeedView($0.1)
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$presentPopoverVC)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.presentPopoverView(sourceView: $0.1)
+            }
+            .disposed(by: disposeBag)
+    }
 }
 
 extension CalendarViewController {
@@ -88,6 +103,31 @@ extension CalendarViewController {
     }
 }
 
+extension CalendarViewController {
+    func pushCalendarFeedView(_ date: Date?) {
+        let vc = CalendarFeedViewController()
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func presentPopoverView(sourceView: UIView?) {
+        let vc = CalendarDescriptionPopoverViewController()
+        vc.preferredContentSize = CGSize(
+            width: CalendarVC.Attribute.popoverWidth,
+            height: CalendarVC.Attribute.popoverHeight
+        )
+        vc.modalPresentationStyle = .popover
+        if let presentation = vc.presentationController {
+            presentation.delegate = self
+        }
+        present(vc, animated: true)
+        if let pop = vc.popoverPresentationController {
+            pop.sourceView = sourceView
+            pop.sourceRect = sourceView?.bounds ?? .zero
+        }
+    }
+}
+
+// NOTE: - 임시 코드
 extension CalendarViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 3
@@ -95,9 +135,16 @@ extension CalendarViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: CalendarPageViewCell.identifier,
+            withReuseIdentifier: CalendarPageCell.id,
             for: indexPath
-        ) as! CalendarPageViewCell
+        ) as! CalendarPageCell
+        cell.reactor = reactor?.makeCalenderPageCellReactor()
         return cell
+    }
+}
+
+extension CalendarViewController: UIPopoverPresentationControllerDelegate {
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return .none
     }
 }

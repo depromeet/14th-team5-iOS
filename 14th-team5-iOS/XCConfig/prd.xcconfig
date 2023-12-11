@@ -1,1 +1,2 @@
 #include "../XCConfig/shared.xcconfig"
+#include "../XCConfig/hidden.xcconfig"

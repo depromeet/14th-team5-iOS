@@ -7,9 +7,12 @@
 
 import UIKit
 
+import Core
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    let globalStateProvider: GlobalStateProviderType = GlobalStateProvider()
 
     func scene(
         _ scene: UIScene,
@@ -18,8 +21,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     ) {
         guard let scene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: scene)
-        let cameraDIContainer = CameraDIContainer().makeViewController()
-        window?.rootViewController = cameraDIContainer
+        window?.rootViewController = UINavigationController(rootViewController: MainViewController(reacter: MainViewReactor()))
         window?.makeKeyAndVisible()
     }
 }

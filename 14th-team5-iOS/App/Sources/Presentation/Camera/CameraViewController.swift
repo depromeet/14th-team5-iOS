@@ -14,9 +14,9 @@ import ReactorKit
 import RxSwift
 import RxCocoa
 import SnapKit
-import Then
 
 public final class CameraViewController: BaseViewController<CameraViewReactor> {
+    //MARK: Properties
     fileprivate var captureSession: AVCaptureSession!
     fileprivate var previewLayer: AVCaptureVideoPreviewLayer!
     fileprivate var backCamera: AVCaptureDevice!
@@ -26,33 +26,20 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     fileprivate var cameraOuputStream: AVCaptureVideoDataOutput!
     fileprivate var captureOutputStream: AVCapturePhotoOutput!
     
-    
-    private let cameraView: UIView = UIView().then {
-        $0.layer.cornerRadius = 40
-        $0.clipsToBounds = true
-    }
-    
-    private let shutterButton: UIButton = UIButton().then {
-        $0.setImage(DesignSystemAsset.shutter.image, for: .normal)
-    }
-    
-    private let flashButton: UIButton = UIButton.createCircleButton(radius: 24).then {
-        $0.setImage(DesignSystemAsset.flash.image, for: .normal)
-        $0.backgroundColor = .darkGray
-    }
-    
-    private let toggleButton: UIButton = UIButton.createCircleButton(radius: 24).then {
-        $0.setImage(DesignSystemAsset.toggle.image, for: .normal)
-        $0.backgroundColor = .darkGray
-    }
+    //MARK: Views
+    private let cameraView: UIView = UIView()
+    private let shutterButton: UIButton = UIButton()
+    private let flashButton: UIButton = UIButton.createCircleButton(radius: 24)
+    private let toggleButton: UIButton = UIButton.createCircleButton(radius: 24)
     
     
+    //MARK: LifeCylce
     public override func viewDidLoad() {
         super.viewDidLoad()
         setupCameraPermission()
     }
     
-    
+    //MARK: Configure
     public override func setupUI() {
         super.setupUI()
         view.addSubviews(cameraView, shutterButton, flashButton, toggleButton)
@@ -61,6 +48,25 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     public override func setupAttributes() {
         super.setupAttributes()
         view.backgroundColor = .black
+        
+        cameraView.do {
+            $0.layer.cornerRadius = 40
+            $0.clipsToBounds = true
+        }
+        
+        shutterButton.do {
+            $0.setImage(DesignSystemAsset.shutter.image, for: .normal)
+        }
+        
+        flashButton.do {
+            $0.setImage(DesignSystemAsset.flash.image, for: .normal)
+            $0.backgroundColor = .darkGray
+        }
+        
+        toggleButton.do {
+            $0.setImage(DesignSystemAsset.toggle.image, for: .normal)
+            $0.backgroundColor = .darkGray
+        }
     }
     
     public override func setupAutoLayout() {
@@ -136,6 +142,26 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
                 }
                 owner.cameraOuputStream.connections.first?.isVideoMirrored = !isPosition
                 owner.captureSession.commitConfiguration()
+            }.disposed(by: disposeBag)
+        
+        
+        reactor.pulse(\.$isFlashMode)
+            .skip(1)
+            .withUnretained(self)
+            .bind { owner, isFlash in
+                do {
+                    try owner.backCamera.lockForConfiguration()
+                    try owner.backCamera.setTorchModeOn(level: 1.0)
+                    
+                    if isFlash {
+                        owner.backCamera.torchMode = .on
+                    } else {
+                        owner.backCamera.torchMode = .off
+                    }
+                    owner.backCamera.unlockForConfiguration()
+                } catch {
+                    print(error.localizedDescription)
+                }
             }.disposed(by: disposeBag)
         
     }
@@ -251,6 +277,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
     
     public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         guard let originalData = photo.fileDataRepresentation() else { return }
+        //TODO: originalData 이미지 전송 코드는 추후 CameraDisplayViewController 생성후 추가 예정
         
     }
 }

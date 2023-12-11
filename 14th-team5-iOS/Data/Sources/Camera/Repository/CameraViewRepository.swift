@@ -37,7 +37,11 @@ public final class CameraViewRepository: CameraViewImpl {
     
     
     public func toggleCameraFlash(_ isState: Bool) -> Observable<Bool> {
-        return .empty()
+        return Observable<Bool>
+            .create { observer in
+                observer.onNext(!isState)
+                return Disposables.create()
+            }
     }
     
 }

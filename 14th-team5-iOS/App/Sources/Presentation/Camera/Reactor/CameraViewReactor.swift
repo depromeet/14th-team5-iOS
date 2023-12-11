@@ -23,7 +23,7 @@ public final class CameraViewReactor: Reactor {
     
     public enum Mutation {
         case setPosition(Bool)
-        case setFlashMode
+        case setFlashMode(Bool)
     }
     
     public struct State {
@@ -46,7 +46,7 @@ public final class CameraViewReactor: Reactor {
         case .didTapToggleButton:
             return cameraRepository.toggleCameraPosition(self.currentState.isSwitchPosition).map { .setPosition($0) }
         case .didTapFlashButton:
-            return .empty()
+            return cameraRepository.toggleCameraFlash(self.currentState.isFlashMode).map { .setFlashMode($0) }
         }
         
     }
@@ -56,8 +56,8 @@ public final class CameraViewReactor: Reactor {
         switch mutation {
         case let .setPosition(isPosition):
             newState.isSwitchPosition = isPosition
-        case .setFlashMode: break
-            
+        case let .setFlashMode(isFlash):
+            newState.isFlashMode = isFlash
         }
         
         return newState

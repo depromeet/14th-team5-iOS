@@ -16,6 +16,11 @@ open class BaseCollectionViewCell<R>: UICollectionViewCell, ReactorKit.View wher
     // MARK: - Properties
     public var disposeBag: RxSwift.DisposeBag = DisposeBag()
     
+    public convenience init(reacter: Reactor? = nil) {
+        self.init(frame: .zero)
+        self.reactor = reacter
+    }
+    
     // MARK: - Intializer
     public override init(frame: CGRect) {
         super.init(frame: .zero)

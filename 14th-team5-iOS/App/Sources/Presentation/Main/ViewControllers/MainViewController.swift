@@ -45,7 +45,7 @@ final class MainViewController: BaseViewController<MainViewReactor> {
             .compactMap { $0 }
             .withUnretained(self)
             .subscribe(onNext: { _ in
-                self.navigationController?.pushViewController(FeedDetailViewController(), animated: true)
+                self.navigationController?.pushViewController(FeedDetailViewController(reacter: FeedDetailReactor()), animated: true)
             })
             .disposed(by: disposeBag)
         

@@ -103,7 +103,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .rx.tap
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .withUnretained(self)
-            .bind { owner, _ in
+            .subscribe { owner, _ in
                 let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
                 owner.captureOutputStream.capturePhoto(with: settings, delegate: owner)
             }.disposed(by: disposeBag)
@@ -123,46 +123,17 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        
         reactor.pulse(\.$isSwitchPosition)
             .withUnretained(self)
             .skip(1)
-            .bind { owner, isPosition in
-                owner.captureSession.beginConfiguration()
-                if isPosition {
-                    UIView.transition(with: owner.cameraView, duration: 0.5, options: .transitionFlipFromLeft) {
-                        owner.captureSession.removeInput(owner.backCameraInput)
-                        owner.captureSession.addInput(owner.frontCameraInput)
-                    }
-                } else {
-                    UIView.transition(with: owner.cameraView, duration: 0.5, options: .transitionFlipFromLeft) {
-                        owner.captureSession.removeInput(owner.frontCameraInput)
-                        owner.captureSession.addInput(owner.backCameraInput)
-                    }
-                }
-                owner.cameraOuputStream.connections.first?.isVideoMirrored = !isPosition
-                owner.captureSession.commitConfiguration()
-            }.disposed(by: disposeBag)
-        
+            .bind(onNext: { $0.0.transitionPreViewLayer(owner: $0.0, state: $0.1) })
+            .disposed(by: disposeBag)
         
         reactor.pulse(\.$isFlashMode)
             .skip(1)
             .withUnretained(self)
-            .bind { owner, isFlash in
-                do {
-                    try owner.backCamera.lockForConfiguration()
-                    try owner.backCamera.setTorchModeOn(level: 1.0)
-                    
-                    if isFlash {
-                        owner.backCamera.torchMode = .on
-                    } else {
-                        owner.backCamera.torchMode = .off
-                    }
-                    owner.backCamera.unlockForConfiguration()
-                } catch {
-                    print(error.localizedDescription)
-                }
-            }.disposed(by: disposeBag)
+            .bind(onNext: { $0.0.setupFlashMode(owner: $0.0, isFlash: $0.1) })
+            .disposed(by: disposeBag)
         
     }
 }
@@ -234,12 +205,12 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         previewLayer.connection?.videoOrientation = .portrait
         
         DispatchQueue.main.async { [weak self] in
-            guard let `self` = self else { return }
+            guard let self = self else { return }
             self.previewLayer.frame = self.cameraView.bounds
         }
         cameraView.layer.addSublayer(previewLayer)
         DispatchQueue.global(qos: .background).async { [weak self] in
-            guard let `self` = self else { return }
+            guard let self = self else { return }
             self.captureSession.startRunning()
         }
         
@@ -271,6 +242,41 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
             print("사용자에 의해 권한이 거부된 상태 입니다.")
         default:
             break
+        }
+    }
+    
+    
+    private func transitionPreViewLayer(owner: CameraViewController, state isTransition: Bool) {
+        captureSession.beginConfiguration()
+        if isTransition {
+            UIView.transition(with: owner.cameraView, duration: 0.5, options: .transitionFlipFromLeft) {
+                owner.captureSession.removeInput(owner.backCameraInput)
+                owner.captureSession.addInput(owner.frontCameraInput)
+            }
+        } else {
+            UIView.transition(with: owner.cameraView, duration: 0.5, options: .transitionFlipFromLeft) {
+                owner.captureSession.removeInput(owner.frontCameraInput)
+                owner.captureSession.addInput(owner.backCameraInput)
+            }
+        }
+        owner.cameraOuputStream.connections.first?.isVideoMirrored = !isTransition
+        owner.captureSession.commitConfiguration()
+    }
+    
+    
+    private func setupFlashMode(owner: CameraViewController, isFlash: Bool) {
+        do {
+            try owner.backCamera.lockForConfiguration()
+            try owner.backCamera.setTorchModeOn(level: 1.0)
+            
+            if isFlash {
+                owner.backCamera.torchMode = .on
+            } else {
+                owner.backCamera.torchMode = .off
+            }
+            owner.backCamera.unlockForConfiguration()
+        } catch {
+            print(error.localizedDescription)
         }
     }
     

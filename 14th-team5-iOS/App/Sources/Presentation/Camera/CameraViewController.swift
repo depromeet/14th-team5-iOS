@@ -47,8 +47,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     
     public override func setupAttributes() {
         super.setupAttributes()
-        view.backgroundColor = .black
-        
+
         cameraView.do {
             $0.layer.cornerRadius = 40
             $0.clipsToBounds = true

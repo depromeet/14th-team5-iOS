@@ -60,6 +60,15 @@ final class MainViewController: BaseViewController<MainViewReactor> {
             .asObservable()
             .bind(to: feedCollectionView.rx.items(dataSource: createFeedDataSource()))
             .disposed(by: disposeBag)
+        
+        camerButton
+            .rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, _ in
+                let cameraViewController = CameraDIContainer().makeViewController()
+                owner.navigationController?.pushViewController(cameraViewController, animated: true)
+            }.disposed(by: disposeBag)
     }
     
     override func setupUI() {

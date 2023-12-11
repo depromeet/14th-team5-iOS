@@ -17,14 +17,10 @@ class RxFSCalendarDelegateProxy: DelegateProxy<FSCalendar, FSCalendarDelegate>, 
             RxFSCalendarDelegateProxy(parentObject: $0, delegateProxy: self)
         }
     }
-    
-    static func currentDelegate(for object: FSCalendar) -> FSCalendarDelegate? {
-        return object.delegate
-    }
-    
-    static func setCurrentDelegate(_ delegate: FSCalendarDelegate?, to object: FSCalendar) {
-        object.delegate = delegate
-    }
+}
+
+extension FSCalendar: HasDelegate {
+    public typealias Delegate = FSCalendarDelegate
 }
 
 extension Reactive where Base: FSCalendar {

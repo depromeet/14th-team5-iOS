@@ -32,7 +32,7 @@ final class CalendarViewReactor: Reactor {
     let provider: GlobalStateProviderType
     
     // MARK: - Intializer
-    init(_ provider: GlobalStateProviderType) {
+    init(provider: GlobalStateProviderType) {
         self.initialState = State()
         self.provider = provider
     }
@@ -44,7 +44,7 @@ final class CalendarViewReactor: Reactor {
                 switch event {
                 case let .didSelectCell(date):
                     return Observable<Mutation>.just(.pushCalendarFeedVC(date))
-                case let .didPressedInfoButton(sourceView):
+                case let .didTapInfoButton(sourceView):
                     return Observable<Mutation>.just(.presentPopoverVC(sourceView))
                 }
             }

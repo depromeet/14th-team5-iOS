@@ -57,9 +57,9 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     // MARK: - Helpers
     override func setupUI() { 
         super.setupUI()
-        contentView.addSubview(scoreView)
-        contentView.addSubview(titleStackView)
-        contentView.addSubview(calendarView)
+        contentView.addSubviews(
+            scoreView, titleStackView, calendarView
+        )
         
         scoreView.addSubview(scoreInfoStackView)
         scoreInfoStackView.addArrangedSubviews(

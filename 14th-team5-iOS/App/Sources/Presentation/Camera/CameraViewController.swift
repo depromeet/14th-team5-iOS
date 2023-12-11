@@ -105,8 +105,6 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .subscribe { owner, _ in
                 let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
                 owner.captureOutputStream.capturePhoto(with: settings, delegate: owner)
-                let cameraDisplayViewController = CameraDisplayDIContainer().makeViewController()
-                owner.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
             }.disposed(by: disposeBag)
         
         flashButton
@@ -284,7 +282,8 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
     
     public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         guard let originalData = photo.fileDataRepresentation() else { return }
-        //TODO: originalData 이미지 전송 코드는 추후 CameraDisplayViewController 생성후 추가 예정
-        
+
+        let cameraDisplayViewController = CameraDisplayDIContainer(displayData: originalData).makeViewController()
+        self.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
     }
 }

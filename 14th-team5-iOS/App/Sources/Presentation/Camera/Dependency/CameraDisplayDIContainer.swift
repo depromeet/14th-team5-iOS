@@ -16,6 +16,11 @@ public final class CameraDisplayDIContainer: BaseDIContainer {
     public typealias Repository = CameraDisplayImpl
     public typealias Reactor = CameraDisplayViewReactor
     
+    fileprivate var displayData: Data
+    
+    public init(displayData: Data) {
+        self.displayData = displayData
+    }
     
     public func makeViewController() -> ViewContrller {
         return CameraDisplayViewController(reacter: makeReactor())
@@ -26,7 +31,7 @@ public final class CameraDisplayDIContainer: BaseDIContainer {
     }
     
     public func makeReactor() -> Reactor {
-        return CameraDisplayViewReactor(cameraDisplayRepository: makeRepository())
+        return CameraDisplayViewReactor(cameraDisplayRepository: makeRepository(), displayData: displayData)
     }
     
 }

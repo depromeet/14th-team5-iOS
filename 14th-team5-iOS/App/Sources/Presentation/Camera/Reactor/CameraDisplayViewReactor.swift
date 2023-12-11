@@ -17,17 +17,50 @@ public final class CameraDisplayViewReactor: Reactor {
     public var initialState: State
     private var cameraDisplayRepository: CameraDisplayImpl
     
-    public typealias Action = NoAction
+    public enum Action {
+        case viewDidLoad
+    }
+    
+    public enum Mutation {
+        case setLoading(Bool)
+        case setRenderImage(Data)
+    }
     
     public struct State {
+        var isLoading: Bool
+        @Pulse var displayData: Data
+    }
+    
+    
+    
+    init(cameraDisplayRepository: CameraDisplayImpl, displayData: Data) {
+        self.cameraDisplayRepository = cameraDisplayRepository
+        self.initialState = State(isLoading: false, displayData: displayData)
         
     }
     
-    init(cameraDisplayRepository: CameraDisplayImpl) {
-        self.cameraDisplayRepository = cameraDisplayRepository
-        self.initialState = State()
+    public func mutate(action: Action) -> Observable<Mutation> {
+        switch action {
+        case .viewDidLoad:
+            return .concat(
+                .just(.setLoading(true)),
+                .just(.setRenderImage(self.currentState.displayData)),
+                .just(.setLoading(false))
+            )
+        }
     }
     
+    
+    public func reduce(state: State, mutation: Mutation) -> State {
+        var newState = state
+        switch mutation {
+        case let .setLoading(isLoading):
+            newState.isLoading = isLoading
+        case let .setRenderImage(originalData):
+            newState.displayData = originalData
+        }
+        return newState
+    }
     
     
 }

@@ -7,15 +7,7 @@
 
 import UIKit
 
-extension UICollectionViewLayoutAttributes {
-    func rightAlignFrameOnWidth(_ width: CGFloat,  with sectionInset: UIEdgeInsets){
-        var frame = self.frame
-        frame.origin.x = width - frame.size.width - sectionInset.left
-        self.frame = frame
-    }
-}
-
-class UICollectionViewRightAlignedLayout: UICollectionViewFlowLayout {
+final class UICollectionViewRightAlignedLayout: UICollectionViewFlowLayout {
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         
         var attributesCopy: [UICollectionViewLayoutAttributes] = []

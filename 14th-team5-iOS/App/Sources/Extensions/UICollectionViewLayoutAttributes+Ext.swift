@@ -6,3 +6,11 @@
 //
 
 import Foundation
+
+extension UICollectionViewLayoutAttributes {
+    func rightAlignFrameOnWidth(_ width: CGFloat,  with sectionInset: UIEdgeInsets){
+        var frame = self.frame
+        frame.origin.x = width - frame.size.width - sectionInset.left
+        self.frame = frame
+    }
+}

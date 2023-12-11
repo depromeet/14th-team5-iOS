@@ -13,10 +13,6 @@ struct FeedDetailData {
     let imageURL: String
     let imageText: String
     let emojis: [EmojiData]
-    
-    func getEmojis() -> [EmojiData] {
-        return emojis
-    }
 }
 
 struct EmojiData {

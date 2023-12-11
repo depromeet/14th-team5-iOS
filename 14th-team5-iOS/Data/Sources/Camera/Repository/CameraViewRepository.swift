@@ -13,9 +13,9 @@ import RxSwift
 
 public protocol CameraViewImpl: AnyObject {
     var disposeBag: DisposeBag { get }
-    //TODO: 임시 코드
-    func fetchUploadImage() -> Observable<Void>
-    
+
+    func toggleCameraPosition(_ isState: Bool) -> Observable<Bool>
+    func toggleCameraFlash(_ isState: Bool) -> Observable<Bool>
 }
 
 
@@ -26,8 +26,22 @@ public final class CameraViewRepository: CameraViewImpl {
     
     public init() { }
     
-    public func fetchUploadImage() -> Observable<Void> {
-        return .empty()
+    public func toggleCameraPosition(_ isState: Bool) -> Observable<Bool> {
+        return Observable<Bool>
+            .create { observer in
+                observer.onNext(!isState)
+                
+                return Disposables.create()
+        }
+    }
+    
+    
+    public func toggleCameraFlash(_ isState: Bool) -> Observable<Bool> {
+        return Observable<Bool>
+            .create { observer in
+                observer.onNext(!isState)
+                return Disposables.create()
+            }
     }
     
 }

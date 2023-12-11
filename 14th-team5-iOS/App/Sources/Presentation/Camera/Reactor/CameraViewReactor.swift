@@ -17,19 +17,18 @@ public final class CameraViewReactor: Reactor {
     private var cameraRepository: CameraViewImpl
     
     public enum Action {
-        // TODO: 임시 Action
-        case didTapTakeButton(Void)
+        case didTapFlashButton
+        case didTapToggleButton
     }
     
     public enum Mutation {
-        // TODO: 임시 Mutation
-        case setTakeImage(Void)
+        case setPosition(Bool)
+        case setFlashMode(Bool)
     }
     
     public struct State {
-        //TODO: 임시 State
-        var isFlashMode: Bool
-        var isSwitchPosition: Bool
+       @Pulse var isFlashMode: Bool
+       @Pulse var isSwitchPosition: Bool
     }
     
     init(cameraRepository: CameraViewRepository) {
@@ -44,18 +43,21 @@ public final class CameraViewReactor: Reactor {
     
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .didTapTakeButton:
-            return cameraRepository.fetchUploadImage().map { .setTakeImage($0) }
+        case .didTapToggleButton:
+            return cameraRepository.toggleCameraPosition(self.currentState.isSwitchPosition).map { .setPosition($0) }
+        case .didTapFlashButton:
+            return cameraRepository.toggleCameraFlash(self.currentState.isFlashMode).map { .setFlashMode($0) }
         }
         
     }
     
-    public func reduce(state: State, mutation: Action) -> State {
+    public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
-        case let .didTapTakeButton(isSelect):
-            break
-            
+        case let .setPosition(isPosition):
+            newState.isSwitchPosition = isPosition
+        case let .setFlashMode(isFlash):
+            newState.isFlashMode = isFlash
         }
         
         return newState

@@ -105,6 +105,8 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .subscribe { owner, _ in
                 let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
                 owner.captureOutputStream.capturePhoto(with: settings, delegate: owner)
+                let cameraDisplayViewController = CameraDisplayDIContainer().makeViewController()
+                owner.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
             }.disposed(by: disposeBag)
         
         flashButton

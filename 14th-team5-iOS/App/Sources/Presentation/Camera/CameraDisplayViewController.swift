@@ -120,7 +120,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$displayData)
-            .skip(until: self.rx.methodInvoked(#selector(viewWillAppear(_:))))
+            .skip(until: rx.methodInvoked(#selector(viewWillAppear(_:))))
             .withUnretained(self)
             .bind(onNext: { $0.0.setupCameraDisplayPermission(owner: $0.0, $0.1) })
             .disposed(by: disposeBag)
@@ -135,6 +135,7 @@ extension CameraDisplayViewController {
             PHPhotoLibrary.shared().performChanges {
                 let creationRequest = PHAssetCreationRequest.forAsset()
                 creationRequest.addResource(with: .photo, data: originalData, options: nil)
+                owner.makeToastView(title: "이미지가 저장되었습니다.", textColor: .white, radius: 5)
             }
         } else {
             PHPhotoLibrary.requestAuthorization(for: .addOnly) { stauts in
@@ -142,6 +143,7 @@ extension CameraDisplayViewController {
                 case .authorized, .limited:
                     print("앨범 및 사진에 대한 권한이 부여 되었습니다.")
                 case .denied:
+                    //TODO: 권한 Alert 팝업 추가 예정
                     print("앨범 및 사진에 대한 권한을 거부 당했습니다.")
                 default:
                     print("다른 여부의 권한을 거부 당했습니다.")

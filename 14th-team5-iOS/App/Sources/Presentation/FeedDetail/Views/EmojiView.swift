@@ -1,5 +1,5 @@
 //
-//  EmojiCollectionViewCell.swift
+//  EmojiView.swift
 //  App
 //
 //  Created by 마경미 on 10.12.23.
@@ -8,14 +8,22 @@
 import UIKit
 import Core
 
-final class EmojiCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
-    static let id = "emojiCollectionViewCell"
-    
+import RxSwift
+
+final class EmojiView: BaseView<EmojiReactor> {
     private let emojiLabel = UILabel()
     private let countLabel = UILabel()
     
+    private let tapSubject = PublishSubject<Void>()
+    lazy var tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+    
+    var tapObservable: Observable<Void> {
+        return tapSubject.asObservable()
+    }
+    
     override func setupUI() {
         addSubviews(emojiLabel, countLabel)
+        addGestureRecognizer(tapGesture)
     }
     
     override func bind(reactor: EmojiReactor) {
@@ -23,9 +31,6 @@ final class EmojiCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     }
     
     override func setupAutoLayout() {
-        backgroundColor =  UIColor(red: 0.192, green: 0.192, blue: 0.192, alpha: 1)
-        layer.cornerRadius = 15
-        
         emojiLabel.snp.makeConstraints {
             $0.leading.equalToSuperview().inset(9)
             $0.width.equalTo(16)
@@ -41,14 +46,24 @@ final class EmojiCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     }
     
     override func setupAttributes() {
+        isUserInteractionEnabled = true
+        backgroundColor =  UIColor(red: 0.192, green: 0.192, blue: 0.192, alpha: 1)
+        layer.cornerRadius = 15
+        
         countLabel.do {
             $0.textColor = .white
         }
     }
 }
 
-extension EmojiCollectionViewCell {
-    func setCell(emoji: EmojiData) {
+extension EmojiView {
+    @objc private func handleTap() {
+        tapSubject.onNext(())
+    }
+}
+
+extension EmojiView {
+    func setInitEmoji(emoji: EmojiData) {
         emojiLabel.text = emoji.emoji
         countLabel.text = "\(emoji.count)"
     }

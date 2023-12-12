@@ -13,14 +13,20 @@ struct FamilyWidget: Widget {
     let kind: String = "FamilyWidget"
     
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: FamilyWidgetTimelineProvider()) { _ in
+        StaticConfiguration(kind: kind, provider: FamilyWidgetTimelineProvider()) { entry in
             if #available(iOSApplicationExtension 17.0, *) {
-                FamilyWidgetView()
+                FamilyWidgetView(entry: entry)
                     .containerBackground(for: .widget) {}
             } else {
-                FamilyWidgetView()
+                FamilyWidgetView(entry: entry)
             }
         }
-        .supportedFamilies([.systemMedium])
+        .supportedFamilies([.systemSmall])
+        .contentMarginsDisabled()
+        .configurationDisplayName("Bibbi")
+        .description("Bibbi description")
     }
 }
+
+
+

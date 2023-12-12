@@ -365,7 +365,7 @@ extension CalendarPageCell: FSCalendarDataSource {
                 "https://cdn.pixabay.com/photo/2023/09/25/13/42/kingfisher-8275049_1280.png",
                 "", "", "", ""
             ]
-            let cellModel = CellModel(imageUrl: imageUrls.randomElement(), isHidden: Bool.random())
+            let cellModel = TempCalendarCellModel(imageUrl: imageUrls.randomElement(), isHidden: Bool.random())
             
             cell.reactor = ImageCalendarCellReactor(cellModel)
             return cell

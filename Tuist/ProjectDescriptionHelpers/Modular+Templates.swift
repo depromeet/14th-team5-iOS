@@ -19,6 +19,7 @@ public struct ModularFactory {
     var sources: SourceFilesList?
     var resources: ResourceFileElements?
     var settings: Settings?
+    var entitlements: Entitlements?
     
     
     public init(
@@ -31,7 +32,8 @@ public struct ModularFactory {
         infoPlist: InfoPlist? = .default,
         sources: SourceFilesList? = .default,
         resources: ResourceFileElements? = .default,
-        settings: Settings? = nil
+        settings: Settings? = nil,
+        entitlements: Entitlements? = nil
     ) {
         self.name = name
         self.platform = platform
@@ -43,6 +45,7 @@ public struct ModularFactory {
         self.sources = sources
         self.resources = resources
         self.settings = settings
+        self.entitlements = entitlements
     }
 }
 
@@ -79,6 +82,7 @@ extension Target {
                 infoPlist: factory.infoPlist,
                 sources: factory.sources,
                 resources: factory.resources,
+                entitlements: factory.entitlements,
                 dependencies: factory.dependencies,
                 settings: factory.settings
             )
@@ -92,6 +96,7 @@ extension Target {
                 infoPlist: factory.infoPlist,
                 sources: factory.sources,
                 resources: factory.resources,
+                entitlements: factory.entitlements,
                 dependencies: factory.dependencies,
                 settings: factory.settings
             )
@@ -105,6 +110,7 @@ extension Target {
                 infoPlist: factory.infoPlist,
                 sources: factory.sources,
                 resources: factory.resources,
+                entitlements: factory.entitlements,
                 dependencies: factory.dependencies,
                 settings: factory.settings
             )
@@ -118,6 +124,7 @@ extension Target {
                 infoPlist: factory.infoPlist,
                 sources: factory.sources,
                 resources: factory.resources,
+                entitlements: factory.entitlements,
                 dependencies: factory.dependencies,
                 settings: factory.settings
             )
@@ -131,6 +138,7 @@ extension Target {
                 infoPlist: factory.infoPlist,
                 sources: factory.sources,
                 resources: factory.resources,
+                entitlements: factory.entitlements,
                 dependencies: factory.dependencies,
                 settings: factory.settings
             )

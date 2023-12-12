@@ -14,7 +14,7 @@ private let targets: [Target] = [
         factory: .init(
             products: .app,
             dependencies: ModuleLayer.App.dependencies,
-            bundleId: "com.5ing.pippi",
+            bundleId: "com.5ing.bibbi",
             infoPlist: .extendingDefault(with: [
                 "CFBundleVersion": .string("1"),
                 "CFBundleDisplayName": .string("pippi"),
@@ -40,13 +40,14 @@ private let targets: [Target] = [
                         "CFBundleURLSchemes": .array([.string("$(KAKAO_API_KEY)")]),
                     ]),
                 ]),
-            ])
+            ]),
+            entitlements: .file(path: .relativeToRoot("App.entitlements"))
         )
     ),
     .makeModular(extenions: .Widget, factory: .init(
         products: .appExtension,
         dependencies: ExtensionsLayer.Widget.dependencies,
-        bundleId: "com.5ing.pippi.widgetExtenions",
+        bundleId: "com.5ing.bibbi.widgetExtenions",
         infoPlist: .extendingDefault(with: [
             "CFBundleDisplayName": .string("pippi"),
             "NSExtension" : .dictionary([

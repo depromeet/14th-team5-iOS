@@ -6,7 +6,10 @@
 //
 
 import UIKit
+
+import FirebaseCore
 import FirebaseAnalytics
+import FirebaseMessaging
 import KakaoSDKAuth
 import RxKakaoSDKAuth
 import RxKakaoSDKCommon
@@ -17,7 +20,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        FirebaseApp.configure()
         kakaoApp(application, didFinishLauchingWithOptions: launchOptions)
+        
+        Messaging.messaging().delegate = self
+        UNUserNotificationCenter.current().delegate = self
+        
+        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+        UNUserNotificationCenter.current().requestAuthorization(
+            options: authOptions,
+            completionHandler: { _,_ in }
+        )
+        application.registerForRemoteNotifications()
         
         return true
     }
@@ -43,5 +57,21 @@ extension AppDelegate {
         }
         
         return false
+    }
+}
+
+extension AppDelegate: MessagingDelegate {
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        debugPrint("FCM Token: \(fcmToken ?? "")")
+    }
+}
+
+extension AppDelegate: UNUserNotificationCenterDelegate {
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner, .badge, .sound])
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        completionHandler()
     }
 }

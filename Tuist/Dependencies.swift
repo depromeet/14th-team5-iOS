@@ -23,7 +23,8 @@ let dependencies = Dependencies(
         .kingFisher,
         .fsCalendar
     ], productTypes: [
-        "FSCalendar": .framework
+        "FSCalendar": .framework,
+        "Firebase": .framework
     ],
      baseSettings: .settings(
         configurations: [

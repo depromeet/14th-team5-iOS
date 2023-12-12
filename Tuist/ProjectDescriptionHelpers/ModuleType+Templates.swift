@@ -59,6 +59,7 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
                 .external(name: "SnapKit"),
                 .external(name: "Then"),
                 .external(name: "FirebaseAnalytics"),
+                .external(name: "FirebaseMessaging"),
                 .external(name: "KakaoSDK"),
                 .external(name: "RxKakaoSDK"),
                 .external(name: "Kingfisher"),

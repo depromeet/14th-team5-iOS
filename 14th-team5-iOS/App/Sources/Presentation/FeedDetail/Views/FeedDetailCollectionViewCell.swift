@@ -8,18 +8,17 @@
 import UIKit
 import Core
 
-import RxDataSources
 import RxSwift
 
 final class FeedDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     static let id = "feedDetailCollectionViewCell"
     
-    private let stackView = UIStackView()
+    private let textStackView = UIStackView()
     private let nameLabel = UILabel()
     private let timeLabel = UILabel()
     private let imageView = UIImageView()
     private let imageTextLabel = UILabel()
-    private let emojiCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewRightAlignedLayout())
+    private let emojiStackView = UIStackView()
     private let reactor = EmojiReactor()
     
     override init(frame: CGRect) {
@@ -34,50 +33,38 @@ final class FeedDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     override func setupUI() {
         super.setupUI()
         
-        addSubviews(stackView, imageView, emojiCollectionView)
-        stackView.addArrangedSubviews(nameLabel, timeLabel)
+        addSubviews(textStackView, imageView, emojiStackView)
+        textStackView.addArrangedSubviews(nameLabel, timeLabel)
     }
     
     override func bind(reactor: EmojiReactor) {
-        Observable.just(SectionOfFeedDetail.sections)
-            .bind(to: emojiCollectionView.rx.items(dataSource: createDataSource()))
-            .disposed(by: disposeBag)
-        
-//        emojiCollectionView.rx.itemSelected
-//            .withUnretained(self)
-//            .bind(onNext: {
-////                guard let cell = self.emojiCollectionView.cellForItem(at: $0.1) as? EmojiCollectionViewCell else {
-////                    return 
-////                }
-////                cell.countLabel.text = "바꿨지용"
-//            })
-//            .disposed(by: disposeBag)
+
     }
     
     override func setupAutoLayout() {
         super.setupAutoLayout()
         
-        stackView.snp.makeConstraints {
+        textStackView.snp.makeConstraints {
             $0.top.horizontalEdges.equalToSuperview()
             $0.height.equalTo(16)
         }
         
         imageView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview()
-            $0.top.equalTo(stackView.snp.bottom).offset(8)
+            $0.top.equalTo(textStackView.snp.bottom).offset(8)
         }
         
-        emojiCollectionView.snp.makeConstraints {
-            $0.top.equalTo(imageView.snp.bottom)
-            $0.horizontalEdges.equalToSuperview()
-            $0.bottom.equalTo(self.safeAreaLayoutGuide)
+        emojiStackView.snp.makeConstraints {
+            $0.trailing.equalToSuperview()
+            $0.top.equalTo(imageView.snp.bottom).offset(6)
+            $0.height.equalTo(30)
         }
     }
     
     override func setupAttributes() {
         super.setupAttributes()
         
-        stackView.do {
+        textStackView.do {
             $0.distribution = .fillEqually
             $0.spacing = 0
         }
@@ -91,24 +78,20 @@ final class FeedDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             $0.layer.cornerRadius = 24
         }
         
-        emojiCollectionView.do {
-            $0.delegate = self
-            $0.backgroundColor = .clear
-            $0.register(EmojiCollectionViewCell.self, forCellWithReuseIdentifier: EmojiCollectionViewCell.id)
+        emojiStackView.do {
+            $0.distribution = .equalCentering
+            $0.spacing = 5
         }
     }
 }
 
 extension FeedDetailCollectionViewCell {
-    private func createDataSource() -> RxCollectionViewSectionedReloadDataSource<SectionModel<String, FeedDetailData>> {
-        return RxCollectionViewSectionedReloadDataSource<SectionModel<String, FeedDetailData>>(
-            configureCell: { dataSource, collectionView, indexPath, item in
-                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EmojiCollectionViewCell.id, for: indexPath) as? EmojiCollectionViewCell else {
-                    return UICollectionViewCell()
-                }
-                cell.setCell(emoji: item.emojis[indexPath.row])
-                return cell
-            })
+    private func setStack(emojis: [EmojiData]) {
+        for emoji in emojis {
+            let emojiView = EmojiView()
+            emojiView.setInitEmoji(emoji: emoji)
+            emojiStackView.addArrangedSubview(emojiView)
+        }
     }
 }
 
@@ -117,11 +100,6 @@ extension FeedDetailCollectionViewCell {
         nameLabel.text = data.writer
         timeLabel.text = data.time
         imageView.kf.setImage(with: URL(string: data.imageURL))
-    }
-}
-
-extension FeedDetailCollectionViewCell: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 50, height: 30)
+        setStack(emojis: data.emojis)
     }
 }

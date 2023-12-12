@@ -13,6 +13,7 @@ import RxSwift
 
 final class FeedDetailViewController: BaseViewController<FeedDetailReactor> {
     private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private let layout = UICollectionViewFlowLayout()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,15 +40,17 @@ final class FeedDetailViewController: BaseViewController<FeedDetailReactor> {
     
     override func setupAttributes() {
         super.setupAttributes()
+        
+        layout.do {
+            $0.sectionInset = .zero
+            $0.minimumLineSpacing = 0
+        }
+        
         collectionView.do {
             $0.delegate = self
             $0.isPagingEnabled = true
             $0.backgroundColor = .clear
             $0.register(FeedDetailCollectionViewCell.self, forCellWithReuseIdentifier: FeedDetailCollectionViewCell.id)
-            
-            let layout = UICollectionViewFlowLayout()
-            layout.sectionInset = .zero
-            layout.minimumLineSpacing = 0
             $0.collectionViewLayout = layout
         }
     }

@@ -19,11 +19,13 @@ public final class CameraDisplayViewReactor: Reactor {
     
     public enum Action {
         case viewDidLoad
+        case didTapArchiveButton
     }
     
     public enum Mutation {
         case setLoading(Bool)
         case setRenderImage(Data)
+        case saveDeviceimage(Data)
     }
     
     public struct State {
@@ -47,6 +49,12 @@ public final class CameraDisplayViewReactor: Reactor {
                 .just(.setRenderImage(self.currentState.displayData)),
                 .just(.setLoading(false))
             )
+        case .didTapArchiveButton:
+            return .concat(
+                .just(.setLoading(true)),
+                .just(.saveDeviceimage(self.currentState.displayData)),
+                .just(.setLoading(false))
+            )
         }
     }
     
@@ -58,6 +66,9 @@ public final class CameraDisplayViewReactor: Reactor {
             newState.isLoading = isLoading
         case let .setRenderImage(originalData):
             newState.displayData = originalData
+        case let .saveDeviceimage(saveData):
+            newState.displayData = saveData
+            print("savedeviceImage: \(saveData)")
         }
         return newState
     }

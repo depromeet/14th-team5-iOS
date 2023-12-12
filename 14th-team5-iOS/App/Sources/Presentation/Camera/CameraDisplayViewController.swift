@@ -9,6 +9,7 @@ import UIKit
 
 import Core
 import DesignSystem
+import Photos
 import RxSwift
 import RxCocoa
 import ReactorKit
@@ -20,6 +21,8 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     private let displayView: UIImageView = UIImageView()
     private let confirmButton: UIButton = UIButton.createCircleButton(radius: 36)
     private let displayIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
+    private let archiveButton: UIBarButtonItem = UIBarButtonItem()
+    private let titleView: UILabel = UILabel()
     
     
     //MARK: LifeCylce
@@ -35,6 +38,21 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     
     public override func setupAttributes() {
         super.setupAttributes()
+        
+        titleView.do {
+            $0.textColor = .white
+            $0.text = "사진 올리기"
+        }
+        
+        navigationItem.do {
+            $0.titleView = titleView
+            $0.rightBarButtonItem = archiveButton
+        }
+        
+        archiveButton.do {
+            $0.image = DesignSystemAsset.archive.image
+        }
+        
         displayView.do {
             $0.layer.cornerRadius = 40
             $0.clipsToBounds = true
@@ -74,6 +92,12 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     
     
     public override func bind(reactor: CameraDisplayViewReactor) {
+        archiveButton
+            .rx.tap
+            .throttle(.seconds(1), scheduler: MainScheduler.instance)
+            .map { Reactor.Action.didTapArchiveButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
         Observable
             .just(())
@@ -94,5 +118,36 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .asDriver(onErrorJustReturn: false)
             .drive(displayIndicatorView.rx.isAnimating)
             .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$displayData)
+            .skip(until: self.rx.methodInvoked(#selector(viewWillAppear(_:))))
+            .withUnretained(self)
+            .bind(onNext: { $0.0.setupCameraDisplayPermission(owner: $0.0, $0.1) })
+            .disposed(by: disposeBag)
     }
+}
+
+
+extension CameraDisplayViewController {
+    private func setupCameraDisplayPermission(owner: CameraDisplayViewController, _ originalData: Data) {
+        let status = PHPhotoLibrary.authorizationStatus(for: .addOnly)
+        if status == .authorized || status == .limited {
+            PHPhotoLibrary.shared().performChanges {
+                let creationRequest = PHAssetCreationRequest.forAsset()
+                creationRequest.addResource(with: .photo, data: originalData, options: nil)
+            }
+        } else {
+            PHPhotoLibrary.requestAuthorization(for: .addOnly) { stauts in
+                switch status {
+                case .authorized, .limited:
+                    print("앨범 및 사진에 대한 권한이 부여 되었습니다.")
+                case .denied:
+                    print("앨범 및 사진에 대한 권한을 거부 당했습니다.")
+                default:
+                    print("다른 여부의 권한을 거부 당했습니다.")
+                }
+            }
+        }
+    }
+    
 }

@@ -9,21 +9,14 @@ import UIKit
 import Core
 
 import RxSwift
+import RxCocoa
 
 final class EmojiView: BaseView<EmojiReactor> {
     private let emojiLabel = UILabel()
     private let countLabel = UILabel()
     
-    private let tapSubject = PublishSubject<Void>()
-    lazy var tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
-    
-    var tapObservable: Observable<Void> {
-        return tapSubject.asObservable()
-    }
-    
     override func setupUI() {
         addSubviews(emojiLabel, countLabel)
-        addGestureRecognizer(tapGesture)
     }
     
     override func bind(reactor: EmojiReactor) {
@@ -57,14 +50,20 @@ final class EmojiView: BaseView<EmojiReactor> {
 }
 
 extension EmojiView {
-    @objc private func handleTap() {
-        tapSubject.onNext(())
-    }
-}
-
-extension EmojiView {
     func setInitEmoji(emoji: EmojiData) {
         emojiLabel.text = emoji.emoji
         countLabel.text = "\(emoji.count)"
     }
 }
+
+extension Reactive where Base: EmojiView {
+    var tap: ControlEvent<Void> {
+        let tapGestureRecognizer = UITapGestureRecognizer()
+
+        base.isUserInteractionEnabled = true
+        base.addGestureRecognizer(tapGestureRecognizer)
+
+        return ControlEvent(events: tapGestureRecognizer.rx.event.map { _ in })
+    }
+}
+

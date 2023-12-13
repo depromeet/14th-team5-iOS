@@ -19,6 +19,8 @@ enum LinkShareVC {
         static let copyShareLinkButtonTitle: String = "초대 링크 복사"
         
         static let familyTableHeader: String = "당신의 가족"
+        
+        static let successCopyInvitationUrlToPastboard: String = "링크가 복사되었습니다."
     }
     
     enum AutoLayout {

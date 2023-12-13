@@ -19,7 +19,7 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
     private let shareView: UIView = UIView()
     private let shareTitleLabel: UILabel = UILabel()
     
-    private let copyShareLinkButton: UIButton = UIButton(type: .system)
+    private let copyInvitationUrlButton: UIButton = UIButton(type: .system)
     
     private let tableHeader: UILabel = UILabel()
     private let yourFamilyTableView: UITableView = UITableView()
@@ -40,7 +40,7 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
             tableHeader, yourFamilyTableView
         )
         shareView.addSubviews(
-            shareTitleLabel, copyShareLinkButton
+            shareTitleLabel, copyInvitationUrlButton
         )
     }
     
@@ -58,7 +58,7 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
             $0.centerX.equalTo(shareView.snp.centerX)
         }
         
-        copyShareLinkButton.snp.makeConstraints {
+        copyInvitationUrlButton.snp.makeConstraints {
             $0.leading.equalTo(shareTitleLabel.snp.leading)
             $0.trailing.equalTo(shareTitleLabel.snp.trailing)
             $0.bottom.equalTo(shareView.snp.bottom).offset(-LinkShareVC.AutoLayout.defaultOffsetValue)
@@ -93,7 +93,7 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
             $0.textAlignment = .center
         }
         
-        copyShareLinkButton.do {
+        copyInvitationUrlButton.do {
             $0.setTitle(LinkShareVC.Strings.copyShareLinkButtonTitle, for: .normal)
             $0.setTitleColor(UIColor.black, for: .normal)
             $0.titleLabel?.font = UIFont.boldSystemFont(ofSize: LinkShareVC.Attribute.copyShareLinkButtonFontSize)
@@ -124,6 +124,37 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
     
     override func bind(reactor: LinkShareViewReactor) {
         super.bind(reactor: reactor)
+        bindInput(reactor: reactor)
+        bindOutput(reactor: reactor)
+    }
+    
+    private func bindInput(reactor: LinkShareViewReactor) {
+        copyInvitationUrlButton.rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .map { Reactor.Action.didTapInvitationUrlButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+    }
+    
+    private func bindOutput(reactor: LinkShareViewReactor) {
+        reactor.pulse(\.$invitationUrl)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.makeInvitationUrlSharePanel($0.1, provider: reactor.provider)
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentToastMessage)
+            .filter { $0 }
+            .withUnretained(self)
+            .subscribe {
+                $0.0.makeToastView(
+                    title: LinkShareVC.Strings.successCopyInvitationUrlToPastboard,
+                    textColor: UIColor.white,
+                    radius: 10.0
+                )
+            }
+            .disposed(by: disposeBag)
     }
 }
 

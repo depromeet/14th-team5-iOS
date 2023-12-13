@@ -7,7 +7,13 @@
 
 import UIKit
 
+import Core
 
+extension UIViewController {
+    enum StringLiterals {
+        static let invitationUrlSharePanelTitle: String = "삐삐! 가족에게 보내는 하루 한번 생존 신고"
+    }
+}
 
 extension UIViewController {
     typealias ToastView = UILabel
@@ -45,5 +51,32 @@ extension UIViewController {
             }
         }
     }
+}
+
+extension UIViewController {
+    func makeSharePanel(
+        _ activityItemSources: [UIActivityItemSource],
+        activities: [UIActivity],
+        excludedActivityTypes: [UIActivity.ActivityType] = [.addToReadingList, .copyToPasteboard]
+    ) {
+        let items: [Any] = activityItemSources
+        let activityVC = UIActivityViewController(
+            activityItems: items,
+            applicationActivities: activities
+        )
+        activityVC.excludedActivityTypes = excludedActivityTypes
+        present(activityVC, animated: true)
+    }
     
+    func makeInvitationUrlSharePanel(_ url: URL?, provider globalState: GlobalStateProviderType? = nil) {
+        guard let url = url else { return }
+        let itemSource = UrlActivityItemSource(
+            title: StringLiterals.invitationUrlSharePanelTitle,
+            url: url
+        )
+        let copyToPastboard = CopyInvitationUrlActivity(provider: globalState)
+        
+        UIPasteboard.general.string = url.description
+        makeSharePanel([itemSource], activities: [copyToPastboard])
+    }
 }

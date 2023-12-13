@@ -11,7 +11,7 @@ import ReactorKit
 import RxSwift
 
 // NOTE: - 임시 코드
-struct CellModel {
+struct TempCalendarCellModel {
     var imageUrl: String?
     var isHidden: Bool
 }
@@ -21,10 +21,10 @@ final class ImageCalendarCellReactor: Reactor {
     typealias Action = NoAction
     
     // MARK: - Properties
-    var initialState: CellModel
+    var initialState: TempCalendarCellModel
     
     // MARK: - Intializer
-    init(_ model: CellModel) {
+    init(_ model: TempCalendarCellModel) {
         self.initialState = model
     }
 }

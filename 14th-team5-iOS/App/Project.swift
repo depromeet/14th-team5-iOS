@@ -22,6 +22,7 @@ private let targets: [Target] = [
                 "UILaunchStoryboardName": .string("Launch Screen"),
                 "UISupportedInterfaceOrientations": .array([.string("UIInterfaceOrientationPortrait")]),
                 "UIUserInterfaceStyle": .string("Light"),
+                "NSPhotoLibraryAddUsageDescription" : .string("앨범에 저장하려면 접근 권한이 필요합니다. 접근을 허용하지 않으면 저장 할 수 없으니 '확인'을 선택해 주세요."),
                 "NSCameraUsageDescription": .string("사진 및 동영상 촬영을 위한 카메라 사용 권한"),
                 "UIApplicationSceneManifest" : .dictionary([
                     "UIApplicationSupportsMultipleScenes" : .boolean(false),

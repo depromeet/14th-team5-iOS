@@ -31,7 +31,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     private let shutterButton: UIButton = UIButton()
     private let flashButton: UIButton = UIButton.createCircleButton(radius: 24)
     private let toggleButton: UIButton = UIButton.createCircleButton(radius: 24)
-    
+    private let titleView: UILabel = UILabel()
     
     //MARK: LifeCylce
     public override func viewDidLoad() {
@@ -47,6 +47,15 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     
     public override func setupAttributes() {
         super.setupAttributes()
+        
+        titleView.do {
+            $0.textColor = .white
+            $0.text = "카메라"
+        }
+        
+        navigationItem.do {
+            $0.titleView = titleView
+        }
 
         cameraView.do {
             $0.layer.cornerRadius = 40
@@ -100,7 +109,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     public override func bind(reactor: CameraViewReactor) {
         shutterButton
             .rx.tap
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .throttle(.seconds(1), scheduler: MainScheduler.instance)
             .withUnretained(self)
             .subscribe { owner, _ in
                 let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
@@ -282,7 +291,8 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
     
     public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         guard let originalData = photo.fileDataRepresentation() else { return }
-        //TODO: originalData 이미지 전송 코드는 추후 CameraDisplayViewController 생성후 추가 예정
-        
+
+        let cameraDisplayViewController = CameraDisplayDIContainer(displayData: originalData).makeViewController()
+        self.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
     }
 }

@@ -8,13 +8,8 @@
 import Foundation
 
 import Core
-import FSCalendar
 import ReactorKit
-import RxCocoa
 import RxSwift
-import RxDataSources
-import SnapKit
-import Then
 
 // NOTE: - 임시 코드
 struct TempProfileCellModel {

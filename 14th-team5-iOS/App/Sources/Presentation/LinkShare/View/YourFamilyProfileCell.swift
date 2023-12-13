@@ -9,19 +9,17 @@ import UIKit
 
 import Core
 import ReactorKit
-import RxCocoa
 import RxSwift
-import RxDataSources
 import SnapKit
 import Then
 
 final class YourFamilyProfileCell: BaseTableViewCell<YourFamilProfileCellReactor> {
     // MARK: - Views
-    let profileImageView: UIImageView = UIImageView()
+    private let profileImageView: UIImageView = UIImageView()
     
-    let labelStackView: UIStackView = UIStackView()
-    let nameLabel: UILabel = UILabel()
-    let meLabel: UILabel = UILabel()
+    private let labelStackView: UIStackView = UIStackView()
+    private let nameLabel: UILabel = UILabel()
+    private let meLabel: UILabel = UILabel()
     
     // MARK: - Properties
     static let id: String = "YourFamilyProfileCell"

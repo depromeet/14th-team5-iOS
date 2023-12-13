@@ -23,6 +23,8 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     private let displayIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     private let archiveButton: UIBarButtonItem = UIBarButtonItem()
     private let titleView: UILabel = UILabel()
+    private let displayEditButton: UIButton = UIButton.createCircleButton(radius: 21.5)
+    
     
     
     //MARK: LifeCylce
@@ -34,6 +36,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     public override func setupUI() {
         super.setupUI()
         view.addSubviews(displayView, confirmButton, displayIndicatorView)
+        displayView.addSubview(displayEditButton)
     }
     
     public override func setupAttributes() {
@@ -56,6 +59,12 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         displayView.do {
             $0.layer.cornerRadius = 40
             $0.clipsToBounds = true
+        }
+        
+        displayEditButton.do {
+            $0.setTitle("T", for: .normal)
+            $0.setTitleColor(.white, for: .normal)
+            $0.backgroundColor = .black.withAlphaComponent(0.3)
         }
         
         confirmButton.do {
@@ -86,6 +95,11 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         displayIndicatorView.snp.makeConstraints {
             $0.center.equalToSuperview()
+        }
+        
+        displayEditButton.snp.makeConstraints {
+            $0.bottom.equalToSuperview().offset(-15)
+            $0.centerX.equalToSuperview()
         }
         
     }

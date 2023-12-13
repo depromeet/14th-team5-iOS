@@ -23,15 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         FirebaseApp.configure()
         kakaoApp(application, didFinishLauchingWithOptions: launchOptions)
         
-        Messaging.messaging().delegate = self
-        UNUserNotificationCenter.current().delegate = self
-        
-        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-        UNUserNotificationCenter.current().requestAuthorization(
-            options: authOptions,
-            completionHandler: { _,_ in }
-        )
-        application.registerForRemoteNotifications()
+        setupUserNotificationCenter(application)
         
         return true
     }
@@ -42,6 +34,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         
         return false
+    }
+}
+
+extension AppDelegate {
+    func setupUserNotificationCenter(_ application: UIApplication) {
+        Messaging.messaging().delegate = self
+        UNUserNotificationCenter.current().delegate = self
+        
+        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+        UNUserNotificationCenter.current().requestAuthorization(
+            options: authOptions,
+            completionHandler: { _,_ in }
+        )
+        
+        application.registerForRemoteNotifications()
     }
 }
 

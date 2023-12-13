@@ -82,46 +82,44 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
     override func setupAutoLayout() {
         super.setupAutoLayout()
         shareView.snp.makeConstraints {
-            $0.leading.equalTo(view.snp.leading).offset(16.0)
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(8.0)
-            $0.trailing.equalTo(view.snp.trailing).offset(-16.0)
-            $0.height.equalTo(260)
+            $0.leading.equalTo(view.snp.leading).offset(LinkShareVC.AutoLayout.defaultOffsetValue)
+            $0.top.equalTo(view.safeAreaLayoutGuide).offset(LinkShareVC.AutoLayout.shareViewTopOffsetValue)
+            $0.trailing.equalTo(view.snp.trailing).offset(-LinkShareVC.AutoLayout.defaultOffsetValue)
+            $0.height.equalTo(LinkShareVC.AutoLayout.shareViewHeightValue)
         }
         
         shareTitleLabel.snp.makeConstraints {
-            $0.leading.equalTo(shareView.snp.leading).offset(8.0)
-            $0.top.equalTo(shareView.snp.top).offset(16.0)
-            $0.trailing.equalTo(shareView.snp.trailing).offset(-8.0)
-            $0.height.equalTo(30)
+            $0.top.equalTo(shareView.snp.top).offset(LinkShareVC.AutoLayout.shareTitleLabelTopOffsetValue)
+            $0.centerX.equalTo(shareView.snp.centerX)
         }
         
         shareButtonsStackView.snp.makeConstraints {
-            $0.leading.equalTo(shareView.snp.leading).offset(22.0)
-            $0.top.equalTo(shareTitleLabel.snp.bottom).offset(14.0)
-            $0.trailing.equalTo(shareView.snp.trailing).offset(-22.0)
+            $0.leading.equalTo(shareView.snp.leading).offset(LinkShareVC.AutoLayout.defaultShareButtonStackOffsetValue)
+            $0.top.equalTo(shareTitleLabel.snp.bottom).offset(LinkShareVC.AutoLayout.defaultShareButtonStackOffsetValue)
+            $0.trailing.equalTo(shareView.snp.trailing).offset(-LinkShareVC.AutoLayout.defaultShareButtonStackOffsetValue)
         }
         
         kakaoTalkShareButton.snp.makeConstraints {
-            $0.width.equalTo(kakaoTalkShareButton.snp.height).multipliedBy(1.0)
+            $0.width.equalTo(kakaoTalkShareButton.snp.height).multipliedBy(LinkShareVC.AutoLayout.shareButtonMultiplier)
         }
         
         messageShareButton.snp.makeConstraints {
-            $0.width.equalTo(messageShareButton.snp.height).multipliedBy(1.0)
+            $0.width.equalTo(messageShareButton.snp.height).multipliedBy(LinkShareVC.AutoLayout.shareButtonMultiplier)
         }
         
         instagramShareButton.snp.makeConstraints {
-            $0.width.equalTo(instagramShareButton.snp.height).multipliedBy(1.0)
+            $0.width.equalTo(instagramShareButton.snp.height).multipliedBy(LinkShareVC.AutoLayout.shareButtonMultiplier)
         }
         
         moreShareButton.snp.makeConstraints {
-            $0.width.equalTo(moreShareButton.snp.height).multipliedBy(1.0)
+            $0.width.equalTo(moreShareButton.snp.height).multipliedBy(LinkShareVC.AutoLayout.shareButtonMultiplier)
         }
         
         copyShareLinkButton.snp.makeConstraints {
             $0.leading.equalTo(shareButtonsStackView.snp.leading)
             $0.trailing.equalTo(shareButtonsStackView.snp.trailing)
-            $0.bottom.equalTo(shareView.snp.bottom).offset(-16.0)
-            $0.height.equalTo(50)
+            $0.bottom.equalTo(shareView.snp.bottom).offset(-LinkShareVC.AutoLayout.defaultOffsetValue)
+            $0.height.equalTo(LinkShareVC.AutoLayout.copyShareLinkButtonHeight)
         }
         
         tableHeader.snp.makeConstraints {
@@ -141,27 +139,27 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
         super.setupAttributes()
         shareView.do {
             $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = 10.0
+            $0.layer.cornerRadius = LinkShareVC.Attribute.shareViewCornerRadius
             $0.backgroundColor = UIColor.darkGray
         }
         
         shareTitleLabel.do {
             $0.text = LinkShareVC.Strings.shareTitle
-            $0.font = UIFont.boldSystemFont(ofSize: 16)
+            $0.font = UIFont.boldSystemFont(ofSize: LinkShareVC.Attribute.shareTitleFontSize)
             $0.textColor = UIColor.white
             $0.textAlignment = .center
         }
         
         shareButtonsStackView.do {
             $0.axis = .horizontal
-            $0.spacing = 16.0
+            $0.spacing = LinkShareVC.Attribute.shareButtonsHorizontalStackSpacing
             $0.alignment = .fill
             $0.distribution = .fillEqually
         }
         
         kakaoTalkStackView.do {
             $0.axis = .vertical
-            $0.spacing = 3.0
+            $0.spacing = LinkShareVC.Attribute.shareButtonsVerticalStackSpacing
             $0.alignment = .fill
             $0.distribution = .fill
         }
@@ -169,20 +167,20 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
         kakaoTalkShareButton.do {
             $0.setTitle("이미지", for: .normal)
             $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = 15.0
+            $0.layer.cornerRadius = LinkShareVC.Attribute.shareButtonCorenrRadius
             $0.backgroundColor = UIColor.white
         }
         
         kakaoTalkLabel.do {
             $0.text = LinkShareVC.Strings.kakaoTalkButtonTitle
-            $0.font = UIFont.systemFont(ofSize: 14)
+            $0.font = UIFont.systemFont(ofSize: LinkShareVC.Attribute.shareButtonLabelFontSize)
             $0.textColor = UIColor.white
             $0.textAlignment = .center
         }
         
         messageStackView.do {
             $0.axis = .vertical
-            $0.spacing = 3.0
+            $0.spacing = LinkShareVC.Attribute.shareButtonsVerticalStackSpacing
             $0.alignment = .fill
             $0.distribution = .fill
         }
@@ -190,20 +188,20 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
         messageShareButton.do {
             $0.setTitle("이미지", for: .normal)
             $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = 15.0
+            $0.layer.cornerRadius = LinkShareVC.Attribute.shareButtonCorenrRadius
             $0.backgroundColor = UIColor.white
         }
         
         messageLabel.do {
             $0.text = LinkShareVC.Strings.messageButtonTitle
-            $0.font = UIFont.systemFont(ofSize: 14)
+            $0.font = UIFont.systemFont(ofSize: LinkShareVC.Attribute.shareButtonLabelFontSize)
             $0.textColor = UIColor.white
             $0.textAlignment = .center
         }
         
         instagramStackView.do {
             $0.axis = .vertical
-            $0.spacing = 3.0
+            $0.spacing = LinkShareVC.Attribute.shareButtonsVerticalStackSpacing
             $0.alignment = .fill
             $0.distribution = .fill
         }
@@ -211,20 +209,20 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
         instagramShareButton.do {
             $0.setTitle("이미지", for: .normal)
             $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = 15.0
+            $0.layer.cornerRadius = LinkShareVC.Attribute.shareButtonCorenrRadius
             $0.backgroundColor = UIColor.white
         }
         
         instagramLabel.do {
             $0.text = LinkShareVC.Strings.instagramButtonTitle
-            $0.font = UIFont.systemFont(ofSize: 14)
+            $0.font = UIFont.systemFont(ofSize: LinkShareVC.Attribute.shareButtonLabelFontSize)
             $0.textColor = UIColor.white
             $0.textAlignment = .center
         }
         
         moreStackView.do {
             $0.axis = .vertical
-            $0.spacing = 3.0
+            $0.spacing = LinkShareVC.Attribute.shareButtonsVerticalStackSpacing
             $0.alignment = .fill
             $0.distribution = .fill
         }
@@ -232,13 +230,13 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
         moreShareButton.do {
             $0.setTitle("이미지", for: .normal)
             $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = 15.0
+            $0.layer.cornerRadius = LinkShareVC.Attribute.shareButtonCorenrRadius
             $0.backgroundColor = UIColor.white
         }
         
         moreLabel.do {
             $0.text = LinkShareVC.Strings.moreButtonTitle
-            $0.font = UIFont.systemFont(ofSize: 14)
+            $0.font = UIFont.systemFont(ofSize: LinkShareVC.Attribute.shareButtonLabelFontSize)
             $0.textColor = UIColor.white
             $0.textAlignment = .center
         }
@@ -246,15 +244,15 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
         copyShareLinkButton.do {
             $0.setTitle(LinkShareVC.Strings.copyShareLinkButtonTitle, for: .normal)
             $0.setTitleColor(UIColor.black, for: .normal)
-            $0.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+            $0.titleLabel?.font = UIFont.boldSystemFont(ofSize: LinkShareVC.Attribute.copyShareLinkButtonFontSize)
             $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = 10.0
+            $0.layer.cornerRadius = LinkShareVC.Attribute.shareViewCornerRadius
             $0.backgroundColor = UIColor.white
         }
         
         tableHeader.do {
             $0.text = LinkShareVC.Strings.familyTableHeader
-            $0.font = UIFont.systemFont(ofSize: 20)
+            $0.font = UIFont.systemFont(ofSize: LinkShareVC.Attribute.tableHeaderFontSize)
             $0.textColor = UIColor.white
         }
         

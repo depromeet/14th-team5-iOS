@@ -19,24 +19,6 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
     private let shareView: UIView = UIView()
     private let shareTitleLabel: UILabel = UILabel()
     
-    private let shareButtonsStackView: UIStackView = UIStackView()
-    
-    private let kakaoTalkStackView: UIStackView = UIStackView()
-    private let kakaoTalkShareButton: UIButton = UIButton(type: .system)
-    private let kakaoTalkLabel: UILabel = UILabel()
-    
-    private let messageStackView: UIStackView = UIStackView()
-    private let messageShareButton: UIButton = UIButton(type: .system)
-    private let messageLabel: UILabel = UILabel()
-    
-    private let instagramStackView: UIStackView = UIStackView()
-    private let instagramShareButton: UIButton = UIButton(type: .system)
-    private let instagramLabel: UILabel = UILabel()
-    
-    private let moreStackView: UIStackView = UIStackView()
-    private let moreShareButton: UIButton = UIButton(type: .system)
-    private let moreLabel: UILabel = UILabel()
-    
     private let copyShareLinkButton: UIButton = UIButton(type: .system)
     
     private let tableHeader: UILabel = UILabel()
@@ -58,23 +40,7 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
             tableHeader, yourFamilyTableView
         )
         shareView.addSubviews(
-            shareTitleLabel, shareButtonsStackView, copyShareLinkButton
-        )
-        
-        shareButtonsStackView.addArrangedSubviews(
-            kakaoTalkStackView, messageStackView, instagramStackView, moreStackView
-        )
-        kakaoTalkStackView.addArrangedSubviews(
-            kakaoTalkShareButton, kakaoTalkLabel
-        )
-        messageStackView.addArrangedSubviews(
-            messageShareButton, messageLabel
-        )
-        instagramStackView.addArrangedSubviews(
-            instagramShareButton, instagramLabel
-        )
-        moreStackView.addArrangedSubviews(
-            moreShareButton, moreLabel
+            shareTitleLabel, copyShareLinkButton
         )
     }
     
@@ -92,31 +58,9 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
             $0.centerX.equalTo(shareView.snp.centerX)
         }
         
-        shareButtonsStackView.snp.makeConstraints {
-            $0.leading.equalTo(shareView.snp.leading).offset(LinkShareVC.AutoLayout.defaultShareButtonStackOffsetValue)
-            $0.top.equalTo(shareTitleLabel.snp.bottom).offset(LinkShareVC.AutoLayout.defaultShareButtonStackOffsetValue)
-            $0.trailing.equalTo(shareView.snp.trailing).offset(-LinkShareVC.AutoLayout.defaultShareButtonStackOffsetValue)
-        }
-        
-        kakaoTalkShareButton.snp.makeConstraints {
-            $0.width.equalTo(kakaoTalkShareButton.snp.height).multipliedBy(LinkShareVC.AutoLayout.shareButtonMultiplier)
-        }
-        
-        messageShareButton.snp.makeConstraints {
-            $0.width.equalTo(messageShareButton.snp.height).multipliedBy(LinkShareVC.AutoLayout.shareButtonMultiplier)
-        }
-        
-        instagramShareButton.snp.makeConstraints {
-            $0.width.equalTo(instagramShareButton.snp.height).multipliedBy(LinkShareVC.AutoLayout.shareButtonMultiplier)
-        }
-        
-        moreShareButton.snp.makeConstraints {
-            $0.width.equalTo(moreShareButton.snp.height).multipliedBy(LinkShareVC.AutoLayout.shareButtonMultiplier)
-        }
-        
         copyShareLinkButton.snp.makeConstraints {
-            $0.leading.equalTo(shareButtonsStackView.snp.leading)
-            $0.trailing.equalTo(shareButtonsStackView.snp.trailing)
+            $0.leading.equalTo(shareTitleLabel.snp.leading)
+            $0.trailing.equalTo(shareTitleLabel.snp.trailing)
             $0.bottom.equalTo(shareView.snp.bottom).offset(-LinkShareVC.AutoLayout.defaultOffsetValue)
             $0.height.equalTo(LinkShareVC.AutoLayout.copyShareLinkButtonHeight)
         }
@@ -145,97 +89,6 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
         shareTitleLabel.do {
             $0.text = LinkShareVC.Strings.shareTitle
             $0.font = UIFont.boldSystemFont(ofSize: LinkShareVC.Attribute.shareTitleFontSize)
-            $0.textColor = UIColor.white
-            $0.textAlignment = .center
-        }
-        
-        shareButtonsStackView.do {
-            $0.axis = .horizontal
-            $0.spacing = LinkShareVC.Attribute.shareButtonsHorizontalStackSpacing
-            $0.alignment = .fill
-            $0.distribution = .fillEqually
-        }
-        
-        kakaoTalkStackView.do {
-            $0.axis = .vertical
-            $0.spacing = LinkShareVC.Attribute.shareButtonsVerticalStackSpacing
-            $0.alignment = .fill
-            $0.distribution = .fill
-        }
-        
-        kakaoTalkShareButton.do {
-            $0.setTitle("이미지", for: .normal)
-            $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = LinkShareVC.Attribute.shareButtonCorenrRadius
-            $0.backgroundColor = UIColor.white
-        }
-        
-        kakaoTalkLabel.do {
-            $0.text = LinkShareVC.Strings.kakaoTalkButtonTitle
-            $0.font = UIFont.systemFont(ofSize: LinkShareVC.Attribute.shareButtonLabelFontSize)
-            $0.textColor = UIColor.white
-            $0.textAlignment = .center
-        }
-        
-        messageStackView.do {
-            $0.axis = .vertical
-            $0.spacing = LinkShareVC.Attribute.shareButtonsVerticalStackSpacing
-            $0.alignment = .fill
-            $0.distribution = .fill
-        }
-        
-        messageShareButton.do {
-            $0.setTitle("이미지", for: .normal)
-            $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = LinkShareVC.Attribute.shareButtonCorenrRadius
-            $0.backgroundColor = UIColor.white
-        }
-        
-        messageLabel.do {
-            $0.text = LinkShareVC.Strings.messageButtonTitle
-            $0.font = UIFont.systemFont(ofSize: LinkShareVC.Attribute.shareButtonLabelFontSize)
-            $0.textColor = UIColor.white
-            $0.textAlignment = .center
-        }
-        
-        instagramStackView.do {
-            $0.axis = .vertical
-            $0.spacing = LinkShareVC.Attribute.shareButtonsVerticalStackSpacing
-            $0.alignment = .fill
-            $0.distribution = .fill
-        }
-        
-        instagramShareButton.do {
-            $0.setTitle("이미지", for: .normal)
-            $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = LinkShareVC.Attribute.shareButtonCorenrRadius
-            $0.backgroundColor = UIColor.white
-        }
-        
-        instagramLabel.do {
-            $0.text = LinkShareVC.Strings.instagramButtonTitle
-            $0.font = UIFont.systemFont(ofSize: LinkShareVC.Attribute.shareButtonLabelFontSize)
-            $0.textColor = UIColor.white
-            $0.textAlignment = .center
-        }
-        
-        moreStackView.do {
-            $0.axis = .vertical
-            $0.spacing = LinkShareVC.Attribute.shareButtonsVerticalStackSpacing
-            $0.alignment = .fill
-            $0.distribution = .fill
-        }
-        
-        moreShareButton.do {
-            $0.setTitle("이미지", for: .normal)
-            $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = LinkShareVC.Attribute.shareButtonCorenrRadius
-            $0.backgroundColor = UIColor.white
-        }
-        
-        moreLabel.do {
-            $0.text = LinkShareVC.Strings.moreButtonTitle
-            $0.font = UIFont.systemFont(ofSize: LinkShareVC.Attribute.shareButtonLabelFontSize)
             $0.textColor = UIColor.white
             $0.textAlignment = .center
         }

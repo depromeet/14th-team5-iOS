@@ -770,6 +770,20 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3A9BAF3D575CE0FE5089AA45"
+               BuildableName = "SwiftKeychainWrapper.framework"
+               BlueprintName = "SwiftKeychainWrapper"
+               ReferencedContainer = "container:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/SwiftKeychainWrapper/SwiftKeychainWrapper.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "FE3DC8F97DB86B8D9A0E5C08"
                BuildableName = "Then.framework"
                BlueprintName = "Then"

@@ -321,7 +321,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
         infoButton.rx.tap
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .withUnretained(self)
-            .map { Reactor.Action.didPressInfoButton($0.0.infoButton) }
+            .map { Reactor.Action.didTapInfoButton($0.0.infoButton) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         

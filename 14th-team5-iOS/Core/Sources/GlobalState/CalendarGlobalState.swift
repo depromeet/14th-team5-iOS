@@ -17,7 +17,7 @@ public enum CalendarEvent {
 public protocol CalendarGlobalStateType {
     var event: PublishSubject<CalendarEvent> { get }
     func didSelectCell(_ date: Date) -> Observable<Date>
-    func didPressedInfoButton(_ sourceView: UIView) -> Observable<Void>
+    func didTapInfoButton(_ sourceView: UIView) -> Observable<Void>
 }
 
 final public class CalendarGlobalState: BaseGlobalState, CalendarGlobalStateType {
@@ -28,7 +28,7 @@ final public class CalendarGlobalState: BaseGlobalState, CalendarGlobalStateType
         return Observable<Date>.just(date)
     }
     
-    public func didPressedInfoButton(_ sourceView: UIView) -> Observable<Void> {
+    public func didTapInfoButton(_ sourceView: UIView) -> Observable<Void> {
         event.onNext(.didTapInfoButton(sourceView))
         return Observable<Void>.just(())
     }

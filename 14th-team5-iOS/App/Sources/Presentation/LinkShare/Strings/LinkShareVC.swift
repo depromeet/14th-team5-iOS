@@ -19,29 +19,25 @@ enum LinkShareVC {
         static let copyShareLinkButtonTitle: String = "초대 링크 복사"
         
         static let familyTableHeader: String = "당신의 가족"
+        
+        static let successCopyInvitationUrlToPastboard: String = "링크가 복사되었습니다."
     }
     
     enum AutoLayout {
         static let defaultOffsetValue: CGFloat = 16.0
         static let shareViewTopOffsetValue: CGFloat = 8.0
-        static let shareViewHeightValue: CGFloat = 260.0
+        static let shareViewHeightValue: CGFloat = 140.0
         
         static let shareTitleLabelTopOffsetValue: CGFloat = 16.0
-        
-        static let defaultShareButtonStackOffsetValue: CGFloat = 22.0
-        
-        static let shareButtonMultiplier: CGFloat = 1.0
+
         static let copyShareLinkButtonHeight: CGFloat = 50.0
     }
     
     enum Attribute {
         static let shareViewCornerRadius: CGFloat = 10.0
         static let shareTitleFontSize: CGFloat = 16.0
-        static let shareButtonsHorizontalStackSpacing: CGFloat = 16.0
-        static let shareButtonsVerticalStackSpacing: CGFloat = 3.0
-        static let shareButtonCorenrRadius: CGFloat = 15.0
-        static let shareButtonLabelFontSize: CGFloat = 14.0
         static let copyShareLinkButtonFontSize: CGFloat = 16.0
+        
         static let tableHeaderFontSize: CGFloat = 20.0
     }
 }

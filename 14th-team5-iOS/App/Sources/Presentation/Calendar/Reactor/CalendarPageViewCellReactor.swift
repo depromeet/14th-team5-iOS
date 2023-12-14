@@ -15,7 +15,7 @@ final class CalendarPageCellReactor: Reactor {
     // MARK: - Action
     enum Action {
         case didSelectCell(Date)
-        case didPressInfoButton(UIView)
+        case didTapInfoButton(UIView)
     }
     
     // MARK: - Mutation
@@ -42,8 +42,8 @@ final class CalendarPageCellReactor: Reactor {
         case let .didSelectCell(date):
             return provider.calendarGlabalState.didSelectCell(date)
                 .map { _ in .none }
-        case let .didPressInfoButton(sourceView):
-            return provider.calendarGlabalState.didPressedInfoButton(sourceView)
+        case let .didTapInfoButton(sourceView):
+            return provider.calendarGlabalState.didTapInfoButton(sourceView)
                 .map { _ in .none }
         }
     }

@@ -20,6 +20,7 @@ public final class CameraDisplayViewReactor: Reactor {
     public enum Action {
         case viewDidLoad
         case didTapArchiveButton
+        case fetchDisplayImage(String)
     }
     
     public enum Mutation {
@@ -31,6 +32,7 @@ public final class CameraDisplayViewReactor: Reactor {
     
     public struct State {
         var isLoading: Bool
+        var displayDescrption: String
         @Pulse var displayData: Data
         @Pulse var displaySection: [DisplayEditSectionModel]
     }
@@ -39,17 +41,27 @@ public final class CameraDisplayViewReactor: Reactor {
     
     init(cameraDisplayRepository: CameraDisplayImpl, displayData: Data) {
         self.cameraDisplayRepository = cameraDisplayRepository
-        self.initialState = State(isLoading: false, displayData: displayData, displaySection: [.displayKeyword([])])
+        self.initialState = State(
+            isLoading: false,
+            displayDescrption: "",
+            displayData: displayData,
+            displaySection: [.displayKeyword([])]
+        )
         
     }
     
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewDidLoad:
-            return Observable.concat(
-                Observable.just(.setLoading(true)),
-                Observable.just(.setRenderImage(self.currentState.displayData)),
-                cameraDisplayRepository.generateDescrption(with: "teet")
+            return .concat(
+                .just(.setLoading(true)),
+                .just(.setRenderImage(self.currentState.displayData)),
+                .just(.setLoading(false))
+            )
+        case let .fetchDisplayImage(description):
+            return .concat(
+                .just(.setLoading(true)),
+                cameraDisplayRepository.generateDescrption(with: description)
                     .asObservable()
                     .flatMap { items -> Observable<CameraDisplayViewReactor.Mutation> in
                         var sectionItem: [DisplayEditItemModel] = []

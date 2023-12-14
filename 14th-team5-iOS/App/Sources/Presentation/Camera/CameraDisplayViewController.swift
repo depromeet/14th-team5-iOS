@@ -170,6 +170,15 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
                 owner.view.endEditing(true)
             }.disposed(by: disposeBag)
         
+        displayEditTextField.rx
+            .text.orEmpty
+            .distinctUntilChanged()
+            .observe(on: MainScheduler.instance)
+            .map { Reactor.Action.fetchDisplayImage($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        
         NotificationCenter.default
             .rx.notification(UIResponder.keyboardWillShowNotification)
             .observe(on: MainScheduler.instance)

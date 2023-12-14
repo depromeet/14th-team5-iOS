@@ -39,7 +39,6 @@ final class EmojiView: BaseView<EmojiReactor> {
     }
     
     override func setupAttributes() {
-        isUserInteractionEnabled = true
         backgroundColor =  UIColor(red: 0.192, green: 0.192, blue: 0.192, alpha: 1)
         layer.cornerRadius = 15
         
@@ -54,16 +53,9 @@ extension EmojiView {
         emojiLabel.text = emoji.emoji
         countLabel.text = "\(emoji.count)"
     }
-}
-
-extension Reactive where Base: EmojiView {
-    var tap: ControlEvent<Void> {
-        let tapGestureRecognizer = UITapGestureRecognizer()
-
-        base.isUserInteractionEnabled = true
-        base.addGestureRecognizer(tapGestureRecognizer)
-
-        return ControlEvent(events: tapGestureRecognizer.rx.event.map { _ in })
+    
+    func setCountLabel(_ count: Int) {
+        countLabel.text = "\(count)"
     }
 }
 

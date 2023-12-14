@@ -53,7 +53,7 @@ public final class DisplayEditCollectionViewCell: BaseCollectionViewCell<Display
         
         descrptionLabel.snp.makeConstraints {
             $0.width.equalTo(30)
-            $0.height.equalTo(21)
+            $0.height.equalTo(30)
             $0.center.equalTo(containerView)
         }
     }

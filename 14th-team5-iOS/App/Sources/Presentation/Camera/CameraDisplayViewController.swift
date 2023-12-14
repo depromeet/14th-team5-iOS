@@ -88,11 +88,13 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             $0.backgroundColor = .black
             $0.font = .systemFont(ofSize: 17, weight: .regular)
             $0.makeLeftPadding(16)
+            $0.makeClearButton(DesignSystemAsset.clear.image)
             $0.keyboardType = .default
             $0.returnKeyType = .done
             $0.keyboardAppearance = .dark
             $0.borderStyle = .none
             $0.clearButtonMode = .whileEditing
+            $0.isHidden = true
         }
         
         displayEditCollectionView.do {
@@ -173,9 +175,21 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         displayEditTextField.rx
             .text.orEmpty
             .distinctUntilChanged()
+            .filter { $0.count <= 8 }
             .observe(on: MainScheduler.instance)
             .map { Reactor.Action.fetchDisplayImage($0) }
             .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        displayEditTextField.rx
+            .text.orEmpty
+            .scan("") { previous, new -> String in
+                if new.count >= 8 {
+                  return previous
+                } else {
+                  return new
+                }
+            }.bind(to: displayEditTextField.rx.text)
             .disposed(by: disposeBag)
         
         
@@ -184,6 +198,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
             .bind { owner, _ in
+                owner.displayEditTextField.isHidden = false
                 owner.displayEditTextField.snp.updateConstraints {
                     $0.height.equalTo(46)
                 }
@@ -198,6 +213,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
                 owner.displayEditTextField.snp.updateConstraints {
                     $0.height.equalTo(0)
                 }
+                owner.displayEditTextField.isHidden = true
             }.disposed(by: disposeBag)
         
         Observable

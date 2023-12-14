@@ -15,4 +15,10 @@ extension UITextField {
         self.leftView = paddingView
         self.leftViewMode = .always
     }
+    
+    public func makeClearButton(_ image: UIImage) {
+        if let clearButton = self.value(forKey: "_clearButton") as? UIButton {
+            clearButton.setImage(image, for: .normal)
+        }
+    }
 }

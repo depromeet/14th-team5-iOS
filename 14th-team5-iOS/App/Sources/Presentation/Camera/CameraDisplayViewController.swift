@@ -10,6 +10,7 @@ import UIKit
 import Core
 import DesignSystem
 import Photos
+import RxDataSources
 import RxSwift
 import RxCocoa
 import ReactorKit
@@ -24,8 +25,15 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     private let archiveButton: UIBarButtonItem = UIBarButtonItem()
     private let titleView: UILabel = UILabel()
     private let displayEditButton: UIButton = UIButton.createCircleButton(radius: 21.5)
-    
-    
+    private let displayEditCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private let displayEditDataSources: RxCollectionViewSectionedReloadDataSource<DisplayEditSectionModel> = .init { dataSources, collectionView, indexPath, sectionItem in
+        switch sectionItem {
+        case let .fetchDisplayItem(cellReactor):
+            guard let displayEditCell = collectionView.dequeueReusableCell(withReuseIdentifier: "DisplayEditCollectionViewCell", for: indexPath) as? DisplayEditCollectionViewCell else { return UICollectionViewCell() }
+            displayEditCell.reactor = cellReactor
+            return displayEditCell
+        }
+    }
     
     //MARK: LifeCylce
     public override func viewDidLoad() {
@@ -36,7 +44,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     public override func setupUI() {
         super.setupUI()
         view.addSubviews(displayView, confirmButton, displayIndicatorView)
-        displayView.addSubview(displayEditButton)
+        displayView.addSubviews(displayEditButton, displayEditCollectionView)
     }
     
     public override func setupAttributes() {
@@ -73,6 +81,14 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             
         }
         
+        displayEditCollectionView.do {
+            $0.register(DisplayEditCollectionViewCell.self, forCellWithReuseIdentifier: "DisplayEditCollectionViewCell")
+            $0.showsVerticalScrollIndicator = false
+            $0.showsHorizontalScrollIndicator = false
+            $0.backgroundColor = .clear
+            $0.isScrollEnabled = false
+        }
+        
         displayIndicatorView.do {
             $0.hidesWhenStopped = true
             $0.color = .gray
@@ -100,6 +116,12 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         displayEditButton.snp.makeConstraints {
             $0.bottom.equalToSuperview().offset(-15)
             $0.centerX.equalToSuperview()
+        }
+        
+        displayEditCollectionView.snp.makeConstraints {
+            $0.height.equalTo(61)
+            $0.width.equalTo(view.frame.size.width - 43)
+            $0.center.equalToSuperview()
         }
         
     }
@@ -138,6 +160,15 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .withUnretained(self)
             .bind(onNext: { $0.0.setupCameraDisplayPermission(owner: $0.0, $0.1) })
             .disposed(by: disposeBag)
+        
+        displayEditCollectionView.rx
+            .setDelegate(self)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$displaySection)
+            .asDriver(onErrorJustReturn: [])
+            .drive(displayEditCollectionView.rx.items(dataSource: displayEditDataSources))
+            .disposed(by: disposeBag)
     }
 }
 
@@ -166,4 +197,11 @@ extension CameraDisplayViewController {
         }
     }
     
+}
+
+extension CameraDisplayViewController: UICollectionViewDelegateFlowLayout {
+    
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: 38, height: 61)
+    }
 }

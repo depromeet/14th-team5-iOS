@@ -9,12 +9,13 @@ import Foundation
 
 import RxSwift
 import RxCocoa
+import RxDataSources
 import ReactorKit
 
 
 public protocol CameraDisplayImpl: AnyObject {
     var disposeBag: DisposeBag { get }
-    
+    func generateDescrption(with keyword: String) -> Observable<Array<String>>
 }
 
 public final class CameraDisplayViewRepository: CameraDisplayImpl {
@@ -22,5 +23,16 @@ public final class CameraDisplayViewRepository: CameraDisplayImpl {
     
     
     public var disposeBag: DisposeBag = DisposeBag()
+    
+    
+    public func generateDescrption(with keyword: String) -> RxSwift.Observable<Array<String>> {
+        
+        let item: Array<String> = Array(keyword).map { String($0) }
+        return Observable.create { observer in
+            observer.onNext(item)
+            
+            return Disposables.create()
+        }
+    }
     
 }

@@ -25,6 +25,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     private let archiveButton: UIBarButtonItem = UIBarButtonItem()
     private let titleView: UILabel = UILabel()
     private let displayEditButton: UIButton = UIButton.createCircleButton(radius: 21.5)
+    private let displayEditTextField: UITextField = UITextField()
     private let displayEditCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let displayEditDataSources: RxCollectionViewSectionedReloadDataSource<DisplayEditSectionModel> = .init { dataSources, collectionView, indexPath, sectionItem in
         switch sectionItem {
@@ -43,7 +44,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(displayView, confirmButton, displayIndicatorView)
+        view.addSubviews(displayView, confirmButton, displayIndicatorView, displayEditTextField)
         displayView.addSubviews(displayEditButton, displayEditCollectionView)
     }
     
@@ -67,6 +68,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         displayView.do {
             $0.layer.cornerRadius = 40
             $0.clipsToBounds = true
+            $0.isUserInteractionEnabled = true
         }
         
         displayEditButton.do {
@@ -77,8 +79,20 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         confirmButton.do {
             $0.backgroundColor = .white
+            $0.isUserInteractionEnabled = true
             $0.setImage(DesignSystemAsset.confirm.image, for: .normal)
-            
+        }
+        
+        displayEditTextField.do {
+            $0.textColor = .white
+            $0.backgroundColor = .black
+            $0.font = .systemFont(ofSize: 17, weight: .regular)
+            $0.makeLeftPadding(16)
+            $0.keyboardType = .default
+            $0.returnKeyType = .done
+            $0.keyboardAppearance = .dark
+            $0.borderStyle = .none
+            $0.clearButtonMode = .whileEditing
         }
         
         displayEditCollectionView.do {
@@ -97,6 +111,12 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
+        
+        displayEditTextField.snp.makeConstraints {
+            $0.height.equalTo(0)
+            $0.left.right.equalToSuperview()
+            $0.bottom.equalTo(view.keyboardLayoutGuide.snp.top)
+        }
         
         displayView.snp.makeConstraints {
             $0.width.equalToSuperview()
@@ -134,6 +154,42 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .map { Reactor.Action.didTapArchiveButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        displayEditButton
+            .rx.tap
+            .withUnretained(self)
+            .subscribe { owner, _ in
+                owner.displayEditTextField.becomeFirstResponder()
+            }.disposed(by: disposeBag)
+        
+        view.rx
+            .tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.view.endEditing(true)
+            }.disposed(by: disposeBag)
+        
+        NotificationCenter.default
+            .rx.notification(UIResponder.keyboardWillShowNotification)
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.displayEditTextField.snp.updateConstraints {
+                    $0.height.equalTo(46)
+                }
+            }.disposed(by: disposeBag)
+        
+        
+        NotificationCenter.default
+            .rx.notification(UIResponder.keyboardWillHideNotification)
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.displayEditTextField.snp.updateConstraints {
+                    $0.height.equalTo(0)
+                }
+            }.disposed(by: disposeBag)
         
         Observable
             .just(())

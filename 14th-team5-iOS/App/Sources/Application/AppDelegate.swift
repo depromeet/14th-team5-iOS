@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Core
 
 import FirebaseCore
 import FirebaseAnalytics
@@ -81,4 +82,15 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         completionHandler()
     }
+}
+
+extension AppDelegate {
+    func bindRepositories() {
+        App.Repository.token.bind()
+    }
+
+    func unbindRepositories() {
+        App.Repository.token.unbind()
+    }
+
 }

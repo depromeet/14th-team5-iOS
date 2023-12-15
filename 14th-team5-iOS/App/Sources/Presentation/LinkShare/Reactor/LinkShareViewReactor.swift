@@ -34,7 +34,7 @@ final class LinkShareViewReactor: Reactor {
     let provider: GlobalStateProviderType
     
     // MARK: - Intializer
-    init(_ provider: GlobalStateProviderType) {
+    init(provider: GlobalStateProviderType) {
         self.initialState = State()
         self.provider = provider
     }

@@ -11,11 +11,11 @@ import ReactorKit
 
 final class FeedDetailReactor: Reactor {
     enum Action {
-        case emojiButtonTapped
+
     }
     
     enum Mutation {
-        case updateEmojiState
+
     }
     
     struct State {
@@ -28,16 +28,12 @@ final class FeedDetailReactor: Reactor {
 extension FeedDetailReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .emojiButtonTapped:
-            return Observable.just(Mutation.updateEmojiState)
-        }
     }
     
     func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
-        case .updateEmojiState:
-              return newState
+            return newState
         }
     }
 }

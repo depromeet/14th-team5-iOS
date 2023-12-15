@@ -8,6 +8,7 @@
 import Foundation
 
 import Core
+import Data
 import ReactorKit
 import RxSwift
 
@@ -31,11 +32,13 @@ final class LinkShareViewReactor: Reactor {
     
     // MARK: - Properties
     let initialState: State
+    let linkShareViewRepository: LinkShareViewRepository
     let provider: GlobalStateProviderType
     
     // MARK: - Intializer
     init(provider: GlobalStateProviderType) {
         self.initialState = State()
+        self.linkShareViewRepository = LinkShareViewRepository()
         self.provider = provider
     }
     
@@ -56,10 +59,9 @@ final class LinkShareViewReactor: Reactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .didTapInvitationUrlButton:
-            // TODO: - 공유 링크 가져오기 코드 구현
-            return Observable<Mutation>.just(
-                .presentSharePanel(URL(string: "https://github.com/depromeet/14th-team5-iOS"))
-            )
+            // TODO: - FamilyID 구하는 코드 구현
+            return linkShareViewRepository.responseInvitationUrl("familyId")
+                .map { .presentSharePanel($0) }
         }
     }
     
@@ -69,7 +71,6 @@ final class LinkShareViewReactor: Reactor {
         switch mutation {
         case let .presentSharePanel(url):
             newState.invitationUrl = url
-        // TODO: - ToastMessage 구현하기
         case .presentToastMessage:
             newState.shouldPresentToastMessage = true
         }

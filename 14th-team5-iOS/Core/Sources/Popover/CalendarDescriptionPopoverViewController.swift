@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 import Then
 
-final public class PopoverDescriptionViewController: UIViewController {
+public final class PopoverDescriptionViewController: UIViewController {
     // MARK: - Views
     private let descrpitionLabel: UILabel = UILabel()
     

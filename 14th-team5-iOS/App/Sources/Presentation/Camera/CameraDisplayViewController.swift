@@ -26,6 +26,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     private let titleView: UILabel = UILabel()
     private let displayEditButton: UIButton = UIButton.createCircleButton(radius: 21.5)
     private let displayEditTextField: UITextField = UITextField()
+    private let displayDimView: UIView = UIView()
     private let displayEditCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let displayEditDataSources: RxCollectionViewSectionedReloadDataSource<DisplayEditSectionModel> = .init { dataSources, collectionView, indexPath, sectionItem in
         switch sectionItem {
@@ -204,12 +205,21 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .bind(onNext: { $0.0.didTapCollectionViewTransition($0.0)})
             .disposed(by: disposeBag)
         
+        displayDimView
+            .rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.view.endEditing(true)
+            }.disposed(by: disposeBag)
+        
         
         NotificationCenter.default
             .rx.notification(UIResponder.keyboardWillShowNotification)
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
-            .subscribe(onNext: { $0.0.keyboardWillShowGenerateUI($0.0)})
+            .bind(onNext: { $0.0.keyboardWillShowGenerateUI($0.0)})
             .disposed(by: disposeBag)
         
         
@@ -217,7 +227,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .rx.notification(UIResponder.keyboardWillHideNotification)
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
-            .subscribe(onNext: {$0.0.keyboardWillHideGenerateUI($0.0)})
+            .bind(onNext: {$0.0.keyboardWillHideGenerateUI($0.0)})
             .disposed(by: disposeBag)
         
         Observable
@@ -286,6 +296,7 @@ extension CameraDisplayViewController {
         owner.displayEditTextField.snp.updateConstraints {
             $0.height.equalTo(0)
         }
+        owner.dismissDimView()
         UIView.animate(withDuration: 0.5) {
             owner.displayEditCollectionView.transform = CGAffineTransform(scaleX: 0.7, y: 0.7).translatedBy(x: 0, y: 200)
         }
@@ -294,6 +305,9 @@ extension CameraDisplayViewController {
     
     private func keyboardWillShowGenerateUI(_ owner: CameraDisplayViewController) {
         owner.displayEditTextField.isHidden = false
+        owner.presentDimView()
+        owner.displayView.bringSubviewToFront(owner.displayEditCollectionView)
+        owner.displayDimView.backgroundColor = .black.withAlphaComponent(0.5)
         owner.displayEditTextField.snp.updateConstraints {
             $0.height.equalTo(46)
         }
@@ -306,6 +320,22 @@ extension CameraDisplayViewController {
         }
     }
     
+    private func presentDimView() {
+        displayView.addSubview(displayDimView)
+        displayDimView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        displayView.bringSubviewToFront(displayEditCollectionView)
+        displayDimView.backgroundColor = .black.withAlphaComponent(0.5)
+    }
+    
+    private func dismissDimView() {
+        displayView.subviews.forEach {
+            if $0.backgroundColor == UIColor.black.withAlphaComponent(0.5) {
+                $0.removeFromSuperview()
+            }
+        }
+    }
 }
 
 extension CameraDisplayViewController: UICollectionViewDelegateFlowLayout {

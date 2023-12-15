@@ -89,6 +89,10 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             $0.font = .systemFont(ofSize: 17, weight: .regular)
             $0.makeLeftPadding(16)
             $0.makeClearButton(DesignSystemAsset.clear.image)
+            $0.makePlaceholderAttributedString("최대 8글자 이내로 입력해주세요.", attributed: [
+                .font: UIFont.systemFont(ofSize: 17, weight: .regular),
+                .foregroundColor: UIColor(red: 142/255, green: 142/255, blue: 142/255, alpha: 1.0)
+            ])
             $0.keyboardType = .default
             $0.returnKeyType = .done
             $0.keyboardAppearance = .dark
@@ -184,7 +188,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         displayEditTextField.rx
             .text.orEmpty
             .scan("") { previous, new -> String in
-                if new.count >= 8 {
+                if new.count > 8 {
                   return previous
                 } else {
                   return new
@@ -193,28 +197,36 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .disposed(by: disposeBag)
         
         
+        reactor.state
+            .map { $0.displayDescrption.count >= 1}
+            .observe(on: MainScheduler.instance)
+            .bind(to: displayEditButton.rx.isHidden)
+            .disposed(by: disposeBag)
+            
+        
+        displayEditCollectionView
+            .rx.tap
+            .observe(on: MainScheduler.instance)
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.didTapCollectionViewTransition($0.0)})
+            .disposed(by: disposeBag)
+        
+        
         NotificationCenter.default
             .rx.notification(UIResponder.keyboardWillShowNotification)
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
-            .bind { owner, _ in
-                owner.displayEditTextField.isHidden = false
-                owner.displayEditTextField.snp.updateConstraints {
-                    $0.height.equalTo(46)
-                }
-            }.disposed(by: disposeBag)
+            .subscribe(onNext: { $0.0.keyboardWillShowGenerateUI($0.0)})
+            .disposed(by: disposeBag)
         
         
         NotificationCenter.default
             .rx.notification(UIResponder.keyboardWillHideNotification)
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
-            .bind { owner, _ in
-                owner.displayEditTextField.snp.updateConstraints {
-                    $0.height.equalTo(0)
-                }
-                owner.displayEditTextField.isHidden = true
-            }.disposed(by: disposeBag)
+            .subscribe(onNext: {$0.0.keyboardWillHideGenerateUI($0.0)})
+            .disposed(by: disposeBag)
         
         Observable
             .just(())
@@ -278,11 +290,39 @@ extension CameraDisplayViewController {
         }
     }
     
+    private func keyboardWillHideGenerateUI(_ owner: CameraDisplayViewController) {
+        owner.displayEditTextField.snp.updateConstraints {
+            $0.height.equalTo(0)
+        }
+        UIView.animate(withDuration: 0.5) {
+            owner.displayEditCollectionView.transform = CGAffineTransform(scaleX: 0.7, y: 0.7).translatedBy(x: 0, y: 200)
+        }
+        owner.displayEditTextField.isHidden = true
+    }
+    
+    private func keyboardWillShowGenerateUI(_ owner: CameraDisplayViewController) {
+        owner.displayEditTextField.isHidden = false
+        owner.displayEditTextField.snp.updateConstraints {
+            $0.height.equalTo(46)
+        }
+    }
+    
+    private func didTapCollectionViewTransition(_ owner: CameraDisplayViewController) {
+        owner.displayEditTextField.becomeFirstResponder()
+        UIView.animate(withDuration: 0.5) {
+            owner.displayEditCollectionView.transform = .identity
+        }
+    }
+    
 }
 
 extension CameraDisplayViewController: UICollectionViewDelegateFlowLayout {
     
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: 38, height: 61)
+    }
+    
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 4
     }
 }

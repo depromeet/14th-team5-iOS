@@ -28,6 +28,7 @@ public final class CameraDisplayViewReactor: Reactor {
         case setDisplayEditSection([DisplayEditItemModel])
         case setRenderImage(Data)
         case saveDeviceimage(Data)
+        case setDescription(String)
     }
     
     public struct State {
@@ -71,6 +72,7 @@ public final class CameraDisplayViewReactor: Reactor {
                         
                         return Observable.concat(
                             .just(.setDisplayEditSection(sectionItem)),
+                            .just(.setDescription(description)),
                             .just(.setLoading(false))
                         )
                     }
@@ -97,7 +99,8 @@ public final class CameraDisplayViewReactor: Reactor {
         case let .setDisplayEditSection(section):
             let sectionIndex = getSection(.displayKeyword([]))
             newState.displaySection[sectionIndex] = .displayKeyword(section)
-
+        case let .setDescription(descrption):
+            newState.displayDescrption = descrption
         }
         return newState
     }

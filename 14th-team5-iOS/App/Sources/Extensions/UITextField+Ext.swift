@@ -21,4 +21,10 @@ extension UITextField {
             clearButton.setImage(image, for: .normal)
         }
     }
+    
+    public func makePlaceholderAttributedString(_ target: String, attributed: [NSAttributedString.Key: Any]) {
+        let attributedString: NSAttributedString = NSAttributedString(string: target, attributes: attributed)
+        
+        self.attributedPlaceholder = attributedString
+    }
 }

@@ -57,6 +57,9 @@ extension Project {
         return Project(
             name: name,
             settings: .settings(
+                base: [
+                    "OTHER_LDFLAGS": ["-ObjC"]
+                ],
                 configurations: [
                     .build(.dev, name: name),
                     .build(.prd, name: name)

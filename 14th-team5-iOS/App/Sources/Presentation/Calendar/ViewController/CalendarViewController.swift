@@ -63,10 +63,18 @@ final class CalendarViewController: BaseViewController<CalendarViewReactor> {
             }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$presentPopoverVC)
+        reactor.pulse(\.$shouldPresentPopoverVC)
             .withUnretained(self)
             .subscribe {
-                $0.0.presentPopoverView(sourceView: $0.1)
+                $0.0.makeDescriptionPopoverView(
+                    $0.0,
+                    sourceView: $0.1,
+                    text: CalendarVC.Strings.descriptionText,
+                    popoverSize: CGSize(
+                        width: CalendarVC.Attribute.popoverWidth,
+                        height: CalendarVC.Attribute.popoverHeight
+                    )
+                )
             }
             .disposed(by: disposeBag)
     }
@@ -107,23 +115,6 @@ extension CalendarViewController {
     func pushCalendarFeedView(_ date: Date?) {
         let vc = CalendarFeedViewController()
         navigationController?.pushViewController(vc, animated: true)
-    }
-    
-    func presentPopoverView(sourceView: UIView?) {
-        let vc = CalendarDescriptionPopoverViewController()
-        vc.preferredContentSize = CGSize(
-            width: CalendarVC.Attribute.popoverWidth,
-            height: CalendarVC.Attribute.popoverHeight
-        )
-        vc.modalPresentationStyle = .popover
-        if let presentation = vc.presentationController {
-            presentation.delegate = self
-        }
-        present(vc, animated: true)
-        if let pop = vc.popoverPresentationController {
-            pop.sourceView = sourceView
-            pop.sourceRect = sourceView?.bounds ?? .zero
-        }
     }
 }
 

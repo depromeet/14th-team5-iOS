@@ -24,7 +24,7 @@ final class CalendarViewReactor: Reactor {
     // MARK: - State
     struct State { 
         @Pulse var pushCalendarFeedVC: Date?
-        @Pulse var presentPopoverVC: UIView?
+        @Pulse var shouldPresentPopoverVC: UIView?
     }
     
     // MARK: - Properties
@@ -64,7 +64,7 @@ final class CalendarViewReactor: Reactor {
         case let .pushCalendarFeedVC(date):
             newState.pushCalendarFeedVC = date
         case let .presentPopoverVC(sourceView):
-            newState.presentPopoverVC = sourceView
+            newState.shouldPresentPopoverVC = sourceView
         }
         return newState
     }

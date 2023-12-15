@@ -80,3 +80,43 @@ extension UIViewController {
         makeSharePanel([itemSource], activities: [copyToPastboard])
     }
 }
+
+extension UIViewController {
+    func makePopoverView(
+        _ target: UIPopoverPresentationControllerDelegate,
+        sourceView: UIView?,
+        popoverViewController viewController: UIViewController,
+        popoverSize size: CGSize,
+        permittedArrowDrections directions: UIPopoverArrowDirection
+    ) {
+        let vc = viewController
+        vc.preferredContentSize = size
+        vc.modalPresentationStyle = .popover
+        if let pres = vc.presentationController {
+            pres.delegate = target
+        }
+        present(vc, animated: true)
+        if let pop = vc.popoverPresentationController {
+            pop.sourceView = sourceView
+            pop.sourceRect = sourceView?.bounds ?? .zero
+            pop.permittedArrowDirections = [.down]
+        }
+    }
+    
+    func makeDescriptionPopoverView(
+        _ target: UIPopoverPresentationControllerDelegate,
+        sourceView: UIView?,
+        text: String,
+        popoverSize size: CGSize,
+        permittedArrowDrections directions: UIPopoverArrowDirection = [.down]
+    ) {
+        let descriptionVC = PopoverDescriptionViewController(text: text)
+        makePopoverView(
+            target,
+            sourceView: sourceView,
+            popoverViewController: descriptionVC,
+            popoverSize: size,
+            permittedArrowDrections: directions
+        )
+    }
+}

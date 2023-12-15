@@ -168,14 +168,6 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
                 owner.displayEditTextField.becomeFirstResponder()
             }.disposed(by: disposeBag)
         
-        view.rx
-            .tap
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind { owner, _ in
-                owner.view.endEditing(true)
-            }.disposed(by: disposeBag)
-        
         displayEditTextField.rx
             .text.orEmpty
             .distinctUntilChanged()

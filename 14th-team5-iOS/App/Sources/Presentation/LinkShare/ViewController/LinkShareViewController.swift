@@ -14,7 +14,7 @@ import RxSwift
 import SnapKit
 import Then
 
-final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
+public final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
     // MARK: - Views
     private let shareView: UIView = UIView()
     private let shareTitleLabel: UILabel = UILabel()
@@ -28,12 +28,12 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
     
     
     // MARK: - Lifecycles
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
     }
     
     // MARK: - Helpers
-    override func setupUI() {
+    public override func setupUI() {
         super.setupUI()
         view.addSubview(shareView)
         view.addSubviews(
@@ -44,7 +44,7 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
         )
     }
     
-    override func setupAutoLayout() {
+    public override func setupAutoLayout() {
         super.setupAutoLayout()
         shareView.snp.makeConstraints {
             $0.leading.equalTo(view.snp.leading).offset(LinkShareVC.AutoLayout.defaultOffsetValue)
@@ -78,7 +78,7 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
         }
     }
     
-    override func setupAttributes() {
+    public override func setupAttributes() {
         super.setupAttributes()
         shareView.do {
             $0.layer.masksToBounds = true
@@ -122,7 +122,7 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
         yourFamilyTableView.dataSource = self
     }
     
-    override func bind(reactor: LinkShareViewReactor) {
+    public override func bind(reactor: LinkShareViewReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
@@ -160,11 +160,11 @@ final class LinkShareViewController: BaseViewController<LinkShareViewReactor> {
 
 // NOTE: - 임시 코드
 extension LinkShareViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 3
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: YourFamilyProfileCell.id, for: indexPath) as! YourFamilyProfileCell
         
         // NOTE: - 더미 데이터

@@ -54,8 +54,10 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
     
     public override func bind(reactor: CalendarViewReactor) {
         super.bind(reactor: reactor)
-        
-        // State
+        bindOutput(reactor: reactor)
+    }
+    
+    private func bindOutput(reactor: CalendarViewReactor) {
         reactor.pulse(\.$pushCalendarFeedVC)
             .withUnretained(self)
             .subscribe {

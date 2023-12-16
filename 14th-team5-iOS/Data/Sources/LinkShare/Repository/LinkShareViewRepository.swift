@@ -11,12 +11,14 @@ import ReactorKit
 import RxCocoa
 import RxSwift
 
-protocol LinkShareImpl {
+public protocol LinkShareImpl {
     var disposeBag: DisposeBag { get }
+    
+    func responseInvitationUrl(_ familiyId: String) -> Observable<URL?>
 }
 
 public final class LinkShareViewRepository: LinkShareImpl {
-    let disposeBag: DisposeBag = DisposeBag()
+    public let disposeBag: DisposeBag = DisposeBag()
     
     public init() { }
     

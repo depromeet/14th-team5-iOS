@@ -57,6 +57,9 @@
          location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/SnapKit/SnapKit.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/SwiftKeychainWrapper/SwiftKeychainWrapper.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/Then/Then.xcodeproj">
       </FileRef>
       <FileRef

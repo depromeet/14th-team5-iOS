@@ -19,6 +19,7 @@ import RxKakaoSDKCommon
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    let globalStateProvider: GlobalStateProviderType = GlobalStateProvider()
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()

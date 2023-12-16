@@ -60,8 +60,11 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
         
         privacyTableView.do {
             $0.backgroundColor = UIColor(red: 0.09, green: 0.09, blue: 0.09, alpha: 1)
+            $0.separatorStyle = .none
             $0.register(PrivacyTableViewCell.self, forCellReuseIdentifier: "PrivacyTableViewCell")
             $0.register(PrivacyAuthorizationTableViewCell.self, forCellReuseIdentifier: "PrivacyAuthorizationTableViewCell")
+            $0.register(PrivacyHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: "PrivacyHeaderFooterView")
+            $0.register(PrivacyAuthorizationHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: "PrivacyAuthorizationHeaderFooterView")
             $0.rowHeight = 44
         }
         
@@ -84,6 +87,10 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
     
     
     public override func bind(reactor: PrivacyViewReactor) {
+        privacyTableView.rx
+            .setDelegate(self)
+            .disposed(by: disposeBag)
+        
         Observable.just(())
             .map { Reactor.Action.viewDidLoad }
             .bind(to: reactor.action)
@@ -96,7 +103,6 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
             .drive(privacyIndicatorView.rx.isAnimating)
             .disposed(by: disposeBag)
         
-        
         reactor.pulse(\.$section)
             .asDriver(onErrorJustReturn: [])
             .drive(privacyTableView.rx.items(dataSource: privacyTableViewDataSources))
@@ -105,4 +111,23 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
         
     }
     
+}
+
+
+extension PrivacyViewController: UITableViewDelegate {
+    
+    public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        switch privacyTableViewDataSources[section] {
+        case .privacyWithAuth:
+            guard let privacyHeaderView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "PrivacyHeaderFooterView") as? PrivacyHeaderFooterView else { return UITableViewHeaderFooterView() }
+            return privacyHeaderView
+        case .userAuthorization:
+            guard let authorizationHeaderView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "PrivacyAuthorizationHeaderFooterView") as? PrivacyAuthorizationHeaderFooterView else { return UITableViewHeaderFooterView() }
+            return authorizationHeaderView
+        }
+    }
+    
+    public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 40
+    }
 }

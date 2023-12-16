@@ -148,10 +148,10 @@ public final class LinkShareViewController: BaseViewController<LinkShareViewReac
             .filter { $0 }
             .withUnretained(self)
             .subscribe {
-                $0.0.makeToastView(
+                $0.0.makeRoundedToastView(
                     title: LinkShareVC.Strings.successCopyInvitationUrlToPastboard,
-                    textColor: UIColor.white,
-                    radius: 10.0
+                    systemName: "link",
+                    width: 200
                 )
             }
             .disposed(by: disposeBag)

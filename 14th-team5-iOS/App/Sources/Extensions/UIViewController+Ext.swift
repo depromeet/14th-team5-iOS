@@ -108,13 +108,12 @@ extension UIViewController {
             }
             
             UIView.animate(withDuration: 0.6, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.4) {
-                let newTransform = CGAffineTransform(translationX: 0, y: -offset * 2)
-                toastView.transform = newTransform
+                toastView.transform = CGAffineTransform(translationX: 0, y: -offset * 2)
             } completion: { _ in
                 UIView.animate(withDuration: 0.6, delay: 0.5, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.4) {
                     toastView.transform = CGAffineTransform(translationX: 0, y: offset * 2)
                 }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                     toastView.removeFromSuperview()
                 }
             }

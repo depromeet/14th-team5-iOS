@@ -11,15 +11,15 @@ import ReactorKit
 
 final class FeedDetailReactor: Reactor {
     enum Action {
-        
+
     }
     
     enum Mutation {
-        
+
     }
     
     struct State {
-        
+
     }
     
     let initialState: State = State()
@@ -28,14 +28,12 @@ final class FeedDetailReactor: Reactor {
 extension FeedDetailReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-            
-        }
     }
     
     func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
-            
+            return newState
         }
     }
 }

@@ -10,6 +10,7 @@ import UIKit
 import Core
 import DesignSystem
 import Photos
+import RxDataSources
 import RxSwift
 import RxCocoa
 import ReactorKit
@@ -24,8 +25,17 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     private let archiveButton: UIBarButtonItem = UIBarButtonItem()
     private let titleView: UILabel = UILabel()
     private let displayEditButton: UIButton = UIButton.createCircleButton(radius: 21.5)
-    
-    
+    private let displayEditTextField: UITextField = UITextField()
+    private let displayDimView: UIView = UIView()
+    private let displayEditCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private let displayEditDataSources: RxCollectionViewSectionedReloadDataSource<DisplayEditSectionModel> = .init { dataSources, collectionView, indexPath, sectionItem in
+        switch sectionItem {
+        case let .fetchDisplayItem(cellReactor):
+            guard let displayEditCell = collectionView.dequeueReusableCell(withReuseIdentifier: "DisplayEditCollectionViewCell", for: indexPath) as? DisplayEditCollectionViewCell else { return UICollectionViewCell() }
+            displayEditCell.reactor = cellReactor
+            return displayEditCell
+        }
+    }
     
     //MARK: LifeCylce
     public override func viewDidLoad() {
@@ -35,8 +45,8 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(displayView, confirmButton, displayIndicatorView)
-        displayView.addSubview(displayEditButton)
+        view.addSubviews(displayView, confirmButton, displayIndicatorView, displayEditTextField)
+        displayView.addSubviews(displayEditButton, displayEditCollectionView)
     }
     
     public override func setupAttributes() {
@@ -59,6 +69,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         displayView.do {
             $0.layer.cornerRadius = 40
             $0.clipsToBounds = true
+            $0.isUserInteractionEnabled = true
         }
         
         displayEditButton.do {
@@ -69,8 +80,34 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         confirmButton.do {
             $0.backgroundColor = .white
+            $0.isUserInteractionEnabled = true
             $0.setImage(DesignSystemAsset.confirm.image, for: .normal)
-            
+        }
+        
+        displayEditTextField.do {
+            $0.textColor = .white
+            $0.backgroundColor = .black
+            $0.font = .systemFont(ofSize: 17, weight: .regular)
+            $0.makeLeftPadding(16)
+            $0.makeClearButton(DesignSystemAsset.clear.image)
+            $0.makePlaceholderAttributedString("최대 8글자 이내로 입력해주세요.", attributed: [
+                .font: UIFont.systemFont(ofSize: 17, weight: .regular),
+                .foregroundColor: UIColor(red: 142/255, green: 142/255, blue: 142/255, alpha: 1.0)
+            ])
+            $0.keyboardType = .default
+            $0.returnKeyType = .done
+            $0.keyboardAppearance = .dark
+            $0.borderStyle = .none
+            $0.clearButtonMode = .whileEditing
+            $0.isHidden = true
+        }
+        
+        displayEditCollectionView.do {
+            $0.register(DisplayEditCollectionViewCell.self, forCellWithReuseIdentifier: "DisplayEditCollectionViewCell")
+            $0.showsVerticalScrollIndicator = false
+            $0.showsHorizontalScrollIndicator = false
+            $0.backgroundColor = .clear
+            $0.isScrollEnabled = false
         }
         
         displayIndicatorView.do {
@@ -81,6 +118,12 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
+        
+        displayEditTextField.snp.makeConstraints {
+            $0.height.equalTo(0)
+            $0.left.right.equalToSuperview()
+            $0.bottom.equalTo(view.keyboardLayoutGuide.snp.top)
+        }
         
         displayView.snp.makeConstraints {
             $0.width.equalToSuperview()
@@ -102,6 +145,12 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             $0.centerX.equalToSuperview()
         }
         
+        displayEditCollectionView.snp.makeConstraints {
+            $0.height.equalTo(61)
+            $0.width.equalTo(view.frame.size.width - 43)
+            $0.center.equalToSuperview()
+        }
+        
     }
     
     
@@ -111,6 +160,74 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .throttle(.seconds(1), scheduler: MainScheduler.instance)
             .map { Reactor.Action.didTapArchiveButton }
             .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        displayEditButton
+            .rx.tap
+            .withUnretained(self)
+            .subscribe { owner, _ in
+                owner.displayEditTextField.becomeFirstResponder()
+            }.disposed(by: disposeBag)
+        
+        displayEditTextField.rx
+            .text.orEmpty
+            .distinctUntilChanged()
+            .filter { $0.count <= 8 }
+            .observe(on: MainScheduler.instance)
+            .map { Reactor.Action.fetchDisplayImage($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        displayEditTextField.rx
+            .text.orEmpty
+            .scan("") { previous, new -> String in
+                if new.count > 8 {
+                  return previous
+                } else {
+                  return new
+                }
+            }.bind(to: displayEditTextField.rx.text)
+            .disposed(by: disposeBag)
+        
+        
+        reactor.state
+            .map { $0.displayDescrption.count >= 1}
+            .observe(on: MainScheduler.instance)
+            .bind(to: displayEditButton.rx.isHidden)
+            .disposed(by: disposeBag)
+            
+        
+        displayEditCollectionView
+            .rx.tap
+            .observe(on: MainScheduler.instance)
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.didTapCollectionViewTransition($0.0)})
+            .disposed(by: disposeBag)
+        
+        displayDimView
+            .rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.view.endEditing(true)
+            }.disposed(by: disposeBag)
+        
+        
+        NotificationCenter.default
+            .rx.notification(UIResponder.keyboardWillShowNotification)
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.keyboardWillShowGenerateUI($0.0)})
+            .disposed(by: disposeBag)
+        
+        
+        NotificationCenter.default
+            .rx.notification(UIResponder.keyboardWillHideNotification)
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: {$0.0.keyboardWillHideGenerateUI($0.0)})
             .disposed(by: disposeBag)
         
         Observable
@@ -137,6 +254,15 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .skip(until: rx.methodInvoked(#selector(viewWillAppear(_:))))
             .withUnretained(self)
             .bind(onNext: { $0.0.setupCameraDisplayPermission(owner: $0.0, $0.1) })
+            .disposed(by: disposeBag)
+        
+        displayEditCollectionView.rx
+            .setDelegate(self)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$displaySection)
+            .asDriver(onErrorJustReturn: [])
+            .drive(displayEditCollectionView.rx.items(dataSource: displayEditDataSources))
             .disposed(by: disposeBag)
     }
 }
@@ -166,4 +292,59 @@ extension CameraDisplayViewController {
         }
     }
     
+    private func keyboardWillHideGenerateUI(_ owner: CameraDisplayViewController) {
+        owner.displayEditTextField.snp.updateConstraints {
+            $0.height.equalTo(0)
+        }
+        owner.dismissDimView()
+        UIView.animate(withDuration: 0.5) {
+            owner.displayEditCollectionView.transform = CGAffineTransform(scaleX: 0.7, y: 0.7).translatedBy(x: 0, y: 200)
+        }
+        owner.displayEditTextField.isHidden = true
+    }
+    
+    private func keyboardWillShowGenerateUI(_ owner: CameraDisplayViewController) {
+        owner.displayEditTextField.isHidden = false
+        owner.presentDimView()
+        owner.displayView.bringSubviewToFront(owner.displayEditCollectionView)
+        owner.displayDimView.backgroundColor = .black.withAlphaComponent(0.5)
+        owner.displayEditTextField.snp.updateConstraints {
+            $0.height.equalTo(46)
+        }
+    }
+    
+    private func didTapCollectionViewTransition(_ owner: CameraDisplayViewController) {
+        owner.displayEditTextField.becomeFirstResponder()
+        UIView.animate(withDuration: 0.5) {
+            owner.displayEditCollectionView.transform = .identity
+        }
+    }
+    
+    private func presentDimView() {
+        displayView.addSubview(displayDimView)
+        displayDimView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        displayView.bringSubviewToFront(displayEditCollectionView)
+        displayDimView.backgroundColor = .black.withAlphaComponent(0.5)
+    }
+    
+    private func dismissDimView() {
+        displayView.subviews.forEach {
+            if $0.backgroundColor == UIColor.black.withAlphaComponent(0.5) {
+                $0.removeFromSuperview()
+            }
+        }
+    }
+}
+
+extension CameraDisplayViewController: UICollectionViewDelegateFlowLayout {
+    
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: 38, height: 61)
+    }
+    
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 4
+    }
 }

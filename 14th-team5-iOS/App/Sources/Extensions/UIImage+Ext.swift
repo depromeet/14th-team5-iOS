@@ -21,4 +21,13 @@ extension UIImage {
         return originalImage
     }
     
+    public func combinedWithAlpha(with alpha: CGFloat, blendMode: CGBlendMode) -> UIImage {
+        let renderImage: UIGraphicsImageRenderer = UIGraphicsImageRenderer(size: size)
+        
+        let originalImage: UIImage = renderImage.image { _ in
+            draw(at: .zero, blendMode: blendMode, alpha: alpha)
+        }
+        
+        return originalImage
+    }
 }

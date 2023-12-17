@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public enum RxConst {
-    static var throttleInterval: RxTimeInterval {
+    static public var throttleInterval: RxTimeInterval {
         return .milliseconds(300)
     }
 }

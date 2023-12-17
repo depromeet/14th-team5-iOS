@@ -24,7 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         FirebaseApp.configure()
         kakaoApp(application, didFinishLauchingWithOptions: launchOptions)
         
-        setupUserNotificationCenter(application)
+//        setupUserNotificationCenter(application)
         
         return true
     }

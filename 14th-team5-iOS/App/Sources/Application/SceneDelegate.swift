@@ -12,7 +12,6 @@ import Core
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-    let globalStateProvider: GlobalStateProviderType = GlobalStateProvider()
 
     func scene(
         _ scene: UIScene,

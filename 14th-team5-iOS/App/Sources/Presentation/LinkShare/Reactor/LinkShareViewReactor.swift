@@ -12,28 +12,28 @@ import Data
 import ReactorKit
 import RxSwift
 
-final class LinkShareViewReactor: Reactor {
+public final class LinkShareViewReactor: Reactor {
     // MARK: - Action
-    enum Action { 
+    public enum Action {
         case didTapInvitationUrlButton
     }
     
     // MARK: - Mutate
-    enum Mutation { 
+    public enum Mutation {
         case presentSharePanel(URL?)
         case presentToastMessage
     }
     
     // MARK: - State
-    struct State { 
+    public struct State {
         @Pulse var invitationUrl: URL?
         @Pulse var shouldPresentToastMessage: Bool = false
     }
     
     // MARK: - Properties
-    let initialState: State
-    let linkShareViewRepository: LinkShareViewRepository
-    let provider: GlobalStateProviderType
+    public let initialState: State
+    public let linkShareViewRepository: LinkShareViewRepository
+    public let provider: GlobalStateProviderType
     
     // MARK: - Intializer
     init(provider: GlobalStateProviderType) {
@@ -43,7 +43,7 @@ final class LinkShareViewReactor: Reactor {
     }
     
     // MARK: - Transform
-    func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+    public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
         let eventMutation = provider.activityGlobalState.event
             .flatMap { event -> Observable<Mutation> in
                 switch event {
@@ -56,7 +56,7 @@ final class LinkShareViewReactor: Reactor {
     }
     
     // MARK: - Mutate
-    func mutate(action: Action) -> Observable<Mutation> {
+    public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .didTapInvitationUrlButton:
             // TODO: - FamilyID 구하는 코드 구현
@@ -66,7 +66,7 @@ final class LinkShareViewReactor: Reactor {
     }
     
     // MARK: - Reduce
-    func reduce(state: State, mutation: Mutation) -> State {
+    public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
         case let .presentSharePanel(url):

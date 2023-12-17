@@ -16,22 +16,22 @@ import RxDataSources
 import SnapKit
 import Then
 
-final class CalendarFeedViewController: BaseViewController<CalendarFeedViewReactor> {
+public final class CalendarFeedViewController: BaseViewController<CalendarFeedViewReactor> {
     // MARK: - Views
     private lazy var calendarView: FSCalendar = FSCalendar()
     
     // MARK: - Lifecycles
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
     }
     
     // MARK: - Helpers
-    override func setupUI() { 
+    public override func setupUI() {
         super.setupUI()
         view.addSubview(calendarView)
     }
     
-    override func setupAutoLayout() { 
+    public override func setupAutoLayout() {
         super.setupAutoLayout()
         calendarView.snp.makeConstraints {
             $0.leading.top.trailing.equalTo(view.safeAreaLayoutGuide)
@@ -39,7 +39,7 @@ final class CalendarFeedViewController: BaseViewController<CalendarFeedViewReact
         }
     }
     
-    override func setupAttributes() { 
+    public override func setupAttributes() {
         super.setupAttributes()
         calendarView.delegate = self
         calendarView.dataSource = self
@@ -72,11 +72,11 @@ final class CalendarFeedViewController: BaseViewController<CalendarFeedViewReact
         }
     }
 
-    override func bind(reactor: CalendarFeedViewReactor) { }
+    public override func bind(reactor: CalendarFeedViewReactor) { }
 }
 
 extension CalendarFeedViewController: FSCalendarDelegate {
-    func calendar(_ calendar: FSCalendar, boundingRectWillChange bounds: CGRect, animated: Bool) {
+    public func calendar(_ calendar: FSCalendar, boundingRectWillChange bounds: CGRect, animated: Bool) {
         calendar.snp.updateConstraints {
             $0.height.equalTo(bounds.height)
         }
@@ -85,7 +85,7 @@ extension CalendarFeedViewController: FSCalendarDelegate {
 }
 
 extension CalendarFeedViewController: FSCalendarDataSource {
-    func calendar(_ calendar: FSCalendar, cellFor date: Date, at position: FSCalendarMonthPosition) -> FSCalendarCell {
+    public func calendar(_ calendar: FSCalendar, cellFor date: Date, at position: FSCalendarMonthPosition) -> FSCalendarCell {
         let cell = calendar.dequeueReusableCell(
             withIdentifier: ImageCalendarCell.id,
             for: date,

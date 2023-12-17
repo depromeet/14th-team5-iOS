@@ -7,24 +7,27 @@
 
 import Foundation
 
+import Core
 import ReactorKit
 import RxSwift
 
-final class CalendarFeedViewReactor: Reactor {
+public final class CalendarFeedViewReactor: Reactor {
     // MARK: - Action
-    enum Action { }
+    public enum Action { }
     
     // MARK: - Mutation
-    enum Mutation { }
+    public enum Mutation { }
     
     // MARK: - State
-    struct State { }
+    public struct State { }
     
     // MARK: - Properties
-    var initialState: State
+    public var initialState: State
+    public let provider: GlobalStateProviderType
     
     // MARK: - Intializer
-    init() {
+    init(provider: GlobalStateProviderType) {
         self.initialState = State()
+        self.provider = provider
     }
 }

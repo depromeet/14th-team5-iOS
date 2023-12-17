@@ -17,7 +17,7 @@ import SnapKit
 import Then
 
 // MARK: - ViewController
-final class CalendarViewController: BaseViewController<CalendarViewReactor> {
+public final class CalendarViewController: BaseViewController<CalendarViewReactor> {
     // MARK: - Views
     private lazy var collectionView: UICollectionView = UICollectionView(
         frame: .zero,
@@ -25,24 +25,24 @@ final class CalendarViewController: BaseViewController<CalendarViewReactor> {
     )
     
     // MARK: - Lifecycles
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
     }
     
     // MARK: - Helpers
-    override func setupUI() { 
+    public override func setupUI() {
         super.setupUI()
         view.addSubview(collectionView)
     }
     
-    override func setupAutoLayout() { 
+    public override func setupAutoLayout() {
         super.setupAutoLayout()
         collectionView.snp.makeConstraints {
             $0.edges.equalTo(view.safeAreaLayoutGuide)
         }
     }
     
-    override func setupAttributes() {
+    public override func setupAttributes() {
         collectionView.do {
             $0.dataSource = self
             
@@ -52,10 +52,12 @@ final class CalendarViewController: BaseViewController<CalendarViewReactor> {
         }
     }
     
-    override func bind(reactor: CalendarViewReactor) { 
+    public override func bind(reactor: CalendarViewReactor) {
         super.bind(reactor: reactor)
-        
-        // State
+        bindOutput(reactor: reactor)
+    }
+    
+    private func bindOutput(reactor: CalendarViewReactor) {
         reactor.pulse(\.$pushCalendarFeedVC)
             .withUnretained(self)
             .subscribe {
@@ -120,22 +122,22 @@ extension CalendarViewController {
 
 // NOTE: - 임시 코드
 extension CalendarViewController: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 3
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: CalendarPageCell.id,
             for: indexPath
         ) as! CalendarPageCell
-        cell.reactor = reactor?.makeCalenderPageCellReactor()
+        cell.reactor = CalendarPageCellDIContainer().makeReactor()
         return cell
     }
 }
 
 extension CalendarViewController: UIPopoverPresentationControllerDelegate {
-    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+    public func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
         return .none
     }
 }

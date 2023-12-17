@@ -11,25 +11,25 @@ import Core
 import ReactorKit
 import RxSwift
 
-final class CalendarViewReactor: Reactor {
+public final class CalendarViewReactor: Reactor {
     // MARK: - Action
-    enum Action { }
+    public enum Action { }
     
     // MARK: - Mutation
-    enum Mutation { 
+    public enum Mutation {
         case pushCalendarFeedVC(Date)
         case presentPopoverVC(UIView)
     }
     
     // MARK: - State
-    struct State { 
+    public struct State {
         @Pulse var pushCalendarFeedVC: Date?
         @Pulse var shouldPresentPopoverVC: UIView?
     }
     
     // MARK: - Properties
-    var initialState: State
-    let provider: GlobalStateProviderType
+    public var initialState: State
+    public let provider: GlobalStateProviderType
     
     // MARK: - Intializer
     init(provider: GlobalStateProviderType) {
@@ -38,7 +38,7 @@ final class CalendarViewReactor: Reactor {
     }
     
     // MARK: - Transform
-    func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+    public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
         let eventMutation = provider.calendarGlabalState.event
             .flatMap { event -> Observable<Mutation> in
                 switch event {
@@ -53,12 +53,12 @@ final class CalendarViewReactor: Reactor {
     }
 
     // MARK: - Mutate
-    func mutate(action: Action) -> Observable<Mutation> {
+    public func mutate(action: Action) -> Observable<Mutation> {
         return Observable<Mutation>.empty()
     }
     
     // MARK: - Reduce
-    func reduce(state: State, mutation: Mutation) -> State {
+    public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
         case let .pushCalendarFeedVC(date):
@@ -67,11 +67,5 @@ final class CalendarViewReactor: Reactor {
             newState.shouldPresentPopoverVC = sourceView
         }
         return newState
-    }
-}
-
-extension CalendarViewReactor {
-    func makeCalenderPageCellReactor() -> CalendarPageCellReactor {
-        return CalendarPageCellReactor(provider: provider)
     }
 }

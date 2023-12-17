@@ -1,8 +1,8 @@
 //
-//  CalendarViewRepository.swift
+//  CalendarFeedViewRepository.swift
 //  Data
 //
-//  Created by 김건우 on 12/15/23.
+//  Created by 김건우 on 12/16/23.
 //
 
 import Foundation
@@ -11,11 +11,11 @@ import ReactorKit
 import RxCocoa
 import RxSwift
 
-public protocol CalendarImpl {
+public protocol CalendarFeedImpl {
     var disposeBag: DisposeBag { get }
 }
 
-public final class CalendarViewRepository: CalendarImpl {
+public final class CalendarFeedViewRepository: CalendarFeedImpl {
     public let disposeBag: DisposeBag = DisposeBag()
     
     public init() { }

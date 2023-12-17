@@ -28,12 +28,13 @@ final class FeedDetailReactor: Reactor {
 extension FeedDetailReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-    }
-    
-    func reduce(state: State, mutation: Mutation) -> State {
-        var newState = state
-        switch mutation {
-            return newState
         }
     }
+        
+        func reduce(state: State, mutation: Mutation) -> State {
+            var newState = state
+            switch mutation {
+            }
+            return newState
+        }
 }

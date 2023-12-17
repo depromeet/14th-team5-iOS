@@ -20,8 +20,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         options connectionOptions: UIScene.ConnectionOptions
     ) {
         guard let scene = (scene as? UIWindowScene) else { return }
+        let profileDIContainer = ProfileDIContainer().makeViewController()
         window = UIWindow(windowScene: scene)
-        window?.rootViewController = UINavigationController(rootViewController: MainViewController(reacter: MainViewReactor()))
+        window?.rootViewController = UINavigationController(rootViewController: profileDIContainer)
         window?.makeKeyAndVisible()
     }
 }

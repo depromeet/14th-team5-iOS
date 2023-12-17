@@ -12,11 +12,11 @@ import RxSwift
 
 
 extension Reactive where Base: UIView {
-    var tapGesture: UITapGestureRecognizer {
+    public var tapGesture: UITapGestureRecognizer {
         return UITapGestureRecognizer()
     }
 
-    var tap: ControlEvent<Void> {
+    public var tap: ControlEvent<Void> {
         let tapGestureRecognizer = tapGesture
         base.addGestureRecognizer(tapGestureRecognizer)
 
@@ -26,7 +26,7 @@ extension Reactive where Base: UIView {
 }
 
 extension Reactive where Base: UITapGestureRecognizer {
-    var tapGesture: ControlEvent<Void> {
+    public var tapGesture: ControlEvent<Void> {
         let tapEvent = self.methodInvoked(#selector(Base.touchesBegan(_:with:))).map { _ in }
         return ControlEvent(events: tapEvent)
     }

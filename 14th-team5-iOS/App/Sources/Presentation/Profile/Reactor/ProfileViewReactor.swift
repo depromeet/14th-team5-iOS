@@ -43,7 +43,16 @@ public final class ProfileViewReactor: Reactor {
         case .viewDidLoad:
             return .concat(
                 .just(.setLoading(true)),
-                .just(.setLoading(false))
+                profileRepository.fetchProfileFeedItems()
+                    .asObservable()
+                    .flatMap { items -> Observable<ProfileViewReactor.Mutation> in
+                        var sectionItems: [ProfileFeedSectionItem] = []
+                        
+                        items.forEach {
+                            sectionItems.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageURL, title: $0.descrption, date: $0.subTitle)))
+                        }
+                        return Observable.just(.setLoading(false))
+                    }
             )
             
         }

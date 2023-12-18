@@ -17,12 +17,13 @@ public final class ProfileFeedCellReactor: Reactor {
     public typealias Action = NoAction
     
     public struct State {
+        var imageURL: String
         var title: String
         var date: String
     }
     
-    init(title: String, date: String) {
-        self.initialState = State(title: title, date: date)
+    init(imageURL: String, title: String, date: String) {
+        self.initialState = State(imageURL: imageURL, title: title, date: date)
     }
     
     

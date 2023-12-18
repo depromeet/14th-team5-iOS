@@ -72,6 +72,14 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
     
     public override func bind(reactor: ProfileFeedCellReactor) {
         reactor.state
+            .map { $0.imageURL }
+            .compactMap { URL(string: $0) }
+            .compactMap { try UIImage(data: Data(contentsOf: $0)) }
+            .asDriver(onErrorJustReturn: UIImage())
+            .drive(feedImageView.rx.image)
+            .disposed(by: disposeBag)
+        
+        reactor.state
             .map { $0.date }
             .asDriver(onErrorJustReturn: "")
             .drive(feedUplodeLabel.rx.text)

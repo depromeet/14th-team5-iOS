@@ -15,11 +15,16 @@ import SnapKit
 import Then
 
 final class MainViewController: BaseViewController<MainViewReactor> {
-    private let manageFamilyButton = UIBarButtonItem()
-    private let calendarButton = UIBarButtonItem()
-    private let familyCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-    private let feedCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-    private let camerButton = UIButton()
+    private let manageFamilyButton: UIBarButtonItem = UIBarButtonItem()
+    private let calendarButton: UIBarButtonItem = UIBarButtonItem()
+    private let familyCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
+    private let familyCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private let familyInviteView: UIView = FamilyInviteView()
+    private let timerLabel: UILabel = UILabel()
+    private let descriptionLabel: UILabel = UILabel()
+    private let feedCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
+    private let feedCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private let camerButton: UIButton = UIButton()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,20 +37,27 @@ final class MainViewController: BaseViewController<MainViewReactor> {
     override func bind(reactor: MainViewReactor) {
         familyCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
+        
         feedCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
+
+        reactor.action.onNext(.setTimer)
         
         feedCollectionView.rx.itemSelected
-            .map { Reactor.Action.cellSelected($0) }
-            .bind(to: reactor.action)
+            .withUnretained(self)
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .bind(onNext: {
+                $0.0.navigationController?.pushViewController(FeedDetailViewController(reacter: FeedDetailReactor()), animated: true)
+            })
             .disposed(by: disposeBag)
         
         reactor.state
-            .map { $0.selectedIndexPath }
-            .compactMap { $0 }
+            .map { $0.remainingTime }
+            .observe(on: Schedulers.main)
+            .distinctUntilChanged()
             .withUnretained(self)
-            .subscribe(onNext: { _ in
-                self.navigationController?.pushViewController(FeedDetailViewController(reacter: FeedDetailReactor()), animated: true)
+            .subscribe(onNext: {
+                $0.setTimerFormat(remainingTime: $1)
             })
             .disposed(by: disposeBag)
         
@@ -61,6 +73,14 @@ final class MainViewController: BaseViewController<MainViewReactor> {
             .bind(to: feedCollectionView.rx.items(dataSource: createFeedDataSource()))
             .disposed(by: disposeBag)
         
+        reactor.state
+            .map { $0.isShowingInviteFamilyView }
+            .withUnretained(self)
+            .bind(onNext: {_ in
+                self.addFamilyInviteView()
+            })
+            .disposed(by: disposeBag)
+        
         camerButton
             .rx.tap
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
@@ -73,21 +93,33 @@ final class MainViewController: BaseViewController<MainViewReactor> {
     
     override func setupUI() {
         super.setupUI()
-        view.addSubviews(familyCollectionView, feedCollectionView, camerButton)
+        
+        view.addSubviews(familyCollectionView, timerLabel, descriptionLabel,
+                         feedCollectionView, camerButton)
     }
     
     override func setupAutoLayout() {
         super.setupAutoLayout()
         
         familyCollectionView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).inset(30)
+            $0.top.equalTo(view.safeAreaLayoutGuide).inset(24)
             $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(89)
+            $0.height.equalTo(90)
+        }
+        
+        timerLabel.snp.makeConstraints {
+            $0.top.equalTo(familyCollectionView.snp.bottom).offset(24)
+            $0.centerX.equalToSuperview()
+        }
+        
+        descriptionLabel.snp.makeConstraints {
+            $0.top.equalTo(timerLabel.snp.bottom).offset(8)
+            $0.centerX.equalToSuperview()
         }
         
         feedCollectionView.snp.makeConstraints {
-            $0.top.equalTo(familyCollectionView.snp.bottom)
-            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.top.equalTo(descriptionLabel.snp.bottom).offset(24)
+            $0.horizontalEdges.equalToSuperview()
         }
         
         camerButton.snp.makeConstraints {
@@ -100,6 +132,7 @@ final class MainViewController: BaseViewController<MainViewReactor> {
     
     override func setupAttributes() {
         super.setupAttributes()
+        
         navigationItem.do {
             $0.title = "로고"
             $0.leftBarButtonItem = manageFamilyButton
@@ -116,14 +149,34 @@ final class MainViewController: BaseViewController<MainViewReactor> {
             $0.target = self
         }
         
+        familyCollectionViewLayout.do {
+            $0.sectionInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
+            $0.minimumLineSpacing = 12
+        }
+        
         familyCollectionView.do {
             $0.register(FamilyCollectionViewCell.self, forCellWithReuseIdentifier: FamilyCollectionViewCell.id)
             $0.backgroundColor = .clear
+            $0.collectionViewLayout = familyCollectionViewLayout
+        }
+        
+        timerLabel.do {
+            $0.text = "00:05:39"
+        }
+        
+        descriptionLabel.do {
+            $0.text = "매일 12시부터 24시까지 사진을 업로드할 수 있어요"
+        }
+        
+        feedCollectionViewLayout.do {
+            $0.sectionInset = .zero
+            $0.minimumLineSpacing = 16
+            $0.minimumInteritemSpacing = 0
         }
         
         feedCollectionView.do {
             $0.register(FeedCollectionViewCell.self, forCellWithReuseIdentifier: FeedCollectionViewCell.id)
-            $0.register(FeedCollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: FeedCollectionReusableView.id)
+            //            $0.register(FeedCollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: FeedCollectionReusableView.id)
             $0.backgroundColor = .clear
         }
         
@@ -134,6 +187,34 @@ final class MainViewController: BaseViewController<MainViewReactor> {
 }
 
 extension MainViewController {
+    private func setTimerFormat(remainingTime: Int) {
+        if remainingTime <= 0 {
+            timerLabel.text = "00:00:00"
+            return
+        }
+        
+        let hours = remainingTime / 3600
+        let minutes = (remainingTime % 3600) / 60
+        let seconds = remainingTime % 60
+        
+        timerLabel.text = String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+    }
+    
+    private func addFamilyInviteView() {
+        view.addSubview(familyInviteView)
+        familyCollectionView.isHidden = true
+        
+        familyInviteView.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide).inset(24)
+            $0.horizontalEdges.equalToSuperview().inset(20)
+            $0.height.equalTo(90)
+        }
+    }
+    
+    private func removeFamilyInviteView() {
+        familyInviteView.removeFromSuperview()
+    }
+    
     private func createFamilyDataSource() -> RxCollectionViewSectionedReloadDataSource<SectionModel<String, ProfileData>> {
         return RxCollectionViewSectionedReloadDataSource<SectionModel<String, ProfileData>>(
             configureCell: { (_, collectionView, indexPath, item) in
@@ -153,48 +234,16 @@ extension MainViewController {
                 }
                 cell.setCell(data: item)
                 return cell
-            },
-            configureSupplementaryView: { (dataSource, collectionView, kind, indexPath) in
-                guard let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: FeedCollectionReusableView.id, for: indexPath) as? FeedCollectionReusableView else {
-                    return UICollectionReusableView()
-                }
-                headerView.setHeader(title: "피드")
-                return headerView
-            }
-        )
+            })
     }
 }
 
 extension MainViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if collectionView == familyCollectionView {
-            return CGSize(width: 68, height: 89)
+            return CGSize(width: 64, height: 90)
         } else {
-            return CGSize(width: 160, height: 184)
+            return CGSize(width:  (collectionView.frame.size.width - 10) / 2 , height: 222)
         }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        if collectionView == familyCollectionView {
-            return UIEdgeInsets(top: 0, left: 26, bottom: 0, right: 26)
-        } else {
-            return UIEdgeInsets.zero
-        }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        if collectionView == familyCollectionView {
-            return 17
-        } else {
-            return 20
-        }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        if collectionView == feedCollectionView {
-            return CGSize(width: collectionView.bounds.width, height: 44)
-        }
-        return CGSize.zero
     }
 }
-

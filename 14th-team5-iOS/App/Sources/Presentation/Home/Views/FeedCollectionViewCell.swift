@@ -8,7 +8,7 @@
 import UIKit
 import Core
 
-final class FeedCollectionViewCell: BaseCollectionViewCell<MainViewReactor> {
+final class FeedCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
     static let id = "FeedCollectionViewCell"
     
     private let stackView = UIStackView()
@@ -16,32 +16,32 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<MainViewReactor> {
     private let timeLabel = UILabel()
     private let imageView = UIImageView()
     
-    override func bind(reactor: MainViewReactor) {
+    override func bind(reactor: HomeViewReactor) {
         
     }
     
     override func setupUI() {
-        addSubviews(stackView, imageView)
+        addSubviews(imageView, stackView)
         
-        stackView.addArrangedSubview(nameLabel)
-        stackView.addArrangedSubview(timeLabel)
+        stackView.addArrangedSubviews(nameLabel, timeLabel)
     }
     
     override func setupAutoLayout() {
-        stackView.snp.makeConstraints {
+        imageView.snp.makeConstraints {
             $0.top.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(16)
+            $0.height.equalTo(self.snp.width)
         }
         
-        imageView.snp.makeConstraints {
-            $0.horizontalEdges.bottom.equalToSuperview()
-            $0.top.equalTo(stackView.snp.bottom).offset(8)
+        stackView.snp.makeConstraints {
+            $0.top.equalTo(imageView.snp.bottom)
+            $0.horizontalEdges.equalToSuperview().inset(20)
+            $0.height.equalTo(36)
         }
     }
     
     override func setupAttributes() {
         stackView.do {
-            $0.distribution = .fillEqually
+            $0.distribution = .fillProportionally
             $0.spacing = 0
         }
         

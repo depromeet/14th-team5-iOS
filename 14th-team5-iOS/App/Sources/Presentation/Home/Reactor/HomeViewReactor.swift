@@ -1,5 +1,5 @@
 //
-//  MainViewReactor.swift
+//  HomeViewReactor.swift
 //  App
 //
 //  Created by 마경미 on 05.12.23.
@@ -9,7 +9,7 @@ import Foundation
 import ReactorKit
 import RxDataSources
 
-final class MainViewReactor: Reactor {
+final class HomeViewReactor: Reactor {
     enum Action {
         case checkTime
         case setTimer
@@ -24,7 +24,7 @@ final class MainViewReactor: Reactor {
     }
     
     struct State {
-        var descriptionText: String = MainStringLiterals.Description.standard
+        var descriptionText: String = HomeStringLiterals.Description.standard
         var remainingTime: Int = 0
         var isShowingInviteFamilyView: Bool = false
         var familySections: [SectionModel<String, ProfileData>] = []
@@ -34,7 +34,7 @@ final class MainViewReactor: Reactor {
     let initialState: State = State()
 }
 
-extension MainViewReactor {
+extension HomeViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .checkTime:
@@ -57,7 +57,7 @@ extension MainViewReactor {
         
         switch mutation {
         case .setTimerStatus:
-            newState.descriptionText = MainStringLiterals.Description.standard
+            newState.descriptionText = HomeStringLiterals.Description.standard
         case .showInviteFamilyView:
             newState.isShowingInviteFamilyView = true
         case let .setFamilyCollectionView(data):
@@ -70,17 +70,20 @@ extension MainViewReactor {
     }
 }
 
-extension MainViewReactor {
-//    private func checkTime() -> TimerStatus {
-//        return 
-//    }
-//    
+extension HomeViewReactor {
     private func calculateRemainingTime() -> Int {
         let calendar = Calendar.current
-        if let midnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: Date().addingTimeInterval(24 * 60 * 60)) {
-            let timeDifference = calendar.dateComponents([.second], from: Date(), to: midnight)
-            return max(0, timeDifference.second ?? 0)
+        let currentTime = Date()
+        
+        let isAfterNoon = calendar.component(.hour, from: currentTime) >= 12
+        
+        if isAfterNoon {
+            if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {
+                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
+                return max(0, timeDifference.second ?? 0)
+            }
         }
+        
         return 0
     }
 }

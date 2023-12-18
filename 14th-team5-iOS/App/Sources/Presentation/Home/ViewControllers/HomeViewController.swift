@@ -1,5 +1,5 @@
 //
-//  MainViewController.swift
+//  HomeViewController.swift
 //  App
 //
 //  Created by 마경미 on 05.12.23.
@@ -14,7 +14,7 @@ import RxSwift
 import SnapKit
 import Then
 
-final class MainViewController: BaseViewController<MainViewReactor> {
+final class HomeViewController: BaseViewController<HomeViewReactor> {
     private let manageFamilyButton: UIBarButtonItem = UIBarButtonItem()
     private let calendarButton: UIBarButtonItem = UIBarButtonItem()
     private let familyCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
@@ -31,10 +31,10 @@ final class MainViewController: BaseViewController<MainViewReactor> {
     }
     
     deinit {
-        print("deinit MainViewController")
+        print("deinit HomeViewController")
     }
     
-    override func bind(reactor: MainViewReactor) {
+    override func bind(reactor: HomeViewReactor) {
         familyCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
@@ -58,6 +58,16 @@ final class MainViewController: BaseViewController<MainViewReactor> {
             .withUnretained(self)
             .subscribe(onNext: {
                 $0.setTimerFormat(remainingTime: $1)
+            })
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.descriptionText }
+            .observe(on: Schedulers.main)
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe(onNext: {
+                $0.descriptionLabel.text = $1
             })
             .disposed(by: disposeBag)
         
@@ -160,14 +170,6 @@ final class MainViewController: BaseViewController<MainViewReactor> {
             $0.collectionViewLayout = familyCollectionViewLayout
         }
         
-        timerLabel.do {
-            $0.text = "00:05:39"
-        }
-        
-        descriptionLabel.do {
-            $0.text = "매일 12시부터 24시까지 사진을 업로드할 수 있어요"
-        }
-        
         feedCollectionViewLayout.do {
             $0.sectionInset = .zero
             $0.minimumLineSpacing = 16
@@ -176,7 +178,6 @@ final class MainViewController: BaseViewController<MainViewReactor> {
         
         feedCollectionView.do {
             $0.register(FeedCollectionViewCell.self, forCellWithReuseIdentifier: FeedCollectionViewCell.id)
-            //            $0.register(FeedCollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: FeedCollectionReusableView.id)
             $0.backgroundColor = .clear
         }
         
@@ -186,7 +187,7 @@ final class MainViewController: BaseViewController<MainViewReactor> {
     }
 }
 
-extension MainViewController {
+extension HomeViewController {
     private func setTimerFormat(remainingTime: Int) {
         if remainingTime <= 0 {
             timerLabel.text = "00:00:00"
@@ -238,12 +239,13 @@ extension MainViewController {
     }
 }
 
-extension MainViewController: UICollectionViewDelegateFlowLayout {
+extension HomeViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if collectionView == familyCollectionView {
             return CGSize(width: 64, height: 90)
         } else {
-            return CGSize(width:  (collectionView.frame.size.width - 10) / 2 , height: 222)
+            let width = (collectionView.frame.size.width - 10) / 2
+            return CGSize(width: width, height: width + 36)
         }
     }
 }

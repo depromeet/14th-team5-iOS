@@ -8,7 +8,7 @@
 import UIKit
 import Core
 
-final class FamilyCollectionViewCell: BaseCollectionViewCell<MainViewReactor> {
+final class FamilyCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
     static let id: String = "familyCollectionViewCell"
     
     private let profileView = ProfileView()
@@ -21,7 +21,7 @@ final class FamilyCollectionViewCell: BaseCollectionViewCell<MainViewReactor> {
         super.init(coder: coder)
     }
     
-    override func bind(reactor: MainViewReactor) { }
+    override func bind(reactor: HomeViewReactor) { }
     
     override func setupUI() {
         addSubview(profileView)

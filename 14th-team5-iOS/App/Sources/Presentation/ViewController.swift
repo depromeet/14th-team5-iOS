@@ -12,6 +12,6 @@ public class ViewController: UIViewController {
     
     public override func viewDidLoad() {
         super.viewDidLoad()
-        self.present(MainViewController(), animated: true)
+        self.present(HomeViewController(), animated: true)
     }
 }

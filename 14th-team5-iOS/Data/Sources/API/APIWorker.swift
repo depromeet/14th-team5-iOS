@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import Core
 
 import Alamofire
 import RxSwift
@@ -18,24 +17,6 @@ extension NSMutableData {
         }
     }
 }
-
-public extension Encodable {
-    func encodeData(using encoder: JSONEncoder? = nil) -> Data? {
-        
-        let encoder = encoder ?? JSONEncoder()
-        return try? encoder.encode(self)
-    }
-    
-    func encode(using encoder: JSONEncoder? = nil) -> String? {
-        
-        guard let data = self.encodeData(using: encoder) else {
-            return nil
-        }
-        
-        return String(data: data, encoding: .utf8)
-    }
-}
-
 
 // MARK: File private Extension for NSMutableData
 fileprivate extension NSMutableData {

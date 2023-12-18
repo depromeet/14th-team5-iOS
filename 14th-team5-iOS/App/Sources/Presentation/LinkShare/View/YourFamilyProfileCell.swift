@@ -48,14 +48,14 @@ final class YourFamilyProfileCell: BaseTableViewCell<YourFamilProfileCellReactor
     override func setupAutoLayout() {
         super.setupAutoLayout()
         profileImageView.snp.makeConstraints {
-            $0.leading.equalTo(contentView.snp.leading).offset(LinkShareCell.AutoLayout.profileImageLeadingOffsetValue)
-            $0.top.equalTo(contentView.snp.top).offset(LinkShareCell.AutoLayout.profileImageTopOffsetValue)
-            $0.bottom.equalTo(contentView.snp.bottom).offset(-LinkShareCell.AutoLayout.profileImageTopOffsetValue)
-            $0.width.height.equalTo(LinkShareCell.AutoLayout.profileImageWidthValue)
+            $0.leading.equalTo(contentView.snp.leading).offset(AddFamiliyCell.AutoLayout.profileImageLeadingOffsetValue)
+            $0.top.equalTo(contentView.snp.top).offset(AddFamiliyCell.AutoLayout.profileImageTopOffsetValue)
+            $0.bottom.equalTo(contentView.snp.bottom).offset(-AddFamiliyCell.AutoLayout.profileImageTopOffsetValue)
+            $0.width.height.equalTo(AddFamiliyCell.AutoLayout.profileImageWidthValue)
         }
         
         labelStackView.snp.makeConstraints {
-            $0.leading.equalTo(profileImageView.snp.trailing).offset(LinkShareCell.AutoLayout.profileImageLeadingOffsetValue)
+            $0.leading.equalTo(profileImageView.snp.trailing).offset(AddFamiliyCell.AutoLayout.profileImageLeadingOffsetValue)
             $0.centerY.equalTo(profileImageView.snp.centerY)
         }
     }
@@ -65,24 +65,24 @@ final class YourFamilyProfileCell: BaseTableViewCell<YourFamilProfileCellReactor
         profileImageView.do {
             $0.contentMode = .scaleAspectFill
             $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = LinkShareCell.AutoLayout.profileImageWidthValue / 2.0
+            $0.layer.cornerRadius = AddFamiliyCell.AutoLayout.profileImageWidthValue / 2.0
         }
         
         labelStackView.do {
             $0.axis = .vertical
-            $0.spacing = 8.0
+            $0.spacing = 3.0
             $0.alignment = .fill
             $0.distribution = .fillProportionally
         }
         
         nameLabel.do {
             $0.textColor = UIColor.white
-            $0.font = UIFont.systemFont(ofSize: LinkShareCell.Attribute.nameLabelFontSize)
+            $0.font = UIFont.systemFont(ofSize: AddFamiliyCell.Attribute.nameLabelFontSize)
         }
         
         meLabel.do {
-            $0.textColor = UIColor.secondaryLabel
-            $0.font = UIFont.systemFont(ofSize: LinkShareCell.Attribute.meLabelFontSize)
+            $0.textColor = UIColor.white
+            $0.font = UIFont.systemFont(ofSize: AddFamiliyCell.Attribute.meLabelFontSize)
         }
         
         contentView.backgroundColor = UIColor(red: 0.09, green: 0.09, blue: 0.09, alpha: 1)

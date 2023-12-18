@@ -11,13 +11,13 @@ import RxDataSources
 
 final class HomeViewReactor: Reactor {
     enum Action {
-        case checkTime
+//        case checkTime
         case setTimer
         case getFamilyInfo
     }
     
     enum Mutation {
-        case setTimerStatus
+//        case setTimerStatus
         case setRemainingTime(Int)
         case showInviteFamilyView
         case setFamilyCollectionView([SectionModel<String, ProfileData>])
@@ -37,8 +37,8 @@ final class HomeViewReactor: Reactor {
 extension HomeViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .checkTime:
-            return Observable.just(Mutation.setTimerStatus)
+//        case .checkTime:
+//            return Observable.just(Mutation.setTimerStatus)
         case .getFamilyInfo:
             //            if data.isEmpty
             return Observable.just(Mutation.showInviteFamilyView)
@@ -56,8 +56,8 @@ extension HomeViewReactor {
         var newState = state
         
         switch mutation {
-        case .setTimerStatus:
-            newState.descriptionText = HomeStringLiterals.Description.standard
+//        case .setTimerStatus:
+//            newState.descriptionText = HomeStringLiterals.Description.standard
         case .showInviteFamilyView:
             newState.isShowingInviteFamilyView = true
         case let .setFamilyCollectionView(data):

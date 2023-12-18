@@ -7,6 +7,7 @@
 
 import Foundation
 
+// 통신 이후에 다시 모델 설정하기
 enum TimerStatus {
     /// 12:00AM ~ 12:00PM
     case beforeNoon

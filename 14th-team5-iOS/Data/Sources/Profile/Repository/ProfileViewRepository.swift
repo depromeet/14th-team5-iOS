@@ -12,9 +12,9 @@ import RxCocoa
 
 
 public struct FeedEntity {
-    public var imageURL: String = "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg"
-    public var descrption: String = "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg"
-    public var subTitle: String = "2022-12-11"
+    public var imageURL: String
+    public var descrption: String
+    public var subTitle: String
 }
 
 
@@ -32,7 +32,43 @@ public final class ProfileViewRepository: ProfileViewImpl {
     public init() { }
     
     public func fetchProfileFeedItems() -> RxSwift.Observable<[FeedEntity]> {
-        let items: [FeedEntity] = [FeedEntity]()
+        let items: [FeedEntity] = [
+            FeedEntity(
+                imageURL: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg",
+                descrption: "테스트 입니다!!!",
+                subTitle: "2022-12-11"
+            ),
+            FeedEntity(
+                imageURL: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg",
+                descrption: "테스트 입니다!!!",
+                subTitle: "2022-12-11"
+            ),
+            FeedEntity(
+                imageURL: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg",
+                descrption: "테스트 입니다!!!",
+                subTitle: "2022-12-11"
+            ),
+            FeedEntity(
+                imageURL: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg",
+                descrption: "테스트 입니다!!!",
+                subTitle: "2022-12-11"
+            ),
+            FeedEntity(
+                imageURL: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg",
+                descrption: "테스트 입니다!!!",
+                subTitle: "2022-12-11"
+            ),
+            FeedEntity(
+                imageURL: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg",
+                descrption: "테스트 입니다!!!",
+                subTitle: "2022-12-11"
+            ),
+            FeedEntity(
+                imageURL: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg",
+                descrption: "테스트 입니다!!!",
+                subTitle: "2022-12-11"
+            )
+        ]
         
         return Observable.create { observer in
             observer.onNext(items)

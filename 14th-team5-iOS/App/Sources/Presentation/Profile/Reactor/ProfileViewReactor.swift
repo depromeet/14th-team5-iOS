@@ -51,7 +51,10 @@ public final class ProfileViewReactor: Reactor {
                         items.forEach {
                             sectionItems.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageURL, title: $0.descrption, date: $0.subTitle)))
                         }
-                        return Observable.just(.setLoading(false))
+                        return .concat(
+                            .just(.setFeedCategroySection(sectionItems)),
+                            .just(.setLoading(false))
+                        )
                     }
             )
             

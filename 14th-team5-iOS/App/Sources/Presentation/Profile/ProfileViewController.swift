@@ -8,6 +8,7 @@
 import UIKit
 
 import Core
+import DesignSystem
 import RxSwift
 import RxCocoa
 import ReactorKit
@@ -22,7 +23,10 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     private let profileViewReactor: BibbiProfileViewReactor = BibbiProfileViewReactor()
     private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 60, reactor: profileViewReactor)
     private let profileTitleView: UILabel = UILabel()
-    private let profileFeedCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private let privacyButton: UIButton = UIButton()
+    private let profileLineView: UIView = UIView()
+    private let profileFeedCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
+    private lazy var profileFeedCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: profileFeedCollectionViewLayout)
     private let profileFeedDataSources: RxCollectionViewSectionedReloadDataSource<ProfileFeedSectionModel> = .init { dataSources, collectionView, indexPath, sectionItem in
         switch sectionItem {
         case let .feedCategoryItem(cellReactor):
@@ -40,20 +44,32 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(profileView, profileFeedCollectionView, profileIndicatorView)
+        view.addSubviews(profileView, profileLineView, profileFeedCollectionView, profileIndicatorView)
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
+        
+        profileFeedCollectionViewLayout.do {
+            $0.scrollDirection = .vertical
+        }
         
         profileTitleView.do {
             $0.textColor = .white
             $0.text = "활동"
         }
         
+        profileLineView.do {
+            $0.backgroundColor = .separator
+        }
+        
+        privacyButton.do {
+            $0.setImage(DesignSystemAsset.privacy.image, for: .normal)
+        }
+        
         navigationItem.do {
             $0.titleView = profileTitleView
-            
+            $0.rightBarButtonItem = UIBarButtonItem(customView: privacyButton)
         }
         
         profileIndicatorView.do {
@@ -78,8 +94,15 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             $0.height.equalTo(200)
         }
         
+        
+        profileLineView.snp.makeConstraints {
+            $0.height.equalTo(1)
+            $0.left.right.equalToSuperview()
+            $0.top.equalTo(profileView.snp.bottom).offset(24)
+        }
+        
         profileFeedCollectionView.snp.makeConstraints {
-            $0.top.equalTo(profileView.snp.bottom)
+            $0.top.equalTo(profileLineView.snp.bottom).offset(1)
             $0.left.right.bottom.equalToSuperview()
         }
         
@@ -95,6 +118,27 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .map { Reactor.Action.viewDidLoad}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        profileFeedCollectionView.rx
+            .setDelegate(self)
+            .disposed(by: disposeBag)
+        
+        privacyButton
+            .rx.tap
+            .throttle(.microseconds(300), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, _ in
+                let privacyViewController = PrivacyDIContainer().makeViewController()
+                owner.navigationController?.pushViewController(privacyViewController, animated: true)
+            }.disposed(by: disposeBag)
+        
+        profileView.circleButton
+            .rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: {$0.0.createAlertController(owner: $0.0)})
+            .disposed(by: disposeBag)
+            
         
         
         reactor.state
@@ -119,12 +163,46 @@ extension ProfileViewController: UICollectionViewDelegateFlowLayout {
         return CGSize(width: (collectionView.frame.size.width / 2) - 4, height: 243)
     }
     
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets(top: 24, left: 0, bottom: 0, right: 0)
+    }
+    
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 4
+        return 3
     }
     
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 16
+    }
+    
+}
+
+
+extension ProfileViewController {
+    
+    private func createAlertController(owner: ProfileViewController) {
+        let alertController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        let presentCameraAction: UIAlertAction = UIAlertAction(title: "카메라", style: .default) { _ in
+            let cameraViewController = CameraDIContainer().makeViewController()
+            owner.navigationController?.pushViewController(cameraViewController, animated: true)
+        }
+        
+        let presentAlbumAction: UIAlertAction = UIAlertAction(title: "앨범", style: .default) { _ in
+            print("이미지 피커 컨트롤러")
+        }
+        
+        let presentDefaultAction: UIAlertAction = UIAlertAction(title: "초기화", style: .destructive) { _ in
+            print("초기화 구문")
+        }
+        
+        let presentCancelAction: UIAlertAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)
+        
+        [presentCameraAction, presentAlbumAction, presentDefaultAction, presentCancelAction].forEach {
+            alertController.addAction($0)
+        }
+        
+        owner.present(alertController, animated: true)
     }
     
 }

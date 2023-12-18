@@ -121,10 +121,10 @@ fileprivate extension NSMutableData {
 class APIWorker: NSObject {
     private func httpHeaders(_ headers: [APIHeader]?) -> HTTPHeaders {
         var result: [String: String] = [:]
-        guard let hs = headers, !hs.isEmpty else { return HTTPHeaders() }
+        guard let headers = headers, !headers.isEmpty else { return HTTPHeaders() }
         
-        for h in hs {
-            result[h.key] = h.value
+        for header in headers {
+            result[header.key] = header.value
         }
         
         return HTTPHeaders(result)

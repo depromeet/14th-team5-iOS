@@ -19,9 +19,10 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
     private let calendarButton: UIBarButtonItem = UIBarButtonItem()
     private let familyCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     private let familyCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-    private let familyInviteView: UIView = FamilyInviteView()
+    private let inviteFamilyView: UIView = InviteFamilyView()
     private let timerLabel: UILabel = UILabel()
     private let descriptionLabel: UILabel = UILabel()
+    private let noPostTodayView: UIView = NoPostTodayView()
     private let feedCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     private let feedCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let camerButton: UIButton = UIButton()
@@ -41,7 +42,15 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
         feedCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
 
-        reactor.action.onNext(.setTimer)
+        // 통신 이후에 observable로 변경하기
+//        reactor.action.onNext(.setTimer)
+        Observable.interval(.seconds(1), scheduler: MainScheduler.instance)
+            .map { (time: Int) in
+                let remainingTime = self.calculateRemainingTime(time: time)
+                return self.setTimerFormat(remainingTime: remainingTime)
+            }
+            .bind(to: timerLabel.rx.text)
+            .disposed(by: disposeBag)
         
         feedCollectionView.rx.itemSelected
             .withUnretained(self)
@@ -51,15 +60,30 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
             })
             .disposed(by: disposeBag)
         
-        reactor.state
-            .map { $0.remainingTime }
-            .observe(on: Schedulers.main)
-            .distinctUntilChanged()
+        camerButton
+            .rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .withUnretained(self)
-            .subscribe(onNext: {
-                $0.setTimerFormat(remainingTime: $1)
-            })
+            .bind { owner, _ in
+                let cameraViewController = CameraDIContainer().makeViewController()
+                owner.navigationController?.pushViewController(cameraViewController, animated: true)
+            }.disposed(by: disposeBag)
+        
+        inviteFamilyView.rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .map { Reactor.Action.tapInviteFamily }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
+//        
+//        reactor.state
+//            .map { $0.remainingTime }
+//            .observe(on: Schedulers.main)
+//            .distinctUntilChanged()
+//            .withUnretained(self)
+//            .subscribe(onNext: {
+//                $0.setTimerFormat(remainingTime: $1)
+//            })
+//            .disposed(by: disposeBag)
         
         reactor.state
             .map { $0.descriptionText }
@@ -85,20 +109,30 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
         
         reactor.state
             .map { $0.isShowingInviteFamilyView }
+            .observe(on: Schedulers.main)
             .withUnretained(self)
-            .bind(onNext: {_ in
-                self.addFamilyInviteView()
+            .bind(onNext: {
+                $0.0.addFamilyInviteView()
             })
             .disposed(by: disposeBag)
         
-        camerButton
-            .rx.tap
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+        reactor.state
+            .map { $0.isShowingNoPostTodayView }
+            .observe(on: MainScheduler.instance)
             .withUnretained(self)
-            .bind { owner, _ in
-                let cameraViewController = CameraDIContainer().makeViewController()
-                owner.navigationController?.pushViewController(cameraViewController, animated: true)
-            }.disposed(by: disposeBag)
+            .bind(onNext: {
+                $0.0.addNoPostTodayView()
+            })
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.inviteLink }
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: {
+                $0.0.makeInvitationUrlSharePanel($0.1, provider: reactor.provider)
+            })
+            .disposed(by: disposeBag)
     }
     
     override func setupUI() {
@@ -188,24 +222,23 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
 }
 
 extension HomeViewController {
-    private func setTimerFormat(remainingTime: Int) {
+    private func setTimerFormat(remainingTime: Int) -> String {
         if remainingTime <= 0 {
-            timerLabel.text = "00:00:00"
-            return
+            return "00:00:00"
         }
         
         let hours = remainingTime / 3600
         let minutes = (remainingTime % 3600) / 60
         let seconds = remainingTime % 60
         
-        timerLabel.text = String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
     
     private func addFamilyInviteView() {
-        view.addSubview(familyInviteView)
+        view.addSubview(inviteFamilyView)
         familyCollectionView.isHidden = true
         
-        familyInviteView.snp.makeConstraints {
+        inviteFamilyView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).inset(24)
             $0.horizontalEdges.equalToSuperview().inset(20)
             $0.height.equalTo(90)
@@ -213,7 +246,37 @@ extension HomeViewController {
     }
     
     private func removeFamilyInviteView() {
-        familyInviteView.removeFromSuperview()
+        inviteFamilyView.removeFromSuperview()
+    }
+    
+    private func addNoPostTodayView() {
+        view.addSubview(noPostTodayView)
+        feedCollectionView.isHidden = true
+        
+        feedCollectionView.snp.makeConstraints {
+            $0.center.equalToSuperview()
+            $0.size.equalTo(149)
+        }
+    }
+    
+    private func removeNoPostTodayView() {
+        noPostTodayView.removeFromSuperview()
+    }
+    
+    private func calculateRemainingTime(time: Int) -> Int {
+        let calendar = Calendar.current
+        let currentTime = Date()
+        
+        let isAfterNoon = calendar.component(.hour, from: currentTime) >= 12
+        
+        if isAfterNoon {
+            if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {
+                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
+                return max(0, timeDifference.second ?? 0)
+            }
+        }
+        
+        return 0
     }
     
     private func createFamilyDataSource() -> RxCollectionViewSectionedReloadDataSource<SectionModel<String, ProfileData>> {

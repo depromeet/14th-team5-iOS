@@ -9,7 +9,7 @@ import UIKit
 import Core
 import DesignSystem
 
-final class FamilyInviteView: UIView {
+final class InviteFamilyView: UIView {
     private let inviteImageView: UIImageView = UIImageView()
     private let subLabel: UILabel = UILabel()
     private let titleLabel: UILabel = UILabel()

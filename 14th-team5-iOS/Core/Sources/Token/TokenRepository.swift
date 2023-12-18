@@ -17,8 +17,8 @@ fileprivate extension KeychainWrapper.Key {
 }
 
 public class TokenRepository: RxObject {
-    let fcmToken = BehaviorRelay<String>(value: KeychainWrapper.standard[.fcmToken] ?? "")
-    let accessToken = BehaviorRelay<String?>(value: (KeychainWrapper.standard[.accessToken] ?? ""))
+    public let fcmToken = BehaviorRelay<String>(value: KeychainWrapper.standard[.fcmToken] ?? "")
+    public let accessToken = BehaviorRelay<String?>(value: (KeychainWrapper.standard[.accessToken] ?? ""))
     
     func clearAccessToken() {
         KeychainWrapper.standard.remove(forKey: .accessToken)

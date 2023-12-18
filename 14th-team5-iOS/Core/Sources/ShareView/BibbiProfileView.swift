@@ -20,7 +20,7 @@ import Then
 public class BibbiProfileView: BaseView<BibbiProfileViewReactor> {
     public let profileImageView: UIImageView = UIImageView()
     public let circleButton: UIButton = UIButton.createCircleButton(radius: 15)
-    public let profileNickNameButton: UIButton = UIButton(configuration: .filled(), primaryAction: nil)
+    public let profileNickNameButton: UIButton = UIButton(configuration: .plain())
     
     private var cornerRadius: CGFloat
     public init(cornerRadius: CGFloat, reactor: BibbiProfileViewReactor) {
@@ -59,15 +59,14 @@ public class BibbiProfileView: BaseView<BibbiProfileViewReactor> {
         }
         
         profileNickNameButton.do {
-            var attributedsString: AttributedString = AttributedString("하나밖에없는 혈육")
-            attributedsString.font = .system(size: 16, weight: .regular)
-            attributedsString.foregroundColor = .gray
             $0.configuration?.imagePlacement = .trailing
             $0.configuration?.baseBackgroundColor = .clear
-            $0.configuration?.attributedTitle = attributedsString
-            $0.configuration?.title = "하나빡에없는 혈육"
             $0.configuration?.image = DesignSystemAsset.edit.image
             $0.configuration?.imagePadding = 5
+            $0.configuration?.attributedTitle = AttributedString(NSAttributedString(string: "하나밖에없는 혈육", attributes: [
+                .foregroundColor: UIColor.gray,
+                .font: UIFont.systemFont(ofSize: 16, weight: .regular)
+            ]))
         }
         
         

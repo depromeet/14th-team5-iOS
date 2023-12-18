@@ -42,14 +42,10 @@ public class BibbiProfileView: BaseView<BibbiProfileViewReactor> {
     
     public override func setupAttributes() {
         super.setupAttributes()
-        
-        guard let data = URL(string: "https://wimg.mk.co.kr/news/cms/202304/14/news-p.v1.20230414.15e6ac6d76a84ab398281046dc858116_P1.jpg"),
-              let originalImage = try? Data(contentsOf: data) else { return }
         profileImageView.do {
             $0.clipsToBounds = true
             $0.contentMode = .scaleToFill
             $0.layer.cornerRadius = cornerRadius
-            $0.image = UIImage(data: originalImage)
         }
         
         circleButton.do {

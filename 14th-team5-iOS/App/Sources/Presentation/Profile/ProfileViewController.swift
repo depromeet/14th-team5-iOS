@@ -11,6 +11,7 @@ import Core
 import RxSwift
 import RxCocoa
 import ReactorKit
+import RxDataSources
 import SnapKit
 import Then
 
@@ -22,6 +23,14 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 60, reactor: profileViewReactor)
     private let profileTitleView: UILabel = UILabel()
     private let profileFeedCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private let profileFeedDataSources: RxCollectionViewSectionedReloadDataSource<ProfileFeedSectionModel> = .init { dataSources, collectionView, indexPath, sectionItem in
+        switch sectionItem {
+        case let .feedCategoryItem(cellReactor):
+            guard let profileFeedCell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProfileFeedCollectionViewCell", for: indexPath) as? ProfileFeedCollectionViewCell else { return UICollectionViewCell() }
+            profileFeedCell.reactor = cellReactor
+            return profileFeedCell
+        }
+    }
 
     
     
@@ -95,5 +104,23 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .drive(profileIndicatorView.rx.isAnimating)
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$feedSection)
+            .asDriver(onErrorJustReturn: [])
+            .drive(profileFeedCollectionView.rx.items(dataSource: profileFeedDataSources))
+            .disposed(by: disposeBag)
+        
     }
+}
+
+
+extension ProfileViewController: UICollectionViewDelegateFlowLayout {
+    
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: 186, height: 243)
+    }
+    
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 4
+    }
+    
 }

@@ -52,6 +52,14 @@ extension UIViewController {
         }
     }
     
+    
+    /// 둥근 모양의 토스트 메시지를 보여줍니다.
+    /// - Parameters:
+    ///   - title: 토스트 메시지 속 텍스트
+    ///   - name: SFSymbol 이름 (선택)
+    ///   - width: 너비 (기본값 250)
+    ///   - height: 높이 (기본값 60)
+    ///   - offset: 표시할 위치 (기본값 40)
     public func makeRoundedToastView(
         title: String,
         systemName name: String? = nil,
@@ -136,6 +144,10 @@ extension UIViewController {
         present(activityVC, animated: true)
     }
     
+    /// 친구 초대 공유 시트를 보여줍니다.
+    /// - Parameters:
+    ///   - url: 공유할 URL
+    ///   - globalState: GlobalState (선택)
     func makeInvitationUrlSharePanel(_ url: URL?, provider globalState: GlobalStateProviderType? = nil) {
         guard let url = url else { return }
         let itemSource = UrlActivityItemSource(
@@ -150,6 +162,22 @@ extension UIViewController {
 }
 
 extension UIViewController {
+    /// 전달한 뷰 컨트롤러를 팝오버로 보여줍니다.
+    ///
+    /// 아이폰 환경에서 팝오버를 띄울 뷰 컨트롤러는 필히 `UIPopoverPresentationControllerDelegate` 프로토콜를 준수하고, 아래 메서드를 구현해야 합니다.
+    /// ```swift
+    /// public func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+    ///     return .none
+    /// }
+    /// ```
+    /// 아울러, 팝오버의 크기가 적절한지 직접 확인해야 합니다. 그렇지 않으면 뷰가 표시되지 않는 문제가 발생할 수 있습니다.
+    ///
+    /// - Parameters:
+    ///   - target: Delegate 위임자
+    ///   - sourceView: 팝오버를 띄울 뷰
+    ///   - viewController: 팝오버 속 뷰 컨트롤러
+    ///   - size: 팝오버의 사이즈
+    ///   - directions: 팝오버의 화살표가 표시되는 위치
     func makePopoverView(
         _ target: UIPopoverPresentationControllerDelegate,
         sourceView: UIView?,
@@ -167,10 +195,28 @@ extension UIViewController {
         if let pop = vc.popoverPresentationController {
             pop.sourceView = sourceView
             pop.sourceRect = sourceView?.bounds ?? .zero
-            pop.permittedArrowDirections = [.down]
+            pop.permittedArrowDirections = directions
         }
     }
     
+    
+    /// 한 줄 혹은 여러 줄 텍스트를 팝오버로 보여줍니다.
+    ///
+    /// 아이폰 환경에서 팝오버를 띄울 뷰 컨트롤러는 필히 `UIPopoverPresentationControllerDelegate` 프로토콜를 준수하고, 아래 메서드를 구현해야 합니다.
+    /// ```swift
+    /// public func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+    ///     return .none
+    /// }
+    /// ```
+    /// 아울러, 팝오버의 크기가 적절한지 직접 확인해야 합니다. 그렇지 않으면 뷰가 표시되지 않는 문제가 발생할 수 있습니다.
+    /// `direction` 매개변수에는 `.up` 혹은` .down`만 전달해야 합니다.
+    ///
+    /// - Parameters:
+    ///   - target: Delegate 위임자
+    ///   - sourceView: 팝오버를 띄울 뷰
+    ///   - text: 팝오버 속 텍스트
+    ///   - size: 팝오버의 사이즈
+    ///   - directions: 팝오버의 화살표가 표시되는 위치 (기본값 .down)
     func makeDescriptionPopoverView(
         _ target: UIPopoverPresentationControllerDelegate,
         sourceView: UIView?,
@@ -178,7 +224,7 @@ extension UIViewController {
         popoverSize size: CGSize,
         permittedArrowDrections directions: UIPopoverArrowDirection = [.down]
     ) {
-        let descriptionVC = PopoverDescriptionViewController(text: text)
+        let descriptionVC = PopoverDescriptionViewController(text, arrowDirection: directions)
         makePopoverView(
             target,
             sourceView: sourceView,

@@ -41,9 +41,14 @@ public class BibbiProfileView: BaseView<BibbiProfileViewReactor> {
     }
     
     public override func setupAttributes() {
+        
+        guard let originImageURL = URL(string: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg"),
+              let originData = try? Data(contentsOf: originImageURL) else { return }
+        
         super.setupAttributes()
         profileImageView.do {
             $0.clipsToBounds = true
+            $0.image = UIImage(data: originData)
             $0.contentMode = .scaleToFill
             $0.layer.cornerRadius = cornerRadius
         }
@@ -92,16 +97,7 @@ public class BibbiProfileView: BaseView<BibbiProfileViewReactor> {
     
     
     public override func bind(reactor: BibbiProfileViewReactor) {
-        reactor.pulse(\.$profileImage)
-            .map { UIImage(data: $0) }
-            .asDriver(onErrorJustReturn: .none)
-            .drive(profileImageView.rx.image)
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$nickName)
-            .asDriver(onErrorJustReturn: "")
-            .drive(profileNickNameButton.rx.title())
-            .disposed(by: disposeBag)
+        //TODO: 서버 통신 코드 추가 후 Reactor Binding Code 추가 예정
     }
     
 }

@@ -21,7 +21,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let scene = (scene as? UIWindowScene) else { return }
         let profileDIContainer = ProfileDIContainer().makeViewController()
         window = UIWindow(windowScene: scene)
-        window?.rootViewController = UINavigationController(rootViewController: profileDIContainer)
+        window?.rootViewController = UINavigationController(rootViewController: HomeViewController(reacter: HomeViewReactor()))
         window?.makeKeyAndVisible()
     }
 }

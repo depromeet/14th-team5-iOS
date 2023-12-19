@@ -11,18 +11,18 @@ import ReactorKit
 import RxCocoa
 import RxSwift
 
-public protocol LinkShareImpl {
+public protocol AddFamiliyImpl {
     var disposeBag: DisposeBag { get }
     
-    func responseInvitationUrl(_ familiyId: String) -> Observable<URL?>
+    func fetchInvitationUrl(_ familiyId: String) -> Observable<URL?>
 }
 
-public final class LinkShareViewRepository: LinkShareImpl {
+public final class AddFamiliyViewRepository: AddFamiliyImpl {
     public let disposeBag: DisposeBag = DisposeBag()
     
     public init() { }
     
-    public func responseInvitationUrl(_ familiyId: String) -> Observable<URL?> {
+    public func fetchInvitationUrl(_ familiyId: String) -> Observable<URL?> {
         return Observable<URL?>.create { observer in
             observer.onNext(URL(string: "https://www.naver.com"))
             

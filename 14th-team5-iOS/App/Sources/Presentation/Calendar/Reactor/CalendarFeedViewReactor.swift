@@ -13,21 +13,31 @@ import RxSwift
 
 public final class CalendarFeedViewReactor: Reactor {
     // MARK: - Action
-    public enum Action { }
+    public enum Action {
+        case didTapDate(Date)
+    }
     
     // MARK: - Mutation
-    public enum Mutation { }
+    public enum Mutation { 
+        case presentFeed(Date)
+    }
     
     // MARK: - State
-    public struct State { }
+    public struct State { 
+        var selectedDate: Date
+        
+        init(_ selectedDate: Date) {
+            self.selectedDate = selectedDate
+        }
+    }
     
     // MARK: - Properties
     public var initialState: State
     public let provider: GlobalStateProviderType
     
     // MARK: - Intializer
-    init(provider: GlobalStateProviderType) {
-        self.initialState = State()
+    init(_ state: State, provider: GlobalStateProviderType) {
+        self.initialState = state
         self.provider = provider
     }
 }

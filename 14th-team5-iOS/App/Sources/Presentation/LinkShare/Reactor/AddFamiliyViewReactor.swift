@@ -12,7 +12,7 @@ import Data
 import ReactorKit
 import RxSwift
 
-public final class LinkShareViewReactor: Reactor {
+public final class AddFamiliyViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case didTapInvitationUrlButton
@@ -32,13 +32,13 @@ public final class LinkShareViewReactor: Reactor {
     
     // MARK: - Properties
     public let initialState: State
-    public let linkShareViewRepository: LinkShareViewRepository
+    public let addFamiliyViewRepository: AddFamiliyImpl
     public let provider: GlobalStateProviderType
     
     // MARK: - Intializer
     init(provider: GlobalStateProviderType) {
         self.initialState = State()
-        self.linkShareViewRepository = LinkShareViewRepository()
+        self.addFamiliyViewRepository = AddFamiliyViewRepository()
         self.provider = provider
     }
     
@@ -60,7 +60,7 @@ public final class LinkShareViewReactor: Reactor {
         switch action {
         case .didTapInvitationUrlButton:
             // TODO: - FamilyID 구하는 코드 구현
-            return linkShareViewRepository.responseInvitationUrl("familyId")
+            return addFamiliyViewRepository.fetchInvitationUrl("familyId")
                 .map { .presentSharePanel($0) }
         }
     }

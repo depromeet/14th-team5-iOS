@@ -45,8 +45,8 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(displayView, confirmButton, archiveButton, displayIndicatorView, displayEditTextField)
-        displayView.addSubviews(displayEditButton, displayEditCollectionView)
+        view.addSubviews(displayView, confirmButton, archiveButton, displayIndicatorView, displayEditTextField, displayEditCollectionView)
+        displayView.addSubviews(displayEditButton)
     }
     
     public override func setupAttributes() {
@@ -158,7 +158,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         displayEditCollectionView.snp.makeConstraints {
             $0.height.equalTo(61)
             $0.width.equalTo(view.frame.size.width - 43)
-            $0.centerY.equalToSuperview().offset(-40)
+            $0.centerY.equalToSuperview().offset(-90)
             $0.centerX.equalToSuperview()
         }
         
@@ -188,6 +188,17 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .map { Reactor.Action.fetchDisplayImage($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        displayEditTextField.rx
+            .text.orEmpty
+            .distinctUntilChanged()
+            .map { ($0.count > 8) }
+            .throttle(.seconds(1), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { owner, isShow in
+                guard isShow == true else {  return }
+                owner.makeRoundedToastView(title: "8자까지 입력가능해요", systemName: "", width: 211, height: 56, offset: 400)
+            }).disposed(by: disposeBag)
         
         displayEditTextField.rx
             .text.orEmpty
@@ -332,16 +343,16 @@ extension CameraDisplayViewController {
     }
     
     private func presentDimView() {
-        displayView.addSubview(displayDimView)
+        view.addSubview(displayDimView)
         displayDimView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        displayView.bringSubviewToFront(displayEditCollectionView)
+        view.bringSubviewToFront(displayEditCollectionView)
         displayDimView.backgroundColor = .black.withAlphaComponent(0.5)
     }
     
     private func dismissDimView() {
-        displayView.subviews.forEach {
+        view.subviews.forEach {
             if $0.backgroundColor == UIColor.black.withAlphaComponent(0.5) {
                 $0.removeFromSuperview()
             }

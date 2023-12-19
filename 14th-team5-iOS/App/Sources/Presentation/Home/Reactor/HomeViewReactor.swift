@@ -14,7 +14,6 @@ final class HomeViewReactor: Reactor {
     enum Action {
 //        case checkTime
         case tapInviteFamily
-//        case setTimer
         case getFamilyInfo
         case getPostInfo
     }
@@ -22,7 +21,6 @@ final class HomeViewReactor: Reactor {
     enum Mutation {
 //        case setTimerStatus
         case showShareAcitivityView(URL?)
-//        case setRemainingTime(Int)
         case showInviteFamilyView
         case showNoPostTodayView
         case setFamilyCollectionView([SectionModel<String, ProfileData>])
@@ -33,7 +31,6 @@ final class HomeViewReactor: Reactor {
         var inviteLink: URL?
 //        var isShowingShareAcitivityView: Bool = false
         var descriptionText: String = HomeStringLiterals.Description.standard
-//        var remainingTime: Int = 0
         var isShowingNoPostTodayView: Bool = false
         var isShowingInviteFamilyView: Bool = false
         var familySections: [SectionModel<String, ProfileData>] = []
@@ -59,13 +56,6 @@ extension HomeViewReactor {
             return Observable.just(Mutation.showNoPostTodayView)
 //            else
 //            return Observable.just(Mutation.setPostCollectionView(data))
-//        case .setTimer:
-            
-//            return Observable.interval(.seconds(1), scheduler: MainScheduler.instance)
-//                    .map { (time: Int) in
-//                        return .setRemainingTime(self.calculateRemainingTime())
-//                    }
-//                    .startWith(.setRemainingTime(self.calculateRemainingTime()))
         case .tapInviteFamily:
             // 서버로부터 invitecode 받아오기
             return Observable.just(Mutation.showShareAcitivityView(URL(string: "https://github.com/depromeet/14th-team5-iOS")))
@@ -82,8 +72,6 @@ extension HomeViewReactor {
             newState.isShowingInviteFamilyView = true
         case let .setFamilyCollectionView(data):
             newState.familySections = data
-//        case let .setRemainingTime(time):
-//            newState.remainingTime = time
         case .showNoPostTodayView:
             newState.isShowingNoPostTodayView = true
         case let .setPostCollectionView(data):
@@ -103,12 +91,12 @@ extension HomeViewReactor {
         
         let isAfterNoon = calendar.component(.hour, from: currentTime) >= 12
         
-//        if isAfterNoon {
+        if isAfterNoon {
             if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {
                 let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
                 return max(0, timeDifference.second ?? 0)
             }
-//        }
+        }
         
         return 0
     }

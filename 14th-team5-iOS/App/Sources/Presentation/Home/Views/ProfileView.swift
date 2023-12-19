@@ -50,11 +50,11 @@ final class ProfileView: UIView {
         imageView.do {
             $0.clipsToBounds = true
             $0.layer.cornerRadius = 34
-            $0.kf.setImage(with: URL(string:MainStringLiterals.tempProfileImageURL))
+            $0.kf.setImage(with: URL(string:HomeStringLiterals.tempProfileImageURL))
         }
         
         nameLabel.do {
-            $0.text = MainStringLiterals.tempProfileName
+            $0.text = HomeStringLiterals.tempProfileName
             $0.textAlignment = .center
         }
     }

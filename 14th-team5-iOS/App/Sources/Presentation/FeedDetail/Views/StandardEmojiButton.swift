@@ -10,7 +10,7 @@ import DesignSystem
 import RxCocoa
 import RxSwift
 
-final class EmojiButton: UIView {
+final class StandardEmojiButton: UIView {
     private let backgroundView: UIImageView = UIImageView()
     private let emojiLabel: UILabel = UILabel()
     
@@ -47,19 +47,19 @@ final class EmojiButton: UIView {
     }
 }
 
-extension EmojiButton {
+extension StandardEmojiButton {
     func setEmoji(emoji: Emojis) {
         emojiLabel.text = emoji.emojiString
     }
 }
 
-extension Reactive where Base: EmojiButton {
-    var tap: ControlEvent<Void> {
-        let tapGestureRecognizer = UITapGestureRecognizer()
-
-        base.isUserInteractionEnabled = true
-        base.addGestureRecognizer(tapGestureRecognizer)
-
-        return ControlEvent(events: tapGestureRecognizer.rx.event.map { _ in })
-    }
-}
+//extension Reactive where Base: EmojiButton {
+//    var tap: ControlEvent<Void> {
+//        let tapGestureRecognizer = UITapGestureRecognizer()
+//
+//        base.isUserInteractionEnabled = true
+//        base.addGestureRecognizer(tapGestureRecognizer)
+//
+//        return ControlEvent(events: tapGestureRecognizer.rx.event.map { _ in })
+//    }
+//}

@@ -7,6 +7,7 @@
 
 import UIKit
 import Core
+import DesignSystem
 
 import RxSwift
 
@@ -18,15 +19,16 @@ final class FeedDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     private let timeLabel = UILabel()
     private let imageView = UIImageView()
     private let imageTextLabel = UILabel()
-    private let emojiStackView = UIStackView()
-    private let selectEmojiView = UIStackView()
+    private let standardEmojiStackView = UIStackView()
+    private let addEmojiButton = UIButton()
+    private let emojiCountStackView = UIStackView()
     
     private let reactor = EmojiReactor()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         bind(reactor: reactor)
-        setStackView()
+        setStandardEmojiStackView()
     }
     
     required init?(coder: NSCoder) {
@@ -36,11 +38,33 @@ final class FeedDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     override func setupUI() {
         super.setupUI()
         
-        addSubviews(textStackView, imageView, emojiStackView, selectEmojiView)
+        addSubviews(textStackView, imageView, emojiCountStackView, standardEmojiStackView)
         textStackView.addArrangedSubviews(nameLabel, timeLabel)
     }
     
     override func bind(reactor: EmojiReactor) {
+        addEmojiButton.rx.tap
+            .map { Reactor.Action.tapAddEmojiButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.isShowingStandardEmojiView }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .bind(onNext: {
+                $0.0.showStandardEmojiStackView($0.1)
+            })
+            .disposed(by: disposeBag)
+        
+//        reactor.state
+//            .map { $0.emojiData }
+////            .distinctUntilChanged()
+//            .withUnretained(self)
+//            .bind(onNext: {
+////                $0.0.updateEmojiCount($0.1)
+//            })
+//            .disposed(by: disposeBag)
     }
     
     override func setupAutoLayout() {
@@ -56,13 +80,13 @@ final class FeedDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             $0.top.equalTo(textStackView.snp.bottom).offset(8)
         }
         
-        emojiStackView.snp.makeConstraints {
-            $0.trailing.equalToSuperview()
+        emojiCountStackView.snp.makeConstraints {
+            $0.trailing.equalToSuperview().inset(20)
             $0.top.equalTo(imageView.snp.bottom).offset(6)
             $0.height.equalTo(30)
         }
         
-        selectEmojiView.snp.makeConstraints {
+        standardEmojiStackView.snp.makeConstraints {
             $0.horizontalEdges.bottom.equalToSuperview()
             $0.height.equalTo(50)
         }
@@ -85,62 +109,69 @@ final class FeedDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             $0.layer.cornerRadius = 24
         }
         
-        emojiStackView.do {
+        standardEmojiStackView.do {
             $0.distribution = .equalCentering
             $0.spacing = 5
+            $0.isHidden = true
         }
         
-        selectEmojiView.do {
-            //            $0.layoutMargins = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
+        addEmojiButton.do {
+            $0.setImage(DesignSystemAsset.addEmoji.image, for: .normal)
+            $0.backgroundColor = .blue
+        }
+        
+        emojiCountStackView.do {
             $0.distribution = .fillEqually
             $0.backgroundColor = UIColor(red: 0.192, green: 0.192, blue: 0.192, alpha: 1)
             $0.spacing = 15
             $0.layer.cornerRadius = 25
+            $0.addArrangedSubview(addEmojiButton)
         }
     }
 }
 
 extension FeedDetailCollectionViewCell {
-    private func setEmojiCountStack(emojis: [EmojiData]) {
+    private func showStandardEmojiStackView(_ isShowing: Bool) {
+        standardEmojiStackView.isHidden = !isShowing
+    }
+    
+    private func setEmojiCountStackView(emojis: [EmojiData]) {
         for emoji in emojis {
-            let emojiView = EmojiView()
+            let emojiView = EmojiCountButton()
             emojiView.setInitEmoji(emoji: emoji)
-            emojiStackView.addArrangedSubview(emojiView)
+            emojiCountStackView.addArrangedSubview(emojiView)
         }
     }
     
-    private func setStackView() {
+    private func setStandardEmojiStackView() {
         Emojis.allEmojis.enumerated().forEach { index, emoji in
-            let button = EmojiButton()
+            let button = StandardEmojiButton()
             button.setEmoji(emoji: emoji)
             button.tag = index
-            selectEmojiView.addArrangedSubview(button)
+            standardEmojiStackView.addArrangedSubview(button)
             bindButton(button)
         }
     }
     
-    private func bindButton(_ button: EmojiButton) {
+    private func bindButton(_ button: StandardEmojiButton) {
         button.rx.tap
-            .map { Reactor.Action.emojiButtonTapped(button.tag) }
+            .map { Reactor.Action.standardEmojiButtonTapped(Emojis.emoji(forIndex: button.tag)) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        // 통신 이후에 수정하기
-        reactor.state
-            .map { $0.emojiCount }
-            .withUnretained(self)
-            .bind(onNext: {
-                print($0.1)
-//                self.updateEmojiCount(index: 0, count: $0.1)
-            })
-            .disposed(by: disposeBag)
+//        // 통신 이후에 수정하기
+//        reactor.state
+//            .map { $0.emojiCount }
+//            .withUnretained(self)
+//            .bind(onNext: {
+//                print($0.1)
+////                self.updateEmojiCount(index: 0, count: $0.1)
+//            })
+//            .disposed(by: disposeBag)
     }
     
-//    private func updateEmojiCount(index: Int, count: Int) {
-//        guard let emojiView = emojiStackView.arrangedSubviews[index] as? EmojiView else {
-//            return
-//        }
-//        emojiView.setCountLabel(count)
+//    private func updateEmojiCount(_ data: [EmojiData]) {
+        
 //    }
 }
 
@@ -149,6 +180,6 @@ extension FeedDetailCollectionViewCell {
         nameLabel.text = data.writer
         timeLabel.text = data.time
         imageView.kf.setImage(with: URL(string: data.imageURL))
-        setEmojiCountStack(emojis: data.emojis)
+//        setEmojiCountStack(emojis: data.emojis)
     }
 }

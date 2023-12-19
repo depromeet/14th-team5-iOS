@@ -43,6 +43,7 @@ final class FeedDetailViewController: BaseViewController<FeedDetailReactor> {
         
         layout.do {
             $0.sectionInset = .zero
+            $0.scrollDirection = .horizontal
             $0.minimumLineSpacing = 0
         }
         
@@ -71,6 +72,6 @@ extension FeedDetailViewController {
 
 extension FeedDetailViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: collectionView.frame.width - 16 * 2, height: collectionView.frame.height)
+        return CGSize(width: collectionView.frame.width, height: collectionView.frame.height)
     }
 }

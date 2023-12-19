@@ -23,7 +23,11 @@ extension Reactive where Base: UIView {
         return tapGestureRecognizer.rx.tapGesture
     }
     
+<<<<<<< HEAD
     public var pinchGesture: ControlEvent<UIPinchGestureRecognizer> {
+=======
+    var panGesture: ControlEvent<UIPinchGestureRecognizer> {
+>>>>>>> 4fa08b8 (fix: DesignSystem Assets WireFrame Image 제거 및 원본 이미지 추가)
         let pinchGestureRecognizer = UIPinchGestureRecognizer()
         base.addGestureRecognizer(pinchGestureRecognizer)
 

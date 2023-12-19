@@ -74,16 +74,6 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
             .map { Reactor.Action.tapInviteFamily }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-//        
-//        reactor.state
-//            .map { $0.remainingTime }
-//            .observe(on: Schedulers.main)
-//            .distinctUntilChanged()
-//            .withUnretained(self)
-//            .subscribe(onNext: {
-//                $0.setTimerFormat(remainingTime: $1)
-//            })
-//            .disposed(by: disposeBag)
         
         reactor.state
             .map { $0.descriptionText }

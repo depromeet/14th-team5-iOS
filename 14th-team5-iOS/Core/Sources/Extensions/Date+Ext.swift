@@ -12,25 +12,25 @@ extension Date {
         return Calendar.autoupdatingCurrent
     }
     
-    var isToday: Bool {
+    public var isToday: Bool {
         return self.isEqual(with: Date.now)
     }
     
-    var year: Int {
+    public var year: Int {
         return calendar.component(.year, from: self)
     }
     
-    var month: Int {
+    public var month: Int {
         return calendar.component(.month, from: self)
     }
     
-    var day: Int {
+    public var day: Int {
         return calendar.component(.day, from: self)
     }
 }
 
 extension Date {
-    func isEqual(
+    public func isEqual(
         _ components: Set<Calendar.Component> = [.year, .month, .day],
         with date: Date
     ) -> Bool {
@@ -45,7 +45,7 @@ extension Date {
         return true
     }
     
-    func interval(
+    public func interval(
         _ components: Set<Calendar.Component>,
         to date: Date
     ) -> [Calendar.Component:Int] {

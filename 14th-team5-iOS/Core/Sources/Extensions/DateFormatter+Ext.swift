@@ -17,15 +17,15 @@ extension DateFormatter {
         return formatter
     }
     
-    static let yyyyMMdd: DateFormatter = {
+    public static let yyyyMMdd: DateFormatter = {
         DateFormatter.withFormat("yyyy년 MM월 dd일")
     }()
     
-    static let dashYyyyMMddhhmmss: DateFormatter = {
+    public static let dashYyyyMMddhhmmss: DateFormatter = {
         DateFormatter.withFormat("yyyy-MM-dd hh:mm:ss")
     }()
     
-    static let ahhmmss: DateFormatter = {
+    public static let ahhmmss: DateFormatter = {
         DateFormatter.withFormat("a hh:mm:ss")
     }()
 }

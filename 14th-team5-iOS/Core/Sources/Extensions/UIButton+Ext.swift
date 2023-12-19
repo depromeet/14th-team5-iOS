@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 
 extension UIButton {
-    class func createCircleButton(radius: CGFloat) -> UIButton {
+    public class func createCircleButton(radius: CGFloat) -> UIButton {
         let circleButton: UIButton = UIButton()
         circleButton.layer.cornerRadius = radius
         circleButton.clipsToBounds = true

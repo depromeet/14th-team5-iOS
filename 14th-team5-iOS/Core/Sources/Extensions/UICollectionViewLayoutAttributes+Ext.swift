@@ -8,7 +8,7 @@
 import UIKit
 
 extension UICollectionViewLayoutAttributes {
-    func rightAlignFrameOnWidth(_ width: CGFloat,  with sectionInset: UIEdgeInsets) {
+    public func rightAlignFrameOnWidth(_ width: CGFloat,  with sectionInset: UIEdgeInsets) {
         self.frame.origin.x = width - self.frame.size.width - sectionInset.left
     }
 }

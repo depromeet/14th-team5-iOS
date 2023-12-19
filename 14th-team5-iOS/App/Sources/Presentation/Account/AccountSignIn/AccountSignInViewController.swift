@@ -7,6 +7,7 @@
 
 import UIKit
 import Core
+import DesignSystem
 
 import RxDataSources
 import RxCocoa
@@ -14,53 +15,69 @@ import RxSwift
 import SnapKit
 import Then
 
-final class AccountSignInViewController: BaseViewController<AccountSignInReactor> {
-    private enum Metric {
-        
-    }
-    
+public final class AccountSignInViewController: BaseViewController<AccountSignInReactor> {
     private let kakaoLoginButton = UIButton()
     private let appleLoginButton = UIButton()
     private let loginStack = UIStackView()
     
-    override func viewDidLoad() {
+    override public func viewDidLoad() {
         super.viewDidLoad()
         
+        
     }
     
-    override func setupUI() {
+    override public func setupUI() {
         super.setupUI()
         
-        view.addSubviews(loginStack)
-        loginStack.addSubviews(kakaoLoginButton)
+        view.addSubviews(appleLoginButton, kakaoLoginButton)
     }
     
-    override func setupAttributes() {
+    override public func setupAttributes() {
         super.setupAttributes()
         
+//        kakaoLoginButton.do {
+//            $0.setImage(DesignSystemAsset.kakaoLogin.image, for: .normal)
+//        }
+        
+        appleLoginButton.do {
+            $0.setImage(DesignSystemAsset.appleLogin.image, for: .normal)
+        }
     }
     
-    override func setupAutoLayout() {
+    override public func setupAutoLayout() {
         super.setupAutoLayout()
         
-        loginStack.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview()
+//        kakaoLoginButton.snp.makeConstraints {
+//            $0.horizontalEdges.equalToSuperview().inset(16)
+//            $0.height.equalTo(56)
+//            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+//        }
+        
+        appleLoginButton.snp.makeConstraints {
+            $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(56)
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
         }
     }
     
-    override func bind(reactor: AccountSignInReactor) {
+    override public func bind(reactor: AccountSignInReactor) {
         kakaoLoginButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
             .map { Reactor.Action.kakaoLoginTapped(.kakao, self) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.acceessToken }
-            .distinctUntilChanged()
-            .withUnretained(self)
-            .bind(onNext: { $0.0.view.setNeedsLayout() })
+        appleLoginButton.rx.tap
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .map { Reactor.Action.kakaoLoginTapped(.apple, self) }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+//        reactor.state.map { $0.acceessToken }
+//            .filter { $0.isEmpty }
+//            .distinctUntilChanged()
+//            .withUnretained(self)
+//            .bind(onNext: { _ in print("다음화면 이동하자!") })
+//            .disposed(by: disposeBag)
     }
 }

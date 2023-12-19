@@ -17,7 +17,7 @@ protocol AccountSignInHelperConfigType {
     var snsHelpers: [SNS: AccountSignInHelperType] { get }
 }
 
-final class AccountSignInHelper {
+final class AccountSignInHelper: NSObject {
     private(set) var disposeBag = DisposeBag()
     // MARK: Config
     private let config: AccountSignInHelperConfigType = AccountSignInHelperConfig()
@@ -32,7 +32,7 @@ final class AccountSignInHelper {
     
     let snsSignInResult = PublishRelay<(APIResult, AccountSignInStateInfo)>()
     
-    private func bind() {
+    func bind() {
         Observable.from(signInHelper.values.map { $0.signInState }).merge()
             .withUnretained(self)
             .flatMap { (_self, state) -> Single<(APIResult, AccountSignInStateInfo)> in
@@ -56,18 +56,16 @@ final class AccountSignInHelper {
 extension AccountSignInHelper {
     
     func trySignInWith(sns: SNS, window: UIWindow?) {
-        
         guard let helper = signInHelper[sns], let window = window else {
             return
         }
-        
         helper.signIn(on: window)
     }
     
     func signInWith(snsType: SNS, snsToken: String) -> Single<APIResult> {
         return apiWorker.signInWith(snsType: snsType, snsToken: snsToken)
             .map { token in
-                guard let token = token else {
+                guard let _ = token else {
                     return .failed
                 }
                 

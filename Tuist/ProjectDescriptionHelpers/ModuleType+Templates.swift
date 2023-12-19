@@ -48,7 +48,9 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
                 .with(.Domain),
                 .external(name: "Alamofire"),
                 .external(name: "RxSwift"),
-                .external(name: "ReactorKit")
+                .external(name: "ReactorKit"),
+                .external(name: "KakaoSDK"),
+                .external(name: "RxKakaoSDK"),
             ]
         case .Domain:
             return []

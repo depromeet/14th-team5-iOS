@@ -12,41 +12,49 @@ import Domain
 
 import ReactorKit
 
-final class AccountSignInReactor: Reactor {
+public final class AccountSignInReactor: Reactor {
     
     public var initialState: State
-//    private var accountRepository: AccountImpl
+    private var accountRepository: AccountImpl
     
-    enum Action {
+    public enum Action {
         case kakaoLoginTapped(SNS, UIViewController)
+        case appleLoginTapped(SNS, UIViewController)
     }
     
-    enum Mutation {
+    public enum Mutation {
         case kakaoLogin
+        case appleLogin
     }
     
-    struct State {
+    public struct State {
         var acceessToken: String
     }
     
-    init() {
-//        self.accountRepository = accountRepository
+    init(accountRepository: AccountRepository) {
+        self.accountRepository = accountRepository
         self.initialState = State(acceessToken: "")
     }
 }
 
 extension AccountSignInReactor {
-    func mutate(action: Action) -> Observable<Mutation> {
+    public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .kakaoLoginTapped(let sns, let vc):
-            Observable.just(Mutation.kakaoLogin)
+            accountRepository.kakaoLogin(with: sns, vc: vc)
+                .flatMap { Observable.just(Mutation.kakaoLogin) }
+        case .appleLoginTapped(let sns, let vc):
+            accountRepository.appleLogin(with: sns, vc: vc)
+                .flatMap { Observable.just(Mutation.appleLogin) }
         }
     }
     
-    func reduce(state: State, mutation: Mutation) -> State {
+    public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
         case .kakaoLogin:
+            App.Repository.token.accessToken.accept(state.acceessToken)
+        case .appleLogin:
             App.Repository.token.accessToken.accept(state.acceessToken)
         }
         return newState

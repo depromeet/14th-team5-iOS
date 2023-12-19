@@ -26,4 +26,8 @@ enum AccountAPIs: API {
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/auth/social/\(sns.rawValue)")
         }
     }
+    
+    struct LoginPayload: Encodable, Equatable {
+        var accessToken: String?
+    }
 }

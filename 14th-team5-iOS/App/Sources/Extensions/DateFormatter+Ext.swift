@@ -17,6 +17,10 @@ extension DateFormatter {
         return formatter
     }
     
+    static let yyyyMM: DateFormatter = {
+        DateFormatter.withFormat("yyyy년 MM월")
+    }()
+    
     static let yyyyMMdd: DateFormatter = {
         DateFormatter.withFormat("yyyy년 MM월 dd일")
     }()

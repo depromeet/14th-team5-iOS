@@ -46,7 +46,7 @@ public final class CalendarFeedViewController: BaseViewController<CalendarFeedVi
     
         calendarView.do {
             $0.headerHeight = 0.0
-            $0.weekdayHeight = 30.0
+            $0.weekdayHeight = 0.0
             
             $0.today = nil
             $0.scope = .week
@@ -58,21 +58,43 @@ public final class CalendarFeedViewController: BaseViewController<CalendarFeedVi
             $0.appearance.titleDefaultColor = UIColor.white
             $0.appearance.titleSelectionColor = UIColor.white
             
-            $0.appearance.weekdayFont = UIFont.systemFont(ofSize: CalendarVC.Attribute.weekdayFontSize)
-            $0.appearance.weekdayTextColor = UIColor.white
-            $0.appearance.caseOptions = .weekdayUsesSingleUpperCase
+            $0.backgroundColor = UIColor.clear
             
-            $0.appearance.titlePlaceholderColor = UIColor.systemGray.withAlphaComponent(0.3)
-            
-            $0.backgroundColor = UIColor.black
-            
-            $0.locale = Locale.autoupdatingCurrent
             $0.register(ImageCalendarCell.self, forCellReuseIdentifier: ImageCalendarCell.id)
             $0.register(PlaceholderCalendarCell.self, forCellReuseIdentifier: PlaceholderCalendarCell.id)
         }
+        
+        setupNavigationTitle(calendarView.currentPage)
     }
 
-    public override func bind(reactor: CalendarFeedViewReactor) { }
+    public override func bind(reactor: CalendarFeedViewReactor) { 
+        super.bind(reactor: reactor)
+        bindInput(reactor: reactor)
+        bindOutput(reactor: reactor)
+    }
+    
+    private func bindInput(reactor: CalendarFeedViewReactor) {
+        calendarView.rx.didSelect
+            .map { Reactor.Action.didTapDate($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+    }
+    
+    private func bindOutput(reactor: CalendarFeedViewReactor) {
+        reactor.state.map { $0.selectedDate }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe {
+                $0.0.calendarView.select($0.1, scrollToDate: true)
+            }
+            .disposed(by: disposeBag)
+    }
+}
+
+extension CalendarFeedViewController {
+    func setupNavigationTitle(_ date: Date) {
+        navigationItem.title = DateFormatter.yyyyMM.string(from: date)
+    }
 }
 
 extension CalendarFeedViewController: FSCalendarDelegate {
@@ -81,6 +103,10 @@ extension CalendarFeedViewController: FSCalendarDelegate {
             $0.height.equalTo(bounds.height)
         }
         view.layoutIfNeeded()
+    }
+    
+    public func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
+        setupNavigationTitle(calendar.currentPage)
     }
 }
 

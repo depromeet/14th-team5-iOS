@@ -33,6 +33,10 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     private let toggleButton: UIButton = UIButton.createCircleButton(radius: 24)
     private let titleView: UILabel = UILabel()
     
+    
+    private var initialScale: CGFloat = 0
+    private var zoomScaleRange: ClosedRange<CGFloat> = 1...10
+    
     //MARK: LifeCylce
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -122,7 +126,19 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .map { Reactor.Action.didTapFlashButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
+                
+        cameraView.rx
+            .panGesture
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: {
+                if AVCaptureDevice.Position.back == $0.0.backCamera.position {
+                    print("test")
+                } else {
+                    print("front")
+                }
+            }).disposed(by: disposeBag)
+
         
         toggleButton
             .rx.tap
@@ -295,4 +311,42 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         let cameraDisplayViewController = CameraDisplayDIContainer(displayData: originalData).makeViewController()
         self.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
     }
+    
+    
+    
+    private func setupImageScale(owner: CameraViewController, scale: CGFloat, camera: AVCaptureDevice) {
+        do {
+            
+            try camera.lockForConfiguration()
+            camera.videoZoomFactor = scale
+            
+            camera.unlockForConfiguration()
+        } catch {
+            print(error.localizedDescription)
+        }
+        
+    }
+    
+    
+    private func transitionImageScale(owner: CameraViewController, gesture: UIPinchGestureRecognizer, camera: AVCaptureDevice) {
+        
+        switch gesture.state {
+            
+        case .began:
+            owner.initialScale = camera.videoZoomFactor
+            
+        case .changed:
+            let minAvailableZoomScale = camera.minAvailableVideoZoomFactor
+            let maxAvailableZoomScale = camera.maxAvailableVideoZoomFactor
+            let availableZoomScaleRange = minAvailableZoomScale...maxAvailableZoomScale
+            let resolvedZoomScaleRange = zoomScaleRange.clamped(to: availableZoomScaleRange)
+
+            let resolvedScale = max(resolvedZoomScaleRange.lowerBound, min(gesture.scale * initialScale, resolvedZoomScaleRange.upperBound))
+            setupImageScale(owner: owner, scale: resolvedScale, camera: camera)
+        default:
+            return
+            
+        }
+    }
+    
 }

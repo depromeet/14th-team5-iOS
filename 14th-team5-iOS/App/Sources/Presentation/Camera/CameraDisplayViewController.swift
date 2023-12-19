@@ -20,13 +20,13 @@ import SnapKit
 public final class CameraDisplayViewController: BaseViewController<CameraDisplayViewReactor> {
     //MARK: Views
     private let displayView: UIImageView = UIImageView()
-    private let confirmButton: UIButton = UIButton.createCircleButton(radius: 36)
+    private let confirmButton: UIButton = UIButton()
     private let displayIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
-    private let archiveButton: UIBarButtonItem = UIBarButtonItem()
     private let titleView: UILabel = UILabel()
     private let displayEditButton: UIButton = UIButton.createCircleButton(radius: 21.5)
     private let displayEditTextField: UITextField = UITextField()
     private let displayDimView: UIView = UIView()
+    private let archiveButton: UIButton = UIButton.createCircleButton(radius: 24)
     private let displayEditCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let displayEditDataSources: RxCollectionViewSectionedReloadDataSource<DisplayEditSectionModel> = .init { dataSources, collectionView, indexPath, sectionItem in
         switch sectionItem {
@@ -45,7 +45,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(displayView, confirmButton, displayIndicatorView, displayEditTextField)
+        view.addSubviews(displayView, confirmButton, archiveButton, displayIndicatorView, displayEditTextField)
         displayView.addSubviews(displayEditButton, displayEditCollectionView)
     }
     
@@ -59,11 +59,11 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         navigationItem.do {
             $0.titleView = titleView
-            $0.rightBarButtonItem = archiveButton
         }
         
         archiveButton.do {
-            $0.image = DesignSystemAsset.archive.image
+            $0.setImage(DesignSystemAsset.archive.image, for: .normal)
+            $0.backgroundColor = .darkGray
         }
         
         displayView.do {
@@ -79,14 +79,17 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         }
         
         confirmButton.do {
-            $0.backgroundColor = .white
+            $0.backgroundColor = UIColor(red: 71/255, green: 234/255, blue: 166/255, alpha: 1.0)
             $0.isUserInteractionEnabled = true
-            $0.setImage(DesignSystemAsset.confirm.image, for: .normal)
+            $0.setTitleColor(.black, for: .normal)
+            $0.layer.cornerRadius = 30
+            $0.clipsToBounds = true
+            $0.setTitle("사진 업로드", for: .normal)
         }
         
         displayEditTextField.do {
             $0.textColor = .white
-            $0.backgroundColor = .black
+            $0.backgroundColor = UIColor(red: 53/255, green: 53/255, blue: 56/255, alpha: 1.0)
             $0.font = .systemFont(ofSize: 17, weight: .regular)
             $0.makeLeftPadding(16)
             $0.makeClearButton(DesignSystemAsset.clear.image)
@@ -133,7 +136,14 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         confirmButton.snp.makeConstraints {
             $0.top.equalTo(displayView.snp.bottom).offset(36)
+            $0.width.equalTo(200)
+            $0.height.equalTo(60)
             $0.centerX.equalTo(displayView)
+        }
+        
+        archiveButton.snp.makeConstraints {
+            $0.left.equalTo(confirmButton.snp.right).offset(10)
+            $0.centerY.equalTo(confirmButton)
         }
         
         displayIndicatorView.snp.makeConstraints {
@@ -148,7 +158,8 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         displayEditCollectionView.snp.makeConstraints {
             $0.height.equalTo(61)
             $0.width.equalTo(view.frame.size.width - 43)
-            $0.center.equalToSuperview()
+            $0.centerY.equalToSuperview().offset(-40)
+            $0.centerX.equalToSuperview()
         }
         
     }
@@ -298,7 +309,7 @@ extension CameraDisplayViewController {
         }
         owner.dismissDimView()
         UIView.animate(withDuration: 0.5) {
-            owner.displayEditCollectionView.transform = CGAffineTransform(scaleX: 0.7, y: 0.7).translatedBy(x: 0, y: 200)
+            owner.displayEditCollectionView.transform = CGAffineTransform(scaleX: 0.7, y: 0.7).translatedBy(x: 0, y: 250)
         }
         owner.displayEditTextField.isHidden = true
     }

@@ -36,6 +36,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     
     private var initialScale: CGFloat = 0
     private var zoomScaleRange: ClosedRange<CGFloat> = 1...10
+    private var isToggle: Bool = false
     
     //MARK: LifeCylce
     public override func viewDidLoad() {
@@ -128,15 +129,12 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .disposed(by: disposeBag)
                 
         cameraView.rx
-            .panGesture
+            .pinchGesture
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .bind(onNext: {
-                if AVCaptureDevice.Position.back == $0.0.backCamera.position {
-                    print("test")
-                } else {
-                    print("front")
-                }
+                guard let currentCamera = $0.0.isToggle ? $0.0.frontCamera : $0.0.backCamera else { return }
+                $0.0.transitionImageScale(owner: $0.0, gesture: $0.1, camera: currentCamera)
             }).disposed(by: disposeBag)
 
         
@@ -276,11 +274,13 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
             UIView.transition(with: owner.cameraView, duration: 0.5, options: .transitionFlipFromLeft) {
                 owner.captureSession.removeInput(owner.backCameraInput)
                 owner.captureSession.addInput(owner.frontCameraInput)
+                owner.isToggle = true
             }
         } else {
             UIView.transition(with: owner.cameraView, duration: 0.5, options: .transitionFlipFromLeft) {
                 owner.captureSession.removeInput(owner.frontCameraInput)
                 owner.captureSession.addInput(owner.backCameraInput)
+                owner.isToggle = false
             }
         }
         owner.cameraOuputStream.connections.first?.isVideoMirrored = !isTransition

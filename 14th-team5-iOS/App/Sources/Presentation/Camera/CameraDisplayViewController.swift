@@ -158,7 +158,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         displayEditCollectionView.snp.makeConstraints {
             $0.height.equalTo(61)
             $0.width.equalTo(view.frame.size.width - 43)
-            $0.centerY.equalToSuperview().offset(-90)
+            $0.centerY.equalToSuperview().offset(-100)
             $0.centerX.equalToSuperview()
         }
         
@@ -195,10 +195,10 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .map { ($0.count > 8) }
             .throttle(.seconds(1), scheduler: MainScheduler.instance)
             .withUnretained(self)
-            .bind(onNext: { owner, isShow in
-                guard isShow == true else {  return }
-                owner.makeRoundedToastView(title: "8자까지 입력가능해요", systemName: "", width: 211, height: 56, offset: 400)
-            }).disposed(by: disposeBag)
+            .bind { owner, isShow in
+                guard isShow == true else { return }
+                owner.makeRoundedToastView(title: "8자까지 입력가능해요", designSystemImage: DesignSystemAsset.warning.image, width: 211, height: 56, offset: 400)
+            }.disposed(by: disposeBag)
         
         displayEditTextField.rx
             .text.orEmpty
@@ -320,7 +320,7 @@ extension CameraDisplayViewController {
         }
         owner.dismissDimView()
         UIView.animate(withDuration: 0.5) {
-            owner.displayEditCollectionView.transform = CGAffineTransform(scaleX: 0.7, y: 0.7).translatedBy(x: 0, y: 250)
+            owner.displayEditCollectionView.transform = CGAffineTransform(scaleX: 0.7, y: 0.7).translatedBy(x: 0, y: 300)
         }
         owner.displayEditTextField.isHidden = true
     }

@@ -29,6 +29,11 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
         super.viewDidLoad()
     }
     
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.isHidden = false
+    }
+    
     // MARK: - Helpers
     public override func setupUI() {
         super.setupUI()

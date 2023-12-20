@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct FamiliyInvitationUrl {
+public struct FamiliyInvitationLinkResponse {
     public var url: String
     
     public init(url: String) {

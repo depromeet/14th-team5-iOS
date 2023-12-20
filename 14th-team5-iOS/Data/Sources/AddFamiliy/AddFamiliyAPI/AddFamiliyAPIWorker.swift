@@ -26,7 +26,7 @@ extension AddFamiliyAPIs {
 }
 
 extension AddFamiliyAPIWorker {
-    func fetchInvitationUrl(_ familiyId: String) -> Single<FamiliyInvitationUrl?> {
+    func fetchInvitationUrl(_ familiyId: String) -> Single<FamiliyInvitationLinkResponse?> {
         let spec = AddFamiliyAPIs.invitationUrl(familiyId).spec
         return request(spec: spec, headers: [BibbiAPI.Header.contentJson])
             .subscribe(on: Self.queue)
@@ -41,7 +41,7 @@ extension AddFamiliyAPIWorker {
             .asSingle()
     }
     
-    func fetchFamiliyMemeberPage() -> Single<FamiliyMemberPage?> {
+    func fetchFamiliyMemeberPage() -> Single<PaginationResponseFamiliyMemberProfile?> {
         let spec = AddFamiliyAPIs.familiyMembers.spec
         return request(spec: spec, headers: [BibbiAPI.Header.contentJson])
             .subscribe(on: Self.queue)
@@ -56,21 +56,3 @@ extension AddFamiliyAPIWorker {
             .asSingle()
     }
 }
-
-public extension ObservableType where Element == (HTTPURLResponse, Data) {
-
-     func map<T: Decodable>(_ type: T.Type, using decoder: JSONDecoder? = nil) -> Observable<T?> {
-         return self.map { response -> T? in
-             let decoder = decoder ?? JSONDecoder()
-
-             var res: T? = nil
-             do {
-                 res = try decoder.decode(type, from: response.1)
-             } catch {
-                 debugPrint("Parsing error: \(error)")
-             }
-
-             return res
-         }
-     }
- }

@@ -16,7 +16,7 @@ public protocol AddFamiliyImpl {
     var disposeBag: DisposeBag { get }
     
     func fetchInvitationUrl(_ familiyId: String) -> Observable<URL?>
-    func fetchFamiliyMemeber() -> Observable<[FamiliyMember]>
+    func fetchFamiliyMemeber() -> Observable<PaginationResponseFamiliyMemberProfile?>
 }
 
 public final class AddFamiliyRepository: AddFamiliyImpl {
@@ -29,16 +29,17 @@ public final class AddFamiliyRepository: AddFamiliyImpl {
     public func fetchInvitationUrl(_ familiyId: String) -> Observable<URL?> {
         return apiWorker.fetchInvitationUrl(familiyId)
             .asObservable()
-            .map { familiyInvigationUrl in
-                return URL(string: familiyInvigationUrl?.url ?? "")
+            .compactMap { $0?.url }
+            .map { urlString in
+                guard let url = URL(string: urlString) else {
+                    return nil
+                }
+                return url
             }
     }
     
-    public func fetchFamiliyMemeber() -> Observable<[FamiliyMember]> {
+    public func fetchFamiliyMemeber() -> Observable<PaginationResponseFamiliyMemberProfile?> {
         return apiWorker.fetchFamiliyMemeberPage()
             .asObservable()
-            .map { familiyMemberPage in
-                return familiyMemberPage?.members ?? []
-            }
     }
 }

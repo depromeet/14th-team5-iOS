@@ -14,7 +14,7 @@ struct FamiliyInvitationLinkResponseDTO: Decodable {
 }
 
 extension FamiliyInvitationLinkResponseDTO {
-    func toDomain() -> FamiliyInvitationUrl {
+    func toDomain() -> FamiliyInvitationLinkResponse {
         return .init(url: url ?? "")
     }
 }

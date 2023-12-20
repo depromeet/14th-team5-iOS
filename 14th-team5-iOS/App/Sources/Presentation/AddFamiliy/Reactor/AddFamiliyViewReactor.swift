@@ -23,14 +23,16 @@ public final class AddFamiliyViewReactor: Reactor {
     // MARK: - Mutate
     public enum Mutation {
         case presentSharePanel(URL?)
-        case presentToastMessage
-        case refreshYourFamiliyMember([YourFamiliyMemeberProfile])
+        case presentInvitationUrlCopySuccessToastMessage
+        case presentFetchInvitationUrlFailureTaostMessage
+        case refreshYourFamiliyMember([SectionOfYourFamiliyMemberProfile])
     }
     
     // MARK: - State
     public struct State {
         @Pulse var invitationUrl: URL?
-        @Pulse var shouldPresentToastMessage: Bool = false
+        @Pulse var shouldPresentInvitationUrlCopySuccessToastMessage: Bool = false
+        @Pulse var shouldPresentFetchInvitationUrlFailureToastMessage: Bool = false
         var yourFamiliyDatasource: [SectionOfYourFamiliyMemberProfile] = []
     }
     
@@ -53,7 +55,7 @@ public final class AddFamiliyViewReactor: Reactor {
             .flatMap { event -> Observable<Mutation> in
                 switch event {
                 case .didTapCopyInvitationUrlAction:
-                    return Observable<Mutation>.just(.presentToastMessage)
+                    return Observable<Mutation>.just(.presentInvitationUrlCopySuccessToastMessage)
                 }
             }
         
@@ -64,18 +66,30 @@ public final class AddFamiliyViewReactor: Reactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .didTapInvitationUrlButton:
-            // TODO: - FamilyID 구하는 코드 구현
+            // TODO: - 통신 성공 여부 확인, FamilyID 구하는 코드 구현
 //            return addFamiliyRepository.fetchInvitationUrl("01HGW2N7EHJVJ4CJ999RRS2E97")
-//                .map { .presentSharePanel($0) }
-            return Observable<Mutation>.just(.presentSharePanel(URL(string: "https://www.naver.com")))
+//                .map {
+//                    guard let url = $0 else {
+//                        return .presentFetchInvitationUrlFailureTaostMessage
+//                    }
+//                    return .presentSharePanel(url)
+//                }
+            return Observable<Mutation>.just(
+                .presentSharePanel(URL(string: "https://www.naver.com"))
+            )
         case .refreshYourFamiliyMemeber:
-            return addFamiliyRepository.fetchFamiliyMemeber()
-                .map {
-                    let yourFamiliyMember = $0.map {
-                        return YourFamiliyMemeberProfile(memberId: $0.memberId, name: $0.name, imageUrl: $0.imageUrl)
-                    }
-                    return .refreshYourFamiliyMember(yourFamiliyMember)
-                }
+            // TODO: - 통신 성공 여부 확인
+//            return addFamiliyRepository.fetchFamiliyMemeber()
+//                .map {
+//                    guard let familiyMember = $0 else {
+//                        return .refreshYourFamiliyMember([])
+//                    }
+//                    let sectionModel = SectionOfYourFamiliyMemberProfile.toSectionModel(familiyMember)
+//                    return .refreshYourFamiliyMember(sectionModel)
+//                }
+            return Observable<Mutation>.just(
+                .refreshYourFamiliyMember(SectionOfYourFamiliyMemberProfile.generateTestData())
+            )
         }
     }
     
@@ -85,10 +99,12 @@ public final class AddFamiliyViewReactor: Reactor {
         switch mutation {
         case let .presentSharePanel(url):
             newState.invitationUrl = url
-        case .presentToastMessage:
-            newState.shouldPresentToastMessage = true
+        case .presentInvitationUrlCopySuccessToastMessage:
+            newState.shouldPresentInvitationUrlCopySuccessToastMessage = true
+        case .presentFetchInvitationUrlFailureTaostMessage:
+            newState.shouldPresentFetchInvitationUrlFailureToastMessage = true
         case let .refreshYourFamiliyMember(familiyMember):
-            newState.yourFamiliyDatasource = [SectionOfYourFamiliyMemberProfile(items: familiyMember)]
+            newState.yourFamiliyDatasource = familiyMember
         }
         return newState
     }

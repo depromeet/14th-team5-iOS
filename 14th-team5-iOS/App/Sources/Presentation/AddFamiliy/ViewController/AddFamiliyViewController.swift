@@ -34,12 +34,15 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
     private let tableView: UITableView = UITableView()
     
     // MARK: - Properties
-    var dataSource: RxTableViewSectionedReloadDataSource<SectionOfYourFamiliyMemberProfile>!
+    var dataSource: RxTableViewSectionedReloadDataSource<SectionOfYourFamiliyMemberProfile> = RxTableViewSectionedReloadDataSource<SectionOfYourFamiliyMemberProfile> { datasource, tableView, indexPath, item in
+        let cell = tableView.dequeueReusableCell(withIdentifier: YourFamilyProfileCell.id, for: indexPath) as! YourFamilyProfileCell
+        cell.reactor = YourFamilProfileCellReactor(TempProfileCellModel(memberId: item.memberId, name: item.name, imageUrl: item.imageUrl))
+        return cell
+    }
     
     // MARK: - Lifecycles
     public override func viewDidLoad() {
         super.viewDidLoad()
-        prepareDatasource()
     }
     
     // MARK: - Helpers
@@ -172,7 +175,8 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
         }
         
         tableHeaderFamiliyCountLabel.do {
-            $0.text = "12"
+            let numberOfRows: Int = tableView.numberOfRows(inSection: 0)
+            $0.text = "\(numberOfRows)"
             $0.textColor = UIColor.white
             $0.font = UIFont.systemFont(ofSize: AddFamiliyVC.Attribute.tableHeaderCountFontSize)
         }
@@ -188,8 +192,6 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
         }
         
         navigationItem.title = AddFamiliyVC.Strings.navgationTitle
-        
-        tableView.dataSource = self
     }
     
     public override func bind(reactor: AddFamiliyViewReactor) {
@@ -205,13 +207,17 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
             .disposed(by: disposeBag)
         
         shareInvitationUrlButton.rx.tap
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .map { Reactor.Action.didTapInvitationUrlButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: AddFamiliyViewReactor) {
+        reactor.state.map { $0.yourFamiliyDatasource }
+            .bind(to: tableView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
         reactor.pulse(\.$invitationUrl)
             .withUnretained(self)
             .subscribe {
@@ -219,7 +225,21 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
             }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldPresentToastMessage)
+        reactor.pulse(\.$shouldPresentFetchInvitationUrlFailureToastMessage)
+            .filter { $0 }
+            .throttle(.seconds(3), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.makeRoundedToastView(
+                    title: "링크 불러오기 실패",
+                    symbol: "exclamationmark.triangle.fill",
+                    palletteColors: [UIColor.systemRed],
+                    width: 190
+                )
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentInvitationUrlCopySuccessToastMessage)
             .filter { $0 }
             .withUnretained(self)
             .subscribe {                
@@ -230,36 +250,5 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
                 )
             }
             .disposed(by: disposeBag)
-    }
-    
-    private func prepareDatasource() {
-        dataSource = RxTableViewSectionedReloadDataSource<SectionOfYourFamiliyMemberProfile>{ datasource, tableView, indexPath, item in
-            let cell = tableView.dequeueReusableCell(withIdentifier: YourFamilyProfileCell.id, for: indexPath) as! YourFamilyProfileCell
-            return cell
-        }
-    }
-}
-
-// NOTE: - 임시 코드
-extension AddFamiliyViewController: UITableViewDataSource {
-    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 3
-    }
-    
-    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: YourFamilyProfileCell.id, for: indexPath) as! YourFamilyProfileCell
-        
-        // NOTE: - 더미 데이터
-        let imageUrls = [
-            "https://cdn.pixabay.com/photo/2023/11/20/13/48/butterfly-8401173_1280.jpg",
-            "https://cdn.pixabay.com/photo/2023/11/10/02/30/woman-8378634_1280.jpg",
-            "https://cdn.pixabay.com/photo/2023/11/26/08/27/leaves-8413064_1280.jpg",
-            "https://cdn.pixabay.com/photo/2023/09/03/17/00/chives-8231068_1280.jpg",
-            "https://cdn.pixabay.com/photo/2023/09/25/13/42/kingfisher-8275049_1280.png"
-        ]
-        let cellModel = TempProfileCellModel(memberId: "KKW", name: "김건우", imageUrl: imageUrls.randomElement())
-        
-        cell.reactor = YourFamilProfileCellReactor(cellModel)
-        return cell
     }
 }

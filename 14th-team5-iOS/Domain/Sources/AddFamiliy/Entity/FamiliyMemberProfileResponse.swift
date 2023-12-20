@@ -7,15 +7,15 @@
 
 import Foundation
 
-public struct FamiliyMemberPage {
-    public var members: [FamiliyMember]
+public struct PaginationResponseFamiliyMemberProfile {
+    public var members: [FamiliyMemberProfileResponse]
     
-    public init(members: [FamiliyMember]) {
+    public init(members: [FamiliyMemberProfileResponse]) {
         self.members = members
     }
 }
 
-public struct FamiliyMember {
+public struct FamiliyMemberProfileResponse {
     public var memberId: String
     public var name: String
     public var imageUrl: String?

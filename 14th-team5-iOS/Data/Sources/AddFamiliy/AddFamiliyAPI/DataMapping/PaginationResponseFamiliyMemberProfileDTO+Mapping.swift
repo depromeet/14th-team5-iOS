@@ -9,8 +9,7 @@ import Foundation
 
 import Domain
 
-// MARK: - Data Transfer Object
-
+// MARK: - Data Transfer Object (DTO)
 struct PaginationResponseFamiliyMemberProfileDTO: Decodable {
     private enum CodingKeys: String, CodingKey {
         case currentPage
@@ -35,13 +34,15 @@ extension PaginationResponseFamiliyMemberProfileDTO {
 }
 
 extension PaginationResponseFamiliyMemberProfileDTO {
-    func toDomain() -> FamiliyMemberPage {
-        return .init(members: members?.map { $0.toDomain() } ?? [])
+    func toDomain() -> PaginationResponseFamiliyMemberProfile {
+        return .init(
+            members: members?.map { $0.toDomain() } ?? []
+        )
     }
 }
 
 extension PaginationResponseFamiliyMemberProfileDTO.FamiliyMemberProfileResponseDTO {
-    func toDomain() -> FamiliyMember {
+    func toDomain() -> FamiliyMemberProfileResponse {
         return .init(
             memberId: memberId,
             name: name,

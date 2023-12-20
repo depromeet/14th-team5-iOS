@@ -7,6 +7,8 @@
 
 import UIKit
 
+import DesignSystem
+
 extension UIViewController {
     enum StringLiterals {
         static let invitationUrlSharePanelTitle: String = "삐삐! 가족에게 보내는 하루 한번 생존 신고"
@@ -52,70 +54,38 @@ extension UIViewController {
         
     /// 둥근 모양의 토스트 메시지를 보여줍니다.
     /// - Parameters:
-    ///   - title: 토스트 메시지 속 텍스트
-    ///   - name: SFSymbol 이름 (선택)
+    ///   - title: 토스트 메시지
+    ///   - name: SFSymbol 이름
+    ///   - pattetteColors: SFSymbol 색상 (기본값 darkGray)
     ///   - width: 너비 (기본값 250)
     ///   - height: 높이 (기본값 60)
+    ///   - duration: 알림 표시 지속 시간 (기본값 0.5)
     ///   - offset: 표시할 위치 (기본값 40)
     public func makeRoundedToastView(
         title: String,
-        systemName name: String? = nil,
+        symbol name: String,
+        palletteColors colors: [UIColor] = [.darkGray],
         width: CGFloat = 250,
         height: CGFloat = 60,
+        duration: CGFloat = 0.5,
         offset: CGFloat = 40
     ) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
-            let symbolConfig = UIImage.SymbolConfiguration(paletteColors: [UIColor.darkGray])
-            let sfSymbol: UIImage? = UIImage(systemName: name ?? "", withConfiguration: symbolConfig)
-            
-            let toastView: UIView = UIView()
-            let stackView: UIStackView = UIStackView()
-            let imageView: UIImageView = UIImageView(image: sfSymbol)
-            let labelView: UILabel = UILabel()
-            
-            labelView.text = title
-            labelView.textColor = UIColor.white
-            labelView.textAlignment = .center
-            labelView.font = UIFont.systemFont(ofSize: 17)
-            
-            imageView.contentMode = .scaleAspectFit
-            
-            stackView.axis = .horizontal
-            stackView.spacing = 5.0
-            stackView.alignment = .fill
-            stackView.distribution = .fillProportionally
-            
-            toastView.alpha = 1.0
-            toastView.backgroundColor = UIColor.black.withAlphaComponent(0.7)
-            toastView.layer.cornerRadius = height / 2.0
-            toastView.layer.masksToBounds = true
-            
-            self.view.addSubview(toastView)
-            toastView.addSubview(stackView)
-            stackView.addArrangedSubviews(
-                imageView, labelView
+            let toastView: UIView = self.getRoundedToastView(
+                title,
+                symbol: name,
+                palletteColors: colors,
+                width: width,
+                height: height,
+                offset: offset
             )
-            
-            toastView.snp.makeConstraints {
-                $0.height.equalTo(60)
-                $0.width.equalTo(width)
-                $0.bottom.equalToSuperview().offset(offset)
-                $0.centerX.equalToSuperview()
-            }
-            
-            stackView.snp.makeConstraints {
-                $0.top.bottom.equalToSuperview()
-                $0.leading.equalTo(toastView.snp.leading).offset(16.0)
-                $0.trailing.equalTo(toastView.snp.trailing).offset(-16.0)
-                $0.centerY.equalTo(toastView.snp.centerY)
-            }
             
             UIView.animate(withDuration: 0.6, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.4) {
                 toastView.transform = CGAffineTransform(translationX: 0, y: -offset * 2)
             } completion: { _ in
-                UIView.animate(withDuration: 0.6, delay: 0.5, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.4) {
+                UIView.animate(withDuration: 0.6, delay: duration, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.4) {
                     toastView.transform = CGAffineTransform(translationX: 0, y: offset * 2)
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
@@ -123,6 +93,111 @@ extension UIViewController {
                 }
             }
         }
+    }
+    
+    /// 둥근 모양의 토스트 메시지를 보여줍니다.
+    /// - Parameters:
+    ///   - title: 토스트 메시지
+    ///   - designSystemImage: 이미지
+    ///   - width: 너비 (기본값 250)
+    ///   - height: 높이 (기본값 60)
+    ///   - duration: 알림 표시 지속 시간 (기본값 0.5)
+    ///   - offset: 표시할 위치 (기본값 40)
+    public func makeRoundedToastView(
+        title: String,
+        designSystemImage image: DesignSystemImages,
+        width: CGFloat = 250,
+        height: CGFloat = 60,
+        duration: CGFloat = 0.5,
+        offset: CGFloat = 40
+    ) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            let toastView: UIView = self.getRoundedToastView(
+                title,
+                designSystemImage: image,
+                width: width,
+                height: height,
+                offset: offset
+            )
+            
+            UIView.animate(withDuration: 0.6, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.4) {
+                toastView.transform = CGAffineTransform(translationX: 0, y: -offset * 2)
+            } completion: { _ in
+                UIView.animate(withDuration: 0.6, delay: duration, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.4) {
+                    toastView.transform = CGAffineTransform(translationX: 0, y: offset * 2)
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    toastView.removeFromSuperview()
+                }
+            }
+        }
+    }
+    
+    private func getRoundedToastView(
+        _ title: String,
+        symbol name: String? = nil,
+        palletteColors colors: [UIColor]? = nil,
+        designSystemImage image: DesignSystemImages? = nil,
+        width: CGFloat,
+        height: CGFloat,
+        offset: CGFloat
+    ) -> UIView {
+        let toastView: UIView = UIView()
+        let stackView: UIStackView = UIStackView()
+        let labelView: UILabel = UILabel()
+        var imageView: UIImageView!
+        
+        // SF심볼 이미지를 받았다면
+        if let name = name {
+            let config = UIImage.SymbolConfiguration(paletteColors: colors ?? [.darkGray])
+            let symbol: UIImage? = UIImage(systemName: name, withConfiguration: config)
+            
+            imageView = UIImageView(image: symbol)
+        // 일반 이미지를 받았다면
+        } else {
+            imageView = UIImageView(image: UIImage(named: image?.name ?? ""))
+        }
+        
+        labelView.text = title
+        labelView.textColor = UIColor.white
+        labelView.textAlignment = .center
+        labelView.font = UIFont.systemFont(ofSize: 17)
+        
+        imageView.contentMode = .scaleAspectFit
+        
+        stackView.axis = .horizontal
+        stackView.spacing = 5.0
+        stackView.alignment = .fill
+        stackView.distribution = .fillProportionally
+        
+        toastView.alpha = 1.0
+        toastView.backgroundColor = UIColor.black.withAlphaComponent(0.7)
+        toastView.layer.cornerRadius = height / 2.0
+        toastView.layer.masksToBounds = true
+        
+        self.view.addSubview(toastView)
+        toastView.addSubview(stackView)
+        stackView.addArrangedSubviews(
+            imageView, labelView
+        )
+        
+        toastView.snp.makeConstraints {
+            $0.height.equalTo(height)
+            $0.width.equalTo(width)
+            $0.bottom.equalToSuperview().offset(offset)
+            $0.centerX.equalToSuperview()
+        }
+        
+        stackView.snp.makeConstraints {
+            $0.top.bottom.equalToSuperview()
+            $0.leading.equalTo(toastView.snp.leading).offset(16.0)
+            $0.trailing.equalTo(toastView.snp.trailing).offset(-16.0)
+            $0.centerY.equalTo(toastView.snp.centerY)
+        }
+        
+        return toastView
     }
 }
 

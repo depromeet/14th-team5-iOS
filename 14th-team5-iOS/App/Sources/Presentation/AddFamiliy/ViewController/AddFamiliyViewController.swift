@@ -215,10 +215,10 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
         reactor.pulse(\.$shouldPresentToastMessage)
             .filter { $0 }
             .withUnretained(self)
-            .subscribe {
+            .subscribe {                
                 $0.0.makeRoundedToastView(
                     title: AddFamiliyVC.Strings.successCopyInvitationUrl,
-                    systemName: "link",
+                    symbol: "link",
                     width: 200
                 )
             }

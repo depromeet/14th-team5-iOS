@@ -57,7 +57,8 @@ final class FeedDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             .disposed(by: disposeBag)
         
         reactor.state
-            .map { $0.selectedEmoji }
+            .compactMap { $0.selectedEmoji }
+            .distinctUntilChanged { $0 == $1 }
             .filter { $0.0 != nil }
             .bind(onNext: { [weak self] emoji, count in
                 guard let self = self,
@@ -69,7 +70,8 @@ final class FeedDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             .disposed(by: disposeBag)
         
         reactor.state
-            .map { $0.unselectedEmoji }
+            .compactMap { $0.unselectedEmoji }
+            .distinctUntilChanged { $0 == $1 }
             .filter { $0.0 != nil }
             .bind(onNext: { [weak self] emoji, count in
                 guard let self = self,
@@ -150,7 +152,6 @@ extension FeedDetailCollectionViewCell {
     
     private func bindButton(_ button: SelectableEmojiButton) {
         button.rx.tap
-            .debug("selectable")
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .map { Reactor.Action.tappedSelectableEmojiButton(Emojis.emoji(forIndex: button.tag)) }
             .bind(to: reactor.action)
@@ -159,7 +160,6 @@ extension FeedDetailCollectionViewCell {
     
     private func bindButton(_ button: EmojiCountButton) {
         button.rx.tap
-            .debug("selected")
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .map { Reactor.Action.tappedSelectedEmojiCountButton(Emojis.emoji(forIndex: button.tag)) }
             .bind(to: reactor.action)

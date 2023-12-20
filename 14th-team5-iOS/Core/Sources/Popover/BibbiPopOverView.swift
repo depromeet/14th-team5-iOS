@@ -21,13 +21,9 @@ public class BibbiPopOverView: UIView {
     private let textFont: UIFont
     private let radius: CGFloat
     
-    public override var isHidden: Bool {
+    public var isAnimation: Bool = false {
         didSet {
-            if isHidden {
-                self.isUserInteractionEnabled = false
-            } else {
-                self.isUserInteractionEnabled = true
-            }
+            fadeInOutTranstion(isAnimation)
         }
     }
     
@@ -97,6 +93,17 @@ public class BibbiPopOverView: UIView {
         
     }
     
+    
+    public func fadeInOutTranstion(_ isAnimation: Bool) {
+        if isAnimation {
+            print("check Animation")
+            UIView.animate(withDuration: 2.0, delay: 0.1, options: .curveEaseInOut) {
+                self.alpha = 1.0
+            } completion: { _ in
+                self.alpha = 0.0
+            }
+        }
+    }
     
     
 }

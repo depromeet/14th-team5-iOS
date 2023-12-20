@@ -7,6 +7,13 @@
 
 import Foundation
 
+// MARK: APIs of AFP
+typealias BibbiHeader = BibbiAPI.Header
+typealias BibbiResponse = BibbiAPI.Response
+typealias BibbiNoResponse = BibbiAPI.NoResponse
+typealias BibbiBoolResponse = BibbiAPI.BoolResponse
+typealias BibbiCodableResponse = BibbiAPI.CodableResponse
+
 enum BibbiAPI {
     private static let _config: BibbiAPIConfigType = BibbiAPIConfig()
     static let hostApi: String = _config.hostApi
@@ -63,9 +70,9 @@ enum BibbiAPI {
     }
     
     struct CodableResponse<T: Codable>: Codable {
-        var status: String?
-        var code: Int?
-        var errorCode: String?
+//        var status: String?
+        var code: String?
+        var message: String?
         var result: T?
     }
 }

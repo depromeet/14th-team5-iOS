@@ -20,7 +20,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     ) {
         guard let scene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: scene)
-        window?.rootViewController = UINavigationController(rootViewController: HomeViewController(reacter: HomeViewReactor()))
+        window?.rootViewController = UINavigationController(rootViewController: CalendarDIConatainer().makeViewController())
+//        window?.rootViewController = UINavigationController(rootViewController: FeedDetailViewController(reacter: FeedDetailReactor()))
         window?.makeKeyAndVisible()
     }
 }

@@ -13,12 +13,14 @@ public class CopyInvitationUrlActivity: UIActivity {
         static let activitySymbol: String = "doc.on.doc"
     }
     
+    let url: URL
     let provider: GlobalStateProviderType?
     
     let bundleId: String = Bundle.main.bundleIdentifier!
     var typeName: String = String(describing: CopyInvitationUrlActivity.self)
     
-    public init(provider: GlobalStateProviderType?) {
+    public init(_ url: URL, provider: GlobalStateProviderType?) {
+        self.url = url
         self.provider = provider
     }
     
@@ -43,6 +45,7 @@ public class CopyInvitationUrlActivity: UIActivity {
     }
     
     public override func perform() {
+        UIPasteboard.general.string = url.description
         provider?.activityGlobalState.didTapCopyInvitationUrlAction()
     }
     

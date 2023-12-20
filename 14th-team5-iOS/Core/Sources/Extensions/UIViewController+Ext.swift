@@ -151,9 +151,8 @@ extension UIViewController {
             title: StringLiterals.invitationUrlSharePanelTitle,
             url: url
         )
-        let copyToPastboard = CopyInvitationUrlActivity(provider: globalState)
+        let copyToPastboard = CopyInvitationUrlActivity(url, provider: globalState)
         
-        UIPasteboard.general.string = url.description
         makeSharePanel([itemSource], activities: [copyToPastboard])
     }
 }

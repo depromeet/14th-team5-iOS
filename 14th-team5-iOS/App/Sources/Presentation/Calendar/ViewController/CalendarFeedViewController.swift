@@ -9,6 +9,7 @@ import UIKit
 
 import Core
 import FSCalendar
+import Kingfisher
 import ReactorKit
 import RxCocoa
 import RxSwift
@@ -16,34 +17,81 @@ import RxDataSources
 import SnapKit
 import Then
 
+
 public final class CalendarFeedViewController: BaseViewController<CalendarFeedViewReactor> {
     // MARK: - Views
-    private lazy var calendarView: FSCalendar = FSCalendar()
+    private let imageBlurView: UIImageView = UIImageView()
+    
+    private let navigationBarView: UIView = UIView()
+    private let backButton: UIButton = UIButton(type: .system)
+    private let navigationTitle: UILabel = UILabel()
+    
+    private let calendarView: FSCalendar = FSCalendar()
+    private let feedDetailView: UIView = UIView()
+    
+    private var feedDetailViewController: FeedDetailViewController = FeedDetailViewController(reacter: FeedDetailReactor())
     
     // MARK: - Lifecycles
     public override func viewDidLoad() {
         super.viewDidLoad()
     }
     
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationItem.hidesBackButton = true
+        navigationController?.navigationBar.isHidden = true
+    }
+    
     // MARK: - Helpers
     public override func setupUI() {
         super.setupUI()
-        view.addSubview(calendarView)
+        view.addSubview(imageBlurView)
+        imageBlurView.addSubviews(
+            navigationBarView, calendarView, feedDetailView
+        )
+        navigationBarView.addSubviews(
+            backButton, navigationTitle
+        )
+        
+        embedFeedViewController()
     }
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
-        calendarView.snp.makeConstraints {
+        imageBlurView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        navigationBarView.snp.makeConstraints {
             $0.leading.top.trailing.equalTo(view.safeAreaLayoutGuide)
+            $0.height.equalTo(40)
+        }
+        
+        backButton.snp.makeConstraints {
+            $0.leading.equalTo(navigationBarView.snp.leading).offset(16.0)
+            $0.centerY.equalTo(navigationBarView.snp.centerY)
+        }
+        
+        navigationTitle.snp.makeConstraints {
+            $0.center.equalTo(navigationBarView.snp.center)
+        }
+        
+        calendarView.snp.makeConstraints {
+            $0.top.equalTo(navigationBarView.snp.bottom)
+            $0.leading.trailing.equalTo(imageBlurView)
             $0.height.equalTo(CalendarVC.AutoLayout.calendarHeightValue)
         }
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
-        calendarView.delegate = self
-        calendarView.dataSource = self
-    
+        imageBlurView.do {
+            $0.kf.setImage(with: URL(string: "https://cdn.pixabay.com/photo/2023/12/04/16/12/berlin-8429780_1280.jpg"))
+            $0.clipsToBounds = true
+            $0.contentMode = .scaleAspectFill
+            $0.isUserInteractionEnabled = true
+        }
+        
         calendarView.do {
             $0.headerHeight = 0.0
             $0.weekdayHeight = 0.0
@@ -59,11 +107,36 @@ public final class CalendarFeedViewController: BaseViewController<CalendarFeedVi
             $0.appearance.titleSelectionColor = UIColor.white
             
             $0.backgroundColor = UIColor.clear
-            
             $0.register(ImageCalendarCell.self, forCellReuseIdentifier: ImageCalendarCell.id)
             $0.register(PlaceholderCalendarCell.self, forCellReuseIdentifier: PlaceholderCalendarCell.id)
         }
         
+        navigationBarView.do {
+            $0.backgroundColor = UIColor.clear
+        }
+        
+        backButton.do {
+            let colorConfig = UIImage.SymbolConfiguration(paletteColors: [UIColor.white])
+            let weightConfig = UIImage.SymbolConfiguration(weight: .bold)
+            
+            let image = UIImage(
+                systemName: "chevron.left",
+                withConfiguration: colorConfig.applying(weightConfig)
+            )
+            $0.setImage(image, for: .normal)
+            $0.contentMode = .scaleAspectFit
+        }
+        
+        navigationTitle.do {
+            $0.text = "2023년 12월"
+            $0.textColor = UIColor.white
+            $0.font = UIFont.boldSystemFont(ofSize: 18.0)
+        }
+        
+        calendarView.delegate = self
+        calendarView.dataSource = self
+        
+        setupBlurEffect()
         setupNavigationTitle(calendarView.currentPage)
     }
 
@@ -74,6 +147,13 @@ public final class CalendarFeedViewController: BaseViewController<CalendarFeedVi
     }
     
     private func bindInput(reactor: CalendarFeedViewReactor) {
+        backButton.rx.tap
+            .withUnretained(self)
+            .subscribe {
+                $0.0.navigationController?.popViewController(animated: true)
+            }
+            .disposed(by: disposeBag)
+        
         calendarView.rx.didSelect
             .map { Reactor.Action.didTapDate($0) }
             .bind(to: reactor.action)
@@ -92,8 +172,32 @@ public final class CalendarFeedViewController: BaseViewController<CalendarFeedVi
 }
 
 extension CalendarFeedViewController {
-    func setupNavigationTitle(_ date: Date) {
-        navigationItem.title = DateFormatter.yyyyMM.string(from: date)
+    private func setupBlurEffect() {
+        let blurEffect = UIBlurEffect(style: .light)
+        let visualEffectView = UIVisualEffectView(effect: blurEffect)
+        visualEffectView.alpha = 0.9
+        visualEffectView.frame = view.frame
+        imageBlurView.insertSubview(visualEffectView, at: 0)
+    }
+    
+    private func setupNavigationTitle(_ date: Date) {
+        navigationTitle.text = DateFormatter.yyyyMM.string(from: date)
+    }
+    
+    private func embedFeedViewController() {
+        view.addSubview(feedDetailView)
+        feedDetailView.snp.makeConstraints {
+            $0.top.equalTo(calendarView.snp.bottom)
+            $0.leading.bottom.trailing.equalToSuperview()
+        }
+        feedDetailViewController.view.backgroundColor = UIColor.clear
+        
+        addChild(feedDetailViewController)
+        feedDetailView.addSubview(feedDetailViewController.view)
+        feedDetailViewController.view.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        feedDetailViewController.didMove(toParent: self)
     }
 }
 

@@ -120,6 +120,8 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
         
         calendarView.delegate = self
         calendarView.dataSource = self
+        
+        setupCalendarTitle(calendarView.currentPage)
     }
     
     override func bind(reactor: CalendarPageCellReactor) { 
@@ -145,14 +147,22 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     private func bindOutput(reactor: CalendarPageCellReactor) { }
 }
 
+extension CalendarPageCell {
+    func setupCalendarTitle(_ date: Date) {
+        calendarTitleLabel.text = DateFormatter.yyyyMM.string(from: date)
+    }
+}
+
 extension CalendarPageCell: FSCalendarDelegate {     
     func calendar(_ calendar: FSCalendar, shouldSelect date: Date, at monthPosition: FSCalendarMonthPosition) -> Bool {
         let calendarMonth = calendar.currentPage.month
         let positionMonth = date.month
+        let calendarImageCell = calendar.cell(for: date, at: monthPosition) as! ImageCalendarCell
         // 셀의 날짜가 현재 월(月)과 동일하다면
-        if calendarMonth == positionMonth {
+        if calendarMonth == positionMonth && calendarImageCell.hasThumbnailImage {
             return true
         }
+        
         return false
     }
 }
@@ -178,7 +188,7 @@ extension CalendarPageCell: FSCalendarDataSource {
                 "https://cdn.pixabay.com/photo/2023/09/25/13/42/kingfisher-8275049_1280.png",
                 "", "", "", ""
             ]
-            let cellModel = TempCalendarCellModel(imageUrl: imageUrls.randomElement(), isHidden: Bool.random())
+            let cellModel = TempCalendarCellModel(date: date, imageUrl: imageUrls.randomElement(), isHidden: Bool.random())
             
             cell.reactor = ImageCalendarCellReactor(cellModel)
             return cell

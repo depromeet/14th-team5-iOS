@@ -12,6 +12,7 @@ import RxSwift
 
 // NOTE: - 임시 코드
 struct TempCalendarCellModel {
+    let date: Date
     var imageUrl: String?
     var isHidden: Bool
 }

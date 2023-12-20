@@ -231,8 +231,9 @@ extension CalendarFeedViewController: FSCalendarDataSource {
             "https://cdn.pixabay.com/photo/2023/09/25/13/42/kingfisher-8275049_1280.png",
             "", "", "", ""
         ]
-        cell.configure(date, imageUrl: imageUrls.randomElement() ?? "", cellType: .week)
+        let cellModel = TempCalendarCellModel(date: date, imageUrl: imageUrls.randomElement(), isHidden: Bool.random())
         
+        cell.reactor = ImageCalendarCellReactor(cellModel)
         return cell
     }
 }

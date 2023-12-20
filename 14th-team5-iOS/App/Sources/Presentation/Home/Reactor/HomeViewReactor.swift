@@ -8,30 +8,37 @@
 import Foundation
 import ReactorKit
 import RxDataSources
+import Core
 
 final class HomeViewReactor: Reactor {
     enum Action {
 //        case checkTime
-        case setTimer
+        case tapInviteFamily
         case getFamilyInfo
+        case getPostInfo
     }
     
     enum Mutation {
 //        case setTimerStatus
-        case setRemainingTime(Int)
+        case showShareAcitivityView(URL?)
         case showInviteFamilyView
+        case showNoPostTodayView
         case setFamilyCollectionView([SectionModel<String, ProfileData>])
+        case setPostCollectionView([SectionModel<String, FeedData>])
     }
     
     struct State {
+        var inviteLink: URL?
+//        var isShowingShareAcitivityView: Bool = false
         var descriptionText: String = HomeStringLiterals.Description.standard
-        var remainingTime: Int = 0
+        var isShowingNoPostTodayView: Bool = false
         var isShowingInviteFamilyView: Bool = false
         var familySections: [SectionModel<String, ProfileData>] = []
-        var feedSections: [SectionModel<String, FeedData>] = SectionOfFeed.sections
+        var feedSections: [SectionModel<String, FeedData>] = []
     }
     
     let initialState: State = State()
+    public let provider: GlobalStateProviderType = GlobalStateProvider()
 }
 
 extension HomeViewReactor {
@@ -44,11 +51,14 @@ extension HomeViewReactor {
             return Observable.just(Mutation.showInviteFamilyView)
             //            else
             //            return Observable.just(Mutation.setFamilyCollectionView(data))
-        case .setTimer:
-            return Observable.interval(.seconds(1), scheduler: MainScheduler.instance)
-                .map { (time: Int) in
-                        .setRemainingTime(self.calculateRemainingTime())
-                }
+        case .getPostInfo:
+//            if data.isEmpty
+            return Observable.just(Mutation.showNoPostTodayView)
+//            else
+//            return Observable.just(Mutation.setPostCollectionView(data))
+        case .tapInviteFamily:
+            // 서버로부터 invitecode 받아오기
+            return Observable.just(Mutation.showShareAcitivityView(URL(string: "https://github.com/depromeet/14th-team5-iOS")))
         }
     }
     
@@ -62,8 +72,12 @@ extension HomeViewReactor {
             newState.isShowingInviteFamilyView = true
         case let .setFamilyCollectionView(data):
             newState.familySections = data
-        case let .setRemainingTime(time):
-            newState.remainingTime = time
+        case .showNoPostTodayView:
+            newState.isShowingNoPostTodayView = true
+        case let .setPostCollectionView(data):
+            newState.feedSections = data
+        case let .showShareAcitivityView(url):
+            newState.inviteLink = url
         }
         
         return newState

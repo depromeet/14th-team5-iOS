@@ -29,6 +29,11 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
         super.viewDidLoad()
     }
     
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.isHidden = false
+    }
+    
     // MARK: - Helpers
     public override func setupUI() {
         super.setupUI()
@@ -43,13 +48,16 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
     }
     
     public override func setupAttributes() {
+        super.setupAttributes()
         collectionView.do {
             $0.dataSource = self
             
             $0.isScrollEnabled = false
-            $0.backgroundColor = UIColor.black
+            $0.backgroundColor = UIColor.clear
             $0.register(CalendarPageCell.self, forCellWithReuseIdentifier: CalendarPageCell.id)
         }
+        
+        navigationItem.title = "추억 캘린더"
     }
     
     public override func bind(reactor: CalendarViewReactor) {
@@ -75,7 +83,8 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
                     popoverSize: CGSize(
                         width: CalendarVC.Attribute.popoverWidth,
                         height: CalendarVC.Attribute.popoverHeight
-                    )
+                    ),
+                    permittedArrowDrections: [.up]
                 )
             }
             .disposed(by: disposeBag)
@@ -115,8 +124,8 @@ extension CalendarViewController {
 
 extension CalendarViewController {
     func pushCalendarFeedView(_ date: Date?) {
-        let vc = CalendarFeedViewController()
-        navigationController?.pushViewController(vc, animated: true)
+        let container = CalendarFeedDIConatainer(selectedDate: date ?? Date())
+        navigationController?.pushViewController(container.makeViewController(), animated: true)
     }
 }
 

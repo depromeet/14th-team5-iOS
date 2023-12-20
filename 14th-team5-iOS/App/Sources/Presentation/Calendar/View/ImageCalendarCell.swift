@@ -24,6 +24,8 @@ final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
     }
     
     // MARK: - Views
+    private let dayLabel: UILabel = UILabel()
+    private let noThumbnailView: UIView = UIView()
     private let thumbnailView: UIImageView = UIImageView()
     private let badgeView: UIView = UIView()
     
@@ -45,14 +47,22 @@ final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
     }
     
     // MARK: - Helpers
-    func setupUI() {
+    private func setupUI() {
         contentView.insertSubview(thumbnailView, at: 0)
-        contentView.addSubview(badgeView)
+        contentView.insertSubview(noThumbnailView, at: 0)
+        contentView.addSubviews(
+            dayLabel, badgeView
+        )
     }
     
-    func setupAutoLayout() {
-        titleLabel.snp.makeConstraints {
+    private func setupAutoLayout() {
+        dayLabel.snp.makeConstraints {
             $0.center.equalTo(contentView.snp.center)
+        }
+        
+        noThumbnailView.snp.makeConstraints {
+            $0.center.equalTo(contentView.snp.center)
+            $0.width.height.equalTo(contentView.snp.width).inset(CalendarCell.AutoLayout.thumbnailInsetValue)
         }
         
         thumbnailView.snp.makeConstraints {
@@ -67,7 +77,25 @@ final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         }
     }
     
-    func setupAttribute() {
+    private func setupAttribute() {
+        titleLabel.do {
+            $0.isHidden = true
+        }
+        
+        dayLabel.do {
+            $0.text = "0"
+            $0.textColor = UIColor.white
+            $0.textAlignment = .center
+            $0.font = UIFont.boldSystemFont(ofSize: 16)
+        }
+        
+        noThumbnailView.do {
+            $0.clipsToBounds = true
+            $0.contentMode = .scaleAspectFill
+            $0.layer.cornerRadius = CalendarCell.Attribute.thumbnailCornerRadius
+            $0.backgroundColor = UIColor.darkGray
+        }
+        
         thumbnailView.do {
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
@@ -88,24 +116,58 @@ final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
     func bind(reactor: ImageCalendarCellReactor) {
         thumbnailView.kf.setImage(with: URL(string: reactor.currentState.imageUrl ?? ""))
         badgeView.isHidden = reactor.currentState.isHidden
+        dayLabel.text = "\(reactor.currentState.date.day)"
+        
+        if reactor.currentState.date.isToday {
+            dayLabel.textColor = UIColor.green
+            thumbnailView.layer.borderWidth = 2.5
+            thumbnailView.layer.borderColor = UIColor.green.cgColor
+        }
     }
     
     override func prepareForReuse() {
+        dayLabel.textColor = UIColor.white
         thumbnailView.image = nil
         thumbnailView.layer.borderWidth = .zero
         badgeView.isHidden = true
     }
 }
 
+extension ImageCalendarCell {
+    var hasThumbnailImage: Bool {
+        return thumbnailView.image != nil ? true : false
+    }
+}
+
+extension ImageCalendarCell {
+    func select() {
+        thumbnailView.layer.borderColor = UIColor.white.cgColor
+    }
+    
+    func deselect() {
+        thumbnailView.layer.borderColor = .none
+        
+        // 오늘 날짜라면
+        guard let reactor = reactor,
+              !reactor.currentState.date.isToday else {
+            thumbnailView.layer.borderColor = UIColor.green.cgColor
+            return
+        }
+    }
+}
+
+
 // NOTE: - 임시 코드
 extension ImageCalendarCell {
-    func configure(_ date: Date, imageUrl: String, cellType type: CellType = .month) {
+    func configure(_ date: Date, imageUrl: String, type: CellType = .month) {
         if let url = URL(string: imageUrl) {
             thumbnailView.kf.setImage(with: url)
             
             let random = Bool.random()
             badgeView.isHidden = random
         }
+        
+        dayLabel.text = "\(date.day)"
         
         if type == .week {
             thumbnailView.alpha = 0.4

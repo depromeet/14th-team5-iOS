@@ -9,6 +9,7 @@ import Foundation
 
 import Core
 import Data
+import Domain
 import ReactorKit
 import RxSwift
 
@@ -16,30 +17,34 @@ public final class AddFamiliyViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case didTapInvitationUrlButton
+        case refreshYourFamiliyMemeber
     }
     
     // MARK: - Mutate
     public enum Mutation {
         case presentSharePanel(URL?)
         case presentToastMessage
+        case refreshYourFamiliyMember([YourFamiliyMemeberProfile])
     }
     
     // MARK: - State
     public struct State {
         @Pulse var invitationUrl: URL?
         @Pulse var shouldPresentToastMessage: Bool = false
+        var yourFamiliyDatasource: [SectionOfYourFamiliyMemberProfile] = []
     }
     
     // MARK: - Properties
     public let initialState: State
-    public let addFamiliyViewRepository: AddFamiliyImpl
     public let provider: GlobalStateProviderType
+    
+    public let addFamiliyRepository: AddFamiliyImpl
     
     // MARK: - Intializer
     init(provider: GlobalStateProviderType) {
         self.initialState = State()
-        self.addFamiliyViewRepository = AddFamiliyViewRepository()
         self.provider = provider
+        self.addFamiliyRepository = AddFamiliyRepository()
     }
     
     // MARK: - Transform
@@ -60,8 +65,17 @@ public final class AddFamiliyViewReactor: Reactor {
         switch action {
         case .didTapInvitationUrlButton:
             // TODO: - FamilyID 구하는 코드 구현
-            return addFamiliyViewRepository.fetchInvitationUrl("familyId")
-                .map { .presentSharePanel($0) }
+//            return addFamiliyRepository.fetchInvitationUrl("01HGW2N7EHJVJ4CJ999RRS2E97")
+//                .map { .presentSharePanel($0) }
+            return Observable<Mutation>.just(.presentSharePanel(URL(string: "https://www.naver.com")))
+        case .refreshYourFamiliyMemeber:
+            return addFamiliyRepository.fetchFamiliyMemeber()
+                .map {
+                    let yourFamiliyMember = $0.map {
+                        return YourFamiliyMemeberProfile(memberId: $0.memberId, name: $0.name, imageUrl: $0.imageUrl)
+                    }
+                    return .refreshYourFamiliyMember(yourFamiliyMember)
+                }
         }
     }
     
@@ -73,6 +87,8 @@ public final class AddFamiliyViewReactor: Reactor {
             newState.invitationUrl = url
         case .presentToastMessage:
             newState.shouldPresentToastMessage = true
+        case let .refreshYourFamiliyMember(familiyMember):
+            newState.yourFamiliyDatasource = [SectionOfYourFamiliyMemberProfile(items: familiyMember)]
         }
         return newState
     }

@@ -10,6 +10,7 @@ import UIKit
 import Core
 import ReactorKit
 import RxCocoa
+import RxDataSources
 import RxSwift
 import SnapKit
 import Then
@@ -33,11 +34,12 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
     private let tableView: UITableView = UITableView()
     
     // MARK: - Properties
-    
+    var dataSource: RxTableViewSectionedReloadDataSource<SectionOfYourFamiliyMemberProfile>!
     
     // MARK: - Lifecycles
     public override func viewDidLoad() {
         super.viewDidLoad()
+        prepareDatasource()
     }
     
     // MARK: - Helpers
@@ -197,6 +199,11 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
     }
     
     private func bindInput(reactor: AddFamiliyViewReactor) {
+        Observable<Void>.just(())
+            .map { Reactor.Action.refreshYourFamiliyMemeber }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         shareInvitationUrlButton.rx.tap
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .map { Reactor.Action.didTapInvitationUrlButton }
@@ -224,6 +231,13 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
             }
             .disposed(by: disposeBag)
     }
+    
+    private func prepareDatasource() {
+        dataSource = RxTableViewSectionedReloadDataSource<SectionOfYourFamiliyMemberProfile>{ datasource, tableView, indexPath, item in
+            let cell = tableView.dequeueReusableCell(withIdentifier: YourFamilyProfileCell.id, for: indexPath) as! YourFamilyProfileCell
+            return cell
+        }
+    }
 }
 
 // NOTE: - 임시 코드
@@ -243,7 +257,7 @@ extension AddFamiliyViewController: UITableViewDataSource {
             "https://cdn.pixabay.com/photo/2023/09/03/17/00/chives-8231068_1280.jpg",
             "https://cdn.pixabay.com/photo/2023/09/25/13/42/kingfisher-8275049_1280.png"
         ]
-        let cellModel = TempProfileCellModel(imageUrl: imageUrls.randomElement() ?? "", name: "김건우", isMe: Bool.random())
+        let cellModel = TempProfileCellModel(memberId: "KKW", name: "김건우", imageUrl: imageUrls.randomElement())
         
         cell.reactor = YourFamilProfileCellReactor(cellModel)
         return cell

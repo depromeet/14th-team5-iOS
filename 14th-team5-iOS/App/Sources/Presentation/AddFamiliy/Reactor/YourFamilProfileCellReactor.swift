@@ -13,9 +13,9 @@ import RxSwift
 
 // NOTE: - 임시 코드
 struct TempProfileCellModel {
-    var imageUrl: String
+    var memberId: String
     var name: String
-    var isMe: Bool
+    var imageUrl: String?
 }
 
 final class YourFamilProfileCellReactor: Reactor {

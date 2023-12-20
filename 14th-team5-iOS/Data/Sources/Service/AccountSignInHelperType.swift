@@ -6,10 +6,12 @@
 //
 
 import UIKit
+import Domain
+
 import RxSwift
 
 public protocol AccountSignInHelperType: AnyObject {
-    var signInState: Observable<String> { get }
+    var signInState: Observable<AccountSignInStateInfo> { get }
     func signIn(on window: UIWindow)
     func signOut()
 }

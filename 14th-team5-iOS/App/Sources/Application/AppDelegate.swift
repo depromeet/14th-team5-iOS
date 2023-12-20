@@ -56,12 +56,19 @@ extension AppDelegate {
 
 extension AppDelegate {
     func kakaoApp(_ app: UIApplication, didFinishLauchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) {
-        RxKakaoSDK.initSDK(appKey: "343a6ab1caf1a6d9ceed054d6eff900d")
+        RxKakaoSDK.initSDK(appKey: "키값 다시 넣을게요!")
     }
     
     func kakaoApp(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
         if AuthApi.isKakaoTalkLoginUrl(url) {
-            debugPrint("Kakao URL(\(url))")
+            return AuthController.rx.handleOpenUrl(url: url)
+        }
+        
+        return false
+    }
+    
+    func kakaoApp(_ app: UIApplication, open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
+        if AuthApi.isKakaoTalkLoginUrl(url) {
             return AuthController.rx.handleOpenUrl(url: url)
         }
         

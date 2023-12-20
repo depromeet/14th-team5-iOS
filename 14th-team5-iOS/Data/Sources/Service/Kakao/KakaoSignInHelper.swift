@@ -19,8 +19,8 @@ final class KakaoSignInHelper: AccountSignInHelperType {
     
     private var disposeBag = DisposeBag()
     
-    private let _signInState = PublishRelay<String>()
-    var signInState: Observable<String> {
+    private let _signInState = PublishRelay<AccountSignInStateInfo>()
+    var signInState: Observable<AccountSignInStateInfo> {
         self._signInState.asObservable()
     }
     
@@ -32,12 +32,16 @@ final class KakaoSignInHelper: AccountSignInHelperType {
         if UserApi.isKakaoTalkLoginAvailable() {
             UserApi.shared.rx.loginWithKakaoTalk()
                 .withUnretained(self)
-                .bind(onNext: { $0.0._signInState.accept($0.1.accessToken) })
+                .bind(onNext: {
+                    $0.0._signInState.accept(AccountSignInStateInfo(snsType: .kakao, snsToken: $0.1.accessToken))
+                })
                 .disposed(by: self.disposeBag)
         } else {
             UserApi.shared.rx.loginWithKakaoAccount(prompts: [.Login])
                 .withUnretained(self)
-                .bind(onNext: { $0.0._signInState.accept($0.1.accessToken) })
+                .bind(onNext: {
+                    $0.0._signInState.accept(AccountSignInStateInfo(snsType: .kakao))
+                })
                 .disposed(by: self.disposeBag)
         }
     }

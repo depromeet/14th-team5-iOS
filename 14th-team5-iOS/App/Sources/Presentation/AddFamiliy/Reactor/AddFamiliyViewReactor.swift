@@ -34,6 +34,7 @@ public final class AddFamiliyViewReactor: Reactor {
         @Pulse var shouldPresentInvitationUrlCopySuccessToastMessage: Bool = false
         @Pulse var shouldPresentFetchInvitationUrlFailureToastMessage: Bool = false
         var yourFamiliyDatasource: [SectionOfYourFamiliyMemberProfile] = []
+        var yourFaimliyMemberCount: Int = 0
     }
     
     // MARK: - Properties
@@ -67,29 +68,23 @@ public final class AddFamiliyViewReactor: Reactor {
         switch action {
         case .didTapInvitationUrlButton:
             // TODO: - 통신 성공 여부 확인, FamilyID 구하는 코드 구현
-//            return addFamiliyRepository.fetchInvitationUrl("01HGW2N7EHJVJ4CJ999RRS2E97")
-//                .map {
-//                    guard let url = $0 else {
-//                        return .presentFetchInvitationUrlFailureTaostMessage
-//                    }
-//                    return .presentSharePanel(url)
-//                }
-            return Observable<Mutation>.just(
-                .presentSharePanel(URL(string: "https://www.naver.com"))
-            )
+            return addFamiliyRepository.fetchInvitationUrl("01HGW2N7EHJVJ4CJ999RRS2E97")
+                .map {
+                    guard let url = $0 else {
+                        return .presentFetchInvitationUrlFailureTaostMessage
+                    }
+                    return .presentSharePanel(url)
+                }
         case .refreshYourFamiliyMemeber:
             // TODO: - 통신 성공 여부 확인
-//            return addFamiliyRepository.fetchFamiliyMemeber()
-//                .map {
-//                    guard let familiyMember = $0 else {
-//                        return .refreshYourFamiliyMember([])
-//                    }
-//                    let sectionModel = SectionOfYourFamiliyMemberProfile.toSectionModel(familiyMember)
-//                    return .refreshYourFamiliyMember(sectionModel)
-//                }
-            return Observable<Mutation>.just(
-                .refreshYourFamiliyMember(SectionOfYourFamiliyMemberProfile.generateTestData())
-            )
+            return addFamiliyRepository.fetchFamiliyMemeber()
+                .map {
+                    guard let familiyMember = $0 else {
+                        return .refreshYourFamiliyMember([])
+                    }
+                    let sectionModel = SectionOfYourFamiliyMemberProfile.toSectionModel(familiyMember)
+                    return .refreshYourFamiliyMember(sectionModel)
+                }
         }
     }
     
@@ -105,6 +100,7 @@ public final class AddFamiliyViewReactor: Reactor {
             newState.shouldPresentFetchInvitationUrlFailureToastMessage = true
         case let .refreshYourFamiliyMember(familiyMember):
             newState.yourFamiliyDatasource = familiyMember
+            newState.yourFaimliyMemberCount = familiyMember.first?.items.count ?? 0
         }
         return newState
     }

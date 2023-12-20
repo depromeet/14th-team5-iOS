@@ -26,9 +26,9 @@ extension AddFamiliyAPIs {
 }
 
 extension AddFamiliyAPIWorker {
-    func fetchInvitationUrl(_ familiyId: String) -> Single<FamiliyInvitationLinkResponse?> {
+    func fetchInvitationUrl(_ familiyId: String, accessToken: String) -> Single<FamiliyInvitationLinkResponse?> {
         let spec = AddFamiliyAPIs.invitationUrl(familiyId).spec
-        return request(spec: spec, headers: [BibbiAPI.Header.contentJson])
+        return request(spec: spec, headers: [BibbiAPI.Header.acceptJson, BibbiHeader.xAuthToken(accessToken)])
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -41,9 +41,9 @@ extension AddFamiliyAPIWorker {
             .asSingle()
     }
     
-    func fetchFamiliyMemeberPage() -> Single<PaginationResponseFamiliyMemberProfile?> {
+    func fetchFamiliyMemeberPage(accessToken: String) -> Single<PaginationResponseFamiliyMemberProfile?> {
         let spec = AddFamiliyAPIs.familiyMembers.spec
-        return request(spec: spec, headers: [BibbiAPI.Header.contentJson])
+        return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken(accessToken)])
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {

@@ -29,8 +29,8 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
     private let dividerView: UIView = UIView()
     
     private let tableHeaderStackView: UIStackView = UIStackView()
-    private let tableHeaderTitleLabel: UILabel = UILabel()
-    private let tableHeaderFamiliyCountLabel = UILabel()
+    private let FamiliyMemeberTitleLabel: UILabel = UILabel()
+    private let familiyMemberCountLabel = UILabel()
     private let tableView: UITableView = UITableView()
     
     // MARK: - Properties
@@ -59,7 +59,7 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
             dividerView, tableHeaderStackView, tableView
         )
         tableHeaderStackView.addArrangedSubviews(
-            tableHeaderTitleLabel, tableHeaderFamiliyCountLabel
+            FamiliyMemeberTitleLabel, familiyMemberCountLabel
         )
     }
     
@@ -168,15 +168,14 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
             $0.distribution = .fillProportionally
         }
         
-        tableHeaderTitleLabel.do {
+        FamiliyMemeberTitleLabel.do {
             $0.text = AddFamiliyVC.Strings.tableTitle
             $0.textColor = UIColor.white
             $0.font = UIFont.boldSystemFont(ofSize: AddFamiliyVC.Attribute.tableHeaderTitleFontSize)
         }
         
-        tableHeaderFamiliyCountLabel.do {
-            let numberOfRows: Int = tableView.numberOfRows(inSection: 0)
-            $0.text = "\(numberOfRows)"
+        familiyMemberCountLabel.do {
+            $0.text = "0"
             $0.textColor = UIColor.white
             $0.font = UIFont.systemFont(ofSize: AddFamiliyVC.Attribute.tableHeaderCountFontSize)
         }
@@ -216,6 +215,11 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
     private func bindOutput(reactor: AddFamiliyViewReactor) {
         reactor.state.map { $0.yourFamiliyDatasource }
             .bind(to: tableView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { "\($0.yourFaimliyMemberCount)" }
+            .distinctUntilChanged()
+            .bind(to: familiyMemberCountLabel.rx.text)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$invitationUrl)

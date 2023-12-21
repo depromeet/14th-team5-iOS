@@ -41,13 +41,14 @@ public final class AddFamilyViewReactor: Reactor {
     public let initialState: State
     public let provider: GlobalStateProviderType
     
-    public let addFamiliyRepository: FamiliyImpl
-
+    public let addFamilyRepository: AddFamilyImpl
+    
     // MARK: - Intializer
     init(provider: GlobalStateProviderType) {
         self.initialState = State()
         self.provider = provider
-        self.addFamiliyRepository = FamiliyRepository()
+        
+        self.addFamilyRepository = AddFamilyRepository()
     }
     
     // MARK: - Transform

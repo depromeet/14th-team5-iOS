@@ -22,7 +22,7 @@ public final class HomeDIContainer: BaseDIContainer {
     }
     
     public func makeRepository() -> SearchFamilyRepository {
-        return FamiliyAPIs.Worker()
+        return FamilyAPIs.Worker()
     }
     
     func makeUseCase() -> SearchFamilyMemberUseCaseProtocol {

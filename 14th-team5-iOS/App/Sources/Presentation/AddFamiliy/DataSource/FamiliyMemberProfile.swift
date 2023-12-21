@@ -10,41 +10,41 @@ import Foundation
 import Domain
 import RxDataSources
 
-public struct YourFamiliyMemeberProfile {
+public struct FamiliyMemeberProfile {
     var memberId: String
     var name: String
     var imageUrl: String?
 }
 
-public struct SectionOfYourFamiliyMemberProfile {
+public struct SectionOfFamiliyMemberProfile {
     public var items: [Item]
 }
 
-extension SectionOfYourFamiliyMemberProfile: SectionModelType {
-    public typealias Item = YourFamiliyMemeberProfile
+extension SectionOfFamiliyMemberProfile: SectionModelType {
+    public typealias Item = FamiliyMemeberProfile
     
-    public init(original: SectionOfYourFamiliyMemberProfile, items: [YourFamiliyMemeberProfile]) {
+    public init(original: SectionOfFamiliyMemberProfile, items: [FamiliyMemeberProfile]) {
         self = original
         self.items = items
     }
 }
 
-extension SectionOfYourFamiliyMemberProfile {
-    static func toSectionModel(_ familiyMember: PaginationResponseFamiliyMemberProfile) -> [SectionOfYourFamiliyMemberProfile] {
+extension SectionOfFamiliyMemberProfile {
+    static func toSectionModel(_ familiyMember: PaginationResponseFamiliyMemberProfile) -> [SectionOfFamiliyMemberProfile] {
         let items = familiyMember.members.map {
-            YourFamiliyMemeberProfile(
+            FamiliyMemeberProfile(
                 memberId: $0.memberId,
                 name: $0.name,
                 imageUrl: $0.imageUrl
             )
         }
-        return [SectionOfYourFamiliyMemberProfile(items: items)]
+        return [SectionOfFamiliyMemberProfile(items: items)]
     }
 }
 
-extension SectionOfYourFamiliyMemberProfile {
-    static func generateTestData() -> [SectionOfYourFamiliyMemberProfile] {
-        var items: [SectionOfYourFamiliyMemberProfile.Item] = []
+extension SectionOfFamiliyMemberProfile {
+    static func generateTestData() -> [SectionOfFamiliyMemberProfile] {
+        var items: [SectionOfFamiliyMemberProfile.Item] = []
 
         let memberId = ["KKW", "KDH", "MKM", "UKH"]
         let names = ["김건우", "김도현", "마경미", "유건희"]
@@ -56,7 +56,7 @@ extension SectionOfYourFamiliyMemberProfile {
         ]
         
         (0...3).forEach {
-            let item = YourFamiliyMemeberProfile(
+            let item = FamiliyMemeberProfile(
                 memberId: memberId[$0],
                 name: names[$0],
                 imageUrl: imageUrls[$0]
@@ -64,6 +64,6 @@ extension SectionOfYourFamiliyMemberProfile {
             items.append(item)
         }
         
-        return [SectionOfYourFamiliyMemberProfile(items: items)]
+        return [SectionOfFamiliyMemberProfile(items: items)]
     }
 }

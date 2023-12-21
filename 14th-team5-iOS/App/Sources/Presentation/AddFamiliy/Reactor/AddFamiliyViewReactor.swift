@@ -25,7 +25,7 @@ public final class AddFamiliyViewReactor: Reactor {
         case presentSharePanel(URL?)
         case presentInvitationUrlCopySuccessToastMessage
         case presentFetchInvitationUrlFailureTaostMessage
-        case refreshYourFamiliyMember([SectionOfYourFamiliyMemberProfile])
+        case refreshYourFamiliyMember([SectionOfFamiliyMemberProfile])
     }
     
     // MARK: - State
@@ -33,7 +33,7 @@ public final class AddFamiliyViewReactor: Reactor {
         @Pulse var invitationUrl: URL?
         @Pulse var shouldPresentInvitationUrlCopySuccessToastMessage: Bool = false
         @Pulse var shouldPresentFetchInvitationUrlFailureToastMessage: Bool = false
-        var yourFamiliyDatasource: [SectionOfYourFamiliyMemberProfile] = []
+        var yourFamiliyDatasource: [SectionOfFamiliyMemberProfile] = []
         var yourFaimliyMemberCount: Int = 0
     }
     
@@ -82,7 +82,7 @@ public final class AddFamiliyViewReactor: Reactor {
                     guard let familiyMember = $0 else {
                         return .refreshYourFamiliyMember([])
                     }
-                    let sectionModel = SectionOfYourFamiliyMemberProfile.toSectionModel(familiyMember)
+                    let sectionModel = SectionOfFamiliyMemberProfile.toSectionModel(familiyMember)
                     return .refreshYourFamiliyMember(sectionModel)
                 }
         }

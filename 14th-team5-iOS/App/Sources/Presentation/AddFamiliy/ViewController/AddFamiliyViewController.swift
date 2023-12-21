@@ -29,12 +29,12 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
     private let dividerView: UIView = UIView()
     
     private let tableHeaderStackView: UIStackView = UIStackView()
-    private let FamiliyMemeberTitleLabel: UILabel = UILabel()
+    private let familiyMemeberTitleLabel: UILabel = UILabel()
     private let familiyMemberCountLabel = UILabel()
     private let tableView: UITableView = UITableView()
     
     // MARK: - Properties
-    var dataSource: RxTableViewSectionedReloadDataSource<SectionOfYourFamiliyMemberProfile> = RxTableViewSectionedReloadDataSource<SectionOfYourFamiliyMemberProfile> { datasource, tableView, indexPath, item in
+    var dataSource: RxTableViewSectionedReloadDataSource<SectionOfFamiliyMemberProfile> = RxTableViewSectionedReloadDataSource<SectionOfFamiliyMemberProfile> { datasource, tableView, indexPath, item in
         let cell = tableView.dequeueReusableCell(withIdentifier: YourFamilyProfileCell.id, for: indexPath) as! YourFamilyProfileCell
         cell.reactor = YourFamilProfileCellReactor(TempProfileCellModel(memberId: item.memberId, name: item.name, imageUrl: item.imageUrl))
         return cell
@@ -59,7 +59,7 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
             dividerView, tableHeaderStackView, tableView
         )
         tableHeaderStackView.addArrangedSubviews(
-            FamiliyMemeberTitleLabel, familiyMemberCountLabel
+            familiyMemeberTitleLabel, familiyMemberCountLabel
         )
     }
     
@@ -168,7 +168,7 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
             $0.distribution = .fillProportionally
         }
         
-        FamiliyMemeberTitleLabel.do {
+        familiyMemeberTitleLabel.do {
             $0.text = AddFamiliyVC.Strings.tableTitle
             $0.textColor = UIColor.white
             $0.font = UIFont.boldSystemFont(ofSize: AddFamiliyVC.Attribute.tableHeaderTitleFontSize)

@@ -7,6 +7,7 @@
 
 import UIKit
 import Core
+import DesignSystem
 
 import RxDataSources
 import RxCocoa

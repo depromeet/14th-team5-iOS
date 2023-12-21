@@ -41,6 +41,7 @@ public final class CameraDisplayViewReactor: Reactor {
     
     
     init(cameraDisplayRepository: CameraDisplayImpl, displayData: Data) {
+        print("displayData: \(displayData)")
         self.cameraDisplayRepository = cameraDisplayRepository
         self.initialState = State(
             isLoading: false,

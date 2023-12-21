@@ -73,4 +73,3 @@ extension CameraAPIWorker {
         
     }
 }
-

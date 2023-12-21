@@ -10,6 +10,7 @@ import UIKit
 import Core
 import ReactorKit
 import RxCocoa
+import RxDataSources
 import RxSwift
 import SnapKit
 import Then
@@ -28,12 +29,16 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
     private let dividerView: UIView = UIView()
     
     private let tableHeaderStackView: UIStackView = UIStackView()
-    private let tableHeaderTitleLabel: UILabel = UILabel()
-    private let tableHeaderFamiliyCountLabel = UILabel()
+    private let familiyMemeberTitleLabel: UILabel = UILabel()
+    private let familiyMemberCountLabel = UILabel()
     private let tableView: UITableView = UITableView()
     
     // MARK: - Properties
-    
+    var dataSource: RxTableViewSectionedReloadDataSource<SectionOfFamiliyMemberProfile> = RxTableViewSectionedReloadDataSource<SectionOfFamiliyMemberProfile> { datasource, tableView, indexPath, item in
+        let cell = tableView.dequeueReusableCell(withIdentifier: YourFamilyProfileCell.id, for: indexPath) as! YourFamilyProfileCell
+        cell.reactor = YourFamilProfileCellReactor(TempProfileCellModel(memberId: item.memberId, name: item.name, imageUrl: item.imageUrl))
+        return cell
+    }
     
     // MARK: - Lifecycles
     public override func viewDidLoad() {
@@ -54,7 +59,7 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
             dividerView, tableHeaderStackView, tableView
         )
         tableHeaderStackView.addArrangedSubviews(
-            tableHeaderTitleLabel, tableHeaderFamiliyCountLabel
+            familiyMemeberTitleLabel, familiyMemberCountLabel
         )
     }
     
@@ -163,14 +168,14 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
             $0.distribution = .fillProportionally
         }
         
-        tableHeaderTitleLabel.do {
+        familiyMemeberTitleLabel.do {
             $0.text = AddFamiliyVC.Strings.tableTitle
             $0.textColor = UIColor.white
             $0.font = UIFont.boldSystemFont(ofSize: AddFamiliyVC.Attribute.tableHeaderTitleFontSize)
         }
         
-        tableHeaderFamiliyCountLabel.do {
-            $0.text = "12"
+        familiyMemberCountLabel.do {
+            $0.text = "0"
             $0.textColor = UIColor.white
             $0.font = UIFont.systemFont(ofSize: AddFamiliyVC.Attribute.tableHeaderCountFontSize)
         }
@@ -186,8 +191,6 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
         }
         
         navigationItem.title = AddFamiliyVC.Strings.navgationTitle
-        
-        tableView.dataSource = self
     }
     
     public override func bind(reactor: AddFamiliyViewReactor) {
@@ -197,14 +200,28 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
     }
     
     private func bindInput(reactor: AddFamiliyViewReactor) {
+        Observable<Void>.just(())
+            .map { Reactor.Action.refreshYourFamiliyMemeber }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         shareInvitationUrlButton.rx.tap
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .map { Reactor.Action.didTapInvitationUrlButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: AddFamiliyViewReactor) {
+        reactor.state.map { $0.yourFamiliyDatasource }
+            .bind(to: tableView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { "\($0.yourFaimliyMemberCount)" }
+            .distinctUntilChanged()
+            .bind(to: familiyMemberCountLabel.rx.text)
+            .disposed(by: disposeBag)
+        
         reactor.pulse(\.$invitationUrl)
             .withUnretained(self)
             .subscribe {
@@ -212,7 +229,21 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
             }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldPresentToastMessage)
+        reactor.pulse(\.$shouldPresentFetchInvitationUrlFailureToastMessage)
+            .filter { $0 }
+            .throttle(.seconds(3), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.makeRoundedToastView(
+                    title: "링크 불러오기 실패",
+                    symbol: "exclamationmark.triangle.fill",
+                    palletteColors: [UIColor.systemRed],
+                    width: 190
+                )
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentInvitationUrlCopySuccessToastMessage)
             .filter { $0 }
             .withUnretained(self)
             .subscribe {                
@@ -223,29 +254,5 @@ public final class AddFamiliyViewController: BaseViewController<AddFamiliyViewRe
                 )
             }
             .disposed(by: disposeBag)
-    }
-}
-
-// NOTE: - 임시 코드
-extension AddFamiliyViewController: UITableViewDataSource {
-    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 3
-    }
-    
-    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: YourFamilyProfileCell.id, for: indexPath) as! YourFamilyProfileCell
-        
-        // NOTE: - 더미 데이터
-        let imageUrls = [
-            "https://cdn.pixabay.com/photo/2023/11/20/13/48/butterfly-8401173_1280.jpg",
-            "https://cdn.pixabay.com/photo/2023/11/10/02/30/woman-8378634_1280.jpg",
-            "https://cdn.pixabay.com/photo/2023/11/26/08/27/leaves-8413064_1280.jpg",
-            "https://cdn.pixabay.com/photo/2023/09/03/17/00/chives-8231068_1280.jpg",
-            "https://cdn.pixabay.com/photo/2023/09/25/13/42/kingfisher-8275049_1280.png"
-        ]
-        let cellModel = TempProfileCellModel(imageUrl: imageUrls.randomElement() ?? "", name: "김건우", isMe: Bool.random())
-        
-        cell.reactor = YourFamilProfileCellReactor(cellModel)
-        return cell
     }
 }

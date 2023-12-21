@@ -27,7 +27,7 @@ public final class AddFamiliyDIContainer: BaseDIContainer {
     }
     
     public func makeRepository() -> AddFamiliyImpl {
-        return AddFamiliyViewRepository()
+        return AddFamiliyRepository()
     }
     
     public func makeReactor() -> AddFamiliyViewReactor {

@@ -15,11 +15,11 @@ import Then
 
 final class YourFamilyProfileCell: BaseTableViewCell<YourFamilProfileCellReactor> {
     // MARK: - Views
-    private let profileImageView: UIImageView = UIImageView()
+    private let memberImageView: UIImageView = UIImageView()
     
     private let labelStackView: UIStackView = UIStackView()
-    private let nameLabel: UILabel = UILabel()
-    private let meLabel: UILabel = UILabel()
+    private let memberNameLabel: UILabel = UILabel()
+    private let isMeLabel: UILabel = UILabel()
     
     // MARK: - Properties
     static let id: String = "YourFamilyProfileCell"
@@ -37,17 +37,17 @@ final class YourFamilyProfileCell: BaseTableViewCell<YourFamilProfileCellReactor
     override func setupUI() {
         super.setupUI()
         contentView.addSubviews(
-            profileImageView, labelStackView
+            memberImageView, labelStackView
         )
         
         labelStackView.addArrangedSubviews(
-            nameLabel, meLabel
+            memberNameLabel, isMeLabel
         )
     }
     
     override func setupAutoLayout() {
         super.setupAutoLayout()
-        profileImageView.snp.makeConstraints {
+        memberImageView.snp.makeConstraints {
             $0.leading.equalTo(contentView.snp.leading).offset(AddFamiliyCell.AutoLayout.profileImageLeadingOffsetValue)
             $0.top.equalTo(contentView.snp.top).offset(AddFamiliyCell.AutoLayout.profileImageTopOffsetValue)
             $0.bottom.equalTo(contentView.snp.bottom).offset(-AddFamiliyCell.AutoLayout.profileImageTopOffsetValue)
@@ -55,14 +55,14 @@ final class YourFamilyProfileCell: BaseTableViewCell<YourFamilProfileCellReactor
         }
         
         labelStackView.snp.makeConstraints {
-            $0.leading.equalTo(profileImageView.snp.trailing).offset(AddFamiliyCell.AutoLayout.profileImageLeadingOffsetValue)
-            $0.centerY.equalTo(profileImageView.snp.centerY)
+            $0.leading.equalTo(memberImageView.snp.trailing).offset(AddFamiliyCell.AutoLayout.profileImageLeadingOffsetValue)
+            $0.centerY.equalTo(memberImageView.snp.centerY)
         }
     }
     
     override func setupAttributes() {
         super.setupAttributes()
-        profileImageView.do {
+        memberImageView.do {
             $0.contentMode = .scaleAspectFill
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = AddFamiliyCell.AutoLayout.profileImageWidthValue / 2.0
@@ -75,12 +75,12 @@ final class YourFamilyProfileCell: BaseTableViewCell<YourFamilProfileCellReactor
             $0.distribution = .fillProportionally
         }
         
-        nameLabel.do {
+        memberNameLabel.do {
             $0.textColor = UIColor.white
             $0.font = UIFont.systemFont(ofSize: AddFamiliyCell.Attribute.nameLabelFontSize)
         }
         
-        meLabel.do {
+        isMeLabel.do {
             $0.textColor = UIColor.white
             $0.font = UIFont.systemFont(ofSize: AddFamiliyCell.Attribute.meLabelFontSize)
         }
@@ -90,11 +90,11 @@ final class YourFamilyProfileCell: BaseTableViewCell<YourFamilProfileCellReactor
     
     override func bind(reactor: YourFamilProfileCellReactor) {
         super.bind(reactor: reactor)
-        profileImageView.kf.setImage(with: URL(string: reactor.currentState.imageUrl))
-        nameLabel.text = reactor.currentState.name
-        meLabel.text = reactor.currentState.isMe ? "ME" : ""
+        memberImageView.kf.setImage(with: URL(string: reactor.currentState.imageUrl ?? ""))
+        memberNameLabel.text = reactor.currentState.name
+        isMeLabel.text = true ? "ME" : ""
         
-        if !reactor.currentState.isMe {
+        if true {
             labelStackView.spacing = .zero
         }
     }

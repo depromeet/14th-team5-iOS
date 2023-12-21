@@ -13,7 +13,7 @@ import RxSwift
 import SnapKit
 import Then
 
-final class YourFamilyProfileCell: BaseTableViewCell<YourFamilProfileCellReactor> {
+final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellReactor> {
     // MARK: - Views
     private let memberImageView: UIImageView = UIImageView()
     
@@ -48,14 +48,14 @@ final class YourFamilyProfileCell: BaseTableViewCell<YourFamilProfileCellReactor
     override func setupAutoLayout() {
         super.setupAutoLayout()
         memberImageView.snp.makeConstraints {
-            $0.leading.equalTo(contentView.snp.leading).offset(AddFamiliyCell.AutoLayout.profileImageLeadingOffsetValue)
-            $0.top.equalTo(contentView.snp.top).offset(AddFamiliyCell.AutoLayout.profileImageTopOffsetValue)
-            $0.bottom.equalTo(contentView.snp.bottom).offset(-AddFamiliyCell.AutoLayout.profileImageTopOffsetValue)
-            $0.width.height.equalTo(AddFamiliyCell.AutoLayout.profileImageWidthValue)
+            $0.leading.equalTo(contentView.snp.leading).offset(AddFamilyCell.AutoLayout.profileImageLeadingOffsetValue)
+            $0.top.equalTo(contentView.snp.top).offset(AddFamilyCell.AutoLayout.profileImageTopOffsetValue)
+            $0.bottom.equalTo(contentView.snp.bottom).offset(-AddFamilyCell.AutoLayout.profileImageTopOffsetValue)
+            $0.width.height.equalTo(AddFamilyCell.AutoLayout.profileImageWidthValue)
         }
         
         labelStackView.snp.makeConstraints {
-            $0.leading.equalTo(memberImageView.snp.trailing).offset(AddFamiliyCell.AutoLayout.profileImageLeadingOffsetValue)
+            $0.leading.equalTo(memberImageView.snp.trailing).offset(AddFamilyCell.AutoLayout.profileImageLeadingOffsetValue)
             $0.centerY.equalTo(memberImageView.snp.centerY)
         }
     }
@@ -65,7 +65,7 @@ final class YourFamilyProfileCell: BaseTableViewCell<YourFamilProfileCellReactor
         memberImageView.do {
             $0.contentMode = .scaleAspectFill
             $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = AddFamiliyCell.AutoLayout.profileImageWidthValue / 2.0
+            $0.layer.cornerRadius = AddFamilyCell.AutoLayout.profileImageWidthValue / 2.0
         }
         
         labelStackView.do {
@@ -77,18 +77,18 @@ final class YourFamilyProfileCell: BaseTableViewCell<YourFamilProfileCellReactor
         
         memberNameLabel.do {
             $0.textColor = UIColor.white
-            $0.font = UIFont.systemFont(ofSize: AddFamiliyCell.Attribute.nameLabelFontSize)
+            $0.font = UIFont.systemFont(ofSize: AddFamilyCell.Attribute.nameLabelFontSize)
         }
         
         isMeLabel.do {
             $0.textColor = UIColor.white
-            $0.font = UIFont.systemFont(ofSize: AddFamiliyCell.Attribute.meLabelFontSize)
+            $0.font = UIFont.systemFont(ofSize: AddFamilyCell.Attribute.meLabelFontSize)
         }
         
         contentView.backgroundColor = UIColor(red: 0.09, green: 0.09, blue: 0.09, alpha: 1)
     }
     
-    override func bind(reactor: YourFamilProfileCellReactor) {
+    override func bind(reactor: FamilyMemberProfileCellReactor) {
         super.bind(reactor: reactor)
         memberImageView.kf.setImage(with: URL(string: reactor.currentState.imageUrl ?? ""))
         memberNameLabel.text = reactor.currentState.name

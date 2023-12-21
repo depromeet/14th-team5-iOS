@@ -10,11 +10,11 @@ import Foundation
 import Domain
 
 struct FamiliyInvitationLinkResponseDTO: Decodable {
-    var url: String?
+    var url: String
 }
 
 extension FamiliyInvitationLinkResponseDTO {
-    func toDomain() -> FamiliyInvitationLinkResponse {
-        return .init(url: url ?? "")
+    func toDomain() -> FamilyInvitationLinkResponse {
+        return .init(url: url)
     }
 }

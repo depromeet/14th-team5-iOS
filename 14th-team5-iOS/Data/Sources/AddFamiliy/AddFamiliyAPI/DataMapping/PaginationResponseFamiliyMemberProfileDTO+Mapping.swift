@@ -10,22 +10,22 @@ import Foundation
 import Domain
 
 // MARK: - Data Transfer Object (DTO)
-struct PaginationResponseFamiliyMemberProfileDTO: Decodable {
+struct PaginationResponseFamilyMemberProfileDTO: Decodable {
     private enum CodingKeys: String, CodingKey {
         case currentPage
         case totalPage
         case itemPerPage
         case hasNext
-        case members = "results"
+        case results
     }
-    var currentPage: Int?
-    var totalPage: Int?
-    var itemPerPage: Int?
-    var hasNext: Bool?
-    var members: [FamiliyMemberProfileResponseDTO]?
+    var currentPage: Int
+    var totalPage: Int
+    var itemPerPage: Int
+    var hasNext: Bool
+    var results: [FamiliyMemberProfileResponseDTO]
 }
 
-extension PaginationResponseFamiliyMemberProfileDTO {
+extension PaginationResponseFamilyMemberProfileDTO {
     struct FamiliyMemberProfileResponseDTO: Decodable {
         var memberId: String
         var name: String
@@ -33,16 +33,16 @@ extension PaginationResponseFamiliyMemberProfileDTO {
     }
 }
 
-extension PaginationResponseFamiliyMemberProfileDTO {
-    func toDomain() -> PaginationResponseFamiliyMemberProfile {
+extension PaginationResponseFamilyMemberProfileDTO {
+    func toDomain() -> PaginationResponseFamilyMemberProfile {
         return .init(
-            members: members?.map { $0.toDomain() } ?? []
+            results: results.map { $0.toDomain() }
         )
     }
 }
 
-extension PaginationResponseFamiliyMemberProfileDTO.FamiliyMemberProfileResponseDTO {
-    func toDomain() -> FamiliyMemberProfileResponse {
+extension PaginationResponseFamilyMemberProfileDTO.FamiliyMemberProfileResponseDTO {
+    func toDomain() -> FamilyMemberProfileResponse {
         return .init(
             memberId: memberId,
             name: name,

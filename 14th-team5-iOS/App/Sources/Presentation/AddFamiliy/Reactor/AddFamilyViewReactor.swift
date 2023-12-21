@@ -13,7 +13,7 @@ import Domain
 import ReactorKit
 import RxSwift
 
-public final class AddFamiliyViewReactor: Reactor {
+public final class AddFamilyViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case didTapInvitationUrlButton
@@ -25,7 +25,7 @@ public final class AddFamiliyViewReactor: Reactor {
         case presentSharePanel(URL?)
         case presentInvitationUrlCopySuccessToastMessage
         case presentFetchInvitationUrlFailureTaostMessage
-        case refreshYourFamiliyMember([SectionOfFamiliyMemberProfile])
+        case refreshYourFamiliyMember([SectionOfFamilyMemberProfile])
     }
     
     // MARK: - State
@@ -33,7 +33,7 @@ public final class AddFamiliyViewReactor: Reactor {
         @Pulse var invitationUrl: URL?
         @Pulse var shouldPresentInvitationUrlCopySuccessToastMessage: Bool = false
         @Pulse var shouldPresentFetchInvitationUrlFailureToastMessage: Bool = false
-        var yourFamiliyDatasource: [SectionOfFamiliyMemberProfile] = []
+        var yourFamiliyDatasource: [SectionOfFamilyMemberProfile] = []
         var yourFaimliyMemberCount: Int = 0
     }
     
@@ -68,7 +68,7 @@ public final class AddFamiliyViewReactor: Reactor {
         switch action {
         case .didTapInvitationUrlButton:
             // TODO: - 통신 성공 여부 확인, FamilyID 구하는 코드 구현
-            return addFamiliyRepository.fetchInvitationUrl("01HGW2N7EHJVJ4CJ999RRS2E97")
+            return addFamiliyRepository.fetchInvitationUrl()
                 .map {
                     guard let url = $0 else {
                         return .presentFetchInvitationUrlFailureTaostMessage
@@ -82,7 +82,7 @@ public final class AddFamiliyViewReactor: Reactor {
                     guard let familiyMember = $0 else {
                         return .refreshYourFamiliyMember([])
                     }
-                    let sectionModel = SectionOfFamiliyMemberProfile.toSectionModel(familiyMember)
+                    let sectionModel = SectionOfFamilyMemberProfile.toSectionModel(familiyMember)
                     return .refreshYourFamiliyMember(sectionModel)
                 }
         }

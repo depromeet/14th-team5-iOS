@@ -10,10 +10,10 @@ import UIKit
 import Core
 import Data
 
-public final class AddFamiliyDIContainer: BaseDIContainer {
-    public typealias ViewController = AddFamiliyViewController
+public final class AddFamilyDIContainer: BaseDIContainer {
+    public typealias ViewController = AddFamilyViewController
     public typealias Repository = AddFamiliyImpl
-    public typealias Reactor = AddFamiliyViewReactor
+    public typealias Reactor = AddFamilyViewReactor
     
     private var globalState: GlobalStateProviderType {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
@@ -22,15 +22,15 @@ public final class AddFamiliyDIContainer: BaseDIContainer {
         return appDelegate.globalStateProvider
     }
     
-    public func makeViewController() -> AddFamiliyViewController {
-        return AddFamiliyViewController(reacter: makeReactor())
+    public func makeViewController() -> AddFamilyViewController {
+        return AddFamilyViewController(reacter: makeReactor())
     }
     
     public func makeRepository() -> AddFamiliyImpl {
         return AddFamiliyRepository()
     }
     
-    public func makeReactor() -> AddFamiliyViewReactor {
-        return AddFamiliyViewReactor(provider: globalState)
+    public func makeReactor() -> AddFamilyViewReactor {
+        return AddFamilyViewReactor(provider: globalState)
     }
 }

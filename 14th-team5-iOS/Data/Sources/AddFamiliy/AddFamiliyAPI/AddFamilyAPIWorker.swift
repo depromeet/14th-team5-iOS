@@ -11,8 +11,8 @@ import Alamofire
 import Domain
 import RxSwift
 
-typealias AddFamiliyAPIWorker = AddFamiliyAPIs.Worker
-extension AddFamiliyAPIs {
+typealias AddFamilyAPIWorker = AddFamilyAPIs.Worker
+extension AddFamilyAPIs {
     final class Worker: APIWorker {
         static let queue = {
             ConcurrentDispatchQueueScheduler(queue: DispatchQueue(label: "AddFamiliyAPIQueue", qos: .utility))
@@ -25,9 +25,9 @@ extension AddFamiliyAPIs {
     }
 }
 
-extension AddFamiliyAPIWorker {
-    func fetchInvitationUrl(_ familiyId: String, accessToken: String) -> Single<FamiliyInvitationLinkResponse?> {
-        let spec = AddFamiliyAPIs.invitationUrl(familiyId).spec
+extension AddFamilyAPIWorker {
+    func fetchInvitationUrl(_ familiyId: String, accessToken: String) -> Single<FamilyInvitationLinkResponse?> {
+        let spec = AddFamilyAPIs.invitationUrl(familiyId).spec
         return request(spec: spec, headers: [BibbiAPI.Header.acceptJson, BibbiHeader.xAuthToken(accessToken)])
             .subscribe(on: Self.queue)
             .do {
@@ -41,8 +41,8 @@ extension AddFamiliyAPIWorker {
             .asSingle()
     }
     
-    func fetchFamiliyMemeberPage(accessToken: String) -> Single<PaginationResponseFamiliyMemberProfile?> {
-        let spec = AddFamiliyAPIs.familiyMembers.spec
+    func fetchFamilyMemeberPage(accessToken: String) -> Single<PaginationResponseFamilyMemberProfile?> {
+        let spec = AddFamilyAPIs.familiyMembers.spec
         return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken(accessToken)])
             .subscribe(on: Self.queue)
             .do {
@@ -50,7 +50,7 @@ extension AddFamiliyAPIWorker {
                     debugPrint("FamiliyMemeber Fetch Reseult: \(str)")
                 }
             }
-            .map(PaginationResponseFamiliyMemberProfileDTO.self)
+            .map(PaginationResponseFamilyMemberProfileDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
             .asSingle()

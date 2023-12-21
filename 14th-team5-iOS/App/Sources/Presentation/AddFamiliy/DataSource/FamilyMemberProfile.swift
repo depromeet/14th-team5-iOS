@@ -10,41 +10,41 @@ import Foundation
 import Domain
 import RxDataSources
 
-public struct FamiliyMemeberProfile {
+public struct FamilyMemeberProfile {
     var memberId: String
     var name: String
     var imageUrl: String?
 }
 
-public struct SectionOfFamiliyMemberProfile {
+public struct SectionOfFamilyMemberProfile {
     public var items: [Item]
 }
 
-extension SectionOfFamiliyMemberProfile: SectionModelType {
-    public typealias Item = FamiliyMemeberProfile
+extension SectionOfFamilyMemberProfile: SectionModelType {
+    public typealias Item = FamilyMemeberProfile
     
-    public init(original: SectionOfFamiliyMemberProfile, items: [FamiliyMemeberProfile]) {
+    public init(original: SectionOfFamilyMemberProfile, items: [FamilyMemeberProfile]) {
         self = original
         self.items = items
     }
 }
 
-extension SectionOfFamiliyMemberProfile {
-    static func toSectionModel(_ familiyMember: PaginationResponseFamiliyMemberProfile) -> [SectionOfFamiliyMemberProfile] {
-        let items = familiyMember.members.map {
-            FamiliyMemeberProfile(
+extension SectionOfFamilyMemberProfile {
+    static func toSectionModel(_ familiyMember: PaginationResponseFamilyMemberProfile) -> [SectionOfFamilyMemberProfile] {
+        let items = familiyMember.results.map {
+            FamilyMemeberProfile(
                 memberId: $0.memberId,
                 name: $0.name,
                 imageUrl: $0.imageUrl
             )
         }
-        return [SectionOfFamiliyMemberProfile(items: items)]
+        return [SectionOfFamilyMemberProfile(items: items)]
     }
 }
 
-extension SectionOfFamiliyMemberProfile {
-    static func generateTestData() -> [SectionOfFamiliyMemberProfile] {
-        var items: [SectionOfFamiliyMemberProfile.Item] = []
+extension SectionOfFamilyMemberProfile {
+    static func generateTestData() -> [SectionOfFamilyMemberProfile] {
+        var items: [SectionOfFamilyMemberProfile.Item] = []
 
         let memberId = ["KKW", "KDH", "MKM", "UKH"]
         let names = ["김건우", "김도현", "마경미", "유건희"]
@@ -56,7 +56,7 @@ extension SectionOfFamiliyMemberProfile {
         ]
         
         (0...3).forEach {
-            let item = FamiliyMemeberProfile(
+            let item = FamilyMemeberProfile(
                 memberId: memberId[$0],
                 name: names[$0],
                 imageUrl: imageUrls[$0]
@@ -64,6 +64,6 @@ extension SectionOfFamiliyMemberProfile {
             items.append(item)
         }
         
-        return [SectionOfFamiliyMemberProfile(items: items)]
+        return [SectionOfFamilyMemberProfile(items: items)]
     }
 }

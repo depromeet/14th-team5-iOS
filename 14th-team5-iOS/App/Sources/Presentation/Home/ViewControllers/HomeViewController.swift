@@ -7,6 +7,7 @@
 
 import UIKit
 import Core
+import DesignSystem
 
 import RxDataSources
 import RxCocoa
@@ -15,6 +16,8 @@ import SnapKit
 import Then
 
 final class HomeViewController: BaseViewController<HomeViewReactor> {
+    private let testLabel: UILabel = UILabel()
+    
     private let manageFamilyButton: UIBarButtonItem = UIBarButtonItem()
     private let calendarButton: UIBarButtonItem = UIBarButtonItem()
     private let familyCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
@@ -128,6 +131,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
     override func setupUI() {
         super.setupUI()
         
+        view.addSubview(testLabel)
         view.addSubviews(familyCollectionView, timerLabel, descriptionLabel,
                          feedCollectionView, camerButton)
     }
@@ -161,6 +165,10 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
             $0.size.equalTo(72)
             $0.centerX.equalToSuperview()
             $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(30)
+        }
+        
+        testLabel.snp.makeConstraints {
+            $0.edges.equalToSuperview()
         }
     }
     
@@ -207,6 +215,11 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
         
         camerButton.do {
             $0.setImage(UIImage(named: "Shutter"), for: .normal)
+        }
+        
+        testLabel.do {
+            $0.text = "테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트"
+            $0.font = DesignSystemFont.title
         }
     }
 }

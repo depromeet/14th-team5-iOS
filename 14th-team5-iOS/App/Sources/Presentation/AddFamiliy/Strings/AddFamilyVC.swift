@@ -7,7 +7,7 @@
 
 import UIKit
 
-enum AddFamiliyVC {
+enum AddFamilyVC {
     enum Strings {
         static let navgationTitle: String = "가족"
         static let addFamiliyTitle: String = "초대 링크 복사"

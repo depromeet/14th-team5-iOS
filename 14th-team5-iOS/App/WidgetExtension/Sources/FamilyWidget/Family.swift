@@ -8,6 +8,7 @@
 import Foundation
 
 struct Family: Codable {
-    var profileImage: String
-    var message: String
+    var profileImageUrl: String
+    var postImageUrl: String
+    var postConent: String
 }

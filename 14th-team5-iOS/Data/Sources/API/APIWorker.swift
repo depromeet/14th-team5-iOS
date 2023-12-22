@@ -162,32 +162,30 @@ class APIWorker: NSObject {
         return self.request(spec: spec, headers: headers, jsonData: jsonData)
     }
     
-    public func upload<T: Decodable>(spec: APISpec, headers: [APIHeader]? = nil, image: Data) -> Observable<T> {
+    public func upload(spec: APISpec, headers: [APIHeader]? = nil, image: Data, fileName: String, filePath: UploadLocation) -> Single<Bool> {
         
         let hds = self.httpHeaders(headers)
         guard let url = URL(string: spec.url) else {
-            return Observable.error(AFError.explicitlyCancelled)
+            return Single.error(AFError.explicitlyCancelled)
         }
         
-        let requestHeaders = self.httpHeaders(headers)
         var request = URLRequest(url: url)
         request.httpMethod = spec.method.rawValue
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.headers = hds
         
-        return Observable.create { observer in
-            _ = AF.upload(multipartFormData: { multipartFormData in
-                multipartFormData.append(image, withName: "imageName", fileName: "\(image.base64EncodedString()).jpg", mimeType: "image/jpg")
+        return Single.create { single -> Disposable in
+            AF.upload(multipartFormData: { multipartFormData in
+                multipartFormData.append(image, withName: "file", fileName: "\(filePath.location)\(fileName).jpg", mimeType: "image/jpg")
             }, with: request)
-            .responseDecodable(of: T.self) { response in
+            .validate(statusCode: [204])
+            .responseData { response in
                 switch response.result {
-                case let .success(data):
-                    print(data)
-                case let .failure(error):
-                    print(error.localizedDescription)
+                case .success(_):
+                    single(.success(true))
+                case let .failure(failure):
+                    single(.failure(failure))
                 }
             }
-            
             return Disposables.create()
         }
         

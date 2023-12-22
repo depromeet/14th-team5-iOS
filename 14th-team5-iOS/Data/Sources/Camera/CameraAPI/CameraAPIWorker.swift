@@ -8,10 +8,11 @@
 import Foundation
 
 import Alamofire
+import Domain
 import RxSwift
 
 
-fileprivate typealias CameraAPIWorker = CameraAPIs.Worker
+typealias CameraAPIWorker = CameraAPIs.Worker
 
 
 extension CameraAPIs {
@@ -30,11 +31,45 @@ extension CameraAPIs {
 
 
 extension CameraAPIWorker {
-    private func uploadImage() {
+    public func createPresignedURL(accessToken: String, parameters: Encodable) -> Single<CameraDisplayImageResponse?> {
         let spec = CameraAPIs.uploadImageURL.spec
-        //TODO: Image URL Post API 추가 예정
         
+        return request(spec: spec, headers: [BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("uploadImage Fetch Reuslt: \(str)")
+                }
+            }
+            .map(CameraDisplayImageDTO.self)
+            .catchAndReturn(nil)
+            .map { $0?.toDomain() }
+            .asSingle()
     }
     
+    public func uploadImageToPresignedURL(accessToken: String, toURL url: String, withImageData imageData: Data, fileName: String, path: UploadLocation = .feed) -> Single<Bool> {
+        let spec = CameraAPIs.presignedURL(url).spec
+        return upload(spec: spec, headers: [BibbiAPI.Header.xAuthToken(accessToken)], image: imageData, fileName: fileName ,filePath: path)
+            .subscribe(on: Self.queue)
+            .catchAndReturn(false)
+            .debug()
+            .map { _ in true }
+    }
     
+    public func combineWithTextImageUpload(accessToken: String, parameters: Encodable)  -> Single<CameraDisplayPostResponse?> {
+        let spec = CameraAPIs.updateImage.spec
+        
+        return request(spec: spec, headers: [BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("combine With TextImage Result: \(str)")
+                }
+            }
+            .map(CameraDisplayPostDTO.self)
+            .catchAndReturn(nil)
+            .map { $0?.toDomain() }
+            .asSingle()
+        
+    }
 }

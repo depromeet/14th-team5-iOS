@@ -212,6 +212,14 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .disposed(by: disposeBag)
         
         
+        confirmButton.rx
+            .tap
+            .throttle(.seconds(1), scheduler: MainScheduler.instance)
+            .map { Reactor.Action.didTapConfirmButton}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        
         reactor.state
             .map { $0.displayDescrption.count >= 1}
             .observe(on: MainScheduler.instance)

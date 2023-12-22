@@ -8,10 +8,15 @@
 import UIKit
 
 typealias OnBoardingInfo = OnBoarding.Info
-
 enum OnBoarding {
     struct Info {
         let title: String
         let image: UIImage
     }
+    
+    static var info: [Self.Info] = [
+        Info(title: OnBoardingStrings.push, image: UIImage()),
+        Info(title: OnBoardingStrings.widget, image: UIImage()),
+        Info(title: OnBoardingStrings.permission, image: UIImage())
+    ]
 }

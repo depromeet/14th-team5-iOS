@@ -7,6 +7,7 @@
 
 import UIKit
 import Core
+import DesignSystem
 
 final class OnBoardingCollectionViewCell: BaseCollectionViewCell<OnBoardingReactor> {
     static let id = "onBoardingCollectionViewCell"
@@ -28,8 +29,8 @@ final class OnBoardingCollectionViewCell: BaseCollectionViewCell<OnBoardingReact
     
     override func setupAutoLayout() {
         titleLabel.snp.makeConstraints {
-            $0.verticalEdges.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(52)
+            $0.top.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(20)
         }
         
         imageView.snp.makeConstraints {
@@ -42,12 +43,13 @@ final class OnBoardingCollectionViewCell: BaseCollectionViewCell<OnBoardingReact
     override func setupAttributes() {
         titleLabel.do {
             $0.numberOfLines = 2
-            $0.textColor = .blue
-            $0.textAlignment = .center
+            $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.bold, size: 24)
+            $0.textColor = DesignSystemAsset.gray100.color
         }
         
         imageView.do {
-            $0.contentMode = .center
+//            $0.contentMode = .center
+            $0.image = DesignSystemAsset.emoji.image
         }
     }
     

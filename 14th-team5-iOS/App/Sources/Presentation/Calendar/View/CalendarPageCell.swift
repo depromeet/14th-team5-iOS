@@ -38,7 +38,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     }
     
     // MARK: - Helpers
-    override func setupUI() { 
+    override func setupUI() {
         super.setupUI()
         contentView.addSubviews(
             titleStackView, calendarView
@@ -48,7 +48,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
         )
     }
     
-    override func setupAutoLayout() { 
+    override func setupAutoLayout() {
         super.setupAutoLayout()
         titleStackView.snp.makeConstraints {
             $0.top.equalTo(contentView.snp.top).offset(CalendarCell.AutoLayout.defaultOffsetValue)
@@ -63,7 +63,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
         }
     }
     
-    override func setupAttributes() { 
+    override func setupAttributes() {
         super.setupAttributes()
         calendarTitleLabel.do {
             $0.textColor = UIColor.white
@@ -124,7 +124,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
         setupCalendarTitle(calendarView.currentPage)
     }
     
-    override func bind(reactor: CalendarPageCellReactor) { 
+    override func bind(reactor: CalendarPageCellReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
@@ -149,7 +149,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
             .disposed(by: disposeBag)
     }
     
-    private func bindOutput(reactor: CalendarPageCellReactor) { 
+    private func bindOutput(reactor: CalendarPageCellReactor) {
         reactor.state.map { $0.arrayCalendarResponse }
             .withUnretained(self)
             .subscribe { $0.0.calendarView.reloadData() }
@@ -181,7 +181,7 @@ extension CalendarPageCell {
     }
 }
 
-extension CalendarPageCell: FSCalendarDelegate {     
+extension CalendarPageCell: FSCalendarDelegate {
     func calendar(_ calendar: FSCalendar, shouldSelect date: Date, at monthPosition: FSCalendarMonthPosition) -> Bool {
         let dateMonth = date.month
         let currentMonth = calendar.currentPage.month
@@ -226,7 +226,7 @@ extension CalendarPageCell: FSCalendarDataSource {
             }
             
             cell.reactor = ImageCalendarCellDIContainer().makeReactor(
-                .month, 
+                .month,
                 isSelected: false,
                 dayResponse: dayResponse
             )

@@ -22,12 +22,12 @@ public final class CalendarPageCellReactor: Reactor {
     }
     
     // MARK: - Mutation
-    public enum Mutation { 
+    public enum Mutation {
         case fetchCalendarResponse(ArrayResponseCalendarResponse)
     }
     
     // MARK: - State
-    public struct State { 
+    public struct State {
         var date: Date
         var arrayCalendarResponse: ArrayResponseCalendarResponse?
     }

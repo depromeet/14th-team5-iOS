@@ -12,7 +12,7 @@ import Data
 
 public final class CalendarFeedDIConatainer: BaseDIContainer {
     public typealias ViewController = CalendarFeedViewController
-    public typealias Repository = CalendarFeedImpl
+    public typealias Repository = CalendarImpl
     public typealias Reactor = CalendarFeedViewReactor
     
     let selectedDate: Date
@@ -32,8 +32,8 @@ public final class CalendarFeedDIConatainer: BaseDIContainer {
         return CalendarFeedViewController(reacter: makeReactor())
     }
     
-    public func makeRepository() -> CalendarFeedImpl {
-        return CalendarFeedViewRepository()
+    public func makeRepository() -> CalendarImpl {
+        return CalendarRepository()
     }
     
     public func makeReactor() -> CalendarFeedViewReactor {

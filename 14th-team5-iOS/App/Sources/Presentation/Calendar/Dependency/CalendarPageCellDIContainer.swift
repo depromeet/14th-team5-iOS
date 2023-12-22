@@ -18,7 +18,7 @@ public final class CalendarPageCellDIContainer {
         return appDelegate.globalStateProvider
     }
     
-    public func makeReactor() -> CalendarPageCellReactor {
-        return CalendarPageCellReactor(provider: globalState)
+    public func makeReactor(perMonthInfo monthInfo: PerMonthInfo) -> CalendarPageCellReactor {
+        return CalendarPageCellReactor(perMonthInfo: monthInfo, provider: globalState)
     }
 }

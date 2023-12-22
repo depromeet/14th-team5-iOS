@@ -213,11 +213,11 @@ public final class AddFamilyViewController: BaseViewController<AddFamilyViewReac
     }
     
     private func bindOutput(reactor: AddFamilyViewReactor) {
-        reactor.state.map { $0.yourFamiliyDatasource }
+        reactor.state.map { $0.familiyDatasource }
             .bind(to: tableView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
-        reactor.state.map { "\($0.yourFaimliyMemberCount)" }
+        reactor.state.map { "\($0.faimliyMemberCount)" }
             .distinctUntilChanged()
             .bind(to: familyMemberCountLabel.rx.text)
             .disposed(by: disposeBag)

@@ -31,3 +31,12 @@ extension Reactive where Base: UITapGestureRecognizer {
         return ControlEvent(events: tapEvent)
     }
 }
+
+extension Reactive where Base: UILabel {
+    public var calendarTitle: Binder<Date> {
+        Binder(self.base) { label, date in
+            let text = DateFormatter.yyyyMM.string(from: date)
+            label.text = text
+        }
+    }
+}

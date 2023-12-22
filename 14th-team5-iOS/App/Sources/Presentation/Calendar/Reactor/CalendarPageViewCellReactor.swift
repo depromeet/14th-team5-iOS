@@ -19,20 +19,24 @@ public final class CalendarPageCellReactor: Reactor {
     }
     
     // MARK: - Mutation
-    public enum Mutation {
-        case none
-    }
+    public enum Mutation { }
     
     // MARK: - State
-    public struct State { }
+    public struct State { 
+        var date: Date
+    }
     
     // MARK: - Properties
     public var initialState: State
+    
+    public var monthInfo: PerMonthInfo
     public let provider: GlobalStateProviderType
     
     // MARK: - Intializer
-    init(provider: GlobalStateProviderType) {
-        self.initialState = State()
+    init(perMonthInfo monthInfo: PerMonthInfo, provider: GlobalStateProviderType) {
+        self.initialState = State(date: monthInfo.month)
+        self.monthInfo = monthInfo
+        
         self.provider = provider
     }
     
@@ -41,10 +45,10 @@ public final class CalendarPageCellReactor: Reactor {
         switch action {
         case let .didSelectCell(date):
             return provider.calendarGlabalState.didSelectCell(date)
-                .map { _ in .none }
+                .flatMap { _ in Observable<Mutation>.empty() }
         case let .didTapInfoButton(sourceView):
             return provider.calendarGlabalState.didTapInfoButton(sourceView)
-                .map { _ in .none }
+                .flatMap { _ in Observable<Mutation>.empty() }
         }
     }
     

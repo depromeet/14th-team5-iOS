@@ -223,17 +223,17 @@ extension CalendarFeedViewController: FSCalendarDataSource {
         ) as! ImageCalendarCell
         
         // NOTE: - 더미 데이터
-        let imageUrls = [
-            "https://cdn.pixabay.com/photo/2023/11/20/13/48/butterfly-8401173_1280.jpg",
-            "https://cdn.pixabay.com/photo/2023/11/10/02/30/woman-8378634_1280.jpg",
-            "https://cdn.pixabay.com/photo/2023/11/26/08/27/leaves-8413064_1280.jpg",
-            "https://cdn.pixabay.com/photo/2023/09/03/17/00/chives-8231068_1280.jpg",
-            "https://cdn.pixabay.com/photo/2023/09/25/13/42/kingfisher-8275049_1280.png",
-            "", "", "", ""
-        ]
-        let cellModel = TempCalendarCellModel(date: date, imageUrl: imageUrls.randomElement(), isHidden: Bool.random())
+//        let imageUrls = [
+//            "https://cdn.pixabay.com/photo/2023/11/20/13/48/butterfly-8401173_1280.jpg",
+//            "https://cdn.pixabay.com/photo/2023/11/10/02/30/woman-8378634_1280.jpg",
+//            "https://cdn.pixabay.com/photo/2023/11/26/08/27/leaves-8413064_1280.jpg",
+//            "https://cdn.pixabay.com/photo/2023/09/03/17/00/chives-8231068_1280.jpg",
+//            "https://cdn.pixabay.com/photo/2023/09/25/13/42/kingfisher-8275049_1280.png",
+//            "", "", "", ""
+//        ]
+//        let cellModel = TempCalendarCellModel(date: date, imageUrl: imageUrls.randomElement(), isHidden: Bool.random())
         
-        cell.reactor = ImageCalendarCellReactor(cellModel)
+//        cell.reactor = ImageCalendarCellReactor(cellModel)
         return cell
     }
 }

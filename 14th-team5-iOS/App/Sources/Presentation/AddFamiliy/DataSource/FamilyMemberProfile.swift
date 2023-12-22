@@ -30,19 +30,6 @@ extension SectionOfFamilyMemberProfile: SectionModelType {
 }
 
 extension SectionOfFamilyMemberProfile {
-    static func toSectionModel(_ familiyMember: PaginationResponseFamilyMemberProfile) -> [SectionOfFamilyMemberProfile] {
-        let items = familiyMember.results.map {
-            FamilyMemeberProfile(
-                memberId: $0.memberId,
-                name: $0.name,
-                imageUrl: $0.imageUrl
-            )
-        }
-        return [SectionOfFamilyMemberProfile(items: items)]
-    }
-}
-
-extension SectionOfFamilyMemberProfile {
     static func generateTestData() -> [SectionOfFamilyMemberProfile] {
         var items: [SectionOfFamilyMemberProfile.Item] = []
 
@@ -64,6 +51,19 @@ extension SectionOfFamilyMemberProfile {
             items.append(item)
         }
         
+        return [SectionOfFamilyMemberProfile(items: items)]
+    }
+}
+
+extension PaginationResponseFamilyMemberProfile {
+    func toSectionModel() -> [SectionOfFamilyMemberProfile] {
+        let items = self.results.map {
+            FamilyMemeberProfile(
+                memberId: $0.memberId,
+                name: $0.name,
+                imageUrl: $0.imageUrl
+            )
+        }
         return [SectionOfFamilyMemberProfile(items: items)]
     }
 }

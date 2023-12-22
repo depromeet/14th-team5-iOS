@@ -58,3 +58,15 @@ extension Date {
         return dict
     }
 }
+
+extension Date {
+    public static var for20230101: Date {
+        let calendar: Calendar = Calendar.current
+        let dateComponents: DateComponents = DateComponents(
+            year: 2023,
+            month: 1,
+            day: 1
+        )
+        return calendar.date(from: dateComponents) ?? Date()
+    }
+}

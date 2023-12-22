@@ -33,8 +33,8 @@ public final class AddFamilyViewReactor: Reactor {
         @Pulse var invitationUrl: URL?
         @Pulse var shouldPresentInvitationUrlCopySuccessToastMessage: Bool = false
         @Pulse var shouldPresentFetchInvitationUrlFailureToastMessage: Bool = false
-        var yourFamiliyDatasource: [SectionOfFamilyMemberProfile] = []
-        var yourFaimliyMemberCount: Int = 0
+        var familiyDatasource: [SectionOfFamilyMemberProfile] = []
+        var faimliyMemberCount: Int = 0
     }
     
     // MARK: - Properties
@@ -67,7 +67,7 @@ public final class AddFamilyViewReactor: Reactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .didTapInvitationUrlButton:
-            // TODO: - 통신 성공 여부 확인, FamilyID 구하는 코드 구현
+            // TODO: - 통신 성공 여부 확인
             return addFamiliyRepository.fetchInvitationUrl()
                 .map {
                     guard let url = $0 else {
@@ -82,7 +82,7 @@ public final class AddFamilyViewReactor: Reactor {
                     guard let familiyMember = $0 else {
                         return .refreshYourFamiliyMember([])
                     }
-                    let sectionModel = SectionOfFamilyMemberProfile.toSectionModel(familiyMember)
+                    let sectionModel = familiyMember.toSectionModel()
                     return .refreshYourFamiliyMember(sectionModel)
                 }
         }
@@ -99,8 +99,8 @@ public final class AddFamilyViewReactor: Reactor {
         case .presentFetchInvitationUrlFailureTaostMessage:
             newState.shouldPresentFetchInvitationUrlFailureToastMessage = true
         case let .refreshYourFamiliyMember(familiyMember):
-            newState.yourFamiliyDatasource = familiyMember
-            newState.yourFaimliyMemberCount = familiyMember.first?.items.count ?? 0
+            newState.familiyDatasource = familiyMember
+            newState.faimliyMemberCount = familiyMember.first?.items.count ?? 0
         }
         return newState
     }

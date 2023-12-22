@@ -24,6 +24,16 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
         collectionViewLayout: orthogonalCompositionalLayout
     )
     
+    // MARK: - Properties
+    var dataSource: RxCollectionViewSectionedReloadDataSource<SectionOfPerMonthInfo> = RxCollectionViewSectionedReloadDataSource<SectionOfPerMonthInfo> { datasource, collectionView, indexPath, monthInfo in
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarPageCell.id, for: indexPath) as! CalendarPageCell
+        cell.reactor = CalendarPageCellDIContainer().makeReactor(perMonthInfo: monthInfo)
+        return cell
+    }
+    // 캘린더의 시작 날짜
+    let startDate: Date = Date.for20230101
+
+    
     // MARK: - Lifecycles
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -50,22 +60,33 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
     public override func setupAttributes() {
         super.setupAttributes()
         collectionView.do {
-            $0.dataSource = self
-            
             $0.isScrollEnabled = false
             $0.backgroundColor = UIColor.clear
             $0.register(CalendarPageCell.self, forCellWithReuseIdentifier: CalendarPageCell.id)
         }
+        scrollToLastIndexPath()
         
         navigationItem.title = "추억 캘린더"
     }
     
     public override func bind(reactor: CalendarViewReactor) {
         super.bind(reactor: reactor)
+        bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
+    private func bindInput(reactor: CalendarViewReactor) {
+        Observable<String>.from(generateYearMonthStrings(from: startDate))
+            .map { print($0); return Reactor.Action.refreshMonthlyCalendar($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+    }
+    
     private func bindOutput(reactor: CalendarViewReactor) {
+        reactor.state.map { $0.calendarDatasource }
+            .bind(to: collectionView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
         reactor.pulse(\.$pushCalendarFeedVC)
             .withUnretained(self)
             .subscribe {
@@ -123,25 +144,42 @@ extension CalendarViewController {
 }
 
 extension CalendarViewController {
+    func scrollToLastIndexPath() {
+        collectionView.layoutIfNeeded()
+        let lastIndexPath: IndexPath = IndexPath(
+            item: dataSource[0].items.count - 1,
+            section: 0
+        )
+        collectionView.scrollToItem(
+            at: lastIndexPath,
+            at: .centeredHorizontally,
+            animated: false
+        )
+    }
+    
     func pushCalendarFeedView(_ date: Date?) {
         let container = CalendarFeedDIConatainer(selectedDate: date ?? Date())
         navigationController?.pushViewController(container.makeViewController(), animated: true)
     }
-}
-
-// NOTE: - 임시 코드
-extension CalendarViewController: UICollectionViewDataSource {
-    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 3
-    }
     
-    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: CalendarPageCell.id,
-            for: indexPath
-        ) as! CalendarPageCell
-        cell.reactor = CalendarPageCellDIContainer().makeReactor()
-        return cell
+    func generateYearMonthStrings(from startDate: Date) -> [String] {
+        let calendar: Calendar = Calendar.autoupdatingCurrent
+        let currentDate: Date = Date()
+        
+        let dateFormatter: DateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM"
+        
+        var yearMonthStrings: [String] = []
+        
+        let monthInterval = startDate.interval([.month], to: currentDate)[.month]!
+        for month in 0...monthInterval {
+            if let date = calendar.date(byAdding: .month, value: month, to: startDate) {
+                let yearMonthString = dateFormatter.string(from: date)
+                yearMonthStrings.append(yearMonthString)
+            }
+        }
+        
+        return yearMonthStrings
     }
 }
 

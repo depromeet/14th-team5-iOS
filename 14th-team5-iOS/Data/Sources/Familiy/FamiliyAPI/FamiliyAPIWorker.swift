@@ -7,7 +7,6 @@
 
 import Foundation
 
-import Alamofire
 import Domain
 import RxSwift
 
@@ -47,7 +46,7 @@ extension FamiliyAPIWorker: SearchFamilyRepository {
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("FamiliyInvigationLink Fetch Result: \(str)")
+                    debugPrint("FamilyInvigationLink Fetch Result: \(str)")
                 }
             }
             .map(FamiliyInvitationLinkResponseDTO.self)
@@ -62,7 +61,7 @@ extension FamiliyAPIWorker: SearchFamilyRepository {
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("FamiliyMemeber Fetch Reseult: \(str)")
+                    debugPrint("FamilyMemeber Fetch Reseult: \(str)")
                 }
             }
             .map(PaginationResponseFamilyMemberProfileDTO.self)

@@ -8,13 +8,19 @@
 import Foundation
 
 
-enum CameraAPIs: API {
+public enum CameraAPIs: API {
     case uploadImageURL
+    case presignedURL(String)
+    case updateImage
     
     var spec: APISpec {
         switch self {
         case .uploadImageURL:
-            return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/v1/posts/image-upload-request")
+            return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/posts/image-upload-request")
+        case let .presignedURL(url):
+            return APISpec(method: .put, url: url)
+        case .updateImage:
+            return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/posts")
         }
     }
     

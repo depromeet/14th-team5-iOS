@@ -11,7 +11,7 @@ import DesignSystem
 
 import RxSwift
 
-final class FeedDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
+final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     static let id = "feedDetailCollectionViewCell"
     
     private let postImageView = UIImageView()
@@ -131,7 +131,7 @@ final class FeedDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     }
 }
 
-extension FeedDetailCollectionViewCell {
+extension PostCollectionViewCell {
     private func showSelectableEmojiStackView(_ isShowing: Bool) {
         selectableEmojiStackView.isHidden = !isShowing
     }
@@ -198,7 +198,7 @@ extension FeedDetailCollectionViewCell {
     }
 }
 
-extension FeedDetailCollectionViewCell {
+extension PostCollectionViewCell {
     func setCell(data: FeedDetailData) {
         //        nameLabel.text = data.writer
         //        timeLabel.text = data.time

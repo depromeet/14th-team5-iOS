@@ -26,7 +26,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         window?.rootViewController = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
 
-//        window?.rootViewController = UINavigationController(rootViewController: FeedDetailViewController(reacter: PostReactor()))
         window?.makeKeyAndVisible()
     }
     

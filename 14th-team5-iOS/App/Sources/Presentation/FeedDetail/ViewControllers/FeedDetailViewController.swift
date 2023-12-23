@@ -1,5 +1,5 @@
 //
-//  FeedDetailViewController.swift
+//  PostViewController.swift
 //  App
 //
 //  Created by 마경미 on 09.12.23.
@@ -11,7 +11,7 @@ import Core
 import RxDataSources
 import RxSwift
 
-final class FeedDetailViewController: BaseViewController<PostReactor> {
+final class PostViewController: BaseViewController<PostReactor> {
     private let backgroundImageView: UIImageView = UIImageView()
     private let blurEffectView: UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffect.Style.dark))
     private let navigationView: PostNavigationView = PostNavigationView()
@@ -80,7 +80,7 @@ final class FeedDetailViewController: BaseViewController<PostReactor> {
             $0.delegate = self
             $0.isPagingEnabled = true
             $0.backgroundColor = .clear
-            $0.register(FeedDetailCollectionViewCell.self, forCellWithReuseIdentifier: FeedDetailCollectionViewCell.id)
+            $0.register(PostCollectionViewCell.self, forCellWithReuseIdentifier: PostCollectionViewCell.id)
             $0.collectionViewLayout = layout
             $0.contentInsetAdjustmentBehavior = .never
             $0.scrollIndicatorInsets = .zero
@@ -90,11 +90,11 @@ final class FeedDetailViewController: BaseViewController<PostReactor> {
     }
 }
 
-extension FeedDetailViewController {
+extension PostViewController {
     private func createDataSource() -> RxCollectionViewSectionedReloadDataSource<SectionModel<String, FeedDetailData>> {
         return RxCollectionViewSectionedReloadDataSource<SectionModel<String, FeedDetailData>>(
             configureCell: { dataSource, collectionView, indexPath, item in
-                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FeedDetailCollectionViewCell.id, for: indexPath) as? FeedDetailCollectionViewCell else {
+                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as? PostCollectionViewCell else {
                     return UICollectionViewCell()
                 }
                 cell.setCell(data: item)
@@ -103,7 +103,7 @@ extension FeedDetailViewController {
     }
 }
 
-extension FeedDetailViewController: UICollectionViewDelegateFlowLayout {
+extension PostViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: collectionView.frame.width, height: collectionView.frame.height)
     }

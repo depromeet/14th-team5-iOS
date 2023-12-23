@@ -10,7 +10,7 @@ import DesignSystem
 import RxCocoa
 import RxSwift
 
-final class StandardEmojiButton: UIView {
+final class SelectableEmojiButton: UIView {
     private let backgroundView: UIImageView = UIImageView()
     private let emojiLabel: UILabel = UILabel()
     
@@ -47,7 +47,7 @@ final class StandardEmojiButton: UIView {
     }
 }
 
-extension StandardEmojiButton {
+extension SelectableEmojiButton {
     func setEmoji(emoji: Emojis) {
         emojiLabel.text = emoji.emojiString
     }

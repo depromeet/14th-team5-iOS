@@ -11,28 +11,26 @@ import ReactorKit
 
 final class EmojiReactor: Reactor {
     enum Action {
-        case receiveEmojiData([EmojiData])
-        case tapAddEmojiButton
-//        case emojiButtonTapped(Int)
-        case standardEmojiButtonTapped(Emojis)
+        case tappedSelectableEmojiStackView
+        /// emoji count + 1
+        case tappedSelectableEmojiButton(Emojis)
+        /// emoji count - 1
+        case tappedSelectedEmojiCountButton(Emojis)
+        case receiveEmojiData([Emojis: Int])
     }
     
     enum Mutation {
-        case updateEmojiCount([EmojiData])
-        case showStandardEmojiView
-        case addEmojiCount(Emojis)
+        case showSelectableEmojiStackView
+        case selectEmoji(Emojis)
+        case unselectEmoji(Emojis)
+        case setUpEmojiCountStackView([Emojis: Int])
     }
     
     struct State {
-        var isShowingStandardEmojiView: Bool = false
-//        var tappedEmojiIndex: Int? = nil
-        var emojiData: [EmojiData] = [
-            EmojiData(emoji: .standard, count: 0),
-            EmojiData(emoji: .heart, count: 0),
-            EmojiData(emoji: .clap, count: 0),
-            EmojiData(emoji: .good, count: 0),
-            EmojiData(emoji: .funny, count: 0)
-        ]
+        var isShowingSelectableEmojiStackView: Bool = false
+        var selectedEmoji: (Emojis?, Int) = (nil, 0)
+        var unselectedEmoji: (Emojis?, Int) = (nil, 0)
+        var emojiData: [Emojis: Int] = [:]
     }
     
     let initialState: State = State()
@@ -41,32 +39,30 @@ final class EmojiReactor: Reactor {
 extension EmojiReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-//        case let .emojiButtonTapped(index):
-            // 이모지 더하기 +
-//            return Observable.just(Mutation.addEmojiCount(index))
-        case .tapAddEmojiButton:
-            return Observable.just(Mutation.showStandardEmojiView)
+        case .tappedSelectableEmojiStackView:
+            return Observable.just(Mutation.showSelectableEmojiStackView)
         case let .receiveEmojiData(data):
-            return Observable.just(Mutation.updateEmojiCount(data))
-        case let .standardEmojiButtonTapped(emoji):
-            return Observable.just(Mutation.addEmojiCount(emoji))
+            return Observable.just(Mutation.setUpEmojiCountStackView(data))
+        case let .tappedSelectableEmojiButton(emoji):
+            return Observable.just(Mutation.selectEmoji(emoji))
+        case let .tappedSelectedEmojiCountButton(emoji):
+            return Observable.just(Mutation.unselectEmoji(emoji))
         }
     }
     
     func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
-//        case let .addEmojiCount(index):
-//            if newState.emojiData[index].count == 0 {
-//                newState.emojiData.append(Emojis.)
-//            }
-//            newState.emojiData[index].count += 1
-        case .showStandardEmojiView:
-            newState.isShowingStandardEmojiView = true
-        case let .updateEmojiCount(data):
+        case .showSelectableEmojiStackView:
+            newState.isShowingSelectableEmojiStackView.toggle()
+        case let .setUpEmojiCountStackView(data):
             newState.emojiData = data
-        case let .addEmojiCount(emoji):
-            newState.emojiData[emoji.emojiIndex].count += 1
+        case let .selectEmoji(emoji):
+            newState.emojiData[emoji, default: 0] += 1
+            newState.selectedEmoji = (emoji, newState.emojiData[emoji] ?? 0)
+        case let .unselectEmoji(emoji):
+            newState.emojiData[emoji, default: 0] -= 1
+            newState.unselectedEmoji = (emoji, newState.emojiData[emoji] ?? 0)
         }
         return newState
     }

@@ -57,7 +57,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
             .withUnretained(self)
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .bind(onNext: {
-                $0.0.navigationController?.pushViewController(FeedDetailViewController(reacter: FeedDetailReactor()), animated: true)
+                $0.0.navigationController?.pushViewController(FeedDetailViewController(reacter: PostReactor()), animated: true)
             })
             .disposed(by: disposeBag)
         

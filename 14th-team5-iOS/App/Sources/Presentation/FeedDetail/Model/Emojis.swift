@@ -8,11 +8,11 @@
 import Foundation
 
 enum Emojis: Int {
-    case standard
-    case heart
-    case clap
-    case good
-    case funny
+    case standard = 1
+    case heart = 2
+    case clap = 3
+    case good = 4
+    case funny = 5
     
     var emojiString: String {
         switch self {

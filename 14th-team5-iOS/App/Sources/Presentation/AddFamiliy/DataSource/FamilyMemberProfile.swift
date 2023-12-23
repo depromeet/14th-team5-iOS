@@ -29,8 +29,21 @@ extension SectionOfFamilyMemberProfile: SectionModelType {
     }
 }
 
+extension PaginationResponseFamilyMemberProfile {
+    func toSectionModel() -> SectionOfFamilyMemberProfile {
+        let items = self.results.map {
+            FamilyMemeberProfile(
+                memberId: $0.memberId,
+                name: $0.name,
+                imageUrl: $0.imageUrl
+            )
+        }
+        return SectionOfFamilyMemberProfile(items: items)
+    }
+}
+
 extension SectionOfFamilyMemberProfile {
-    static func generateTestData() -> [SectionOfFamilyMemberProfile] {
+    static func generateTestData() -> SectionOfFamilyMemberProfile {
         var items: [SectionOfFamilyMemberProfile.Item] = []
 
         let memberId = ["KKW", "KDH", "MKM", "UKH"]
@@ -51,19 +64,6 @@ extension SectionOfFamilyMemberProfile {
             items.append(item)
         }
         
-        return [SectionOfFamilyMemberProfile(items: items)]
-    }
-}
-
-extension PaginationResponseFamilyMemberProfile {
-    func toSectionModel() -> [SectionOfFamilyMemberProfile] {
-        let items = self.results.map {
-            FamilyMemeberProfile(
-                memberId: $0.memberId,
-                name: $0.name,
-                imageUrl: $0.imageUrl
-            )
-        }
-        return [SectionOfFamilyMemberProfile(items: items)]
+        return SectionOfFamilyMemberProfile(items: items)
     }
 }

@@ -29,7 +29,7 @@ public final class CalendarFeedViewController: BaseViewController<CalendarFeedVi
     private let calendarView: FSCalendar = FSCalendar()
     private let feedDetailView: UIView = UIView()
     
-    private var feedDetailViewController: FeedDetailViewController = FeedDetailViewController(reacter: FeedDetailReactor())
+    private var feedDetailViewController: PostViewController = PostViewController(reacter: PostReactor())
     
     // MARK: - Lifecycles
     public override func viewDidLoad() {

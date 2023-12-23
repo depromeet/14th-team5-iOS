@@ -7,12 +7,12 @@
 
 import Foundation
 
-enum Emojis {
-    case standard
-    case heart
-    case clap
-    case good
-    case funny
+enum Emojis: Int {
+    case standard = 1
+    case heart = 2
+    case clap = 3
+    case good = 4
+    case funny = 5
     
     var emojiString: String {
         switch self {
@@ -29,7 +29,15 @@ enum Emojis {
         }
     }
     
+    var emojiIndex: Int {
+        return self.rawValue
+    }
+    
     static var allEmojis: [Emojis] {
         return [.standard, .heart, .clap, .good, .funny]
+    }
+    
+    static func emoji(forIndex index: Int) -> Emojis {
+        return Emojis(rawValue: index) ?? .standard
     }
 }

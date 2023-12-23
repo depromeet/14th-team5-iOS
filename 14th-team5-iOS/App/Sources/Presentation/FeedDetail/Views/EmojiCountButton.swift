@@ -11,7 +11,8 @@ import Core
 import RxSwift
 import RxCocoa
 
-final class EmojiView: BaseView<EmojiReactor> {
+/// 포스트 자세히 보기 - 추가된 이모지 (해제만 가능)
+final class EmojiCountButton: BaseView<EmojiReactor> {
     private let emojiLabel = UILabel()
     private let countLabel = UILabel()
     
@@ -48,9 +49,9 @@ final class EmojiView: BaseView<EmojiReactor> {
     }
 }
 
-extension EmojiView {
+extension EmojiCountButton {
     func setInitEmoji(emoji: EmojiData) {
-        emojiLabel.text = emoji.emoji
+        emojiLabel.text = emoji.emoji.emojiString
         countLabel.text = "\(emoji.count)"
     }
     

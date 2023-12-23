@@ -1,5 +1,5 @@
 //
-//  FeedDetailReactor.swift
+//  PostReactor.swift
 //  App
 //
 //  Created by 마경미 on 09.12.23.
@@ -9,7 +9,7 @@ import Foundation
 import Core
 import ReactorKit
 
-final class FeedDetailReactor: Reactor {
+final class PostReactor: Reactor {
     enum Action {
 
     }
@@ -25,7 +25,7 @@ final class FeedDetailReactor: Reactor {
     let initialState: State = State()
 }
 
-extension FeedDetailReactor {
+extension PostReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         }

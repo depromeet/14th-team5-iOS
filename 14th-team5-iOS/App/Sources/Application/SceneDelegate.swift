@@ -23,11 +23,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     ) {
         guard let scene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: scene)
-//        window?.rootViewController = UINavigationController(rootViewController: MainViewController(reacter: MainViewReactor()))
-//        window?.rootViewController = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
-        window?.rootViewController = UINavigationController(rootViewController: CalendarDIConatainer().makeViewController())
-//        window?.rootViewController = UINavigationController(rootViewController: AddFamilyDIContainer().makeViewController())
-//        window?.rootViewController = UINavigationController(rootViewController: CameraDIContainer().makeViewController())
+        window?.rootViewController = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
         window?.makeKeyAndVisible()
     }
     

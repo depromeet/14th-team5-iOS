@@ -25,14 +25,14 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
     )
     
     // MARK: - Properties
-    var dataSource: RxCollectionViewSectionedReloadDataSource<SectionOfPerMonthInfo> = RxCollectionViewSectionedReloadDataSource<SectionOfPerMonthInfo> { datasource, collectionView, indexPath, monthInfo in
+    private var dataSource: RxCollectionViewSectionedReloadDataSource<SectionOfPerMonthInfo> = RxCollectionViewSectionedReloadDataSource<SectionOfPerMonthInfo> { datasource, collectionView, indexPath, monthInfo in
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarPageCell.id, for: indexPath) as! CalendarPageCell
         cell.reactor = CalendarPageCellDIContainer().makeReactor(perMonthInfo: monthInfo)
         return cell
     }
     
     // 캘린더에 표시할 월 별 날짜
-    let yearMonthArray: [String] = Date.for20230101.generateYearMonthStringsToToday()
+    private let yearMonthArray: [String] = Date.for20230101.generateYearMonthStringsToToday()
     
     // MARK: - Lifecycles
     public override func viewDidLoad() {

@@ -41,13 +41,14 @@ public final class AddFamilyViewReactor: Reactor {
     public let initialState: State
     public let provider: GlobalStateProviderType
     
-    public let addFamiliyRepository: AddFamiliyImpl
+    public let addFamilyRepository: AddFamilyImpl
     
     // MARK: - Intializer
     init(provider: GlobalStateProviderType) {
         self.initialState = State()
         self.provider = provider
-        self.addFamiliyRepository = AddFamiliyRepository()
+        
+        self.addFamilyRepository = AddFamiliyRepository()
     }
     
     // MARK: - Transform
@@ -68,7 +69,7 @@ public final class AddFamilyViewReactor: Reactor {
         switch action {
         case .didTapInvitationUrlButton:
             // TODO: - 통신 성공 여부 확인
-            return addFamiliyRepository.fetchInvitationUrl()
+            return addFamilyRepository.fetchInvitationUrl()
                 .map {
                     guard let url = $0 else {
                         return .presentFetchInvitationUrlFailureTaostMessage
@@ -77,7 +78,7 @@ public final class AddFamilyViewReactor: Reactor {
                 }
         case .refreshYourFamilyMemeber:
             // TODO: - 통신 성공 여부 확인
-            return addFamiliyRepository.fetchFamiliyMemeber()
+            return addFamilyRepository.fetchFamiliyMemeber()
                 .map {
                     guard let familiyMember = $0 else {
                         return .refreshYourFamilyMember(.init(items: []))

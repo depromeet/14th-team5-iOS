@@ -60,6 +60,34 @@ extension Date {
 }
 
 extension Date {
+    public func generateYearMonthStringsToToday() -> [String] {
+        let currentDate: Date = Date()
+        
+        let dateFormatter: DateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM"
+        
+        var yearMonthStrings: [String] = []
+        
+        let monthInterval = self.interval(
+            [.month], 
+            to: currentDate
+        )[.month]!
+        for month in 0...monthInterval {
+            if let date = calendar.date(
+                byAdding: .month, 
+                value: month,
+                to: self
+            ) {
+                let yearMonthString = dateFormatter.string(from: date)
+                yearMonthStrings.append(yearMonthString)
+            }
+        }
+        
+        return yearMonthStrings
+    }
+}
+
+extension Date {
     public static var for20230101: Date {
         let calendar: Calendar = Calendar.current
         let dateComponents: DateComponents = DateComponents(
@@ -68,5 +96,15 @@ extension Date {
             day: 1
         )
         return calendar.date(from: dateComponents) ?? Date()
+    }
+    
+    public static var for20240101: Date {
+        let calendar: Calendar = Calendar.current
+        let dateComonents: DateComponents = DateComponents(
+            year: 2024,
+            month: 1,
+            day: 1
+        )
+        return calendar.date(from: dateComonents) ?? Date()
     }
 }

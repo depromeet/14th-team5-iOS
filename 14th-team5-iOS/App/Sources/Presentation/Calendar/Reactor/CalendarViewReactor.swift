@@ -21,7 +21,7 @@ public final class CalendarViewReactor: Reactor {
     
     // MARK: - Mutation
     public enum Mutation {
-        case refreshMonthlyCalendar([SectionOfPerMonthInfo])
+        case refreshMonthlyCalendar(SectionOfPerMonthInfo)
         case pushCalendarFeedVC(Date)
         case presentPopoverVC(UIView)
     }
@@ -30,7 +30,7 @@ public final class CalendarViewReactor: Reactor {
     public struct State {
         @Pulse var pushCalendarFeedVC: Date?
         @Pulse var shouldPresentPopoverVC: UIView?
-        var calendarDatasource: [SectionOfPerMonthInfo] = []
+        var calendarDatasource: [SectionOfPerMonthInfo] = [.init(items: [])]
     }
     
     // MARK: - Properties
@@ -64,9 +64,21 @@ public final class CalendarViewReactor: Reactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case let .refreshMonthlyCalendar(yearMonth):
+            // NOTE: - 실제 데이터 통신 코드
 //            return calendarRepository.fetchMonthlyCalendar(yearMonth)
-//                .map  { /* TODO: - 새롭게 불러온 월별 데이터를 calendarDatasource에 차례로 집어 넣기 */ }
-            return Observable<Mutation>.just(.refreshMonthlyCalendar(SectionOfPerMonthInfo.generateTestData()))
+//                .map  { /* TODO: - SectionOfPerMonthInfo로 변환하고 반환하기 */ }
+            // NOTE: - 테스트 코드 ①
+//            return Observable<Mutation>.just(
+//                .refreshMonthlyCalendar(
+//                    SectionOfPerMonthInfo.generateTestData()
+//                )
+//            )
+            // NOTE: - 테스트 코드 ②
+            return Observable<Mutation>.just(
+                .refreshMonthlyCalendar(
+                    SectionOfPerMonthInfo.generateTestData(yearMonth)
+                )
+            )
         }
     }
     
@@ -78,8 +90,15 @@ public final class CalendarViewReactor: Reactor {
             newState.pushCalendarFeedVC = date
         case let .presentPopoverVC(sourceView):
             newState.shouldPresentPopoverVC = sourceView
-        case let .refreshMonthlyCalendar(monthlyCalendar):
-            newState.calendarDatasource = monthlyCalendar
+        case let .refreshMonthlyCalendar(monthInfo):
+            guard let datasource: SectionOfPerMonthInfo = state.calendarDatasource.first else {
+                return state
+            }
+            
+            let oldItems: [SectionOfPerMonthInfo.Item] = datasource.items
+            let newItems: [SectionOfPerMonthInfo.Item] = oldItems +  monthInfo.items
+            let newDatasource = [SectionOfPerMonthInfo(original: datasource, items: newItems)]
+            newState.calendarDatasource = newDatasource
         }
         return newState
     }

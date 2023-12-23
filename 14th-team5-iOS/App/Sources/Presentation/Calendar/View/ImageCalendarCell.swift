@@ -46,6 +46,13 @@ final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func prepareForReuse() {
+        dayLabel.textColor = UIColor.white
+        thumbnailView.image = nil
+        thumbnailView.layer.borderWidth = .zero
+        badgeView.isHidden = true
+    }
+    
     // MARK: - Helpers
     private func setupUI() {
         contentView.insertSubview(thumbnailView, at: 0)
@@ -151,13 +158,6 @@ final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
                 $0.0.thumbnailView.kf.setImage(with: URL(string: $0.1))
             }
             .disposed(by: disposeBag)
-    }
-    
-    override func prepareForReuse() {
-        dayLabel.textColor = UIColor.white
-        thumbnailView.image = nil
-        thumbnailView.layer.borderWidth = .zero
-        badgeView.isHidden = true
     }
 }
 

@@ -30,9 +30,9 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
         cell.reactor = CalendarPageCellDIContainer().makeReactor(perMonthInfo: monthInfo)
         return cell
     }
-    // 캘린더의 시작 날짜
-    let startDate: Date = Date.for20230101
-
+    
+    // 캘린더에 표시할 월 별 날짜
+    let yearMonthArray: [String] = Date.for20230101.generateYearMonthStringsToToday()
     
     // MARK: - Lifecycles
     public override func viewDidLoad() {
@@ -76,8 +76,8 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
     }
     
     private func bindInput(reactor: CalendarViewReactor) {
-        Observable<String>.from(generateYearMonthStrings(from: startDate))
-            .map { print($0); return Reactor.Action.refreshMonthlyCalendar($0) }
+        Observable<String>.from(yearMonthArray)
+            .map { Reactor.Action.refreshMonthlyCalendar($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
@@ -144,7 +144,12 @@ extension CalendarViewController {
 }
 
 extension CalendarViewController {
-    func scrollToLastIndexPath() {
+    private func pushCalendarFeedView(_ date: Date?) {
+        let container = CalendarFeedDIConatainer(selectedDate: date ?? Date())
+        navigationController?.pushViewController(container.makeViewController(), animated: true)
+    }
+    
+    private func scrollToLastIndexPath() {
         collectionView.layoutIfNeeded()
         let lastIndexPath: IndexPath = IndexPath(
             item: dataSource[0].items.count - 1,
@@ -155,31 +160,6 @@ extension CalendarViewController {
             at: .centeredHorizontally,
             animated: false
         )
-    }
-    
-    func pushCalendarFeedView(_ date: Date?) {
-        let container = CalendarFeedDIConatainer(selectedDate: date ?? Date())
-        navigationController?.pushViewController(container.makeViewController(), animated: true)
-    }
-    
-    func generateYearMonthStrings(from startDate: Date) -> [String] {
-        let calendar: Calendar = Calendar.autoupdatingCurrent
-        let currentDate: Date = Date()
-        
-        let dateFormatter: DateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM"
-        
-        var yearMonthStrings: [String] = []
-        
-        let monthInterval = startDate.interval([.month], to: currentDate)[.month]!
-        for month in 0...monthInterval {
-            if let date = calendar.date(byAdding: .month, value: month, to: startDate) {
-                let yearMonthString = dateFormatter.string(from: date)
-                yearMonthStrings.append(yearMonthString)
-            }
-        }
-        
-        return yearMonthStrings
     }
 }
 

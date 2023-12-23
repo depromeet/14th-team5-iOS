@@ -10,6 +10,8 @@ import Foundation
 import Domain
 import RxDataSources
 
+typealias PerMonthInfoTestData = SectionOfPerMonthInfo.MonthInfoTestData
+
 public struct PerDayInfo {
     public var date: Date
     public var representativePostId: String?
@@ -36,74 +38,19 @@ extension SectionOfPerMonthInfo: SectionModelType {
     }
 }
 
-extension SectionOfPerMonthInfo {
-    static func generateTestData() -> [SectionOfPerMonthInfo] {
-        var items: [SectionOfPerMonthInfo.Item] = []
-        
-        let calendar = Calendar.current
-        let components1: DateComponents = DateComponents(year: 2023, month: 12, day: 1)
-        let components2: DateComponents = DateComponents(year: 2023, month: 12, day: 3)
-        let components3: DateComponents = DateComponents(year: 2023, month: 12, day: 5)
-        
-        let components4: DateComponents = DateComponents(year: 2024, month: 1, day: 7)
-        let components5: DateComponents = DateComponents(year: 2024, month: 1, day: 9)
-        let components6: DateComponents = DateComponents(year: 2024, month: 1, day: 11)
-        
-        let date1: Date = calendar.date(from: components1)!
-        let date2: Date = calendar.date(from: components2)!
-        let date3: Date = calendar.date(from: components3)!
-        
-        let date4: Date = calendar.date(from: components4)!
-        let date5: Date = calendar.date(from: components5)!
-        let date6: Date = calendar.date(from: components6)!
-        
-        let months: [Date] = [
-            "2023-12".toDate(), "2024-01".toDate()
+extension ArrayResponseCalendarResponse {
+    func toSectionModel(_ yearMonth: String) -> SectionOfPerMonthInfo {
+        let monthInfo: [PerMonthInfo] = [
+            self.toMonthInfo(yearMonth)
         ]
-        let dates: [[Date]] = [
-            [date1, date2, date3], 
-            [date4, date5, date6]
-        ]
-        let representativePostIds: [[String]] = [
-            ["1", "2", "3"],
-            ["4", "5", "6"],
-        ]
-        let representativeThumbnailUrls: [[String]] = [
-            [
-                "https://cdn.pixabay.com/photo/2023/11/20/13/48/butterfly-8401173_1280.jpg",
-                "https://cdn.pixabay.com/photo/2023/11/10/02/30/woman-8378634_1280.jpg",
-                "https://cdn.pixabay.com/photo/2023/11/26/08/27/leaves-8413064_1280.jpg"
-            ],
-            [
-                "https://cdn.pixabay.com/photo/2023/11/20/13/48/butterfly-8401173_1280.jpg",
-                "https://cdn.pixabay.com/photo/2023/11/10/02/30/woman-8378634_1280.jpg",
-                "https://cdn.pixabay.com/photo/2023/11/26/08/27/leaves-8413064_1280.jpg"
-            ],
-        ]
-        let allFamilyMemebersUploadeds: [[Bool]] = [
-            [false, true, false],
-            [true, false, true]
-        ]
-        
-        (0...1).forEach { outerIdx in
-            var imagePostDays: [PerDayInfo] = []
-            (0...2).forEach { innerIdx in
-                let day = PerDayInfo(
-                    date: dates[outerIdx][innerIdx],
-                    representativePostId: representativePostIds[outerIdx][innerIdx],
-                    representativeThumbnailUrl: representativeThumbnailUrls[outerIdx][innerIdx],
-                    allFamilyMemebersUploaded: allFamilyMemebersUploadeds[outerIdx][innerIdx]
-                )
-                imagePostDays.append(day)
-            }
-            let monthlyCalendar = PerMonthInfo(
-                month: months[outerIdx],
-                imagePostDays: imagePostDays
-            )
-            items.append(monthlyCalendar)
-        }
-        
-        return [SectionOfPerMonthInfo(items: items)]
+        return SectionOfPerMonthInfo(items: monthInfo)
+    }
+    
+    func toMonthInfo(_ yearMonth: String) -> PerMonthInfo {
+        return PerMonthInfo(
+            month: yearMonth.toDate(),
+            imagePostDays: self.results.map { $0.toDayInfo() }
+        )
     }
 }
 
@@ -119,15 +66,118 @@ extension CalendarResponse {
     }
 }
 
-extension ArrayResponseCalendarResponse {
-    func toSectionModel(_ date: Date) -> [SectionOfPerMonthInfo] {
-        let items: [PerDayInfo] = self.results.map {
-            $0.toDayInfo()
+extension SectionOfPerMonthInfo {
+    enum MonthInfoTestData {
+        static let calendar = Calendar.current
+        static let components1: DateComponents = DateComponents(year: 2023, month: 12, day: 1)
+        static let components2: DateComponents = DateComponents(year: 2023, month: 12, day: 3)
+        static let components3: DateComponents = DateComponents(year: 2023, month: 12, day: 5)
+        
+        static let components4: DateComponents = DateComponents(year: 2024, month: 1, day: 7)
+        static let components5: DateComponents = DateComponents(year: 2024, month: 1, day: 9)
+        static let components6: DateComponents = DateComponents(year: 2024, month: 1, day: 11)
+        
+        static let date1: Date = calendar.date(from: components1)!
+        static let date2: Date = calendar.date(from: components2)!
+        static let date3: Date = calendar.date(from: components3)!
+        
+        static let date4: Date = calendar.date(from: components4)!
+        static let date5: Date = calendar.date(from: components5)!
+        static let date6: Date = calendar.date(from: components6)!
+        
+        static let months: [Date] = [
+            "2023-12".toDate(), "2024-01".toDate()
+        ]
+        static let dates: [[Date]] = [
+            [date1, date2, date3],
+            [date4, date5, date6]
+        ]
+        static let representativePostIds: [[String]] = [
+            ["1", "2", "3"],
+            ["4", "5", "6"],
+        ]
+        static let representativeThumbnailUrls: [[String]] = [
+            [
+                "https://cdn.pixabay.com/photo/2023/11/20/13/48/butterfly-8401173_1280.jpg",
+                "https://cdn.pixabay.com/photo/2023/11/10/02/30/woman-8378634_1280.jpg",
+                "https://cdn.pixabay.com/photo/2023/11/26/08/27/leaves-8413064_1280.jpg"
+            ],
+            [
+                "https://cdn.pixabay.com/photo/2023/11/20/13/48/butterfly-8401173_1280.jpg",
+                "https://cdn.pixabay.com/photo/2023/11/10/02/30/woman-8378634_1280.jpg",
+                "https://cdn.pixabay.com/photo/2023/11/26/08/27/leaves-8413064_1280.jpg"
+            ],
+        ]
+        static let allFamilyMemebersUploadeds: [[Bool]] = [
+            [false, true, false],
+            [true, false, true]
+        ]
+        
+        static let dayInfo202312: [PerDayInfo] = (0...2).map {
+            return PerDayInfo(
+                date: dates[0][$0],
+                representativePostId: representativePostIds[0][$0],
+                representativeThumbnailUrl: representativeThumbnailUrls[0][$0],
+                allFamilyMemebersUploaded: allFamilyMemebersUploadeds[0][$0],
+                isSelected: false
+            )
         }
-        let monthInfo: [PerMonthInfo] = [PerMonthInfo(
-            month: date,
-            imagePostDays: items
-        )]
-        return [SectionOfPerMonthInfo(items: monthInfo)]
+        
+        static let dayInfo202412: [PerDayInfo] = (0...2).map {
+            return PerDayInfo(
+                date: dates[1][$0],
+                representativePostId: representativePostIds[1][$0],
+                representativeThumbnailUrl: representativeThumbnailUrls[1][$0],
+                allFamilyMemebersUploaded: allFamilyMemebersUploadeds[1][$0],
+                isSelected: false
+            )
+        }
+    }
+    
+    static func generateTestData() -> SectionOfPerMonthInfo {
+        var items: [SectionOfPerMonthInfo.Item] = []
+        
+        (0...1).forEach { outerIdx in
+            var imagePostDays: [PerDayInfo] = []
+            (0...2).forEach { innerIdx in
+                let day = PerDayInfo(
+                    date: PerMonthInfoTestData.dates[outerIdx][innerIdx],
+                    representativePostId: PerMonthInfoTestData.representativePostIds[outerIdx][innerIdx],
+                    representativeThumbnailUrl: PerMonthInfoTestData.representativeThumbnailUrls[outerIdx][innerIdx],
+                    allFamilyMemebersUploaded: PerMonthInfoTestData.allFamilyMemebersUploadeds[outerIdx][innerIdx]
+                )
+                imagePostDays.append(day)
+            }
+            let monthlyCalendar = PerMonthInfo(
+                month: PerMonthInfoTestData.months[outerIdx],
+                imagePostDays: imagePostDays
+            )
+            items.append(monthlyCalendar)
+        }
+        
+        return SectionOfPerMonthInfo(items: items)
+    }
+    
+    static func generateTestData(_ yearMonth: String) -> SectionOfPerMonthInfo {
+        var perMonthInfo: SectionOfPerMonthInfo.Item
+        switch yearMonth {
+        case "2023-12":
+             perMonthInfo = PerMonthInfo(
+                month: yearMonth.toDate(),
+                imagePostDays: PerMonthInfoTestData.dayInfo202312
+            )
+        case "2024-01":
+            perMonthInfo = PerMonthInfo(
+                month: yearMonth.toDate(),
+                imagePostDays: PerMonthInfoTestData.dayInfo202412
+            )
+        default:
+            perMonthInfo = PerMonthInfo(
+                month: yearMonth.toDate(),
+                imagePostDays: []
+            )
+        }
+        
+        return SectionOfPerMonthInfo(items: [perMonthInfo])
     }
 }

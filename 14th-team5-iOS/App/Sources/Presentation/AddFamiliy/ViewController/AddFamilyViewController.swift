@@ -201,7 +201,7 @@ public final class AddFamilyViewController: BaseViewController<AddFamilyViewReac
     
     private func bindInput(reactor: AddFamilyViewReactor) {
         Observable<Void>.just(())
-            .map { Reactor.Action.refreshYourFamiliyMemeber }
+            .map { Reactor.Action.refreshYourFamilyMemeber }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -213,11 +213,11 @@ public final class AddFamilyViewController: BaseViewController<AddFamilyViewReac
     }
     
     private func bindOutput(reactor: AddFamilyViewReactor) {
-        reactor.state.map { $0.familiyDatasource }
+        reactor.state.map { $0.familyDatasource }
             .bind(to: tableView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
-        reactor.state.map { "\($0.faimliyMemberCount)" }
+        reactor.state.map { "\($0.familyMemberCount)" }
             .distinctUntilChanged()
             .bind(to: familyMemberCountLabel.rx.text)
             .disposed(by: disposeBag)

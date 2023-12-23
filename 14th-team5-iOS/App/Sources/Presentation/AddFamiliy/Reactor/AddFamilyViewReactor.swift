@@ -17,7 +17,7 @@ public final class AddFamilyViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case didTapInvitationUrlButton
-        case refreshYourFamiliyMemeber
+        case refreshYourFamilyMemeber
     }
     
     // MARK: - Mutate
@@ -25,7 +25,7 @@ public final class AddFamilyViewReactor: Reactor {
         case presentSharePanel(URL?)
         case presentInvitationUrlCopySuccessToastMessage
         case presentFetchInvitationUrlFailureTaostMessage
-        case refreshYourFamiliyMember([SectionOfFamilyMemberProfile])
+        case refreshYourFamilyMember(SectionOfFamilyMemberProfile)
     }
     
     // MARK: - State
@@ -33,8 +33,8 @@ public final class AddFamilyViewReactor: Reactor {
         @Pulse var invitationUrl: URL?
         @Pulse var shouldPresentInvitationUrlCopySuccessToastMessage: Bool = false
         @Pulse var shouldPresentFetchInvitationUrlFailureToastMessage: Bool = false
-        var familiyDatasource: [SectionOfFamilyMemberProfile] = []
-        var faimliyMemberCount: Int = 0
+        var familyMemberCount: Int = 0
+        var familyDatasource: [SectionOfFamilyMemberProfile] = [.init(items: [])]
     }
     
     // MARK: - Properties
@@ -75,15 +75,15 @@ public final class AddFamilyViewReactor: Reactor {
                     }
                     return .presentSharePanel(url)
                 }
-        case .refreshYourFamiliyMemeber:
+        case .refreshYourFamilyMemeber:
             // TODO: - 통신 성공 여부 확인
             return addFamiliyRepository.fetchFamiliyMemeber()
                 .map {
                     guard let familiyMember = $0 else {
-                        return .refreshYourFamiliyMember([])
+                        return .refreshYourFamilyMember(.init(items: []))
                     }
                     let sectionModel = familiyMember.toSectionModel()
-                    return .refreshYourFamiliyMember(sectionModel)
+                    return .refreshYourFamilyMember(sectionModel)
                 }
         }
     }
@@ -98,9 +98,9 @@ public final class AddFamilyViewReactor: Reactor {
             newState.shouldPresentInvitationUrlCopySuccessToastMessage = true
         case .presentFetchInvitationUrlFailureTaostMessage:
             newState.shouldPresentFetchInvitationUrlFailureToastMessage = true
-        case let .refreshYourFamiliyMember(familiyMember):
-            newState.familiyDatasource = familiyMember
-            newState.faimliyMemberCount = familiyMember.first?.items.count ?? 0
+        case let .refreshYourFamilyMember(familiyMember):
+            newState.familyDatasource = [familiyMember]
+            newState.familyMemberCount = familiyMember.items.count
         }
         return newState
     }

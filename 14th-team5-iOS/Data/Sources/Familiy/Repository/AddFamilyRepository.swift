@@ -19,10 +19,18 @@ public protocol FamilyImpl {
     func fetchFamiliyMemeber() -> Observable<PaginationResponseFamilyMemberProfile?>
 }
 
+<<<<<<<< HEAD:14th-team5-iOS/Data/Sources/Familiy/Repository/FamiliyRepository.swift
 public final class FamiliyRepository: FamilyImpl {
+========
+public final class AddFamilyRepository: AddFamilyImpl {
+>>>>>>>> 544612a (feat: FamilyMemeber 모델 수정 (#100)):14th-team5-iOS/Data/Sources/Familiy/Repository/AddFamilyRepository.swift
     public let disposeBag: DisposeBag = DisposeBag()
     
+<<<<<<< HEAD:14th-team5-iOS/Data/Sources/Familiy/Repository/FamiliyRepository.swift
     private let apiWorker: FamiliyAPIWorker = FamiliyAPIWorker()
+=======
+    private let apiWorker: AddFamilyAPIWorker = AddFamilyAPIWorker()
+>>>>>>> eb1eb16 (fix: 오타 수정  (#100)):14th-team5-iOS/Data/Sources/AddFamiliy/Repository/AddFamiliyRepository.swift
     
     public init() { }
     

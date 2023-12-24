@@ -9,6 +9,7 @@ import Foundation
 
 import Domain
 
+// MARK: - Data Transfer Object (DTO)
 struct ArrayResponseCalendarResponseDTO: Decodable {
     private enum CodingKeys: String, CodingKey {
         case results

@@ -21,24 +21,11 @@ public struct SectionOfFamilyMemberProfile {
 }
 
 extension SectionOfFamilyMemberProfile: SectionModelType {
-    public typealias Item = FamilyMemeberProfile
+    public typealias Item = FamilyMemberProfileResponse
     
-    public init(original: SectionOfFamilyMemberProfile, items: [FamilyMemeberProfile]) {
+    public init(original: SectionOfFamilyMemberProfile, items: [Item]) {
         self = original
         self.items = items
-    }
-}
-
-extension PaginationResponseFamilyMemberProfile {
-    func toSectionModel() -> SectionOfFamilyMemberProfile {
-        let items = self.results.map {
-            FamilyMemeberProfile(
-                memberId: $0.memberId,
-                name: $0.name,
-                imageUrl: $0.imageUrl
-            )
-        }
-        return SectionOfFamilyMemberProfile(items: items)
     }
 }
 
@@ -56,7 +43,7 @@ extension SectionOfFamilyMemberProfile {
         ]
         
         (0...3).forEach {
-            let item = FamilyMemeberProfile(
+            let item = FamilyMemberProfileResponse(
                 memberId: memberIds[$0],
                 name: names[$0],
                 imageUrl: imageUrls[$0]

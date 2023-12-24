@@ -47,7 +47,12 @@ public final class AddFamilyViewReactor: Reactor {
     init(provider: GlobalStateProviderType) {
         self.initialState = State()
         self.provider = provider
+<<<<<<< HEAD:14th-team5-iOS/App/Sources/Presentation/AddFamiliy/Reactor/AddFamilyViewReactor.swift
         self.addFamiliyRepository = FamiliyRepository()
+=======
+        
+        self.addFamilyRepository = AddFamilyRepository()
+>>>>>>> 544612a (feat: FamilyMemeber 모델 수정 (#100)):14th-team5-iOS/App/Sources/Presentation/AddFamily/Reactor/AddFamilyViewReactor.swift
     }
     
     // MARK: - Transform
@@ -79,11 +84,10 @@ public final class AddFamilyViewReactor: Reactor {
             // TODO: - 통신 성공 여부 확인
             return addFamiliyRepository.fetchFamiliyMemeber()
                 .map {
-                    guard let familiyMember = $0 else {
+                    guard let paginationFamilyMember = $0 else {
                         return .refreshYourFamilyMember(.init(items: []))
                     }
-                    let sectionModel = familiyMember.toSectionModel()
-                    return .refreshYourFamilyMember(sectionModel)
+                    return .refreshYourFamilyMember(.init(items: paginationFamilyMember.results))
                 }
         }
     }

@@ -166,7 +166,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
         
         reactor.state.map { $0.date }
             .distinctUntilChanged()
-            .bind(to: calendarTitleLabel.rx.calendarTitle)
+            .bind(to: calendarTitleLabel.rx.calendarTitleText)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.date }

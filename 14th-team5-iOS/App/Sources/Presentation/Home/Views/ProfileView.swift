@@ -28,8 +28,6 @@ final class ProfileView: UIView {
         super.init(coder: coder)
     }
     
-    //    private func bind(reactor: R) { }
-    
     private func setupUI() {
         addSubviews(imageView, nameLabel)
     }
@@ -63,7 +61,10 @@ final class ProfileView: UIView {
 
 extension ProfileView {
     func setProfile(profile: ProfileData) {
-        imageView.kf.setImage(with: URL(string:profile.profileImageURL)!)
+        guard let imageURL: URL = URL(string: profile.profileImageURL) else {
+            return
+        }
+        imageView.kf.setImage(with: imageURL)
         nameLabel.text = profile.name
     }
 }

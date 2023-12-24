@@ -16,7 +16,6 @@ public final class HomeViewReactor: Reactor {
 //        case checkTime
         case viewDidLoad
         case tapInviteFamily
-//        case getFamilyInfo(String)
         case getPostInfo
     }
     
@@ -51,6 +50,7 @@ public final class HomeViewReactor: Reactor {
 extension HomeViewReactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
+            // 추후에 작업할 내용입니다!
 //        case .checkTime:
 //            return Observable.just(Mutation.setTimerStatus)
 //        case let .getFamilyInfo(query):

@@ -36,7 +36,7 @@ public final class AccountSignUpViewController: BasePageViewController<AccountSi
         super.setupUI()
         
         let nicknamePage = AccountNicknameViewController(reacter: reactor)
-        let datePage = AccountDateViewController()
+        let datePage = AccountDateViewController(reacter: reactor)
         let profilePage = AccountProfileViewController(reacter: reactor)
         
         pages.append(nicknamePage)
@@ -49,14 +49,19 @@ public final class AccountSignUpViewController: BasePageViewController<AccountSi
     public override func setupAttributes() {
         super.setupAttributes()
         
-        descLabel.text = "가족에게 주로 불리는 호칭을 입력해주세요"
-        descLabel.textColor = DesignSystemAsset.gray400.color
-        descLabel.font = UIFont(font: DesignSystemFontFamily.Pretendard.regular, size: 16)
+        descLabel.do {
+            $0.text = "가족에게 주로 불리는 호칭을 입력해주세요"
+            $0.textColor = DesignSystemAsset.gray400.color
+            $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.regular, size: 16)
+        }
         
-        nextButton.setTitle("계속", for: .normal)
-        nextButton.tintColor = DesignSystemAsset.black.color
-        nextButton.backgroundColor = DesignSystemAsset.mainGreen.color
-        nextButton.layer.cornerRadius = 30
+        nextButton.do {
+            $0.setTitle("계속", for: .normal)
+            $0.titleLabel?.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 16)
+            $0.setTitleColor(DesignSystemAsset.black.color, for: .normal)
+            $0.backgroundColor = DesignSystemAsset.mainGreen.color
+            $0.layer.cornerRadius = 30
+        }
     }
     
     public override func setupAutoLayout() {
@@ -78,15 +83,28 @@ public final class AccountSignUpViewController: BasePageViewController<AccountSi
 extension AccountSignUpViewController {
     private func goToNextPage() {
         guard let currentPage = viewControllers?[0],
-              let nexPage = self.dataSource?.pageViewController(self, viewControllerAfter: currentPage) else { return }
+              let nextPage = self.dataSource?.pageViewController(self, viewControllerAfter: currentPage) else { return }
         
-        setViewControllers([nexPage], direction: .forward, animated: true)
-        updateButtonType(isActive: false)
+        if currentPage is AccountProfileViewController {
+//            UserDefaults.standard.showTutorial = true
+            showOnboardingViewCotnroller()
+        } else {
+            showOnboardingViewCotnroller()
+//            setViewControllers([nextPage], direction: .forward, animated: true)
+//            updateButtonType(isActive: false)
+        }
     }
     
-    private func updateButtonType(isActive: Bool) {
-        nextButton.isEnabled = !isActive
-        nextButton.backgroundColor = isActive ? DesignSystemAsset.mainGreen.color : DesignSystemAsset.mainGreenHover.color.withAlphaComponent(0.2)
+//    private func updateButtonType(isActive: Bool) {
+//        nextButton.isEnabled = !isActive
+//        nextButton.backgroundColor = isActive ? DesignSystemAsset.mainGreen.color : DesignSystemAsset.mainGreenHover.color.withAlphaComponent(0.2)
+//    }
+    
+    private func showOnboardingViewCotnroller() {
+        let onBoardingViewController = OnBoardingDIContainer().makeViewController()
+        onBoardingViewController.modalPresentationStyle = .fullScreen
+        present(onBoardingViewController, animated: true)
+//        self.navigationController?.pushViewController(onBoardingViewController, animated: true)
     }
 }
 
@@ -97,6 +115,12 @@ extension AccountSignUpViewController: UIPageViewControllerDataSource {
     
     public func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         guard let currentIndex = pages.firstIndex(of: viewController) else { return nil }
+        
+        descLabel.text = currentIndex == 0 ? "가족들이 생일을 챙겨줄 수 있어요" : ""
+        if currentIndex == 1 {
+            nextButton.setTitle("완료", for: .normal)
+//            updateButtonType(isActive: true)
+        }
         
         guard currentIndex < pages.count - 1 else { return nil }
         return pages[currentIndex + 1]

@@ -7,6 +7,8 @@
 
 import Foundation
 
+import Core
+
 public struct ArrayResponseCalendarResponse {
     public var results: [CalendarResponse]
     
@@ -16,12 +18,12 @@ public struct ArrayResponseCalendarResponse {
 }
 
 public struct CalendarResponse {
-    public var date: String
+    public var date: Date
     public var representativePostId: String
     public var representativeThumbnailUrl: String
     public var allFamilyMemebersUploaded: Bool
     
-    public init(date: String, representativePostId: String, representativeThumbnailUrl: String, allFamilyMemebersUploaded: Bool) {
+    public init(date: Date, representativePostId: String, representativeThumbnailUrl: String, allFamilyMemebersUploaded: Bool) {
         self.date = date
         self.representativePostId = representativePostId
         self.representativeThumbnailUrl = representativeThumbnailUrl

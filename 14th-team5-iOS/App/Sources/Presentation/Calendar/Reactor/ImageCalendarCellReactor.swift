@@ -7,6 +7,7 @@
 
 import Foundation
 
+import Domain
 import ReactorKit
 import RxSwift
 
@@ -19,24 +20,18 @@ final class ImageCalendarCellReactor: Reactor {
         var representativePostId: String?
         var representativeThumbnailUrl: String?
         var allFamilyMemebersUploaded: Bool = false
-        var isSelected: Bool = false
     }
     
     // MARK: - Properties
     var initialState: State
     
-    var date: Date
-    
     // MARK: - Intializer
-    init(_ date: Date, perDayInfo dayInfo: PerDayInfo) {
+    init(dayResponse: CalendarResponse) {
         self.initialState = State(
-            date: dayInfo.date,
-            representativePostId: dayInfo.representativePostId,
-            representativeThumbnailUrl: dayInfo.representativeThumbnailUrl,
-            allFamilyMemebersUploaded: dayInfo.allFamilyMemebersUploaded,
-            isSelected: dayInfo.isSelected
+            date: dayResponse.date,
+            representativePostId: dayResponse.representativePostId,
+            representativeThumbnailUrl: dayResponse.representativeThumbnailUrl,
+            allFamilyMemebersUploaded: dayResponse.allFamilyMemebersUploaded
         )
-        
-        self.date = date
     }
 }

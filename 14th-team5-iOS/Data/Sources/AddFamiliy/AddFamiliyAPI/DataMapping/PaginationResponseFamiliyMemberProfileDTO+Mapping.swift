@@ -22,11 +22,11 @@ struct PaginationResponseFamilyMemberProfileDTO: Decodable {
     var totalPage: Int
     var itemPerPage: Int
     var hasNext: Bool
-    var results: [FamiliyMemberProfileResponseDTO]
+    var results: [FamilyMemberProfileResponseDTO]
 }
 
 extension PaginationResponseFamilyMemberProfileDTO {
-    struct FamiliyMemberProfileResponseDTO: Decodable {
+    struct FamilyMemberProfileResponseDTO: Decodable {
         var memberId: String
         var name: String
         var imageUrl: String
@@ -41,7 +41,7 @@ extension PaginationResponseFamilyMemberProfileDTO {
     }
 }
 
-extension PaginationResponseFamilyMemberProfileDTO.FamiliyMemberProfileResponseDTO {
+extension PaginationResponseFamilyMemberProfileDTO.FamilyMemberProfileResponseDTO {
     func toDomain() -> FamilyMemberProfileResponse {
         return .init(
             memberId: memberId,

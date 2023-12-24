@@ -10,63 +10,24 @@ import Foundation
 import Domain
 import RxDataSources
 
-typealias PerMonthInfoTestData = SectionOfPerMonthInfo.MonthInfoTestData
+// 모델 정리하기 
 
-public struct PerDayInfo {
-    public var date: Date
-    public var representativePostId: String?
-    public var representativeThumbnailUrl: String?
-    public var allFamilyMemebersUploaded: Bool = false
-    public var isSelected: Bool = false
-}
+typealias PerMonthInfoTestData = SectionOfMonthlyCalendar.MonthInfoTestData
 
-public struct PerMonthInfo {
-    var month: Date
-    var imagePostDays: [PerDayInfo]
-}
-
-public struct SectionOfPerMonthInfo {
+public struct SectionOfMonthlyCalendar {
     public var items: [Item]
 }
 
-extension SectionOfPerMonthInfo: SectionModelType {
-    public typealias Item = PerMonthInfo
+extension SectionOfMonthlyCalendar: SectionModelType {
+    public typealias Item = String
     
-    public init(original: SectionOfPerMonthInfo, items: [PerMonthInfo]) {
+    public init(original: SectionOfMonthlyCalendar, items: [Item]) {
         self = original
         self.items = items
     }
 }
 
-extension ArrayResponseCalendarResponse {
-    func toSectionModel(_ yearMonth: String) -> SectionOfPerMonthInfo {
-        let monthInfo: [PerMonthInfo] = [
-            self.toMonthInfo(yearMonth)
-        ]
-        return SectionOfPerMonthInfo(items: monthInfo)
-    }
-    
-    func toMonthInfo(_ yearMonth: String) -> PerMonthInfo {
-        return PerMonthInfo(
-            month: yearMonth.toDate(),
-            imagePostDays: self.results.map { $0.toDayInfo() }
-        )
-    }
-}
-
-extension CalendarResponse {
-    func toDayInfo() -> PerDayInfo {
-        return PerDayInfo(
-            date: self.date.toDate(),
-            representativePostId: self.representativePostId,
-            representativeThumbnailUrl: self.representativeThumbnailUrl,
-            allFamilyMemebersUploaded: self.allFamilyMemebersUploaded,
-            isSelected: false
-        )
-    }
-}
-
-extension SectionOfPerMonthInfo {
+extension SectionOfMonthlyCalendar {
     enum MonthInfoTestData {
         static let calendar = Calendar.current
         static let components1: DateComponents = DateComponents(year: 2023, month: 12, day: 1)
@@ -113,71 +74,55 @@ extension SectionOfPerMonthInfo {
             [true, false, true]
         ]
         
-        static let dayInfo202312: [PerDayInfo] = (0...2).map {
-            return PerDayInfo(
+        static let dayInfo202312: [CalendarResponse] = (0...2).map {
+            return CalendarResponse(
                 date: dates[0][$0],
                 representativePostId: representativePostIds[0][$0],
                 representativeThumbnailUrl: representativeThumbnailUrls[0][$0],
-                allFamilyMemebersUploaded: allFamilyMemebersUploadeds[0][$0],
-                isSelected: false
+                allFamilyMemebersUploaded: allFamilyMemebersUploadeds[0][$0]
             )
         }
         
-        static let dayInfo202412: [PerDayInfo] = (0...2).map {
-            return PerDayInfo(
+        static let dayInfo202401: [CalendarResponse] = (0...2).map {
+            return CalendarResponse(
                 date: dates[1][$0],
                 representativePostId: representativePostIds[1][$0],
                 representativeThumbnailUrl: representativeThumbnailUrls[1][$0],
-                allFamilyMemebersUploaded: allFamilyMemebersUploadeds[1][$0],
-                isSelected: false
+                allFamilyMemebersUploaded: allFamilyMemebersUploadeds[1][$0]
             )
         }
     }
     
-    static func generateTestData() -> SectionOfPerMonthInfo {
-        var items: [SectionOfPerMonthInfo.Item] = []
+    static func generateTestData() -> ArrayResponseCalendarResponse {
+        var arrayCalendarResponse: ArrayResponseCalendarResponse = .init(results: [])
         
         (0...1).forEach { outerIdx in
-            var imagePostDays: [PerDayInfo] = []
             (0...2).forEach { innerIdx in
-                let day = PerDayInfo(
+                let dayResponse = CalendarResponse(
                     date: PerMonthInfoTestData.dates[outerIdx][innerIdx],
                     representativePostId: PerMonthInfoTestData.representativePostIds[outerIdx][innerIdx],
                     representativeThumbnailUrl: PerMonthInfoTestData.representativeThumbnailUrls[outerIdx][innerIdx],
                     allFamilyMemebersUploaded: PerMonthInfoTestData.allFamilyMemebersUploadeds[outerIdx][innerIdx]
                 )
-                imagePostDays.append(day)
+                arrayCalendarResponse.results.append(dayResponse)
             }
-            let monthlyCalendar = PerMonthInfo(
-                month: PerMonthInfoTestData.months[outerIdx],
-                imagePostDays: imagePostDays
-            )
-            items.append(monthlyCalendar)
         }
         
-        return SectionOfPerMonthInfo(items: items)
+        return arrayCalendarResponse
     }
     
-    static func generateTestData(_ yearMonth: String) -> SectionOfPerMonthInfo {
-        var perMonthInfo: SectionOfPerMonthInfo.Item
+    static func generateTestData(_ yearMonth: String) -> ArrayResponseCalendarResponse {
+        
+        var arrayCalendarResponse: ArrayResponseCalendarResponse = .init(results: [])
         switch yearMonth {
         case "2023-12":
-             perMonthInfo = PerMonthInfo(
-                month: yearMonth.toDate(),
-                imagePostDays: PerMonthInfoTestData.dayInfo202312
-            )
+            arrayCalendarResponse.results.append(contentsOf: MonthInfoTestData.dayInfo202312)
         case "2024-01":
-            perMonthInfo = PerMonthInfo(
-                month: yearMonth.toDate(),
-                imagePostDays: PerMonthInfoTestData.dayInfo202412
-            )
+            fallthrough
         default:
-            perMonthInfo = PerMonthInfo(
-                month: yearMonth.toDate(),
-                imagePostDays: []
-            )
+            arrayCalendarResponse.results.append(contentsOf: MonthInfoTestData.dayInfo202401)
         }
         
-        return SectionOfPerMonthInfo(items: [perMonthInfo])
+        return arrayCalendarResponse
     }
 }

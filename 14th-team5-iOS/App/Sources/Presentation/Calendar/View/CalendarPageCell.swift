@@ -8,12 +8,17 @@
 import UIKit
 
 import Core
+import Domain
 import FSCalendar
 import ReactorKit
 import RxCocoa
 import RxSwift
 import SnapKit
 import Then
+
+// NOTE: - 주간 캘린더의 각 셀의 isSelected 모델 관리 방안
+// ・ 최상위 뷰 컨트롤러 혹은 Reactor에 선택된 셀 모델(Date)을 저장 후,
+// ・ 선택된 셀이 화면에 보인다면, 선택된 셀에 한해 특수 효과 처리하기
 
 final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     // MARK: - Views
@@ -65,7 +70,6 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     override func setupAttributes() { 
         super.setupAttributes()
         calendarTitleLabel.do {
-            $0.text = DateFormatter.yyyyMM.string(from: reactor?.monthInfo.month ?? Date())
             $0.textColor = UIColor.white
             $0.textAlignment = .center
             $0.font = UIFont.boldSystemFont(ofSize: CalendarCell.Attribute.calendarTitleFontSize)
@@ -131,6 +135,11 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     }
     
     private func bindInput(reactor: CalendarPageCellReactor) {
+        Observable<Void>.just(())
+            .map { Reactor.Action.fetchCalendarResponse }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         infoButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .withUnretained(self)
@@ -145,6 +154,11 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     }
     
     private func bindOutput(reactor: CalendarPageCellReactor) { 
+        reactor.state.map { $0.arrayCalendarResponse }
+            .withUnretained(self)
+            .subscribe { $0.0.calendarView.reloadData() }
+            .disposed(by: disposeBag)
+        
         reactor.state.map { $0.date }
             .distinctUntilChanged()
             .bind(to: calendarView.rx.currentPage)
@@ -200,13 +214,18 @@ extension CalendarPageCell: FSCalendarDataSource {
             ) as! ImageCalendarCell
             
             // 해당 일자에 데이터가 존재하지 않는다면
-            guard let dayInfo = reactor?.monthInfo.imagePostDays.filter({ $0.date == date }).first else {
-                let emptyInfo = PerDayInfo(date: date)
-                cell.reactor = ImageCalendarCellReactor(date, perDayInfo: emptyInfo)
+            guard let dayResponse = reactor?.currentState.arrayCalendarResponse?.results.filter({ $0.date == date }).first else {
+                let emptyResponse = CalendarResponse(
+                    date: date,
+                    representativePostId: "",
+                    representativeThumbnailUrl: "",
+                    allFamilyMemebersUploaded: false
+                )
+                cell.reactor = ImageCalendarCellReactor(dayResponse: emptyResponse)
                 return cell
             }
             
-            cell.reactor = ImageCalendarCellReactor(date, perDayInfo: dayInfo)
+            cell.reactor = ImageCalendarCellReactor(dayResponse: dayResponse)
             return cell
         // 셀의 날짜가 현재 월(月)과 동일하지 않다면
         } else {

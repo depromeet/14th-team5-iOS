@@ -108,15 +108,21 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         reactor.state
             .map { $0.isShowingInviteFamilyView }
             .observe(on: Schedulers.main)
+            .distinctUntilChanged()
             .withUnretained(self)
             .bind(onNext: {
-                $0.0.addFamilyInviteView()
+                if $0.1 {
+                    $0.0.addFamilyInviteView()
+                } else {
+                    $0.0.removeFamilyInviteView()
+                }
             })
             .disposed(by: disposeBag)
         
         reactor.state
             .map { $0.isShowingNoPostTodayView }
             .observe(on: MainScheduler.instance)
+            .distinctUntilChanged()
             .withUnretained(self)
             .bind(onNext: {
                 $0.0.addNoPostTodayView()
@@ -142,6 +148,8 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
+        
+        
         
         familyCollectionView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).inset(24)
@@ -233,7 +241,6 @@ extension HomeViewController {
     }
     
     private func addFamilyInviteView() {
-        view.addSubview(inviteFamilyView)
         familyCollectionView.isHidden = true
         
         inviteFamilyView.snp.makeConstraints {

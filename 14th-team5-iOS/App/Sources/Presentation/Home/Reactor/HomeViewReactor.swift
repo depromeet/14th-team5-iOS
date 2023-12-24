@@ -74,10 +74,14 @@ extension HomeViewReactor {
             let query: SearchFamilyQuery = SearchFamilyQuery(type: "FAMILY", page: 1, size: 20)
             return familyRepository.excute(query: query)
                 .asObservable()
-                .map { familyMembers in
-                    return .setFamilyCollectionView([
-                        SectionModel<String, ProfileData>(model: "section1", items: familyMembers.members)
-                    ])
+                .flatMap { familyMembers in
+                    if familyMembers.members.isEmpty {
+                        return Observable.just(Mutation.showInviteFamilyView)
+                    } else {
+                        return Observable.just(.setFamilyCollectionView([
+                            SectionModel<String, ProfileData>(model: "section1", items: familyMembers.members)
+                        ]))
+                    }
                 }
         }
     }

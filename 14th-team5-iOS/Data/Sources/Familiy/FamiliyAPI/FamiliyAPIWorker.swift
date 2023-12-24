@@ -27,7 +27,7 @@ extension FamiliyAPIs {
 extension FamiliyAPIWorker: SearchFamilyRepository {
     public func fetchFamilyMember(query: Domain.SearchFamilyQuery) -> RxSwift.Single<Domain.SearchFamilyPage> {
         let spec = FamiliyAPIs.familiyMembers.spec
-        return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJyZWdEYXRlIjoxNzAzNDA3MDY2NDI5LCJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiIzIiwiZXhwIjoxNzAzNDkzNDY2fQ.l3YApEmMqTV9ePpl6HgfOVvRsVxXjdD6f6gP0r7dEuk")])
+        return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJyZWdEYXRlIjoxNzAzNDA4MzI4MDg3LCJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwMzQ5NDcyOH0.V7Dw6RTWJ8BMzfJpuVCQz1Zhwj_cnI-r9oxYDjx3zJs")])
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {

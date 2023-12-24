@@ -10,9 +10,7 @@ import Foundation
 import Domain
 import RxDataSources
 
-// 모델 정리하기 
-
-typealias PerMonthInfoTestData = SectionOfMonthlyCalendar.MonthInfoTestData
+typealias CalendarTestData = SectionOfMonthlyCalendar.TestData
 
 public struct SectionOfMonthlyCalendar {
     public var items: [Item]
@@ -28,7 +26,7 @@ extension SectionOfMonthlyCalendar: SectionModelType {
 }
 
 extension SectionOfMonthlyCalendar {
-    enum MonthInfoTestData {
+    enum TestData {
         static let calendar = Calendar.current
         static let components1: DateComponents = DateComponents(year: 2023, month: 12, day: 1)
         static let components2: DateComponents = DateComponents(year: 2023, month: 12, day: 3)
@@ -99,10 +97,10 @@ extension SectionOfMonthlyCalendar {
         (0...1).forEach { outerIdx in
             (0...2).forEach { innerIdx in
                 let dayResponse = CalendarResponse(
-                    date: PerMonthInfoTestData.dates[outerIdx][innerIdx],
-                    representativePostId: PerMonthInfoTestData.representativePostIds[outerIdx][innerIdx],
-                    representativeThumbnailUrl: PerMonthInfoTestData.representativeThumbnailUrls[outerIdx][innerIdx],
-                    allFamilyMemebersUploaded: PerMonthInfoTestData.allFamilyMemebersUploadeds[outerIdx][innerIdx]
+                    date: CalendarTestData.dates[outerIdx][innerIdx],
+                    representativePostId: CalendarTestData.representativePostIds[outerIdx][innerIdx],
+                    representativeThumbnailUrl: CalendarTestData.representativeThumbnailUrls[outerIdx][innerIdx],
+                    allFamilyMemebersUploaded: CalendarTestData.allFamilyMemebersUploadeds[outerIdx][innerIdx]
                 )
                 arrayCalendarResponse.results.append(dayResponse)
             }
@@ -116,11 +114,11 @@ extension SectionOfMonthlyCalendar {
         var arrayCalendarResponse: ArrayResponseCalendarResponse = .init(results: [])
         switch yearMonth {
         case "2023-12":
-            arrayCalendarResponse.results.append(contentsOf: MonthInfoTestData.dayInfo202312)
+            arrayCalendarResponse.results.append(contentsOf: TestData.dayInfo202312)
         case "2024-01":
             fallthrough
         default:
-            arrayCalendarResponse.results.append(contentsOf: MonthInfoTestData.dayInfo202401)
+            arrayCalendarResponse.results.append(contentsOf: TestData.dayInfo202401)
         }
         
         return arrayCalendarResponse

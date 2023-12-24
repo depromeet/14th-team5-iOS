@@ -49,7 +49,7 @@ extension FamiliyAPIWorker: SearchFamilyRepository {
                     debugPrint("FamilyInvigationLink Fetch Result: \(str)")
                 }
             }
-            .map(FamiliyInvitationLinkResponseDTO.self)
+            .map(FamilyInvitationLinkResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
             .asSingle()

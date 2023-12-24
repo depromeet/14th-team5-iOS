@@ -17,7 +17,7 @@ public final class AddFamilyViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case didTapInvitationUrlButton
-        case refreshYourFamilyMemeber
+        case fetchYourFamilyMemeber
     }
     
     // MARK: - Mutate
@@ -25,7 +25,7 @@ public final class AddFamilyViewReactor: Reactor {
         case presentSharePanel(URL?)
         case presentInvitationUrlCopySuccessToastMessage
         case presentFetchInvitationUrlFailureTaostMessage
-        case refreshYourFamilyMember(SectionOfFamilyMemberProfile)
+        case fetchYourFamilyMember(SectionOfFamilyMemberProfile)
     }
     
     // MARK: - State
@@ -80,14 +80,14 @@ public final class AddFamilyViewReactor: Reactor {
                     }
                     return .presentSharePanel(url)
                 }
-        case .refreshYourFamilyMemeber:
+        case .fetchYourFamilyMemeber:
             // TODO: - 통신 성공 여부 확인
             return addFamiliyRepository.fetchFamiliyMemeber()
                 .map {
                     guard let paginationFamilyMember = $0 else {
-                        return .refreshYourFamilyMember(.init(items: []))
+                        return .fetchYourFamilyMember(.init(items: []))
                     }
-                    return .refreshYourFamilyMember(.init(items: paginationFamilyMember.results))
+                    return .fetchYourFamilyMember(.init(items: paginationFamilyMember.results))
                 }
         }
     }
@@ -102,7 +102,7 @@ public final class AddFamilyViewReactor: Reactor {
             newState.shouldPresentInvitationUrlCopySuccessToastMessage = true
         case .presentFetchInvitationUrlFailureTaostMessage:
             newState.shouldPresentFetchInvitationUrlFailureToastMessage = true
-        case let .refreshYourFamilyMember(familiyMember):
+        case let .fetchYourFamilyMember(familiyMember):
             newState.familyDatasource = [familiyMember]
             newState.familyMemberCount = familiyMember.items.count
         }

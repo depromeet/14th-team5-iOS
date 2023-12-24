@@ -10,7 +10,7 @@ import UIKit
 import Core
 import Data
 
-public final class CalendarFeedDIConatainer: BaseDIContainer {
+public final class CalendarPostDIConatainer: BaseDIContainer {
     public typealias ViewController = CalendarFeedViewController
     public typealias Repository = CalendarImpl
     public typealias Reactor = CalendarPostViewReactor

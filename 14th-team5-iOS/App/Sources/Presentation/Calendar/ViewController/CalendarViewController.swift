@@ -150,7 +150,7 @@ extension CalendarViewController {
     }
     
     private func pushCalendarFeedView(_ date: Date?) {
-        let container = CalendarFeedDIConatainer(selectedDate: date ?? Date())
+        let container = CalendarPostDIConatainer(selectedDate: date ?? Date())
         navigationController?.pushViewController(container.makeViewController(), animated: true)
     }
     

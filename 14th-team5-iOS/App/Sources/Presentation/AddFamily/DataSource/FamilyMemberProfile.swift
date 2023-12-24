@@ -10,12 +10,6 @@ import Foundation
 import Domain
 import RxDataSources
 
-public struct FamilyMemeberProfile {
-    var memberId: String
-    var name: String
-    var imageUrl: String?
-}
-
 public struct SectionOfFamilyMemberProfile {
     public var items: [Item]
 }

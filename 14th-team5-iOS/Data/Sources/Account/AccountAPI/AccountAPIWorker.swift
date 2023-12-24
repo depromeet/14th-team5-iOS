@@ -31,7 +31,7 @@ extension AccountAPIs {
 // MARK: SignIn
 extension AccountAPIWorker {
     private func signInWith(spec: APISpec, jsonEncodable: Encodable) -> Single<AccessToken?> {
-        return request(spec: spec, headers: [BibbiAPI.Header.contentJson], jsonEncodable: jsonEncodable)
+        return request(spec: spec, jsonEncodable: jsonEncodable)
             .subscribe(on: Self.queue)
             .do(onNext: {
                 if let str = String(data: $0.1, encoding: .utf8) {

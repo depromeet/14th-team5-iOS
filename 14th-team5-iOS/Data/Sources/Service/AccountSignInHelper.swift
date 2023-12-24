@@ -65,10 +65,10 @@ extension AccountSignInHelper {
     func signInWith(snsType: SNS, snsToken: String) -> Single<APIResult> {
         return apiWorker.signInWith(snsType: snsType, snsToken: snsToken)
             .map { token in
-                guard let _ = token else {
+                guard let token = token else {
                     return .failed
                 }
-                
+                print("token: \(token)")
                 return .success
             }
     }

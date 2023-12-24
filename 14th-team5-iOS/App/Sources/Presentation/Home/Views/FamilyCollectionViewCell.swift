@@ -7,6 +7,7 @@
 
 import UIKit
 import Core
+import Domain
 
 final class FamilyCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
     static let id: String = "familyCollectionViewCell"

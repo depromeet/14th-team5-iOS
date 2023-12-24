@@ -29,11 +29,13 @@ public final class AccountSignInReactor: Reactor {
     
     public struct State {
         var acceessToken: String
+        
+        @Pulse var pushAccountSingUpVC: Bool
     }
     
     init(accountRepository: AccountRepository) {
         self.accountRepository = accountRepository
-        self.initialState = State(acceessToken: "")
+        self.initialState = State(acceessToken: "", pushAccountSingUpVC: false)
     }
 }
 
@@ -43,6 +45,7 @@ extension AccountSignInReactor {
         case .kakaoLoginTapped(let sns, let vc):
             accountRepository.kakaoLogin(with: sns, vc: vc)
                 .flatMap { Observable.just(Mutation.kakaoLogin) }
+                
         case .appleLoginTapped(let sns, let vc):
             accountRepository.appleLogin(with: sns, vc: vc)
                 .flatMap { Observable.just(Mutation.appleLogin) }

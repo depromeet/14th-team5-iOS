@@ -7,7 +7,7 @@
 
 import RxDataSources
 
-struct ProfileData {
+public struct ProfileData {
     let imageURL: String
     let name: String
 }

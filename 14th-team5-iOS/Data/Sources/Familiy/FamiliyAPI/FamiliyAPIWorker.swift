@@ -11,23 +11,38 @@ import Alamofire
 import Domain
 import RxSwift
 
-typealias AddFamiliyAPIWorker = AddFamiliyAPIs.Worker
-extension AddFamiliyAPIs {
-    final class Worker: APIWorker {
+typealias FamiliyAPIWorker = FamiliyAPIs.Worker
+extension FamiliyAPIs {
+    public final class Worker: APIWorker {
         static let queue = {
-            ConcurrentDispatchQueueScheduler(queue: DispatchQueue(label: "AddFamiliyAPIQueue", qos: .utility))
+            ConcurrentDispatchQueueScheduler(queue: DispatchQueue(label: "FamiliyAPIQueue", qos: .utility))
         }()
         
-        override init() {
+        public override init() {
             super.init()
-            self.id = "AddFamiliyAPIWorker"
+            self.id = "FamiliyAPIWorker"
         }
     }
 }
 
-extension AddFamiliyAPIWorker {
+extension FamiliyAPIWorker: SearchFamilyRepository {
+    public func fetchFamilyMember(query: Domain.SearchFamilyQuery, page: Int) -> RxSwift.Single<Domain.SearchFamilyPage> {
+        let spec = FamiliyAPIs.familiyMembers.spec
+        return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("")])
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("FamilyMember Fetch Result: \(str)")
+                }
+            }
+            .map(FamilySearchResponseDTO.self)
+            .catchAndReturn(nil)
+            .map { $0!.toDomain() }
+            .asSingle()
+    }
+    
     func fetchInvitationUrl(_ familiyId: String, accessToken: String) -> Single<FamiliyInvitationLinkResponse?> {
-        let spec = AddFamiliyAPIs.invitationUrl(familiyId).spec
+        let spec = FamiliyAPIs.invitationUrl(familiyId).spec
         return request(spec: spec, headers: [BibbiAPI.Header.acceptJson, BibbiHeader.xAuthToken(accessToken)])
             .subscribe(on: Self.queue)
             .do {
@@ -42,7 +57,7 @@ extension AddFamiliyAPIWorker {
     }
     
     func fetchFamiliyMemeberPage(accessToken: String) -> Single<PaginationResponseFamiliyMemberProfile?> {
-        let spec = AddFamiliyAPIs.familiyMembers.spec
+        let spec = FamiliyAPIs.familiyMembers.spec
         return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken(accessToken)])
             .subscribe(on: Self.queue)
             .do {

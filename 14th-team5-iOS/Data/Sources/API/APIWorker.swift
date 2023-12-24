@@ -99,7 +99,7 @@ fileprivate extension NSMutableData {
 }
 
 // MARK: API Worker
-class APIWorker: NSObject {
+public class APIWorker: NSObject {
     private func httpHeaders(_ headers: [APIHeader]?) -> HTTPHeaders {
         var result: [String: String] = [:]
         guard let headers = headers, !headers.isEmpty else { return HTTPHeaders() }

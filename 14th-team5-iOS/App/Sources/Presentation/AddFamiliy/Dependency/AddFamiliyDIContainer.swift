@@ -12,7 +12,7 @@ import Data
 
 public final class AddFamiliyDIContainer: BaseDIContainer {
     public typealias ViewController = AddFamiliyViewController
-    public typealias Repository = AddFamiliyImpl
+    public typealias Repository = FamiliyImpl
     public typealias Reactor = AddFamiliyViewReactor
     
     private var globalState: GlobalStateProviderType {
@@ -26,8 +26,8 @@ public final class AddFamiliyDIContainer: BaseDIContainer {
         return AddFamiliyViewController(reacter: makeReactor())
     }
     
-    public func makeRepository() -> AddFamiliyImpl {
-        return AddFamiliyRepository()
+    public func makeRepository() -> FamiliyImpl {
+        return FamiliyRepository()
     }
     
     public func makeReactor() -> AddFamiliyViewReactor {

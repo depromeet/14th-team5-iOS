@@ -12,17 +12,17 @@ import ReactorKit
 import RxCocoa
 import RxSwift
 
-public protocol AddFamiliyImpl {
+public protocol FamiliyImpl {
     var disposeBag: DisposeBag { get }
     
     func fetchInvitationUrl(_ familiyId: String) -> Observable<URL?>
     func fetchFamiliyMemeber() -> Observable<PaginationResponseFamiliyMemberProfile?>
 }
 
-public final class AddFamiliyRepository: AddFamiliyImpl {
+public final class FamiliyRepository: FamiliyImpl {
     public let disposeBag: DisposeBag = DisposeBag()
     
-    private let apiWorker: AddFamiliyAPIWorker = AddFamiliyAPIWorker()
+    private let apiWorker: FamiliyAPIWorker = FamiliyAPIWorker()
     
     // NOTE: - 임시 코드
     private let tempToken = "eyJyZWdEYXRlIjoxNzAzMDg4ODc0MzI4LCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MifQ.eyJ1c2VySWQiOiJkd3EiLCJleHAiOjE3MDMxNzUyNzR9.SHUs4Sn9eb2q7TesgstMdfpSxVpKRWpiWqm6tPdYbH0"

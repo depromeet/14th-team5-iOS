@@ -9,7 +9,7 @@ import Foundation
 
 import Core
 
-enum AddFamiliyAPIs: API {
+public enum FamiliyAPIs: API {
     case invitationUrl(String)
     case familiyMembers
     

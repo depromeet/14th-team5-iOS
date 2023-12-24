@@ -19,7 +19,7 @@ public protocol AddFamilyImpl {
     func fetchFamiliyMemeber() -> Observable<PaginationResponseFamilyMemberProfile?>
 }
 
-public final class AddFamiliyRepository: AddFamilyImpl {
+public final class AddFamilyRepository: AddFamilyImpl {
     public let disposeBag: DisposeBag = DisposeBag()
     
     private let apiWorker: AddFamilyAPIWorker = AddFamilyAPIWorker()

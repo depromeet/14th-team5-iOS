@@ -48,7 +48,7 @@ public final class AddFamilyViewReactor: Reactor {
         self.initialState = State()
         self.provider = provider
         
-        self.addFamilyRepository = AddFamiliyRepository()
+        self.addFamilyRepository = AddFamilyRepository()
     }
     
     // MARK: - Transform
@@ -80,11 +80,10 @@ public final class AddFamilyViewReactor: Reactor {
             // TODO: - 통신 성공 여부 확인
             return addFamilyRepository.fetchFamiliyMemeber()
                 .map {
-                    guard let familiyMember = $0 else {
+                    guard let paginationFamilyMember = $0 else {
                         return .refreshYourFamilyMember(.init(items: []))
                     }
-                    let sectionModel = familiyMember.toSectionModel()
-                    return .refreshYourFamilyMember(sectionModel)
+                    return .refreshYourFamilyMember(.init(items: paginationFamilyMember.results))
                 }
         }
     }

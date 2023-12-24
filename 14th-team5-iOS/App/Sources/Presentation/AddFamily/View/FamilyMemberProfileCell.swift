@@ -90,12 +90,40 @@ final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellR
     
     override func bind(reactor: FamilyMemberProfileCellReactor) {
         super.bind(reactor: reactor)
-        memberImageView.kf.setImage(with: URL(string: reactor.currentState.imageUrl ?? ""))
-        memberNameLabel.text = reactor.currentState.name
-        isMeLabel.text = true ? "ME" : ""
+        bindInput(reactor: reactor)
+        bindOutput(reactor: reactor)
+    }
+    
+    private func bindInput(reactor: FamilyMemberProfileCellReactor) { }
+    
+    private func bindOutput(reactor: FamilyMemberProfileCellReactor) {
+        reactor.state.map { $0.imageUrl }
+            .compactMap { $0 }
+            .withUnretained(self)
+            .subscribe {
+                $0.0.memberImageView.kf.setImage(
+                    with: URL(string: $0.1),
+                    options: [
+                        .transition(.fade(0.25))
+                    ]
+                )
+            }
+            .disposed(by: disposeBag)
         
-        if true {
-            labelStackView.spacing = .zero
-        }
+        reactor.state.map { $0.name }
+            .bind(to: memberNameLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        // TODO: - '나'인지 확인하는 로직 구현하기
+        reactor.state.map { $0.memeberId }
+            .map { true }
+            .bind(to: isMeLabel.rx.isMeText)
+            .disposed(by: disposeBag)
+        
+        // TODO: - '나'인지 확인하는 로직 구현하기
+        reactor.state.map { $0.memeberId }
+            .map { true }
+            .bind(to: labelStackView.rx.isMeSpacing)
+            .disposed(by: disposeBag)
     }
 }

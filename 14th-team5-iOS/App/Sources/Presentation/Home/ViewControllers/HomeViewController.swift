@@ -14,6 +14,7 @@ import RxCocoa
 import RxSwift
 import SnapKit
 import Then
+import Domain
 
 public final class HomeViewController: BaseViewController<HomeViewReactor> {
     private let manageFamilyButton: UIBarButtonItem = UIBarButtonItem()
@@ -41,6 +42,12 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .disposed(by: disposeBag)
         
         feedCollectionView.rx.setDelegate(self)
+            .disposed(by: disposeBag)
+        
+        Observable
+            .just(())
+            .map { Reactor.Action.viewDidLoad }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
 
         // 통신 이후에 observable로 변경하기

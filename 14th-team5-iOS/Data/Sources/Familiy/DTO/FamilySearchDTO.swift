@@ -35,7 +35,7 @@ extension FamilySearchResponseDTO {
 }
 
 extension FamilyMemberDTO {
-    func toDomain() -> SearchFamily {
-        return .init(id: 0, memberId: memberId, profileImageURL: imageUrl, name: name)
+    func toDomain() -> ProfileData {
+        return .init(memberId: memberId, profileImageURL: imageUrl, name: name)
     }
 }

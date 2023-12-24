@@ -14,8 +14,9 @@ import Domain
 public final class HomeViewReactor: Reactor {
     public enum Action {
 //        case checkTime
+        case viewDidLoad
         case tapInviteFamily
-        case getFamilyInfo
+//        case getFamilyInfo(String)
         case getPostInfo
     }
     
@@ -52,11 +53,15 @@ extension HomeViewReactor {
         switch action {
 //        case .checkTime:
 //            return Observable.just(Mutation.setTimerStatus)
-        case .getFamilyInfo:
-            //            if data.isEmpty
-            return Observable.just(Mutation.showInviteFamilyView)
-            //            else
-            //            return Observable.just(Mutation.setFamilyCollectionView(data))
+//        case let .getFamilyInfo(query):
+//            let query = SearchFamilyQuery(query: query)
+//            return familyRepository.excute(query: query)
+//                .asObservable()
+//                .map { familyMembers in
+//                    return .setFamilyCollectionView([
+//                        SectionModel<String, ProfileData>(model: "section1", items: familyMembers.members)
+//                    ])
+//                }
         case .getPostInfo:
 //            if data.isEmpty
             return Observable.just(Mutation.showNoPostTodayView)
@@ -65,6 +70,15 @@ extension HomeViewReactor {
         case .tapInviteFamily:
             // 서버로부터 invitecode 받아오기
             return Observable.just(Mutation.showShareAcitivityView(URL(string: "https://github.com/depromeet/14th-team5-iOS")))
+        case .viewDidLoad:
+            let query: SearchFamilyQuery = SearchFamilyQuery(type: "FAMILY", page: 1, size: 20)
+            return familyRepository.excute(query: query)
+                .asObservable()
+                .map { familyMembers in
+                    return .setFamilyCollectionView([
+                        SectionModel<String, ProfileData>(model: "section1", items: familyMembers.members)
+                    ])
+                }
         }
     }
     

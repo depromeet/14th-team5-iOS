@@ -9,6 +9,6 @@ import RxSwift
 
 public protocol SearchFamilyRepository {
     
-    func fetchFamilyMember(query: SearchFamilyQuery, page: Int) -> Single<SearchFamilyPage>
+    func fetchFamilyMember(query: SearchFamilyQuery) -> Single<SearchFamilyPage>
     
 }

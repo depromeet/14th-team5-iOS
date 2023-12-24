@@ -6,11 +6,7 @@
 //
 
 import RxDataSources
-
-public struct ProfileData {
-    let imageURL: String
-    let name: String
-}
+import Domain
 
 // 섹션데이터
 struct SectionOfFamily {
@@ -31,15 +27,15 @@ extension SectionOfFamily: SectionModelType {
     }
 }
 
-extension SectionOfFamily {
-    static var sections: [SectionModel<String, ProfileData>] {
-        return [
-            SectionModel<String, ProfileData>(model: "section1", items: [
-            ProfileData(imageURL: "https://wimg.mk.co.kr/news/cms/202304/14/news-p.v1.20230414.15e6ac6d76a84ab398281046dc858116_P1.jpg", name: "Jenny"),
-            ProfileData(imageURL: "https://wimg.mk.co.kr/news/cms/202304/14/news-p.v1.20230414.15e6ac6d76a84ab398281046dc858116_P1.jpg", name: "Jenny"),
-            ProfileData(imageURL: "https://wimg.mk.co.kr/news/cms/202304/14/news-p.v1.20230414.15e6ac6d76a84ab398281046dc858116_P1.jpg", name: "Jenny"),
-            ProfileData(imageURL: "https://wimg.mk.co.kr/news/cms/202304/14/news-p.v1.20230414.15e6ac6d76a84ab398281046dc858116_P1.jpg", name: "Jenny"),
-            ])
-        ]
-    }
-}
+//extension SectionOfFamily {
+//    static var sections: [SectionModel<String, ProfileData>] {
+//        return [
+//            SectionModel<String, ProfileData>(model: "section1", items: [
+//            ProfileData(imageURL: "https://wimg.mk.co.kr/news/cms/202304/14/news-p.v1.20230414.15e6ac6d76a84ab398281046dc858116_P1.jpg", name: "Jenny"),
+//            ProfileData(imageURL: "https://wimg.mk.co.kr/news/cms/202304/14/news-p.v1.20230414.15e6ac6d76a84ab398281046dc858116_P1.jpg", name: "Jenny"),
+//            ProfileData(imageURL: "https://wimg.mk.co.kr/news/cms/202304/14/news-p.v1.20230414.15e6ac6d76a84ab398281046dc858116_P1.jpg", name: "Jenny"),
+//            ProfileData(imageURL: "https://wimg.mk.co.kr/news/cms/202304/14/news-p.v1.20230414.15e6ac6d76a84ab398281046dc858116_P1.jpg", name: "Jenny"),
+//            ])
+//        ]
+//    }
+//}

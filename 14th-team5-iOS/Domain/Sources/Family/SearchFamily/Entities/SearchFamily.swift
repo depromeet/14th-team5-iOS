@@ -7,14 +7,12 @@
 
 import Foundation
 
-public struct SearchFamily: Equatable, Identifiable {
-    public let id: Int
-    let memberId: String
-    let profileImageURL: String
-    let name: String
+public struct ProfileData: Equatable {
+    public let memberId: String
+    public let profileImageURL: String
+    public let name: String
     
-    public init(id: Int, memberId: String, profileImageURL: String, name: String) {
-        self.id = id
+    public init(memberId: String, profileImageURL: String, name: String) {
         self.memberId = memberId
         self.profileImageURL = profileImageURL
         self.name = name
@@ -24,9 +22,9 @@ public struct SearchFamily: Equatable, Identifiable {
 public struct SearchFamilyPage: Equatable {
     let page: Int
     let totalPages: Int
-    let members: [SearchFamily]
+    public let members: [ProfileData]
     
-    public init(page: Int, totalPages: Int, members: [SearchFamily]) {
+    public init(page: Int, totalPages: Int, members: [ProfileData]) {
         self.page = page
         self.totalPages = totalPages
         self.members = members

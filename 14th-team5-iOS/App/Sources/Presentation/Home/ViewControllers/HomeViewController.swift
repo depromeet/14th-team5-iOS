@@ -15,7 +15,7 @@ import RxSwift
 import SnapKit
 import Then
 
-final class HomeViewController: BaseViewController<HomeViewReactor> {
+public final class HomeViewController: BaseViewController<HomeViewReactor> {
     private let manageFamilyButton: UIBarButtonItem = UIBarButtonItem()
     private let calendarButton: UIBarButtonItem = UIBarButtonItem()
     private let familyCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
@@ -28,7 +28,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
     private let feedCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let camerButton: UIButton = UIButton()
     
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
     }
     
@@ -36,7 +36,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
         print("deinit HomeViewController")
     }
     
-    override func bind(reactor: HomeViewReactor) {
+    public override func bind(reactor: HomeViewReactor) {
         familyCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
@@ -126,14 +126,14 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
             .disposed(by: disposeBag)
     }
     
-    override func setupUI() {
+    public override func setupUI() {
         super.setupUI()
         
         view.addSubviews(familyCollectionView, timerLabel, descriptionLabel,
                          feedCollectionView, camerButton)
     }
     
-    override func setupAutoLayout() {
+    public override func setupAutoLayout() {
         super.setupAutoLayout()
         
         familyCollectionView.snp.makeConstraints {
@@ -165,7 +165,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
         }
     }
     
-    override func setupAttributes() {
+    public override func setupAttributes() {
         super.setupAttributes()
         
         navigationItem.do {
@@ -294,7 +294,7 @@ extension HomeViewController {
 }
 
 extension HomeViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if collectionView == familyCollectionView {
             return CGSize(width: 64, height: 90)
         } else {

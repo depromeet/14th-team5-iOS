@@ -7,7 +7,7 @@
 
 import RxDataSources
 
-struct FeedData {
+public struct FeedData {
     let name: String
     let time: String
     let imageURL: String

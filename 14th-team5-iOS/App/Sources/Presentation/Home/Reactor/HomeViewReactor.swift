@@ -9,16 +9,17 @@ import Foundation
 import ReactorKit
 import RxDataSources
 import Core
+import Domain
 
-final class HomeViewReactor: Reactor {
-    enum Action {
+public final class HomeViewReactor: Reactor {
+    public enum Action {
 //        case checkTime
         case tapInviteFamily
         case getFamilyInfo
         case getPostInfo
     }
     
-    enum Mutation {
+    public enum Mutation {
 //        case setTimerStatus
         case showShareAcitivityView(URL?)
         case showInviteFamilyView
@@ -27,7 +28,7 @@ final class HomeViewReactor: Reactor {
         case setPostCollectionView([SectionModel<String, FeedData>])
     }
     
-    struct State {
+    public struct State {
         var inviteLink: URL?
 //        var isShowingShareAcitivityView: Bool = false
         var descriptionText: String = HomeStringLiterals.Description.standard
@@ -37,12 +38,17 @@ final class HomeViewReactor: Reactor {
         var feedSections: [SectionModel<String, FeedData>] = []
     }
     
-    let initialState: State = State()
+    public let initialState: State = State()
     public let provider: GlobalStateProviderType = GlobalStateProvider()
+    private let familyRepository: SearchFamilyMemberUseCaseProtocol
+    
+    init(repository: SearchFamilyMemberUseCaseProtocol) {
+        self.familyRepository = repository
+    }
 }
 
 extension HomeViewReactor {
-    func mutate(action: Action) -> Observable<Mutation> {
+    public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
 //        case .checkTime:
 //            return Observable.just(Mutation.setTimerStatus)
@@ -62,7 +68,7 @@ extension HomeViewReactor {
         }
     }
     
-    func reduce(state: State, mutation: Mutation) -> State {
+    public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         
         switch mutation {

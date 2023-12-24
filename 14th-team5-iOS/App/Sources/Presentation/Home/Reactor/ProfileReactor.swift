@@ -8,7 +8,7 @@
 import ReactorKit
 import RxSwift
 
-final class ProfileReactor: Reactor {
+final class FamilyReactor: Reactor {
     enum Action {
 //        case setProfile(name: String, profileImageURL: String)
     }
@@ -25,7 +25,7 @@ final class ProfileReactor: Reactor {
     let initialState: State = State()
 }
 
-extension ProfileReactor {
+extension FamilyReactor {
     func mutate(action: Action) -> Observable<Mutation> {
 //        switch action {
 //        case let .setProfile(name, imageURL):

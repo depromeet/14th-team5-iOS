@@ -9,5 +9,5 @@ import WidgetKit
 
 struct FamilyWidgetEntry: TimelineEntry {
     let date: Date
-    let family: Family
+    let family: Family?
 }

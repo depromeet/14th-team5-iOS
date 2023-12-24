@@ -46,7 +46,7 @@ extension SectionOfFamilyMemberProfile {
     static func generateTestData() -> SectionOfFamilyMemberProfile {
         var items: [SectionOfFamilyMemberProfile.Item] = []
 
-        let memberId = ["KKW", "KDH", "MKM", "UKH"]
+        let memberIds = ["KKW", "KDH", "MKM", "UKH"]
         let names = ["김건우", "김도현", "마경미", "유건희"]
         let imageUrls = [
             "https://cdn.pixabay.com/photo/2023/11/20/13/48/butterfly-8401173_1280.jpg",
@@ -57,7 +57,7 @@ extension SectionOfFamilyMemberProfile {
         
         (0...3).forEach {
             let item = FamilyMemeberProfile(
-                memberId: memberId[$0],
+                memberId: memberIds[$0],
                 name: names[$0],
                 imageUrl: imageUrls[$0]
             )

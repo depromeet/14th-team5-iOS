@@ -7,6 +7,7 @@
 
 import UIKit
 import Core
+import DesignSystem
 
 import RxSwift
 import RxCocoa
@@ -15,28 +16,21 @@ import RxDataSources
 import Then
 import SnapKit
 
-// MARK: 임시데이터
-enum OnBoardingMock {
-    static var info: [OnBoardingInfo] = [
-        OnBoardingInfo(title: "11111", image: UIImage()),
-        OnBoardingInfo(title: "22222", image: UIImage()),
-        OnBoardingInfo(title: "33333", image: UIImage()),
-    ]
-}
-
 final class OnBoardigViewController: BaseViewController<OnBoardingReactor> {
-    
     private let nextButton = UIButton()
     private let pageControl = UIPageControl()
     private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let horizontalFlowLayout = UICollectionViewFlowLayout()
     
-    private var currentPage: Int = 0
+    private var currentPage: Int = 0 {
+        didSet {
+            self.pageControl.currentPage = currentPage
+            self.nextButton.isEnabled = currentPage == 2
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        self.view.backgroundColor = .cyan
     }
     
     override func setupUI() {
@@ -49,12 +43,12 @@ final class OnBoardigViewController: BaseViewController<OnBoardingReactor> {
         super.setupAutoLayout()
         
         pageControl.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview()
+            $0.centerX.equalToSuperview()
             $0.height.equalTo(30)
         }
 
         collectionView.snp.makeConstraints {
-            $0.bottom.equalTo(pageControl.snp.top).offset(-10)
+            $0.bottom.equalTo(pageControl.snp.top).inset(20)
             $0.top.equalTo(view.safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview()
         }
@@ -62,7 +56,7 @@ final class OnBoardigViewController: BaseViewController<OnBoardingReactor> {
         nextButton.snp.makeConstraints {
             $0.top.equalTo(pageControl.snp.bottom)
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
-            $0.horizontalEdges.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(12)
             $0.height.equalTo(56)
         }
     }
@@ -73,14 +67,17 @@ final class OnBoardigViewController: BaseViewController<OnBoardingReactor> {
         collectionView.do {
             $0.delegate = self
             $0.dataSource = self
-            $0.backgroundColor = .black
             $0.isPagingEnabled = true
+            $0.contentInset = .zero
             $0.collectionViewLayout = horizontalFlowLayout
+            $0.backgroundColor = DesignSystemAsset.black.color
             $0.showsHorizontalScrollIndicator = false
-            $0.register(OnBoardingCollectionViewCell.self, forCellWithReuseIdentifier: OnBoardingCollectionViewCell.id)
+            $0.register(OnBoardingCollectionViewCell.self, 
+                        forCellWithReuseIdentifier: OnBoardingCollectionViewCell.id)
         }
         
         horizontalFlowLayout.do {
+            $0.sectionInset = .zero
             $0.scrollDirection = .horizontal
         }
         
@@ -88,13 +85,16 @@ final class OnBoardigViewController: BaseViewController<OnBoardingReactor> {
             $0.isUserInteractionEnabled = false
             $0.currentPage = 0
             $0.numberOfPages = 3
-            $0.pageIndicatorTintColor = .blue
-            $0.currentPageIndicatorTintColor = .red
+            $0.pageIndicatorTintColor = .black.withAlphaComponent(0.2)
+            $0.currentPageIndicatorTintColor = .white
         }
         
         nextButton.do {
-            $0.setTitle("알림 허용하고 시작하기", for: .normal)
-            $0.backgroundColor = .blue
+            $0.setTitle(OnBoardingStrings.buttonTitle, for: .normal)
+            $0.setTitleColor(DesignSystemAsset.black.color, for: .normal)
+            $0.titleLabel?.font = UIFont(font: DesignSystemFontFamily.Pretendard.bold, size: 16)
+            $0.backgroundColor = DesignSystemAsset.mainGreen.color
+            $0.layer.cornerRadius = 24
         }
     }
     
@@ -110,19 +110,19 @@ final class OnBoardigViewController: BaseViewController<OnBoardingReactor> {
         reactor.state.map { $0.isPermissionGranted ?? false }
             .observe(on: Schedulers.main)
             .withUnretained(self)
-            .bind(onNext: { $0.0.dismiss(animated: true) })
+            .bind(onNext: { _ in print("개발끝") })
             .disposed(by: disposeBag)
     }
 }
 
 extension OnBoardigViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return OnBoardingMock.info.count
+        return OnBoarding.info.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: OnBoardingCollectionViewCell.id, for: indexPath) as? OnBoardingCollectionViewCell else { return UICollectionViewCell() }
-        cell.setData(data: OnBoardingMock.info[indexPath.row])
+        cell.setData(data: OnBoarding.info[indexPath.row])
         return cell
     }
     
@@ -133,13 +133,21 @@ extension OnBoardigViewController: UICollectionViewDelegate, UICollectionViewDat
             return
         }
         
-        pageControl.currentPage = Int(contentOffsetX / width)
+        self.currentPage = Int(contentOffsetX / width)
     }
 }
 
 extension OnBoardigViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: collectionView.frame.width, height: collectionView.frame.height)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
     }
 }
 

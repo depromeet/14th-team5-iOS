@@ -155,7 +155,12 @@ final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
-                $0.0.thumbnailView.kf.setImage(with: URL(string: $0.1))
+                $0.0.thumbnailView.kf.setImage(
+                    with: URL(string: $0.1),
+                    options: [
+                        .transition(.fade(0.25))
+                    ]
+                )
             }
             .disposed(by: disposeBag)
     }

@@ -41,7 +41,7 @@ extension PaginationResponseFamilyMemberProfileDTO {
     }
 }
 
-extension PaginationResponseFamilyMemberProfileDTO.FamiliyMemberProfileResponseDTO {
+extension PaginationResponseFamilyMemberProfileDTO.FamilyMemberProfileResponseDTO {
     func toDomain() -> FamilyMemberProfileResponse {
         return .init(
             memberId: memberId,

@@ -11,7 +11,7 @@ import Core
 import ReactorKit
 import RxSwift
 
-public final class CalendarFeedViewReactor: Reactor {
+public final class CalendarPostViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case didTapDate(Date)

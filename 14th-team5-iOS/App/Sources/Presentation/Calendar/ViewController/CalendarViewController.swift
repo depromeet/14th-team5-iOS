@@ -25,14 +25,10 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
     )
     
     // MARK: - Properties
-    var dataSource: RxCollectionViewSectionedReloadDataSource<SectionOfPerMonthInfo> = RxCollectionViewSectionedReloadDataSource<SectionOfPerMonthInfo> { datasource, collectionView, indexPath, monthInfo in
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarPageCell.id, for: indexPath) as! CalendarPageCell
-        cell.reactor = CalendarPageCellDIContainer().makeReactor(perMonthInfo: monthInfo)
-        return cell
-    }
+    private lazy var dataSource: RxCollectionViewSectionedReloadDataSource<SectionOfMonthlyCalendar> = prepareDatasource()
     
     // 캘린더에 표시할 월 별 날짜
-    let yearMonthArray: [String] = Date.for20230101.generateYearMonthStringsToToday()
+    private let yearMonthArray: [String] = Date.for20230101.generateYearMonthStringsToToday()
     
     // MARK: - Lifecycles
     public override func viewDidLoad() {
@@ -77,24 +73,25 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
     
     private func bindInput(reactor: CalendarViewReactor) {
         Observable<String>.from(yearMonthArray)
-            .map { Reactor.Action.refreshMonthlyCalendar($0) }
+            .map { Reactor.Action.addMonthlyCalendarItem($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: CalendarViewReactor) {
         reactor.state.map { $0.calendarDatasource }
+            .distinctUntilChanged(at: \.count)
             .bind(to: collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$pushCalendarFeedVC)
+        reactor.pulse(\.$pushCalendarPostVC)
             .withUnretained(self)
             .subscribe {
                 $0.0.pushCalendarFeedView($0.1)
             }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldPresentPopoverVC)
+        reactor.pulse(\.$shouldPresentCalendarDescriptionPopoverVC)
             .withUnretained(self)
             .subscribe {
                 $0.0.makeDescriptionPopoverView(
@@ -113,7 +110,7 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
 }
 
 extension CalendarViewController {
-    var orthogonalCompositionalLayout: UICollectionViewCompositionalLayout {
+    private var orthogonalCompositionalLayout: UICollectionViewCompositionalLayout {
         // item
         let itemSize: NSCollectionLayoutSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
@@ -144,8 +141,16 @@ extension CalendarViewController {
 }
 
 extension CalendarViewController {
+    private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<SectionOfMonthlyCalendar> {
+        return RxCollectionViewSectionedReloadDataSource<SectionOfMonthlyCalendar> { datasource, collectionView, indexPath, yearMonth in
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarPageCell.id, for: indexPath) as! CalendarPageCell
+            cell.reactor = CalendarPageCellDIContainer().makeReactor(yearMonth: yearMonth)
+            return cell
+        }
+    }
+    
     private func pushCalendarFeedView(_ date: Date?) {
-        let container = CalendarFeedDIConatainer(selectedDate: date ?? Date())
+        let container = CalendarPostDIConatainer(selectedDate: date ?? Date())
         navigationController?.pushViewController(container.makeViewController(), animated: true)
     }
     

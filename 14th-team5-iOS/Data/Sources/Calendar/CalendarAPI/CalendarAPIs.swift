@@ -14,9 +14,9 @@ enum CalendarAPIs: API {
     var spec: APISpec {
         switch self {
         case let .monthlyCalendar(yearMonth):
-            return APISpec(method: .get, url: "/calendar?type=MONTHLY&yearMonth=\(yearMonth)")
+            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar?type=MONTHLY&yearMonth=\(yearMonth)")
         case let .weeklyCalendar(yearMonth, week):
-            return APISpec(method: .get, url: "/calendar?type=WEEKLY&yearMonth=\(yearMonth)&week=\(week)")
+            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar?type=WEEKLY&yearMonth=\(yearMonth)&week=\(week)")
         }
     }
 }

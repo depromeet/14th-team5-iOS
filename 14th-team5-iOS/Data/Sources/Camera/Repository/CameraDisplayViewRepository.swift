@@ -27,7 +27,7 @@ public final class CameraDisplayViewRepository: CameraDisplayImpl {
     private let cameraAPIWorker: CameraAPIWorker = CameraAPIWorker()
     
     public var disposeBag: DisposeBag = DisposeBag()
-    public var token: String = "eyJyZWdEYXRlIjoxNzAzNDkzOTQwNTE1LCJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiI4IiwiZXhwIjoxNzAzNTgwMzQwfQ.2AxJTnE2rhdl17Ml62wPLFCSosd_aLaXNRPHXluk2iA"
+    public var token: String = "eyJ0eXAiOiJKV1QiLCJyZWdEYXRlIjoxNzAzNTA0MTA4NDk3LCJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYifQ.eyJ1c2VySWQiOiIxMCIsImV4cCI6MTcwMzU5MDUwOH0.UrXGFSR9TzU7ON6fAQCVGwOghHEc2nbtuiBpXDb4WJ0"
     
     public func generateDescrption(with keyword: String) -> RxSwift.Observable<Array<String>> {
         

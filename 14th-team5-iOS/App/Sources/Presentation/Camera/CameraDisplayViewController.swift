@@ -74,9 +74,8 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         }
         
         displayEditButton.do {
-            $0.setTitle("T", for: .normal)
+            $0.setImage(DesignSystemAsset.blurTextFill.image, for: .normal)
             $0.setTitleColor(.white, for: .normal)
-            $0.backgroundColor = .black.withAlphaComponent(0.3)
         }
         
         confirmButton.do {
@@ -321,11 +320,10 @@ extension CameraDisplayViewController {
         } else {
             PHPhotoLibrary.requestAuthorization(for: .addOnly) { stauts in
                 switch status {
-                case .authorized, .limited:
-                    print("앨범 및 사진에 대한 권한이 부여 되었습니다.")
                 case .denied:
-                    //TODO: 권한 Alert 팝업 추가 예정
-                    print("앨범 및 사진에 대한 권한을 거부 당했습니다.")
+                    DispatchQueue.main.async {
+                        self.showPermissionAlertController()
+                    }
                 default:
                     print("다른 여부의 권한을 거부 당했습니다.")
                 }
@@ -376,6 +374,25 @@ extension CameraDisplayViewController {
                 $0.removeFromSuperview()
             }
         }
+    }
+    
+    private func showPermissionAlertController() {
+        let permissionAlertController: UIAlertController = UIAlertController(title: "앨범 접근 권한 설정이 없습니다.", message: "앨범에 저장하려면 앨범에 접근할 수 있도록 허용되어 있어야 합니다.", preferredStyle: .alert)
+        
+        let cancelAction: UIAlertAction = UIAlertAction(title: "취소", style: .cancel) { _ in
+            permissionAlertController.dismiss(animated: true)
+        }
+        
+        let settingAction: UIAlertAction = UIAlertAction(title: "설정으로 이동하기", style: .default) { _ in
+            guard let settingURL = URL(string: UIApplication.openSettingsURLString),
+                  UIApplication.shared.canOpenURL(settingURL) else { return }
+            UIApplication.shared.open(settingURL)
+            
+        }
+        
+        [cancelAction,settingAction].forEach(permissionAlertController.addAction(_:))
+        
+        present(permissionAlertController, animated: true)
     }
 }
 

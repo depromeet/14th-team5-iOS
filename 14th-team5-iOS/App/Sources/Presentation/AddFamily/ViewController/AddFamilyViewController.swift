@@ -201,7 +201,7 @@ public final class AddFamilyViewController: BaseViewController<AddFamilyViewReac
     
     private func bindInput(reactor: AddFamilyViewReactor) {
         Observable<Void>.just(())
-            .map { Reactor.Action.refreshYourFamilyMemeber }
+            .map { Reactor.Action.fetchYourFamilyMemeber }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         

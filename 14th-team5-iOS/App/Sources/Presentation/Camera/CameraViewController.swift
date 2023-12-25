@@ -252,7 +252,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
             AVCaptureDevice.requestAccess(for: .video) { isPermission in
                 guard isPermission else {
                     DispatchQueue.main.async {
-                        //TODO: Alert 추가 예정
+                        self.showPermissionAlertController()
                     }
                     return
                 }
@@ -349,6 +349,25 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
             return
             
         }
+    }
+    
+    private func showPermissionAlertController() {
+        let permissionAlertController: UIAlertController = UIAlertController(title: "카메라 접근 권한 설정이 없습니다.", message: "사진을 촬영하시려면 카메라에 접근할 수 있도록 허용되어 있어야 합니다.", preferredStyle: .alert)
+        
+        let cancelAction: UIAlertAction = UIAlertAction(title: "취소", style: .cancel) { _ in
+            permissionAlertController.dismiss(animated: true)
+        }
+        
+        let settingAction: UIAlertAction = UIAlertAction(title: "설정으로 이동하기", style: .default) { _ in
+            guard let settingURL = URL(string: UIApplication.openSettingsURLString),
+                  UIApplication.shared.canOpenURL(settingURL) else { return }
+            UIApplication.shared.open(settingURL)
+            
+        }
+        
+        [cancelAction,settingAction].forEach(permissionAlertController.addAction(_:))
+        
+        present(permissionAlertController, animated: true)
     }
     
 }

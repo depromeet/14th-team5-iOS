@@ -47,9 +47,9 @@ extension CameraAPIWorker {
             .asSingle()
     }
     
-    public func uploadImageToPresignedURL(accessToken: String, toURL url: String, withImageData imageData: Data, fileName: String, path: UploadLocation = .feed) -> Single<Bool> {
+    public func uploadImageToPresignedURL(accessToken: String, toURL url: String, withImageData imageData: Data) -> Single<Bool> {
         let spec = CameraAPIs.presignedURL(url).spec
-        return upload(spec: spec, headers: [BibbiAPI.Header.xAuthToken(accessToken)], image: imageData, fileName: fileName ,filePath: path)
+        return upload(spec: spec, headers: [BibbiAPI.Header.xAuthToken(accessToken)], image: imageData)
             .subscribe(on: Self.queue)
             .catchAndReturn(false)
             .debug()
@@ -73,3 +73,4 @@ extension CameraAPIWorker {
         
     }
 }
+

@@ -54,8 +54,9 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         super.setupAttributes()
         
         titleView.do {
-            $0.textColor = .white
+            $0.textColor = DesignSystemAsset.gray200.color
             $0.text = "카메라"
+            $0.font = DesignSystemFontFamily.Pretendard.bold.font(size: 18)
         }
         
         navigationItem.do {
@@ -306,9 +307,10 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
     
     
     public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        guard let originalData = photo.fileDataRepresentation() else { return }
+        guard let photoData = photo.fileDataRepresentation(),
+        let imageData = UIImage(data: photoData)?.jpegData(compressionQuality: 1.0) else { return }
 
-        let cameraDisplayViewController = CameraDisplayDIContainer(displayData: originalData).makeViewController()
+        let cameraDisplayViewController = CameraDisplayDIContainer(displayData: imageData).makeViewController()
         self.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
     }
     

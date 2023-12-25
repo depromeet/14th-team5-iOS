@@ -74,7 +74,7 @@ public final class CameraDisplayViewReactor: Reactor {
                     .withUnretained(self)
                     .asObservable()
                     .flatMap { owner, entity -> Observable<CameraDisplayViewReactor.Mutation> in
-                        owner.cameraDisplayRepository.uploadImageToS3(toURL: entity?.imageURL ?? "", fileName: fileName, imageData: owner.currentState.displayData)
+                        owner.cameraDisplayRepository.uploadImageToS3(toURL: entity?.imageURL ?? "", imageData: owner.currentState.displayData)
                             .asObservable()
                             .flatMap { isSuccess -> Observable<CameraDisplayViewReactor.Mutation> in
                                 return .concat(
@@ -177,8 +177,7 @@ extension CameraDisplayViewReactor {
     
     
     func configureOriginalS3URL(url: String, with filePath: UploadLocation) -> String {
-        guard let range = url.range(of: #"\#(filePath.location)[^&?]+"#, options: .regularExpression) else { return "" }
-        
+        guard let range = url.range(of: #"[^&?]+"#, options: .regularExpression) else { return "" }
         return String(url[range])
     }
 }

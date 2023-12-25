@@ -8,6 +8,7 @@
 import UIKit
 
 import Core
+import DesignSystem
 import RxSwift
 import RxCocoa
 import ReactorKit
@@ -35,9 +36,9 @@ public final class DisplayEditCollectionViewCell: BaseCollectionViewCell<Display
         }
         
         descrptionLabel.do {
-            $0.textColor = .white
+            $0.textColor = DesignSystemAsset.white.color
             $0.textAlignment = .center
-            $0.font = .systemFont(ofSize: 32, weight: .regular)
+            $0.font = DesignSystemFontFamily.Pretendard.bold.font(size: 18)
         }
         
         blurContainerView.do {

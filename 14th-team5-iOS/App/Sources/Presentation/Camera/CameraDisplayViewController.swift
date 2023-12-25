@@ -20,7 +20,7 @@ import SnapKit
 public final class CameraDisplayViewController: BaseViewController<CameraDisplayViewReactor> {
     //MARK: Views
     private let displayView: UIImageView = UIImageView()
-    private let confirmButton: UIButton = UIButton()
+    private let confirmButton: UIButton = UIButton(configuration: .plain())
     private let displayIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     private let titleView: UILabel = UILabel()
     private let displayEditButton: UIButton = UIButton.createCircleButton(radius: 21.5)
@@ -53,8 +53,9 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         super.setupAttributes()
         
         titleView.do {
-            $0.textColor = .white
+            $0.textColor = DesignSystemAsset.gray200.color
             $0.text = "사진 올리기"
+            $0.font = DesignSystemFontFamily.Pretendard.bold.font(size: 18)
         }
         
         navigationItem.do {
@@ -79,23 +80,29 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         }
         
         confirmButton.do {
-            $0.backgroundColor = UIColor(red: 71/255, green: 234/255, blue: 166/255, alpha: 1.0)
+            $0.configuration?.imagePlacement = .leading
+            $0.backgroundColor = DesignSystemAsset.mainGreen.color
+            $0.configuration?.image = DesignSystemAsset.camera.image.withTintColor(DesignSystemAsset.black.color)
+            $0.configuration?.imagePadding = 6
+            $0.configuration?.attributedTitle = AttributedString(NSAttributedString(string: "사진 업로드", attributes: [
+                .foregroundColor: DesignSystemAsset.black.color,
+                .font: DesignSystemFontFamily.Pretendard.bold.font(size: 16)
+            ]))
             $0.isUserInteractionEnabled = true
-            $0.setTitleColor(.black, for: .normal)
             $0.layer.cornerRadius = 30
             $0.clipsToBounds = true
-            $0.setTitle("사진 업로드", for: .normal)
+
         }
         
         displayEditTextField.do {
             $0.textColor = .white
-            $0.backgroundColor = UIColor(red: 53/255, green: 53/255, blue: 56/255, alpha: 1.0)
-            $0.font = .systemFont(ofSize: 17, weight: .regular)
+            $0.backgroundColor = DesignSystemAsset.black.color
+            $0.font = DesignSystemFontFamily.Pretendard.regular.font(size: 17)
             $0.makeLeftPadding(16)
             $0.makeClearButton(DesignSystemAsset.clear.image)
             $0.makePlaceholderAttributedString("최대 8글자 이내로 입력해주세요.", attributed: [
-                .font: UIFont.systemFont(ofSize: 17, weight: .regular),
-                .foregroundColor: UIColor(red: 142/255, green: 142/255, blue: 142/255, alpha: 1.0)
+                .font: DesignSystemFontFamily.Pretendard.regular.font(size: 17),
+                .foregroundColor: DesignSystemAsset.gray500.color
             ])
             $0.keyboardType = .default
             $0.returnKeyType = .done
@@ -305,7 +312,11 @@ extension CameraDisplayViewController {
             PHPhotoLibrary.shared().performChanges {
                 let creationRequest = PHAssetCreationRequest.forAsset()
                 creationRequest.addResource(with: .photo, data: originalData, options: nil)
-                owner.makeToastView(title: "이미지가 저장되었습니다.", textColor: .white, radius: 5)
+                owner.makeRoundedToastView(
+                    title: "사진이 저장되었습니다.",
+                    designSystemImage: DesignSystemAsset.camera.image.withTintColor(DesignSystemAsset.gray300.color),
+                    height: 56
+                )
             }
         } else {
             PHPhotoLibrary.requestAuthorization(for: .addOnly) { stauts in

@@ -24,7 +24,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let scene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: scene)
 //               window?.rootViewController = UINavigationController(rootViewController: HomeViewController(reacter: HomeViewReactor()))
-        window?.rootViewController = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
+        let cameraDisplayDIContainer = CameraDIContainer().makeViewController()
+        
+        window?.rootViewController = UINavigationController(rootViewController: cameraDisplayDIContainer)
         window?.makeKeyAndVisible()
     }
     

@@ -162,7 +162,7 @@ class APIWorker: NSObject {
         return self.request(spec: spec, headers: headers, jsonData: jsonData)
     }
     
-    public func upload(spec: APISpec, headers: [APIHeader]? = nil, image: Data, fileName: String, filePath: UploadLocation) -> Single<Bool> {
+    public func upload(spec: APISpec, headers: [APIHeader]? = nil, image: Data) -> Single<Bool> {
         
         let hds = self.httpHeaders(headers)
         guard let url = URL(string: spec.url) else {
@@ -170,22 +170,19 @@ class APIWorker: NSObject {
         }
         
         var request = URLRequest(url: url)
-        request.httpMethod = spec.method.rawValue
         request.headers = hds
         
         return Single.create { single -> Disposable in
-            AF.upload(multipartFormData: { multipartFormData in
-                multipartFormData.append(image, withName: "file", fileName: "\(filePath.location)\(fileName).jpg", mimeType: "image/jpg")
-            }, with: request)
-            .validate(statusCode: [204])
-            .responseData { response in
-                switch response.result {
-                case .success(_):
-                    single(.success(true))
-                case let .failure(failure):
-                    single(.failure(failure))
+            AF.upload(image, to: url, method: spec.method, headers: hds)
+                .validate()
+                .responseData { response in
+                    switch response.result {
+                    case .success(_):
+                        single(.success(true))
+                    case let .failure(failure):
+                        single(.failure(failure))
+                    }
                 }
-            }
             return Disposables.create()
         }
         

@@ -28,4 +28,6 @@ public protocol ProfileViewInterface: AnyObject {
     var disposeBag: DisposeBag { get }
     
     func fetchProfileFeedItems() -> Observable<[FeedEntity]>
+    func fetchProfileMemberItems() -> Observable<ProfileMemberResponse>
+    
 }

@@ -9,6 +9,7 @@ import UIKit
 
 import Core
 import DesignSystem
+import Kingfisher
 import RxSwift
 import RxCocoa
 import ReactorKit
@@ -153,6 +154,21 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .drive(profileFeedCollectionView.rx.items(dataSource: profileFeedDataSources))
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$profileMemberEntity)
+            .compactMap { $0 }
+            .map { $0.memberName }
+            .withUnretained(self)
+            .bind(onNext: { $0.0.setupProfileButton(title: $0.1)})
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$profileMemberEntity)
+            .compactMap { $0 }
+            .map { $0.memberImage }
+            .withUnretained(self)
+            .bind(onNext: { $0.0.setupProfileImage($0.1)})
+            .disposed(by: disposeBag)
+        
+        
     }
 }
 
@@ -179,6 +195,18 @@ extension ProfileViewController: UICollectionViewDelegateFlowLayout {
 
 
 extension ProfileViewController {
+    private func setupProfileImage(_ url: URL) {
+        profileView.profileImageView.kf.setImage(with: url)
+    }
+    
+    private func setupProfileButton(title: String) {
+        profileView.profileNickNameButton.configuration?.attributedTitle = AttributedString(NSAttributedString(string: title, attributes: [
+            .foregroundColor: DesignSystemAsset.gray200.color,
+            .font: DesignSystemFontFamily.Pretendard.bold.font(size: 16)
+        ]))
+        
+    }
+    
     
     private func createAlertController(owner: ProfileViewController) {
         let alertController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)

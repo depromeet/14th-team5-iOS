@@ -11,7 +11,8 @@ import RxCocoa
 import RxSwift
 
 public protocol ProfileViewUsecaseProtocol {
-    func excute() -> Observable<[FeedEntity]>
+    func executeProfileMemberItems() -> Observable<ProfileMemberResponse>
+    func execute() -> Observable<[FeedEntity]>
 }
 
 
@@ -22,7 +23,11 @@ public final class ProfileViewUseCase: ProfileViewUsecaseProtocol {
         self.profileViewRepository = profileViewRepository
     }
     
-    public func excute() -> Observable<[FeedEntity]> {
+    public func executeProfileMemberItems() -> Observable<ProfileMemberResponse> {
+        return profileViewRepository.fetchProfileMemberItems()
+    }
+    
+    public func execute() -> Observable<[FeedEntity]> {
         return profileViewRepository.fetchProfileFeedItems()
     }
     

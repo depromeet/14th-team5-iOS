@@ -18,16 +18,22 @@ import RxCocoa
 public final class ProfileViewRepository {
         
     public var disposeBag: DisposeBag = DisposeBag()
+    private let profileAPIWorker: ProfileAPIWorker = ProfileAPIWorker()
+    private let accessToken: String = "eyJyZWdEYXRlIjoxNzAzNTIwODMzMjkwLCJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwMzYwNzIzM30.3sXvWVhPzb_CHXDrscsZCznIXt_sMaORb55n54JojCY"
     
     public init() { }
-    
-    
-    
     
 }
 
 
 extension ProfileViewRepository: ProfileViewInterface {
+    
+    
+    public func fetchProfileMemberItems() -> Observable<ProfileMemberResponse> {
+        return profileAPIWorker.fetchProfileMember(accessToken: accessToken, "01HJBNXAV0TYQ1KESWER45A2QP")
+            .compactMap { $0?.toDomain() }
+            .asObservable()
+    }
     
     
     public func fetchProfileFeedItems() -> RxSwift.Observable<[Domain.FeedEntity]> {

@@ -22,18 +22,21 @@ public final class ProfileViewReactor: Reactor {
     public enum Mutation {
         case setLoading(Bool)
         case setFeedCategroySection([ProfileFeedSectionItem])
+        case setProfileMemberItems(ProfileMemberResponse)
     }
     
     public struct State {
         var isLoading: Bool
         @Pulse var feedSection: [ProfileFeedSectionModel]
+        @Pulse var profileMemberEntity: ProfileMemberResponse?
     }
     
     init(profileUseCase: ProfileViewUsecaseProtocol) {
         self.profileUseCase = profileUseCase
         self.initialState = State(
             isLoading: false,
-            feedSection: [.feedCategory([])]
+            feedSection: [.feedCategory([])],
+            profileMemberEntity: nil
         )
     }
     
@@ -43,7 +46,13 @@ public final class ProfileViewReactor: Reactor {
         case .viewDidLoad:
             return .concat(
                 .just(.setLoading(true)),
-                profileUseCase.excute()
+                profileUseCase.executeProfileMemberItems()
+                    .asObservable()
+                    .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
+                        return .just(.setProfileMemberItems(entity))
+                    },
+                
+                profileUseCase.execute()
                     .asObservable()
                     .flatMap { items -> Observable<ProfileViewReactor.Mutation> in
                         var sectionItems: [ProfileFeedSectionItem] = []
@@ -71,6 +80,10 @@ public final class ProfileViewReactor: Reactor {
         case let .setFeedCategroySection(section):
             let sectionIndex = getSection(.feedCategory([]))
             newState.feedSection[sectionIndex] = .feedCategory(section)
+            
+        case let .setProfileMemberItems(entity):
+            print("ProfileMember Entity: \(entity)")
+            newState.profileMemberEntity = entity
         }
         
         return newState

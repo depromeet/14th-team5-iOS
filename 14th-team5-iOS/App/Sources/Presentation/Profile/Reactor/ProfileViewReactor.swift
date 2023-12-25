@@ -7,13 +7,13 @@
 
 import Foundation
 
-import Data
+import Domain
 import ReactorKit
 
 
 public final class ProfileViewReactor: Reactor {
     public var initialState: State
-    private let profileRepository: ProfileViewImpl
+    private let profileUseCase: ProfileViewUsecaseProtocol
     
     public enum Action {
         case viewDidLoad
@@ -29,8 +29,8 @@ public final class ProfileViewReactor: Reactor {
         @Pulse var feedSection: [ProfileFeedSectionModel]
     }
     
-    init(profileRepository: ProfileViewImpl) {
-        self.profileRepository = profileRepository
+    init(profileUseCase: ProfileViewUsecaseProtocol) {
+        self.profileUseCase = profileUseCase
         self.initialState = State(
             isLoading: false,
             feedSection: [.feedCategory([])]
@@ -43,7 +43,7 @@ public final class ProfileViewReactor: Reactor {
         case .viewDidLoad:
             return .concat(
                 .just(.setLoading(true)),
-                profileRepository.fetchProfileFeedItems()
+                profileUseCase.excute()
                     .asObservable()
                     .flatMap { items -> Observable<ProfileViewReactor.Mutation> in
                         var sectionItems: [ProfileFeedSectionItem] = []

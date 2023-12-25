@@ -2,36 +2,35 @@
 //  ProfileViewRepository.swift
 //  Data
 //
-//  Created by Kim dohyun on 12/17/23.
+//  Created by Kim dohyun on 12/25/23.
 //
 
 import Foundation
 
+import Domain
 import RxSwift
 import RxCocoa
 
 
-public struct FeedEntity {
-    public var imageURL: String
-    public var descrption: String
-    public var subTitle: String
-}
 
 
-public protocol ProfileViewImpl: AnyObject {
-    var disposeBag: DisposeBag { get }
-    
-    func fetchProfileFeedItems() -> Observable<[FeedEntity]>
-}
 
-
-public final class ProfileViewRepository: ProfileViewImpl {
-    
+public final class ProfileViewRepository {
+        
     public var disposeBag: DisposeBag = DisposeBag()
     
     public init() { }
     
-    public func fetchProfileFeedItems() -> RxSwift.Observable<[FeedEntity]> {
+    
+    
+    
+}
+
+
+extension ProfileViewRepository: ProfileViewInterface {
+    
+    
+    public func fetchProfileFeedItems() -> RxSwift.Observable<[Domain.FeedEntity]> {
         let items: [FeedEntity] = [
             FeedEntity(
                 imageURL: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg",

@@ -13,11 +13,11 @@ import Domain
 import ReactorKit
 import RxSwift
 
-public final class AddFamiliyViewReactor: Reactor {
+public final class AddFamilyViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case didTapInvitationUrlButton
-        case refreshYourFamiliyMemeber
+        case fetchYourFamilyMemeber
     }
     
     // MARK: - Mutate
@@ -25,7 +25,7 @@ public final class AddFamiliyViewReactor: Reactor {
         case presentSharePanel(URL?)
         case presentInvitationUrlCopySuccessToastMessage
         case presentFetchInvitationUrlFailureTaostMessage
-        case refreshYourFamiliyMember([SectionOfFamiliyMemberProfile])
+        case fetchYourFamilyMember(SectionOfFamilyMemberProfile)
     }
     
     // MARK: - State
@@ -33,21 +33,22 @@ public final class AddFamiliyViewReactor: Reactor {
         @Pulse var invitationUrl: URL?
         @Pulse var shouldPresentInvitationUrlCopySuccessToastMessage: Bool = false
         @Pulse var shouldPresentFetchInvitationUrlFailureToastMessage: Bool = false
-        var yourFamiliyDatasource: [SectionOfFamiliyMemberProfile] = []
-        var yourFaimliyMemberCount: Int = 0
+        var familyMemberCount: Int = 0
+        var familyDatasource: [SectionOfFamilyMemberProfile] = [.init(items: [])]
     }
     
     // MARK: - Properties
     public let initialState: State
     public let provider: GlobalStateProviderType
     
-    public let addFamiliyRepository: AddFamiliyImpl
+    public let addFamilyRepository: AddFamilyImpl
     
     // MARK: - Intializer
     init(provider: GlobalStateProviderType) {
         self.initialState = State()
         self.provider = provider
-        self.addFamiliyRepository = AddFamiliyRepository()
+        
+        self.addFamilyRepository = AddFamilyRepository()
     }
     
     // MARK: - Transform
@@ -67,23 +68,22 @@ public final class AddFamiliyViewReactor: Reactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .didTapInvitationUrlButton:
-            // TODO: - 통신 성공 여부 확인, FamilyID 구하는 코드 구현
-            return addFamiliyRepository.fetchInvitationUrl("01HGW2N7EHJVJ4CJ999RRS2E97")
+            // TODO: - 통신 성공 여부 확인
+            return addFamilyRepository.fetchInvitationUrl()
                 .map {
                     guard let url = $0 else {
                         return .presentFetchInvitationUrlFailureTaostMessage
                     }
                     return .presentSharePanel(url)
                 }
-        case .refreshYourFamiliyMemeber:
+        case .fetchYourFamilyMemeber:
             // TODO: - 통신 성공 여부 확인
-            return addFamiliyRepository.fetchFamiliyMemeber()
+            return addFamilyRepository.fetchFamiliyMemeber()
                 .map {
-                    guard let familiyMember = $0 else {
-                        return .refreshYourFamiliyMember([])
+                    guard let paginationFamilyMember = $0 else {
+                        return .fetchYourFamilyMember(.init(items: []))
                     }
-                    let sectionModel = SectionOfFamiliyMemberProfile.toSectionModel(familiyMember)
-                    return .refreshYourFamiliyMember(sectionModel)
+                    return .fetchYourFamilyMember(.init(items: paginationFamilyMember.results))
                 }
         }
     }
@@ -98,9 +98,9 @@ public final class AddFamiliyViewReactor: Reactor {
             newState.shouldPresentInvitationUrlCopySuccessToastMessage = true
         case .presentFetchInvitationUrlFailureTaostMessage:
             newState.shouldPresentFetchInvitationUrlFailureToastMessage = true
-        case let .refreshYourFamiliyMember(familiyMember):
-            newState.yourFamiliyDatasource = familiyMember
-            newState.yourFaimliyMemberCount = familiyMember.first?.items.count ?? 0
+        case let .fetchYourFamilyMember(familiyMember):
+            newState.familyDatasource = [familiyMember]
+            newState.familyMemberCount = familiyMember.items.count
         }
         return newState
     }

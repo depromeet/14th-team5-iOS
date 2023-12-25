@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum AddFamiliyCell {
+enum AddFamilyCell {
     enum AutoLayout {
         static let profileImageLeadingOffsetValue: CGFloat = 16.0
         static let profileImageTopOffsetValue: CGFloat = 12.0

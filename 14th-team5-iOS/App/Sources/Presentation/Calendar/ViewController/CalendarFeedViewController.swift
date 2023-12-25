@@ -18,7 +18,7 @@ import SnapKit
 import Then
 
 
-public final class CalendarFeedViewController: BaseViewController<CalendarFeedViewReactor> {
+public final class CalendarFeedViewController: BaseViewController<CalendarPostViewReactor> {
     // MARK: - Views
     private let imageBlurView: UIImageView = UIImageView()
     
@@ -140,13 +140,13 @@ public final class CalendarFeedViewController: BaseViewController<CalendarFeedVi
         setupNavigationTitle(calendarView.currentPage)
     }
 
-    public override func bind(reactor: CalendarFeedViewReactor) { 
+    public override func bind(reactor: CalendarPostViewReactor) { 
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: CalendarFeedViewReactor) {
+    private func bindInput(reactor: CalendarPostViewReactor) {
         backButton.rx.tap
             .withUnretained(self)
             .subscribe {
@@ -160,7 +160,7 @@ public final class CalendarFeedViewController: BaseViewController<CalendarFeedVi
             .disposed(by: disposeBag)
     }
     
-    private func bindOutput(reactor: CalendarFeedViewReactor) {
+    private func bindOutput(reactor: CalendarPostViewReactor) {
         reactor.state.map { $0.selectedDate }
             .distinctUntilChanged()
             .withUnretained(self)
@@ -223,17 +223,17 @@ extension CalendarFeedViewController: FSCalendarDataSource {
         ) as! ImageCalendarCell
         
         // NOTE: - 더미 데이터
-        let imageUrls = [
-            "https://cdn.pixabay.com/photo/2023/11/20/13/48/butterfly-8401173_1280.jpg",
-            "https://cdn.pixabay.com/photo/2023/11/10/02/30/woman-8378634_1280.jpg",
-            "https://cdn.pixabay.com/photo/2023/11/26/08/27/leaves-8413064_1280.jpg",
-            "https://cdn.pixabay.com/photo/2023/09/03/17/00/chives-8231068_1280.jpg",
-            "https://cdn.pixabay.com/photo/2023/09/25/13/42/kingfisher-8275049_1280.png",
-            "", "", "", ""
-        ]
-        let cellModel = TempCalendarCellModel(date: date, imageUrl: imageUrls.randomElement(), isHidden: Bool.random())
+//        let imageUrls = [
+//            "https://cdn.pixabay.com/photo/2023/11/20/13/48/butterfly-8401173_1280.jpg",
+//            "https://cdn.pixabay.com/photo/2023/11/10/02/30/woman-8378634_1280.jpg",
+//            "https://cdn.pixabay.com/photo/2023/11/26/08/27/leaves-8413064_1280.jpg",
+//            "https://cdn.pixabay.com/photo/2023/09/03/17/00/chives-8231068_1280.jpg",
+//            "https://cdn.pixabay.com/photo/2023/09/25/13/42/kingfisher-8275049_1280.png",
+//            "", "", "", ""
+//        ]
+//        let cellModel = TempCalendarCellModel(date: date, imageUrl: imageUrls.randomElement(), isHidden: Bool.random())
         
-        cell.reactor = ImageCalendarCellReactor(cellModel)
+//        cell.reactor = ImageCalendarCellReactor(cellModel)
         return cell
     }
 }

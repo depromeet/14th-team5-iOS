@@ -8,12 +8,17 @@
 import UIKit
 
 import Core
+import Domain
 import FSCalendar
 import ReactorKit
 import RxCocoa
 import RxSwift
 import SnapKit
 import Then
+
+// NOTE: - 주간 캘린더의 각 셀의 isSelected 모델 관리 방안
+// ・ 최상위 뷰 컨트롤러 혹은 Reactor에 선택된 셀 모델(Date)을 저장 후,
+// ・ 선택된 셀이 화면에 보인다면, 선택된 셀에 한해 특수 효과 처리하기
 
 final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     // MARK: - Views
@@ -65,7 +70,6 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     override func setupAttributes() { 
         super.setupAttributes()
         calendarTitleLabel.do {
-            $0.text = CalendarCell.Strings.calendarName
             $0.textColor = UIColor.white
             $0.textAlignment = .center
             $0.font = UIFont.boldSystemFont(ofSize: CalendarCell.Attribute.calendarTitleFontSize)
@@ -116,10 +120,10 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
             $0.locale = Locale.autoupdatingCurrent
             $0.register(ImageCalendarCell.self, forCellReuseIdentifier: ImageCalendarCell.id)
             $0.register(PlaceholderCalendarCell.self, forCellReuseIdentifier: PlaceholderCalendarCell.id)
+            
+            $0.delegate = self
+            $0.dataSource = self
         }
-        
-        calendarView.delegate = self
-        calendarView.dataSource = self
         
         setupCalendarTitle(calendarView.currentPage)
     }
@@ -131,8 +135,13 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     }
     
     private func bindInput(reactor: CalendarPageCellReactor) {
+        Observable<Void>.just(())
+            .map { Reactor.Action.fetchCalendarResponse }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         infoButton.rx.tap
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .withUnretained(self)
             .map { Reactor.Action.didTapInfoButton($0.0.infoButton) }
             .bind(to: reactor.action)
@@ -144,7 +153,30 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
             .disposed(by: disposeBag)
     }
     
-    private func bindOutput(reactor: CalendarPageCellReactor) { }
+    private func bindOutput(reactor: CalendarPageCellReactor) { 
+        reactor.state.map { $0.arrayCalendarResponse }
+            .withUnretained(self)
+            .subscribe { $0.0.calendarView.reloadData() }
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.date }
+            .distinctUntilChanged()
+            .bind(to: calendarView.rx.currentPage)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.date }
+            .distinctUntilChanged()
+            .bind(to: calendarTitleLabel.rx.calendarTitleText)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.date }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe {
+                $0.0.setupCalendarTitle($0.1)
+            }
+            .disposed(by: disposeBag)
+    }
 }
 
 extension CalendarPageCell {
@@ -155,12 +187,14 @@ extension CalendarPageCell {
 
 extension CalendarPageCell: FSCalendarDelegate {     
     func calendar(_ calendar: FSCalendar, shouldSelect date: Date, at monthPosition: FSCalendarMonthPosition) -> Bool {
-        let calendarMonth = calendar.currentPage.month
-        let positionMonth = date.month
-        let calendarImageCell = calendar.cell(for: date, at: monthPosition) as! ImageCalendarCell
-        // 셀의 날짜가 현재 월(月)과 동일하다면
-        if calendarMonth == positionMonth && calendarImageCell.hasThumbnailImage {
-            return true
+        let dateMonth = date.month
+        let currentMonth = calendar.currentPage.month
+        
+        if let calendarCell = calendar.cell(for: date, at: monthPosition) as? ImageCalendarCell {
+            // 셀의 날짜가 현재 월(月)과 동일하고, 썸네일 이미지가 있다면
+            if dateMonth == currentMonth && calendarCell.hasThumbnailImage {
+                return true
+            }
         }
         
         return false
@@ -179,18 +213,19 @@ extension CalendarPageCell: FSCalendarDataSource {
                 at: position
             ) as! ImageCalendarCell
             
-            // NOTE: - 더미 데이터
-            let imageUrls = [
-                "https://cdn.pixabay.com/photo/2023/11/20/13/48/butterfly-8401173_1280.jpg",
-                "https://cdn.pixabay.com/photo/2023/11/10/02/30/woman-8378634_1280.jpg",
-                "https://cdn.pixabay.com/photo/2023/11/26/08/27/leaves-8413064_1280.jpg",
-                "https://cdn.pixabay.com/photo/2023/09/03/17/00/chives-8231068_1280.jpg",
-                "https://cdn.pixabay.com/photo/2023/09/25/13/42/kingfisher-8275049_1280.png",
-                "", "", "", ""
-            ]
-            let cellModel = TempCalendarCellModel(date: date, imageUrl: imageUrls.randomElement(), isHidden: Bool.random())
+            // 해당 일자에 데이터가 존재하지 않는다면
+            guard let dayResponse = reactor?.currentState.arrayCalendarResponse?.results.filter({ $0.date == date }).first else {
+                let emptyResponse = CalendarResponse(
+                    date: date,
+                    representativePostId: "",
+                    representativeThumbnailUrl: "",
+                    allFamilyMemebersUploaded: false
+                )
+                cell.reactor = ImageCalendarCellReactor(dayResponse: emptyResponse)
+                return cell
+            }
             
-            cell.reactor = ImageCalendarCellReactor(cellModel)
+            cell.reactor = ImageCalendarCellReactor(dayResponse: dayResponse)
             return cell
         // 셀의 날짜가 현재 월(月)과 동일하지 않다면
         } else {

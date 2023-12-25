@@ -27,7 +27,7 @@ public final class CalendarDIConatainer: BaseDIContainer {
     }
     
     public func makeRepository() -> CalendarImpl {
-        return CalendarViewRepository()
+        return CalendarRepository()
     }
     
     public func makeReactor() -> CalendarViewReactor {

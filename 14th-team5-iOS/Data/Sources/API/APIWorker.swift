@@ -100,7 +100,7 @@ fileprivate extension NSMutableData {
 }
 
 // MARK: API Worker
-public class APIWorker: NSObject {
+class APIWorker: NSObject {
     private func httpHeaders(_ headers: [APIHeader]?) -> HTTPHeaders {
         var result: [String: String] = [:]
         guard let headers = headers, !headers.isEmpty else { return HTTPHeaders() }
@@ -162,33 +162,27 @@ public class APIWorker: NSObject {
         return self.request(spec: spec, headers: headers, jsonData: jsonData)
     }
     
-    public func upload<T: Decodable>(spec: APISpec, headers: [APIHeader]? = nil, image: Data) -> Observable<T> {
+    public func upload(spec: APISpec, headers: [APIHeader]? = nil, image: Data) -> Single<Bool> {
         
         let hds = self.httpHeaders(headers)
         guard let url = URL(string: spec.url) else {
-            return Observable.error(AFError.explicitlyCancelled)
+            return Single.error(AFError.explicitlyCancelled)
         }
         
-        let requestHeaders = self.httpHeaders(headers)
         var request = URLRequest(url: url)
-        request.httpMethod = spec.method.rawValue
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.headers = hds
         
-        return Observable.create { observer in
-            _ = AF.upload(multipartFormData: { multipartFormData in
-                multipartFormData.append(image, withName: "imageName", fileName: "\(image.base64EncodedString()).jpg", mimeType: "image/jpg")
-            }, with: request)
-            .responseDecodable(of: T.self) { response in
-                switch response.result {
-                case let .success(data):
-                    print(data)
-                case let .failure(error):
-                    print(error.localizedDescription)
+        return Single.create { single -> Disposable in
+            AF.upload(image, to: url, method: spec.method, headers: hds)
+                .validate()
+                .responseData { response in
+                    switch response.result {
+                    case .success(_):
+                        single(.success(true))
+                    case let .failure(failure):
+                        single(.failure(failure))
+                    }
                 }
-            }
-            
->>>>>>> 7370918 (feat: CameraAPIWorker, APIWorker, APIWorkers  Camera 관련 API 로직 추가)
             return Disposables.create()
         }
         

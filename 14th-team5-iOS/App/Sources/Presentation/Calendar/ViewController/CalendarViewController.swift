@@ -24,6 +24,12 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
         collectionViewLayout: orthogonalCompositionalLayout
     )
     
+    // MARK: - Properties
+    private lazy var dataSource: RxCollectionViewSectionedReloadDataSource<SectionOfMonthlyCalendar> = prepareDatasource()
+    
+    // 캘린더에 표시할 월 별 날짜
+    private let yearMonthArray: [String] = Date.for20230101.generateYearMonthStringsToToday()
+    
     // MARK: - Lifecycles
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -50,30 +56,42 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
     public override func setupAttributes() {
         super.setupAttributes()
         collectionView.do {
-            $0.dataSource = self
-            
             $0.isScrollEnabled = false
             $0.backgroundColor = UIColor.clear
             $0.register(CalendarPageCell.self, forCellWithReuseIdentifier: CalendarPageCell.id)
         }
+        scrollToLastIndexPath()
         
         navigationItem.title = "추억 캘린더"
     }
     
     public override func bind(reactor: CalendarViewReactor) {
         super.bind(reactor: reactor)
+        bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
+    private func bindInput(reactor: CalendarViewReactor) {
+        Observable<String>.from(yearMonthArray)
+            .map { Reactor.Action.addMonthlyCalendarItem($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+    }
+    
     private func bindOutput(reactor: CalendarViewReactor) {
-        reactor.pulse(\.$pushCalendarFeedVC)
+        reactor.state.map { $0.calendarDatasource }
+            .distinctUntilChanged(at: \.count)
+            .bind(to: collectionView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$pushCalendarPostVC)
             .withUnretained(self)
             .subscribe {
                 $0.0.pushCalendarFeedView($0.1)
             }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldPresentPopoverVC)
+        reactor.pulse(\.$shouldPresentCalendarDescriptionPopoverVC)
             .withUnretained(self)
             .subscribe {
                 $0.0.makeDescriptionPopoverView(
@@ -92,7 +110,7 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
 }
 
 extension CalendarViewController {
-    var orthogonalCompositionalLayout: UICollectionViewCompositionalLayout {
+    private var orthogonalCompositionalLayout: UICollectionViewCompositionalLayout {
         // item
         let itemSize: NSCollectionLayoutSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
@@ -123,25 +141,30 @@ extension CalendarViewController {
 }
 
 extension CalendarViewController {
-    func pushCalendarFeedView(_ date: Date?) {
-        let container = CalendarFeedDIConatainer(selectedDate: date ?? Date())
-        navigationController?.pushViewController(container.makeViewController(), animated: true)
-    }
-}
-
-// NOTE: - 임시 코드
-extension CalendarViewController: UICollectionViewDataSource {
-    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 3
+    private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<SectionOfMonthlyCalendar> {
+        return RxCollectionViewSectionedReloadDataSource<SectionOfMonthlyCalendar> { datasource, collectionView, indexPath, yearMonth in
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarPageCell.id, for: indexPath) as! CalendarPageCell
+            cell.reactor = CalendarPageCellDIContainer().makeReactor(yearMonth: yearMonth)
+            return cell
+        }
     }
     
-    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: CalendarPageCell.id,
-            for: indexPath
-        ) as! CalendarPageCell
-        cell.reactor = CalendarPageCellDIContainer().makeReactor()
-        return cell
+    private func pushCalendarFeedView(_ date: Date?) {
+        let container = CalendarPostDIConatainer(selectedDate: date ?? Date())
+        navigationController?.pushViewController(container.makeViewController(), animated: true)
+    }
+    
+    private func scrollToLastIndexPath() {
+        collectionView.layoutIfNeeded()
+        let lastIndexPath: IndexPath = IndexPath(
+            item: dataSource[0].items.count - 1,
+            section: 0
+        )
+        collectionView.scrollToItem(
+            at: lastIndexPath,
+            at: .centeredHorizontally,
+            animated: false
+        )
     }
 }
 

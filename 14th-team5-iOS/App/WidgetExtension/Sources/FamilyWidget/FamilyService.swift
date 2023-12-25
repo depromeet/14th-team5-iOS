@@ -6,10 +6,12 @@
 //
 
 import Foundation
+import Data
+import Domain
 
 struct FamilyService {
     func getFamilyInfo() async throws -> Family {
-        let url = URL(string: "https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en")!
+        let url = URL(string: "https://dev.api.no5ing.kr/v1/widgets/single-recent-family-post")!
         var request = URLRequest(url: url)
         request.addValue("application/json", forHTTPHeaderField: "Accept")
 

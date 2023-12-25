@@ -7,25 +7,31 @@
 
 import Foundation
 
+import Domain
 import ReactorKit
 import RxSwift
-
-// NOTE: - 임시 코드
-struct TempCalendarCellModel {
-    let date: Date
-    var imageUrl: String?
-    var isHidden: Bool
-}
 
 final class ImageCalendarCellReactor: Reactor {
     // MARK: - Action
     typealias Action = NoAction
     
+    struct State {
+        var date: Date
+        var representativePostId: String?
+        var representativeThumbnailUrl: String?
+        var allFamilyMemebersUploaded: Bool = false
+    }
+    
     // MARK: - Properties
-    var initialState: TempCalendarCellModel
+    var initialState: State
     
     // MARK: - Intializer
-    init(_ model: TempCalendarCellModel) {
-        self.initialState = model
+    init(dayResponse: CalendarResponse) {
+        self.initialState = State(
+            date: dayResponse.date,
+            representativePostId: dayResponse.representativePostId,
+            representativeThumbnailUrl: dayResponse.representativeThumbnailUrl,
+            allFamilyMemebersUploaded: dayResponse.allFamilyMemebersUploaded
+        )
     }
 }

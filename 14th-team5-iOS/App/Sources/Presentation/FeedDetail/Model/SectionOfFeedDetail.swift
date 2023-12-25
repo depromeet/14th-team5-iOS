@@ -16,8 +16,8 @@ struct FeedDetailData {
 }
 
 struct EmojiData {
-    let emoji: String
-    let count: Int
+    let emoji: Emojis
+    var count: Int
 }
 
 struct SectionOfFeedDetail {
@@ -42,22 +42,10 @@ extension SectionOfFeedDetail {
         return [
             SectionModel<String, FeedDetailData>(model: "section1", items: [
                 FeedDetailData(writer: "Jenny", time: "오후 3:28:59", imageURL: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg", imageText: "찰칵~", emojis: [
-                    EmojiData(emoji: "😆", count: 4),
-                    EmojiData(emoji: "😆", count: 4),
-                    EmojiData(emoji: "😆", count: 4),
-                    EmojiData(emoji: "😆", count: 4),
                 ]),
                 FeedDetailData(writer: "Jenny", time: "오후 3:28:59", imageURL: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg", imageText: "찰칵~", emojis: [
-                    EmojiData(emoji: "😆", count: 4),
-                    EmojiData(emoji: "😆", count: 4),
-                    EmojiData(emoji: "😆", count: 4),
-                    EmojiData(emoji: "😆", count: 4),
                 ]),
                 FeedDetailData(writer: "Jenny", time: "오후 3:28:59", imageURL: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg", imageText: "찰칵~", emojis: [
-                    EmojiData(emoji: "😆", count: 4),
-                    EmojiData(emoji: "😆", count: 4),
-                    EmojiData(emoji: "😆", count: 4),
-                    EmojiData(emoji: "😆", count: 4),
                 ])
             ])
         ]

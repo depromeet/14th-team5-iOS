@@ -7,6 +7,7 @@
 
 import WidgetKit
 import SwiftUI
+import DesignSystem
 
 @main
 struct FamilyWidget: Widget {
@@ -21,7 +22,7 @@ struct FamilyWidget: Widget {
                 FamilyWidgetView(entry: entry)
             }
         }
-        .supportedFamilies([.systemSmall])
+        .supportedFamilies([.systemSmall, .systemLarge])
         .contentMarginsDisabled()
         .configurationDisplayName("Bibbi")
         .description("Bibbi description")

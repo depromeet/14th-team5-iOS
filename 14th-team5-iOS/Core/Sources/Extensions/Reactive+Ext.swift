@@ -37,3 +37,26 @@ extension Reactive where Base: UITapGestureRecognizer {
         return ControlEvent(events: tapEvent)
     }
 }
+
+extension Reactive where Base: UILabel {
+    public var isMeText: Binder<Bool> {
+        Binder(self.base) { label, isMe in
+            label.text = isMe ? "ME" : ""
+        }
+    }
+    
+    public var calendarTitleText: Binder<Date> {
+        Binder(self.base) { label, date in
+            let text = DateFormatter.yyyyMM.string(from: date)
+            label.text = text
+        }
+    }
+}
+
+extension Reactive where Base: UIStackView {
+    public var isMeSpacing: Binder<Bool> {
+        Binder(self.base) { stackView, isMe in
+            stackView.spacing = isMe ? 3.0 : 0.0
+        }
+    }
+}

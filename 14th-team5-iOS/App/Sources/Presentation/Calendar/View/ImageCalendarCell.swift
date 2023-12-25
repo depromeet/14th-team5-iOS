@@ -46,6 +46,13 @@ final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func prepareForReuse() {
+        dayLabel.textColor = UIColor.white
+        thumbnailView.image = nil
+        thumbnailView.layer.borderWidth = .zero
+        badgeView.isHidden = true
+    }
+    
     // MARK: - Helpers
     private func setupUI() {
         contentView.insertSubview(thumbnailView, at: 0)
@@ -114,22 +121,48 @@ final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
     }
     
     func bind(reactor: ImageCalendarCellReactor) {
-        thumbnailView.kf.setImage(with: URL(string: reactor.currentState.imageUrl ?? ""))
-        badgeView.isHidden = reactor.currentState.isHidden
-        dayLabel.text = "\(reactor.currentState.date.day)"
-        
-        if reactor.currentState.date.isToday {
-            dayLabel.textColor = UIColor.green
-            thumbnailView.layer.borderWidth = 2.5
-            thumbnailView.layer.borderColor = UIColor.green.cgColor
-        }
+        bindInput(reactor: reactor)
+        bindOutput(reactor: reactor)
     }
     
-    override func prepareForReuse() {
-        dayLabel.textColor = UIColor.white
-        thumbnailView.image = nil
-        thumbnailView.layer.borderWidth = .zero
-        badgeView.isHidden = true
+    private func bindInput(reactor: ImageCalendarCellReactor) { }
+    
+    private func bindOutput(reactor: ImageCalendarCellReactor) {
+        reactor.state.map { "\($0.date.day)" }
+            .distinctUntilChanged()
+            .bind(to: dayLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.date.isToday }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe {
+                if $0.1 {
+                    $0.0.dayLabel.textColor = UIColor.green
+                    $0.0.thumbnailView.layer.borderWidth = 1.5
+                    $0.0.thumbnailView.layer.borderColor = UIColor.green.cgColor
+                }
+            }
+            .disposed(by: disposeBag)
+            
+        reactor.state.map { !$0.allFamilyMemebersUploaded }
+            .distinctUntilChanged()
+            .bind(to: badgeView.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.representativeThumbnailUrl }
+            .compactMap { $0 }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe {
+                $0.0.thumbnailView.kf.setImage(
+                    with: URL(string: $0.1),
+                    options: [
+                        .transition(.fade(0.25))
+                    ]
+                )
+            }
+            .disposed(by: disposeBag)
     }
 }
 
@@ -149,7 +182,7 @@ extension ImageCalendarCell {
         
         // 오늘 날짜라면
         guard let reactor = reactor,
-              !reactor.currentState.date.isToday else {
+              !(reactor.initialState.date.isToday) else {
             thumbnailView.layer.borderColor = UIColor.green.cgColor
             return
         }

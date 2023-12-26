@@ -7,6 +7,7 @@
 
 import Foundation
 
+import Core
 import Domain
 import ReactorKit
 
@@ -23,12 +24,14 @@ public final class ProfileViewReactor: Reactor {
         case setLoading(Bool)
         case setFeedCategroySection([ProfileFeedSectionItem])
         case setProfileMemberItems(ProfileMemberResponse)
+        case setProfilePostItems(ProfilePostResponse)
     }
     
     public struct State {
         var isLoading: Bool
         @Pulse var feedSection: [ProfileFeedSectionModel]
         @Pulse var profileMemberEntity: ProfileMemberResponse?
+        @Pulse var profilePostEntity: ProfilePostResponse?
     }
     
     init(profileUseCase: ProfileViewUsecaseProtocol) {
@@ -44,26 +47,32 @@ public final class ProfileViewReactor: Reactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewDidLoad:
+            
+            let query: ProfilePostQuery = ProfilePostQuery(page: 1, size: 10)
+            
             return .concat(
                 .just(.setLoading(true)),
                 profileUseCase.executeProfileMemberItems()
                     .asObservable()
                     .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
-                        return .just(.setProfileMemberItems(entity))
+                            .just(.setProfileMemberItems(entity))
                     },
                 
-                profileUseCase.execute()
+                
+                profileUseCase.executeProfilePostItems(query: query, parameters: ProfilePostDefaultValue(date: "2023-12-05", memberId: "01HJBNXAV0TYQ1KESWER45A2QP", sort: "DESC"))
                     .asObservable()
-                    .flatMap { items -> Observable<ProfileViewReactor.Mutation> in
-                        var sectionItems: [ProfileFeedSectionItem] = []
-                        
-                        items.forEach {
-                            sectionItems.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageURL, title: $0.descrption, date: $0.subTitle)))
+                    .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
+                        var sectionItem: [ProfileFeedSectionItem] = []
+                        entity.results.forEach {
+                            sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, title: $0.content, date: DateFormatter.yyyyMMdd.string(from: $0.createdAt))))
+                            
                         }
                         return .concat(
-                            .just(.setFeedCategroySection(sectionItems)),
+                            .just(.setProfilePostItems(entity)),
+                            .just(.setFeedCategroySection(sectionItem)),
                             .just(.setLoading(false))
                         )
+
                     }
             )
             
@@ -80,6 +89,10 @@ public final class ProfileViewReactor: Reactor {
         case let .setFeedCategroySection(section):
             let sectionIndex = getSection(.feedCategory([]))
             newState.feedSection[sectionIndex] = .feedCategory(section)
+            
+        case let .setProfilePostItems(entity):
+            print("ProfilePost Entity: \(entity)")
+            newState.profilePostEntity = entity
             
         case let .setProfileMemberItems(entity):
             print("ProfileMember Entity: \(entity)")

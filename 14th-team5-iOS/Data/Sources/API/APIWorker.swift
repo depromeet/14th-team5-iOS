@@ -135,6 +135,15 @@ class APIWorker: NSObject {
             .debug("API Worker has received data from \"\(spec.url)\"")
     }
     
+    func request(spec: APISpec, headers: [APIHeader]? = nil, parameters: Encodable, encoding: ParameterEncoding? = URLEncoding.default) -> Observable<(HTTPURLResponse, Data)> {
+        let params = parameters.asDictionary()
+        let hds = self.httpHeaders(headers)
+        
+        return AF.rx.request(spec.method, spec.url, parameters: params, encoding: encoding!, headers: hds)
+            .responseData()
+            .debug("API Worker has received data from \"\(spec.url)\"")
+    }
+    
     private func request(spec: APISpec, headers: [APIHeader]? = nil, jsonData: Data) -> Observable<(HTTPURLResponse, Data)> {
 
         let hds = self.httpHeaders(headers)

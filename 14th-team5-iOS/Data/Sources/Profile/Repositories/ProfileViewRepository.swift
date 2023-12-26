@@ -28,9 +28,26 @@ public final class ProfileViewRepository {
 
 extension ProfileViewRepository: ProfileViewInterface {
     
-    
     public func fetchProfileMemberItems() -> Observable<ProfileMemberResponse> {
         return profileAPIWorker.fetchProfileMember(accessToken: accessToken, "01HJBNXAV0TYQ1KESWER45A2QP")
+            .compactMap { $0?.toDomain() }
+            .asObservable()
+    }
+    
+    public func fetchProfilePostItems(query: ProfilePostQuery, parameter: ProfilePostDefaultValue) -> Observable<ProfilePostResponse> {
+        
+        
+        let parameters: ProfilePostParameter = ProfilePostParameter(
+            page: query.page,
+            size: query.size,
+            date: parameter.date,
+            memberId: parameter.memberId,
+            sort: parameter.sort
+        )
+        
+        print("last parameters: \(parameters)")
+        
+        return profileAPIWorker.fetchProfilePost(accessToken: accessToken, parameter: parameters)
             .compactMap { $0?.toDomain() }
             .asObservable()
     }

@@ -104,12 +104,16 @@ public extension PrimitiveSequenceType where Trait == SingleTrait, Element == (H
 
 extension Encodable {
     
-    func asDictionary() throws -> [String: Any] {
-        let data = try JSONEncoder().encode(self)
-        guard let dict = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] else {
-            throw NSError()
+    func asDictionary() -> [String: Any]? {
+        do {
+            let data = try JSONEncoder().encode(self)
+            guard let dict = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] else { return nil }
+            
+            return dict
+        } catch let error {
+            print(error)
+            return nil
         }
-        return dict
     }
     
     func asArray() throws -> [AnyObject] {

@@ -13,6 +13,7 @@ import RxSwift
 public protocol ProfileViewUsecaseProtocol {
     func executeProfileMemberItems() -> Observable<ProfileMemberResponse>
     func execute() -> Observable<[FeedEntity]>
+    func executeProfilePostItems(query: ProfilePostQuery, parameters: ProfilePostDefaultValue) -> Observable<ProfilePostResponse>
 }
 
 
@@ -25,6 +26,11 @@ public final class ProfileViewUseCase: ProfileViewUsecaseProtocol {
     
     public func executeProfileMemberItems() -> Observable<ProfileMemberResponse> {
         return profileViewRepository.fetchProfileMemberItems()
+    }
+    
+    public func executeProfilePostItems(query: ProfilePostQuery, parameters: ProfilePostDefaultValue) -> Observable<ProfilePostResponse> {
+        print("query : \(query) and paramter: \(parameters)")
+        return profileViewRepository.fetchProfilePostItems(query: query, parameter: parameters)
     }
     
     public func execute() -> Observable<[FeedEntity]> {

@@ -25,6 +25,10 @@ extension DateFormatter {
         DateFormatter.withFormat("yyyy년 MM월 dd일")
     }()
     
+    public static let dashYyyyMMdd: DateFormatter = {
+        DateFormatter.withFormat("yyyy-MM-dd")
+    }()
+    
     public static let dashYyyyMMddhhmmss: DateFormatter = {
         DateFormatter.withFormat("yyyy-MM-dd hh:mm:ss")
     }()

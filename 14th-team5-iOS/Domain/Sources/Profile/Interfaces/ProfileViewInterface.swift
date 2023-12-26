@@ -29,5 +29,7 @@ public protocol ProfileViewInterface: AnyObject {
     
     func fetchProfileFeedItems() -> Observable<[FeedEntity]>
     func fetchProfileMemberItems() -> Observable<ProfileMemberResponse>
+    func fetchProfilePostItems(query: ProfilePostQuery, parameter: ProfilePostDefaultValue) -> Observable<ProfilePostResponse>
+    
     
 }

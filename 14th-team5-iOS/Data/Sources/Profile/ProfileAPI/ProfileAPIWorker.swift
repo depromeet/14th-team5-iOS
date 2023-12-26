@@ -49,9 +49,20 @@ extension ProfileAPIWorker {
         
     }
     
-    //TODO: Parameter Enocdable, DTO 추가 예정
-    func fetchProfilePost(accessToken: String) {
+    func fetchProfilePost(accessToken: String, parameter: ProfilePostParameter) -> Single<ProfilePostDTO?> {
+        let spec = ProfileAPIs.profilePost.spec
+        print("check FetchProfile post and url \(spec.url)")
         
+        return request(spec: spec, headers: [BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], parameters: parameter)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("fetch Profile Post Result: \(str)")
+                }
+            }
+            .map(ProfilePostDTO.self)
+            .catchAndReturn(nil)
+            .asSingle()
         
     }
 }

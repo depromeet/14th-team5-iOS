@@ -8,6 +8,8 @@
 import UIKit
 
 import Core
+import DesignSystem
+import Kingfisher
 import RxSwift
 import RxCocoa
 import ReactorKit
@@ -82,12 +84,11 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
     public override func bind(reactor: ProfileFeedCellReactor) {
         reactor.state
             .map { $0.imageURL }
-            .compactMap { URL(string: $0) }
-            .observe(on: MainScheduler.asyncInstance)
-            .compactMap { try UIImage(data: Data(contentsOf: $0)) }
-            .asDriver(onErrorJustReturn: UIImage())
-            .drive(feedImageView.rx.image)
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .bind(onNext: { $0.0.setupProfileFeedImage($0.1)})
             .disposed(by: disposeBag)
+
         
         reactor.state
             .map { $0.date }
@@ -105,4 +106,11 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
     
     
     
+}
+
+
+extension ProfileFeedCollectionViewCell {
+    private func setupProfileFeedImage(_ url: URL) {
+        feedImageView.kf.setImage(with: url)
+    }
 }

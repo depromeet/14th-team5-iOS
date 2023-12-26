@@ -78,7 +78,7 @@ public final class AddFamilyViewReactor: Reactor {
                 }
         case .fetchYourFamilyMemeber:
             // TODO: - 통신 성공 여부 확인
-            return addFamilyRepository.fetchFamiliyMemeber()
+            return addFamilyRepository.fetchFamilyMemeber()
                 .map {
                     guard let paginationFamilyMember = $0 else {
                         return .fetchYourFamilyMember(.init(items: []))

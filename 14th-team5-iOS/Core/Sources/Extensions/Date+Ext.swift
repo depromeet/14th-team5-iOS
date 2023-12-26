@@ -57,14 +57,46 @@ extension Date {
         }
         return dict
     }
+    
+    public func toString(with format: String) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = format
+        
+        return dateFormatter.string(from: self)
+    }
 }
 
 extension Date {
-    public func generateYearMonthStringsToToday() -> [String] {
+    static func + (date: Date, interval: TimeInterval) -> Date {
+        return date.addingTimeInterval(interval)
+    }
+    
+    static func - (date: Date, interval: TimeInterval) -> Date {
+        return date.addingTimeInterval(interval)
+    }
+}
+
+extension Date {
+    public func generatePreviousNextYearMonth() -> [String] {
         let currentDate: Date = Date()
         
-        let dateFormatter: DateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM"
+        var yearMonthStrings: [String] = []
+        
+        for month in -1...1 {
+            if let date = calendar.date(
+                byAdding: .month,
+                value: month,
+                to: self
+            ) {
+                yearMonthStrings.append(date.toString(with: "yyyy-MM"))
+            }
+        }
+        
+        return yearMonthStrings
+    }
+    
+    public func generateYearMonthStringsToToday() -> [String] {
+        let currentDate: Date = Date()
         
         var yearMonthStrings: [String] = []
         
@@ -78,8 +110,7 @@ extension Date {
                 value: month,
                 to: self
             ) {
-                let yearMonthString = dateFormatter.string(from: date)
-                yearMonthStrings.append(yearMonthString)
+                yearMonthStrings.append(date.toString(with: "yyyy-MM"))
             }
         }
         

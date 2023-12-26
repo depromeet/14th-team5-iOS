@@ -16,7 +16,7 @@ public protocol AddFamilyImpl {
     var disposeBag: DisposeBag { get }
     
     func fetchInvitationUrl() -> Observable<URL?>
-    func fetchFamiliyMemeber() -> Observable<PaginationResponseFamilyMemberProfile?>
+    func fetchFamilyMemeber() -> Observable<PaginationResponseFamilyMemberProfile?>
 }
 
 public final class AddFamilyRepository: AddFamilyImpl {
@@ -40,7 +40,7 @@ public final class AddFamilyRepository: AddFamilyImpl {
     }
     
     // TODO: - AccessToken 구하는 코드 구현
-    public func fetchFamiliyMemeber() -> Observable<PaginationResponseFamilyMemberProfile?> {
+    public func fetchFamilyMemeber() -> Observable<PaginationResponseFamilyMemberProfile?> {
         return apiWorker.fetchFamilyMemeberPage(accessToken: TempStr.accessToken)
             .asObservable()
     }

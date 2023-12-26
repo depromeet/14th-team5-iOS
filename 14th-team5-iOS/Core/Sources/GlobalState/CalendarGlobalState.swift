@@ -10,8 +10,8 @@ import UIKit
 import RxSwift
 
 public enum CalendarEvent {
-    case didSelectCell(Date)
-    case didTapInfoButton(UIView)
+    case didSelectedCalendarCell(Date)
+    case didTapCalendarInfoButton(UIView)
 }
 
 public protocol CalendarGlobalStateType {
@@ -24,12 +24,12 @@ final public class CalendarGlobalState: BaseGlobalState, CalendarGlobalStateType
     public var event: PublishSubject<CalendarEvent> = PublishSubject<CalendarEvent>()
     
     public func didSelectCell(_ date: Date) -> Observable<Date> {
-        event.onNext(.didSelectCell(date))
+        event.onNext(.didSelectedCalendarCell(date))
         return Observable<Date>.just(date)
     }
     
     public func didTapInfoButton(_ sourceView: UIView) -> Observable<Void> {
-        event.onNext(.didTapInfoButton(sourceView))
+        event.onNext(.didTapCalendarInfoButton(sourceView))
         return Observable<Void>.just(())
     }
 }

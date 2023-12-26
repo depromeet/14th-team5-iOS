@@ -8,6 +8,7 @@
 import UIKit
 
 import Core
+import DesignSystem
 import RxSwift
 import RxCocoa
 import ReactorKit
@@ -17,44 +18,48 @@ import Then
 
 public final class DisplayEditCollectionViewCell: BaseCollectionViewCell<DisplayEditCellReactor> {
     
-    private let containerView: UIView = UIView()
+
     private let descrptionLabel: UILabel = UILabel()
+    private let blurContainerView: UIVisualEffectView = UIVisualEffectView.makeBlurView(style: .dark)
     
     
     public override func setupUI() {
         super.setupUI()
-        self.contentView.addSubviews(containerView, descrptionLabel)
+        self.contentView.addSubviews(blurContainerView, descrptionLabel)
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
         
-        containerView.do {
-            $0.backgroundColor = .black.withAlphaComponent(0.71)
-            $0.layer.cornerRadius = 8
-            $0.clipsToBounds = true
+        self.contentView.do {
+            $0.backgroundColor = .clear
         }
         
         descrptionLabel.do {
-            $0.textColor = .white
+            $0.textColor = DesignSystemAsset.white.color
             $0.textAlignment = .center
-            $0.font = .systemFont(ofSize: 32, weight: .regular)
+            $0.font = DesignSystemFontFamily.Pretendard.bold.font(size: 18)
         }
         
+        blurContainerView.do {
+            $0.alpha = 0.8
+            $0.layer.cornerRadius = 8
+            $0.clipsToBounds = true
+        }
         
     }
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         
-        containerView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
-        
         descrptionLabel.snp.makeConstraints {
             $0.width.equalTo(30)
             $0.height.equalTo(30)
-            $0.center.equalTo(containerView)
+            $0.center.equalToSuperview()
+        }
+        
+        blurContainerView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
         }
     }
     

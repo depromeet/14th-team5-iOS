@@ -20,13 +20,13 @@ import SnapKit
 public final class CameraDisplayViewController: BaseViewController<CameraDisplayViewReactor> {
     //MARK: Views
     private let displayView: UIImageView = UIImageView()
-    private let confirmButton: UIButton = UIButton.createCircleButton(radius: 36)
+    private let confirmButton: UIButton = UIButton(configuration: .plain())
     private let displayIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
-    private let archiveButton: UIBarButtonItem = UIBarButtonItem()
     private let titleView: UILabel = UILabel()
     private let displayEditButton: UIButton = UIButton.createCircleButton(radius: 21.5)
     private let displayEditTextField: UITextField = UITextField()
     private let displayDimView: UIView = UIView()
+    private let archiveButton: UIButton = UIButton.createCircleButton(radius: 24)
     private let displayEditCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let displayEditDataSources: RxCollectionViewSectionedReloadDataSource<DisplayEditSectionModel> = .init { dataSources, collectionView, indexPath, sectionItem in
         switch sectionItem {
@@ -45,25 +45,26 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(displayView, confirmButton, displayIndicatorView, displayEditTextField)
-        displayView.addSubviews(displayEditButton, displayEditCollectionView)
+        view.addSubviews(displayView, confirmButton, archiveButton, displayIndicatorView, displayEditTextField, displayEditCollectionView)
+        displayView.addSubviews(displayEditButton)
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
         
         titleView.do {
-            $0.textColor = .white
+            $0.textColor = DesignSystemAsset.gray200.color
             $0.text = "사진 올리기"
+            $0.font = DesignSystemFontFamily.Pretendard.bold.font(size: 18)
         }
         
         navigationItem.do {
             $0.titleView = titleView
-            $0.rightBarButtonItem = archiveButton
         }
         
         archiveButton.do {
-            $0.image = DesignSystemAsset.archive.image
+            $0.setImage(DesignSystemAsset.archive.image, for: .normal)
+            $0.backgroundColor = .darkGray
         }
         
         displayView.do {
@@ -73,26 +74,34 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         }
         
         displayEditButton.do {
-            $0.setTitle("T", for: .normal)
+            $0.setImage(DesignSystemAsset.blurTextFill.image, for: .normal)
             $0.setTitleColor(.white, for: .normal)
-            $0.backgroundColor = .black.withAlphaComponent(0.3)
         }
         
         confirmButton.do {
-            $0.backgroundColor = .white
+            $0.configuration?.imagePlacement = .leading
+            $0.backgroundColor = DesignSystemAsset.mainGreen.color
+            $0.configuration?.image = DesignSystemAsset.camera.image.withTintColor(DesignSystemAsset.black.color)
+            $0.configuration?.imagePadding = 6
+            $0.configuration?.attributedTitle = AttributedString(NSAttributedString(string: "사진 업로드", attributes: [
+                .foregroundColor: DesignSystemAsset.black.color,
+                .font: DesignSystemFontFamily.Pretendard.bold.font(size: 16)
+            ]))
             $0.isUserInteractionEnabled = true
-            $0.setImage(DesignSystemAsset.confirm.image, for: .normal)
+            $0.layer.cornerRadius = 30
+            $0.clipsToBounds = true
+
         }
         
         displayEditTextField.do {
             $0.textColor = .white
-            $0.backgroundColor = .black
-            $0.font = .systemFont(ofSize: 17, weight: .regular)
+            $0.backgroundColor = DesignSystemAsset.black.color
+            $0.font = DesignSystemFontFamily.Pretendard.regular.font(size: 17)
             $0.makeLeftPadding(16)
             $0.makeClearButton(DesignSystemAsset.clear.image)
             $0.makePlaceholderAttributedString("최대 8글자 이내로 입력해주세요.", attributed: [
-                .font: UIFont.systemFont(ofSize: 17, weight: .regular),
-                .foregroundColor: UIColor(red: 142/255, green: 142/255, blue: 142/255, alpha: 1.0)
+                .font: DesignSystemFontFamily.Pretendard.regular.font(size: 17),
+                .foregroundColor: DesignSystemAsset.gray500.color
             ])
             $0.keyboardType = .default
             $0.returnKeyType = .done
@@ -133,7 +142,14 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         confirmButton.snp.makeConstraints {
             $0.top.equalTo(displayView.snp.bottom).offset(36)
+            $0.width.equalTo(200)
+            $0.height.equalTo(60)
             $0.centerX.equalTo(displayView)
+        }
+        
+        archiveButton.snp.makeConstraints {
+            $0.left.equalTo(confirmButton.snp.right).offset(10)
+            $0.centerY.equalTo(confirmButton)
         }
         
         displayIndicatorView.snp.makeConstraints {
@@ -148,7 +164,8 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         displayEditCollectionView.snp.makeConstraints {
             $0.height.equalTo(61)
             $0.width.equalTo(view.frame.size.width - 43)
-            $0.center.equalToSuperview()
+            $0.centerY.equalToSuperview().offset(-100)
+            $0.centerX.equalToSuperview()
         }
         
     }
@@ -180,6 +197,17 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         displayEditTextField.rx
             .text.orEmpty
+            .distinctUntilChanged()
+            .map { ($0.count > 8) }
+            .throttle(.seconds(1), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, isShow in
+                guard isShow == true else { return }
+                owner.makeRoundedToastView(title: "8자까지 입력가능해요", designSystemImage: DesignSystemAsset.warning.image, width: 211, height: 56, offset: 400)
+            }.disposed(by: disposeBag)
+        
+        displayEditTextField.rx
+            .text.orEmpty
             .scan("") { previous, new -> String in
                 if new.count > 8 {
                   return previous
@@ -187,6 +215,14 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
                   return new
                 }
             }.bind(to: displayEditTextField.rx.text)
+            .disposed(by: disposeBag)
+        
+        
+        confirmButton.rx
+            .tap
+            .throttle(.seconds(1), scheduler: MainScheduler.instance)
+            .map { Reactor.Action.didTapConfirmButton}
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         
@@ -275,16 +311,19 @@ extension CameraDisplayViewController {
             PHPhotoLibrary.shared().performChanges {
                 let creationRequest = PHAssetCreationRequest.forAsset()
                 creationRequest.addResource(with: .photo, data: originalData, options: nil)
-                owner.makeToastView(title: "이미지가 저장되었습니다.", textColor: .white, radius: 5)
+                owner.makeRoundedToastView(
+                    title: "사진이 저장되었습니다.",
+                    designSystemImage: DesignSystemAsset.camera.image.withTintColor(DesignSystemAsset.gray300.color),
+                    height: 56
+                )
             }
         } else {
             PHPhotoLibrary.requestAuthorization(for: .addOnly) { stauts in
                 switch status {
-                case .authorized, .limited:
-                    print("앨범 및 사진에 대한 권한이 부여 되었습니다.")
                 case .denied:
-                    //TODO: 권한 Alert 팝업 추가 예정
-                    print("앨범 및 사진에 대한 권한을 거부 당했습니다.")
+                    DispatchQueue.main.async {
+                        self.showPermissionAlertController()
+                    }
                 default:
                     print("다른 여부의 권한을 거부 당했습니다.")
                 }
@@ -298,7 +337,7 @@ extension CameraDisplayViewController {
         }
         owner.dismissDimView()
         UIView.animate(withDuration: 0.5) {
-            owner.displayEditCollectionView.transform = CGAffineTransform(scaleX: 0.7, y: 0.7).translatedBy(x: 0, y: 200)
+            owner.displayEditCollectionView.transform = CGAffineTransform(scaleX: 0.7, y: 0.7).translatedBy(x: 0, y: 300)
         }
         owner.displayEditTextField.isHidden = true
     }
@@ -321,20 +360,39 @@ extension CameraDisplayViewController {
     }
     
     private func presentDimView() {
-        displayView.addSubview(displayDimView)
+        view.addSubview(displayDimView)
         displayDimView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        displayView.bringSubviewToFront(displayEditCollectionView)
+        view.bringSubviewToFront(displayEditCollectionView)
         displayDimView.backgroundColor = .black.withAlphaComponent(0.5)
     }
     
     private func dismissDimView() {
-        displayView.subviews.forEach {
+        view.subviews.forEach {
             if $0.backgroundColor == UIColor.black.withAlphaComponent(0.5) {
                 $0.removeFromSuperview()
             }
         }
+    }
+    
+    private func showPermissionAlertController() {
+        let permissionAlertController: UIAlertController = UIAlertController(title: "앨범 접근 권한 설정이 없습니다.", message: "앨범에 저장하려면 앨범에 접근할 수 있도록 허용되어 있어야 합니다.", preferredStyle: .alert)
+        
+        let cancelAction: UIAlertAction = UIAlertAction(title: "취소", style: .cancel) { _ in
+            permissionAlertController.dismiss(animated: true)
+        }
+        
+        let settingAction: UIAlertAction = UIAlertAction(title: "설정으로 이동하기", style: .default) { _ in
+            guard let settingURL = URL(string: UIApplication.openSettingsURLString),
+                  UIApplication.shared.canOpenURL(settingURL) else { return }
+            UIApplication.shared.open(settingURL)
+            
+        }
+        
+        [cancelAction,settingAction].forEach(permissionAlertController.addAction(_:))
+        
+        present(permissionAlertController, animated: true)
     }
 }
 

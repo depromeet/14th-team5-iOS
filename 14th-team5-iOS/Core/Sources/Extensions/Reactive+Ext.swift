@@ -21,7 +21,13 @@ extension Reactive where Base: UIView {
         base.addGestureRecognizer(tapGestureRecognizer)
 
         return tapGestureRecognizer.rx.tapGesture
-            
+    }
+    
+    public var pinchGesture: ControlEvent<UIPinchGestureRecognizer> {
+        let pinchGestureRecognizer = UIPinchGestureRecognizer()
+        base.addGestureRecognizer(pinchGestureRecognizer)
+
+        return ControlEvent(events: pinchGestureRecognizer.rx.event)
     }
 }
 

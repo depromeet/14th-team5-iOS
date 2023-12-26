@@ -32,4 +32,8 @@ extension DateFormatter {
     public static let ahhmmss: DateFormatter = {
         DateFormatter.withFormat("a hh:mm:ss")
     }()
+    
+    public static let yyyyMMddTHHmmssXXX = {
+        DateFormatter.withFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+    }()
 }

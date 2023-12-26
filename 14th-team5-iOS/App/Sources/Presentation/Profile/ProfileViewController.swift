@@ -168,6 +168,21 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(onNext: { $0.0.setupProfileImage($0.1)})
             .disposed(by: disposeBag)
         
+        profileFeedCollectionView.rx
+            .didScroll
+            .withLatestFrom(profileFeedCollectionView.rx.contentOffset)
+            .withUnretained(self)
+            .map {
+                let contentPadding = $0.0.profileFeedCollectionView.contentSize.height - $0.1.y
+                if contentPadding < UIScreen.main.bounds.height {
+                    return true
+                } else {
+                    return false
+                }
+                
+            }.map { Reactor.Action.fetchMorePostItems($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
     }
 }

@@ -22,6 +22,13 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
     private let feedTitleLabel: UILabel = UILabel()
     private let feedUplodeLabel: UILabel = UILabel()
     
+    
+    public override func prepareForReuse() {
+        feedImageView.image = nil
+        feedTitleLabel.text = ""
+        feedUplodeLabel.text = ""
+    }
+    
     public override func setupUI() {
         super.setupUI()
         
@@ -54,8 +61,9 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
         }
         
         feedStackView.do {
-            $0.axis = .vertical
+            $0.distribution = .fillProportionally
             $0.spacing = 4
+            $0.axis = .vertical
             $0.alignment = .leading
         }
         
@@ -64,18 +72,16 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         feedImageView.snp.makeConstraints {
-            $0.top.left.right.equalToSuperview()
+            $0.top.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(self.snp.width)
         }
         
         feedStackView.snp.makeConstraints {
-            $0.top.equalTo(feedImageView.snp.bottom)
-            $0.left.right.equalToSuperview().inset(20)
-            $0.bottom.equalToSuperview()
+            $0.top.equalTo(feedImageView.snp.bottom).offset(8)
+            $0.horizontalEdges.equalToSuperview().inset(20)
+            $0.height.equalTo(36)
         }
         
-        feedTitleLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(8)
-        }
         
         
     }
@@ -85,6 +91,7 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
         reactor.state
             .map { $0.imageURL }
             .distinctUntilChanged()
+            .observe(on: MainScheduler.instance)
             .withUnretained(self)
             .bind(onNext: { $0.0.setupProfileFeedImage($0.1)})
             .disposed(by: disposeBag)

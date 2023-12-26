@@ -18,6 +18,7 @@ public final class ProfileViewReactor: Reactor {
     
     public enum Action {
         case viewDidLoad
+        case fetchMorePostItems(Bool)
     }
     
     public enum Mutation {
@@ -45,11 +46,11 @@ public final class ProfileViewReactor: Reactor {
     
     
     public func mutate(action: Action) -> Observable<Mutation> {
+        //TODO: Keychain, UserDefaults 추가
+        var query: ProfilePostQuery = ProfilePostQuery(page: 1, size: 10)
+        let parameters: ProfilePostDefaultValue = ProfilePostDefaultValue(date: "", memberId: "01HJBNXAV0TYQ1KESWER45A2QP", sort: "DESC")
         switch action {
         case .viewDidLoad:
-            
-            let query: ProfilePostQuery = ProfilePostQuery(page: 1, size: 10)
-            
             return .concat(
                 .just(.setLoading(true)),
                 profileUseCase.executeProfileMemberItems()
@@ -58,8 +59,7 @@ public final class ProfileViewReactor: Reactor {
                             .just(.setProfileMemberItems(entity))
                     },
                 
-                
-                profileUseCase.executeProfilePostItems(query: query, parameters: ProfilePostDefaultValue(date: "2023-12-05", memberId: "01HJBNXAV0TYQ1KESWER45A2QP", sort: "DESC"))
+                profileUseCase.executeProfilePostItems(query: query, parameters: parameters)
                     .asObservable()
                     .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
                         var sectionItem: [ProfileFeedSectionItem] = []
@@ -75,7 +75,31 @@ public final class ProfileViewReactor: Reactor {
 
                     }
             )
-            
+        case let .fetchMorePostItems(isPagination):
+            query.page += 1
+            guard self.currentState.profilePostEntity?.hasNext == true && isPagination else { return .empty() }
+
+            return profileUseCase.executeProfilePostItems(query: query, parameters: parameters)
+                .asObservable()
+                .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
+                    guard let originalItems = self.currentState.profilePostEntity?.results else { return .empty() }
+                    var paginationItems: [ProfilePostResultResponse] = originalItems
+                    
+                    var sectionItem: [ProfileFeedSectionItem] = []
+                    paginationItems.append(contentsOf: entity.results)
+                    
+                   
+                    paginationItems.forEach {
+                        sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, title: $0.content, date: DateFormatter.yyyyMMdd.string(from: $0.createdAt))))
+                    }
+                    
+                    return .concat(
+                        .just(.setLoading(true)),
+                        .just(.setProfilePostItems(entity)),
+                        .just(.setFeedCategroySection(sectionItem)),
+                        .just(.setLoading(false))
+                    )
+                }
         }
     }
     
@@ -91,11 +115,9 @@ public final class ProfileViewReactor: Reactor {
             newState.feedSection[sectionIndex] = .feedCategory(section)
             
         case let .setProfilePostItems(entity):
-            print("ProfilePost Entity: \(entity)")
             newState.profilePostEntity = entity
             
         case let .setProfileMemberItems(entity):
-            print("ProfileMember Entity: \(entity)")
             newState.profileMemberEntity = entity
         }
         

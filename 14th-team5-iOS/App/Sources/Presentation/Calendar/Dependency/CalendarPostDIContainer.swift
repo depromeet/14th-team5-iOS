@@ -15,11 +15,9 @@ public final class CalendarPostDIConatainer: BaseDIContainer {
     public typealias Repository = CalendarImpl
     public typealias Reactor = CalendarPostViewReactor
     
-    let availableYearMonths: [String]
     let selectedCalendarCell: Date
     
-    init(_ yearMonths: [String], selectedCalendarCell: Date) {
-        self.availableYearMonths = yearMonths
+    init(selectedCalendarCell: Date) {
         self.selectedCalendarCell = selectedCalendarCell
     }
     
@@ -40,7 +38,6 @@ public final class CalendarPostDIConatainer: BaseDIContainer {
     
     public func makeReactor() -> CalendarPostViewReactor {
         return CalendarPostViewReactor(
-            availableYearMonths,
             selectedCalendarCell: selectedCalendarCell,
             provider: globalState
         )

@@ -29,7 +29,7 @@ extension Reactive where Base: FSCalendar {
         return RxFSCalendarDelegateProxy.proxy(for: self.base)
     }
     
-    var didSelect: Observable<Date> {
+    var didSelect: Observable<(Date)> {
         return delegate.methodInvoked(#selector(FSCalendarDelegate.calendar(_:didSelect:at:)))
             .debug("calendar(_:didSelect:at:) 메서드 호출 성공")
             .map { $0[1] as! Date }
@@ -54,9 +54,9 @@ extension Reactive where Base: FSCalendar {
                 let fsCalendar: FSCalendar = $0[0] as! FSCalendar
                 let currentPage: Date = fsCalendar.currentPage
                 
-                let previousMonth: String = (currentPage - 1.month).toString(with: "yyyy-MM")
-                let currentMonth: String = currentPage.toString(with: "yyyy-MM")
-                let nextMonth: String = (currentPage + 1.month).toString(with: "yyyy-MM")
+                let previousMonth: String = (currentPage - 1.month).toFormatString()
+                let currentMonth: String = currentPage.toFormatString()
+                let nextMonth: String = (currentPage + 1.month).toFormatString()
                 
                 return [previousMonth, currentMonth, nextMonth]
             }

@@ -17,7 +17,7 @@ public final class CalendarPageCellReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case fetchCalendarResponse
-        case didSelectCell(Date)
+        case didSelectCalendarCell(Date)
         case didTapInfoButton(UIView)
     }
     
@@ -51,11 +51,11 @@ public final class CalendarPageCellReactor: Reactor {
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case let .didSelectCell(date):
-            return provider.calendarGlabalState.didSelectCell(date)
+        case let .didSelectCalendarCell(date):
+            return provider.calendarGlabalState.pushCalendarPostVC(date)
                 .flatMap { _ in Observable<Mutation>.empty() }
         case let .didTapInfoButton(sourceView):
-            return provider.calendarGlabalState.didTapInfoButton(sourceView)
+            return provider.calendarGlabalState.didTapCalendarInfoButton(sourceView)
                 .flatMap { _ in Observable<Mutation>.empty() }
         case .fetchCalendarResponse:
             return calendarRepository.fetchMonthlyCalendar(yearMonth)

@@ -48,10 +48,12 @@ public final class CalendarViewReactor: Reactor {
         let eventMutation = provider.calendarGlabalState.event
             .flatMap { event -> Observable<Mutation> in
                 switch event {
-                case let .didSelectedCalendarCell(date):
+                case let .pushCalendarPostVC(date):
                     return Observable<Mutation>.just(.pushCalendarPostVC(date))
                 case let .didTapCalendarInfoButton(sourceView):
                     return Observable<Mutation>.just(.presentCalendarDescriptionPopoverVC(sourceView))
+                default:
+                    return Observable<Mutation>.empty()
                 }
             }
         

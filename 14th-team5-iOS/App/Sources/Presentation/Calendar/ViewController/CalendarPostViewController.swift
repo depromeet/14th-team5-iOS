@@ -156,7 +156,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         
         calendarView.rx.didSelect
             .distinctUntilChanged()
-            .map { Reactor.Action.didTapCalendarCell($0) }
+            .map { Reactor.Action.didSelectCalendarCell($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -168,7 +168,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
-        Observable<String>.from(reactor.currentState.selectedCalendarCell.generatePreviousNextYearMonth())
+        Observable<String>.from(reactor.currentState.selectedCalendarCell .generatePreviousNextYearMonth())
             .map { Reactor.Action.fetchCalendarResponse($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -255,18 +255,28 @@ extension CalendarPostViewController: FSCalendarDataSource {
             at: position
         ) as! ImageCalendarCell
         
-        guard let dayResponse = reactor?.currentState.dictCalendarResponse[date.toString(with: "yyyy-MM")]?.filter({ $0.date == date }).first else {
+        // 해당 일에 불러온 데이터가 없다면
+        let yyyyMM: String = date.toFormatString()
+        guard let currentState = reactor?.currentState,
+              let dayResponse = currentState.dictCalendarResponse[yyyyMM]?.filter({ $0.date == date }).first
+        else {
             let emptyResponse = CalendarResponse(
                 date: date,
                 representativePostId: "",
                 representativeThumbnailUrl: "",
                 allFamilyMemebersUploaded: false
             )
-            cell.reactor = ImageCalendarCellReactor(dayResponse: emptyResponse)
+            cell.reactor = ImageCalendarCellDIContainer().makeReactor(
+                .week,
+                isSelected: false,
+                dayResponse: emptyResponse
+            )
             return cell
         }
         
-        cell.reactor = ImageCalendarCellReactor(
+        cell.reactor = ImageCalendarCellDIContainer().makeReactor(
+            .week,
+            isSelected: currentState.selectedCalendarCell.isEqual(with: date),
             dayResponse: dayResponse
         )
         return cell

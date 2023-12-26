@@ -27,7 +27,7 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
     // MARK: - Properties
     private lazy var dataSource: RxCollectionViewSectionedReloadDataSource<SectionOfMonthlyCalendar> = prepareDatasource()
     
-    // 캘린더에 표시할 월 별 날짜
+    // 캘린더에 표시할 월 별 날짜(2023. 1. ~ 오늘까지)
     private let yearMonthArray: [String] = Date.for20230101.generateYearMonthStringsToToday()
     
     // MARK: - Lifecycles
@@ -151,7 +151,7 @@ extension CalendarViewController {
     
     private func pushCalendarFeedView(_ date: Date) {
         navigationController?.pushViewController(
-            CalendarPostDIConatainer(yearMonthArray, selectedCalendarCell: date).makeViewController(),
+            CalendarPostDIConatainer(selectedCalendarCell: date).makeViewController(),
             animated: true
         )
     }

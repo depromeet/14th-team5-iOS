@@ -58,7 +58,7 @@ extension Date {
         return dict
     }
     
-    public func toString(with format: String) -> String {
+    public func toFormatString(with format: String = "yyyy-MM") -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = format
         
@@ -77,9 +77,7 @@ extension Date {
 }
 
 extension Date {
-    public func generatePreviousNextYearMonth() -> [String] {
-        let currentDate: Date = Date()
-        
+    public func generatePreviousNextYearMonth() -> [String] {        
         var yearMonthStrings: [String] = []
         
         for month in -1...1 {
@@ -88,7 +86,7 @@ extension Date {
                 value: month,
                 to: self
             ) {
-                yearMonthStrings.append(date.toString(with: "yyyy-MM"))
+                yearMonthStrings.append(date.toFormatString())
             }
         }
         
@@ -110,7 +108,7 @@ extension Date {
                 value: month,
                 to: self
             ) {
-                yearMonthStrings.append(date.toString(with: "yyyy-MM"))
+                yearMonthStrings.append(date.toFormatString())
             }
         }
         

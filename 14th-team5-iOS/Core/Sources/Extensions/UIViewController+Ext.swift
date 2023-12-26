@@ -105,7 +105,7 @@ extension UIViewController {
     ///   - offset: 표시할 위치 (기본값 40)
     public func makeRoundedToastView(
         title: String,
-        designSystemImage image: DesignSystemImages,
+        designSystemImage image: DesignSystemImages.Image,
         width: CGFloat = 250,
         height: CGFloat = 60,
         duration: CGFloat = 0.5,
@@ -139,7 +139,7 @@ extension UIViewController {
         _ title: String,
         symbol name: String? = nil,
         palletteColors colors: [UIColor]? = nil,
-        designSystemImage image: DesignSystemImages? = nil,
+        designSystemImage image: DesignSystemImages.Image? = nil,
         width: CGFloat,
         height: CGFloat,
         offset: CGFloat
@@ -157,7 +157,7 @@ extension UIViewController {
             imageView = UIImageView(image: symbol)
         // 일반 이미지를 받았다면
         } else {
-            imageView = UIImageView(image: UIImage(named: image?.name ?? ""))
+            imageView = UIImageView(image: image)
         }
         
         labelView.text = title

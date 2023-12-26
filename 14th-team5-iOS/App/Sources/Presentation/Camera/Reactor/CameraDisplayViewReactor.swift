@@ -8,6 +8,7 @@
 import Foundation
 
 import Data
+import Domain
 import ReactorKit
 
 
@@ -21,6 +22,7 @@ public final class CameraDisplayViewReactor: Reactor {
         case viewDidLoad
         case didTapArchiveButton
         case fetchDisplayImage(String)
+        case didTapConfirmButton
     }
     
     public enum Mutation {
@@ -29,6 +31,9 @@ public final class CameraDisplayViewReactor: Reactor {
         case setRenderImage(Data)
         case saveDeviceimage(Data)
         case setDescription(String)
+        case setDisplayEntity(CameraDisplayImageResponse?)
+        case setDisplayOriginalEntity(Bool)
+        case setPostEntity(CameraDisplayPostResponse?)
     }
     
     public struct State {
@@ -36,6 +41,9 @@ public final class CameraDisplayViewReactor: Reactor {
         var displayDescrption: String
         @Pulse var displayData: Data
         @Pulse var displaySection: [DisplayEditSectionModel]
+        @Pulse var displayEntity: CameraDisplayImageResponse?
+        @Pulse var displayOringalEntity: Bool
+        @Pulse var displayPostEntity: CameraDisplayPostResponse?
     }
     
     
@@ -46,18 +54,38 @@ public final class CameraDisplayViewReactor: Reactor {
             isLoading: false,
             displayDescrption: "",
             displayData: displayData,
-            displaySection: [.displayKeyword([])]
+            displaySection: [.displayKeyword([])],
+            displayEntity: nil,
+            displayOringalEntity: false,
+            displayPostEntity: nil
         )
-        
     }
     
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewDidLoad:
+            let fileName = "\(self.currentState.displayData.hashValue).jpg"
+            let parameters: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: "\(fileName).jpg")
+            
             return .concat(
                 .just(.setLoading(true)),
                 .just(.setRenderImage(self.currentState.displayData)),
-                .just(.setLoading(false))
+                cameraDisplayRepository.fetchImageURL(parameters: parameters)
+                    .withUnretained(self)
+                    .asObservable()
+                    .flatMap { owner, entity -> Observable<CameraDisplayViewReactor.Mutation> in
+                        owner.cameraDisplayRepository.uploadImageToS3(toURL: entity?.imageURL ?? "", imageData: owner.currentState.displayData)
+                            .asObservable()
+                            .flatMap { isSuccess -> Observable<CameraDisplayViewReactor.Mutation> in
+                                return .concat(
+                                    .just(.setDisplayEntity(entity)),
+                                    .just(.setDisplayOriginalEntity(isSuccess)),
+                                    .just(.setLoading(false))
+                                )
+                                
+                            }
+                        
+                    }
             )
         case let .fetchDisplayImage(description):
             return .concat(
@@ -83,6 +111,27 @@ public final class CameraDisplayViewReactor: Reactor {
                 .just(.saveDeviceimage(self.currentState.displayData)),
                 .just(.setLoading(false))
             )
+            
+        case .didTapConfirmButton:
+            guard let presingedURL = self.currentState.displayEntity?.imageURL else { return .empty() }
+            let originURL = configureOriginalS3URL(url: presingedURL, with: .feed)
+            
+            let parameters: CameraDisplayPostParameters = CameraDisplayPostParameters(
+                imageUrl: originURL,
+                content: self.currentState.displayDescrption,
+                uploadTime: DateFormatter.yyyyMMddTHHmmssXXX.string(from: Date())
+            )
+            
+            return cameraDisplayRepository.executeCombineWithTextImage(parameters: parameters)
+                .asObservable()
+                .flatMap { entity -> Observable<CameraDisplayViewReactor.Mutation> in
+                    return .concat(
+                        .just(.setLoading(true)),
+                        .just(.setPostEntity(entity)),
+                        .just(.setLoading(false))
+                    )
+                    
+                }
         }
     }
     
@@ -101,6 +150,12 @@ public final class CameraDisplayViewReactor: Reactor {
             newState.displaySection[sectionIndex] = .displayKeyword(section)
         case let .setDescription(descrption):
             newState.displayDescrption = descrption
+        case let .setDisplayEntity(entity):
+            newState.displayEntity = entity
+        case let .setDisplayOriginalEntity(entity):
+            newState.displayOringalEntity = entity
+        case let .setPostEntity(entity):
+            newState.displayPostEntity = entity
         }
         return newState
     }
@@ -120,4 +175,10 @@ extension CameraDisplayViewReactor {
         return index
     }
     
+    
+    func configureOriginalS3URL(url: String, with filePath: UploadLocation) -> String {
+        guard let range = url.range(of: #"[^&?]+"#, options: .regularExpression) else { return "" }
+        return String(url[range])
+    }
 }
+

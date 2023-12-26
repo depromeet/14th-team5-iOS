@@ -33,6 +33,11 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     private let toggleButton: UIButton = UIButton.createCircleButton(radius: 24)
     private let titleView: UILabel = UILabel()
     
+    
+    private var initialScale: CGFloat = 0
+    private var zoomScaleRange: ClosedRange<CGFloat> = 1...10
+    private var isToggle: Bool = false
+    
     //MARK: LifeCylce
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,8 +54,9 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         super.setupAttributes()
         
         titleView.do {
-            $0.textColor = .white
+            $0.textColor = DesignSystemAsset.gray200.color
             $0.text = "카메라"
+            $0.font = DesignSystemFontFamily.Pretendard.bold.font(size: 18)
         }
         
         navigationItem.do {
@@ -122,7 +128,16 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .map { Reactor.Action.didTapFlashButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
+                
+        cameraView.rx
+            .pinchGesture
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: {
+                guard let currentCamera = $0.0.isToggle ? $0.0.frontCamera : $0.0.backCamera else { return }
+                $0.0.transitionImageScale(owner: $0.0, gesture: $0.1, camera: currentCamera)
+            }).disposed(by: disposeBag)
+
         
         toggleButton
             .rx.tap
@@ -237,7 +252,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
             AVCaptureDevice.requestAccess(for: .video) { isPermission in
                 guard isPermission else {
                     DispatchQueue.main.async {
-                        //TODO: Alert 추가 예정
+                        self.showPermissionAlertController()
                     }
                     return
                 }
@@ -260,11 +275,13 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
             UIView.transition(with: owner.cameraView, duration: 0.5, options: .transitionFlipFromLeft) {
                 owner.captureSession.removeInput(owner.backCameraInput)
                 owner.captureSession.addInput(owner.frontCameraInput)
+                owner.isToggle = true
             }
         } else {
             UIView.transition(with: owner.cameraView, duration: 0.5, options: .transitionFlipFromLeft) {
                 owner.captureSession.removeInput(owner.frontCameraInput)
                 owner.captureSession.addInput(owner.backCameraInput)
+                owner.isToggle = false
             }
         }
         owner.cameraOuputStream.connections.first?.isVideoMirrored = !isTransition
@@ -290,9 +307,67 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
     
     
     public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        guard let originalData = photo.fileDataRepresentation() else { return }
+        guard let photoData = photo.fileDataRepresentation(),
+        let imageData = UIImage(data: photoData)?.jpegData(compressionQuality: 1.0) else { return }
 
-        let cameraDisplayViewController = CameraDisplayDIContainer(displayData: originalData).makeViewController()
+        let cameraDisplayViewController = CameraDisplayDIContainer(displayData: imageData).makeViewController()
         self.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
     }
+    
+    
+    
+    private func setupImageScale(owner: CameraViewController, scale: CGFloat, camera: AVCaptureDevice) {
+        do {
+            
+            try camera.lockForConfiguration()
+            camera.videoZoomFactor = scale
+            
+            camera.unlockForConfiguration()
+        } catch {
+            print(error.localizedDescription)
+        }
+        
+    }
+    
+    
+    private func transitionImageScale(owner: CameraViewController, gesture: UIPinchGestureRecognizer, camera: AVCaptureDevice) {
+        
+        switch gesture.state {
+            
+        case .began:
+            owner.initialScale = camera.videoZoomFactor
+            
+        case .changed:
+            let minAvailableZoomScale = camera.minAvailableVideoZoomFactor
+            let maxAvailableZoomScale = camera.maxAvailableVideoZoomFactor
+            let availableZoomScaleRange = minAvailableZoomScale...maxAvailableZoomScale
+            let resolvedZoomScaleRange = zoomScaleRange.clamped(to: availableZoomScaleRange)
+
+            let resolvedScale = max(resolvedZoomScaleRange.lowerBound, min(gesture.scale * initialScale, resolvedZoomScaleRange.upperBound))
+            setupImageScale(owner: owner, scale: resolvedScale, camera: camera)
+        default:
+            return
+            
+        }
+    }
+    
+    private func showPermissionAlertController() {
+        let permissionAlertController: UIAlertController = UIAlertController(title: "카메라 접근 권한 설정이 없습니다.", message: "사진을 촬영하시려면 카메라에 접근할 수 있도록 허용되어 있어야 합니다.", preferredStyle: .alert)
+        
+        let cancelAction: UIAlertAction = UIAlertAction(title: "취소", style: .cancel) { _ in
+            permissionAlertController.dismiss(animated: true)
+        }
+        
+        let settingAction: UIAlertAction = UIAlertAction(title: "설정으로 이동하기", style: .default) { _ in
+            guard let settingURL = URL(string: UIApplication.openSettingsURLString),
+                  UIApplication.shared.canOpenURL(settingURL) else { return }
+            UIApplication.shared.open(settingURL)
+            
+        }
+        
+        [cancelAction,settingAction].forEach(permissionAlertController.addAction(_:))
+        
+        present(permissionAlertController, animated: true)
+    }
+    
 }

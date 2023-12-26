@@ -5,10 +5,11 @@
 //  Created by geonhui Yu on 12/17/23.
 //
 
-import UIKit
+import Foundation
 
 import Alamofire
 import RxSwift
+import RxCocoa
 
 extension NSMutableData {
     func appendString(_ string: String) {
@@ -168,5 +169,31 @@ class APIWorker: NSObject {
         }
         
         return self.request(spec: spec, headers: headers, jsonData: jsonData)
+    }
+    
+    public func upload(spec: APISpec, headers: [APIHeader]? = nil, image: Data) -> Single<Bool> {
+        
+        let hds = self.httpHeaders(headers)
+        guard let url = URL(string: spec.url) else {
+            return Single.error(AFError.explicitlyCancelled)
+        }
+        
+        var request = URLRequest(url: url)
+        request.headers = hds
+        
+        return Single.create { single -> Disposable in
+            AF.upload(image, to: url, method: spec.method, headers: hds)
+                .validate()
+                .responseData { response in
+                    switch response.result {
+                    case .success(_):
+                        single(.success(true))
+                    case let .failure(failure):
+                        single(.failure(failure))
+                    }
+                }
+            return Disposables.create()
+        }
+        
     }
 }

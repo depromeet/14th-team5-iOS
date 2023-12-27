@@ -11,6 +11,7 @@ import DesignSystem
 
 import RxSwift
 
+fileprivate typealias _Str = AccountSignUpStrings.Date
 final class AccountDateViewController: BaseViewController<AccountSignUpReactor> {
     // MARK: SubViews
     private let titleLabel = UILabel()
@@ -35,6 +36,8 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        bindView()
     }
     
     // MARK: Bindings
@@ -48,21 +51,6 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
             .just(())
             .map { Reactor.Action.dateViewDidLoad }
             .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        yearInputFieldView.rx.text.orEmpty
-            .scan("") { $1.count > 4 ? $0 : $1 }
-            .bind(to: yearInputFieldView.rx.text)
-            .disposed(by: disposeBag)
-        
-        monthInputFieldView.rx.text.orEmpty
-            .scan("") { $1.count > 2 ? $0 : $1 }
-            .bind(to: monthInputFieldView.rx.text)
-            .disposed(by: disposeBag)
-        
-        dayInputFieldView.rx.text.orEmpty
-            .scan("") { $1.count > 2 ? $0 : $1 }
-            .bind(to: dayInputFieldView.rx.text)
             .disposed(by: disposeBag)
         
         let yearEditingChange = yearInputFieldView.rx
@@ -84,13 +72,14 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
             .bind(onNext: { $0.0.monthInputFieldView.becomeFirstResponder() })
             .disposed(by: disposeBag)
         
-        let monthEditingChange = monthInputFieldView.rx.text.orEmpty
+        let monthEditingChange = monthInputFieldView.rx
+            .text.orEmpty
             .distinctUntilChanged()
             .filter { $0.count <= 2 }
             .compactMap { Int($0) }
         
         monthEditingChange
-            .map { Reactor.Action.setYear($0) }
+            .map { Reactor.Action.setMonth($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -105,7 +94,7 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
         dayInputFieldView.rx.text
             .distinctUntilChanged()
             .compactMap { $0.flatMap { Int($0) } }
-            .map { Reactor.Action.setYear($0) }
+            .map { Reactor.Action.setDay($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
@@ -133,6 +122,23 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
             .distinctUntilChanged()
             .withUnretained(self)
             .bind(onNext: { $0.0.validationDay($0.1) })
+            .disposed(by: disposeBag)
+    }
+    
+    private func bindView() {
+        yearInputFieldView.rx.text.orEmpty
+            .scan("") { $1.count > 4 ? $0 : $1 }
+            .bind(to: yearInputFieldView.rx.text)
+            .disposed(by: disposeBag)
+        
+        monthInputFieldView.rx.text.orEmpty
+            .scan("") { $1.count > 2 ? $0 : $1 }
+            .bind(to: monthInputFieldView.rx.text)
+            .disposed(by: disposeBag)
+        
+        dayInputFieldView.rx.text.orEmpty
+            .scan("") { $1.count > 2 ? $0 : $1 }
+            .bind(to: dayInputFieldView.rx.text)
             .disposed(by: disposeBag)
     }
     
@@ -182,7 +188,7 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
         }
         
         yearInputFieldView.do {
-            $0.makePlaceholderAttributedString("0000", attributed: [
+            $0.makePlaceholderAttributedString(_Str.yearPlaceholder, attributed: [
                 .font: UIFont(font: DesignSystemFontFamily.Pretendard.bold, size: 36)!,
                 .foregroundColor: DesignSystemAsset.gray700.color
             ])
@@ -192,13 +198,13 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
         }
         
         yearLabel.do {
-            $0.text = "년"
-            $0.textColor = DesignSystemAsset.gray200.color
+            $0.text = _Str.year
+            $0.textColor = DesignSystemAsset.gray700.color
             $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.bold, size: 36)
         }
         
         monthInputFieldView.do {
-            $0.makePlaceholderAttributedString("0", attributed: [
+            $0.makePlaceholderAttributedString(_Str.monthPlaceholder, attributed: [
                 .font: UIFont(font: DesignSystemFontFamily.Pretendard.bold, size: 36)!,
                 .foregroundColor: DesignSystemAsset.gray700.color
             ])
@@ -208,13 +214,13 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
         }
         
         monthLabel.do {
-            $0.text = "월"
-            $0.textColor = DesignSystemAsset.gray200.color
+            $0.text = _Str.month
+            $0.textColor = DesignSystemAsset.gray700.color
             $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.bold, size: 36)
         }
         
         dayInputFieldView.do {
-            $0.makePlaceholderAttributedString("0", attributed: [
+            $0.makePlaceholderAttributedString(_Str.dayPlaceholder, attributed: [
                 .font: UIFont(font: DesignSystemFontFamily.Pretendard.bold, size: 36)!,
                 .foregroundColor: DesignSystemAsset.gray700.color
             ])
@@ -224,8 +230,8 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
         }
         
         dayLabel.do {
-            $0.text = "일"
-            $0.textColor = DesignSystemAsset.gray200.color
+            $0.text = _Str.day
+            $0.textColor = DesignSystemAsset.gray700.color
             $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.bold, size: 36)
         }
         
@@ -239,7 +245,7 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
         errorLabel.do {
             $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.regular, size: 16)
             $0.textColor = DesignSystemAsset.warningRed.color
-            $0.text = "올바른 날짜를 입력해주세요"
+            $0.text = _Str.errorMsg
         }
         
         errorStackView.do {
@@ -272,7 +278,7 @@ fileprivate extension AccountDateViewController {
     }
     
     private func setTitleLabel(with nickname: String) {
-        titleLabel.text = "안녕하세요 \(nickname)님, 생일이 언제신가요?"
+        titleLabel.text = String(format: _Str.title, nickname)
     }
 }
 

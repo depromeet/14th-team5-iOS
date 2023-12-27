@@ -8,12 +8,12 @@
 import Foundation
 
 public struct PostListQuery {
-    let page: Int
-    let size: Int
-    let data: String
-    let memberId: String
+    public let page: Int
+    public let size: Int
+    public let data: String
+    public let memberId: String
     /// DESC | ASC
-    let sort: String
+    public let sort: String
     
     public init(page: Int, size: Int, data: String, memberId: String, sort: String) {
         self.page = page

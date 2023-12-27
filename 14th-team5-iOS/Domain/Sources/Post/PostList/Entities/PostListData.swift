@@ -7,16 +7,18 @@
 
 import Foundation
 
-struct PostListData: Equatable {
-    
+public struct PostListData: Equatable {
+    public init() {
+        
+    }
 }
 
-struct PostListPage: Equatable {
+public struct PostListPage: Equatable {
     let currentPage: Int
     let totalPages: Int
     let postLists: [PostListData]
     
-    init(currentPage: Int, totalPages: Int, postLists: [PostListData]) {
+    public init(currentPage: Int, totalPages: Int, postLists: [PostListData]) {
         self.currentPage = currentPage
         self.totalPages = totalPages
         self.postLists = postLists

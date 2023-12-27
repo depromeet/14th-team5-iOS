@@ -8,7 +8,7 @@
 import Foundation
 import Domain
 
-struct PostListRequestDTO {
+struct PostListRequestDTO: Codable {
     let page: Int
     let size: Int
     let date: String
@@ -16,7 +16,7 @@ struct PostListRequestDTO {
     let sort: String
 }
 
-struct PostListDTO {
+struct PostListDTO: Codable {
     let postId: String
     let authorId: String
     let commentCount: Int
@@ -27,12 +27,12 @@ struct PostListDTO {
 }
 
 extension PostListDTO {
-    func toDomain() -> PostList {
-        
+    func toDomain() -> PostListData {
+        return .init()
     }
 }
 
-struct PostListResponseDTO {
+struct PostListResponseDTO: Codable {
     let currentPage: Int
     let totalPage: Int
     let itemPerPage: Int
@@ -42,6 +42,6 @@ struct PostListResponseDTO {
 
 extension PostListResponseDTO {
     func toDomain() -> PostListPage {
-        
+        .init(currentPage: currentPage, totalPages: totalPage, postLists: results.map { $0.toDomain()})
     }
 }

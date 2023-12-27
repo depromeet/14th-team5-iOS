@@ -8,6 +8,7 @@
 import UIKit
 
 import Core
+import Data
 import DesignSystem
 import Kingfisher
 import RxSwift
@@ -120,6 +121,11 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        self.rx.viewWillAppear
+            .map { _ in Reactor.Action.viewWillAppear }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         profileFeedCollectionView.rx
             .setDelegate(self)
             .disposed(by: disposeBag)
@@ -227,7 +233,9 @@ extension ProfileViewController {
         let alertController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
         let presentCameraAction: UIAlertAction = UIAlertAction(title: "카메라", style: .default) { _ in
-            let cameraViewController = CameraDIContainer().makeViewController()
+            guard let profileMemberId = self.reactor?.currentState.profileMemberEntity?.memberId else { return }
+            
+            let cameraViewController = CameraDIContainer(cameraType: .profile, memberId: profileMemberId).makeViewController()
             owner.navigationController?.pushViewController(cameraViewController, animated: true)
         }
         

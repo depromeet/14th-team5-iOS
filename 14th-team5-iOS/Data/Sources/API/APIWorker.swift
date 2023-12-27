@@ -183,8 +183,8 @@ class APIWorker: NSObject {
         
         return Single.create { single -> Disposable in
             AF.upload(image, to: url, method: spec.method, headers: hds)
-                .validate()
-                .responseData { response in
+                .validate(statusCode: [200, 204, 205])
+                .responseData(emptyResponseCodes: [200, 204, 205]) { response in
                     switch response.result {
                     case .success(_):
                         single(.success(true))

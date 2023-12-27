@@ -31,8 +31,8 @@ extension CameraAPIs {
 
 
 extension CameraAPIWorker {
-    public func createPresignedURL(accessToken: String, parameters: Encodable) -> Single<CameraDisplayImageResponse?> {
-        let spec = CameraAPIs.uploadImageURL.spec
+    public func createPresignedURL(accessToken: String, parameters: Encodable, type: UploadLocation) -> Single<CameraDisplayImageDTO?> {
+        let spec = type == .feed ? CameraAPIs.uploadImageURL.spec : CameraAPIs.uploadProfileImageURL.spec
         
         return request(spec: spec, headers: [BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
             .subscribe(on: Self.queue)
@@ -43,7 +43,20 @@ extension CameraAPIWorker {
             }
             .map(CameraDisplayImageDTO.self)
             .catchAndReturn(nil)
-            .map { $0?.toDomain() }
+            .asSingle()
+    }
+    
+    public func editProfileImageToS3(accessToken: String, memberId: String, parameters: Encodable) -> Single<ProfileMemberDTO?>   {
+        let spec = CameraAPIs.editProfileImage(memberId).spec
+        return request(spec: spec, headers: [BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("editProfile Image Upload Result: \(str)")
+                }
+            }
+            .map(ProfileMemberDTO.self)
+            .catchAndReturn(nil)
             .asSingle()
     }
     
@@ -56,7 +69,7 @@ extension CameraAPIWorker {
             .map { _ in true }
     }
     
-    public func combineWithTextImageUpload(accessToken: String, parameters: Encodable)  -> Single<CameraDisplayPostResponse?> {
+    public func combineWithTextImageUpload(accessToken: String, parameters: Encodable)  -> Single<CameraDisplayPostDTO?> {
         let spec = CameraAPIs.updateImage.spec
         
         return request(spec: spec, headers: [BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
@@ -68,7 +81,6 @@ extension CameraAPIWorker {
             }
             .map(CameraDisplayPostDTO.self)
             .catchAndReturn(nil)
-            .map { $0?.toDomain() }
             .asSingle()
         
     }

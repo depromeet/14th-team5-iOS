@@ -18,6 +18,7 @@ public final class ProfileViewReactor: Reactor {
     
     public enum Action {
         case viewDidLoad
+        case viewWillAppear
         case fetchMorePostItems(Bool)
     }
     
@@ -75,6 +76,34 @@ public final class ProfileViewReactor: Reactor {
 
                     }
             )
+            
+        case .viewWillAppear:
+            return .concat(
+                .just(.setLoading(true)),
+                profileUseCase.executeProfileMemberItems()
+                    .asObservable()
+                    .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
+                            .just(.setProfileMemberItems(entity))
+                    },
+                
+                profileUseCase.executeProfilePostItems(query: query, parameters: parameters)
+                    .asObservable()
+                    .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
+                        var sectionItem: [ProfileFeedSectionItem] = []
+                        entity.results.forEach {
+                            sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, title: $0.content, date: DateFormatter.yyyyMMdd.string(from: $0.createdAt))))
+                            
+                        }
+                        return .concat(
+                            .just(.setProfilePostItems(entity)),
+                            .just(.setFeedCategroySection(sectionItem)),
+                            .just(.setLoading(false))
+                        )
+
+                    }
+            )
+            
+            
         case let .fetchMorePostItems(isPagination):
             query.page += 1
             guard self.currentState.profilePostEntity?.hasNext == true && isPagination else { return .empty() }
@@ -87,7 +116,7 @@ public final class ProfileViewReactor: Reactor {
                     
                     var sectionItem: [ProfileFeedSectionItem] = []
                     paginationItems.append(contentsOf: entity.results)
-                    
+                    print("pageination Test: \(paginationItems)")
                    
                     paginationItems.forEach {
                         sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, title: $0.content, date: DateFormatter.yyyyMMdd.string(from: $0.createdAt))))

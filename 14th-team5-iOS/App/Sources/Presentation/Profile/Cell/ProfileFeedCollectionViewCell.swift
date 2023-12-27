@@ -90,8 +90,6 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
     public override func bind(reactor: ProfileFeedCellReactor) {
         reactor.state
             .map { $0.imageURL }
-            .distinctUntilChanged()
-            .observe(on: MainScheduler.instance)
             .withUnretained(self)
             .bind(onNext: { $0.0.setupProfileFeedImage($0.1)})
             .disposed(by: disposeBag)

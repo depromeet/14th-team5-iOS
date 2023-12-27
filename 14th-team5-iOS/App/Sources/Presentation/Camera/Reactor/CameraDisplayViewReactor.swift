@@ -16,7 +16,7 @@ import ReactorKit
 public final class CameraDisplayViewReactor: Reactor {
 
     public var initialState: State
-    private var cameraDisplayRepository: CameraDisplayImpl
+    private var cameraDisplayUseCase: CameraDisplayViewUseCaseProtocol
     
     public enum Action {
         case viewDidLoad
@@ -48,8 +48,8 @@ public final class CameraDisplayViewReactor: Reactor {
     
     
     
-    init(cameraDisplayRepository: CameraDisplayImpl, displayData: Data) {
-        self.cameraDisplayRepository = cameraDisplayRepository
+    init(cameraDisplayUseCase: CameraDisplayViewUseCaseProtocol, displayData: Data) {
+        self.cameraDisplayUseCase = cameraDisplayUseCase
         self.initialState = State(
             isLoading: false,
             displayDescrption: "",
@@ -70,11 +70,11 @@ public final class CameraDisplayViewReactor: Reactor {
             return .concat(
                 .just(.setLoading(true)),
                 .just(.setRenderImage(self.currentState.displayData)),
-                cameraDisplayRepository.fetchImageURL(parameters: parameters)
+                cameraDisplayUseCase.executeDisplayImageURL(parameters: parameters, type: .feed)
                     .withUnretained(self)
                     .asObservable()
                     .flatMap { owner, entity -> Observable<CameraDisplayViewReactor.Mutation> in
-                        owner.cameraDisplayRepository.uploadImageToS3(toURL: entity?.imageURL ?? "", imageData: owner.currentState.displayData)
+                        owner.cameraDisplayUseCase.executeUploadToS3(toURL: entity?.imageURL ?? "", imageData: owner.currentState.displayData)
                             .asObservable()
                             .flatMap { isSuccess -> Observable<CameraDisplayViewReactor.Mutation> in
                                 return .concat(
@@ -90,7 +90,7 @@ public final class CameraDisplayViewReactor: Reactor {
         case let .fetchDisplayImage(description):
             return .concat(
                 .just(.setLoading(true)),
-                cameraDisplayRepository.generateDescrption(with: description)
+                cameraDisplayUseCase.executeDescrptionItems(with: description)
                     .asObservable()
                     .flatMap { items -> Observable<CameraDisplayViewReactor.Mutation> in
                         var sectionItem: [DisplayEditItemModel] = []
@@ -122,7 +122,7 @@ public final class CameraDisplayViewReactor: Reactor {
                 uploadTime: DateFormatter.yyyyMMddTHHmmssXXX.string(from: Date())
             )
             
-            return cameraDisplayRepository.executeCombineWithTextImage(parameters: parameters)
+            return cameraDisplayUseCase.executeCombineWithTextImage(parameters: parameters)
                 .asObservable()
                 .flatMap { entity -> Observable<CameraDisplayViewReactor.Mutation> in
                     return .concat(
@@ -151,10 +151,13 @@ public final class CameraDisplayViewReactor: Reactor {
         case let .setDescription(descrption):
             newState.displayDescrption = descrption
         case let .setDisplayEntity(entity):
+            print("displayEntity : \(entity)")
             newState.displayEntity = entity
         case let .setDisplayOriginalEntity(entity):
+            print("displayOriginal Entity: \(entity)")
             newState.displayOringalEntity = entity
         case let .setPostEntity(entity):
+            print("displayPost Entity: \(entity)")
             newState.displayPostEntity = entity
         }
         return newState

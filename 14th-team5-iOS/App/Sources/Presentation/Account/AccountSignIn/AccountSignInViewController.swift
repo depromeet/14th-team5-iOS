@@ -89,3 +89,10 @@ extension AccountSignInViewController {
         present(container, animated: true)
     }
 }
+
+extension AccountSignInViewController {
+    func pushCalendarFeedView(_ date: Date?) {
+        let container = AccountSignUpDIContainer()
+        navigationController?.pushViewController(container.makeViewController(), animated: true)
+    }
+}

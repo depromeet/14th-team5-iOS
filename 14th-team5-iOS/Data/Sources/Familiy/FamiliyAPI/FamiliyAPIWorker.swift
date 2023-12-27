@@ -24,8 +24,8 @@ extension FamilyAPIs {
     }
 }
 
-extension FamiliyAPIWorker: SearchFamilyRepository {
-    public func fetchFamilyMember(query: Domain.SearchFamilyQuery) -> RxSwift.Single<Domain.SearchFamilyPage> {
+extension FamilyAPIWorker: SearchFamilyRepository {
+    public func fetchFamilyMember(query: Domain.SearchFamilyQuery) -> RxSwift.Single<Domain.SearchFamilyPage?> {
         let spec = FamilyAPIs.familyMembers.spec
         return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJyZWdEYXRlIjoxNzAzNDA4MzI4MDg3LCJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwMzQ5NDcyOH0.V7Dw6RTWJ8BMzfJpuVCQz1Zhwj_cnI-r9oxYDjx3zJs")])
             .subscribe(on: Self.queue)
@@ -36,7 +36,7 @@ extension FamiliyAPIWorker: SearchFamilyRepository {
             }
             .map(FamilySearchResponseDTO.self)
             .catchAndReturn(nil)
-            .map { $0!.toDomain() }
+            .map { $0?.toDomain() }
             .asSingle()
     }
     

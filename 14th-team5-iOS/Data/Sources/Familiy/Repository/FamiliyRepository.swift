@@ -22,7 +22,7 @@ public protocol FamilyImpl {
 public final class FamiliyRepository: FamilyImpl {
     public let disposeBag: DisposeBag = DisposeBag()
     
-    private let apiWorker: FamiliyAPIWorker = FamiliyAPIWorker()
+    private let apiWorker: FamilyAPIWorker = FamilyAPIWorker()
     
     public init() { }
     

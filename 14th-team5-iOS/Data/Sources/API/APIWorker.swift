@@ -162,7 +162,7 @@ class APIWorker: NSObject {
         return self.request(spec: spec, headers: headers, jsonData: jsonData)
     }
     
-    public func upload(spec: APISpec, headers: [APIHeader]? = nil, image: Data) -> Single<Bool> {
+    func upload(spec: APISpec, headers: [APIHeader]? = nil, image: Data) -> Single<Bool> {
         
         let hds = self.httpHeaders(headers)
         guard let url = URL(string: spec.url) else {

@@ -13,7 +13,6 @@ import RxSwift
 
 fileprivate typealias _Str = AccountSignUpStrings.Date
 final class AccountDateViewController: BaseViewController<AccountSignUpReactor> {
-    // MARK: SubViews
     private let titleLabel = UILabel()
     
     private let yearInputFieldView = UITextField()
@@ -34,6 +33,9 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
     private let errorImage = UIImageView()
     private let errorStackView = UIStackView()
     
+    private let nextButton = UIButton()
+    private let descLabel = UILabel()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -47,12 +49,6 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
     }
     
     private func bindInput(reactor: AccountSignUpReactor) {
-        Observable
-            .just(())
-            .map { Reactor.Action.dateViewDidLoad }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
         let yearEditingChange = yearInputFieldView.rx
             .text.orEmpty
             .distinctUntilChanged()
@@ -97,6 +93,12 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
             .map { Reactor.Action.setDay($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        nextButton.rx.tap
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .map { Reactor.Action.dateButtonTapped }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: AccountSignUpReactor) {
@@ -122,6 +124,12 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
             .distinctUntilChanged()
             .withUnretained(self)
             .bind(onNext: { $0.0.validationDay($0.1) })
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.isValidDateButton }
+            .withUnretained(self)
+            .observe(on: Schedulers.main)
+            .bind(onNext: { $0.0.validationButton($0.1) })
             .disposed(by: disposeBag)
     }
     
@@ -152,7 +160,7 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
         fieldStackView.addArrangedSubviews(yearStackView, monthStackView, dayStackView)
         
         errorStackView.addArrangedSubviews(errorImage, errorLabel)
-        view.addSubviews(titleLabel, fieldStackView, errorStackView)
+        view.addSubviews(titleLabel, fieldStackView, errorStackView, descLabel, nextButton)
     }
     
     override func setupAutoLayout() {
@@ -171,6 +179,17 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
         errorStackView.snp.makeConstraints {
             $0.centerX.equalToSuperview().inset(20)
             $0.top.equalTo(fieldStackView.snp.bottom).offset(12)
+        }
+        
+        descLabel.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.bottom.equalTo(nextButton.snp.top).offset(-10)
+        }
+        
+        nextButton.snp.makeConstraints {
+            $0.horizontalEdges.equalToSuperview().inset(12)
+            $0.bottom.equalTo(view.keyboardLayoutGuide.snp.top).offset(-10)
+            $0.height.equalTo(56)
         }
     }
     
@@ -255,6 +274,21 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
             $0.distribution = .fillProportionally
             $0.isHidden = true
         }
+        
+        descLabel.do {
+            $0.text = _Str.desc
+            $0.textColor = DesignSystemAsset.gray400.color
+            $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.regular, size: 16)
+        }
+        
+        nextButton.do {
+            $0.setTitle("계속", for: .normal)
+            $0.titleLabel?.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 16)
+            $0.setTitleColor(DesignSystemAsset.black.color, for: .normal)
+            $0.backgroundColor = DesignSystemAsset.mainGreen.color.withAlphaComponent(0.2)
+            $0.isEnabled = false
+            $0.layer.cornerRadius = 30
+        }
     }
 }
 
@@ -275,6 +309,12 @@ fileprivate extension AccountDateViewController {
         errorStackView.isHidden = isValid
         dayInputFieldView.textColor = isValid ? DesignSystemAsset.gray200.color : DesignSystemAsset.warningRed.color
         dayLabel.textColor = isValid ? DesignSystemAsset.gray200.color : DesignSystemAsset.warningRed.color
+    }
+    
+    func validationButton(_ isValid: Bool) {
+        let defaultColor = DesignSystemAsset.mainGreen.color
+        nextButton.backgroundColor = isValid ? defaultColor : defaultColor.withAlphaComponent(0.2)
+        nextButton.isEnabled = isValid
     }
     
     private func setTitleLabel(with nickname: String) {

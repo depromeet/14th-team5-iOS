@@ -19,12 +19,10 @@ public final class AccountSignUpReactor: Reactor {
         case setNickname(String)
         case nicknameButtonTapped
         
-        case dateViewDidLoad
         case setYear(Int)
         case setMonth(Int)
         case setDay(Int)
-        
-        case profileViewDidLoad
+        case dateButtonTapped
         
         case signUpStarted
     }
@@ -33,33 +31,28 @@ public final class AccountSignUpReactor: Reactor {
         case setNickname(String)
         case nicknameButtonTapped
         
-        case dateViewDescValue
-        
         case setYearValue(Int)
         case setMonthValue(Int)
         case setDayValue(Int)
+        case dateButtonTapped
         
-        case buttonTitleValue
         case signUpValue
     }
     
     public struct State {
         var nickname: String = ""
         var isValidNickname: Bool = false
-        var isValidButton: Bool = false
+        var isValidNicknameButton: Bool = false
         var nicknameButtonTappedFinish: Bool = false
         
-        var dateDesc: String = ""
         var year: Int?
         var isValidYear: Bool = false
         var month: Int?
         var isValidMonth: Bool = false
         var day: Int?
         var isValidDay: Bool = false
-        
-        var buttonTitle: String? = ""
-        
-        var buttonAbled: Bool = false
+        var isValidDateButton: Bool = false
+        var dateButtonTappedFinish: Bool = false
     }
     
     init(accountRepository: AccountRepository) {
@@ -71,27 +64,24 @@ public final class AccountSignUpReactor: Reactor {
 extension AccountSignUpReactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        
-        // MARK: Nickname
+            
+            // MARK: Nickname
         case .setNickname(let nickname):
             return Observable.just(Mutation.setNickname(nickname))
         case .nicknameButtonTapped:
             return Observable.just(Mutation.nicknameButtonTapped)
             
-            
-        // MARK: Date
-        case .dateViewDidLoad:
-            return Observable.just(Mutation.dateViewDescValue)
+            // MARK: Date
         case .setYear(let year):
             return Observable.just(Mutation.setYearValue(year))
         case .setMonth(let month):
             return Observable.just(Mutation.setMonthValue(month))
         case .setDay(let day):
             return Observable.just(Mutation.setDayValue(day))
+        case .dateButtonTapped:
+            return Observable.just(Mutation.dateButtonTapped)
             
-        // MARK: Profile
-        case .profileViewDidLoad:
-            return Observable.just(Mutation.buttonTitleValue)
+            // MARK: Profile
         case .signUpStarted:
             return accountRepository.signUp(name: currentState.nickname, date: "", photoURL: nil).flatMap { Observable.just(Mutation.signUpValue) }
         }
@@ -103,12 +93,10 @@ extension AccountSignUpReactor {
         case .setNickname(let nickname):
             newState.nickname = nickname
             newState.isValidNickname = nickname.count <= 10
-            newState.isValidButton = nickname.count > 2
+            newState.isValidNicknameButton = nickname.count > 2
         case .nicknameButtonTapped:
             newState.nicknameButtonTappedFinish = true
             
-        case .dateViewDescValue:
-            newState.dateDesc = _Str.Date.desc
         case .setYearValue(let year):
             newState.year = year
             newState.isValidYear = year < 2023
@@ -118,12 +106,15 @@ extension AccountSignUpReactor {
         case .setDayValue(let day):
             newState.day = day
             newState.isValidDay = day < 31
-        case .buttonTitleValue:
-            newState.buttonTitle = _Str.Profile.buttonTitle
+        case .dateButtonTapped:
+            newState.dateButtonTappedFinish = true
+            
+            
         case .signUpValue:
-             print("123123")
-        
+            print("123123")
         }
+        
+        newState.isValidDateButton = newState.isValidYear && newState.isValidMonth && newState.isValidDay
         return newState
     }
 }

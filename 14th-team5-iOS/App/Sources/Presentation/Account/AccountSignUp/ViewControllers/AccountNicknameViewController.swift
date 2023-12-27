@@ -63,7 +63,7 @@ final class AccountNicknameViewController: BaseViewController<AccountSignUpReact
             .bind(onNext: { $0.0.validationNickname($0.1) })
             .disposed(by: self.disposeBag)
         
-        reactor.state.map { $0.isValidButton }
+        reactor.state.map { $0.isValidNicknameButton }
             .withUnretained(self)
             .observe(on: Schedulers.main)
             .bind(onNext: { $0.0.validationButton($0.1) })

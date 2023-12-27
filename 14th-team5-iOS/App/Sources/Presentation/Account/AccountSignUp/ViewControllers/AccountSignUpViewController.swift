@@ -26,22 +26,18 @@ public final class AccountSignUpViewController: BasePageViewController<AccountSi
     }
     
     public override func bind(reactor: AccountSignUpReactor) {
-        nextButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .withUnretained(self)
-            .bind(onNext: { $0.0.goToNextPage() })
-            .disposed(by: disposeBag)
-        
         reactor.state.map { $0.nicknameButtonTappedFinish }
             .filter { $0 }
+            .take(1)
             .withUnretained(self)
             .bind(onNext: { $0.0.goToNextPage() })
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.dateDesc }
+        reactor.state.map { $0.dateButtonTappedFinish }
+            .filter { $0 }
+            .take(1)
             .withUnretained(self)
-            .observe(on: Schedulers.main)
-            .bind(onNext: { $0.0.setDescLabel(with: $0.1) })
+            .bind(onNext: { $0.0.goToNextPage() })
             .disposed(by: disposeBag)
     }
     
@@ -62,41 +58,11 @@ public final class AccountSignUpViewController: BasePageViewController<AccountSi
     public override func setupAttributes() {
         super.setupAttributes()
         
-//        descLabel.do {
-//            $0.text = _Str.Nickname.desc
-//            $0.textColor = DesignSystemAsset.gray400.color
-//            $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.regular, size: 16)
-//        }
-//        
-//        nextButton.do {
-//            $0.setTitle("계속", for: .normal)
-//            $0.titleLabel?.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 16)
-//            $0.setTitleColor(DesignSystemAsset.black.color, for: .normal)
-//            $0.backgroundColor = DesignSystemAsset.mainGreen.color
-//            $0.layer.cornerRadius = 30
-//        }
     }
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         
-//        descLabel.snp.makeConstraints {
-//            $0.centerX.equalToSuperview()
-//            $0.bottom.equalTo(nextButton.snp.top).offset(-10)
-//        }
-//        
-//        nextButton.snp.makeConstraints {
-//            $0.horizontalEdges.equalToSuperview().inset(12)
-//            $0.bottom.equalTo(view.keyboardLayoutGuide.snp.top).offset(-10)
-//            $0.height.equalTo(56)
-//        }
-    }
-}
-
-extension AccountSignUpViewController {
-    private func setDescLabel(with desc: String?) {
-        guard let desc else { return }
-        descLabel.text = desc
     }
 }
 

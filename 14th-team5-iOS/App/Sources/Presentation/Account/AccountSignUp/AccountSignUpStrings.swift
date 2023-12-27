@@ -30,6 +30,7 @@ extension String {
             static let errorMsg: String = "올바른 날짜를 입력해주세요"
         }
         enum Profile {
+            static let title: String = "마지막이에요. %@님의 프로필을 선택해보세요"
             static var buttonTitle: String = "완료"
         }
     }

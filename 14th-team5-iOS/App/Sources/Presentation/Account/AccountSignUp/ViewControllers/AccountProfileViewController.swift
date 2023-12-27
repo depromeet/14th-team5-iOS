@@ -15,10 +15,12 @@ import RxCocoa
 import SnapKit
 import Then
 
+fileprivate typealias _Str = AccountSignUpStrings.Profile
 final class AccountProfileViewController: BaseViewController<AccountSignUpReactor> {
     // MARK: SubViews
     private let titleLabel = UILabel()
     private let profileButton = UIButton()
+    private let nextButton = UIButton()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,6 +37,12 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
             .withUnretained(self)
             .bind(onNext: { $0.0.createAlertController(owner: $0.0) })
             .disposed(by: self.disposeBag)
+        
+        nextButton.rx.tap
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .map { Reactor.Action.profileButtonTapped }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: AccountSignUpReactor) {
@@ -48,7 +56,7 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
     override func setupUI() {
         super.setupUI()
         
-        view.addSubviews(titleLabel, profileButton)
+        view.addSubviews(titleLabel, profileButton, nextButton)
     }
     
     override func setupAutoLayout() {
@@ -63,6 +71,12 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
             $0.centerX.equalToSuperview().inset(20)
             $0.top.equalTo(titleLabel.snp.bottom).offset(26)
             $0.width.height.equalTo(90)
+        }
+        
+        nextButton.snp.makeConstraints {
+            $0.horizontalEdges.equalToSuperview().inset(12)
+            $0.bottom.equalTo(view.keyboardLayoutGuide.snp.top).offset(-10)
+            $0.height.equalTo(56)
         }
     }
     
@@ -79,12 +93,20 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
             $0.backgroundColor = DesignSystemAsset.gray800.color
             $0.layer.cornerRadius = 45
         }
+        
+        nextButton.do {
+            $0.setTitle(_Str.buttonTitle, for: .normal)
+            $0.titleLabel?.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 16)
+            $0.setTitleColor(DesignSystemAsset.black.color, for: .normal)
+            $0.backgroundColor = DesignSystemAsset.mainGreen.color
+            $0.layer.cornerRadius = 30
+        }
     }
 }
 
 extension AccountProfileViewController {
     private func setProfilewView(with nickname: String) {
-        titleLabel.text = "마지막이에요.\n\(nickname)님의 프로필을 선택해보세요"
+        titleLabel.text = String(format: _Str.title, nickname)
         
         if let firstName = nickname.first {
             profileButton.setTitle(String(firstName), for: .normal)
@@ -92,6 +114,7 @@ extension AccountProfileViewController {
     }
 }
 
+// TODO: 테스트용
 extension AccountProfileViewController {
     private func createAlertController(owner: AccountProfileViewController) {
         let alertController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)

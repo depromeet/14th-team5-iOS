@@ -39,6 +39,13 @@ public final class AccountSignUpViewController: BasePageViewController<AccountSi
             .withUnretained(self)
             .bind(onNext: { $0.0.goToNextPage() })
             .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.profileButtonTappedFinish }
+            .filter { $0 }
+            .take(1)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.showOnboardingViewCotnroller() })
+            .disposed(by: disposeBag)
     }
     
     public override func setupUI() {
@@ -53,16 +60,6 @@ public final class AccountSignUpViewController: BasePageViewController<AccountSi
         pages.append(profilePage)
         
         view.addSubviews(descLabel, nextButton)
-    }
-    
-    public override func setupAttributes() {
-        super.setupAttributes()
-        
-    }
-    
-    public override func setupAutoLayout() {
-        super.setupAutoLayout()
-        
     }
 }
 

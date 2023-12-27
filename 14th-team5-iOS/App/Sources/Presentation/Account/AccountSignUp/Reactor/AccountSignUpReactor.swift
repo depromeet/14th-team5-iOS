@@ -24,7 +24,7 @@ public final class AccountSignUpReactor: Reactor {
         case setDay(Int)
         case dateButtonTapped
         
-        case signUpStarted
+        case profileButtonTapped
     }
     
     public enum Mutation {
@@ -36,7 +36,7 @@ public final class AccountSignUpReactor: Reactor {
         case setDayValue(Int)
         case dateButtonTapped
         
-        case signUpValue
+        case profileButtonTapped
     }
     
     public struct State {
@@ -53,6 +53,8 @@ public final class AccountSignUpReactor: Reactor {
         var isValidDay: Bool = false
         var isValidDateButton: Bool = false
         var dateButtonTappedFinish: Bool = false
+        
+        var profileButtonTappedFinish: Bool = false
     }
     
     init(accountRepository: AccountRepository) {
@@ -82,8 +84,8 @@ extension AccountSignUpReactor {
             return Observable.just(Mutation.dateButtonTapped)
             
             // MARK: Profile
-        case .signUpStarted:
-            return accountRepository.signUp(name: currentState.nickname, date: "", photoURL: nil).flatMap { Observable.just(Mutation.signUpValue) }
+        case .profileButtonTapped:
+            return accountRepository.signUp(name: currentState.nickname, date: "", photoURL: nil).flatMap { Observable.just(Mutation.profileButtonTapped) }
         }
     }
     
@@ -110,8 +112,8 @@ extension AccountSignUpReactor {
             newState.dateButtonTappedFinish = true
             
             
-        case .signUpValue:
-            print("123123")
+        case .profileButtonTapped:
+            newState.profileButtonTappedFinish = true
         }
         
         newState.isValidDateButton = newState.isValidYear && newState.isValidMonth && newState.isValidDay

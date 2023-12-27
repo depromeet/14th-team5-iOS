@@ -149,8 +149,6 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         
-        
-        
         familyCollectionView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).inset(24)
             $0.horizontalEdges.equalToSuperview()
@@ -242,6 +240,7 @@ extension HomeViewController {
     
     private func addFamilyInviteView() {
         familyCollectionView.isHidden = true
+        view.addSubview(inviteFamilyView)
         
         inviteFamilyView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).inset(24)

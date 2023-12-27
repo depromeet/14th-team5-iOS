@@ -47,12 +47,7 @@ public final class AddFamilyViewReactor: Reactor {
     init(provider: GlobalStateProviderType) {
         self.initialState = State()
         self.provider = provider
-<<<<<<< HEAD:14th-team5-iOS/App/Sources/Presentation/AddFamiliy/Reactor/AddFamilyViewReactor.swift
         self.addFamiliyRepository = FamiliyRepository()
-=======
-        
-        self.addFamilyRepository = AddFamilyRepository()
->>>>>>> 544612a (feat: FamilyMemeber 모델 수정 (#100)):14th-team5-iOS/App/Sources/Presentation/AddFamily/Reactor/AddFamilyViewReactor.swift
     }
     
     // MARK: - Transform

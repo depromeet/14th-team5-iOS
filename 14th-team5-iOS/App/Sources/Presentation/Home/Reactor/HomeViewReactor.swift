@@ -75,6 +75,9 @@ extension HomeViewReactor {
             return familyRepository.excute(query: query)
                 .asObservable()
                 .flatMap { familyMembers in
+                    guard let familyMembers else {
+                        return Observable.just(Mutation.showInviteFamilyView)
+                    }
                     if familyMembers.members.isEmpty {
                         return Observable.just(Mutation.showInviteFamilyView)
                     } else {

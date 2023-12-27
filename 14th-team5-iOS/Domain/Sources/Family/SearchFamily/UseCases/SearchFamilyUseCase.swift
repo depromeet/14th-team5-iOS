@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 public protocol SearchFamilyMemberUseCaseProtocol {
-    func excute(query: SearchFamilyQuery) -> Single<SearchFamilyPage>
+    func excute(query: SearchFamilyQuery) -> Single<SearchFamilyPage?>
 }
 
 public class SearchFamilyUseCase: SearchFamilyMemberUseCaseProtocol {
@@ -19,7 +19,7 @@ public class SearchFamilyUseCase: SearchFamilyMemberUseCaseProtocol {
         self.searchFamilyRepository = searchFamilyRepository
     }
     
-    public func excute(query: SearchFamilyQuery) -> Single<SearchFamilyPage> {
+    public func excute(query: SearchFamilyQuery) -> Single<SearchFamilyPage?> {
         return searchFamilyRepository.fetchFamilyMember(query: query)
     }
     

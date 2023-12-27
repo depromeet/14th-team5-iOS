@@ -45,6 +45,11 @@ final class AccountNicknameViewController: BaseViewController<AccountSignUpReact
             .map { Reactor.Action.setNickname($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        inputFielView.rx.text.orEmpty
+            .scan("") { $1.count > 10 ? $0 : $1 }
+            .bind(to: inputFielView.rx.text)
+            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: AccountSignUpReactor) {
@@ -67,7 +72,8 @@ final class AccountNicknameViewController: BaseViewController<AccountSignUpReact
         
         titleLabel.snp.makeConstraints {
             $0.centerX.equalToSuperview().inset(20)
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(190)
+            $0.top.equalToSuperview().offset(190)
+//            $0.top.equalTo(view.safeAreaLayoutGuide).offset(190)
         }
         
         inputFielView.snp.makeConstraints {
@@ -99,6 +105,7 @@ final class AccountNicknameViewController: BaseViewController<AccountSignUpReact
         
         errorImage.do {
             $0.contentMode = .scaleAspectFit
+            $0.backgroundColor = DesignSystemAsset.warningRed.color
             $0.image = DesignSystemAsset.infoCircleFill.image
         }
         

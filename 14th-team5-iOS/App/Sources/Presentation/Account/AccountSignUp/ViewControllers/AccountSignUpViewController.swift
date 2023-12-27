@@ -9,6 +9,7 @@ import UIKit
 import Core
 import DesignSystem
 
+fileprivate typealias _Str = AccountSignUpStrings
 public final class AccountSignUpViewController: BasePageViewController<AccountSignUpReactor> {
     private let nextButton = UIButton()
     private let descLabel = UILabel()
@@ -30,6 +31,12 @@ public final class AccountSignUpViewController: BasePageViewController<AccountSi
             .withUnretained(self)
             .bind(onNext: { $0.0.goToNextPage() })
             .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.dateDesc }
+            .withUnretained(self)
+            .observe(on: Schedulers.main)
+            .bind(onNext: { $0.0.setDescLabel(with: $0.1) })
+            .disposed(by: disposeBag)
     }
     
     public override func setupUI() {
@@ -50,7 +57,7 @@ public final class AccountSignUpViewController: BasePageViewController<AccountSi
         super.setupAttributes()
         
         descLabel.do {
-            $0.text = "가족에게 주로 불리는 호칭을 입력해주세요"
+            $0.text = _Str.Nickname.desc
             $0.textColor = DesignSystemAsset.gray400.color
             $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.regular, size: 16)
         }
@@ -81,30 +88,23 @@ public final class AccountSignUpViewController: BasePageViewController<AccountSi
 }
 
 extension AccountSignUpViewController {
+    private func setDescLabel(with desc: String?) {
+        guard let desc else { return }
+        descLabel.text = desc
+    }
+}
+
+extension AccountSignUpViewController {
     private func goToNextPage() {
         guard let currentPage = viewControllers?[0],
               let nextPage = self.dataSource?.pageViewController(self, viewControllerAfter: currentPage) else { return }
-        
-        if currentPage is AccountProfileViewController {
-//            UserDefaults.standard.showTutorial = true
-            showOnboardingViewCotnroller()
-        } else {
-            showOnboardingViewCotnroller()
-//            setViewControllers([nextPage], direction: .forward, animated: true)
-//            updateButtonType(isActive: false)
-        }
+        setViewControllers([nextPage], direction: .forward, animated: true)
     }
-    
-//    private func updateButtonType(isActive: Bool) {
-//        nextButton.isEnabled = !isActive
-//        nextButton.backgroundColor = isActive ? DesignSystemAsset.mainGreen.color : DesignSystemAsset.mainGreenHover.color.withAlphaComponent(0.2)
-//    }
     
     private func showOnboardingViewCotnroller() {
         let onBoardingViewController = OnBoardingDIContainer().makeViewController()
         onBoardingViewController.modalPresentationStyle = .fullScreen
         present(onBoardingViewController, animated: true)
-//        self.navigationController?.pushViewController(onBoardingViewController, animated: true)
     }
 }
 
@@ -115,12 +115,6 @@ extension AccountSignUpViewController: UIPageViewControllerDataSource {
     
     public func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         guard let currentIndex = pages.firstIndex(of: viewController) else { return nil }
-        
-        descLabel.text = currentIndex == 0 ? "가족들이 생일을 챙겨줄 수 있어요" : ""
-        if currentIndex == 1 {
-            nextButton.setTitle("완료", for: .normal)
-//            updateButtonType(isActive: true)
-        }
         
         guard currentIndex < pages.count - 1 else { return nil }
         return pages[currentIndex + 1]

@@ -33,7 +33,7 @@ final class KakaoSignInHelper: AccountSignInHelperType {
             UserApi.shared.rx.loginWithKakaoTalk()
                 .withUnretained(self)
                 .bind(onNext: {
-                    $0.0._signInState.accept(AccountSignInStateInfo(snsType: .kakao, snsToken: $0.1.idToken))
+                    $0.0._signInState.accept(AccountSignInStateInfo(snsType: .kakao, snsToken: $0.1.accessToken))
                 })
                 .disposed(by: self.disposeBag)
         } else {

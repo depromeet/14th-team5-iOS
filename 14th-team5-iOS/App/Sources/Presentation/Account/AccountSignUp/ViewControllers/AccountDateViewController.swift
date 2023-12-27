@@ -9,6 +9,8 @@ import UIKit
 import Core
 import DesignSystem
 
+import RxSwift
+
 final class AccountDateViewController: BaseViewController<AccountSignUpReactor> {
     // MARK: SubViews
     private let titleLabel = UILabel()
@@ -31,6 +33,10 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
     private let errorImage = UIImageView()
     private let errorStackView = UIStackView()
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+    }
+    
     // MARK: Bindings
     override func bind(reactor: AccountSignUpReactor) {
         bindInput(reactor: reactor)
@@ -38,6 +44,27 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
     }
     
     private func bindInput(reactor: AccountSignUpReactor) {
+        Observable
+            .just(())
+            .map { Reactor.Action.dateViewDidLoad }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        yearInputFieldView.rx.text.orEmpty
+            .scan("") { $1.count > 4 ? $0 : $1 }
+            .bind(to: yearInputFieldView.rx.text)
+            .disposed(by: disposeBag)
+        
+        monthInputFieldView.rx.text.orEmpty
+            .scan("") { $1.count > 2 ? $0 : $1 }
+            .bind(to: monthInputFieldView.rx.text)
+            .disposed(by: disposeBag)
+        
+        dayInputFieldView.rx.text.orEmpty
+            .scan("") { $1.count > 2 ? $0 : $1 }
+            .bind(to: dayInputFieldView.rx.text)
+            .disposed(by: disposeBag)
+        
         let yearEditingChange = yearInputFieldView.rx
             .text.orEmpty
             .distinctUntilChanged()
@@ -72,7 +99,7 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
             .map { $0.0.moveToNextDayField($0.1) }
             .filter { $0 }
             .withUnretained(self)
-            .bind(onNext: { $0.0.monthInputFieldView.becomeFirstResponder() })
+            .bind(onNext: { $0.0.dayInputFieldView.becomeFirstResponder() })
             .disposed(by: disposeBag)
         
         dayInputFieldView.rx.text
@@ -84,6 +111,12 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
     }
     
     private func bindOutput(reactor: AccountSignUpReactor) {
+        reactor.state.map { $0.nickname }
+            .withUnretained(self)
+            .observe(on: Schedulers.main)
+            .bind(onNext: { $0.0.setTitleLabel(with: $0.1) })
+            .disposed(by: disposeBag)
+        
         reactor.state.map { $0.isValidYear }
             .distinctUntilChanged()
             .withUnretained(self)
@@ -112,6 +145,7 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
         
         fieldStackView.addArrangedSubviews(yearStackView, monthStackView, dayStackView)
         
+        errorStackView.addArrangedSubviews(errorImage, errorLabel)
         view.addSubviews(titleLabel, fieldStackView, errorStackView)
     }
     
@@ -140,7 +174,6 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
         titleLabel.do {
             $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 18)
             $0.textColor = DesignSystemAsset.gray300.color
-            $0.text = "안녕하세요 엄마님, 생일이 언제신가요?"
         }
         
         errorImage.do {
@@ -237,6 +270,10 @@ fileprivate extension AccountDateViewController {
         dayInputFieldView.textColor = isValid ? DesignSystemAsset.gray200.color : DesignSystemAsset.warningRed.color
         dayLabel.textColor = isValid ? DesignSystemAsset.gray200.color : DesignSystemAsset.warningRed.color
     }
+    
+    private func setTitleLabel(with nickname: String) {
+        titleLabel.text = "안녕하세요 \(nickname)님, 생일이 언제신가요?"
+    }
 }
 
 fileprivate extension AccountDateViewController {
@@ -245,6 +282,6 @@ fileprivate extension AccountDateViewController {
     }
     
     private func moveToNextDayField(_ value: Int) -> Bool {
-        value >= 100 ? true : false
+        value >= 10 ? true : false
     }
 }

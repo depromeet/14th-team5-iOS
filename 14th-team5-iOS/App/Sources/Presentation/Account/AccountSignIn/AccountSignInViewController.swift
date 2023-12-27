@@ -73,18 +73,19 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-//        reactor.state.map { $0.acceessToken }
-//            .filter { $0.isEmpty }
-//            .distinctUntilChanged()
-//            .withUnretained(self)
-//            .bind(onNext: { _ in print("다음화면 이동하자!") })
-//            .disposed(by: disposeBag)
+        reactor.state.map { $0.pushAccountSingUpVC }
+            .filter { $0 }
+            .observe(on: Schedulers.main)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.pushAccountSignUpViewController() })
+            .disposed(by: disposeBag)
     }
 }
 
 extension AccountSignInViewController {
-    func pushCalendarFeedView(_ date: Date?) {
-        let container = AccountSignUpDIContainer()
-        navigationController?.pushViewController(container.makeViewController(), animated: true)
+    func pushAccountSignUpViewController() {
+        let container = AccountSignUpDIContainer().makeViewController()
+        container.modalPresentationStyle = .fullScreen
+        present(container, animated: true)
     }
 }

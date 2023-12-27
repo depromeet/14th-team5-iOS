@@ -7,6 +7,7 @@
 
 import Foundation
 import Domain
+import Core
 
 import RxSwift
 import Alamofire
@@ -68,7 +69,10 @@ extension AccountSignInHelper {
                 guard let token = token else {
                     return .failed
                 }
-                print("token: \(token)")
+                
+                if token.isTemporaryToken == false {
+                    App.Repository.token.accessToken.accept(token.accessToken)
+                }
                 return .success
             }
     }

@@ -28,14 +28,12 @@ public final class AccountSignInReactor: Reactor {
     }
     
     public struct State {
-        var acceessToken: String
-        
-        @Pulse var pushAccountSingUpVC: Bool
+        var pushAccountSingUpVC: Bool
     }
     
     init(accountRepository: AccountRepository) {
         self.accountRepository = accountRepository
-        self.initialState = State(acceessToken: "", pushAccountSingUpVC: false)
+        self.initialState = State(pushAccountSingUpVC: false)
     }
 }
 
@@ -56,9 +54,9 @@ extension AccountSignInReactor {
         var newState = state
         switch mutation {
         case .kakaoLogin:
-            App.Repository.token.accessToken.accept(state.acceessToken)
+            newState.pushAccountSingUpVC = true
         case .appleLogin:
-            App.Repository.token.accessToken.accept(state.acceessToken)
+            newState.pushAccountSingUpVC = true
         }
         return newState
     }

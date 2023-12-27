@@ -17,12 +17,6 @@ import SnapKit
 import Then
 
 final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
-    // MARK: - Enums
-    enum CellType {
-        case month
-        case week
-    }
-    
     // MARK: - Views
     private let dayLabel: UILabel = UILabel()
     private let noThumbnailView: UIView = UIView()
@@ -50,6 +44,7 @@ final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         dayLabel.textColor = UIColor.white
         thumbnailView.image = nil
         thumbnailView.layer.borderWidth = .zero
+        thumbnailView.layer.borderColor = UIColor.white.cgColor
         badgeView.isHidden = true
     }
     
@@ -163,51 +158,33 @@ final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
                 )
             }
             .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.isSelected }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe {
+                if reactor.type == .week {
+                    if $0.1 {
+                        $0.0.thumbnailView.layer.borderWidth = 1.5
+                        $0.0.thumbnailView.layer.borderColor = UIColor.white.cgColor
+                    } else {
+                        $0.0.thumbnailView.layer.borderWidth = 0.0
+                        
+                        if reactor.currentState.date.isToday {
+                            $0.0.dayLabel.textColor = UIColor.green
+                            $0.0.thumbnailView.layer.borderWidth = 1.5
+                            $0.0.thumbnailView.layer.borderColor = UIColor.green.cgColor
+                        }
+                    }
+                }
+            }
+            .disposed(by: disposeBag)
     }
 }
 
+// MARK: - Extensions
 extension ImageCalendarCell {
     var hasThumbnailImage: Bool {
         return thumbnailView.image != nil ? true : false
-    }
-}
-
-extension ImageCalendarCell {
-    func select() {
-        thumbnailView.layer.borderColor = UIColor.white.cgColor
-    }
-    
-    func deselect() {
-        thumbnailView.layer.borderColor = .none
-        
-        // 오늘 날짜라면
-        guard let reactor = reactor,
-              !(reactor.initialState.date.isToday) else {
-            thumbnailView.layer.borderColor = UIColor.green.cgColor
-            return
-        }
-    }
-}
-
-
-// NOTE: - 임시 코드
-extension ImageCalendarCell {
-    func configure(_ date: Date, imageUrl: String, type: CellType = .month) {
-        if let url = URL(string: imageUrl) {
-            thumbnailView.kf.setImage(with: url)
-            
-            let random = Bool.random()
-            badgeView.isHidden = random
-        }
-        
-        dayLabel.text = "\(date.day)"
-        
-        if type == .week {
-            thumbnailView.alpha = 0.4
-        } else {
-            if date.isToday {
-                thumbnailView.layer.borderWidth = CalendarCell.Attribute.thumbnailBorderWidth
-            }
-        }
     }
 }

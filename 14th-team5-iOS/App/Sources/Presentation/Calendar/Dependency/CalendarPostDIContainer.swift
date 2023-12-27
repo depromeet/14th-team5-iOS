@@ -11,14 +11,14 @@ import Core
 import Data
 
 public final class CalendarPostDIConatainer: BaseDIContainer {
-    public typealias ViewController = CalendarFeedViewController
+    public typealias ViewController = CalendarPostViewController
     public typealias Repository = CalendarImpl
     public typealias Reactor = CalendarPostViewReactor
     
-    let selectedDate: Date
+    let selectedCalendarCell: Date
     
-    init(selectedDate date: Date) {
-        self.selectedDate = date
+    init(selectedCalendarCell: Date) {
+        self.selectedCalendarCell = selectedCalendarCell
     }
     
     private var globalState: GlobalStateProviderType {
@@ -28,8 +28,8 @@ public final class CalendarPostDIConatainer: BaseDIContainer {
         return appDelegate.globalStateProvider
     }
     
-    public func makeViewController() -> CalendarFeedViewController {
-        return CalendarFeedViewController(reacter: makeReactor())
+    public func makeViewController() -> CalendarPostViewController {
+        return CalendarPostViewController(reacter: makeReactor())
     }
     
     public func makeRepository() -> CalendarImpl {
@@ -37,7 +37,9 @@ public final class CalendarPostDIConatainer: BaseDIContainer {
     }
     
     public func makeReactor() -> CalendarPostViewReactor {
-        let intialState = CalendarPostViewReactor.State(selectedDate)
-        return CalendarPostViewReactor(intialState, provider: globalState)
+        return CalendarPostViewReactor(
+            selectedCalendarCell: selectedCalendarCell,
+            provider: globalState
+        )
     }
 }

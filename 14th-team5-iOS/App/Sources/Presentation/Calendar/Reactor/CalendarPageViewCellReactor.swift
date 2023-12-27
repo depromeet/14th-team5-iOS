@@ -17,7 +17,7 @@ public final class CalendarPageCellReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case fetchCalendarResponse
-        case didSelectCell(Date)
+        case didSelectCalendarCell(Date)
         case didTapInfoButton(UIView)
     }
     
@@ -31,6 +31,10 @@ public final class CalendarPageCellReactor: Reactor {
         var date: Date
         var arrayCalendarResponse: ArrayResponseCalendarResponse?
     }
+    
+    // NOTE: - 주간 캘린더와는 다르게 API 호출한 월(月)을 저장할 수 없음
+    // ・ 그렇게 하려면 CalendarVC에서 필요한 모든 데이터를 불러와야 하는데,
+    //   호출 시간으로 인해 컬렉션 뷰의 셀이 어색하게 배치(ScrollToLast)되는 현상이 발생함.
     
     // MARK: - Properties
     public var initialState: State
@@ -51,11 +55,11 @@ public final class CalendarPageCellReactor: Reactor {
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case let .didSelectCell(date):
-            return provider.calendarGlabalState.didSelectCell(date)
+        case let .didSelectCalendarCell(date):
+            return provider.calendarGlabalState.pushCalendarPostVC(date)
                 .flatMap { _ in Observable<Mutation>.empty() }
         case let .didTapInfoButton(sourceView):
-            return provider.calendarGlabalState.didTapInfoButton(sourceView)
+            return provider.calendarGlabalState.didTapCalendarInfoButton(sourceView)
                 .flatMap { _ in Observable<Mutation>.empty() }
         case .fetchCalendarResponse:
             return calendarRepository.fetchMonthlyCalendar(yearMonth)

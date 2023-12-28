@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Domain
 
 import Kingfisher
 import RxSwift
@@ -26,8 +27,6 @@ final class ProfileView: UIView {
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
-    
-    //    private func bind(reactor: R) { }
     
     private func setupUI() {
         addSubviews(imageView, nameLabel)
@@ -62,7 +61,10 @@ final class ProfileView: UIView {
 
 extension ProfileView {
     func setProfile(profile: ProfileData) {
-        imageView.kf.setImage(with: URL(string:profile.imageURL)!)
+        guard let imageURL: URL = URL(string: profile.profileImageURL) else {
+            return
+        }
+        imageView.kf.setImage(with: imageURL)
         nameLabel.text = profile.name
     }
 }

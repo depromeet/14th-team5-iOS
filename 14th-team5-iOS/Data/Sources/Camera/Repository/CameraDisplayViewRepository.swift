@@ -23,7 +23,7 @@ public protocol CameraDisplayImpl: AnyObject {
 }
 
 public final class CameraDisplayViewRepository: CameraDisplayImpl {
-    public init() { } 
+    public init() { }
     private let cameraAPIWorker: CameraAPIWorker = CameraAPIWorker()
     
     public var disposeBag: DisposeBag = DisposeBag()

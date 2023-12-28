@@ -9,16 +9,17 @@ import Foundation
 
 import Core
 
-enum AddFamilyAPIs: API {
+public enum FamilyAPIs: API {
     case invitationUrl(String)
-    case familiyMembers
+    case familyMembers
     
     var spec: APISpec {
         switch self {
         case let .invitationUrl(familiyId):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/families/\(familiyId)/invitation-link")
-        case .familiyMembers:
+        case .familyMembers:
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/members?type=FAMILY")
         }
     }
 }
+

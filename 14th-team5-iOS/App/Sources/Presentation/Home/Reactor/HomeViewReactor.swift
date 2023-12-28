@@ -17,11 +17,12 @@ public final class HomeViewReactor: Reactor {
         case getFamilyMembers
         case getTodayPostList
         case tapInviteFamily
-        case getPostInfo
     }
     
     public enum Mutation {
-//        case setTimerStatus
+        case setLoading(Bool)
+        case setDidPost
+        case setDescriptionText(String)
         case showShareAcitivityView(URL?)
         case showInviteFamilyView
         case showNoPostTodayView
@@ -31,7 +32,8 @@ public final class HomeViewReactor: Reactor {
     
     public struct State {
         var inviteLink: URL?
-//        var isShowingShareAcitivityView: Bool = false
+        var showLoading: Bool = true
+        var didPost: Bool = false
         var descriptionText: String = HomeStrings.Description.standard
         var isShowingNoPostTodayView: Bool = false
         var isShowingInviteFamilyView: Bool = false
@@ -53,31 +55,18 @@ public final class HomeViewReactor: Reactor {
 extension HomeViewReactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-            // 추후에 작업할 내용입니다!
-//        case .checkTime:
-//            return Observable.just(Mutation.setTimerStatus)
-//        case let .getFamilyInfo(query):
-//            let query = SearchFamilyQuery(query: query)
-//            return familyRepository.excute(query: query)
-//                .asObservable()
-//                .map { familyMembers in
-//                    return .setFamilyCollectionView([
-//                        SectionModel<String, ProfileData>(model: "section1", items: familyMembers.members)
-//                    ])
-//                }
-        case .getPostInfo:
-//            if data.isEmpty
-            return Observable.just(Mutation.showNoPostTodayView)
-//            else
-//            return Observable.just(Mutation.setPostCollectionView(data))
         case .tapInviteFamily:
-            // 서버로부터 invitecode 받아오기
-            return Observable.just(Mutation.showShareAcitivityView(URL(string: "https://github.com/depromeet/14th-team5-iOS")))
+            return Observable.concat(
+                Observable.just(Mutation.setLoading(true)),
+                Observable.just(Mutation.showShareAcitivityView(URL(string: "https://github.com/depromeet/14th-team5-iOS"))),
+                Observable.just(Mutation.setLoading(false))
+            )
         case .getFamilyMembers:
             let query: SearchFamilyQuery = SearchFamilyQuery(type: "FAMILY", page: 1, size: 20)
             return familyRepository.excute(query: query)
                 .asObservable()
                 .flatMap { familyMembers in
+                    Observable.just(Mutation.setLoading(false))
                     guard let familyMembers else {
                         return Observable.just(Mutation.showInviteFamilyView)
                     }
@@ -94,12 +83,18 @@ extension HomeViewReactor {
             return postRepository.excute(query: query)
                 .asObservable()
                 .flatMap { postList in
+                    Observable.just(Mutation.setLoading(false)) // Loading 완료 시점
                     guard let postList else {
                         return Observable.just(Mutation.showNoPostTodayView)
                     }
                     
                     if postList.postLists.isEmpty {
                         return Observable.just(Mutation.showNoPostTodayView)
+                    }
+                    
+                    // 내꺼 멤버 아이디 넣기
+                    if postList.checkAuthor(authorId: "") {
+                        return Observable.just(Mutation.setDidPost)
                     }
                     
                     return Observable.just(Mutation.setPostCollectionView([
@@ -113,8 +108,8 @@ extension HomeViewReactor {
         var newState = state
         
         switch mutation {
-//        case .setTimerStatus:
-//            newState.descriptionText = HomeStringLiterals.Description.standard
+            //        case .setTimerStatus:
+            //            newState.descriptionText = HomeStringLiterals.Description.standard
         case .showInviteFamilyView:
             newState.isShowingInviteFamilyView = true
         case let .setFamilyCollectionView(data):
@@ -125,26 +120,14 @@ extension HomeViewReactor {
             newState.feedSections = data
         case let .showShareAcitivityView(url):
             newState.inviteLink = url
+        case .setDidPost:
+            newState.didPost = true
+        case .setDescriptionText(_):
+            break
+        case .setLoading:
+            newState.showLoading = false
         }
         
         return newState
-    }
-}
-
-extension HomeViewReactor {
-    private func calculateRemainingTime() -> Int {
-        let calendar = Calendar.current
-        let currentTime = Date()
-        
-        let isAfterNoon = calendar.component(.hour, from: currentTime) >= 12
-        
-        if isAfterNoon {
-            if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {
-                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
-                return max(0, timeDifference.second ?? 0)
-            }
-        }
-        
-        return 0
     }
 }

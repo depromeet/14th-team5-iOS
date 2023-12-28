@@ -51,7 +51,7 @@ extension UIViewController {
             }
         }
     }
-        
+    
     /// 둥근 모양의 토스트 메시지를 보여줍니다.
     /// - Parameters:
     ///   - title: 토스트 메시지
@@ -155,7 +155,7 @@ extension UIViewController {
             let symbol: UIImage? = UIImage(systemName: name, withConfiguration: config)
             
             imageView = UIImageView(image: symbol)
-        // 일반 이미지를 받았다면
+            // 일반 이미지를 받았다면
         } else {
             imageView = UIImageView(image: image)
         }
@@ -269,7 +269,7 @@ extension UIViewController {
             pop.permittedArrowDirections = directions
         }
     }
-     
+    
     /// 한 줄 혹은 여러 줄 텍스트를 팝오버로 보여줍니다.
     ///
     /// 아이폰 환경에서 팝오버를 띄울 뷰 컨트롤러는 필히 `UIPopoverPresentationControllerDelegate` 프로토콜를 준수하고, 아래 메서드를 구현해야 합니다.
@@ -302,5 +302,23 @@ extension UIViewController {
             popoverSize: size,
             permittedArrowDrections: directions
         )
+    }
+}
+
+extension UIViewController {
+    public func calculateRemainingTime() -> Int {
+        let calendar = Calendar.current
+        let currentTime = Date()
+        
+        let isAfterNoon = calendar.component(.hour, from: currentTime) >= 12
+        
+        if isAfterNoon {
+            if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {
+                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
+                return max(0, timeDifference.second ?? 0)
+            }
+        }
+        
+        return 0
     }
 }

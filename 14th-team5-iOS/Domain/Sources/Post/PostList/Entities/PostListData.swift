@@ -29,4 +29,11 @@ public struct PostListPage: Equatable {
         self.totalPages = totalPages
         self.postLists = postLists
     }
+    
+    public func checkAuthor(authorId: String) -> Bool {
+        for post in postLists {
+            if post.author == authorId { return true }
+        }
+        return false
+    }
 }

@@ -25,8 +25,8 @@ extension PostListAPIs {
     }
 }
 
-extension PostListAPIWorker {
-    public func fetchPostList(query: Domain.PostListQuery) -> RxSwift.Single<Domain.PostListPage> {
+extension PostListAPIWorker: PostListRepository {
+    public func fetchTodayPostList(query: Domain.PostListQuery) -> RxSwift.Single<Domain.PostListPage?> {
         let requestDTO = PostListRequestDTO(page: query.page, size: query.size, date: "2023-12-27", memberId: query.memberId, sort: query.sort)
         let spec = PostListAPIs.fetchPostList(requestDTO).spec
         return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJyZWdEYXRlIjoxNzAzNDA4MzI4MDg3LCJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwMzQ5NDcyOH0.V7Dw6RTWJ8BMzfJpuVCQz1Zhwj_cnI-r9oxYDjx3zJs")])
@@ -38,7 +38,7 @@ extension PostListAPIWorker {
             }
             .map(PostListResponseDTO.self)
             .catchAndReturn(nil)
-            .map { $0!.toDomain() }
+            .map { $0?.toDomain() }
             .asSingle()
     }
 }

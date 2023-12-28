@@ -11,9 +11,7 @@ import Domain
 import Core
 
 
-public final class HomeDIContainer: BaseDIContainer {
-    public typealias Repository = SearchFamilyRepository
-    
+public final class HomeDIContainer {
     public typealias ViewContrller = HomeViewController
     public typealias Reactor = HomeViewReactor
     
@@ -21,16 +19,24 @@ public final class HomeDIContainer: BaseDIContainer {
         return HomeViewController(reacter: makeReactor())
     }
     
-    public func makeRepository() -> SearchFamilyRepository {
+    public func makePostRepository() -> PostListRepository {
+        return PostListAPIs.Worker()
+    }
+    
+    public func makeFamilyRepository() -> SearchFamilyRepository {
         return FamilyAPIs.Worker()
     }
     
-    func makeUseCase() -> SearchFamilyMemberUseCaseProtocol {
-        return SearchFamilyUseCase(searchFamilyRepository: makeRepository())
+    func makePostUseCase() -> PostListUseCaseProtocol {
+        return PostListUseCase(postListRepository: makePostRepository())
+    }
+    
+    func makeFamilyUseCase() -> SearchFamilyMemberUseCaseProtocol {
+        return SearchFamilyUseCase(searchFamilyRepository: makeFamilyRepository())
     }
     
     public func makeReactor() -> Reactor {
-        return HomeViewReactor(repository: makeUseCase())
+        return HomeViewReactor(familyRepository: makeFamilyUseCase(), postRepository: makePostUseCase())
     }
     
 }

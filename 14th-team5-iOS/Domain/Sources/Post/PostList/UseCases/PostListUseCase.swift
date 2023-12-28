@@ -8,18 +8,18 @@
 import Foundation
 import RxSwift
 
-protocol PostListUseCaseProtocol {
-    func excute(query: PostListQuery) -> Single<PostListPage>
+public protocol PostListUseCaseProtocol {
+    func excute(query: PostListQuery) -> Single<PostListPage?>
 }
 
 public class PostListUseCase: PostListUseCaseProtocol {
     private let postListRepository: PostListRepository
     
-    init(postListRepository: PostListRepository) {
+    public init(postListRepository: PostListRepository) {
         self.postListRepository = postListRepository
     }
     
-    func excute(query: PostListQuery) -> Single<PostListPage> {
+    public func excute(query: PostListQuery) -> Single<PostListPage?> {
         return postListRepository.fetchTodayPostList(query: query)
     }
     

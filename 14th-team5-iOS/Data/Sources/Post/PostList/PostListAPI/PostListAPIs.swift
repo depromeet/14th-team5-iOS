@@ -8,7 +8,7 @@
 import Foundation
 import Core
 
-enum PostListAPIs: API {
+public enum PostListAPIs: API {
     case fetchPostList(PostListRequestDTO)
     
     var spec: APISpec {

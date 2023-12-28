@@ -7,6 +7,7 @@
 
 import UIKit
 import Core
+import Domain
 import DesignSystem
 
 import RxDataSources
@@ -44,14 +45,16 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         feedCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
-        Observable
-            .just(())
-            .map { Reactor.Action.viewDidLoad }
+        Observable.just(())
+            .map { Reactor.Action.getFamilyMembers }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        Observable.just(())
+            .map { Reactor.Action.getTodayPostList }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
 
-        // 통신 이후에 observable로 변경하기
-//        reactor.action.onNext(.setTimer)
         Observable.interval(.seconds(1), scheduler: MainScheduler.instance)
             .map { (time: Int) in
                 let remainingTime = self.calculateRemainingTime(time: time)
@@ -294,8 +297,8 @@ extension HomeViewController {
             })
     }
     
-    private func createFeedDataSource() -> RxCollectionViewSectionedReloadDataSource<SectionModel<String, FeedData>> {
-        return RxCollectionViewSectionedReloadDataSource<SectionModel<String, FeedData>>(
+    private func createFeedDataSource() -> RxCollectionViewSectionedReloadDataSource<SectionModel<String, PostListData>> {
+        return RxCollectionViewSectionedReloadDataSource<SectionModel<String, PostListData>>(
             configureCell: { (_, collectionView, indexPath, item) in
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FeedCollectionViewCell.id, for: indexPath) as? FeedCollectionViewCell else {
                     return UICollectionViewCell()

@@ -8,7 +8,7 @@
 import Foundation
 import Domain
 
-struct PostListRequestDTO: Codable {
+public struct PostListRequestDTO: Codable {
     let page: Int
     let size: Int
     let date: String
@@ -28,7 +28,7 @@ struct PostListDTO: Codable {
 
 extension PostListDTO {
     func toDomain() -> PostListData {
-        return .init()
+        return .init(author: authorId, time: createdAt, imageURL: imageUrl)
     }
 }
 

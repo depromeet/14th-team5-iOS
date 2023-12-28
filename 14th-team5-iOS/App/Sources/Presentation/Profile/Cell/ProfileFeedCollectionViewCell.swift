@@ -46,15 +46,15 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
         
         feedTitleLabel.do {
             $0.text = "99"
-            $0.textColor = .darkGray
-            $0.font = .systemFont(ofSize: 14)
+            $0.textColor = DesignSystemAsset.gray200.color
+            $0.font = DesignSystemFontFamily.Pretendard.regular.font(size: 14)
             $0.textAlignment = .left
             $0.numberOfLines = 1
         }
         
         feedUplodeLabel.do {
             $0.text = "3월 7일"
-            $0.textColor = .darkGray
+            $0.textColor = DesignSystemAsset.gray400.color
             $0.font = .systemFont(ofSize: 12)
             $0.textAlignment = .left
             $0.numberOfLines = 1

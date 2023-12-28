@@ -34,8 +34,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     //MARK: Views
 
     private let profileIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
-    private let profileViewReactor: BibbiProfileViewReactor = BibbiProfileViewReactor()
-    private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 60, reactor: profileViewReactor)
+    private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 50)
     private let profileTitleView: UILabel = UILabel()
     private let privacyButton: UIButton = UIButton()
     private let profileLineView: UIView = UIView()
@@ -70,8 +69,9 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         }
         
         profileTitleView.do {
-            $0.textColor = .white
+            $0.textColor = DesignSystemAsset.gray200.color
             $0.text = "활동"
+            $0.font = DesignSystemFontFamily.Pretendard.bold.font(size: 18)
         }
         
         profilePickerController.do {

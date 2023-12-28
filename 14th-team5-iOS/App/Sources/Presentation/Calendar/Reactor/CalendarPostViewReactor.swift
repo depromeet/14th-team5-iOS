@@ -22,7 +22,7 @@ public final class CalendarPostViewReactor: Reactor {
     }
     
     // MARK: - Mutation
-    public enum Mutation { 
+    public enum Mutation {
         case didSelectCalendarCell(Date)
         case fetchCalendarResponse(String, ArrayResponseCalendarResponse)
     }

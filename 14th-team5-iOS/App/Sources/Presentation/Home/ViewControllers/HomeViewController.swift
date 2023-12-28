@@ -14,8 +14,9 @@ import RxCocoa
 import RxSwift
 import SnapKit
 import Then
+import Domain
 
-final class HomeViewController: BaseViewController<HomeViewReactor> {
+public final class HomeViewController: BaseViewController<HomeViewReactor> {
     private let manageFamilyButton: UIBarButtonItem = UIBarButtonItem()
     private let calendarButton: UIBarButtonItem = UIBarButtonItem()
     private let familyCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
@@ -28,7 +29,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
     private let feedCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let camerButton: UIButton = UIButton()
     
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
     }
     
@@ -36,11 +37,17 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
         print("deinit HomeViewController")
     }
     
-    override func bind(reactor: HomeViewReactor) {
+    public override func bind(reactor: HomeViewReactor) {
         familyCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
         feedCollectionView.rx.setDelegate(self)
+            .disposed(by: disposeBag)
+        
+        Observable
+            .just(())
+            .map { Reactor.Action.viewDidLoad }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
 
         // 통신 이후에 observable로 변경하기
@@ -101,15 +108,21 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
         reactor.state
             .map { $0.isShowingInviteFamilyView }
             .observe(on: Schedulers.main)
+            .distinctUntilChanged()
             .withUnretained(self)
             .bind(onNext: {
-                $0.0.addFamilyInviteView()
+                if $0.1 {
+                    $0.0.addFamilyInviteView()
+                } else {
+                    $0.0.removeFamilyInviteView()
+                }
             })
             .disposed(by: disposeBag)
         
         reactor.state
             .map { $0.isShowingNoPostTodayView }
             .observe(on: MainScheduler.instance)
+            .distinctUntilChanged()
             .withUnretained(self)
             .bind(onNext: {
                 $0.0.addNoPostTodayView()
@@ -126,14 +139,14 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
             .disposed(by: disposeBag)
     }
     
-    override func setupUI() {
+    public override func setupUI() {
         super.setupUI()
         
         view.addSubviews(familyCollectionView, timerLabel, descriptionLabel,
                          feedCollectionView, camerButton)
     }
     
-    override func setupAutoLayout() {
+    public override func setupAutoLayout() {
         super.setupAutoLayout()
         
         familyCollectionView.snp.makeConstraints {
@@ -165,7 +178,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
         }
     }
     
-    override func setupAttributes() {
+    public override func setupAttributes() {
         super.setupAttributes()
         
         navigationItem.do {
@@ -226,8 +239,8 @@ extension HomeViewController {
     }
     
     private func addFamilyInviteView() {
-        view.addSubview(inviteFamilyView)
         familyCollectionView.isHidden = true
+        view.addSubview(inviteFamilyView)
         
         inviteFamilyView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).inset(24)
@@ -294,7 +307,7 @@ extension HomeViewController {
 }
 
 extension HomeViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if collectionView == familyCollectionView {
             return CGSize(width: 64, height: 90)
         } else {

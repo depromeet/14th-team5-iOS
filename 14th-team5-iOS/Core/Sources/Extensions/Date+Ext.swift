@@ -77,7 +77,7 @@ extension Date {
 }
 
 extension Date {
-    public func generatePreviousNextYearMonth() -> [String] {        
+    public func generatePreviousNextYearMonth() -> [String] {
         var yearMonthStrings: [String] = []
         
         for month in -1...1 {
@@ -99,12 +99,12 @@ extension Date {
         var yearMonthStrings: [String] = []
         
         let monthInterval = self.interval(
-            [.month], 
+            [.month],
             to: currentDate
         )[.month]!
         for month in 0...monthInterval {
             if let date = calendar.date(
-                byAdding: .month, 
+                byAdding: .month,
                 value: month,
                 to: self
             ) {

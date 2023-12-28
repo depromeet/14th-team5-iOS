@@ -90,7 +90,7 @@ extension HomeViewReactor {
                     }
                 }
         case .getTodayPostList:
-            let query: PostListQuery = PostListQuery(page: 1, size: 20, data: "2023-12-27", memberId: "01HJBNXAV0TYQ1KESWER45A2QP", sort: "DESC")
+            let query: PostListQuery = PostListQuery(page: 1, size: 20, date: "2023-12-05", memberId: "", sort: "DESC")
             return postRepository.excute(query: query)
                 .asObservable()
                 .flatMap { postList in

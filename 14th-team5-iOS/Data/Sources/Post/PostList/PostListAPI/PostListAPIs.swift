@@ -14,7 +14,7 @@ public enum PostListAPIs: API {
     var spec: APISpec {
         switch self {
         case let .fetchPostList(query):
-            var urlString = "\(BibbiAPI.hostApi)/v1/posts"
+            var urlString = "\(BibbiAPI.hostApi)/posts"
             
             var queryParams: [String] = []
             queryParams.append("page=\(query.page)")

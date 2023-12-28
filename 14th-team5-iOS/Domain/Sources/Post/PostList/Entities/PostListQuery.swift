@@ -10,15 +10,15 @@ import Foundation
 public struct PostListQuery {
     public let page: Int
     public let size: Int
-    public let data: String
+    public let date: String
     public let memberId: String
     /// DESC | ASC
     public let sort: String
     
-    public init(page: Int, size: Int, data: String, memberId: String, sort: String) {
+    public init(page: Int, size: Int, date: String, memberId: String, sort: String) {
         self.page = page
         self.size = size
-        self.data = data
+        self.date = date
         self.memberId = memberId
         self.sort = sort
     }

@@ -11,6 +11,7 @@ import Core
 import Data
 import DesignSystem
 import Kingfisher
+import PhotosUI
 import RxSwift
 import RxCocoa
 import ReactorKit
@@ -20,13 +21,25 @@ import Then
 
 
 public final class ProfileViewController: BaseViewController<ProfileViewReactor> {
+
+    
+    private var pickerConfiguration: PHPickerConfiguration = {
+        var configuration: PHPickerConfiguration = PHPickerConfiguration()
+        configuration.filter = .images
+        configuration.selectionLimit = 1
+        configuration.selection = .default
+        return configuration
+    }()
+    
     //MARK: Views
+
     private let profileIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     private let profileViewReactor: BibbiProfileViewReactor = BibbiProfileViewReactor()
     private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 60, reactor: profileViewReactor)
     private let profileTitleView: UILabel = UILabel()
     private let privacyButton: UIButton = UIButton()
     private let profileLineView: UIView = UIView()
+    private lazy var profilePickerController: PHPickerViewController = PHPickerViewController(configuration: pickerConfiguration)
     private let profileFeedCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     private lazy var profileFeedCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: profileFeedCollectionViewLayout)
     private let profileFeedDataSources: RxCollectionViewSectionedReloadDataSource<ProfileFeedSectionModel> = .init { dataSources, collectionView, indexPath, sectionItem in
@@ -59,6 +72,10 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         profileTitleView.do {
             $0.textColor = .white
             $0.text = "활동"
+        }
+        
+        profilePickerController.do {
+            $0.delegate = self
         }
         
         profileLineView.do {
@@ -146,7 +163,16 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(onNext: {$0.0.createAlertController(owner: $0.0)})
             .disposed(by: disposeBag)
             
-        
+        NotificationCenter.default.rx.notification(.PHPickerAssetsDidFinishPickingProcessingPhotoNotification)
+            .compactMap { notification -> Data? in
+                guard let userInfo = notification.userInfo else { return nil }
+                return userInfo["selectImage"] as? Data
+            }
+            .debug("NotificationPHPicker")
+            .map { Reactor.Action.didSelectPHAssetsImage($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+            
         
         reactor.state
             .map { $0.isLoading }
@@ -240,7 +266,8 @@ extension ProfileViewController {
         }
         
         let presentAlbumAction: UIAlertAction = UIAlertAction(title: "앨범", style: .default) { _ in
-            print("이미지 피커 컨트롤러")
+            self.profilePickerController.modalPresentationStyle = .fullScreen
+            self.present(self.profilePickerController, animated: true)
         }
         
         let presentDefaultAction: UIAlertAction = UIAlertAction(title: "초기화", style: .destructive) { _ in
@@ -256,4 +283,20 @@ extension ProfileViewController {
         owner.present(alertController, animated: true)
     }
     
+}
+
+extension ProfileViewController: PHPickerViewControllerDelegate {
+    public func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        let itemProvider = results.first?.itemProvider
+        picker.dismiss(animated: true, completion: nil)
+        
+        if let imageProvider = itemProvider, imageProvider.canLoadObject(ofClass: UIImage.self) {
+            imageProvider.loadObject(ofClass: UIImage.self) { image, error in
+                guard let photoImage: UIImage = image as? UIImage,
+                      let originalData: Data = photoImage.jpegData(compressionQuality: 1.0) else { return }
+                imageProvider.didSelectProfileImageWithProcessing(photo: originalData, error: error)
+            }
+            
+        }
+    }
 }

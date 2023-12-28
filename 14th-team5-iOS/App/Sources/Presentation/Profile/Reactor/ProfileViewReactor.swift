@@ -20,12 +20,15 @@ public final class ProfileViewReactor: Reactor {
         case viewDidLoad
         case viewWillAppear
         case fetchMorePostItems(Bool)
+        case didSelectPHAssetsImage(Data)
     }
     
     public enum Mutation {
         case setLoading(Bool)
+        case setProfilePresingedURL(CameraDisplayImageResponse?)
+        case setPresignedS3Upload(Bool)
         case setFeedCategroySection([ProfileFeedSectionItem])
-        case setProfileMemberItems(ProfileMemberResponse)
+        case setProfileMemberItems(ProfileMemberResponse?)
         case setProfilePostItems(ProfilePostResponse)
     }
     
@@ -34,6 +37,8 @@ public final class ProfileViewReactor: Reactor {
         @Pulse var feedSection: [ProfileFeedSectionModel]
         @Pulse var profileMemberEntity: ProfileMemberResponse?
         @Pulse var profilePostEntity: ProfilePostResponse?
+        @Pulse var isProfileUpload: Bool
+        @Pulse var profilePresingedURLEntity: CameraDisplayImageResponse?
     }
     
     init(profileUseCase: ProfileViewUsecaseProtocol) {
@@ -41,7 +46,9 @@ public final class ProfileViewReactor: Reactor {
         self.initialState = State(
             isLoading: false,
             feedSection: [.feedCategory([])],
-            profileMemberEntity: nil
+            profileMemberEntity: nil,
+            isProfileUpload: false,
+            profilePresingedURLEntity: nil
         )
     }
     
@@ -79,30 +86,58 @@ public final class ProfileViewReactor: Reactor {
             
         case .viewWillAppear:
             return .concat(
-                .just(.setLoading(true)),
                 profileUseCase.executeProfileMemberItems()
                     .asObservable()
                     .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
-                            .just(.setProfileMemberItems(entity))
-                    },
-                
-                profileUseCase.executeProfilePostItems(query: query, parameters: parameters)
-                    .asObservable()
-                    .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
-                        var sectionItem: [ProfileFeedSectionItem] = []
-                        entity.results.forEach {
-                            sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, title: $0.content, date: DateFormatter.yyyyMMdd.string(from: $0.createdAt))))
+                            .concat(
+                                .just(.setProfileMemberItems(entity)),
+                                .just(.setLoading(false))
                             
-                        }
-                        return .concat(
-                            .just(.setProfilePostItems(entity)),
-                            .just(.setFeedCategroySection(sectionItem)),
-                            .just(.setLoading(false))
-                        )
-
+                            )
                     }
             )
             
+            
+        case let .didSelectPHAssetsImage(fileData):
+            let profileImage: String = "\(fileData.hashValue).jpg"
+            let profileImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: profileImage)
+            return .concat(
+                .just(.setLoading(true)),
+                profileUseCase.executeProfileImageURLCreate(parameter: profileImageEditParameter)
+                    .withUnretained(self)
+                    .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
+                    .asObservable()
+                    .flatMap { owner, entity -> Observable<ProfileViewReactor.Mutation> in
+                        guard let profilePresingedURL = entity?.imageURL else { return .empty() }
+                        return owner.profileUseCase.executeProfileImageToPresingedUpload(to: profilePresingedURL, data: fileData)
+                            .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
+                            .asObservable()
+                            .flatMap { isSuccess -> Observable<ProfileViewReactor.Mutation> in
+                                let originalPath = owner.configureProfileOriginalS3URL(url: profilePresingedURL)
+                                let profileEditParameter: ProfileImageEditParameter = ProfileImageEditParameter(profileImageUrl: originalPath)
+                                if isSuccess {
+                                    return owner.profileUseCase.executeReloadProfileImage(memberId: "01HJBNXAV0TYQ1KESWER45A2QP", parameter: profileEditParameter)
+                                        .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
+                                        .asObservable()
+                                        .flatMap { memberEntity -> Observable<ProfileViewReactor.Mutation> in
+                                            return .concat(
+                                                .just(.setProfilePresingedURL(entity)),
+                                                .just(.setPresignedS3Upload(isSuccess)),
+                                                .just(.setProfileMemberItems(memberEntity)),
+                                                .just(.setLoading(false))
+                                            
+                                            )
+                                        }
+                                    
+                                } else {
+                                    return .empty()
+                                }
+                                
+                            }
+                        
+                        
+                    }
+            )
             
         case let .fetchMorePostItems(isPagination):
             query.page += 1
@@ -116,6 +151,7 @@ public final class ProfileViewReactor: Reactor {
                     
                     var sectionItem: [ProfileFeedSectionItem] = []
                     paginationItems.append(contentsOf: entity.results)
+                    //Pageination 데이터 초기화 되는것 같음 해결 하기(나중에)
                     print("pageination Test: \(paginationItems)")
                    
                     paginationItems.forEach {
@@ -148,6 +184,15 @@ public final class ProfileViewReactor: Reactor {
             
         case let .setProfileMemberItems(entity):
             newState.profileMemberEntity = entity
+            print("member Edit: \(entity)")
+            
+        case let .setProfilePresingedURL(entity):
+            newState.profilePresingedURLEntity = entity
+            print("profilePresingedURL \(entity)")
+            
+        case let .setPresignedS3Upload(isProfileUpload):
+            newState.isProfileUpload = isProfileUpload
+            print("presingedS3Upload \(isProfileUpload)")
         }
         
         return newState
@@ -167,4 +212,10 @@ extension ProfileViewReactor {
         
         return index
     }
+    
+    func configureProfileOriginalS3URL(url: String) -> String {
+        guard let range = url.range(of: #"[^&?]+"#, options: .regularExpression) else { return "" }
+        return String(url[range])
+    }
+    
 }

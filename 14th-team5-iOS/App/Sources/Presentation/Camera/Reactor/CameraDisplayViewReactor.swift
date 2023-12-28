@@ -72,9 +72,11 @@ public final class CameraDisplayViewReactor: Reactor {
                 .just(.setRenderImage(self.currentState.displayData)),
                 cameraDisplayUseCase.executeDisplayImageURL(parameters: parameters, type: .feed)
                     .withUnretained(self)
+                    .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                     .asObservable()
                     .flatMap { owner, entity -> Observable<CameraDisplayViewReactor.Mutation> in
                         owner.cameraDisplayUseCase.executeUploadToS3(toURL: entity?.imageURL ?? "", imageData: owner.currentState.displayData)
+                            .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                             .asObservable()
                             .flatMap { isSuccess -> Observable<CameraDisplayViewReactor.Mutation> in
                                 return .concat(

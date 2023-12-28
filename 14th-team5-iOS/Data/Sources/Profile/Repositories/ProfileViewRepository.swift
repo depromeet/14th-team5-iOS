@@ -19,7 +19,7 @@ public final class ProfileViewRepository {
         
     public var disposeBag: DisposeBag = DisposeBag()
     private let profileAPIWorker: ProfileAPIWorker = ProfileAPIWorker()
-    private let accessToken: String = "eyJyZWdEYXRlIjoxNzAzNjU0NjIwNjYyLCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwMzc0MTAyMH0.h4Ru7FI1vyPwexzBOv_zKiKZE9zIB0zCFdCwGWcqp-U"
+    private let accessToken: String = "eyJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MiLCJyZWdEYXRlIjoxNzAzNzU3MTM1NzcyLCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwMzg0MzUzNX0.-lcEBKB_KI32_rI2Ne1fQPMEa1ueGlK9H1TgSuDTehw"
     
     public init() { }
     
@@ -53,50 +53,22 @@ extension ProfileViewRepository: ProfileViewInterface {
     }
     
     
-    public func fetchProfileFeedItems() -> RxSwift.Observable<[Domain.FeedEntity]> {
-        let items: [FeedEntity] = [
-            FeedEntity(
-                imageURL: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg",
-                descrption: "테스트 입니다!!!",
-                subTitle: "2022-12-11"
-            ),
-            FeedEntity(
-                imageURL: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg",
-                descrption: "테스트 입니다!!!",
-                subTitle: "2022-12-11"
-            ),
-            FeedEntity(
-                imageURL: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg",
-                descrption: "테스트 입니다!!!",
-                subTitle: "2022-12-11"
-            ),
-            FeedEntity(
-                imageURL: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg",
-                descrption: "테스트 입니다!!!",
-                subTitle: "2022-12-11"
-            ),
-            FeedEntity(
-                imageURL: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg",
-                descrption: "테스트 입니다!!!",
-                subTitle: "2022-12-11"
-            ),
-            FeedEntity(
-                imageURL: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg",
-                descrption: "테스트 입니다!!!",
-                subTitle: "2022-12-11"
-            ),
-            FeedEntity(
-                imageURL: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg",
-                descrption: "테스트 입니다!!!",
-                subTitle: "2022-12-11"
-            )
-        ]
-        
-        return Observable.create { observer in
-            observer.onNext(items)
-            return Disposables.create()
-        }
+    public func fetchProfileAlbumImageURL(parameter: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?> {
+        return profileAPIWorker.createProfileImagePresingedURL(accessToken: accessToken, parameters: parameter)
+            .compactMap { $0?.toDomain() }
+            .asObservable()
     }
     
+    
+    public func uploadProfileImageToPresingedURL(to url: String, imageData: Data) -> Observable<Bool> {
+        return profileAPIWorker.uploadToProfilePresingedURL(accessToken: accessToken, toURL: url, with: imageData)
+            .asObservable()
+    }
+    
+    public func updataProfileImageToS3(memberId: String, parameter: ProfileImageEditParameter) -> Observable<ProfileMemberResponse?> {
+        return profileAPIWorker.updateProfileAlbumImageToS3(accessToken: accessToken, memberId: memberId, parameter: parameter)
+            .compactMap { $0?.toDomain() }
+            .asObservable()
+    }
     
 }

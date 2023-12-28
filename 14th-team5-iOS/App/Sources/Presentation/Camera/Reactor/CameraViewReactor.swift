@@ -77,29 +77,31 @@ public final class CameraViewReactor: Reactor {
             
         case let .didTapShutterButton(fileData):
             let profileImage = "\(fileData.hashValue).jpg"
-            print("didTapShuuterButton Test: \(profileImage)")
             let profileEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: profileImage)
             return .concat(
                 .just(.setLoading(true)),
-                // presignedURL 요청
+                // presignedURL 요청 or 병렬 작업으로 성능 개선
                 cameraUseCase.executeProfileImageURL(parameter: profileEditParameter, type: cameraType)
                     .withUnretained(self)
+                    .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                     .asObservable()
                     .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
-                        // presignedURL에 image Upload
-                        return owner.cameraUseCase.executeProfileUploadToS3(toURL: entity?.imageURL ?? "", imageData: fileData)
+                        // presignedURL에 image Upload 이것도 역시 병렬 큐 사용
+                        guard let presingedURL = entity?.imageURL else { return .empty() }
+                        
+                        return owner.cameraUseCase.executeProfileUploadToS3(toURL: presingedURL, imageData: fileData)
+                            .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                             .asObservable()
                             .flatMap { isSuccess -> Observable<CameraViewReactor.Mutation> in
-                                print("check PresingedURL: \(entity?.imageURL)")
                                 guard let profilePresingedURL = entity?.imageURL else { return .empty() }
-                                
+                                // 최종 Member Entity API 호출 작업 병렬 큐 사용 -> 사용 안하니 로딩 속도 느림
                                 let originalURL = owner.configureProfileOriginalS3URL(url: profilePresingedURL, with: .profile)
                                 let profileImageEditParameter: ProfileImageEditParameter = ProfileImageEditParameter(profileImageUrl: originalURL)
                                 if isSuccess {
                                     return owner.cameraUseCase.executeEditProfileImage(memberId: owner.memberId, parameter: profileImageEditParameter)
                                         .asObservable()
+                                        .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                                         .flatMap { editEntity -> Observable<CameraViewReactor.Mutation> in
-                                            print("edit Entity: \(editEntity)")
                                             return .concat(
                                                 .just(.setProfileImageURLResponse(entity)),
                                                 .just(.setProfileS3Edit(isSuccess)),

@@ -56,7 +56,7 @@ extension AppDelegate {
 
 extension AppDelegate {
     func kakaoApp(_ app: UIApplication, didFinishLauchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) {
-        RxKakaoSDK.initSDK(appKey: "키값 다시 넣을게요!")
+        RxKakaoSDK.initSDK(appKey: "")
     }
     
     func kakaoApp(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {

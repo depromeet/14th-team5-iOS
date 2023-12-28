@@ -16,10 +16,6 @@ import RxSwift
 import SnapKit
 import Then
 
-// NOTE: - 주간 캘린더의 각 셀의 isSelected 모델 관리 방안
-// ・ 최상위 뷰 컨트롤러 혹은 Reactor에 선택된 셀 모델(Date)을 저장 후,
-// ・ 선택된 셀이 화면에 보인다면, 선택된 셀에 한해 특수 효과 처리하기
-
 final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     // MARK: - Views
     private let calendarTitleLabel: UILabel = UILabel()
@@ -42,7 +38,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     }
     
     // MARK: - Helpers
-    override func setupUI() { 
+    override func setupUI() {
         super.setupUI()
         contentView.addSubviews(
             titleStackView, calendarView
@@ -52,7 +48,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
         )
     }
     
-    override func setupAutoLayout() { 
+    override func setupAutoLayout() {
         super.setupAutoLayout()
         titleStackView.snp.makeConstraints {
             $0.top.equalTo(contentView.snp.top).offset(CalendarCell.AutoLayout.defaultOffsetValue)
@@ -67,7 +63,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
         }
     }
     
-    override func setupAttributes() { 
+    override func setupAttributes() {
         super.setupAttributes()
         calendarTitleLabel.do {
             $0.textColor = UIColor.white
@@ -128,7 +124,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
         setupCalendarTitle(calendarView.currentPage)
     }
     
-    override func bind(reactor: CalendarPageCellReactor) { 
+    override func bind(reactor: CalendarPageCellReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
@@ -148,12 +144,12 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
             .disposed(by: disposeBag)
         
         calendarView.rx.didSelect
-            .map { Reactor.Action.didSelectCell($0) }
+            .map { Reactor.Action.didSelectCalendarCell($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
     
-    private func bindOutput(reactor: CalendarPageCellReactor) { 
+    private func bindOutput(reactor: CalendarPageCellReactor) {
         reactor.state.map { $0.arrayCalendarResponse }
             .withUnretained(self)
             .subscribe { $0.0.calendarView.reloadData() }
@@ -185,7 +181,7 @@ extension CalendarPageCell {
     }
 }
 
-extension CalendarPageCell: FSCalendarDelegate {     
+extension CalendarPageCell: FSCalendarDelegate {
     func calendar(_ calendar: FSCalendar, shouldSelect date: Date, at monthPosition: FSCalendarMonthPosition) -> Bool {
         let dateMonth = date.month
         let currentMonth = calendar.currentPage.month
@@ -221,11 +217,19 @@ extension CalendarPageCell: FSCalendarDataSource {
                     representativeThumbnailUrl: "",
                     allFamilyMemebersUploaded: false
                 )
-                cell.reactor = ImageCalendarCellReactor(dayResponse: emptyResponse)
+                cell.reactor = ImageCalendarCellDIContainer().makeReactor(
+                    .month,
+                    isSelected: false,
+                    dayResponse: emptyResponse
+                )
                 return cell
             }
             
-            cell.reactor = ImageCalendarCellReactor(dayResponse: dayResponse)
+            cell.reactor = ImageCalendarCellDIContainer().makeReactor(
+                .month,
+                isSelected: false,
+                dayResponse: dayResponse
+            )
             return cell
         // 셀의 날짜가 현재 월(月)과 동일하지 않다면
         } else {

@@ -27,7 +27,7 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
     // MARK: - Properties
     private lazy var dataSource: RxCollectionViewSectionedReloadDataSource<SectionOfMonthlyCalendar> = prepareDatasource()
     
-    // 캘린더에 표시할 월 별 날짜
+    // 캘린더에 표시할 월 별 날짜(2023. 1. ~ 오늘까지)
     private let yearMonthArray: [String] = Date.for20230101.generateYearMonthStringsToToday()
     
     // MARK: - Lifecycles
@@ -87,7 +87,7 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
         reactor.pulse(\.$pushCalendarPostVC)
             .withUnretained(self)
             .subscribe {
-                $0.0.pushCalendarFeedView($0.1)
+                $0.0.pushCalendarFeedView($0.1 ?? Date())
             }
             .disposed(by: disposeBag)
         
@@ -149,9 +149,11 @@ extension CalendarViewController {
         }
     }
     
-    private func pushCalendarFeedView(_ date: Date?) {
-        let container = CalendarPostDIConatainer(selectedDate: date ?? Date())
-        navigationController?.pushViewController(container.makeViewController(), animated: true)
+    private func pushCalendarFeedView(_ date: Date) {
+        navigationController?.pushViewController(
+            CalendarPostDIConatainer(selectedCalendarCell: date).makeViewController(),
+            animated: true
+        )
     }
     
     private func scrollToLastIndexPath() {

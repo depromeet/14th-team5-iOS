@@ -82,9 +82,9 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             $0.backgroundColor = .separator
         }
         
-        privacyButton.do {
-            $0.setImage(DesignSystemAsset.privacy.image, for: .normal)
-        }
+//        privacyButton.do {
+//            $0.setImage(DesignSystemAsset.privacy.image, for: .normal)
+//        }
         
         navigationItem.do {
             $0.titleView = profileTitleView

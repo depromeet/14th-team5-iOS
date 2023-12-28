@@ -23,21 +23,28 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
     override public func viewDidLoad() {
         super.viewDidLoad()
         
-        
     }
     
     override public func setupUI() {
         super.setupUI()
         
-        view.addSubviews(appleLoginButton, kakaoLoginButton)
+        loginStack.addArrangedSubviews(kakaoLoginButton, appleLoginButton)
+        view.addSubviews(loginStack)
     }
     
     override public func setupAttributes() {
         super.setupAttributes()
         
-//        kakaoLoginButton.do {
-//            $0.setImage(DesignSystemAsset.kakaoLogin.image, for: .normal)
-//        }
+        loginStack.do {
+            $0.axis = .vertical
+            $0.spacing = 12
+            $0.alignment = .fill
+            $0.distribution = .fill
+        }
+        
+        kakaoLoginButton.do {
+            $0.setImage(DesignSystemAsset.kakaoLogin.image, for: .normal)
+        }
         
         appleLoginButton.do {
             $0.setImage(DesignSystemAsset.appleLogin.image, for: .normal)
@@ -47,15 +54,8 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
     override public func setupAutoLayout() {
         super.setupAutoLayout()
         
-//        kakaoLoginButton.snp.makeConstraints {
-//            $0.horizontalEdges.equalToSuperview().inset(16)
-//            $0.height.equalTo(56)
-//            $0.bottom.equalTo(view.safeAreaLayoutGuide)
-//        }
-        
-        appleLoginButton.snp.makeConstraints {
+        loginStack.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(56)
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
         }
     }
@@ -73,11 +73,26 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-//        reactor.state.map { $0.acceessToken }
-//            .filter { $0.isEmpty }
-//            .distinctUntilChanged()
-//            .withUnretained(self)
-//            .bind(onNext: { _ in print("다음화면 이동하자!") })
-//            .disposed(by: disposeBag)
+        reactor.state.map { $0.pushAccountSingUpVC }
+            .filter { $0 }
+            .observe(on: Schedulers.main)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.pushAccountSignUpViewController() })
+            .disposed(by: disposeBag)
+    }
+}
+
+extension AccountSignInViewController {
+    func pushAccountSignUpViewController() {
+        let container = AccountSignUpDIContainer().makeViewController()
+        container.modalPresentationStyle = .fullScreen
+        present(container, animated: true)
+    }
+}
+
+extension AccountSignInViewController {
+    func pushCalendarFeedView(_ date: Date?) {
+        let container = AccountSignUpDIContainer()
+        navigationController?.pushViewController(container.makeViewController(), animated: true)
     }
 }

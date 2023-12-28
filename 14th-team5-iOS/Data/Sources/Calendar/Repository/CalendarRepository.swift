@@ -15,7 +15,8 @@ import RxSwift
 // NOTE: - 임시 코드
 enum TempStr {
     static let familyId = "familyId"
-    static let accessToken = "eyJyZWdEYXRlIjoxNzAzMzg3NzgwOTU1LCJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiIwMUhKQk5XWkdOUDFLSk5NS1dWWkowMzlIWSIsImV4cCI6MTcwMzQ3NDE4MH0.6sx6lYI4_QKwnP-M4Di3cd8hrTah0JlTj64aDyB0VAg"
+
+    static let accessToken = "eyJ0eXAiOiJKV1QiLCJyZWdEYXRlIjoxNzAzNTcxNzc1NTExLCJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYifQ.eyJ1c2VySWQiOiIwMUhKQk5XWkdOUDFLSk5NS1dWWkowMzlIWSIsImV4cCI6MTcwMzY1ODE3NX0.P9O0E7h9OZxNCvpbj7QP4s59c4e0P1gnonla8vzm3qQ"
 }
 
 public protocol CalendarImpl {

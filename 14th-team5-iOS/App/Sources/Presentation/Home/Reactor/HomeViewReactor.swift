@@ -6,51 +6,65 @@
 //
 
 import Foundation
+import Core
+import Domain
+
 import ReactorKit
 import RxDataSources
-import Core
 
-final class HomeViewReactor: Reactor {
-    enum Action {
-//        case checkTime
+public final class HomeViewReactor: Reactor {
+    public enum Action {
+        case getFamilyMembers
+        case getTodayPostList
         case tapInviteFamily
-        case getFamilyInfo
         case getPostInfo
     }
     
-    enum Mutation {
+    public enum Mutation {
 //        case setTimerStatus
         case showShareAcitivityView(URL?)
         case showInviteFamilyView
         case showNoPostTodayView
         case setFamilyCollectionView([SectionModel<String, ProfileData>])
-        case setPostCollectionView([SectionModel<String, FeedData>])
+        case setPostCollectionView([SectionModel<String, PostListData>])
     }
     
-    struct State {
+    public struct State {
         var inviteLink: URL?
 //        var isShowingShareAcitivityView: Bool = false
         var descriptionText: String = HomeStringLiterals.Description.standard
         var isShowingNoPostTodayView: Bool = false
         var isShowingInviteFamilyView: Bool = false
         var familySections: [SectionModel<String, ProfileData>] = []
-        var feedSections: [SectionModel<String, FeedData>] = []
+        var feedSections: [SectionModel<String, PostListData>] = []
     }
     
-    let initialState: State = State()
+    public let initialState: State = State()
     public let provider: GlobalStateProviderType = GlobalStateProvider()
+    private let familyRepository: SearchFamilyMemberUseCaseProtocol
+    private let postRepository: PostListUseCaseProtocol
+    
+    init(familyRepository: SearchFamilyMemberUseCaseProtocol, postRepository: PostListUseCaseProtocol) {
+        self.familyRepository = familyRepository
+        self.postRepository = postRepository
+    }
 }
 
 extension HomeViewReactor {
-    func mutate(action: Action) -> Observable<Mutation> {
+    public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
+            // 추후에 작업할 내용입니다!
 //        case .checkTime:
 //            return Observable.just(Mutation.setTimerStatus)
-        case .getFamilyInfo:
-            //            if data.isEmpty
-            return Observable.just(Mutation.showInviteFamilyView)
-            //            else
-            //            return Observable.just(Mutation.setFamilyCollectionView(data))
+//        case let .getFamilyInfo(query):
+//            let query = SearchFamilyQuery(query: query)
+//            return familyRepository.excute(query: query)
+//                .asObservable()
+//                .map { familyMembers in
+//                    return .setFamilyCollectionView([
+//                        SectionModel<String, ProfileData>(model: "section1", items: familyMembers.members)
+//                    ])
+//                }
         case .getPostInfo:
 //            if data.isEmpty
             return Observable.just(Mutation.showNoPostTodayView)
@@ -59,10 +73,43 @@ extension HomeViewReactor {
         case .tapInviteFamily:
             // 서버로부터 invitecode 받아오기
             return Observable.just(Mutation.showShareAcitivityView(URL(string: "https://github.com/depromeet/14th-team5-iOS")))
+        case .getFamilyMembers:
+            let query: SearchFamilyQuery = SearchFamilyQuery(type: "FAMILY", page: 1, size: 20)
+            return familyRepository.excute(query: query)
+                .asObservable()
+                .flatMap { familyMembers in
+                    guard let familyMembers else {
+                        return Observable.just(Mutation.showInviteFamilyView)
+                    }
+                    if familyMembers.members.isEmpty {
+                        return Observable.just(Mutation.showInviteFamilyView)
+                    } else {
+                        return Observable.just(.setFamilyCollectionView([
+                            SectionModel<String, ProfileData>(model: "section1", items: familyMembers.members)
+                        ]))
+                    }
+                }
+        case .getTodayPostList:
+            let query: PostListQuery = PostListQuery(page: 1, size: 20, date: "2023-12-05", memberId: "", sort: "DESC")
+            return postRepository.excute(query: query)
+                .asObservable()
+                .flatMap { postList in
+                    guard let postList else {
+                        return Observable.just(Mutation.showNoPostTodayView)
+                    }
+                    
+                    if postList.postLists.isEmpty {
+                        return Observable.just(Mutation.showNoPostTodayView)
+                    }
+                    
+                    return Observable.just(Mutation.setPostCollectionView([
+                        SectionModel<String, PostListData>(model: "section1", items: postList.postLists)
+                    ]))
+                }
         }
     }
     
-    func reduce(state: State, mutation: Mutation) -> State {
+    public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         
         switch mutation {

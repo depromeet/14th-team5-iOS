@@ -29,3 +29,11 @@ extension String {
         return date
     }
 }
+
+extension String {
+    public subscript(_ index: Int) -> Character {
+        let index = self.index(self.startIndex, offsetBy: index)
+        
+        return self[index]
+    }
+}

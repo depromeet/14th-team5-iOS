@@ -17,6 +17,7 @@ public protocol AccountImpl: AnyObject {
     
     func kakaoLogin(with snsType: SNS, vc: UIViewController) -> Observable<Void>
     func appleLogin(with snsType: SNS, vc: UIViewController) -> Observable<Void>
+    
     func signUp(name: String, date: String, photoURL: String?) -> Observable<Void>
 }
 

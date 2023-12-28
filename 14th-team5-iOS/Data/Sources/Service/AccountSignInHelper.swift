@@ -30,7 +30,6 @@ final class AccountSignInHelper: NSObject {
     
     // MARK: API Worker
     private let apiWorker = AccountAPIWorker()
-    
     let snsSignInResult = PublishRelay<(APIResult, AccountSignInStateInfo)>()
     
     func bind() {
@@ -55,7 +54,6 @@ final class AccountSignInHelper: NSObject {
 
 // MARK: SignIn Functions
 extension AccountSignInHelper {
-    
     func trySignInWith(sns: SNS, window: UIWindow?) {
         guard let helper = signInHelper[sns], let window = window else {
             return

@@ -30,9 +30,7 @@ class AppleSignInHelper: NSObject, AccountSignInHelperType {
         self.disposeBag = DisposeBag()
     }
     
-    
     func signIn(on window: UIWindow) {
-        
         guard #available(iOS 13.0, *) else {
             self._signInState.accept(AccountSignInStateInfo(snsType: .apple))
             return
@@ -48,7 +46,6 @@ class AppleSignInHelper: NSObject, AccountSignInHelperType {
                 self?._signInState.accept(AccountSignInStateInfo(snsType: .apple))
             })
             .disposed(by: self.disposeBag)
-        
     }
     
     func signOut() {

@@ -40,17 +40,13 @@ class RxASAuthorizationControllerDelegateProxy: DelegateProxy<ASAuthorizationCon
         
         switch authorization.credential {
         case let appleIDCredential as ASAuthorizationAppleIDCredential:
-            
-            // Create an account in your system.
-            let userIdentifier = appleIDCredential.user
-            let fullName = appleIDCredential.fullName
-            let name = "\(fullName?.familyName ?? "")\(fullName?.givenName ?? "")"
-            let email = appleIDCredential.email
-            let state = AccountSignInStateInfo(snsType: .apple, snsToken: userIdentifier)
-        
-            self.didComplete.onNext(state)
-            debugPrint("Apple SNS Test!")
-            self.didComplete.onCompleted()
+            if let identityToken = appleIDCredential.identityToken, 
+                let tokenString = String(data: identityToken, encoding: .utf8) {
+                let state = AccountSignInStateInfo(snsType: .apple, snsToken: tokenString)
+                
+                self.didComplete.onNext(state)
+                self.didComplete.onCompleted()
+            }
             
         default:
             return
@@ -106,12 +102,10 @@ class RxASAuthorizationControllerDelegateProxy: DelegateProxy<ASAuthorizationCon
 extension Reactive where Base: ASAuthorizationAppleIDProvider {
     
     func signIn(on window: UIWindow) -> Observable<AccountSignInStateInfo> {
-        
         let req = base.createRequest()
         req.requestedScopes = [.fullName, .email]
         
         let ctrl = ASAuthorizationController(authorizationRequests: [req])
-        
         let proxy = RxASAuthorizationControllerDelegateProxy.proxy(for: ctrl)
         proxy.presentationWindow = window
         

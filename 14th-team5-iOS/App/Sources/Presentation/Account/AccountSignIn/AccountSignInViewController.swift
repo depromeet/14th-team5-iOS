@@ -16,14 +16,14 @@ import SnapKit
 import Then
 
 public final class AccountSignInViewController: BaseViewController<AccountSignInReactor> {
+    private enum Metric {
+        static let spacing: CGFloat = 12
+        static let inset: CGFloat = 16
+    }
+    
     private let kakaoLoginButton = UIButton()
     private let appleLoginButton = UIButton()
     private let loginStack = UIStackView()
-    
-    override public func viewDidLoad() {
-        super.viewDidLoad()
-        
-    }
     
     override public func setupUI() {
         super.setupUI()
@@ -37,7 +37,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
         
         loginStack.do {
             $0.axis = .vertical
-            $0.spacing = 12
+            $0.spacing = Metric.spacing
             $0.alignment = .fill
             $0.distribution = .fill
         }
@@ -55,7 +55,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
         super.setupAutoLayout()
         
         loginStack.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.horizontalEdges.equalToSuperview().inset(Metric.inset)
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
         }
     }
@@ -69,7 +69,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
         
         appleLoginButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .map { Reactor.Action.kakaoLoginTapped(.apple, self) }
+            .map { Reactor.Action.appleLoginTapped(.apple, self) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -87,12 +87,5 @@ extension AccountSignInViewController {
         let container = AccountSignUpDIContainer().makeViewController()
         container.modalPresentationStyle = .fullScreen
         present(container, animated: true)
-    }
-}
-
-extension AccountSignInViewController {
-    func pushCalendarFeedView(_ date: Date?) {
-        let container = AccountSignUpDIContainer()
-        navigationController?.pushViewController(container.makeViewController(), animated: true)
     }
 }

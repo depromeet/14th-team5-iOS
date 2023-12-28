@@ -13,7 +13,6 @@ import Domain
 import ReactorKit
 
 public final class AccountSignInReactor: Reactor {
-    
     public var initialState: State
     private var accountRepository: AccountImpl
     
@@ -43,7 +42,6 @@ extension AccountSignInReactor {
         case .kakaoLoginTapped(let sns, let vc):
             accountRepository.kakaoLogin(with: sns, vc: vc)
                 .flatMap { Observable.just(Mutation.kakaoLogin) }
-                
         case .appleLoginTapped(let sns, let vc):
             accountRepository.appleLogin(with: sns, vc: vc)
                 .flatMap { Observable.just(Mutation.appleLogin) }

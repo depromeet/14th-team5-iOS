@@ -7,6 +7,7 @@
 
 import UIKit
 import Core
+import Domain
 
 final class FeedCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
     static let id = "FeedCollectionViewCell"
@@ -53,8 +54,8 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
 }
 
 extension FeedCollectionViewCell {
-    func setCell(data: FeedData) {
-        nameLabel.text = data.name
+    func setCell(data: PostListData) {
+        nameLabel.text = data.author
         timeLabel.text = data.time
         imageView.kf.setImage(with: URL(string:data.imageURL)!)
     }

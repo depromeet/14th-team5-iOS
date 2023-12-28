@@ -18,7 +18,7 @@ import Then
 
 final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     // MARK: - Views
-    private let calendarTitleLabel: UILabel = UILabel()
+    private let calendarTitleLabel: TypeSystemLabel = TypeSystemLabel(.head1)
     
     private lazy var infoButton: UIButton = UIButton(type: .system)
     private lazy var titleStackView: UIStackView = UIStackView()
@@ -66,10 +66,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     override func setupAttributes() {
         super.setupAttributes()
         calendarTitleLabel.do {
-            $0.textColor = UIColor.white
             $0.textAlignment = .center
-            $0.font = UIFont.boldSystemFont(ofSize: CalendarCell.Attribute.calendarTitleFontSize)
-            $0.numberOfLines = 0
         }
         
         infoButton.do {

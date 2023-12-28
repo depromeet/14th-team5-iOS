@@ -8,6 +8,7 @@
 import UIKit
 
 import Core
+import DesignSystem
 import ReactorKit
 import RxCocoa
 import RxDataSources
@@ -17,20 +18,29 @@ import Then
 
 public final class AddFamilyViewController: BaseViewController<AddFamilyViewReactor> {
     // MARK: - Views
-    private let backgroundView: UIView = UIView()
-    private let imageBackgroundView: UIView = UIView()
+    private let invitationUrlAreaBackgroundView: UIView = UIView()
+    private let envelopeImageBackgroundView: UIView = UIView()
     private let envelopeImageView: UIImageView = UIImageView()
     
-    private let titleStackView: UIStackView = UIStackView()
-    private let addFamiliyTitleLabel: UILabel = UILabel()
-    private let addFamimliySubTitleLabel: UILabel = UILabel()
-    private let shareInvitationUrlButton: UIButton = UIButton(type: .system)
+    private let titleLabelStackView: UIStackView = UIStackView()
+    private let inviteFamilyTitleLabel: UILabel = UILabel.createPretendardFontLabel(
+        AddFamilyVC.Attribute.invitationTitleFontSize,
+        weight: .semiBold
+    )
+    private let invitationUrlLabel: UILabel = UILabel.createPretendardFontLabel(
+        AddFamilyVC.Attribute.invitationUrlFontSize,
+        textColor: .gray300
+    )
+    private let shareButton: UIButton = UIButton(type: .system)
     
     private let dividerView: UIView = UIView()
     
-    private let tableHeaderStackView: UIStackView = UIStackView()
-    private let familyMemeberTitleLabel: UILabel = UILabel()
-    private let familyMemberCountLabel = UILabel()
+    private let headerLabelStackView: UIStackView = UIStackView()
+    private let tableTitleLabel: UILabel = UILabel.createPretendardFontLabel(
+        AddFamilyVC.Attribute.tableTitleFontSize,
+        weight: .bold
+    )
+    private let tableCountLabel = UILabel.createPretendardFontLabel(AddFamilyVC.Attribute.tableCountFontSize)
     private let tableView: UITableView = UITableView()
     
     // MARK: - Properties
@@ -48,66 +58,66 @@ public final class AddFamilyViewController: BaseViewController<AddFamilyViewReac
     // MARK: - Helpers
     public override func setupUI() {
         super.setupUI()
-        view.addSubview(backgroundView)
-        backgroundView.addSubviews(
-            imageBackgroundView, envelopeImageView, titleStackView, shareInvitationUrlButton
+        view.addSubview(invitationUrlAreaBackgroundView)
+        invitationUrlAreaBackgroundView.addSubviews(
+            envelopeImageBackgroundView, envelopeImageView, titleLabelStackView, shareButton
         )
-        titleStackView.addArrangedSubviews(
-            addFamiliyTitleLabel, addFamimliySubTitleLabel
+        titleLabelStackView.addArrangedSubviews(
+            inviteFamilyTitleLabel, invitationUrlLabel
         )
         view.addSubviews(
-            dividerView, tableHeaderStackView, tableView
+            dividerView, headerLabelStackView, tableView
         )
-        tableHeaderStackView.addArrangedSubviews(
-            familyMemeberTitleLabel, familyMemberCountLabel
+        headerLabelStackView.addArrangedSubviews(
+            tableTitleLabel, tableCountLabel
         )
     }
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
-        backgroundView.snp.makeConstraints {
+        invitationUrlAreaBackgroundView.snp.makeConstraints {
             $0.leading.equalTo(view.snp.leading).offset(AddFamilyVC.AutoLayout.defaultOffsetValue)
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(AddFamilyVC.AutoLayout.backgroundViewTopOffsetValue)
             $0.trailing.equalTo(view.snp.trailing).offset(-AddFamilyVC.AutoLayout.defaultOffsetValue)
             $0.height.equalTo(AddFamilyVC.AutoLayout.backgroundViewHeightValue)
         }
         
-        imageBackgroundView.snp.makeConstraints {
-            $0.leading.equalTo(backgroundView.snp.leading).offset(AddFamilyVC.AutoLayout.defaultOffsetValue)
+        envelopeImageBackgroundView.snp.makeConstraints {
+            $0.leading.equalTo(invitationUrlAreaBackgroundView.snp.leading).offset(AddFamilyVC.AutoLayout.defaultOffsetValue)
             $0.width.height.equalTo(AddFamilyVC.AutoLayout.imageBackgroundViewHeightValue)
-            $0.centerY.equalTo(backgroundView.snp.centerY)
+            $0.centerY.equalTo(invitationUrlAreaBackgroundView.snp.centerY)
         }
         
         envelopeImageView.snp.makeConstraints {
             $0.width.height.equalTo(AddFamilyVC.AutoLayout.envelopeImageViewHeightValue)
-            $0.center.equalTo(imageBackgroundView.snp.center)
+            $0.center.equalTo(envelopeImageBackgroundView.snp.center)
         }
         
-        titleStackView.snp.makeConstraints {
-            $0.leading.equalTo(imageBackgroundView.snp.trailing).offset(AddFamilyVC.AutoLayout.defaultOffsetValue)
-            $0.centerY.equalTo(backgroundView.snp.centerY)
+        titleLabelStackView.snp.makeConstraints {
+            $0.leading.equalTo(envelopeImageBackgroundView.snp.trailing).offset(AddFamilyVC.AutoLayout.defaultOffsetValue)
+            $0.centerY.equalTo(invitationUrlAreaBackgroundView.snp.centerY)
         }
         
-        shareInvitationUrlButton.snp.makeConstraints {
-            $0.trailing.equalTo(backgroundView.snp.trailing).offset(-AddFamilyVC.AutoLayout.shareInvitationUrlButtonTrailingOffsetValue)
-            $0.centerY.equalTo(backgroundView.snp.centerY)
+        shareButton.snp.makeConstraints {
+            $0.trailing.equalTo(invitationUrlAreaBackgroundView.snp.trailing).offset(-AddFamilyVC.AutoLayout.shareInvitationUrlButtonTrailingOffsetValue)
+            $0.centerY.equalTo(invitationUrlAreaBackgroundView.snp.centerY)
         }
         
         dividerView.snp.makeConstraints {
             $0.leading.equalTo(view.snp.leading)
-            $0.top.equalTo(backgroundView.snp.bottom).offset(AddFamilyVC.AutoLayout.dividerViewTopOffsetValue)
+            $0.top.equalTo(invitationUrlAreaBackgroundView.snp.bottom).offset(AddFamilyVC.AutoLayout.dividerViewTopOffsetValue)
             $0.trailing.equalTo(view.snp.trailing)
             $0.height.equalTo(1.0)
         }
         
-        tableHeaderStackView.snp.makeConstraints {
+        headerLabelStackView.snp.makeConstraints {
             $0.leading.equalTo(view.snp.leading).offset(AddFamilyVC.AutoLayout.defaultOffsetValue)
             $0.top.equalTo(dividerView.snp.bottom).offset(AddFamilyVC.AutoLayout.tableHeaderStackViewTopOffsetValue)
         }
         
         tableView.snp.makeConstraints {
             $0.leading.equalTo(view.snp.leading)
-            $0.top.equalTo(tableHeaderStackView.snp.bottom).offset(AddFamilyVC.AutoLayout.tableViewTopOffsetValue)
+            $0.top.equalTo(headerLabelStackView.snp.bottom).offset(AddFamilyVC.AutoLayout.tableViewTopOffsetValue)
             $0.trailing.equalTo(view.snp.trailing)
             $0.bottom.equalTo(view.snp.bottom)
         }
@@ -115,68 +125,66 @@ public final class AddFamilyViewController: BaseViewController<AddFamilyViewReac
     
     public override func setupAttributes() {
         super.setupAttributes()
-        backgroundView.do {
+        invitationUrlAreaBackgroundView.do {
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = AddFamilyVC.Attribute.backgroundViewCornerRadius
-            $0.backgroundColor = UIColor.darkGray
+            $0.backgroundColor = DesignSystemAsset.gray800.color
         }
         
-        imageBackgroundView.do {
+        envelopeImageBackgroundView.do {
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = AddFamilyVC.AutoLayout.imageBackgroundViewHeightValue / 2.0
-            $0.backgroundColor = UIColor.systemGreen
+            $0.backgroundColor = DesignSystemAsset.mainGreen.color
         }
         
         envelopeImageView.do {
-            $0.contentMode = .scaleAspectFill
+            $0.image = DesignSystemAsset.envelope.image
+            $0.contentMode = .scaleAspectFit
         }
         
-        titleStackView.do {
+        titleLabelStackView.do {
             $0.axis = .vertical
-            $0.spacing = 5.0
+            $0.spacing = 3.0
             $0.alignment = .leading
             $0.distribution = .fillProportionally
         }
         
-        addFamiliyTitleLabel.do {
-            $0.text = AddFamilyVC.Strings.addFamiliyTitle
-            $0.font = UIFont.boldSystemFont(ofSize: AddFamilyVC.Attribute.addFamiliyTitleFontSize)
+        inviteFamilyTitleLabel.do {
+            $0.text = AddFamilyVC.Strings.addFamilyTitle
             $0.textColor = UIColor.white
             $0.textAlignment = .left
         }
         
-        addFamimliySubTitleLabel.do {
-            $0.text = AddFamilyVC.Strings.addFamiliySubTitle
-            $0.font = UIFont.systemFont(ofSize: AddFamilyVC.Attribute.addFamiliySubTitleFontSize)
-            $0.textColor = UIColor.white
+        invitationUrlLabel.do {
+            $0.text = AddFamilyVC.Strings.invitationUrlText
             $0.textAlignment = .left
         }
         
-        shareInvitationUrlButton.do {
-            $0.backgroundColor = UIColor.white
+        shareButton.do {
+            $0.setImage(
+                DesignSystemAsset.shareLine.image.withRenderingMode(.alwaysTemplate),
+                for: .normal
+            )
+            $0.tintColor = DesignSystemAsset.gray500.color
         }
         
         dividerView.do {
-            $0.backgroundColor = UIColor.white
+            $0.backgroundColor = DesignSystemAsset.gray600.color
         }
         
-        tableHeaderStackView.do {
+        headerLabelStackView.do {
             $0.axis = .horizontal
             $0.spacing = 10.0
             $0.alignment = .fill
             $0.distribution = .fillProportionally
         }
         
-        familyMemeberTitleLabel.do {
+        tableTitleLabel.do {
             $0.text = AddFamilyVC.Strings.tableTitle
-            $0.textColor = UIColor.white
-            $0.font = UIFont.boldSystemFont(ofSize: AddFamilyVC.Attribute.tableHeaderTitleFontSize)
         }
         
-        familyMemberCountLabel.do {
+        tableCountLabel.do {
             $0.text = "0"
-            $0.textColor = UIColor.white
-            $0.font = UIFont.systemFont(ofSize: AddFamilyVC.Attribute.tableHeaderCountFontSize)
         }
         
         tableView.do {
@@ -204,7 +212,7 @@ public final class AddFamilyViewController: BaseViewController<AddFamilyViewReac
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        shareInvitationUrlButton.rx.tap
+        shareButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .map { Reactor.Action.didTapInvitationUrlButton }
             .bind(to: reactor.action)
@@ -218,7 +226,7 @@ public final class AddFamilyViewController: BaseViewController<AddFamilyViewReac
         
         reactor.state.map { "\($0.familyMemberCount)" }
             .distinctUntilChanged()
-            .bind(to: familyMemberCountLabel.rx.text)
+            .bind(to: tableCountLabel.rx.text)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$invitationUrl)

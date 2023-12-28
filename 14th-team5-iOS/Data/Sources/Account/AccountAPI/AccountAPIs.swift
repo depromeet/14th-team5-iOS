@@ -27,7 +27,15 @@ enum AccountAPIs: API {
         }
     }
     
-    struct LoginPayload: Encodable, Equatable {
-        var accessToken: String?
+    enum PayLoad {
+        struct LoginPayload: Encodable, Equatable {
+            var accessToken: String?
+        }
+        
+        struct AccountSignUpPayLoad: Encodable, Equatable {
+            public var memberName: String?
+            public var dayOfBirth: String?
+            public var profileImgUrl: String?
+        }
     }
 }

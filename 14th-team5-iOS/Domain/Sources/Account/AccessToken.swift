@@ -8,7 +8,7 @@
 import Foundation
 
 public struct AccessToken: Codable, Equatable {
-    var accessToken: String?
-    var refreshToken: String?
-    var isTemporaryToken: Bool?
+    public var accessToken: String?
+    public var refreshToken: String?
+    public var isTemporaryToken: Bool?
 }

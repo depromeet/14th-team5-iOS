@@ -8,28 +8,36 @@
 
 import Foundation
 import UIKit
+import Data
 
 import ReactorKit
 
-final class OnBoardingReactor: Reactor {
+
+public final class OnBoardingReactor: Reactor {
     
-    enum Action {
+    public var initialState: State
+    private var accountRepository: AccountImpl
+    
+    public enum Action {
         case permissionTapped
     }
     
-    enum Mutation {
+    public enum Mutation {
         case setPermissionStatus(Bool)
     }
     
-    struct State {
-        var isPermissionGranted: Bool?
+    public struct State {
+        var isPermissionGranted: Bool? = false
     }
     
-    var initialState: State = State()
+    init(accountRepository: AccountRepository) {
+        self.accountRepository = accountRepository
+        self.initialState = State()
+    }
 }
 
 extension OnBoardingReactor {
-    func mutate(action: Action) -> Observable<Mutation> {
+    public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .permissionTapped:
             return Observable.create { observer in
@@ -46,7 +54,7 @@ extension OnBoardingReactor {
         }
     }
     
-    func reduce(state: State, mutation: Mutation) -> State {
+    public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
         case .setPermissionStatus(let isPermissionGranted):

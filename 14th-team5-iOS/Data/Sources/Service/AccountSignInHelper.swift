@@ -7,6 +7,7 @@
 
 import Foundation
 import Domain
+import Core
 
 import RxSwift
 import Alamofire
@@ -65,10 +66,13 @@ extension AccountSignInHelper {
     func signInWith(snsType: SNS, snsToken: String) -> Single<APIResult> {
         return apiWorker.signInWith(snsType: snsType, snsToken: snsToken)
             .map { token in
-                guard let _ = token else {
+                guard let token = token else {
                     return .failed
                 }
                 
+                if token.isTemporaryToken == false {
+                    App.Repository.token.accessToken.accept(token.accessToken)
+                }
                 return .success
             }
     }

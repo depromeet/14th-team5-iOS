@@ -34,9 +34,9 @@ public final class AddFamilyViewController: BaseViewController<AddFamilyViewReac
     private let tableView: UITableView = UITableView()
     
     // MARK: - Properties
-    var dataSource: RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> = RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> { datasource, tableView, indexPath, item in
+    var dataSource: RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> = RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> { datasource, tableView, indexPath, memberResponse in
         let cell = tableView.dequeueReusableCell(withIdentifier: FamiliyMemberProfileCell.id, for: indexPath) as! FamiliyMemberProfileCell
-        cell.reactor = FamilyMemberProfileCellReactor(item)
+        cell.reactor = FamilyMemberProfileCellDIContainer().makeReactor(memberResponse)
         return cell
     }
     
@@ -115,7 +115,6 @@ public final class AddFamilyViewController: BaseViewController<AddFamilyViewReac
     
     public override func setupAttributes() {
         super.setupAttributes()
-        // TODO: - 이미지・색상・폰트 다시 설정하기
         backgroundView.do {
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = AddFamilyVC.Attribute.backgroundViewCornerRadius

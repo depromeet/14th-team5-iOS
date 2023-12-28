@@ -68,23 +68,32 @@ public final class AddFamilyViewReactor: Reactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .didTapInvitationUrlButton:
-            // TODO: - 통신 성공 여부 확인
-            return addFamilyRepository.fetchInvitationUrl()
-                .map {
-                    guard let url = $0 else {
-                        return .presentFetchInvitationUrlFailureTaostMessage
-                    }
-                    return .presentSharePanel(url)
-                }
+//            return addFamilyRepository.fetchInvitationUrl()
+//                .map {
+//                    guard let url = $0 else {
+//                        return .presentFetchInvitationUrlFailureTaostMessage
+//                    }
+//                    return .presentSharePanel(url)
+//                }
+            
+            // NOTE: - 테스트 코드
+            return Observable<Mutation>.just(
+                .presentSharePanel(URL(string: "https://www.naver.com"))
+            )
+            
         case .fetchYourFamilyMemeber:
-            // TODO: - 통신 성공 여부 확인
-            return addFamilyRepository.fetchFamilyMemeber()
-                .map {
-                    guard let paginationFamilyMember = $0 else {
-                        return .fetchYourFamilyMember(.init(items: []))
-                    }
-                    return .fetchYourFamilyMember(.init(items: paginationFamilyMember.results))
-                }
+//            return addFamilyRepository.fetchFamilyMemeber()
+//                .map {
+//                    guard let paginationFamilyMember = $0 else {
+//                        return .fetchYourFamilyMember(.init(items: []))
+//                    }
+//                    return .fetchYourFamilyMember(.init(items: paginationFamilyMember.results))
+//                }
+            
+            // NOTE: - 테스트 코드
+            return Observable<Mutation>.just(
+                .fetchYourFamilyMember(SectionOfFamilyMemberProfile.generateTestData())
+            )
         }
     }
     

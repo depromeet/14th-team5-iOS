@@ -147,6 +147,8 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     }
     
     private func bindInput(reactor: CalendarPostViewReactor) {
+        let previousNextMonths: [String] = reactor.currentState.selectedCalendarCell.generatePreviousNextYearMonth()
+        
         backButton.rx.tap
             .withUnretained(self)
             .subscribe {
@@ -168,7 +170,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
-        Observable<String>.from(reactor.currentState.selectedCalendarCell .generatePreviousNextYearMonth())
+        Observable<String>.from(previousNextMonths)
             .map { Reactor.Action.fetchCalendarResponse($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)

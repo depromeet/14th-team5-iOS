@@ -140,7 +140,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         setupNavigationTitle(calendarView.currentPage)
     }
 
-    public override func bind(reactor: CalendarPostViewReactor) { 
+    public override func bind(reactor: CalendarPostViewReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)

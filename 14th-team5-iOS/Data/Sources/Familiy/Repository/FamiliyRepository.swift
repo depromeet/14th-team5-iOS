@@ -12,17 +12,17 @@ import ReactorKit
 import RxCocoa
 import RxSwift
 
-public protocol AddFamilyImpl {
+public protocol FamilyImpl {
     var disposeBag: DisposeBag { get }
     
     func fetchInvitationUrl() -> Observable<URL?>
     func fetchFamilyMemeber() -> Observable<PaginationResponseFamilyMemberProfile?>
 }
 
-public final class AddFamilyRepository: AddFamilyImpl {
+public final class FamilyRepository: FamilyImpl {
     public let disposeBag: DisposeBag = DisposeBag()
     
-    private let apiWorker: AddFamilyAPIWorker = AddFamilyAPIWorker()
+    private let apiWorker: FamilyAPIWorker = FamilyAPIWorker()
     
     public init() { }
     

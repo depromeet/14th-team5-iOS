@@ -12,10 +12,12 @@ import Kingfisher
 import RxSwift
 
 final class ProfileView: UIView {
-    let disposeBag = DisposeBag()
+    typealias Layout = HomeAutoLayout.ProfileView
     
     private let imageView = UIImageView()
     private let nameLabel = UILabel()
+    
+    let disposeBag = DisposeBag()
     
     override init(frame: CGRect) {
         super.init(frame: .zero)
@@ -34,12 +36,12 @@ final class ProfileView: UIView {
     
     private func setupAutoLayout() {
         imageView.snp.makeConstraints {
-            $0.size.equalTo(68)
+            $0.size.equalTo(Layout.ImageView.size)
             $0.top.leading.equalToSuperview()
         }
         
         nameLabel.snp.makeConstraints {
-            $0.top.equalTo(imageView.snp.bottom).offset(5)
+            $0.top.equalTo(imageView.snp.bottom).offset(Layout.NameLabel.topOffset)
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalToSuperview()
         }
@@ -48,12 +50,10 @@ final class ProfileView: UIView {
     private func setupAttributes() {
         imageView.do {
             $0.clipsToBounds = true
-            $0.layer.cornerRadius = 34
-            $0.kf.setImage(with: URL(string:HomeStringLiterals.tempProfileImageURL))
+            $0.layer.cornerRadius = Layout.ImageView.cornerRadius
         }
         
         nameLabel.do {
-            $0.text = HomeStringLiterals.tempProfileName
             $0.textAlignment = .center
         }
     }

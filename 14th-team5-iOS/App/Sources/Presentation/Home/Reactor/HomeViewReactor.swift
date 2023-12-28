@@ -32,7 +32,7 @@ public final class HomeViewReactor: Reactor {
     public struct State {
         var inviteLink: URL?
 //        var isShowingShareAcitivityView: Bool = false
-        var descriptionText: String = HomeStringLiterals.Description.standard
+        var descriptionText: String = HomeStrings.Description.standard
         var isShowingNoPostTodayView: Bool = false
         var isShowingInviteFamilyView: Bool = false
         var familySections: [SectionModel<String, ProfileData>] = []

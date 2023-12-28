@@ -31,7 +31,7 @@ extension SectionOfFamilyMemberProfile {
         let names = ["김건우", "김도현", "마경미", "유건희"]
         let imageUrls = [
             "https://cdn.pixabay.com/photo/2023/11/20/13/48/butterfly-8401173_1280.jpg",
-            "https://cdn.pixabay.com/photo/2023/11/10/02/30/woman-8378634_1280.jpg",
+            nil,
             "https://cdn.pixabay.com/photo/2023/11/26/08/27/leaves-8413064_1280.jpg",
             "https://cdn.pixabay.com/photo/2023/09/03/17/00/chives-8231068_1280.jpg"
         ]

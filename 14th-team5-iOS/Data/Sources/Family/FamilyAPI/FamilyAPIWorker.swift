@@ -14,20 +14,21 @@ typealias FamilyAPIWorker = FamilyAPIs.Worker
 extension FamilyAPIs {
     public final class Worker: APIWorker {
         static let queue = {
-            ConcurrentDispatchQueueScheduler(queue: DispatchQueue(label: "FamiliyAPIQueue", qos: .utility))
+            ConcurrentDispatchQueueScheduler(queue: DispatchQueue(label: "FamilyAPIQueue", qos: .utility))
         }()
         
         public override init() {
             super.init()
-            self.id = "FamiliyAPIWorker"
+            self.id = "FamilyAPIWorker"
         }
     }
 }
 
 extension FamilyAPIWorker: SearchFamilyRepository {
     public func fetchFamilyMember(query: Domain.SearchFamilyQuery) -> RxSwift.Single<Domain.SearchFamilyPage?> {
-        let spec = FamilyAPIs.familyMembers.spec
-        return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJyZWdEYXRlIjoxNzAzNDA4MzI4MDg3LCJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwMzQ5NDcyOH0.V7Dw6RTWJ8BMzfJpuVCQz1Zhwj_cnI-r9oxYDjx3zJs")])
+        let spec: APISpec = FamilyAPIs.familyMembers.spec
+        let headers: [BibbiHeader] = [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("")]
+        return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -40,9 +41,10 @@ extension FamilyAPIWorker: SearchFamilyRepository {
             .asSingle()
     }
     
-    func fetchInvitationUrl(_ familiyId: String, accessToken: String) -> Single<FamilyInvitationLinkResponse?> {
-        let spec = FamilyAPIs.invitationUrl(familiyId).spec
-        return request(spec: spec, headers: [BibbiAPI.Header.acceptJson, BibbiHeader.xAuthToken(accessToken)])
+    func fetchInvitationUrl(_ familyId: String, accessToken: String) -> Single<FamilyInvitationLinkResponse?> {
+        let spec: APISpec = FamilyAPIs.invitationUrl(familyId).spec
+        let headers: [BibbiHeader] = [BibbiAPI.Header.acceptJson, BibbiHeader.xAuthToken(accessToken)]
+        return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -56,8 +58,9 @@ extension FamilyAPIWorker: SearchFamilyRepository {
     }
     
     func fetchFamilyMemeberPage(accessToken: String) -> Single<PaginationResponseFamilyMemberProfile?> {
-        let spec = FamilyAPIs.familyMembers.spec
-        return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken(accessToken)])
+        let spec: APISpec = FamilyAPIs.familyMembers.spec
+        let headers: [BibbiHeader] = [BibbiHeader.acceptJson, BibbiHeader.xAuthToken(accessToken)]
+        return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {

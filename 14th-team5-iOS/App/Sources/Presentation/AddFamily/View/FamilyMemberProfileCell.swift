@@ -8,6 +8,7 @@
 import UIKit
 
 import Core
+import DesignSystem
 import ReactorKit
 import RxSwift
 import SnapKit
@@ -15,11 +16,16 @@ import Then
 
 final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellReactor> {
     // MARK: - Views
+    private let memberImageBackgroundView: UIView = UIView()
+    private let firstNameLabel: UILabel = UILabel.createPretendardFontLabel(24.0)
     private let memberImageView: UIImageView = UIImageView()
     
-    private let labelStackView: UIStackView = UIStackView()
-    private let memberNameLabel: UILabel = UILabel()
-    private let isMeLabel: UILabel = UILabel()
+    private let namelabelStackView: UIStackView = UIStackView()
+    private let nameLabel: UILabel = UILabel.createPretendardFontLabel(AddFamilyCell.Attribute.nameLabelFontSize)
+    private let isMeLabel: UILabel = UILabel.createPretendardFontLabel(
+        AddFamilyCell.Attribute.meLabelFontSize,
+        textColor: .gray500
+    )
     
     // MARK: - Properties
     static let id: String = "YourFamilyProfileCell"
@@ -33,28 +39,43 @@ final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellR
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func prepareForReuse() {
+        memberImageView.image = nil
+    }
+    
     // MARK: - Helpers
     override func setupUI() {
         super.setupUI()
+        memberImageBackgroundView.addSubviews(
+            firstNameLabel, memberImageView
+        )
         contentView.addSubviews(
-            memberImageView, labelStackView
+            memberImageBackgroundView, namelabelStackView
         )
         
-        labelStackView.addArrangedSubviews(
-            memberNameLabel, isMeLabel
+        namelabelStackView.addArrangedSubviews(
+            nameLabel, isMeLabel
         )
     }
     
     override func setupAutoLayout() {
         super.setupAutoLayout()
-        memberImageView.snp.makeConstraints {
+        memberImageBackgroundView.snp.makeConstraints {
             $0.leading.equalTo(contentView.snp.leading).offset(AddFamilyCell.AutoLayout.profileImageLeadingOffsetValue)
             $0.top.equalTo(contentView.snp.top).offset(AddFamilyCell.AutoLayout.profileImageTopOffsetValue)
             $0.bottom.equalTo(contentView.snp.bottom).offset(-AddFamilyCell.AutoLayout.profileImageTopOffsetValue)
             $0.width.height.equalTo(AddFamilyCell.AutoLayout.profileImageWidthValue)
         }
         
-        labelStackView.snp.makeConstraints {
+        firstNameLabel.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
+        
+        memberImageView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        namelabelStackView.snp.makeConstraints {
             $0.leading.equalTo(memberImageView.snp.trailing).offset(AddFamilyCell.AutoLayout.profileImageLeadingOffsetValue)
             $0.centerY.equalTo(memberImageView.snp.centerY)
         }
@@ -62,30 +83,31 @@ final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellR
     
     override func setupAttributes() {
         super.setupAttributes()
+        memberImageBackgroundView.do {
+            $0.layer.masksToBounds = true
+            $0.layer.cornerRadius = AddFamilyCell.AutoLayout.profileImageWidthValue / 2.0
+            $0.backgroundColor = UIColor.darkGray
+        }
+        
+        firstNameLabel.do {
+            $0.textColor = UIColor.white
+            $0.textAlignment = .center
+        }
+        
         memberImageView.do {
             $0.contentMode = .scaleAspectFill
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = AddFamilyCell.AutoLayout.profileImageWidthValue / 2.0
         }
         
-        labelStackView.do {
+        namelabelStackView.do {
             $0.axis = .vertical
             $0.spacing = 3.0
             $0.alignment = .fill
             $0.distribution = .fillProportionally
         }
         
-        memberNameLabel.do {
-            $0.textColor = UIColor.white
-            $0.font = UIFont.systemFont(ofSize: AddFamilyCell.Attribute.nameLabelFontSize)
-        }
-        
-        isMeLabel.do {
-            $0.textColor = UIColor.white
-            $0.font = UIFont.systemFont(ofSize: AddFamilyCell.Attribute.meLabelFontSize)
-        }
-        
-        contentView.backgroundColor = UIColor(red: 0.09, green: 0.09, blue: 0.09, alpha: 1)
+        contentView.backgroundColor = DesignSystemAsset.black.color
     }
     
     override func bind(reactor: FamilyMemberProfileCellReactor) {
@@ -111,7 +133,13 @@ final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellR
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.name }
-            .bind(to: memberNameLabel.rx.text)
+            .bind(to: nameLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.name }
+            .distinctUntilChanged()
+            .map { String($0[0])  }
+            .bind(to: firstNameLabel.rx.text)
             .disposed(by: disposeBag)
         
         // TODO: - '나'인지 확인하는 로직 구현하기
@@ -123,7 +151,7 @@ final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellR
         // TODO: - '나'인지 확인하는 로직 구현하기
         reactor.state.map { $0.memeberId }
             .map { true }
-            .bind(to: labelStackView.rx.isMeSpacing)
+            .bind(to: namelabelStackView.rx.isMeSpacing)
             .disposed(by: disposeBag)
     }
 }

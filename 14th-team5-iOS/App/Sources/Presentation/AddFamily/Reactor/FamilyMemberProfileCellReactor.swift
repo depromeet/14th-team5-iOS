@@ -13,19 +13,19 @@ import ReactorKit
 import RxDataSources
 import RxSwift
 
-final class FamilyMemberProfileCellReactor: Reactor {
+final public class FamilyMemberProfileCellReactor: Reactor {
     // MARK: - Action
-    typealias Action = NoAction
+    public typealias Action = NoAction
     
-    struct State {
+    public struct State {
         var memeberId: String
         var name: String
         var imageUrl: String?
     }
     
-    var initialState: State
+    public var initialState: State
     
-    init(_ memberResponse: FamilyMemberProfileResponse) {
+    public init(_ memberResponse: FamilyMemberProfileResponse) {
         self.initialState = State(
             memeberId: memberResponse.memberId,
             name: memberResponse.name,

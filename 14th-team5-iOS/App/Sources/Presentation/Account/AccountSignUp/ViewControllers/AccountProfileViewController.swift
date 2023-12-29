@@ -8,6 +8,7 @@
 import UIKit
 import Core
 import DesignSystem
+import Domain
 
 import ReactorKit
 import RxSwift
@@ -119,7 +120,7 @@ extension AccountProfileViewController {
     private func createAlertController(owner: AccountProfileViewController) {
         let alertController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         let presentCameraAction: UIAlertAction = UIAlertAction(title: "카메라", style: .default) { _ in
-            let cameraViewController = CameraDIContainer().makeViewController()
+            let cameraViewController = CameraDIContainer(cameraType: .profile).makeViewController()
             owner.navigationController?.pushViewController(cameraViewController, animated: true)
         }
         let presentAlbumAction: UIAlertAction = UIAlertAction(title: "앨범", style: .default) { _ in

@@ -13,7 +13,7 @@ enum CalendarCell {
     }
     
     enum AutoLayout {
-        static let defaultOffsetValue: CGFloat = 16.0
+        static let defaultOffsetValue: CGFloat = 24.0
         static let infoStackHeightMultiplier: CGFloat = 0.75
         
         static let calendarTopOffsetValue: CGFloat = 24.0

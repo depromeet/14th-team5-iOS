@@ -109,6 +109,7 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
     }
 }
 
+// MARK: - Extensions
 extension CalendarViewController {
     private var orthogonalCompositionalLayout: UICollectionViewCompositionalLayout {
         // item

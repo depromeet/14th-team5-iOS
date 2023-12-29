@@ -8,6 +8,7 @@
 import UIKit
 
 import Core
+import DesignSystem
 import Domain
 import FSCalendar
 import ReactorKit
@@ -20,8 +21,8 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     // MARK: - Views
     private let calendarTitleLabel: TypeSystemLabel = TypeSystemLabel(.head1)
     
-    private lazy var infoButton: UIButton = UIButton(type: .system)
-    private lazy var titleStackView: UIStackView = UIStackView()
+    private lazy var labelStackView: UIStackView = UIStackView()
+    private lazy var calendarInfoButton: UIButton = UIButton(type: .system)
     
     private let calendarView: FSCalendar = FSCalendar()
     
@@ -41,46 +42,48 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     override func setupUI() {
         super.setupUI()
         contentView.addSubviews(
-            titleStackView, calendarView
+            labelStackView, calendarView
         )
-        titleStackView.addArrangedSubviews(
-            calendarTitleLabel, infoButton
+        labelStackView.addArrangedSubviews(
+            calendarTitleLabel, calendarInfoButton
         )
     }
     
     override func setupAutoLayout() {
         super.setupAutoLayout()
-        titleStackView.snp.makeConstraints {
+        labelStackView.snp.makeConstraints {
             $0.top.equalTo(contentView.snp.top).offset(CalendarCell.AutoLayout.defaultOffsetValue)
             $0.leading.equalTo(contentView.snp.leading).offset(CalendarCell.AutoLayout.calendarTopOffsetValue)
         }
         
         calendarView.snp.makeConstraints {
             $0.leading.equalTo(contentView.snp.leading).offset(CalendarCell.AutoLayout.calendarLeadingTrailingOffsetValue)
-            $0.top.equalTo(titleStackView.snp.bottom).offset(CalendarCell.AutoLayout.calendarTopOffsetValue)
+            $0.top.equalTo(labelStackView.snp.bottom).offset(CalendarCell.AutoLayout.calendarTopOffsetValue)
             $0.trailing.equalTo(contentView.snp.trailing).offset(-CalendarCell.AutoLayout.calendarLeadingTrailingOffsetValue)
             $0.height.equalTo(contentView.snp.width).multipliedBy(CalendarCell.AutoLayout.calendarHeightMultiplier)
+        }
+        
+        calendarInfoButton.snp.makeConstraints {
+            $0.width.height.equalTo(20.0)
         }
     }
     
     override func setupAttributes() {
         super.setupAttributes()
         calendarTitleLabel.do {
+            $0.textColor = DesignSystemAsset.gray200.color
             $0.textAlignment = .center
         }
         
-        infoButton.do {
-            let sizeConfig = UIImage.SymbolConfiguration(pointSize: 14, weight: .bold)
-            let colorConfig = UIImage.SymbolConfiguration(hierarchicalColor: UIColor.white)
-            
-            let image: UIImage? = UIImage(
-                systemName: CalendarCell.SFSymbol.exclamationMark,
-                withConfiguration: sizeConfig.applying(colorConfig)
+        calendarInfoButton.do {
+            $0.setImage(
+                DesignSystemAsset.infoCircleFill.image.withRenderingMode(.alwaysTemplate),
+                for: .normal
             )
-            $0.setImage(image, for: .normal)
+            $0.tintColor = DesignSystemAsset.gray300.color
         }
         
-        titleStackView.do {
+        labelStackView.do {
             $0.axis = .horizontal
             $0.spacing = 10.0
             $0.alignment = .fill
@@ -98,19 +101,19 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
             
             $0.appearance.selectionColor = UIColor.clear
             
-            $0.appearance.titleFont = UIFont.boldSystemFont(ofSize: CalendarCell.Attribute.dayFontSize)
-            $0.appearance.titleDefaultColor = UIColor.white
-            $0.appearance.titleSelectionColor = UIColor.white
+            $0.appearance.titleFont = UIFont.pretendard(.body1Regular)
+            $0.appearance.titleDefaultColor = DesignSystemAsset.white.color
+            $0.appearance.titleSelectionColor = DesignSystemAsset.white.color
             
-            $0.appearance.weekdayFont = UIFont.systemFont(ofSize: CalendarCell.Attribute.weekdayFontSize)
-            $0.appearance.weekdayTextColor = UIColor.white
+            $0.appearance.weekdayFont = UIFont.pretendard(.caption)
+            $0.appearance.weekdayTextColor = DesignSystemAsset.gray300.color
             $0.appearance.caseOptions = .weekdayUsesSingleUpperCase
             
             $0.appearance.titlePlaceholderColor = UIColor.systemGray.withAlphaComponent(0.3)
             
             $0.backgroundColor = UIColor.clear
             
-            $0.locale = Locale.autoupdatingCurrent
+            $0.locale = Locale(identifier: "ko_kr")
             $0.register(ImageCalendarCell.self, forCellReuseIdentifier: ImageCalendarCell.id)
             $0.register(PlaceholderCalendarCell.self, forCellReuseIdentifier: PlaceholderCalendarCell.id)
             
@@ -133,10 +136,10 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        infoButton.rx.tap
+        calendarInfoButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .withUnretained(self)
-            .map { Reactor.Action.didTapInfoButton($0.0.infoButton) }
+            .map { Reactor.Action.didTapInfoButton($0.0.calendarInfoButton) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -172,6 +175,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     }
 }
 
+// MARK: - Extensions
 extension CalendarPageCell {
     func setupCalendarTitle(_ date: Date) {
         calendarTitleLabel.text = DateFormatter.yyyyMM.string(from: date)

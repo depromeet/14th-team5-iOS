@@ -212,6 +212,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     }
 }
 
+// MARK: - Extensions
 extension CalendarPostViewController {
     private func setupBlurEffect() {
         let blurEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)

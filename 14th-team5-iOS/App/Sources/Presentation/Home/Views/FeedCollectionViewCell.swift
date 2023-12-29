@@ -10,6 +10,7 @@ import Core
 import Domain
 
 final class FeedCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
+    typealias Layout = HomeAutoLayout.FeedCollectionView
     static let id = "FeedCollectionViewCell"
     
     private let stackView = UIStackView()
@@ -35,20 +36,20 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
         
         stackView.snp.makeConstraints {
             $0.top.equalTo(imageView.snp.bottom)
-            $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.height.equalTo(36)
+            $0.horizontalEdges.equalToSuperview().inset(Layout.StackView.horizontalInset)
+            $0.height.equalTo(Layout.StackView.height)
         }
     }
     
     override func setupAttributes() {
         stackView.do {
             $0.distribution = .fillProportionally
-            $0.spacing = 0
+            $0.spacing = Layout.StackView.spacing
         }
         
         imageView.do {
             $0.clipsToBounds = true
-            $0.layer.cornerRadius = 24
+            $0.layer.cornerRadius = Layout.ImageView.cornerRadius
         }
     }
 }

@@ -23,24 +23,15 @@ public final class AddFamilyViewController: BaseViewController<AddFamilyViewReac
     private let envelopeImageView: UIImageView = UIImageView()
     
     private let titleLabelStackView: UIStackView = UIStackView()
-    private let inviteFamilyTitleLabel: UILabel = UILabel.createPretendardFontLabel(
-        AddFamilyVC.Attribute.invitationTitleFontSize,
-        weight: .semiBold
-    )
-    private let invitationUrlLabel: UILabel = UILabel.createPretendardFontLabel(
-        AddFamilyVC.Attribute.invitationUrlFontSize,
-        textColor: .gray300
-    )
+    private let inviteFamilyTitleLabel: TypeSystemLabel = TypeSystemLabel(.head2Bold)
+    private let invitationUrlLabel: TypeSystemLabel = TypeSystemLabel(.body2Regular)
     private let shareButton: UIButton = UIButton(type: .system)
     
     private let dividerView: UIView = UIView()
     
     private let headerLabelStackView: UIStackView = UIStackView()
-    private let tableTitleLabel: UILabel = UILabel.createPretendardFontLabel(
-        AddFamilyVC.Attribute.tableTitleFontSize,
-        weight: .bold
-    )
-    private let tableCountLabel = UILabel.createPretendardFontLabel(AddFamilyVC.Attribute.tableCountFontSize)
+    private let tableTitleLabel: TypeSystemLabel = TypeSystemLabel(.head1)
+    private let tableCountLabel: TypeSystemLabel = TypeSystemLabel(.body1Regular)
     private let tableView: UITableView = UITableView()
     
     // MARK: - Properties
@@ -151,12 +142,13 @@ public final class AddFamilyViewController: BaseViewController<AddFamilyViewReac
         
         inviteFamilyTitleLabel.do {
             $0.text = AddFamilyVC.Strings.addFamilyTitle
-            $0.textColor = UIColor.white
+            $0.textTypeSystemColor = .white
             $0.textAlignment = .left
         }
         
         invitationUrlLabel.do {
             $0.text = AddFamilyVC.Strings.invitationUrlText
+            $0.textTypeSystemColor = .gray500
             $0.textAlignment = .left
         }
         

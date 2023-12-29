@@ -7,25 +7,40 @@
 
 import Foundation
 
-import Data
 import Core
+import Data
+import Domain
 
 public final class CameraDIContainer: BaseDIContainer {
         
     public typealias ViewContrller = CameraViewController
-    public typealias Repository = CameraViewImpl
+    public typealias Repository = CameraViewInterface
     public typealias Reactor = CameraViewReactor
+    public typealias UseCase = CameraViewUseCaseProtocol
+    
+    private let cameraType: UploadLocation
+    private let memberId: String
+    
+    public init(cameraType: UploadLocation, memberId: String = "") {
+        self.cameraType = cameraType
+        self.memberId = memberId
+    }
     
     public func makeViewController() -> CameraViewController {
         return CameraViewController(reacter: makeReactor())
     }
+    
+    public func makeUseCase() -> UseCase {
+        return CameraViewUseCase(cameraViewRepository: makeRepository())
+    }
+    
     
     public func makeRepository() -> Repository {
         return CameraViewRepository()
     }
     
     public func makeReactor() -> Reactor {
-        return CameraViewReactor(cameraRepository: CameraViewRepository())
+        return CameraViewReactor(cameraUseCase: makeUseCase(), cameraType: cameraType, memberId: memberId)
     }
     
 

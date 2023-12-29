@@ -42,6 +42,7 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
                 .target(name: "WidgetExtension"),
                 .with(.Core),
                 .with(.Data),
+                .external(name: "ReactorKit")
             ]
         case .Data:
             return [
@@ -49,12 +50,14 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
                 .with(.Domain),
                 .external(name: "Alamofire"),
                 .external(name: "RxSwift"),
-                .external(name: "ReactorKit"),
                 .external(name: "KakaoSDK"),
                 .external(name: "RxKakaoSDK"),
             ]
         case .Domain:
-            return [.external(name: "RxSwift"),]
+            return [
+                .external(name: "RxSwift"),
+                .with(.Core)
+            ]
         case .Core:
             return [
                 .with(.DesignSystem),

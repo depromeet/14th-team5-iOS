@@ -17,18 +17,15 @@ import Then
 final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellReactor> {
     // MARK: - Views
     private let memberImageBackgroundView: UIView = UIView()
-    private let firstNameLabel: UILabel = UILabel.createPretendardFontLabel(24.0)
+    private let firstNameLabel: TypeSystemLabel = TypeSystemLabel(.head2Bold)
     private let memberImageView: UIImageView = UIImageView()
     
     private let namelabelStackView: UIStackView = UIStackView()
-    private let nameLabel: UILabel = UILabel.createPretendardFontLabel(AddFamilyCell.Attribute.nameLabelFontSize)
-    private let isMeLabel: UILabel = UILabel.createPretendardFontLabel(
-        AddFamilyCell.Attribute.meLabelFontSize,
-        textColor: .gray500
-    )
+    private let nameLabel: TypeSystemLabel = TypeSystemLabel(.body1Regular)
+    private let isMeLabel: TypeSystemLabel = TypeSystemLabel(.body2Regular)
     
     // MARK: - Properties
-    static let id: String = "YourFamilyProfileCell"
+    static let id: String = "FamilyProfileCell"
     
     // MARK: - Intializer
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -90,7 +87,6 @@ final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellR
         }
         
         firstNameLabel.do {
-            $0.textColor = UIColor.white
             $0.textAlignment = .center
         }
         
@@ -105,6 +101,10 @@ final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellR
             $0.spacing = 3.0
             $0.alignment = .fill
             $0.distribution = .fillProportionally
+        }
+        
+        isMeLabel.do {
+            $0.textTypeSystemColor = .gray500
         }
         
         contentView.backgroundColor = DesignSystemAsset.black.color

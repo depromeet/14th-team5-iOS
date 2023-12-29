@@ -76,7 +76,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind { owner, _ in
-                let cameraViewController = CameraDIContainer().makeViewController()
+                let cameraViewController = CameraDIContainer(cameraType: .feed).makeViewController()
                 owner.navigationController?.pushViewController(cameraViewController, animated: true)
             }.disposed(by: disposeBag)
         

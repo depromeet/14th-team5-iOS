@@ -35,7 +35,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
 
     private let profileIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 50)
-    private let profileTitleView: UILabel = UILabel()
+    private let profileTitleView: TypeSystemLabel = TypeSystemLabel(.head2Bold, textColor: .gray200)
     private let privacyButton: UIButton = UIButton()
     private let profileLineView: UIView = UIView()
     private lazy var profilePickerController: PHPickerViewController = PHPickerViewController(configuration: pickerConfiguration)
@@ -71,7 +71,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         profileTitleView.do {
             $0.textColor = DesignSystemAsset.gray200.color
             $0.text = "활동"
-            $0.font = DesignSystemFontFamily.Pretendard.bold.font(size: 18)
         }
         
         profilePickerController.do {
@@ -82,9 +81,9 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             $0.backgroundColor = .separator
         }
         
-//        privacyButton.do {
-//            $0.setImage(DesignSystemAsset.privacy.image, for: .normal)
-//        }
+        privacyButton.do {
+            $0.setImage(DesignSystemAsset.setting.image, for: .normal)
+        }
         
         navigationItem.do {
             $0.titleView = profileTitleView

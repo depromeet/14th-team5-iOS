@@ -7,12 +7,14 @@
 
 import UIKit
 
+import Core
+import DesignSystem
 import SnapKit
 import Then
 
 
 public final class PrivacyHeaderFooterView: UITableViewHeaderFooterView {
-    private let headerLabel: UILabel = UILabel()
+    private let headerLabel: TypeSystemLabel = TypeSystemLabel(.body2Regular, textColor: .gray300)
     
     
     public override init(reuseIdentifier: String?) {
@@ -34,9 +36,7 @@ public final class PrivacyHeaderFooterView: UITableViewHeaderFooterView {
     private func setupAttributes() {
         headerLabel.do {
             $0.text = "계정 및 권한"
-            $0.textColor = UIColor(red: 235/255, green: 235/255, blue: 245/255, alpha: 0.6)
             $0.textAlignment = .left
-            $0.font = .systemFont(ofSize: 13, weight: .regular)
         }
     }
     

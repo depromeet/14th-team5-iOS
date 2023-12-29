@@ -220,7 +220,7 @@ extension UIViewController {
     /// - Parameters:
     ///   - url: 공유할 URL
     ///   - globalState: GlobalState (선택)
-    public func makeInvitationUrlSharePanel(_ url: URL?, provider globalState: GlobalStateProviderType? = nil) {
+    public func makeInvitationUrlSharePanel(_ url: URL?, provider globalState: GlobalStateProviderProtocol? = nil) {
         guard let url = url else { return }
         let itemSource = UrlActivityItemSource(
             title: StringLiterals.invitationUrlSharePanelTitle,

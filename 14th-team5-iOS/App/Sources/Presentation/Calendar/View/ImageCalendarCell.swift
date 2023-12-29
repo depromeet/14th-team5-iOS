@@ -17,7 +17,7 @@ import RxSwift
 import SnapKit
 import Then
 
-final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
+final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {    
     // MARK: - Views
     private let dayLabel: TypeSystemLabel = TypeSystemLabel(.body1Regular)
     private let noThumbnailView: UIView = UIView()
@@ -25,12 +25,12 @@ final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
     private let badgeView: UIImageView = UIImageView()
     
     // MARK: - Properties
-    var disposeBag: RxSwift.DisposeBag = DisposeBag()
+    public var disposeBag: RxSwift.DisposeBag = DisposeBag()
     
     static let id: String = "ImageCalendarCell"
     
     // MARK: - Intializer
-    override init(frame: CGRect) {
+    public override init!(frame: CGRect) {
         super.init(frame: .zero)
         setupUI()
         setupAutoLayout()
@@ -41,7 +41,7 @@ final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func prepareForReuse() {
+    public override func prepareForReuse() {
         dayLabel.textColor = UIColor.white
         thumbnailView.image = nil
         thumbnailView.layer.borderWidth = .zero
@@ -111,7 +111,7 @@ final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         }
     }
     
-    func bind(reactor: ImageCalendarCellReactor) {
+    public func bind(reactor: ImageCalendarCellReactor) {
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }

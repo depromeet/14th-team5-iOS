@@ -17,7 +17,7 @@ public final class InviteFamilyDIContainer: BaseDIContainer {
     public typealias Repository = FamilyRepositoryProtocol
     public typealias Reactor = InviteFamilyViewReactor
     
-    private var globalState: GlobalStateProviderType {
+    private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             return GlobalStateProvider()
         }

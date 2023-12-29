@@ -19,14 +19,7 @@ enum TempStr {
     static let accessToken = "eyJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QiLCJyZWdEYXRlIjoxNzAzODI0MDI2NTMyfQ.eyJ1c2VySWQiOiIwMUhKQk5XWkdOUDFLSk5NS1dWWkowMzlIWSIsImV4cCI6MTcwMzkxMDQyNn0.9oLLeuhBcTOvz0Eh0NTfD8fk4rD9yDgEogVEzLf6o5k"
 }
 
-public protocol CalendarImpl {
-    var disposeBag: DisposeBag { get }
-    
-    func fetchMonthlyCalendar(_ yearMonth: String) -> Observable<ArrayResponseCalendarResponse?>
-    func fetchWeekCalendar(_ yearMonth: String, week: Int) -> Observable<ArrayResponseCalendarResponse?>
-}
-
-public final class CalendarRepository: CalendarImpl {
+public final class CalendarRepository: CalendarRepositoryProtocol {
     public let disposeBag: DisposeBag = DisposeBag()
     
     private let apiWorker: CalendarAPIWorker = CalendarAPIWorker()

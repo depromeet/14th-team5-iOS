@@ -39,17 +39,19 @@ public final class CalendarPageCellReactor: Reactor {
     // MARK: - Properties
     public var initialState: State
     
-    public var yearMonth: String
-    public let provider: GlobalStateProviderType
+    public let provider: GlobalStateProviderProtocol
+    private let calendarUseCase: CalendarUseCaseProtocol
     
-    private let calendarRepository: CalendarImpl = CalendarRepository()
+    private var yearMonth: String
     
     // MARK: - Intializer
-    init(yearMonth: String, provider: GlobalStateProviderType) {
+    init(_ yearMonth: String, usecase: CalendarUseCaseProtocol, provider: GlobalStateProviderProtocol) {
         self.initialState = State(date: yearMonth.toDate())
         
-        self.yearMonth = yearMonth
+        self.calendarUseCase = usecase
         self.provider = provider
+        
+        self.yearMonth = yearMonth
     }
     
     // MARK: - Mutate
@@ -62,7 +64,7 @@ public final class CalendarPageCellReactor: Reactor {
             return provider.calendarGlabalState.didTapCalendarInfoButton(sourceView)
                 .flatMap { _ in Observable<Mutation>.empty() }
         case .fetchCalendarResponse:
-            return calendarRepository.fetchMonthlyCalendar(yearMonth)
+            return calendarUseCase.executeFetchMonthlyCalendar(yearMonth)
                 .map {
                     guard let arrayCalendarResponse = $0 else {
                         return .fetchCalendarResponse(.init(results: []))

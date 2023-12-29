@@ -218,19 +218,19 @@ extension CalendarPageCell: FSCalendarDataSource {
                     representativeThumbnailUrl: "",
                     allFamilyMemebersUploaded: false
                 )
-                cell.reactor = ImageCalendarCellDIContainer().makeReactor(
+                cell.reactor = ImageCalendarCellDIContainer(
                     .month,
-                    isSelected: false,
-                    dayResponse: emptyResponse
-                )
+                    dayResponse: emptyResponse,
+                    isSelected: false
+                ).makeReactor()
                 return cell
             }
             
-            cell.reactor = ImageCalendarCellDIContainer().makeReactor(
+            cell.reactor = ImageCalendarCellDIContainer(
                 .month,
-                isSelected: false,
-                dayResponse: dayResponse
-            )
+                dayResponse: dayResponse,
+                isSelected: false
+            ).makeReactor()
             return cell
         // 셀의 날짜가 현재 월(月)과 동일하지 않다면
         } else {

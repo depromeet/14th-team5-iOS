@@ -14,7 +14,7 @@ import RxSwift
 
 final public class ImageCalendarCellReactor: Reactor {
     // MARK: - Type
-    public enum CellType {
+    public enum CalendarType {
         case month
         case week
     }
@@ -39,17 +39,18 @@ final public class ImageCalendarCellReactor: Reactor {
     
     // MARK: - Properties
     public var initialState: State
-    public let type: CellType
     
+    private let provider: GlobalStateProviderProtocol
+    
+    public var type: CalendarType
     private let date: Date
-    private let provider: GlobalStateProviderType
     
     // MARK: - Intializer
     init(
-        _ type: CellType,
-        isSelected selection: Bool,
+        _ type: CalendarType,
         dayResponse: CalendarResponse,
-        provider: GlobalStateProviderType
+        isSelected selection: Bool,
+        provider: GlobalStateProviderProtocol
     ) {
         self.initialState = State(
             date: dayResponse.date,

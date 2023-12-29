@@ -40,7 +40,7 @@ public final class HomeViewReactor: Reactor {
     }
     
     public let initialState: State = State()
-    public let provider: GlobalStateProviderType = GlobalStateProvider()
+    public let provider: GlobalStateProviderProtocol = GlobalStateProvider()
     private let familyRepository: SearchFamilyMemberUseCaseProtocol
     private let postRepository: PostListUseCaseProtocol
     

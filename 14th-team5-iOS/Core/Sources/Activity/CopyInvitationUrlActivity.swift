@@ -14,12 +14,12 @@ public class CopyInvitationUrlActivity: UIActivity {
     }
     
     let url: URL
-    let provider: GlobalStateProviderType?
+    let provider: GlobalStateProviderProtocol?
     
     let bundleId: String = Bundle.main.bundleIdentifier!
     var typeName: String = String(describing: CopyInvitationUrlActivity.self)
     
-    public init(_ url: URL, provider: GlobalStateProviderType?) {
+    public init(_ url: URL, provider: GlobalStateProviderProtocol?) {
         self.url = url
         self.provider = provider
     }

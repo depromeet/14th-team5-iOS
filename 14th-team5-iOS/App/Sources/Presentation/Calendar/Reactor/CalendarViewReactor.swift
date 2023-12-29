@@ -35,11 +35,15 @@ public final class CalendarViewReactor: Reactor {
     
     // MARK: - Properties
     public var initialState: State
-    public let provider: GlobalStateProviderType
+    
+    public let provider: GlobalStateProviderProtocol
+    private let calendarUseCase: CalendarUseCaseProtocol
     
     // MARK: - Intializer
-    init(provider: GlobalStateProviderType) {
+    init(usecase: CalendarUseCaseProtocol, provider: GlobalStateProviderProtocol) {
         self.initialState = State()
+        
+        self.calendarUseCase = usecase
         self.provider = provider
     }
     

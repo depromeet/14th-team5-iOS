@@ -12,22 +12,34 @@ import Data
 import Domain
 
 public final class ImageCalendarCellDIContainer {
-    private var globalState: GlobalStateProviderType {
+    public typealias Reactor = ImageCalendarCellReactor
+    
+    public let type: ImageCalendarCellReactor.CalendarType
+    public let dayResponse: CalendarResponse
+    public let selection: Bool
+    
+    private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             return GlobalStateProvider()
         }
         return appDelegate.globalStateProvider
     }
     
-    public func makeReactor(
-        _ type: ImageCalendarCellReactor.CellType,
-        isSelected selection: Bool,
-        dayResponse: CalendarResponse
-    ) -> ImageCalendarCellReactor {
+    public init(
+        _ type: ImageCalendarCellReactor.CalendarType,
+        dayResponse: CalendarResponse,
+        isSelected selection: Bool
+    ) {
+        self.type = type
+        self.dayResponse = dayResponse
+        self.selection = selection
+    }
+    
+    public func makeReactor() -> Reactor {
         return ImageCalendarCellReactor(
             type,
-            isSelected: selection,
             dayResponse: dayResponse,
+            isSelected: selection,
             provider: globalState
         )
     }

@@ -9,28 +9,34 @@ import UIKit
 
 import Core
 import Data
+import Domain
 
 public final class CalendarDIConatainer: BaseDIContainer {
     public typealias ViewController = CalendarViewController
-    public typealias Repository = CalendarImpl
+    public typealias UseCase = CalendarUseCaseProtocol
+    public typealias Repository = CalendarRepositoryProtocol
     public typealias Reactor = CalendarViewReactor
     
-    private var globalState: GlobalStateProviderType {
+    private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             return GlobalStateProvider()
         }
         return appDelegate.globalStateProvider
     }
     
-    public func makeViewController() -> CalendarViewController {
+    public func makeViewController() -> ViewController {
         return CalendarViewController(reacter: makeReactor())
     }
     
-    public func makeRepository() -> CalendarImpl {
+    public func makeUseCase() -> UseCase {
+        return CalendarUseCase(calendarRepository: makeRepository())
+    }
+    
+    public func makeRepository() -> Repository {
         return CalendarRepository()
     }
     
-    public func makeReactor() -> CalendarViewReactor {
-        return CalendarViewReactor(provider: globalState)
+    public func makeReactor() -> Reactor {
+        return CalendarViewReactor(usecase: makeUseCase(), provider: globalState)
     }
 }

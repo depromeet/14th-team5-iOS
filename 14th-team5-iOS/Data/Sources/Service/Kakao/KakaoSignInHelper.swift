@@ -28,21 +28,27 @@ final class KakaoSignInHelper: AccountSignInHelperType {
         self.disposeBag = DisposeBag()
     }
     
-    func signIn(on window: UIWindow) {
+    func signIn(on window: UIWindow) -> Observable<APIResult> {
         if UserApi.isKakaoTalkLoginAvailable() {
-            UserApi.shared.rx.loginWithKakaoTalk()
-                .withUnretained(self)
-                .bind(onNext: {
-                    $0.0._signInState.accept(AccountSignInStateInfo(snsType: .kakao, snsToken: $0.1.idToken))
-                })
-                .disposed(by: self.disposeBag)
+            return UserApi.shared.rx.loginWithKakaoTalk()
+                .map { [weak self] response in
+                    self?._signInState.accept(AccountSignInStateInfo(snsType: .kakao, snsToken: response.idToken))
+                    return .success
+                }
+                .catch { error in
+                    return .just(.failed)
+                }
+                .observe(on: MainScheduler.instance)
         } else {
-            UserApi.shared.rx.loginWithKakaoAccount(prompts: [.Login])
-                .withUnretained(self)
-                .bind(onNext: {
-                    $0.0._signInState.accept(AccountSignInStateInfo(snsType: .kakao))
-                })
-                .disposed(by: self.disposeBag)
+            return UserApi.shared.rx.loginWithKakaoAccount(prompts: [.Login])
+                .map { [weak self] response in
+                    self?._signInState.accept(AccountSignInStateInfo(snsType: .kakao))
+                    return .success
+                }
+                .catch { error in
+                    return .just(.failed)
+                }
+                .observe(on: MainScheduler.instance)
         }
     }
     

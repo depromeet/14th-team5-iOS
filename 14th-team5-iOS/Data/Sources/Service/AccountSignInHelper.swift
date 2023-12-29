@@ -54,11 +54,11 @@ final class AccountSignInHelper: NSObject {
 
 // MARK: SignIn Functions
 extension AccountSignInHelper {
-    func trySignInWith(sns: SNS, window: UIWindow?) {
+    func trySignInWith(sns: SNS, window: UIWindow?) -> Observable<APIResult> {
         guard let helper = signInHelper[sns], let window = window else {
-            return
+            return Observable.just(.failed)
         }
-        helper.signIn(on: window)
+        return helper.signIn(on: window)
     }
     
     func signInWith(snsType: SNS, snsToken: String) -> Single<APIResult> {

@@ -11,7 +11,6 @@ import Data
 import Core
 
 public final class AccountSignInDIContainer: BaseDIContainer {
-    
     public typealias ViewContrller = AccountSignInViewController
     public typealias Repository = AccountImpl
     public typealias Reactor = AccountSignInReactor

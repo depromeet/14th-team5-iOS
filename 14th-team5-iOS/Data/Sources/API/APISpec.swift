@@ -43,7 +43,7 @@ struct APIMediaParameter {
 
 // MARK: API Result Type
 typealias APIRes = APIResult
-enum APIResult {
+public enum APIResult {
     static let ok: Int = 200
     case success
     case failed

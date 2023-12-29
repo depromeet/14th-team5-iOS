@@ -30,22 +30,33 @@ class AppleSignInHelper: NSObject, AccountSignInHelperType {
         self.disposeBag = DisposeBag()
     }
     
-    func signIn(on window: UIWindow) {
+    func signIn(on window: UIWindow) -> Observable<APIResult>{
         guard #available(iOS 13.0, *) else {
             self._signInState.accept(AccountSignInStateInfo(snsType: .apple))
-            return
+            return Observable.just(.failed)
         }
         
-        ASAuthorizationAppleIDProvider().rx.signIn(on: window)
-            .asSingle()
-            .observe(on: Schedulers.utility)
-            .subscribe(onSuccess: { [weak self] in
-                self?._signInState.accept($0)
-            }, onFailure: { [weak self] err in
-                debugPrint("appleSignInHelper Err: \(err)")
-                self?._signInState.accept(AccountSignInStateInfo(snsType: .apple))
-            })
-            .disposed(by: self.disposeBag)
+        return Observable.create { observer in
+            ASAuthorizationAppleIDProvider().rx.signIn(on: window)
+                .asSingle()
+                .observe(on: Schedulers.utility)
+                .subscribe(
+                    onSuccess: { [weak self] response in
+                        self?._signInState.accept(response)
+                        observer.onNext(.success)
+                        observer.onCompleted()
+                    },
+                    onFailure: { [weak self] error in
+                        self?._signInState.accept(AccountSignInStateInfo(snsType: .apple))
+                        observer.onNext(.failed)
+                        observer.onCompleted()
+                    }
+                )
+                .disposed(by: self.disposeBag)
+            
+            return Disposables.create()
+        }
+        
     }
     
     func signOut() {

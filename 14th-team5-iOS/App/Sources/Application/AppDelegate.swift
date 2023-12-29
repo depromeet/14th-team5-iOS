@@ -14,6 +14,7 @@ import FirebaseMessaging
 import KakaoSDKAuth
 import RxKakaoSDKAuth
 import RxKakaoSDKCommon
+import AuthenticationServices
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -24,6 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
         kakaoApp(application, didFinishLauchingWithOptions: launchOptions)
+        appleApp(application, didFinishLauchingWithOptions: launchOptions)
         
 //        setupUserNotificationCenter(application)
         
@@ -73,6 +75,35 @@ extension AppDelegate {
         }
         
         return false
+    }
+}
+
+extension AppDelegate {
+    
+    func appleApp(_ app: UIApplication, didFinishLauchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) {
+        
+        guard let accessToken = App.Repository.token.accessToken.value else {
+            return
+        }
+        
+        let appleIDProvider = ASAuthorizationAppleIDProvider()
+        appleIDProvider.getCredentialState(forUserID: accessToken) { (credentialState, error) in
+            
+            switch credentialState {
+            case .authorized:
+                // The Apple ID credential is valid.
+                print("authorized")
+                break
+            case .revoked, .notFound:
+                // The Apple ID credential is either revoked or was not found.
+                
+                // 로그아웃 처리
+                print("revoke or notFound")
+                break
+            default:
+                break
+            }
+        }
     }
 }
 

@@ -13,7 +13,6 @@ import Domain
 import ReactorKit
 
 public final class AccountSignInReactor: Reactor {
-    
     public var initialState: State
     private var accountRepository: AccountImpl
     
@@ -23,8 +22,8 @@ public final class AccountSignInReactor: Reactor {
     }
     
     public enum Mutation {
-        case kakaoLogin
-        case appleLogin
+        case kakaoLogin(Bool)
+        case appleLogin(Bool)
     }
     
     public struct State {
@@ -42,21 +41,35 @@ extension AccountSignInReactor {
         switch action {
         case .kakaoLoginTapped(let sns, let vc):
             accountRepository.kakaoLogin(with: sns, vc: vc)
-                .flatMap { Observable.just(Mutation.kakaoLogin) }
-                
+                .flatMap { result in
+                    switch result {
+                    case .success:
+                        Observable.just(Mutation.kakaoLogin(true))
+                    case .failed:
+                        Observable.just(Mutation.kakaoLogin(false))
+                    }
+                }
+            
         case .appleLoginTapped(let sns, let vc):
             accountRepository.appleLogin(with: sns, vc: vc)
-                .flatMap { Observable.just(Mutation.appleLogin) }
+                .flatMap { result -> Observable<Mutation> in
+                    switch result {
+                    case .success:
+                        return Observable.just(Mutation.appleLogin(true))
+                    case .failed:
+                        return Observable.just(Mutation.appleLogin(false))
+                    }
+                }
         }
     }
     
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
-        case .kakaoLogin:
-            newState.pushAccountSingUpVC = true
-        case .appleLogin:
-            newState.pushAccountSingUpVC = true
+        case .kakaoLogin(let result):
+            newState.pushAccountSingUpVC = result
+        case .appleLogin(let result):
+            newState.pushAccountSingUpVC = result
         }
         return newState
     }

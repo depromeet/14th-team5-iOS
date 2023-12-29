@@ -51,9 +51,9 @@ public final class AccountSignUpViewController: BasePageViewController<AccountSi
     public override func setupUI() {
         super.setupUI()
         
-        let nicknamePage = AccountNicknameViewController(reacter: reactor)
-        let datePage = AccountDateViewController(reacter: reactor)
-        let profilePage = AccountProfileViewController(reacter: reactor)
+        let nicknamePage = AccountNicknameViewController(reactor: reactor)
+        let datePage = AccountDateViewController(reactor: reactor)
+        let profilePage = AccountProfileViewController(reactor: reactor)
         
         pages.append(nicknamePage)
         pages.append(datePage)

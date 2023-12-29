@@ -17,7 +17,7 @@ public final class OnBoardingDIContainer: BaseDIContainer {
     public typealias Reactor = OnBoardingReactor
     
     public func makeViewController() -> ViewContrller {
-        return OnBoardingViewController(reacter: makeReactor())
+        return OnBoardingViewController(reactor: makeReactor())
     }
     public func makeRepository() -> Repository {
         return AccountRepository()

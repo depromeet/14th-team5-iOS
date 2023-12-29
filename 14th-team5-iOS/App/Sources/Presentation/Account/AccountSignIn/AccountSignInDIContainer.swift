@@ -16,7 +16,7 @@ public final class AccountSignInDIContainer: BaseDIContainer {
     public typealias Reactor = AccountSignInReactor
     
     public func makeViewController() -> ViewContrller {
-        return AccountSignInViewController(reacter: makeReactor())
+        return AccountSignInViewController(reactor: makeReactor())
     }
     public func makeRepository() -> Repository {
         return AccountRepository()

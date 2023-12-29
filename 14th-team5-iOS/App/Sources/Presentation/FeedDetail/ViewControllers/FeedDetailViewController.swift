@@ -11,6 +11,7 @@ import Core
 import RxDataSources
 import RxSwift
 
+// index 조회 필요 => index 조회 이후 스크롤시 이전/이후 포스트 조회 할 수 있어야함
 final class PostViewController: BaseViewController<PostReactor> {
     private let backgroundImageView: UIImageView = UIImageView()
     private let blurEffectView: UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffect.Style.dark))

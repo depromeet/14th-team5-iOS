@@ -27,7 +27,7 @@ public final class CameraDIContainer: BaseDIContainer {
     }
     
     public func makeViewController() -> CameraViewController {
-        return CameraViewController(reacter: makeReactor())
+        return CameraViewController(reactor: makeReactor())
     }
     
     public func makeUseCase() -> UseCase {

@@ -20,7 +20,7 @@ public final class ProfileDIContainer: BaseDIContainer {
     
     
     public func makeViewController() -> ProfileViewController {
-        return ProfileViewController(reacter: makeReactor())
+        return ProfileViewController(reactor: makeReactor())
     }
     
     public func makeUseCase() -> UseCase {

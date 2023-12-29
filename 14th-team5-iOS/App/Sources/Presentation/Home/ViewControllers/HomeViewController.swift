@@ -70,10 +70,20 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .disposed(by: disposeBag)
         
         postCollectionView.rx.itemSelected
-            .withUnretained(self)
+//            .withUnretained(self)
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .bind(onNext: {
-                $0.0.navigationController?.pushViewController(PostViewController(reacter: PostReactor()), animated: true)
+            .bind(onNext: { [weak self] indexPath in
+                guard let self else { return }
+                let sectionModel = reactor.currentState.feedSections[indexPath.section]
+                let selectedItem = sectionModel.items[indexPath.item]
+
+                self.navigationController?.pushViewController(
+                    PostListsDIContainer().makeViewController(
+                        postLists: selectedItem,
+                        selectedIndex: indexPath
+                    ),
+                    animated: true
+                )
             })
             .disposed(by: disposeBag)
         

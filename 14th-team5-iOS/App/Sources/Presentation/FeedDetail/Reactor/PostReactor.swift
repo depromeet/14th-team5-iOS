@@ -7,6 +7,8 @@
 
 import Foundation
 import Core
+import Domain
+
 import ReactorKit
 
 final class PostReactor: Reactor {
@@ -19,10 +21,18 @@ final class PostReactor: Reactor {
     }
     
     struct State {
-
+        let postLists: PostListData
+        let selectedPostIndex: Int
     }
     
-    let initialState: State = State()
+    let initialState: State
+    
+    let postRepository: PostListUseCaseProtocol
+    
+    init(postRepository: PostListUseCaseProtocol, initialState: State) {
+        self.postRepository = postRepository
+        self.initialState = initialState
+    }
 }
 
 extension PostReactor {

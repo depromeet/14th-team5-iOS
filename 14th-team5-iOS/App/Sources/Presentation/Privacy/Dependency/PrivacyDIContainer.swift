@@ -18,7 +18,7 @@ public final class PrivacyDIContainer: BaseDIContainer {
     
     
     public func makeViewController() -> PrivacyViewController {
-        return PrivacyViewController(reacter: makeReactor())
+        return PrivacyViewController(reactor: makeReactor())
     }
     
     public func makeRepository() -> Repository {

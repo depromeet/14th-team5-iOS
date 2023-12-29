@@ -8,6 +8,8 @@
 import UIKit
 
 import Core
+import DesignSystem
+import Kingfisher
 import RxSwift
 import RxCocoa
 import ReactorKit
@@ -19,6 +21,13 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
     private let feedStackView: UIStackView = UIStackView()
     private let feedTitleLabel: UILabel = UILabel()
     private let feedUplodeLabel: UILabel = UILabel()
+    
+    
+    public override func prepareForReuse() {
+        feedImageView.image = nil
+        feedTitleLabel.text = ""
+        feedUplodeLabel.text = ""
+    }
     
     public override func setupUI() {
         super.setupUI()
@@ -37,23 +46,24 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
         
         feedTitleLabel.do {
             $0.text = "99"
-            $0.textColor = .darkGray
-            $0.font = .systemFont(ofSize: 14)
+            $0.textColor = DesignSystemAsset.gray200.color
+            $0.font = DesignSystemFontFamily.Pretendard.regular.font(size: 14)
             $0.textAlignment = .left
             $0.numberOfLines = 1
         }
         
         feedUplodeLabel.do {
             $0.text = "3월 7일"
-            $0.textColor = .darkGray
+            $0.textColor = DesignSystemAsset.gray400.color
             $0.font = .systemFont(ofSize: 12)
             $0.textAlignment = .left
             $0.numberOfLines = 1
         }
         
         feedStackView.do {
-            $0.axis = .vertical
+            $0.distribution = .fillProportionally
             $0.spacing = 4
+            $0.axis = .vertical
             $0.alignment = .leading
         }
         
@@ -62,18 +72,16 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         feedImageView.snp.makeConstraints {
-            $0.top.left.right.equalToSuperview()
+            $0.top.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(self.snp.width)
         }
         
         feedStackView.snp.makeConstraints {
-            $0.top.equalTo(feedImageView.snp.bottom)
-            $0.left.right.equalToSuperview().inset(20)
-            $0.bottom.equalToSuperview()
+            $0.top.equalTo(feedImageView.snp.bottom).offset(8)
+            $0.horizontalEdges.equalToSuperview().inset(20)
+            $0.height.equalTo(36)
         }
         
-        feedTitleLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(8)
-        }
         
         
     }
@@ -82,12 +90,10 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
     public override func bind(reactor: ProfileFeedCellReactor) {
         reactor.state
             .map { $0.imageURL }
-            .compactMap { URL(string: $0) }
-            .observe(on: MainScheduler.asyncInstance)
-            .compactMap { try UIImage(data: Data(contentsOf: $0)) }
-            .asDriver(onErrorJustReturn: UIImage())
-            .drive(feedImageView.rx.image)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.setupProfileFeedImage($0.1)})
             .disposed(by: disposeBag)
+
         
         reactor.state
             .map { $0.date }
@@ -105,4 +111,11 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
     
     
     
+}
+
+
+extension ProfileFeedCollectionViewCell {
+    private func setupProfileFeedImage(_ url: URL) {
+        feedImageView.kf.setImage(with: url)
+    }
 }

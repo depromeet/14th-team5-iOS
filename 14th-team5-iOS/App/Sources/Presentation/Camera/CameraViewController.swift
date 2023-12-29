@@ -9,6 +9,7 @@ import AVFoundation
 import UIKit
 
 import Core
+import Data
 import DesignSystem
 import ReactorKit
 import RxSwift
@@ -32,7 +33,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     private let flashButton: UIButton = UIButton.createCircleButton(radius: 24)
     private let toggleButton: UIButton = UIButton.createCircleButton(radius: 24)
     private let titleView: UILabel = UILabel()
-    
+    private let cameraIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     
     private var initialScale: CGFloat = 0
     private var zoomScaleRange: ClosedRange<CGFloat> = 1...10
@@ -47,7 +48,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(cameraView, shutterButton, flashButton, toggleButton)
+        view.addSubviews(cameraView, shutterButton, flashButton, toggleButton, cameraIndicatorView)
     }
     
     public override func setupAttributes() {
@@ -57,6 +58,11 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             $0.textColor = DesignSystemAsset.gray200.color
             $0.text = "카메라"
             $0.font = DesignSystemFontFamily.Pretendard.bold.font(size: 18)
+        }
+        
+        cameraIndicatorView.do {
+            $0.hidesWhenStopped = true
+            $0.color = .gray
         }
         
         navigationItem.do {
@@ -106,16 +112,47 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         toggleButton.snp.makeConstraints {
             $0.right.equalToSuperview().offset(-30)
             $0.top.equalTo(cameraView.snp.bottom).offset(48)
-            
-            
+        }
+        
+        cameraIndicatorView.snp.makeConstraints {
+            $0.center.equalToSuperview()
         }
         
     }
     
     public override func bind(reactor: CameraViewReactor) {
+        
+        reactor.state
+            .map { $0.isLoading }
+            .distinctUntilChanged()
+            .asDriver(onErrorJustReturn: false)
+            .drive(cameraIndicatorView.rx.isAnimating)
+            .disposed(by: disposeBag)
+        
+        NotificationCenter.default.rx.notification(.AVCapturePhotoOutputDidFinishProcessingPhotoNotification)
+            .compactMap { notification -> Data? in
+                guard let userInfo = notification.userInfo else { return nil }
+                return userInfo["photo"] as? Data
+            }
+            .debug("Notification")
+            .map { Reactor.Action.didTapShutterButton($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        
+        reactor.state
+            .map { $0.profileMemberEntity }
+            .filter { $0 != nil }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.dismissCameraViewController(owner: $0.0) } )
+            .disposed(by: disposeBag)
+        
+        
         shutterButton
             .rx.tap
             .throttle(.seconds(1), scheduler: MainScheduler.instance)
+            .debug("shutter Button Tap")
             .withUnretained(self)
             .subscribe { owner, _ in
                 let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
@@ -309,9 +346,12 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
     public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         guard let photoData = photo.fileDataRepresentation(),
         let imageData = UIImage(data: photoData)?.jpegData(compressionQuality: 1.0) else { return }
-
-        let cameraDisplayViewController = CameraDisplayDIContainer(displayData: imageData).makeViewController()
-        self.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
+        if self.reactor?.cameraType == .profile {
+            output.photoOutputDidFinshProcessing(photo: imageData, error: error)
+        } else {
+            let cameraDisplayViewController = CameraDisplayDIContainer(displayData: imageData).makeViewController()
+            self.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
+        }
     }
     
     
@@ -329,6 +369,9 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         
     }
     
+    private func dismissCameraViewController(owner: CameraViewController) {
+        owner.navigationController?.popViewController(animated: true)
+    }
     
     private func transitionImageScale(owner: CameraViewController, gesture: UIPinchGestureRecognizer, camera: AVCaptureDevice) {
         

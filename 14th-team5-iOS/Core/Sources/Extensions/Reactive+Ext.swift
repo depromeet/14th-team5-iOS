@@ -11,6 +11,15 @@ import RxCocoa
 import RxSwift
 
 
+
+extension Reactive where Base: UIViewController {
+    public var viewWillAppear: ControlEvent<Bool> {
+        let event = self.methodInvoked(#selector(Base.viewWillAppear)).map { $0.first as? Bool ?? false }
+        return ControlEvent(events: event)
+    }
+}
+
+
 extension Reactive where Base: UIView {
     public var tapGesture: UITapGestureRecognizer {
         return UITapGestureRecognizer()

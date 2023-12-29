@@ -9,16 +9,22 @@ import Foundation
 
 import Core
 import Data
+import Domain
 
 
 public final class ProfileDIContainer: BaseDIContainer {
     public typealias ViewContrller = ProfileViewController
-    public typealias Repository = ProfileViewImpl
+    public typealias Repository = ProfileViewInterface
     public typealias Reactor = ProfileViewReactor
+    public typealias UseCase = ProfileViewUsecaseProtocol
     
     
     public func makeViewController() -> ProfileViewController {
         return ProfileViewController(reacter: makeReactor())
+    }
+    
+    public func makeUseCase() -> UseCase {
+        return ProfileViewUseCase(profileViewRepository: makeRepository())
     }
     
     public func makeRepository() -> Repository {
@@ -26,7 +32,7 @@ public final class ProfileDIContainer: BaseDIContainer {
     }
     
     public func makeReactor() -> ProfileViewReactor {
-        return ProfileViewReactor(profileRepository: makeRepository())
+        return ProfileViewReactor(profileUseCase: makeUseCase())
     }
     
     

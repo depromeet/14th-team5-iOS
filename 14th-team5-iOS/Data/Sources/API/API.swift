@@ -14,20 +14,6 @@ typealias BibbiNoResponse = BibbiAPI.NoResponse
 typealias BibbiBoolResponse = BibbiAPI.BoolResponse
 typealias BibbiCodableResponse = BibbiAPI.CodableResponse
 
-public enum UploadLocation {
-    case feed
-    case profile
-    
-    public var location: String {
-        switch self {
-        case .feed:
-            return "images/feed/"
-        case .profile:
-            return "images/profile/"
-        }
-    }
-}
-
 
 enum BibbiAPI {
     private static let _config: BibbiAPIConfigType = BibbiAPIConfig()

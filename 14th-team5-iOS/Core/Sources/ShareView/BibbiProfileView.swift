@@ -17,16 +17,19 @@ import Then
 
 
 
-public class BibbiProfileView: BaseView<BibbiProfileViewReactor> {
+public class BibbiProfileView: UIView {
     public let profileImageView: UIImageView = UIImageView()
     public let circleButton: UIButton = UIButton.createCircleButton(radius: 15)
     public let profileNickNameButton: UIButton = UIButton(configuration: .plain())
     
     private var cornerRadius: CGFloat
-    public init(cornerRadius: CGFloat, reactor: BibbiProfileViewReactor) {
+    public init(cornerRadius: CGFloat) {
         self.cornerRadius = cornerRadius
         super.init(frame: .zero)
-        self.reactor = reactor
+        
+        self.setupUI()
+        self.setupAttributes()
+        self.setupAutoLayout()
     }
     
     
@@ -35,27 +38,20 @@ public class BibbiProfileView: BaseView<BibbiProfileViewReactor> {
     }
     
     
-    public override func setupUI() {
-        super.setupUI()
+    public func setupUI() {
         [profileImageView, profileNickNameButton, circleButton].forEach(self.addSubview(_:))
     }
     
-    public override func setupAttributes() {
-        
-        guard let originImageURL = URL(string: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg"),
-              let originData = try? Data(contentsOf: originImageURL) else { return }
-        
-        super.setupAttributes()
+    public func setupAttributes() {
         profileImageView.do {
             $0.clipsToBounds = true
-            $0.image = UIImage(data: originData)
-            $0.contentMode = .scaleToFill
+            $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = cornerRadius
         }
         
         circleButton.do {
             $0.backgroundColor = .white
-            $0.setImage(DesignSystemAsset.camera.image, for: .normal)
+            $0.setImage(DesignSystemAsset.camera.image.withTintColor(DesignSystemAsset.gray700.color), for: .normal)
         }
         
         profileNickNameButton.do {
@@ -64,8 +60,8 @@ public class BibbiProfileView: BaseView<BibbiProfileViewReactor> {
             $0.configuration?.image = DesignSystemAsset.edit.image
             $0.configuration?.imagePadding = 5
             $0.configuration?.attributedTitle = AttributedString(NSAttributedString(string: "하나밖에없는 혈육", attributes: [
-                .foregroundColor: UIColor.gray,
-                .font: UIFont.systemFont(ofSize: 16, weight: .regular)
+                .foregroundColor: DesignSystemAsset.gray200.color,
+                .font: DesignSystemFontFamily.Pretendard.bold.font(size: 16)
             ]))
         }
         
@@ -73,8 +69,7 @@ public class BibbiProfileView: BaseView<BibbiProfileViewReactor> {
 
     }
     
-    public override func setupAutoLayout() {
-        super.setupAutoLayout()
+    public func setupAutoLayout() {
         
         profileImageView.snp.makeConstraints {
             $0.width.height.equalTo(2 * cornerRadius)
@@ -93,10 +88,5 @@ public class BibbiProfileView: BaseView<BibbiProfileViewReactor> {
         }
     }
     
-    
-    
-    public override func bind(reactor: BibbiProfileViewReactor) {
-        //TODO: 서버 통신 코드 추가 후 Reactor Binding Code 추가 예정
-    }
     
 }

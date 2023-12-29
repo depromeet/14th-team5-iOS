@@ -136,6 +136,15 @@ public class APIWorker: NSObject {
             .debug("API Worker has received data from \"\(spec.url)\"")
     }
     
+    func request(spec: APISpec, headers: [APIHeader]? = nil, parameters: Encodable, encoding: ParameterEncoding? = URLEncoding.default) -> Observable<(HTTPURLResponse, Data)> {
+        let params = parameters.asDictionary()
+        let hds = self.httpHeaders(headers)
+        
+        return AF.rx.request(spec.method, spec.url, parameters: params, encoding: encoding!, headers: hds)
+            .responseData()
+            .debug("API Worker has received data from \"\(spec.url)\"")
+    }
+    
     private func request(spec: APISpec, headers: [APIHeader]? = nil, jsonData: Data) -> Observable<(HTTPURLResponse, Data)> {
 
         let hds = self.httpHeaders(headers)
@@ -174,8 +183,8 @@ public class APIWorker: NSObject {
         
         return Single.create { single -> Disposable in
             AF.upload(image, to: url, method: spec.method, headers: hds)
-                .validate()
-                .responseData { response in
+                .validate(statusCode: [200, 204, 205])
+                .responseData(emptyResponseCodes: [200, 204, 205]) { response in
                     switch response.result {
                     case .success(_):
                         single(.success(true))

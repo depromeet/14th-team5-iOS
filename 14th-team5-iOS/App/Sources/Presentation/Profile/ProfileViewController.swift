@@ -8,7 +8,10 @@
 import UIKit
 
 import Core
+import Data
 import DesignSystem
+import Kingfisher
+import PhotosUI
 import RxSwift
 import RxCocoa
 import ReactorKit
@@ -18,13 +21,24 @@ import Then
 
 
 public final class ProfileViewController: BaseViewController<ProfileViewReactor> {
+
+    
+    private var pickerConfiguration: PHPickerConfiguration = {
+        var configuration: PHPickerConfiguration = PHPickerConfiguration()
+        configuration.filter = .images
+        configuration.selectionLimit = 1
+        configuration.selection = .default
+        return configuration
+    }()
+    
     //MARK: Views
+
     private let profileIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
-    private let profileViewReactor: BibbiProfileViewReactor = BibbiProfileViewReactor()
-    private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 60, reactor: profileViewReactor)
+    private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 50)
     private let profileTitleView: UILabel = UILabel()
     private let privacyButton: UIButton = UIButton()
     private let profileLineView: UIView = UIView()
+    private lazy var profilePickerController: PHPickerViewController = PHPickerViewController(configuration: pickerConfiguration)
     private let profileFeedCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     private lazy var profileFeedCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: profileFeedCollectionViewLayout)
     private let profileFeedDataSources: RxCollectionViewSectionedReloadDataSource<ProfileFeedSectionModel> = .init { dataSources, collectionView, indexPath, sectionItem in
@@ -55,8 +69,13 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         }
         
         profileTitleView.do {
-            $0.textColor = .white
+            $0.textColor = DesignSystemAsset.gray200.color
             $0.text = "활동"
+            $0.font = DesignSystemFontFamily.Pretendard.bold.font(size: 18)
+        }
+        
+        profilePickerController.do {
+            $0.delegate = self
         }
         
         profileLineView.do {
@@ -119,6 +138,11 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        self.rx.viewWillAppear
+            .map { _ in Reactor.Action.viewWillAppear }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         profileFeedCollectionView.rx
             .setDelegate(self)
             .disposed(by: disposeBag)
@@ -139,7 +163,16 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(onNext: {$0.0.createAlertController(owner: $0.0)})
             .disposed(by: disposeBag)
             
-        
+        NotificationCenter.default.rx.notification(.PHPickerAssetsDidFinishPickingProcessingPhotoNotification)
+            .compactMap { notification -> Data? in
+                guard let userInfo = notification.userInfo else { return nil }
+                return userInfo["selectImage"] as? Data
+            }
+            .debug("NotificationPHPicker")
+            .map { Reactor.Action.didSelectPHAssetsImage($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+            
         
         reactor.state
             .map { $0.isLoading }
@@ -151,6 +184,36 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         reactor.pulse(\.$feedSection)
             .asDriver(onErrorJustReturn: [])
             .drive(profileFeedCollectionView.rx.items(dataSource: profileFeedDataSources))
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$profileMemberEntity)
+            .compactMap { $0 }
+            .map { $0.memberName }
+            .withUnretained(self)
+            .bind(onNext: { $0.0.setupProfileButton(title: $0.1)})
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$profileMemberEntity)
+            .compactMap { $0 }
+            .map { $0.memberImage }
+            .withUnretained(self)
+            .bind(onNext: { $0.0.setupProfileImage($0.1)})
+            .disposed(by: disposeBag)
+        
+        profileFeedCollectionView.rx
+            .didScroll
+            .withLatestFrom(profileFeedCollectionView.rx.contentOffset)
+            .withUnretained(self)
+            .map {
+                let contentPadding = $0.0.profileFeedCollectionView.contentSize.height - $0.1.y
+                if contentPadding < UIScreen.main.bounds.height {
+                    return true
+                } else {
+                    return false
+                }
+                
+            }.map { Reactor.Action.fetchMorePostItems($0) }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
     }
@@ -179,17 +242,32 @@ extension ProfileViewController: UICollectionViewDelegateFlowLayout {
 
 
 extension ProfileViewController {
+    private func setupProfileImage(_ url: URL) {
+        profileView.profileImageView.kf.setImage(with: url)
+    }
+    
+    private func setupProfileButton(title: String) {
+        profileView.profileNickNameButton.configuration?.attributedTitle = AttributedString(NSAttributedString(string: title, attributes: [
+            .foregroundColor: DesignSystemAsset.gray200.color,
+            .font: DesignSystemFontFamily.Pretendard.bold.font(size: 16)
+        ]))
+        
+    }
+    
     
     private func createAlertController(owner: ProfileViewController) {
         let alertController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
         let presentCameraAction: UIAlertAction = UIAlertAction(title: "카메라", style: .default) { _ in
-            let cameraViewController = CameraDIContainer().makeViewController()
+            guard let profileMemberId = self.reactor?.currentState.profileMemberEntity?.memberId else { return }
+            
+            let cameraViewController = CameraDIContainer(cameraType: .profile, memberId: profileMemberId).makeViewController()
             owner.navigationController?.pushViewController(cameraViewController, animated: true)
         }
         
         let presentAlbumAction: UIAlertAction = UIAlertAction(title: "앨범", style: .default) { _ in
-            print("이미지 피커 컨트롤러")
+            self.profilePickerController.modalPresentationStyle = .fullScreen
+            self.present(self.profilePickerController, animated: true)
         }
         
         let presentDefaultAction: UIAlertAction = UIAlertAction(title: "초기화", style: .destructive) { _ in
@@ -205,4 +283,20 @@ extension ProfileViewController {
         owner.present(alertController, animated: true)
     }
     
+}
+
+extension ProfileViewController: PHPickerViewControllerDelegate {
+    public func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        let itemProvider = results.first?.itemProvider
+        picker.dismiss(animated: true, completion: nil)
+        
+        if let imageProvider = itemProvider, imageProvider.canLoadObject(ofClass: UIImage.self) {
+            imageProvider.loadObject(ofClass: UIImage.self) { image, error in
+                guard let photoImage: UIImage = image as? UIImage,
+                      let originalData: Data = photoImage.jpegData(compressionQuality: 1.0) else { return }
+                imageProvider.didSelectProfileImageWithProcessing(photo: originalData, error: error)
+            }
+            
+        }
+    }
 }

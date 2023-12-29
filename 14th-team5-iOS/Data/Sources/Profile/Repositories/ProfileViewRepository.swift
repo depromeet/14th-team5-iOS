@@ -19,7 +19,7 @@ public final class ProfileViewRepository {
         
     public var disposeBag: DisposeBag = DisposeBag()
     private let profileAPIWorker: ProfileAPIWorker = ProfileAPIWorker()
-    private let accessToken: String = "eyJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MiLCJyZWdEYXRlIjoxNzAzNzU3MTM1NzcyLCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwMzg0MzUzNX0.-lcEBKB_KI32_rI2Ne1fQPMEa1ueGlK9H1TgSuDTehw"
+    private let accessToken: String = "eyJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MiLCJyZWdEYXRlIjoxNzAzODM2OTUzMzkwLCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwMzkyMzM1M30.sROYEmc6sxcSY82UKsei95EaDEw0Af8rx6q0qdmValI"
     
     public init() { }
     

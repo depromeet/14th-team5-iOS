@@ -151,7 +151,6 @@ public final class ProfileViewReactor: Reactor {
                     
                     var sectionItem: [ProfileFeedSectionItem] = []
                     paginationItems.append(contentsOf: entity.results)
-                    //Pageination 데이터 초기화 되는것 같음 해결 하기(나중에)
                     print("pageination Test: \(paginationItems)")
                    
                     paginationItems.forEach {
@@ -160,7 +159,6 @@ public final class ProfileViewReactor: Reactor {
                     
                     return .concat(
                         .just(.setLoading(true)),
-                        .just(.setProfilePostItems(entity)),
                         .just(.setFeedCategroySection(sectionItem)),
                         .just(.setLoading(false))
                     )

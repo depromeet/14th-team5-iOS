@@ -44,7 +44,7 @@ public final class InviteFamilyViewReactor: Reactor {
     public let inviteFamilyUseCase: InviteFamilyViewUseCaseProtocol
     
     // MARK: - Intializer
-    init(_ usecase: InviteFamilyViewUseCaseProtocol, provider: GlobalStateProviderType) {
+    init(usecase: InviteFamilyViewUseCaseProtocol, provider: GlobalStateProviderType) {
         self.initialState = State()
         
         self.inviteFamilyUseCase = usecase

@@ -35,11 +35,7 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
     private let tableView: UITableView = UITableView()
     
     // MARK: - Properties
-    var dataSource: RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> = RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> { datasource, tableView, indexPath, memberResponse in
-        let cell = tableView.dequeueReusableCell(withIdentifier: FamiliyMemberProfileCell.id, for: indexPath) as! FamiliyMemberProfileCell
-        cell.reactor = FamilyMemberProfileCellDIContainer().makeReactor(memberResponse)
-        return cell
-    }
+    lazy var dataSource: RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> = prepareDatasource()
     
     // MARK: - Lifecycles
     public override func viewDidLoad() {
@@ -253,5 +249,16 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
                 )
             }
             .disposed(by: disposeBag)
+    }
+}
+
+// MARK: - Extensions
+extension InviteFamilyViewController {
+    func prepareDatasource() -> RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> {
+        return RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> { datasource, tableView, indexPath, memberResponse in
+            let cell = tableView.dequeueReusableCell(withIdentifier: FamiliyMemberProfileCell.id, for: indexPath) as! FamiliyMemberProfileCell
+            cell.reactor = FamilyMemberProfileCellDIContainer().makeReactor(memberResponse)
+            return cell
+        }
     }
 }

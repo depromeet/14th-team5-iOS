@@ -45,7 +45,6 @@ extension ProfileViewRepository: ProfileViewInterface {
             sort: parameter.sort
         )
         
-        print("last parameters: \(parameters)")
         
         return profileAPIWorker.fetchProfilePost(accessToken: accessToken, parameter: parameters)
             .compactMap { $0?.toDomain() }

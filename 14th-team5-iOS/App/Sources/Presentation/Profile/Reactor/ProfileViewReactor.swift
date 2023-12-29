@@ -151,7 +151,6 @@ public final class ProfileViewReactor: Reactor {
                     
                     var sectionItem: [ProfileFeedSectionItem] = []
                     paginationItems.append(contentsOf: entity.results)
-                    print("pageination Test: \(paginationItems)")
                    
                     paginationItems.forEach {
                         sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, title: $0.content, date: DateFormatter.yyyyMMdd.string(from: $0.createdAt))))
@@ -182,15 +181,12 @@ public final class ProfileViewReactor: Reactor {
             
         case let .setProfileMemberItems(entity):
             newState.profileMemberEntity = entity
-            print("member Edit: \(entity)")
             
         case let .setProfilePresingedURL(entity):
             newState.profilePresingedURLEntity = entity
-            print("profilePresingedURL \(entity)")
             
         case let .setPresignedS3Upload(isProfileUpload):
             newState.isProfileUpload = isProfileUpload
-            print("presingedS3Upload \(isProfileUpload)")
         }
         
         return newState

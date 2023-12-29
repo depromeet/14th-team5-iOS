@@ -32,7 +32,6 @@ public final class ProfileViewUseCase: ProfileViewUsecaseProtocol {
     }
     
     public func executeProfilePostItems(query: ProfilePostQuery, parameters: ProfilePostDefaultValue) -> Observable<ProfilePostResponse> {
-        print("query : \(query) and paramter: \(parameters)")
         return profileViewRepository.fetchProfilePostItems(query: query, parameter: parameters)
     }
     

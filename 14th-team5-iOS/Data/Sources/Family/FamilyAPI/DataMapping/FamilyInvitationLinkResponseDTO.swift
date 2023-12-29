@@ -9,6 +9,7 @@ import Foundation
 
 import Domain
 
+// MARK: - Data Transfer Object (DTO)
 struct FamilyInvitationLinkResponseDTO: Decodable {
     var url: String
 }

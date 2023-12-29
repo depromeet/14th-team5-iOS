@@ -7,8 +7,6 @@
 
 import Foundation
 
-import Core
-
 public struct ArrayResponseCalendarResponse {
     public var results: [CalendarResponse]
     

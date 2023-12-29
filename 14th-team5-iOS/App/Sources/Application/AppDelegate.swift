@@ -22,7 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let globalStateProvider: GlobalStateProviderType = GlobalStateProvider()
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        FirebaseApp.configure()
+//        FirebaseApp.configure()
         kakaoApp(application, didFinishLauchingWithOptions: launchOptions)
         
 //        setupUserNotificationCenter(application)

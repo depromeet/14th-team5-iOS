@@ -13,7 +13,7 @@ import Domain
 import ReactorKit
 import RxSwift
 
-public final class AddFamilyViewReactor: Reactor {
+public final class InviteFamilyViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case didTapInvitationUrlButton
@@ -41,14 +41,14 @@ public final class AddFamilyViewReactor: Reactor {
     public let initialState: State
     public let provider: GlobalStateProviderType
     
-    public let addFamilyRepository: FamilyImpl
+    public let inviteFamilyUseCase: InviteFamilyViewUseCaseProtocol
     
     // MARK: - Intializer
-    init(provider: GlobalStateProviderType) {
+    init(_ usecase: InviteFamilyViewUseCaseProtocol, provider: GlobalStateProviderType) {
         self.initialState = State()
-        self.provider = provider
         
-        self.addFamilyRepository = FamilyRepository()
+        self.inviteFamilyUseCase = usecase
+        self.provider = provider
     }
     
     // MARK: - Transform
@@ -68,32 +68,32 @@ public final class AddFamilyViewReactor: Reactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .didTapInvitationUrlButton:
-//            return addFamilyRepository.fetchInvitationUrl()
-//                .map {
-//                    guard let url = $0 else {
-//                        return .presentFetchInvitationUrlFailureTaostMessage
-//                    }
-//                    return .presentSharePanel(url)
-//                }
+            return inviteFamilyUseCase.executeFetchInvitationUrl()
+                .map {
+                    guard let url = $0 else {
+                        return .presentFetchInvitationUrlFailureTaostMessage
+                    }
+                    return .presentSharePanel(url)
+                }
             
             // NOTE: - 테스트 코드
-            return Observable<Mutation>.just(
-                .presentSharePanel(URL(string: "https://www.naver.com"))
-            )
+//            return Observable<Mutation>.just(
+//                .presentSharePanel(URL(string: "https://www.naver.com"))
+//            )
             
         case .fetchYourFamilyMemeber:
-//            return addFamilyRepository.fetchFamilyMemeber()
-//                .map {
-//                    guard let paginationFamilyMember = $0 else {
-//                        return .fetchYourFamilyMember(.init(items: []))
-//                    }
-//                    return .fetchYourFamilyMember(.init(items: paginationFamilyMember.results))
-//                }
+            return inviteFamilyUseCase.executeFetchFamilyMembers()
+                .map {
+                    guard let paginationFamilyMember = $0 else {
+                        return .fetchYourFamilyMember(.init(items: []))
+                    }
+                    return .fetchYourFamilyMember(.init(items: paginationFamilyMember.results))
+                }
             
             // NOTE: - 테스트 코드
-            return Observable<Mutation>.just(
-                .fetchYourFamilyMember(SectionOfFamilyMemberProfile.generateTestData())
-            )
+//            return Observable<Mutation>.just(
+//                .fetchYourFamilyMember(SectionOfFamilyMemberProfile.generateTestData())
+//            )
         }
     }
     

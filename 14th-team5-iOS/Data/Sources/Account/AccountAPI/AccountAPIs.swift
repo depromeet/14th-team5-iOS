@@ -13,6 +13,7 @@ enum AccountAPIs: API {
     case refreshToken
     case signUp
     case signIn(SNS)
+    case profileNickNameEdit(String)
     
     var spec: APISpec {
         switch self {
@@ -24,6 +25,8 @@ enum AccountAPIs: API {
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/auth/register")
         case .signIn(let sns):
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/auth/social/\(sns.rawValue)")
+        case .profileNickNameEdit(let memberId):
+            return APISpec(method: .put, url: "\(BibbiAPI.hostApi)/members/name/\(memberId)")
         }
     }
     

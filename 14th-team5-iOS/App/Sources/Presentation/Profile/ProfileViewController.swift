@@ -200,6 +200,15 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(onNext: { $0.0.setupProfileImage($0.1)})
             .disposed(by: disposeBag)
         
+        profileView.profileNickNameButton
+            .rx.tap
+            .withLatestFrom(reactor.state.compactMap { $0.profileMemberEntity?.memberId })
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.transitionNickNameViewController(memberId: $0.1)})
+            .disposed(by: disposeBag)
+        
+        
         profileFeedCollectionView.rx
             .didScroll
             .withLatestFrom(profileFeedCollectionView.rx.contentOffset)
@@ -254,6 +263,10 @@ extension ProfileViewController {
         
     }
     
+    private func transitionNickNameViewController(memberId: String) {
+        let accountNickNameViewController:AccountNicknameViewController = AccountSignUpDIContainer(memberId: memberId).makeNickNameViewController()
+        self.navigationController?.pushViewController(accountNickNameViewController, animated: false)
+    }
     
     private func createAlertController(owner: ProfileViewController) {
         let alertController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)

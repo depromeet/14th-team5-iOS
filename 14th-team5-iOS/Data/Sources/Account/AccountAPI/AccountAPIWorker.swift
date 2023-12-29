@@ -72,4 +72,21 @@ extension AccountAPIWorker {
         
         return signUpWith(spec: spec, jsonEncodable: payLoad)
     }
+    
+    func updateProfileNickName(accessToken: String, memberId: String, parameter: Encodable) -> Single<AccountNickNameEditDTO?> {
+        let spec = AccountAPIs.profileNickNameEdit(memberId).spec
+        
+        return request(spec: spec, headers: [BibbiAPI.Header.xAuthToken(accessToken), BibbiAPI.Header.acceptJson], jsonEncodable: parameter)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Account nickName update Result: \(str)")
+                }
+            }
+            .map(AccountNickNameEditDTO.self)
+            .catchAndReturn(nil)
+            .asSingle()
+        
+        
+    }
 }

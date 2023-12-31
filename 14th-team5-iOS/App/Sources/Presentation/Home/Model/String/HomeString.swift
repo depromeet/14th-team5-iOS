@@ -18,5 +18,9 @@ extension String {
             static let allUploaded = "우리 가족 모두가 사진을 올린 날🎉"
             static let oneHourLeft = "시간이 얼마 남지 않았어요!"
         }
+        enum InviteFamily {
+            static let subTitle = "이런, 아직 아무도 없군요!"
+            static let title = "가족 초대하기"
+        }
     }
 }

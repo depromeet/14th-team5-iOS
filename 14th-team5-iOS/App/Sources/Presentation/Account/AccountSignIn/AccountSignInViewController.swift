@@ -84,7 +84,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
 
 extension AccountSignInViewController {
     func pushAccountSignUpViewController() {
-        let container = AccountSignUpDIContainer().makeViewController()
+        let container = UINavigationController(rootViewController: AccountSignUpDIContainer().makeViewController())
         container.modalPresentationStyle = .fullScreen
         present(container, animated: true)
     }

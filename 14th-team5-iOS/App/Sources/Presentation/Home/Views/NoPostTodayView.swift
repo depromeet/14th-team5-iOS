@@ -18,6 +18,9 @@ final class NoPostTodayView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        setupUI()
+        setupAutoLayout()
+        setupAttributes()
     }
     
     required init?(coder: NSCoder) {

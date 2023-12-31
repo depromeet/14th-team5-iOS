@@ -61,9 +61,9 @@ enum BibbiAPI {
     }
     
     struct NoResponse: Codable {
-        var status: String?
-        var code: Int?
-        var errorCode: String?
+//        var status: String?
+//        var code: Int?
+//        var errorCode: String?
     }
     
     struct BoolResponse: Codable {
@@ -75,8 +75,8 @@ enum BibbiAPI {
     
     struct CodableResponse<T: Codable>: Codable {
 //        var status: String?
-        var code: String?
-        var message: String?
+//        var code: String?
+//        var message: String?
         var result: T?
     }
 }

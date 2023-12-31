@@ -8,6 +8,7 @@
 import UIKit
 import Core
 
+import Firebase
 import FirebaseCore
 import FirebaseAnalytics
 import FirebaseMessaging
@@ -23,11 +24,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let globalStateProvider: GlobalStateProviderProtocol = GlobalStateProvider()
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-//        FirebaseApp.configure()
         kakaoApp(application, didFinishLauchingWithOptions: launchOptions)
         appleApp(application, didFinishLauchingWithOptions: launchOptions)
         
-//        setupUserNotificationCenter(application)
+        FirebaseApp.configure()
+        setupUserNotificationCenter(application)
         
         return true
     }
@@ -44,6 +45,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 extension AppDelegate {
     func setupUserNotificationCenter(_ application: UIApplication) {
         Messaging.messaging().delegate = self
+        Messaging.messaging().isAutoInitEnabled = true
         UNUserNotificationCenter.current().delegate = self
         
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
@@ -109,7 +111,13 @@ extension AppDelegate {
 
 extension AppDelegate: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        debugPrint("FCM Token: \(fcmToken ?? "")")
+        let token = fcmToken ?? ""
+        debugPrint("Firebase registration token: \(token)")
+        
+        let dataDict: [String: String] = ["token": token]
+        NotificationCenter.default.post(name: Notification.Name("FCMToken"), object: nil, userInfo: dataDict)
+        
+        App.Repository.token.fcmToken.accept(token)
     }
 }
 

@@ -13,11 +13,13 @@ import SwiftKeychainWrapper
 
 fileprivate extension KeychainWrapper.Key {
     static let fcmToken: KeychainWrapper.Key = "FCMToken"
+    static let fakeAccessToken: KeychainWrapper.Key = "fakeAccessToken"
     static let accessToken: KeychainWrapper.Key = "accessToken"
 }
 
 public class TokenRepository: RxObject {
     public let fcmToken = BehaviorRelay<String>(value: KeychainWrapper.standard[.fcmToken] ?? "")
+    public let fakeAccessToken = BehaviorRelay<String?>(value: (KeychainWrapper.standard[.fakeAccessToken] ?? ""))
     public let accessToken = BehaviorRelay<String?>(value: (KeychainWrapper.standard[.accessToken] ?? ""))
     
     func clearAccessToken() {
@@ -34,6 +36,19 @@ public class TokenRepository: RxObject {
             .filter { $0.0 != $0.1 }
             .map { $0.0 }
             .bind(onNext: { KeychainWrapper.standard[.fcmToken] = $0 })
+            .disposed(by: self.disposeBag)
+        
+        fakeAccessToken
+            .subscribe(on: Schedulers.io)
+            .withUnretained(self)
+            .bind(onNext: {
+                guard let jsonData = try? JSONEncoder().encode($0.1),
+                        let jsonStr = String(data: jsonData, encoding: .utf8) else {
+                    KeychainWrapper.standard.remove(forKey: .fakeAccessToken)
+                    return
+                }
+                KeychainWrapper.standard[.accessToken] = jsonStr
+            })
             .disposed(by: self.disposeBag)
         
         accessToken

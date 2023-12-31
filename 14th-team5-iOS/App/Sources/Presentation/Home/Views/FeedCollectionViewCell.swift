@@ -14,8 +14,8 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
     static let id = "FeedCollectionViewCell"
     
     private let stackView = UIStackView()
-    private let nameLabel = UILabel()
-    private let timeLabel = UILabel()
+    private let nameLabel = BibbiLabel(.body2Regular, textColor: .gray200)
+    private let timeLabel = BibbiLabel(.caption, textColor: .gray400)
     private let imageView = UIImageView()
     
     override func bind(reactor: HomeViewReactor) {
@@ -56,8 +56,13 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
 
 extension FeedCollectionViewCell {
     func setCell(data: PostListData) {
+        guard let imageURL = URL(string: data.imageURL) else {
+            return
+        }
+        
         nameLabel.text = data.author
         timeLabel.text = data.time
-        imageView.kf.setImage(with: URL(string:data.imageURL)!)
+
+        imageView.kf.setImage(with: imageURL)
     }
 }

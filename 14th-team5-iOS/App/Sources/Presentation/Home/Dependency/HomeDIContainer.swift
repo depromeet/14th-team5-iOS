@@ -16,7 +16,7 @@ public final class HomeDIContainer {
     public typealias Reactor = HomeViewReactor
     
     public func makeViewController() -> ViewContrller {
-        return HomeViewController(reacter: makeReactor())
+        return HomeViewController(reactor: makeReactor())
     }
     
     public func makePostRepository() -> PostListRepository {

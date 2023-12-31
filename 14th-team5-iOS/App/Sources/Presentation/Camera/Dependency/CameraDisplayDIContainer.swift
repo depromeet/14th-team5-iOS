@@ -25,7 +25,7 @@ public final class CameraDisplayDIContainer: BaseDIContainer {
     }
     
     public func makeViewController() -> ViewContrller {
-        return CameraDisplayViewController(reacter: makeReactor())
+        return CameraDisplayViewController(reactor: makeReactor())
     }
     
     public func makeRepository() -> Repository {

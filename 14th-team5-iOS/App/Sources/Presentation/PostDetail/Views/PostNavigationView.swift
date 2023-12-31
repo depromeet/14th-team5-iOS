@@ -6,15 +6,19 @@
 //
 
 import UIKit
+import Core
+import Domain
 
 import SnapKit
 import Then
 
 final class PostNavigationView: UIView {
+    typealias Layout = PostAutoLayout.NavigationView
+    
     private let backButton: UIButton = UIButton()
     private let profileImageView: UIImageView = UIImageView()
-    private let nameLabel: UILabel = UILabel()
-    private let dateLabel: UILabel = UILabel()
+    private let nameLabel: UILabel = BibbiLabel(.body1Regular, textColor: .gray100)
+    private let dateLabel: UILabel = BibbiLabel(.caption, textColor: .gray400)
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -36,47 +40,49 @@ final class PostNavigationView: UIView {
     private func setupAutoLayout() {
         backButton.snp.makeConstraints {
             $0.leading.top.equalToSuperview()
-            $0.size.equalTo(52)
+            $0.size.equalTo(Layout.BackButton.size)
         }
         
         profileImageView.snp.makeConstraints {
-            $0.size.equalTo(44)
+            $0.size.equalTo(Layout.ProfileImageView.size)
             $0.leading.equalTo(backButton.snp.trailing)
             $0.centerY.equalToSuperview()
         }
         
         nameLabel.snp.makeConstraints {
-            $0.leading.equalTo(profileImageView.snp.trailing).offset(12)
+            $0.leading.equalTo(profileImageView.snp.trailing).offset(Layout.NameLabel.leading)
             $0.top.equalTo(profileImageView)
-            $0.height.equalTo(24)
+            $0.height.equalTo(Layout.NameLabel.height)
         }
         
         dateLabel.snp.makeConstraints {
             $0.leading.equalTo(nameLabel)
             $0.bottom.equalTo(profileImageView)
-            $0.height.equalTo(17)
+            $0.height.equalTo(Layout.DateLabel.height)
         }
     }
     
     func setupAttributes() {
         backButton.do {
-            $0.backgroundColor = UIColor(red: 0.184, green: 0.184, blue: 0.196, alpha: 1)
-            $0.layer.cornerRadius = 10
+            $0.backgroundColor = .clear
+            $0.layer.cornerRadius = Layout.BackButton.cornerRadius
             $0.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
             $0.tintColor = .white
         }
         
         profileImageView.do {
-            $0.layer.cornerRadius = 22
-            $0.kf.setImage(with: URL(string: "https://cdn.pixabay.com/photo/2020/05/17/20/21/cat-5183427_1280.jpg"))
+            $0.layer.cornerRadius = Layout.ProfileImageView.cornerRadius
         }
-        
-        nameLabel.do {
-            $0.text = "하나밖에없는혈육"
+    }
+}
+
+extension PostNavigationView {
+    func setData(data: PostListData) {
+        guard let url = URL(string: data.imageURL) else {
+            return
         }
-        
-        dateLabel.do {
-            $0.text = "12월 16일"
-        }
+        profileImageView.kf.setImage(with: url)
+        nameLabel.text = data.author
+        dateLabel.text = data.time
     }
 }

@@ -68,9 +68,10 @@ extension AccountSignInHelper {
                     return .failed
                 }
                 
-                if token.isTemporaryToken == false {
-                    App.Repository.token.accessToken.accept(token.accessToken)
+                if token.isTemporaryToken == true {
+                    App.Repository.token.fakeAccessToken.accept(token.accessToken)
                 }
+                
                 return .success
             }
     }

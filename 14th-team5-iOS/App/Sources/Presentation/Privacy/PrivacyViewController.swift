@@ -18,7 +18,8 @@ import Then
 
 public final class PrivacyViewController: BaseViewController<PrivacyViewReactor> {
     //MARK: Views
-    private let titleView: UILabel = UILabel()
+    private let titleView: TypeSystemLabel = TypeSystemLabel(.head2Bold, textColor: .gray200)
+    private let backButton: UIButton = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 52, height: 52)))
     private let privacyTableView: UITableView = UITableView(frame: .zero, style: .grouped)
     private let privacyIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     private let privacyTableViewDataSources: RxTableViewSectionedReloadDataSource<PrivacySectionModel> = .init { dataSoruces, tableView, indexPath, sectionItem in
@@ -52,11 +53,18 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
         
         titleView.do {
             $0.text = "설정 및 개인정보"
-            $0.textColor = .white
+        }
+        
+        backButton.do {
+            $0.setImage(DesignSystemAsset.arrowLeft.image, for: .normal)
+            $0.backgroundColor = DesignSystemAsset.gray900.color
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = 10
         }
         
         navigationItem.do {
             $0.titleView = titleView
+            $0.leftBarButtonItem = UIBarButtonItem(customView: backButton)
         }
         
         privacyTableView.do {
@@ -91,6 +99,14 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
         privacyTableView.rx
             .setDelegate(self)
             .disposed(by: disposeBag)
+        
+        backButton
+            .rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.navigationController?.popViewController(animated: true)
+            }.disposed(by: disposeBag)
         
         Observable.just(())
             .map { Reactor.Action.viewDidLoad }

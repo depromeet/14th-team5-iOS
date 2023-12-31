@@ -87,8 +87,8 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         }
         
         backButton.do {
-            $0.setImage(DesignSystemAsset.xmark.image, for: .normal)
-            $0.backgroundColor = DesignSystemAsset.gray300.color
+            $0.setImage(DesignSystemAsset.arrowLeft.image, for: .normal)
+            $0.backgroundColor = DesignSystemAsset.gray900.color
             $0.clipsToBounds = true
             $0.layer.cornerRadius = 10
         }

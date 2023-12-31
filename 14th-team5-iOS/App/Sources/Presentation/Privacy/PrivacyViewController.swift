@@ -8,6 +8,7 @@
 import UIKit
 
 import Core
+import DesignSystem
 import RxSwift
 import RxCocoa
 import RxDataSources
@@ -59,7 +60,7 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
         }
         
         privacyTableView.do {
-            $0.backgroundColor = UIColor(red: 0.09, green: 0.09, blue: 0.09, alpha: 1)
+            $0.backgroundColor = DesignSystemAsset.black.color
             $0.separatorStyle = .none
             $0.register(PrivacyTableViewCell.self, forCellReuseIdentifier: "PrivacyTableViewCell")
             $0.register(PrivacyAuthorizationTableViewCell.self, forCellReuseIdentifier: "PrivacyAuthorizationTableViewCell")

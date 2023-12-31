@@ -19,10 +19,13 @@ public protocol AccountImpl: AnyObject {
     func appleLogin(with snsType: SNS, vc: UIViewController) -> Observable<APIResult>
     
     func signUp(name: String, date: String, photoURL: String?) -> Observable<Void>
+    func executeNicknameUpdate(memberId: String, parameter: AccountNickNameEditParameter) -> Observable<AccountNickNameEditResponse>
 }
 
 public final class AccountRepository: AccountImpl {
     public var disposeBag: DisposeBag = DisposeBag()
+    
+    private let accessToken: String = "eyJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MiLCJyZWdEYXRlIjoxNzAzODM2OTUzMzkwLCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwMzkyMzM1M30.sROYEmc6sxcSY82UKsei95EaDEw0Af8rx6q0qdmValI"
     
     let signInHelper = AccountSignInHelper()
     private let apiWorker = AccountAPIWorker()
@@ -57,6 +60,12 @@ public final class AccountRepository: AccountImpl {
         return apiWorker.signUpWith(name: name, date: date, photoURL: photoURL)
             .asObservable()
             .map { _ in }
+    }
+    
+    public func executeNicknameUpdate(memberId: String, parameter: AccountNickNameEditParameter) -> Observable<AccountNickNameEditResponse> {
+        return apiWorker.updateProfileNickName(accessToken: accessToken, memberId: memberId, parameter: parameter)
+            .compactMap { $0?.toDomain() }
+            .asObservable()
     }
     
     public init() {

@@ -35,7 +35,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
 
     private let profileIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 50)
-    private let profileTitleView: UILabel = UILabel()
+    private let profileTitleView: TypeSystemLabel = TypeSystemLabel(.head2Bold, textColor: .gray200)
     private let privacyButton: UIButton = UIButton()
     private let profileLineView: UIView = UIView()
     private lazy var profilePickerController: PHPickerViewController = PHPickerViewController(configuration: pickerConfiguration)
@@ -71,7 +71,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         profileTitleView.do {
             $0.textColor = DesignSystemAsset.gray200.color
             $0.text = "활동"
-            $0.font = DesignSystemFontFamily.Pretendard.bold.font(size: 18)
         }
         
         profilePickerController.do {
@@ -82,9 +81,9 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             $0.backgroundColor = .separator
         }
         
-//        privacyButton.do {
-//            $0.setImage(DesignSystemAsset.privacy.image, for: .normal)
-//        }
+        privacyButton.do {
+            $0.setImage(DesignSystemAsset.setting.image, for: .normal)
+        }
         
         navigationItem.do {
             $0.titleView = profileTitleView
@@ -200,6 +199,15 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(onNext: { $0.0.setupProfileImage($0.1)})
             .disposed(by: disposeBag)
         
+        profileView.profileNickNameButton
+            .rx.tap
+            .withLatestFrom(reactor.state.compactMap { $0.profileMemberEntity?.memberId })
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.transitionNickNameViewController(memberId: $0.1)})
+            .disposed(by: disposeBag)
+        
+        
         profileFeedCollectionView.rx
             .didScroll
             .withLatestFrom(profileFeedCollectionView.rx.contentOffset)
@@ -254,6 +262,10 @@ extension ProfileViewController {
         
     }
     
+    private func transitionNickNameViewController(memberId: String) {
+        let accountNickNameViewController:AccountNicknameViewController = AccountSignUpDIContainer(memberId: memberId).makeNickNameViewController()
+        self.navigationController?.pushViewController(accountNickNameViewController, animated: false)
+    }
     
     private func createAlertController(owner: ProfileViewController) {
         let alertController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)

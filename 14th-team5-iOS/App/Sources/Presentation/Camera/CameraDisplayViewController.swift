@@ -297,9 +297,18 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$displaySection)
+            .observe(on: MainScheduler.asyncInstance)
             .asDriver(onErrorJustReturn: [])
             .drive(displayEditCollectionView.rx.items(dataSource: displayEditDataSources))
             .disposed(by: disposeBag)
+        
+        reactor.state
+            .compactMap { $0.displayPostEntity?.postId }
+            .filter { !$0.isEmpty }
+            .withUnretained(self)
+            .bind(onNext: { $0.0.transitionToHomeViewController()})
+            .disposed(by: disposeBag)
+        
     }
 }
 
@@ -393,6 +402,10 @@ extension CameraDisplayViewController {
         [cancelAction,settingAction].forEach(permissionAlertController.addAction(_:))
         
         present(permissionAlertController, animated: true)
+    }
+    
+    private func transitionToHomeViewController() {
+        self.navigationController?.popToRootViewController(animated: true)
     }
 }
 

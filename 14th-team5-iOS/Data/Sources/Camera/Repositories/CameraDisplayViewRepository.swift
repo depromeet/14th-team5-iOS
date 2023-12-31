@@ -20,7 +20,7 @@ public final class CameraDisplayViewRepository {
     private let cameraDisplayAPIWorker: CameraAPIWorker = CameraAPIWorker()
     
     public var disposeBag: DisposeBag = DisposeBag()
-    public var token: String = "eyJ0eXBlIjoiYWNjZXNzIiwicmVnRGF0ZSI6MTcwMzY3MjI5ODg2NywidHlwIjoiSldUIiwiYWxnIjoiSFMyNTYifQ.eyJ1c2VySWQiOiIxNSIsImV4cCI6MTcwMzc1ODY5OH0.TNxTXHaWEzFOxB4A88m05y4KUkssW2wzGKm50bIGKlM"
+    public var token: String = "eyJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MiLCJyZWdEYXRlIjoxNzAzODM0NTk4Mzg3LCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiIxNCIsImV4cCI6MTcwMzkyMDk5OH0.GeRHjF2Ydcz39LjjId36VzABKv43ZZq1xulYAEU3J-E"
     
    
     

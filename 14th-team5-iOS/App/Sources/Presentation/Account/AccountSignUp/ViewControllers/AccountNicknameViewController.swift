@@ -16,7 +16,7 @@ import SnapKit
 import Then
 
 fileprivate typealias _Str = AccountSignUpStrings.Nickname
-final class AccountNicknameViewController: BaseViewController<AccountSignUpReactor> {
+public final class AccountNicknameViewController: BaseViewController<AccountSignUpReactor> {
     private enum Metric {}
     
     // MARK: SubViews
@@ -28,11 +28,11 @@ final class AccountNicknameViewController: BaseViewController<AccountSignUpReact
     private let nextButton = UIButton()
     private let descLabel = UILabel()
     
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
     }
     
-    override func bind(reactor: AccountSignUpReactor) {
+    public override func bind(reactor: AccountSignUpReactor) {
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
@@ -54,6 +54,13 @@ final class AccountNicknameViewController: BaseViewController<AccountSignUpReact
             .map { Reactor.Action.nicknameButtonTapped }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        nextButton.rx.tap
+            .withLatestFrom(inputFielView.rx.text.orEmpty.distinctUntilChanged())
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .map { Reactor.Action.didTapNickNameButton($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: AccountSignUpReactor) {
@@ -68,16 +75,23 @@ final class AccountNicknameViewController: BaseViewController<AccountSignUpReact
             .observe(on: Schedulers.main)
             .bind(onNext: { $0.0.validationButton($0.1) })
             .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.profileNickNameEditEntity }
+            .filter { $0 != nil }
+            .withUnretained(self)
+            .bind(onNext: { $0.0.transitionProfileViewController()})
+            .disposed(by: disposeBag)
+        
     }
     
-    override func setupUI() {
+    public override func setupUI() {
         super.setupUI()
         
         view.addSubviews(titleLabel, inputFielView, errorStackView, descLabel, nextButton)
         errorStackView.addArrangedSubviews(errorImage, errorLabel)
     }
     
-    override func setupAutoLayout() {
+    public override func setupAutoLayout() {
         super.setupAutoLayout()
         
         titleLabel.snp.makeConstraints {
@@ -111,7 +125,7 @@ final class AccountNicknameViewController: BaseViewController<AccountSignUpReact
         }
     }
     
-    override func setupAttributes() {
+    public override func setupAttributes() {
         titleLabel.do {
             $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 18)
             $0.textColor = DesignSystemAsset.gray300.color
@@ -170,5 +184,9 @@ extension AccountNicknameViewController {
         let defaultColor = DesignSystemAsset.mainGreen.color
         nextButton.backgroundColor = isValid ? defaultColor : defaultColor.withAlphaComponent(0.2)
         nextButton.isEnabled = isValid
+    }
+    
+    fileprivate func transitionProfileViewController() {
+        self.navigationController?.popViewController(animated: true)
     }
 }

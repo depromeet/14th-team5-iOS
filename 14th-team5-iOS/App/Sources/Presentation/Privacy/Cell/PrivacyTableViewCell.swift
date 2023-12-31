@@ -17,21 +17,20 @@ import Then
 
 public final class PrivacyTableViewCell: BaseTableViewCell<PrivacyCellReactor> {
     //MARK: Views
-    private let descrptionLabel: UILabel = UILabel()
+    private let descrptionLabel: TypeSystemLabel = TypeSystemLabel(.head2Regular, textColor: .gray200)
     private let arrowAccessView: UIImageView = UIImageView()
-    private let underLineView: UIView = UIView()
     
     
     public override func setupUI() {
         super.setupUI()
-        contentView.addSubviews(descrptionLabel, arrowAccessView, underLineView)
+        contentView.addSubviews(descrptionLabel, arrowAccessView)
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
         
         contentView.do {
-            $0.backgroundColor = .black
+            $0.backgroundColor = DesignSystemAsset.black.color
         }
         
         arrowAccessView.do {
@@ -40,13 +39,7 @@ public final class PrivacyTableViewCell: BaseTableViewCell<PrivacyCellReactor> {
         }
         
         descrptionLabel.do {
-            $0.textColor = .white
-            $0.font = .systemFont(ofSize: 17, weight: .regular)
             $0.textAlignment = .left
-        }
-        
-        underLineView.do {
-            $0.backgroundColor = UIColor(red: 56/255, green: 56/255, blue: 58/255, alpha: 1.0)
         }
     }
     
@@ -64,13 +57,6 @@ public final class PrivacyTableViewCell: BaseTableViewCell<PrivacyCellReactor> {
             $0.width.equalTo(7)
             $0.height.equalTo(12)
             $0.centerY.equalTo(descrptionLabel)
-        }
-        
-        underLineView.snp.makeConstraints {
-            $0.left.equalToSuperview().offset(16)
-            $0.right.equalToSuperview()
-            $0.height.equalTo(1)
-            $0.bottom.equalToSuperview().offset(-1)
         }
     }
     

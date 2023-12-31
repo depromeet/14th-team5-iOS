@@ -19,8 +19,8 @@ import Then
 public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<ProfileFeedCellReactor> {
     private let feedImageView: UIImageView = UIImageView()
     private let feedStackView: UIStackView = UIStackView()
-    private let feedTitleLabel: UILabel = UILabel()
-    private let feedUplodeLabel: UILabel = UILabel()
+    private let feedTitleLabel: TypeSystemLabel = TypeSystemLabel(.body2Regular, textColor: .gray200)
+    private let feedUplodeLabel: TypeSystemLabel = TypeSystemLabel(.caption, textColor: .gray400)
     
     
     public override func prepareForReuse() {
@@ -46,16 +46,12 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
         
         feedTitleLabel.do {
             $0.text = "99"
-            $0.textColor = DesignSystemAsset.gray200.color
-            $0.font = DesignSystemFontFamily.Pretendard.regular.font(size: 14)
             $0.textAlignment = .left
             $0.numberOfLines = 1
         }
         
         feedUplodeLabel.do {
             $0.text = "3월 7일"
-            $0.textColor = DesignSystemAsset.gray400.color
-            $0.font = .systemFont(ofSize: 12)
             $0.textAlignment = .left
             $0.numberOfLines = 1
         }

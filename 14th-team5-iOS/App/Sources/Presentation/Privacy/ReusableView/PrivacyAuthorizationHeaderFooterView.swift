@@ -7,12 +7,13 @@
 
 import UIKit
 
+import Core
 import SnapKit
 import Then
 
 
 public final class PrivacyAuthorizationHeaderFooterView: UITableViewHeaderFooterView {
-    private let headerLabel: UILabel = UILabel()
+    private let headerLabel: TypeSystemLabel = TypeSystemLabel(.body2Regular, textColor: .gray300)
     
     public override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
@@ -33,9 +34,7 @@ public final class PrivacyAuthorizationHeaderFooterView: UITableViewHeaderFooter
     private func setupAttributes() {
         headerLabel.do {
             $0.text = "로그인"
-            $0.textColor = UIColor(red: 235/255, green: 235/255, blue: 245/255, alpha: 0.6)
             $0.textAlignment = .left
-            $0.font = .systemFont(ofSize: 13, weight: .regular)
         }
     }
     

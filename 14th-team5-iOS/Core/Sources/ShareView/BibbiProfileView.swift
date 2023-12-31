@@ -55,13 +55,15 @@ public class BibbiProfileView: UIView {
         }
         
         profileNickNameButton.do {
+            let paragraphStyle = NSMutableParagraphStyle()
             $0.configuration?.imagePlacement = .trailing
             $0.configuration?.baseBackgroundColor = .clear
             $0.configuration?.image = DesignSystemAsset.edit.image
             $0.configuration?.imagePadding = 5
             $0.configuration?.attributedTitle = AttributedString(NSAttributedString(string: "하나밖에없는 혈육", attributes: [
                 .foregroundColor: DesignSystemAsset.gray200.color,
-                .font: DesignSystemFontFamily.Pretendard.bold.font(size: 16)
+                .font: DesignSystemFontFamily.Pretendard.semiBold.font(size: 16),
+                .kern: -0.3
             ]))
         }
         

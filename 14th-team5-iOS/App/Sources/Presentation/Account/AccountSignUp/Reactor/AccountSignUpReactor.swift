@@ -7,6 +7,7 @@
 
 import Foundation
 import Data
+import Domain
 
 import ReactorKit
 
@@ -14,6 +15,7 @@ fileprivate typealias _Str = AccountSignUpStrings
 public final class AccountSignUpReactor: Reactor {
     public var initialState: State
     private var accountRepository: AccountImpl
+    private let memberId: String
     
     public enum Action {
         case setNickname(String)
@@ -23,7 +25,7 @@ public final class AccountSignUpReactor: Reactor {
         case setMonth(Int)
         case setDay(Int)
         case dateButtonTapped
-        
+        case didTapNickNameButton(String)
         case profileButtonTapped
     }
     
@@ -35,6 +37,7 @@ public final class AccountSignUpReactor: Reactor {
         case setMonthValue(Int)
         case setDayValue(Int)
         case dateButtonTapped
+        case setEditNickName(AccountNickNameEditResponse?)
         
         case profileButtonTapped
     }
@@ -44,7 +47,8 @@ public final class AccountSignUpReactor: Reactor {
         var isValidNickname: Bool = false
         var isValidNicknameButton: Bool = false
         var nicknameButtonTappedFinish: Bool = false
-        
+        var memberId: String
+        var profileNickNameEditEntity: AccountNickNameEditResponse?
         var year: Int?
         var isValidYear: Bool = false
         var month: Int?
@@ -57,9 +61,10 @@ public final class AccountSignUpReactor: Reactor {
         var profileButtonTappedFinish: Bool = false
     }
     
-    init(accountRepository: AccountRepository) {
+    init(accountRepository: AccountRepository, memberId: String = "") {
         self.accountRepository = accountRepository
-        self.initialState = State()
+        self.memberId = memberId
+        self.initialState = State(memberId: memberId)
     }
 }
 
@@ -86,6 +91,14 @@ extension AccountSignUpReactor {
             // MARK: Profile
         case .profileButtonTapped:
             return accountRepository.signUp(name: currentState.nickname, date: "", photoURL: nil).flatMap { Observable.just(Mutation.profileButtonTapped) }
+            
+        case let .didTapNickNameButton(nickName):
+            let parameters: AccountNickNameEditParameter = AccountNickNameEditParameter(name: nickName)
+            return accountRepository.executeNicknameUpdate(memberId: self.currentState.memberId, parameter: parameters)
+                .asObservable()
+                .flatMap { entity -> Observable<AccountSignUpReactor.Mutation> in
+                        .just(.setEditNickName(entity))
+                }
         }
     }
     
@@ -114,6 +127,9 @@ extension AccountSignUpReactor {
             
         case .profileButtonTapped:
             newState.profileButtonTappedFinish = true
+            
+        case let .setEditNickName(entity):
+            newState.profileNickNameEditEntity = entity
         }
         
         newState.isValidDateButton = newState.isValidYear && newState.isValidMonth && newState.isValidDay

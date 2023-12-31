@@ -212,6 +212,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     }
 }
 
+// MARK: - Extensions
 extension CalendarPostViewController {
     private func setupBlurEffect() {
         let blurEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
@@ -268,19 +269,19 @@ extension CalendarPostViewController: FSCalendarDataSource {
                 representativeThumbnailUrl: "",
                 allFamilyMemebersUploaded: false
             )
-            cell.reactor = ImageCalendarCellDIContainer().makeReactor(
+            cell.reactor = ImageCalendarCellDIContainer(
                 .week,
-                isSelected: false,
-                dayResponse: emptyResponse
-            )
+                dayResponse: emptyResponse,
+                isSelected: false
+            ).makeReactor()
             return cell
         }
         
-        cell.reactor = ImageCalendarCellDIContainer().makeReactor(
+        cell.reactor = ImageCalendarCellDIContainer(
             .week,
-            isSelected: currentState.selectedCalendarCell.isEqual(with: date),
-            dayResponse: dayResponse
-        )
+            dayResponse: dayResponse,
+            isSelected: currentState.selectedCalendarCell.isEqual(with: date)
+        ).makeReactor()
         return cell
     }
 }

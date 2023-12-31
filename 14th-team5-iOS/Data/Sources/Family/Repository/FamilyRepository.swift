@@ -12,14 +12,7 @@ import ReactorKit
 import RxCocoa
 import RxSwift
 
-public protocol FamilyImpl {
-    var disposeBag: DisposeBag { get }
-    
-    func fetchInvitationUrl() -> Observable<URL?>
-    func fetchFamilyMemeber() -> Observable<PaginationResponseFamilyMemberProfile?>
-}
-
-public final class FamilyRepository: FamilyImpl {
+public final class FamilyRepository: FamilyRepositoryProtocol {
     public let disposeBag: DisposeBag = DisposeBag()
     
     private let apiWorker: FamilyAPIWorker = FamilyAPIWorker()
@@ -40,7 +33,7 @@ public final class FamilyRepository: FamilyImpl {
     }
     
     // TODO: - AccessToken 구하는 코드 구현
-    public func fetchFamilyMemeber() -> Observable<PaginationResponseFamilyMemberProfile?> {
+    public func fetchFamilyMembers() -> Observable<PaginationResponseFamilyMemberProfile?> {
         return apiWorker.fetchFamilyMemeberPage(accessToken: TempStr.accessToken)
             .asObservable()
     }

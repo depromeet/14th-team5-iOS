@@ -35,15 +35,18 @@ public final class CalendarPostViewReactor: Reactor {
     
     // MARK: - Properties
     public var initialState: State
-    public let provider: GlobalStateProviderType
+    
+    public let provider: GlobalStateProviderProtocol
+    private let calendarUseCase: CalendarUseCaseProtocol
     
     private var isFetchedYearMonths: [String] = [] // API 호출한 월(月)을 저장
     private var hasThumbnailImageDates: [Date] = [] // 썸네일 이미지가 존재하는 일자를 저장
-    private let calendarRepository: CalendarRepository = CalendarRepository()
     
     // MARK: - Intializer
-    init(selectedCalendarCell selection: Date, provider: GlobalStateProviderType) {
+    init(_ selection: Date, usecase: CalendarUseCaseProtocol, provider: GlobalStateProviderProtocol) {
         self.initialState = State(selectedCalendarCell: selection)
+        
+        self.calendarUseCase = usecase
         self.provider = provider
     }
     
@@ -61,7 +64,7 @@ public final class CalendarPostViewReactor: Reactor {
         case let .fetchCalendarResponse(yearMonth):
             // 이전에 불러온 적이 없다면
             if !isFetchedYearMonths.contains(yearMonth) {
-                return calendarRepository.fetchMonthlyCalendar(yearMonth)
+                return calendarUseCase.executeFetchMonthlyCalendar(yearMonth)
                     .withUnretained(self)
                     .map {
                         guard let arrayCalendarResponse = $0.1 else {

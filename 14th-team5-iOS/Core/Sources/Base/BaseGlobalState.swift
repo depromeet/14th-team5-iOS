@@ -8,9 +8,9 @@
 import ReactorKit
 
 public class BaseGlobalState {
-    unowned let provider: GlobalStateProviderType
+    unowned let provider: GlobalStateProviderProtocol
     
-    init(provider: GlobalStateProviderType) {
+    init(provider: GlobalStateProviderProtocol) {
         self.provider = provider
     }
 }

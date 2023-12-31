@@ -9,36 +9,43 @@ import UIKit
 
 import Core
 import Data
+import Domain
 
 public final class CalendarPostDIConatainer: BaseDIContainer {
     public typealias ViewController = CalendarPostViewController
-    public typealias Repository = CalendarImpl
+    public typealias UseCase = CalendarUseCaseProtocol
+    public typealias Repository = CalendarRepositoryProtocol
     public typealias Reactor = CalendarPostViewReactor
     
-    let selectedCalendarCell: Date
+    let selectedDate: Date
     
-    init(selectedCalendarCell: Date) {
-        self.selectedCalendarCell = selectedCalendarCell
+    init(selectedDate selection: Date) {
+        self.selectedDate = selection
     }
     
-    private var globalState: GlobalStateProviderType {
+    private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             return GlobalStateProvider()
         }
         return appDelegate.globalStateProvider
     }
     
-    public func makeViewController() -> CalendarPostViewController {
+    public func makeViewController() -> ViewController {
         return CalendarPostViewController(reacter: makeReactor())
     }
     
-    public func makeRepository() -> CalendarImpl {
+    public func makeUseCase() -> UseCase {
+        return CalendarUseCase(calendarRepository: makeRepository())
+    }
+    
+    public func makeRepository() -> Repository {
         return CalendarRepository()
     }
     
-    public func makeReactor() -> CalendarPostViewReactor {
+    public func makeReactor() -> Reactor {
         return CalendarPostViewReactor(
-            selectedCalendarCell: selectedCalendarCell,
+            selectedDate,
+            usecase: makeUseCase(),
             provider: globalState
         )
     }

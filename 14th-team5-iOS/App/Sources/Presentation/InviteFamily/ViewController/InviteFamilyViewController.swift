@@ -16,7 +16,7 @@ import RxSwift
 import SnapKit
 import Then
 
-public final class AddFamilyViewController: BaseViewController<AddFamilyViewReactor> {
+public final class InviteFamilyViewController: BaseViewController<InviteFamilyViewReactor> {
     // MARK: - Views
     private let invitationUrlAreaBackgroundView: UIView = UIView()
     private let envelopeImageBackgroundView: UIView = UIView()
@@ -35,11 +35,7 @@ public final class AddFamilyViewController: BaseViewController<AddFamilyViewReac
     private let tableView: UITableView = UITableView()
     
     // MARK: - Properties
-    var dataSource: RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> = RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> { datasource, tableView, indexPath, memberResponse in
-        let cell = tableView.dequeueReusableCell(withIdentifier: FamiliyMemberProfileCell.id, for: indexPath) as! FamiliyMemberProfileCell
-        cell.reactor = FamilyMemberProfileCellDIContainer().makeReactor(memberResponse)
-        return cell
-    }
+    lazy var dataSource: RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> = prepareDatasource()
     
     // MARK: - Lifecycles
     public override func viewDidLoad() {
@@ -192,13 +188,13 @@ public final class AddFamilyViewController: BaseViewController<AddFamilyViewReac
         navigationItem.title = AddFamilyVC.Strings.navgationTitle
     }
     
-    public override func bind(reactor: AddFamilyViewReactor) {
+    public override func bind(reactor: InviteFamilyViewReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: AddFamilyViewReactor) {
+    private func bindInput(reactor: InviteFamilyViewReactor) {
         Observable<Void>.just(())
             .map { Reactor.Action.fetchYourFamilyMemeber }
             .bind(to: reactor.action)
@@ -211,7 +207,7 @@ public final class AddFamilyViewController: BaseViewController<AddFamilyViewReac
             .disposed(by: disposeBag)
     }
     
-    private func bindOutput(reactor: AddFamilyViewReactor) {
+    private func bindOutput(reactor: InviteFamilyViewReactor) {
         reactor.state.map { $0.familyDatasource }
             .bind(to: tableView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
@@ -253,5 +249,16 @@ public final class AddFamilyViewController: BaseViewController<AddFamilyViewReac
                 )
             }
             .disposed(by: disposeBag)
+    }
+}
+
+// MARK: - Extensions
+extension InviteFamilyViewController {
+    func prepareDatasource() -> RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> {
+        return RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> { datasource, tableView, indexPath, memberResponse in
+            let cell = tableView.dequeueReusableCell(withIdentifier: FamiliyMemberProfileCell.id, for: indexPath) as! FamiliyMemberProfileCell
+            cell.reactor = FamilyMemberProfileCellDIContainer().makeReactor(memberResponse)
+            return cell
+        }
     }
 }

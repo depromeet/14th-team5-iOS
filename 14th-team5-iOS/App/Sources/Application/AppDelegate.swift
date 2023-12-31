@@ -20,10 +20,10 @@ import AuthenticationServices
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    let globalStateProvider: GlobalStateProviderType = GlobalStateProvider()
+    let globalStateProvider: GlobalStateProviderProtocol = GlobalStateProvider()
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        FirebaseApp.configure()
+//        FirebaseApp.configure()
         kakaoApp(application, didFinishLauchingWithOptions: launchOptions)
         appleApp(application, didFinishLauchingWithOptions: launchOptions)
         

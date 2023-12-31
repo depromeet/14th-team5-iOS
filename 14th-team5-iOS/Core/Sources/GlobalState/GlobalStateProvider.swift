@@ -7,12 +7,12 @@
 
 import Foundation
 
-public protocol GlobalStateProviderType: AnyObject {
+public protocol GlobalStateProviderProtocol: AnyObject {
     var activityGlobalState: ActivityGlobalStateType { get }
     var calendarGlabalState: CalendarGlobalStateType { get }
 }
 
-final public class GlobalStateProvider: GlobalStateProviderType {
+final public class GlobalStateProvider: GlobalStateProviderProtocol {
     lazy public var activityGlobalState: ActivityGlobalStateType = ActivityGlobalState(provider: self)
     lazy public var calendarGlabalState: CalendarGlobalStateType = CalendarGlobalState(provider: self)
     

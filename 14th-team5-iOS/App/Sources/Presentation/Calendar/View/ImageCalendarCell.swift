@@ -8,6 +8,7 @@
 import Foundation
 
 import Core
+import DesignSystem
 import FSCalendar
 import Kingfisher
 import ReactorKit
@@ -16,20 +17,20 @@ import RxSwift
 import SnapKit
 import Then
 
-final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
+final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {    
     // MARK: - Views
-    private let dayLabel: UILabel = UILabel()
+    private let dayLabel: TypeSystemLabel = TypeSystemLabel(.body1Regular)
     private let noThumbnailView: UIView = UIView()
     private let thumbnailView: UIImageView = UIImageView()
-    private let badgeView: UIView = UIView()
+    private let badgeView: UIImageView = UIImageView()
     
     // MARK: - Properties
-    var disposeBag: RxSwift.DisposeBag = DisposeBag()
+    public var disposeBag: RxSwift.DisposeBag = DisposeBag()
     
     static let id: String = "ImageCalendarCell"
     
     // MARK: - Intializer
-    override init(frame: CGRect) {
+    public override init!(frame: CGRect) {
         super.init(frame: .zero)
         setupUI()
         setupAutoLayout()
@@ -40,7 +41,7 @@ final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func prepareForReuse() {
+    public override func prepareForReuse() {
         dayLabel.textColor = UIColor.white
         thumbnailView.image = nil
         thumbnailView.layer.borderWidth = .zero
@@ -75,7 +76,7 @@ final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         badgeView.snp.makeConstraints {
             $0.top.equalTo(contentView.snp.top).offset(CalendarCell.AutoLayout.badgeOffsetValue)
             $0.trailing.equalTo(contentView.snp.trailing).offset(-CalendarCell.AutoLayout.badgeOffsetValue)
-            $0.width.height.equalTo(CalendarCell.AutoLayout.badgeHeightValue)
+            $0.width.height.equalTo(15.0)
         }
     }
     
@@ -85,37 +86,32 @@ final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         }
         
         dayLabel.do {
-            $0.text = "0"
-            $0.textColor = UIColor.white
             $0.textAlignment = .center
-            $0.font = UIFont.boldSystemFont(ofSize: 16)
         }
         
         noThumbnailView.do {
             $0.clipsToBounds = true
-            $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = CalendarCell.Attribute.thumbnailCornerRadius
-            $0.backgroundColor = UIColor.darkGray
+            $0.backgroundColor = DesignSystemAsset.gray900.color
         }
         
         thumbnailView.do {
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = CalendarCell.Attribute.thumbnailCornerRadius
-            $0.layer.borderWidth = 0.0
-            $0.layer.borderColor = UIColor.white.cgColor
+            $0.layer.borderWidth = .zero
+            $0.layer.borderColor = DesignSystemAsset.white.color.cgColor
             $0.alpha = CalendarCell.Attribute.defaultAlphaValue
         }
         
         badgeView.do {
-            $0.clipsToBounds = true
-            $0.layer.cornerRadius = CalendarCell.AutoLayout.badgeHeightValue / 2.0
-            $0.backgroundColor = UIColor.white
+            $0.image = DesignSystemAsset.greenSmileEmoji.image
             $0.isHidden = true
+            $0.backgroundColor = UIColor.clear
         }
     }
     
-    func bind(reactor: ImageCalendarCellReactor) {
+    public func bind(reactor: ImageCalendarCellReactor) {
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
@@ -133,8 +129,8 @@ final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             .withUnretained(self)
             .subscribe {
                 if $0.1 {
-                    $0.0.dayLabel.textColor = UIColor.green
-                    $0.0.thumbnailView.layer.borderWidth = 1.5
+                    $0.0.dayLabel.textTypeSystemColor = .mainGreen
+                    $0.0.thumbnailView.layer.borderWidth = 2.0
                     $0.0.thumbnailView.layer.borderColor = UIColor.green.cgColor
                 }
             }
@@ -165,15 +161,15 @@ final class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             .subscribe {
                 if reactor.type == .week {
                     if $0.1 {
-                        $0.0.thumbnailView.layer.borderWidth = 1.5
-                        $0.0.thumbnailView.layer.borderColor = UIColor.white.cgColor
+                        $0.0.thumbnailView.layer.borderWidth = 2.0
+                        $0.0.thumbnailView.layer.borderColor = DesignSystemAsset.white.color.cgColor
                     } else {
                         $0.0.thumbnailView.layer.borderWidth = 0.0
                         
                         if reactor.currentState.date.isToday {
-                            $0.0.dayLabel.textColor = UIColor.green
-                            $0.0.thumbnailView.layer.borderWidth = 1.5
-                            $0.0.thumbnailView.layer.borderColor = UIColor.green.cgColor
+                            $0.0.dayLabel.textTypeSystemColor = .mainGreen
+                            $0.0.thumbnailView.layer.borderWidth = 2.0
+                            $0.0.thumbnailView.layer.borderColor = DesignSystemAsset.mainGreen.color.cgColor
                         }
                     }
                 }

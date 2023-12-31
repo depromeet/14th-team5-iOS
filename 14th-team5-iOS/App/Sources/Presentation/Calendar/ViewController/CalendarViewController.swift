@@ -109,6 +109,7 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
     }
 }
 
+// MARK: - Extensions
 extension CalendarViewController {
     private var orthogonalCompositionalLayout: UICollectionViewCompositionalLayout {
         // item
@@ -151,7 +152,7 @@ extension CalendarViewController {
     
     private func pushCalendarFeedView(_ date: Date) {
         navigationController?.pushViewController(
-            CalendarPostDIConatainer(selectedCalendarCell: date).makeViewController(),
+            CalendarPostDIConatainer(selectedDate: date).makeViewController(),
             animated: true
         )
     }

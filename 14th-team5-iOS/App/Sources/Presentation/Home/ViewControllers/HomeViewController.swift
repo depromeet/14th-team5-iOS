@@ -79,7 +79,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
 
                 self.navigationController?.pushViewController(
                     PostListsDIContainer().makeViewController(
-                        postLists: selectedItem,
+                        postLists: sectionModel,
                         selectedIndex: indexPath
                     ),
                     animated: true

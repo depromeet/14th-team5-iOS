@@ -30,7 +30,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     private let calendarView: FSCalendar = FSCalendar()
     private let postView: UIView = UIView()
     
-    private let postViewController: PostViewController = PostListsDIContainer().makeViewController(postLists: PostListData(author: "", time: "", imageURL: ""), selectedIndex: IndexPath(row: 0, section: 0))
+    private let postViewController: PostViewController = PostListsDIContainer().makeViewController(postLists: SectionModel(model: "", items: []), selectedIndex: IndexPath(row: 0, section: 0))
     
     // MARK: - Lifecycles
     public override func viewDidLoad() {

@@ -56,8 +56,13 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
 
 extension FeedCollectionViewCell {
     func setCell(data: PostListData) {
+        guard let imageURL = URL(string: data.imageURL) else {
+            return
+        }
+        
         nameLabel.text = data.author
         timeLabel.text = data.time
-        imageView.kf.setImage(with: URL(string:data.imageURL)!)
+
+        imageView.kf.setImage(with: imageURL)
     }
 }

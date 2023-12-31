@@ -9,11 +9,13 @@ import Foundation
 import Data
 import Domain
 
+import RxDataSources
+
 final class PostListsDIContainer {
     typealias ViewContrller = PostViewController
     typealias Reactor = PostReactor
     
-    func makeViewController(postLists: PostListData, selectedIndex: IndexPath) -> ViewContrller {
+    func makeViewController(postLists: SectionModel<String, PostListData>, selectedIndex: IndexPath) -> ViewContrller {
         return PostViewController(reactor: makeReactor(postLists: postLists, selectedIndex: selectedIndex.row))
     }
     
@@ -25,8 +27,8 @@ final class PostListsDIContainer {
         return PostListUseCase(postListRepository: makePostRepository())
     }
     
-    func makeReactor(postLists: PostListData, selectedIndex: Int) -> Reactor {
-        return PostReactor(postRepository: makePostUseCase(), initialState: PostReactor.State(postLists: postLists, selectedPostIndex: selectedIndex))
+    func makeReactor(postLists: SectionModel<String, PostListData>, selectedIndex: Int) -> Reactor {
+        return PostReactor(postRepository: makePostUseCase(), initialState: PostReactor.State(originPostLists: [postLists], selectedPostIndex: selectedIndex))
     }
     
 }

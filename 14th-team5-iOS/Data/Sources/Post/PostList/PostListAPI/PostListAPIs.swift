@@ -10,6 +10,7 @@ import Core
 
 public enum PostListAPIs: API {
     case fetchPostList(PostListRequestDTO)
+    case fetchPostDetail(PostRequestDTO)
     
     var spec: APISpec {
         switch self {
@@ -26,6 +27,9 @@ public enum PostListAPIs: API {
                 urlString += "?" + queryParams.joined(separator: "&")
             }
             
+            return APISpec(method: .get, url: urlString)
+        case let .fetchPostDetail(query):
+            var urlString = "\(BibbiAPI.hostApi)/posts/\(query.postId)"
             return APISpec(method: .get, url: urlString)
         }
     }

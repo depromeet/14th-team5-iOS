@@ -7,6 +7,7 @@
 
 import UIKit
 import Core
+import Domain
 
 import RxDataSources
 import RxSwift
@@ -21,13 +22,20 @@ final class PostViewController: BaseViewController<PostReactor> {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        self.navigationController?.navigationBar.isHidden = true
     }
     
     override func bind(reactor: PostReactor) {
-        Observable.just(SectionOfFeedDetail.sections)
+        reactor.state
+            .map { $0.originPostLists }
+            .asObservable()
             .bind(to: collectionView.rx.items(dataSource: createDataSource()))
             .disposed(by: disposeBag)
+        
+//        collectionView.rx.didScroll
+//            .map { Reactor.Action.fetchPost("01HJBRBSZRF429S1SES900ET5G") }
+//            .bind(to: reactor.action)
+//            .disposed(by: disposeBag)
     }
     
     override func setupUI() {
@@ -92,15 +100,31 @@ final class PostViewController: BaseViewController<PostReactor> {
 }
 
 extension PostViewController {
-    private func createDataSource() -> RxCollectionViewSectionedReloadDataSource<SectionModel<String, FeedDetailData>> {
-        return RxCollectionViewSectionedReloadDataSource<SectionModel<String, FeedDetailData>>(
+    private func createDataSource() -> RxCollectionViewSectionedReloadDataSource<SectionModel<String, PostListData>> {
+        return RxCollectionViewSectionedReloadDataSource<SectionModel<String, PostListData>>(
             configureCell: { dataSource, collectionView, indexPath, item in
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as? PostCollectionViewCell else {
                     return UICollectionViewCell()
                 }
+//                cell.reactor = self.reactor
+                // 여기가 아니라 didScroll => 로 옮겨야햇
                 cell.setCell(data: item)
+                self.setNavigationView(data: item)
+                self.setBackgroundView(data: item)
                 return cell
             })
+    }
+    
+    // cell.setCell과 setData => reactorkit으로 옮기기
+    private func setNavigationView(data: PostListData) {
+        self.navigationView.setData(data: data)
+    }
+    
+    private func setBackgroundView(data: PostListData) {
+        guard let url = URL(string: data.imageURL) else {
+            return
+        }
+        self.backgroundImageView.kf.setImage(with: url)
     }
 }
 

@@ -8,14 +8,20 @@
 import Foundation
 
 public struct PostListData: Equatable {
+    public let postId: String
     public let author: String
-    public let time: String
+    public let emojiCount: Int
     public let imageURL: String
+    public let content: String
+    public let time: String
     
-    public init(author: String, time: String, imageURL: String) {
+    public init(postId: String, author: String, emojiCount: Int, imageURL: String, content: String, time: String) {
+        self.postId = postId
         self.author = author
-        self.time = time
+        self.emojiCount = emojiCount
         self.imageURL = imageURL
+        self.content = content
+        self.time = time
     }
 }
 

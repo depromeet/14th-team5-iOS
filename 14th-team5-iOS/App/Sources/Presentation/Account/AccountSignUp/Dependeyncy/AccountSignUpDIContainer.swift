@@ -17,9 +17,11 @@ public final class AccountSignUpDIContainer: BaseDIContainer {
     public typealias Reactor = AccountSignUpReactor
     public typealias NickNameViewController = AccountNicknameViewController
     private let memberId: String
+    private let accountType: AccountLoaction
     
-    public init(memberId: String = "") {
+    public init(memberId: String = "", accountType: AccountLoaction = .profile) {
         self.memberId = memberId
+        self.accountType = accountType
     }
     
     public func makeViewController() -> AccountSignUpViewController {
@@ -31,7 +33,7 @@ public final class AccountSignUpDIContainer: BaseDIContainer {
     }
     
     public func makeReactor() -> Reactor {
-        return AccountSignUpReactor(accountRepository: AccountRepository(), memberId: memberId)
+        return AccountSignUpReactor(accountRepository: AccountRepository(), memberId: memberId, profileType: accountType)
     }
     
     

@@ -33,7 +33,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     private let shutterButton: UIButton = UIButton()
     private let flashButton: UIButton = UIButton.createCircleButton(radius: 24)
     private let toggleButton: UIButton = UIButton.createCircleButton(radius: 24)
-    private let titleView: TypeSystemLabel = TypeSystemLabel(.head2Bold, textColor: .gray200)
+    private let titleView: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
     private let cameraIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     
     private var initialScale: CGFloat = 0

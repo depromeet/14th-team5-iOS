@@ -19,21 +19,24 @@ import Then
 public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<ProfileFeedCellReactor> {
     private let feedImageView: UIImageView = UIImageView()
     private let feedStackView: UIStackView = UIStackView()
-    private let feedTitleLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray200)
+    private let feedContentStackView: UIStackView = UIStackView()
+    private let feedEmojiIconView: UIImageView = UIImageView()
+    private let feedEmojiCountLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray200)
     private let feedUplodeLabel: BibbiLabel = BibbiLabel(.caption, textColor: .gray400)
     
     
     public override func prepareForReuse() {
         feedImageView.image = nil
-        feedTitleLabel.text = ""
+        feedEmojiCountLabel.text = ""
         feedUplodeLabel.text = ""
     }
     
     public override func setupUI() {
         super.setupUI()
-        
-        feedStackView.addArrangedSubviews(feedTitleLabel, feedUplodeLabel)
+        feedContentStackView.addArrangedSubviews(feedEmojiIconView , feedEmojiCountLabel)
+        feedStackView.addArrangedSubviews(feedContentStackView, feedUplodeLabel)
         contentView.addSubviews(feedImageView, feedStackView)
+        
         
     }
     
@@ -44,7 +47,17 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
             $0.clipsToBounds = true
         }
         
-        feedTitleLabel.do {
+        feedEmojiIconView.do {
+            $0.image = DesignSystemAsset.emoji.image.withTintColor(DesignSystemAsset.gray400.color)
+        }
+        
+        feedContentStackView.do {
+            $0.axis = .horizontal
+            $0.spacing = 2
+            $0.alignment = .fill
+        }
+        
+        feedEmojiCountLabel.do {
             $0.text = "99"
             $0.textAlignment = .left
             $0.numberOfLines = 1
@@ -71,13 +84,17 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
             $0.top.horizontalEdges.equalToSuperview()
             $0.height.equalTo(self.snp.width)
         }
-        
+                
         feedStackView.snp.makeConstraints {
             $0.top.equalTo(feedImageView.snp.bottom).offset(8)
             $0.horizontalEdges.equalToSuperview().inset(20)
             $0.height.equalTo(36)
         }
         
+        feedEmojiIconView.snp.makeConstraints {
+            $0.width.height.equalTo(16)
+            
+        }
         
         
     }
@@ -98,9 +115,9 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
             .disposed(by: disposeBag)
         
         reactor.state
-            .map { $0.title }
+            .map { $0.emojiCount }
             .asDriver(onErrorJustReturn: "")
-            .drive(feedTitleLabel.rx.text)
+            .drive(feedEmojiCountLabel.rx.text)
             .disposed(by: disposeBag)
     }
     

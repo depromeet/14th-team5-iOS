@@ -35,9 +35,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
 
     private let profileIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 50)
-    private let profileTitleView: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
-    private let privacyButton: UIButton = UIButton()
-    private let backButton: UIButton = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 52, height: 52)))
+    private let profileNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let profileLineView: UIView = UIView()
     private lazy var profilePickerController: PHPickerViewController = PHPickerViewController(configuration: pickerConfiguration)
     private let profileFeedCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
@@ -59,7 +57,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(profileView, profileLineView, profileFeedCollectionView, profileIndicatorView)
+        view.addSubviews(profileView, profileLineView, profileFeedCollectionView, profileIndicatorView, profileNavigationBar)
     }
     
     public override func setupAttributes() {
@@ -67,11 +65,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         
         profileFeedCollectionViewLayout.do {
             $0.scrollDirection = .vertical
-        }
-        
-        profileTitleView.do {
-            $0.textColor = DesignSystemAsset.gray200.color
-            $0.text = "활동"
         }
         
         profilePickerController.do {
@@ -82,21 +75,12 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             $0.backgroundColor = .separator
         }
         
-        privacyButton.do {
-            $0.setImage(DesignSystemAsset.setting.image, for: .normal)
-        }
-        
-        backButton.do {
-            $0.setImage(DesignSystemAsset.arrowLeft.image, for: .normal)
-            $0.backgroundColor = DesignSystemAsset.gray900.color
-            $0.clipsToBounds = true
-            $0.layer.cornerRadius = 10
-        }
-        
-        navigationItem.do {
-            $0.titleView = profileTitleView
-            $0.rightBarButtonItem = UIBarButtonItem(customView: privacyButton)
-            $0.leftBarButtonItem = UIBarButtonItem(customView: backButton)
+        profileNavigationBar.do {
+            $0.navigationTitle = "활동"
+            $0.leftBarButtonItem = .arrowLeft
+            $0.rightBarButtonItem = .setting
+            $0.leftBarButtonItemTintColor = .gray300
+            $0.rightBarButtonItemTintColor = .gray400
         }
         
         profileIndicatorView.do {
@@ -114,6 +98,12 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
+        
+        profileNavigationBar.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(42.0)
+        }
         
         profileView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide.snp.topMargin)
@@ -155,14 +145,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .setDelegate(self)
             .disposed(by: disposeBag)
         
-        privacyButton
-            .rx.tap
-            .throttle(.microseconds(300), scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind { owner, _ in
-                let privacyViewController = PrivacyDIContainer().makeViewController()
-                owner.navigationController?.pushViewController(privacyViewController, animated: true)
-            }.disposed(by: disposeBag)
         
         profileView.circleButton
             .rx.tap
@@ -171,13 +153,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(onNext: {$0.0.createAlertController(owner: $0.0)})
             .disposed(by: disposeBag)
         
-        backButton
-            .rx.tap
-            .throttle(.microseconds(300), scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind { owner, _ in
-                owner.navigationController?.popViewController(animated: true)
-            }.disposed(by: disposeBag)
             
         NotificationCenter.default.rx.notification(.PHPickerAssetsDidFinishPickingProcessingPhotoNotification)
             .compactMap { notification -> Data? in
@@ -241,6 +216,20 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        profileNavigationBar.rx.didTapRightBarButton
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.navigationController?.popViewController(animated: true)
+            }.disposed(by: disposeBag)
+        
+        profileNavigationBar.rx.didTapRightBarButton
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, _ in
+                let privacyViewController = PrivacyDIContainer().makeViewController()
+                owner.navigationController?.pushViewController(privacyViewController, animated: true)
+            }.disposed(by: disposeBag)
     }
 }
 
@@ -280,7 +269,7 @@ extension ProfileViewController {
     }
     
     private func transitionNickNameViewController(memberId: String) {
-        let accountNickNameViewController:AccountNicknameViewController = AccountSignUpDIContainer(memberId: memberId).makeNickNameViewController()
+        let accountNickNameViewController:AccountNicknameViewController = AccountSignUpDIContainer(memberId: memberId, accountType: .profile).makeNickNameViewController()
         self.navigationController?.pushViewController(accountNickNameViewController, animated: false)
     }
     

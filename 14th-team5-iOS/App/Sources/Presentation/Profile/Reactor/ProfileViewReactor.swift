@@ -72,7 +72,7 @@ public final class ProfileViewReactor: Reactor {
                     .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
                         var sectionItem: [ProfileFeedSectionItem] = []
                         entity.results.forEach {
-                            sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, title: $0.content, date: DateFormatter.yyyyMMdd.string(from: $0.createdAt))))
+                            sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date: DateFormatter.yyyyMMdd.string(from: $0.createdAt))))
                             
                         }
                         return .concat(

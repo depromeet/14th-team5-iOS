@@ -18,7 +18,7 @@ import Then
 
 public final class PrivacyViewController: BaseViewController<PrivacyViewReactor> {
     //MARK: Views
-    private let titleView: TypeSystemLabel = TypeSystemLabel(.head2Bold, textColor: .gray200)
+    private let titleView: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
     private let backButton: UIButton = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 52, height: 52)))
     private let privacyTableView: UITableView = UITableView(frame: .zero, style: .grouped)
     private let privacyIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)

@@ -23,7 +23,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     private let confirmButton: UIButton = UIButton(configuration: .plain())
     private let displayIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     private let backButton: UIButton = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 52, height: 52)))
-    private let titleView: TypeSystemLabel = TypeSystemLabel(.head2Bold, textColor: .gray200)
+    private let titleView: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
     private let displayEditButton: UIButton = UIButton.createCircleButton(radius: 21.5)
     private let displayEditTextField: UITextField = UITextField()
     private let displayDimView: UIView = UIView()

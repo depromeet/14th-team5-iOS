@@ -37,6 +37,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 50)
     private let profileTitleView: TypeSystemLabel = TypeSystemLabel(.head2Bold, textColor: .gray200)
     private let privacyButton: UIButton = UIButton()
+    private let backButton: UIButton = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 52, height: 52)))
     private let profileLineView: UIView = UIView()
     private lazy var profilePickerController: PHPickerViewController = PHPickerViewController(configuration: pickerConfiguration)
     private let profileFeedCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
@@ -85,9 +86,17 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             $0.setImage(DesignSystemAsset.setting.image, for: .normal)
         }
         
+        backButton.do {
+            $0.setImage(DesignSystemAsset.xmark.image, for: .normal)
+            $0.backgroundColor = DesignSystemAsset.gray300.color
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = 10
+        }
+        
         navigationItem.do {
             $0.titleView = profileTitleView
             $0.rightBarButtonItem = UIBarButtonItem(customView: privacyButton)
+            $0.leftBarButtonItem = UIBarButtonItem(customView: backButton)
         }
         
         profileIndicatorView.do {
@@ -161,6 +170,14 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .withUnretained(self)
             .bind(onNext: {$0.0.createAlertController(owner: $0.0)})
             .disposed(by: disposeBag)
+        
+        backButton
+            .rx.tap
+            .throttle(.microseconds(300), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.navigationController?.popViewController(animated: true)
+            }.disposed(by: disposeBag)
             
         NotificationCenter.default.rx.notification(.PHPickerAssetsDidFinishPickingProcessingPhotoNotification)
             .compactMap { notification -> Data? in

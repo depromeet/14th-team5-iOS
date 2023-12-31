@@ -15,6 +15,7 @@ import ReactorKit
 public final class ProfileViewReactor: Reactor {
     public var initialState: State
     private let profileUseCase: ProfileViewUsecaseProtocol
+    private let memberId: String
     
     public enum Action {
         case viewDidLoad
@@ -34,6 +35,7 @@ public final class ProfileViewReactor: Reactor {
     
     public struct State {
         var isLoading: Bool
+        var memberId: String
         @Pulse var feedSection: [ProfileFeedSectionModel]
         @Pulse var profileMemberEntity: ProfileMemberResponse?
         @Pulse var profilePostEntity: ProfilePostResponse?
@@ -41,27 +43,30 @@ public final class ProfileViewReactor: Reactor {
         @Pulse var profilePresingedURLEntity: CameraDisplayImageResponse?
     }
     
-    init(profileUseCase: ProfileViewUsecaseProtocol) {
+    init(profileUseCase: ProfileViewUsecaseProtocol, memberId: String) {
         self.profileUseCase = profileUseCase
+        self.memberId = memberId
         self.initialState = State(
             isLoading: false,
+            memberId: self.memberId,
             feedSection: [.feedCategory([])],
             profileMemberEntity: nil,
             isProfileUpload: false,
             profilePresingedURLEntity: nil
         )
+        print("Check Member Id State: \(self.currentState.memberId)")
     }
     
     
     public func mutate(action: Action) -> Observable<Mutation> {
         //TODO: Keychain, UserDefaults 추가
         var query: ProfilePostQuery = ProfilePostQuery(page: 1, size: 10)
-        let parameters: ProfilePostDefaultValue = ProfilePostDefaultValue(date: "", memberId: "01HJBNXAV0TYQ1KESWER45A2QP", sort: "DESC")
+        let parameters: ProfilePostDefaultValue = ProfilePostDefaultValue(date: "", memberId: self.currentState.memberId, sort: "DESC")
         switch action {
         case .viewDidLoad:
             return .concat(
                 .just(.setLoading(true)),
-                profileUseCase.executeProfileMemberItems()
+                profileUseCase.executeProfileMemberItems(memberId: self.currentState.memberId)
                     .asObservable()
                     .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
                             .just(.setProfileMemberItems(entity))
@@ -72,7 +77,7 @@ public final class ProfileViewReactor: Reactor {
                     .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
                         var sectionItem: [ProfileFeedSectionItem] = []
                         entity.results.forEach {
-                            sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date: DateFormatter.yyyyMMdd.string(from: $0.createdAt))))
+                            sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date: $0.createdAt)))
                             
                         }
                         return .concat(
@@ -86,7 +91,7 @@ public final class ProfileViewReactor: Reactor {
             
         case .viewWillAppear:
             return .concat(
-                profileUseCase.executeProfileMemberItems()
+                profileUseCase.executeProfileMemberItems(memberId: self.currentState.memberId)
                     .asObservable()
                     .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
                             .concat(
@@ -116,7 +121,7 @@ public final class ProfileViewReactor: Reactor {
                                 let originalPath = owner.configureProfileOriginalS3URL(url: profilePresingedURL)
                                 let profileEditParameter: ProfileImageEditParameter = ProfileImageEditParameter(profileImageUrl: originalPath)
                                 if isSuccess {
-                                    return owner.profileUseCase.executeReloadProfileImage(memberId: "01HJBNXAV0TYQ1KESWER45A2QP", parameter: profileEditParameter)
+                                    return owner.profileUseCase.executeReloadProfileImage(memberId: self.currentState.memberId, parameter: profileEditParameter)
                                         .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                                         .asObservable()
                                         .flatMap { memberEntity -> Observable<ProfileViewReactor.Mutation> in
@@ -153,7 +158,7 @@ public final class ProfileViewReactor: Reactor {
                     paginationItems.append(contentsOf: entity.results)
                    
                     paginationItems.forEach {
-                        sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date: DateFormatter.yyyyMMdd.string(from: $0.createdAt))))
+                        sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date: $0.createdAt)))
                     }
                     
                     return .concat(

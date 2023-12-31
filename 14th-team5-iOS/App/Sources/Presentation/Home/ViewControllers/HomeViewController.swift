@@ -69,6 +69,19 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             })
             .disposed(by: disposeBag)
         
+            
+        
+        familyCollectionView
+            .rx.modelSelected(ProfileData.self)
+            .map { $0.memberId }
+            .withUnretained(self)
+            .bind { owner, memberId in
+                let profileViewController = ProfileDIContainer(memberId: memberId).makeViewController()
+                self.navigationController?.pushViewController(profileViewController, animated: true)
+            }.disposed(by: disposeBag)
+        
+
+        
         postCollectionView.rx.itemSelected
 //            .withUnretained(self)
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)

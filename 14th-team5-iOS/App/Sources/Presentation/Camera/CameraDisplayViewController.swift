@@ -389,7 +389,7 @@ extension CameraDisplayViewController {
         displayDimView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        view.bringSubviewToFront(displayEditCollectionView)
+        view.bringSubviewToFronts(displayEditCollectionView, displayEditTextField)
         displayDimView.backgroundColor = .black.withAlphaComponent(0.5)
     }
     

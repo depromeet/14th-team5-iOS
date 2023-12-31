@@ -50,6 +50,10 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     }
 
     
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.navigationBar.isHidden = true
+    }
     
     public override func viewDidLoad() {
         super.viewDidLoad()

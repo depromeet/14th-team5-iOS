@@ -53,7 +53,7 @@ extension ProfilePostDTO.ProfilePostResponseDTO {
             emojiCount: "\(emojiCount)",
             imageUrl: URL(string: imageUrl) ?? URL(fileURLWithPath: ""),
             content: content,
-            createdAt: createdAt.toDate(with: "yyyy년 M월 D일")
+            createdAt: createdAt
         )
     }
 }

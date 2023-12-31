@@ -151,8 +151,6 @@ public final class ProfileViewReactor: Reactor {
                     
                     var sectionItem: [ProfileFeedSectionItem] = []
                     paginationItems.append(contentsOf: entity.results)
-                    //Pageination 데이터 초기화 되는것 같음 해결 하기(나중에)
-                    print("pageination Test: \(paginationItems)")
                    
                     paginationItems.forEach {
                         sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, title: $0.content, date: DateFormatter.yyyyMMdd.string(from: $0.createdAt))))
@@ -160,7 +158,6 @@ public final class ProfileViewReactor: Reactor {
                     
                     return .concat(
                         .just(.setLoading(true)),
-                        .just(.setProfilePostItems(entity)),
                         .just(.setFeedCategroySection(sectionItem)),
                         .just(.setLoading(false))
                     )
@@ -184,15 +181,12 @@ public final class ProfileViewReactor: Reactor {
             
         case let .setProfileMemberItems(entity):
             newState.profileMemberEntity = entity
-            print("member Edit: \(entity)")
             
         case let .setProfilePresingedURL(entity):
             newState.profilePresingedURLEntity = entity
-            print("profilePresingedURL \(entity)")
             
         case let .setPresignedS3Upload(isProfileUpload):
             newState.isProfileUpload = isProfileUpload
-            print("presingedS3Upload \(isProfileUpload)")
         }
         
         return newState

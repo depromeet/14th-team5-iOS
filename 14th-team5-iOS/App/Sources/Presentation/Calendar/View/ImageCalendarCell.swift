@@ -19,7 +19,7 @@ import Then
 
 final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {    
     // MARK: - Views
-    private let dayLabel: TypeSystemLabel = TypeSystemLabel(.body1Regular)
+    private let dayLabel: BibbiLabel = BibbiLabel(.body1Regular)
     private let noThumbnailView: UIView = UIView()
     private let thumbnailView: UIImageView = UIImageView()
     private let badgeView: UIImageView = UIImageView()
@@ -91,14 +91,14 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         
         noThumbnailView.do {
             $0.clipsToBounds = true
-            $0.layer.cornerRadius = CalendarCell.Attribute.thumbnailCornerRadius
+            $0.layer.cornerRadius = 13.0
             $0.backgroundColor = DesignSystemAsset.gray900.color
         }
         
         thumbnailView.do {
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
-            $0.layer.cornerRadius = CalendarCell.Attribute.thumbnailCornerRadius
+            $0.layer.cornerRadius = 13.0
             $0.layer.borderWidth = .zero
             $0.layer.borderColor = DesignSystemAsset.white.color.cgColor
             $0.alpha = CalendarCell.Attribute.defaultAlphaValue

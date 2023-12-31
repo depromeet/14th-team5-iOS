@@ -17,12 +17,12 @@ import Then
 final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellReactor> {
     // MARK: - Views
     private let memberImageBackgroundView: UIView = UIView()
-    private let firstNameLabel: TypeSystemLabel = TypeSystemLabel(.head2Bold)
+    private let firstNameLabel: BibbiLabel = BibbiLabel(.head2Bold)
     private let memberImageView: UIImageView = UIImageView()
     
     private let namelabelStackView: UIStackView = UIStackView()
-    private let nameLabel: TypeSystemLabel = TypeSystemLabel(.body1Regular)
-    private let isMeLabel: TypeSystemLabel = TypeSystemLabel(.body2Regular)
+    private let nameLabel: BibbiLabel = BibbiLabel(.body1Regular)
+    private let isMeLabel: BibbiLabel = BibbiLabel(.body2Regular)
     
     // MARK: - Properties
     static let id: String = "FamilyProfileCell"
@@ -58,7 +58,7 @@ final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellR
     override func setupAutoLayout() {
         super.setupAutoLayout()
         memberImageBackgroundView.snp.makeConstraints {
-            $0.leading.equalTo(contentView.snp.leading).offset(AddFamilyCell.AutoLayout.profileImageLeadingOffsetValue)
+            $0.leading.equalTo(contentView.snp.leading).offset(20.0)
             $0.top.equalTo(contentView.snp.top).offset(AddFamilyCell.AutoLayout.profileImageTopOffsetValue)
             $0.bottom.equalTo(contentView.snp.bottom).offset(-AddFamilyCell.AutoLayout.profileImageTopOffsetValue)
             $0.width.height.equalTo(AddFamilyCell.AutoLayout.profileImageWidthValue)

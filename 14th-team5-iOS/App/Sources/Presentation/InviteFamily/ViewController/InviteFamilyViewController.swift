@@ -18,20 +18,21 @@ import Then
 
 public final class InviteFamilyViewController: BaseViewController<InviteFamilyViewReactor> {
     // MARK: - Views
-    private let invitationUrlAreaBackgroundView: UIView = UIView()
-    private let envelopeImageBackgroundView: UIView = UIView()
+    private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
+    
+    private let shareAreaBackgroundView: UIView = UIView()
     private let envelopeImageView: UIImageView = UIImageView()
     
     private let titleLabelStackView: UIStackView = UIStackView()
-    private let inviteFamilyTitleLabel: TypeSystemLabel = TypeSystemLabel(.head2Bold)
-    private let invitationUrlLabel: TypeSystemLabel = TypeSystemLabel(.body2Regular)
+    private let inviteFamilyTitleLabel: BibbiLabel = BibbiLabel(.head2Bold)
+    private let invitationUrlLabel: BibbiLabel = BibbiLabel(.body2Regular)
     private let shareButton: UIButton = UIButton(type: .system)
     
     private let dividerView: UIView = UIView()
     
     private let headerLabelStackView: UIStackView = UIStackView()
-    private let tableTitleLabel: TypeSystemLabel = TypeSystemLabel(.head1)
-    private let tableCountLabel: TypeSystemLabel = TypeSystemLabel(.body1Regular)
+    private let tableTitleLabel: BibbiLabel = BibbiLabel(.head1)
+    private let tableCountLabel: BibbiLabel = BibbiLabel(.body1Regular)
     private let tableView: UITableView = UITableView()
     
     // MARK: - Properties
@@ -42,12 +43,19 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
         super.viewDidLoad()
     }
     
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.isHidden = true
+    }
+    
     // MARK: - Helpers
     public override func setupUI() {
         super.setupUI()
-        view.addSubview(invitationUrlAreaBackgroundView)
-        invitationUrlAreaBackgroundView.addSubviews(
-            envelopeImageBackgroundView, envelopeImageView, titleLabelStackView, shareButton
+        view.addSubviews(
+            navigationBarView, shareAreaBackgroundView
+        )
+        shareAreaBackgroundView.addSubviews(
+            envelopeImageView, titleLabelStackView, shareButton
         )
         titleLabelStackView.addArrangedSubviews(
             inviteFamilyTitleLabel, invitationUrlLabel
@@ -60,72 +68,71 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
         )
     }
     
+    // 세부 UI 수치 조정하기
     public override func setupAutoLayout() {
         super.setupAutoLayout()
-        invitationUrlAreaBackgroundView.snp.makeConstraints {
-            $0.leading.equalTo(view.snp.leading).offset(AddFamilyVC.AutoLayout.defaultOffsetValue)
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(AddFamilyVC.AutoLayout.backgroundViewTopOffsetValue)
-            $0.trailing.equalTo(view.snp.trailing).offset(-AddFamilyVC.AutoLayout.defaultOffsetValue)
-            $0.height.equalTo(AddFamilyVC.AutoLayout.backgroundViewHeightValue)
+        
+        navigationBarView.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(42.0)
         }
         
-        envelopeImageBackgroundView.snp.makeConstraints {
-            $0.leading.equalTo(invitationUrlAreaBackgroundView.snp.leading).offset(AddFamilyVC.AutoLayout.defaultOffsetValue)
-            $0.width.height.equalTo(AddFamilyVC.AutoLayout.imageBackgroundViewHeightValue)
-            $0.centerY.equalTo(invitationUrlAreaBackgroundView.snp.centerY)
+        shareAreaBackgroundView.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview().inset(20.0)
+            $0.top.equalTo(navigationBarView.snp.bottom).offset(16.0)
+            $0.height.equalTo(90.0)
         }
         
         envelopeImageView.snp.makeConstraints {
-            $0.width.height.equalTo(AddFamilyVC.AutoLayout.envelopeImageViewHeightValue)
-            $0.center.equalTo(envelopeImageBackgroundView.snp.center)
+            $0.leading.equalTo(shareAreaBackgroundView.snp.leading).offset(AddFamilyVC.AutoLayout.defaultOffsetValue)
+            $0.width.height.equalTo(AddFamilyVC.AutoLayout.imageBackgroundViewHeightValue)
+            $0.centerY.equalTo(shareAreaBackgroundView.snp.centerY)
         }
         
         titleLabelStackView.snp.makeConstraints {
-            $0.leading.equalTo(envelopeImageBackgroundView.snp.trailing).offset(AddFamilyVC.AutoLayout.defaultOffsetValue)
-            $0.centerY.equalTo(invitationUrlAreaBackgroundView.snp.centerY)
+            $0.leading.equalTo(envelopeImageView.snp.trailing).offset(AddFamilyVC.AutoLayout.defaultOffsetValue)
+            $0.centerY.equalTo(shareAreaBackgroundView.snp.centerY)
         }
         
         shareButton.snp.makeConstraints {
-            $0.trailing.equalTo(invitationUrlAreaBackgroundView.snp.trailing).offset(-AddFamilyVC.AutoLayout.shareInvitationUrlButtonTrailingOffsetValue)
-            $0.centerY.equalTo(invitationUrlAreaBackgroundView.snp.centerY)
+            $0.trailing.equalTo(shareAreaBackgroundView.snp.trailing).offset(-AddFamilyVC.AutoLayout.shareInvitationUrlButtonTrailingOffsetValue)
+            $0.centerY.equalTo(shareAreaBackgroundView.snp.centerY)
         }
         
         dividerView.snp.makeConstraints {
-            $0.leading.equalTo(view.snp.leading)
-            $0.top.equalTo(invitationUrlAreaBackgroundView.snp.bottom).offset(AddFamilyVC.AutoLayout.dividerViewTopOffsetValue)
-            $0.trailing.equalTo(view.snp.trailing)
+            $0.leading.trailing.equalToSuperview()
+            $0.top.equalTo(shareAreaBackgroundView.snp.bottom).offset(AddFamilyVC.AutoLayout.dividerViewTopOffsetValue)
             $0.height.equalTo(1.0)
         }
         
         headerLabelStackView.snp.makeConstraints {
-            $0.leading.equalTo(view.snp.leading).offset(AddFamilyVC.AutoLayout.defaultOffsetValue)
+            $0.leading.equalTo(view).inset(20.0)
             $0.top.equalTo(dividerView.snp.bottom).offset(AddFamilyVC.AutoLayout.tableHeaderStackViewTopOffsetValue)
         }
         
         tableView.snp.makeConstraints {
-            $0.leading.equalTo(view.snp.leading)
+            $0.leading.trailing.equalTo(view)
             $0.top.equalTo(headerLabelStackView.snp.bottom).offset(AddFamilyVC.AutoLayout.tableViewTopOffsetValue)
-            $0.trailing.equalTo(view.snp.trailing)
             $0.bottom.equalTo(view.snp.bottom)
         }
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
-        invitationUrlAreaBackgroundView.do {
+        navigationBarView.do {
+            $0.navigationTitle = "가족"
+            $0.leftBarButtonItem = .arrowLeft
+         }
+        
+        shareAreaBackgroundView.do {
             $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = AddFamilyVC.Attribute.backgroundViewCornerRadius
+            $0.layer.cornerRadius = 16.0
             $0.backgroundColor = DesignSystemAsset.gray800.color
         }
         
-        envelopeImageBackgroundView.do {
-            $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = AddFamilyVC.AutoLayout.imageBackgroundViewHeightValue / 2.0
-            $0.backgroundColor = DesignSystemAsset.mainGreen.color
-        }
-        
         envelopeImageView.do {
-            $0.image = DesignSystemAsset.envelope.image
+            $0.image = DesignSystemAsset.envelopeBackground.image
             $0.contentMode = .scaleAspectFit
         }
         
@@ -198,6 +205,13 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
         Observable<Void>.just(())
             .map { Reactor.Action.fetchYourFamilyMemeber }
             .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        navigationBarView.rx.didTapLeftBarButton
+            .withUnretained(self)
+            .subscribe {
+                $0.0.navigationController?.popViewController(animated: true)
+            }
             .disposed(by: disposeBag)
         
         shareButton.rx.tap

@@ -10,7 +10,7 @@ import UIKit
 import DesignSystem
 
 extension UIFont {
-    public static func pretendard(_ textStyle: TypeSystemStyle) -> UIFont? {
+    public static func pretendard(_ textStyle: BibbiFontStyle) -> UIFont? {
         let attributes = fontAttributes(textStyle)
         return UIFont(
             font: attributes.font,
@@ -20,7 +20,7 @@ extension UIFont {
 }
 
 extension UIFont {
-    static func fontAttributes(_ textStyle: TypeSystemStyle = .title, textColor color: TypeSystemColor = .white) -> FontAttributes {
+    static func fontAttributes(_ textStyle: BibbiFontStyle = .title, textColor color: UIColor = .bibbiWhite) -> FontAttributes {
         switch textStyle {
         case .title:
             return FontAttributes(
@@ -99,11 +99,10 @@ extension UIFont {
 }
 
 extension UIFont {
-    public typealias TypeSystemStyle = TypeSystem.Style
-    public typealias TypeSystemFamily = TypeSystem.Family
-    public typealias TypeSystemColor = TypeSystem.Color
+    public typealias BibbiFontStyle = Pretendard.Style
+    public typealias BibbiFontFamily = Pretendard.Family
     
-    public enum TypeSystem {
+    public enum Pretendard {
         public enum Style {
             case title
             case head1
@@ -127,40 +126,19 @@ extension UIFont {
             case light
             case extraLight
         }
-        
-        public enum Color {
-            case black
-            case emojiYellow
-            case graphicBlue
-            case graphicPink
-            case graphicPurple
-            case gray100
-            case gray200
-            case gray300
-            case gray400
-            case gray500
-            case gray600
-            case gray700
-            case gray800
-            case gray900
-            case mainGreen
-            case mainGreenHover
-            case warningRed
-            case white
-        }
     }
     
     public struct FontAttributes {
         let size: CGFloat
-        let weight: TypeSystemFamily
-        let color: TypeSystemColor
+        let weight: BibbiFontFamily
+        let color: UIColor
         let letterSpacing: CGFloat
         let lineHeight: CGFloat
         
         init(
             size: CGFloat,
-            weight: TypeSystemFamily,
-            color: TypeSystemColor,
+            weight: BibbiFontFamily,
+            color: UIColor,
             letterSpacing: CGFloat,
             lineHeight: CGFloat
         ) {
@@ -195,47 +173,6 @@ extension UIFont.FontAttributes {
             return DesignSystemFontFamily.Pretendard.light
         case .extraLight:
             return DesignSystemFontFamily.Pretendard.extraLight
-        }
-    }
-    
-    public var textColor: UIColor {
-        switch color {
-        case .black:
-            return DesignSystemAsset.black.color
-        case .emojiYellow:
-            return DesignSystemAsset.emojiYellow.color
-        case .graphicBlue:
-            return DesignSystemAsset.graphicBlue.color
-        case .graphicPink:
-            return DesignSystemAsset.graphicPink.color
-        case .graphicPurple:
-            return DesignSystemAsset.graphicPurple.color
-        case .gray100:
-            return DesignSystemAsset.gray100.color
-        case .gray200:
-            return DesignSystemAsset.gray200.color
-        case .gray300:
-            return DesignSystemAsset.gray300.color
-        case .gray400:
-            return DesignSystemAsset.gray400.color
-        case .gray500:
-            return DesignSystemAsset.gray500.color
-        case .gray600:
-            return DesignSystemAsset.gray600.color
-        case .gray700:
-            return DesignSystemAsset.gray700.color
-        case .gray800:
-            return DesignSystemAsset.gray800.color
-        case .gray900:
-            return DesignSystemAsset.gray900.color
-        case .mainGreen:
-            return DesignSystemAsset.mainGreen.color
-        case .mainGreenHover:
-            return DesignSystemAsset.mainGreenHover.color
-        case .warningRed:
-            return DesignSystemAsset.warningRed.color
-        case .white:
-            return DesignSystemAsset.white.color
         }
     }
 }

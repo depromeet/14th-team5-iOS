@@ -13,7 +13,7 @@ import Then
 
 
 public final class PrivacyAuthorizationHeaderFooterView: UITableViewHeaderFooterView {
-    private let headerLabel: TypeSystemLabel = TypeSystemLabel(.body2Regular, textColor: .gray300)
+    private let headerLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray300)
     
     public override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)

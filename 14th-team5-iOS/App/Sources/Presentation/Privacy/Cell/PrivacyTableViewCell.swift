@@ -17,7 +17,7 @@ import Then
 
 public final class PrivacyTableViewCell: BaseTableViewCell<PrivacyCellReactor> {
     //MARK: Views
-    private let descrptionLabel: TypeSystemLabel = TypeSystemLabel(.head2Regular, textColor: .gray200)
+    private let descrptionLabel: BibbiLabel = BibbiLabel(.head2Regular, textColor: .gray200)
     private let arrowAccessView: UIImageView = UIImageView()
     
     

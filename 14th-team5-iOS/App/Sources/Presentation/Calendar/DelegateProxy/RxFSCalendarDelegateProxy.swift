@@ -12,7 +12,7 @@ import FSCalendar
 import RxSwift
 import RxCocoa
 
-class RxFSCalendarDelegateProxy: DelegateProxy<FSCalendar, FSCalendarDelegate>, DelegateProxyType, FSCalendarDelegate {
+final class RxFSCalendarDelegateProxy: DelegateProxy<FSCalendar, FSCalendarDelegate>, DelegateProxyType, FSCalendarDelegate {
     static func registerKnownImplementations() {
         self.register {
             RxFSCalendarDelegateProxy(parentObject: $0, delegateProxy: self)
@@ -29,7 +29,7 @@ extension Reactive where Base: FSCalendar {
         return RxFSCalendarDelegateProxy.proxy(for: self.base)
     }
     
-    var didSelect: Observable<(Date)> {
+    var didSelect: Observable<Date> {
         return delegate.methodInvoked(#selector(FSCalendarDelegate.calendar(_:didSelect:at:)))
             .debug("calendar(_:didSelect:at:) 메서드 호출 성공")
             .map { $0[1] as! Date }

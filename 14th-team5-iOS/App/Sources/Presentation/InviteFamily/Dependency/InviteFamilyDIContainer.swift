@@ -25,7 +25,7 @@ public final class InviteFamilyDIContainer: BaseDIContainer {
     }
     
     public func makeViewController() -> InviteFamilyViewController {
-        return InviteFamilyViewController(reacter: makeReactor())
+        return InviteFamilyViewController(reactor: makeReactor())
     }
     
     public func makeUsecase() -> InviteFamilyViewUseCaseProtocol {

@@ -7,17 +7,18 @@
 
 import UIKit
 import Core
+import Domain
 
 import RxSwift
 import RxCocoa
 
 /// 포스트 자세히 보기 - 추가된 이모지 (해제만 가능)
 final class EmojiCountButton: BaseView<EmojiReactor> {
-    private let emojiLabel = UILabel()
+    private let emojiImageView = UIImageView()
     private let countLabel = UILabel()
     
     override func setupUI() {
-        addSubviews(emojiLabel, countLabel)
+        addSubviews(emojiImageView, countLabel)
     }
     
     override func bind(reactor: EmojiReactor) {
@@ -25,14 +26,14 @@ final class EmojiCountButton: BaseView<EmojiReactor> {
     }
     
     override func setupAutoLayout() {
-        emojiLabel.snp.makeConstraints {
+        emojiImageView.snp.makeConstraints {
             $0.leading.equalToSuperview().inset(9)
             $0.width.equalTo(16)
             $0.centerY.equalToSuperview()
         }
         
         countLabel.snp.makeConstraints {
-            $0.leading.equalTo(emojiLabel.snp.trailing)
+            $0.leading.equalTo(emojiImageView.snp.trailing)
             $0.trailing.equalToSuperview().inset(5)
             $0.width.equalTo(20)
             $0.centerY.equalToSuperview()
@@ -51,7 +52,7 @@ final class EmojiCountButton: BaseView<EmojiReactor> {
 
 extension EmojiCountButton {
     func setInitEmoji(emoji: EmojiData) {
-        emojiLabel.text = emoji.emoji.emojiString
+        emojiImageView.image = emoji.emoji.emojiImage
         countLabel.text = "\(emoji.count)"
     }
     

@@ -25,7 +25,7 @@ public final class CalendarDIConatainer: BaseDIContainer {
     }
     
     public func makeViewController() -> ViewController {
-        return CalendarViewController(reacter: makeReactor())
+        return CalendarViewController(reactor: makeReactor())
     }
     
     public func makeUseCase() -> UseCase {

@@ -22,9 +22,9 @@ open class BaseViewController<R>: UIViewController, ReactorKit.View where R: Rea
         super.init(nibName: nil, bundle: nil)
     }
     
-    public convenience init(reacter: Reactor? = nil) {
+    public convenience init(reactor: Reactor? = nil) {
         self.init()
-        self.reactor = reacter
+        self.reactor = reactor
     }
     
     required public init?(coder: NSCoder) {

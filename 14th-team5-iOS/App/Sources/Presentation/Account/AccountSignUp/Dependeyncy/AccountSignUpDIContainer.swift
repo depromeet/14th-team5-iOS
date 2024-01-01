@@ -36,6 +36,6 @@ public final class AccountSignUpDIContainer: BaseDIContainer {
     
     
     public func makeNickNameViewController() -> NickNameViewController {
-        return AccountNicknameViewController(reacter: makeReactor())
+        return AccountNicknameViewController(reactor: makeReactor())
     }
 }

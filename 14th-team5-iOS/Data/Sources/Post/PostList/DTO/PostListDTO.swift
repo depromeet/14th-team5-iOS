@@ -28,7 +28,7 @@ struct PostListDTO: Codable {
 
 extension PostListDTO {
     func toDomain() -> PostListData {
-        return .init(author: authorId, time: createdAt, imageURL: imageUrl)
+        return .init(postId: postId, author: authorId, emojiCount: emojiCount, imageURL: imageUrl, content: content, time: createdAt)
     }
 }
 

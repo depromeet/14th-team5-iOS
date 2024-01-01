@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Domain
 
 import SnapKit
 import Then
@@ -60,7 +61,7 @@ final class PostNavigationView: UIView {
     
     func setupAttributes() {
         backButton.do {
-            $0.backgroundColor = UIColor(red: 0.184, green: 0.184, blue: 0.196, alpha: 1)
+            $0.backgroundColor = .clear
             $0.layer.cornerRadius = 10
             $0.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
             $0.tintColor = .white
@@ -78,5 +79,16 @@ final class PostNavigationView: UIView {
         dateLabel.do {
             $0.text = "12월 16일"
         }
+    }
+}
+
+extension PostNavigationView {
+    func setData(data: PostListData) {
+        guard let url = URL(string: data.imageURL) else {
+            return
+        }
+        profileImageView.kf.setImage(with: url)
+        nameLabel.text = data.author
+        dateLabel.text = data.time
     }
 }

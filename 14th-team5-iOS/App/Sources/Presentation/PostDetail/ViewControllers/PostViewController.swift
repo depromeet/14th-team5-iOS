@@ -18,7 +18,7 @@ final class PostViewController: BaseViewController<PostReactor> {
     private let blurEffectView: UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffect.Style.dark))
     private let navigationView: PostNavigationView = PostNavigationView()
     private let collectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-    private let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
+    private let collectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -74,7 +74,7 @@ final class PostViewController: BaseViewController<PostReactor> {
         
         navigationView.snp.makeConstraints {
             $0.top.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
-            $0.height.equalTo(52)
+            $0.height.equalTo(PostAutoLayout.NavigationView.height)
         }
         
         collectionView.snp.makeConstraints {
@@ -86,29 +86,24 @@ final class PostViewController: BaseViewController<PostReactor> {
     override func setupAttributes() {
         super.setupAttributes()
         
-        backgroundImageView.do {
-            $0.kf.setImage(with: URL(string: "https://src.hidoc.co.kr/image/lib/2021/4/28/1619598179113_0.jpg")!)
-        }
-        
         blurEffectView.do {
             $0.frame = backgroundImageView.bounds
             $0.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         }
         
-        layout.do {
-            $0.sectionInset = .zero
+        collectionViewLayout.do {
+            $0.sectionInset = PostAutoLayout.CollectionViewLayout.sectionInset
             $0.scrollDirection = .horizontal
-            $0.minimumLineSpacing = 0
+            $0.minimumLineSpacing = PostAutoLayout.CollectionViewLayout.minimumLineSpacing
         }
         
         collectionView.do {
-//            $0.delegate = self
             $0.isPagingEnabled = true
             $0.backgroundColor = .clear
             $0.register(PostCollectionViewCell.self, forCellWithReuseIdentifier: PostCollectionViewCell.id)
-            $0.collectionViewLayout = layout
+            $0.collectionViewLayout = collectionViewLayout
             $0.contentInsetAdjustmentBehavior = .never
-            $0.scrollIndicatorInsets = .zero
+            $0.scrollIndicatorInsets = PostAutoLayout.CollectionView.scrollIndicatorInsets
             $0.showsVerticalScrollIndicator = false
             $0.showsHorizontalScrollIndicator = false
         }
@@ -127,7 +122,6 @@ extension PostViewController {
             })
     }
     
-    // cell.setCell과 setData => reactorkit으로 옮기기
     private func setNavigationView(data: PostListData) {
         self.navigationView.setData(data: data)
     }

@@ -69,13 +69,13 @@ public final class BibbiNavigationBarView: UIView {
         }
     }
     
-    public var leftBarButtonItemScale: CGFloat = 1.15 {
+    public var leftBarButtonItemScale: CGFloat = 1.0 {
         didSet {
             setupLeftButtonImageScale(leftBarButtonItemScale)
         }
     }
     
-    public var rightBarButtonItemScale: CGFloat = 1.15 {
+    public var rightBarButtonItemScale: CGFloat = 1.0 {
         didSet {
             setupRightButtonImageScale(rightBarButtonItemScale)
         }

@@ -58,7 +58,7 @@ final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellR
     override func setupAutoLayout() {
         super.setupAutoLayout()
         memberImageBackgroundView.snp.makeConstraints {
-            $0.leading.equalTo(contentView.snp.leading).offset(AddFamilyCell.AutoLayout.profileImageLeadingOffsetValue)
+            $0.leading.equalTo(contentView.snp.leading).offset(20.0)
             $0.top.equalTo(contentView.snp.top).offset(AddFamilyCell.AutoLayout.profileImageTopOffsetValue)
             $0.bottom.equalTo(contentView.snp.bottom).offset(-AddFamilyCell.AutoLayout.profileImageTopOffsetValue)
             $0.width.height.equalTo(AddFamilyCell.AutoLayout.profileImageWidthValue)

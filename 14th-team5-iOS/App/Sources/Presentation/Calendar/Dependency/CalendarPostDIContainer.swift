@@ -11,10 +11,12 @@ import Core
 import Data
 import Domain
 
-public final class CalendarPostDIConatainer: BaseDIContainer {
+public final class CalendarPostDIConatainer {
     public typealias ViewController = CalendarPostViewController
-    public typealias UseCase = CalendarUseCaseProtocol
-    public typealias Repository = CalendarRepositoryProtocol
+    public typealias CalUseCase = CalendarUseCaseProtocol
+    public typealias PostUseCase = PostListUseCaseProtocol
+    public typealias CalRepository = CalendarRepositoryProtocol
+    public typealias PostRepository = PostListRepositoryProtocol
     public typealias Reactor = CalendarPostViewReactor
     
     let selectedDate: Date
@@ -34,18 +36,27 @@ public final class CalendarPostDIConatainer: BaseDIContainer {
         return CalendarPostViewController(reactor: makeReactor())
     }
     
-    public func makeUseCase() -> UseCase {
-        return CalendarUseCase(calendarRepository: makeRepository())
+    public func makeCalendarUseCase() -> CalUseCase {
+        return CalendarUseCase(calendarRepository: makeCalendarRepository())
     }
     
-    public func makeRepository() -> Repository {
+    public func makePostListUseCase() -> PostUseCase {
+        return PostListUseCase(postListRepository: makePostListRepository())
+    }
+    
+    public func makeCalendarRepository() -> CalRepository {
         return CalendarRepository()
+    }
+    
+    public func makePostListRepository() -> PostRepository {
+        return PostListAPIWorker()
     }
     
     public func makeReactor() -> Reactor {
         return CalendarPostViewReactor(
             selectedDate,
-            usecase: makeUseCase(),
+            calendarUseCase: makeCalendarUseCase(),
+            postListUseCase: makePostListUseCase(),
             provider: globalState
         )
     }

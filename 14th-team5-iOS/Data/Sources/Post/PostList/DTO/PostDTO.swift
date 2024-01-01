@@ -30,6 +30,8 @@ struct PostResponseDTO: Codable {
 
 extension PostResponseDTO {
     func toDomain() -> PostData {
-        return .init(writer: authorId, time: createdAt, imageURL: imageUrl, imageText: content, emojis: [])
+        let writer = FamilyUserDefaults.loadMemberFromUserDefaults(memberId: authorId)
+        
+        return .init(writer: writer, time: createdAt, imageURL: imageUrl, imageText: content, emojis: [])
     }
 }

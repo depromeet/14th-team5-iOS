@@ -15,8 +15,8 @@ public enum FamilyAPIs: API {
     
     var spec: APISpec {
         switch self {
-        case let .invitationUrl(familiyId):
-            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/families/\(familiyId)/invitation-link")
+        case let .invitationUrl(familyId):
+            return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/links/family/\(familyId)")
         case .familyMembers:
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/members?type=FAMILY")
         }

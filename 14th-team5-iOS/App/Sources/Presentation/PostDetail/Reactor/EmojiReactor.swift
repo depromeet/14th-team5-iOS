@@ -11,6 +11,11 @@ import ReactorKit
 import Domain
 
 final class EmojiReactor: Reactor {
+    enum CellType {
+        case home
+        case calendar
+    }
+    
     enum Action {
         case tappedSelectableEmojiStackView
         /// emoji count + 1
@@ -28,7 +33,11 @@ final class EmojiReactor: Reactor {
     }
     
     struct State {
-        var postId: String
+        let type: CellType
+        let postId: String
+        let imageUrl: String
+        let nickName: String
+        
         var isShowingSelectableEmojiStackView: Bool = false
         var selectedEmoji: (Emojis?, Int) = (nil, 0)
         var unselectedEmoji: (Emojis?, Int) = (nil, 0)

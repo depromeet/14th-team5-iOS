@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-public protocol PostListRepository {
+public protocol PostListRepositoryProtocol {
     func fetchPostDetail(query: PostQuery) -> Single<PostData?>
     func fetchTodayPostList(query: PostListQuery) -> Single<PostListPage?>
 }

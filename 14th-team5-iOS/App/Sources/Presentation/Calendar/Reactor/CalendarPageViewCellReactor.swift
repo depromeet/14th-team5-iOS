@@ -16,14 +16,14 @@ import RxSwift
 public final class CalendarPageCellReactor: Reactor {
     // MARK: - Action
     public enum Action {
-        case fetchCalendarResponse
-        case didSelectCalendarCell(Date)
+        case didSelectDate(Date)
         case didTapInfoButton(UIView)
+        case fetchCalendarResponse
     }
     
     // MARK: - Mutation
     public enum Mutation {
-        case fetchCalendarResponse(ArrayResponseCalendarResponse)
+        case injectCalendarResponse(ArrayResponseCalendarResponse)
     }
     
     // MARK: - State
@@ -57,19 +57,21 @@ public final class CalendarPageCellReactor: Reactor {
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case let .didSelectCalendarCell(date):
+        case let .didSelectDate(date):
             return provider.calendarGlabalState.pushCalendarPostVC(date)
                 .flatMap { _ in Observable<Mutation>.empty() }
+            
         case let .didTapInfoButton(sourceView):
             return provider.calendarGlabalState.didTapCalendarInfoButton(sourceView)
                 .flatMap { _ in Observable<Mutation>.empty() }
+            
         case .fetchCalendarResponse:
-            return calendarUseCase.executeFetchMonthlyCalendar(yearMonth)
+            return calendarUseCase.execute(yearMonth: yearMonth)
                 .map {
                     guard let arrayCalendarResponse = $0 else {
-                        return .fetchCalendarResponse(.init(results: []))
+                        return .injectCalendarResponse(.init(results: []))
                     }
-                    return .fetchCalendarResponse(arrayCalendarResponse)
+                    return .injectCalendarResponse(arrayCalendarResponse)
                 }
             
             // NOTE: - 테스트 코드 ①
@@ -92,7 +94,7 @@ public final class CalendarPageCellReactor: Reactor {
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
-        case let .fetchCalendarResponse(arrayCalendarResponse):
+        case let .injectCalendarResponse(arrayCalendarResponse):
             newState.arrayCalendarResponse = arrayCalendarResponse
         }
         return newState

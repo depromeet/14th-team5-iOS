@@ -102,14 +102,14 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
             $0.appearance.selectionColor = UIColor.clear
             
             $0.appearance.titleFont = UIFont.pretendard(.body1Regular)
-            $0.appearance.titleDefaultColor = DesignSystemAsset.white.color
-            $0.appearance.titleSelectionColor = DesignSystemAsset.white.color
+            $0.appearance.titleDefaultColor = UIColor.bibbiWhite
+            $0.appearance.titleSelectionColor = UIColor.bibbiWhite
             
             $0.appearance.weekdayFont = UIFont.pretendard(.caption)
-            $0.appearance.weekdayTextColor = DesignSystemAsset.gray300.color
+            $0.appearance.weekdayTextColor = UIColor.gray300
             $0.appearance.caseOptions = .weekdayUsesSingleUpperCase
             
-            $0.appearance.titlePlaceholderColor = UIColor.systemGray.withAlphaComponent(0.3)
+            $0.appearance.titlePlaceholderColor = UIColor.gray700
             
             $0.backgroundColor = UIColor.clear
             
@@ -144,7 +144,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
             .disposed(by: disposeBag)
         
         calendarView.rx.didSelect
-            .map { Reactor.Action.didSelectCalendarCell($0) }
+            .map { Reactor.Action.didSelectDate($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }

@@ -23,6 +23,12 @@ public final class CalendarPageCellDIContainer {
         return appDelegate.globalStateProvider
     }
     
+    public let yearMonth: String
+    
+    public init(yearMonth: String) {
+        self.yearMonth = yearMonth
+    }
+    
     public func makeUseCase() -> UseCase {
         return CalendarUseCase(calendarRepository: makeRepository())
     }
@@ -31,7 +37,7 @@ public final class CalendarPageCellDIContainer {
         return CalendarRepository()
     }
     
-    public func makeReactor(yearMonth: String) -> Reactor {
+    public func makeReactor() -> Reactor {
         return CalendarPageCellReactor(yearMonth, usecase: makeUseCase(), provider: globalState)
     }
 }

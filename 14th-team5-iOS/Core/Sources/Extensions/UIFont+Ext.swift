@@ -20,7 +20,11 @@ extension UIFont {
 }
 
 extension UIFont {
-    static func fontAttributes(_ textStyle: BibbiFontStyle = .title, textColor color: UIColor = .bibbiWhite, textAlignment: NSTextAlignment = .left) -> FontAttributes {
+    static func fontAttributes(
+        _ textStyle: BibbiFontStyle = .title,
+        textColor color: UIColor = .bibbiWhite,
+        textAlignment: NSTextAlignment = .left
+    ) -> FontAttributes {
         switch textStyle {
         case .title:
             return FontAttributes(

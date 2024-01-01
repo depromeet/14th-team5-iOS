@@ -58,7 +58,7 @@ extension UIViewController {
     ///   - name: SFSymbol 이름
     ///   - pattetteColors: SFSymbol 색상 (기본값 darkGray)
     ///   - width: 너비 (기본값 250)
-    ///   - height: 높이 (기본값 60)
+    ///   - height: 높이 (기본값 56)
     ///   - duration: 알림 표시 지속 시간 (기본값 0.5)
     ///   - offset: 표시할 위치 (기본값 40)
     public func makeRoundedToastView(
@@ -66,7 +66,7 @@ extension UIViewController {
         symbol name: String,
         palletteColors colors: [UIColor] = [.darkGray],
         width: CGFloat = 250,
-        height: CGFloat = 60,
+        height: CGFloat = 56,
         duration: CGFloat = 0.5,
         offset: CGFloat = 40
     ) {
@@ -100,14 +100,14 @@ extension UIViewController {
     ///   - title: 토스트 메시지
     ///   - designSystemImage: 이미지
     ///   - width: 너비 (기본값 250)
-    ///   - height: 높이 (기본값 60)
+    ///   - height: 높이 (기본값 56)
     ///   - duration: 알림 표시 지속 시간 (기본값 0.5)
     ///   - offset: 표시할 위치 (기본값 40)
     public func makeRoundedToastView(
         title: String,
         designSystemImage image: DesignSystemImages.Image,
         width: CGFloat = 250,
-        height: CGFloat = 60,
+        height: CGFloat = 56,
         duration: CGFloat = 0.5,
         offset: CGFloat = 40
     ) {

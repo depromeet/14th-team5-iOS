@@ -9,13 +9,13 @@ import Foundation
 
 public struct PostListData: Equatable {
     public let postId: String
-    public let author: String
+    public let author: ProfileData?
     public let emojiCount: Int
     public let imageURL: String
     public let content: String
     public let time: String
     
-    public init(postId: String, author: String, emojiCount: Int, imageURL: String, content: String, time: String) {
+    public init(postId: String, author: ProfileData?, emojiCount: Int, imageURL: String, content: String, time: String) {
         self.postId = postId
         self.author = author
         self.emojiCount = emojiCount
@@ -29,17 +29,14 @@ public struct PostListPage: Equatable {
     let currentPage: Int
     let totalPages: Int
     public let postLists: [PostListData]
+    public let allFamilyMembersUploaded: Bool
+    public let selfUploaded: Bool
     
-    public init(currentPage: Int, totalPages: Int, postLists: [PostListData]) {
+    public init(currentPage: Int, totalPages: Int, postLists: [PostListData], allFamilyMembersUploaded: Bool, selfUploaded: Bool) {
         self.currentPage = currentPage
         self.totalPages = totalPages
         self.postLists = postLists
-    }
-    
-    public func checkAuthor(authorId: String) -> Bool {
-        for post in postLists {
-            if post.author == authorId { return true }
-        }
-        return false
+        self.allFamilyMembersUploaded = allFamilyMembersUploaded
+        self.selfUploaded = selfUploaded
     }
 }

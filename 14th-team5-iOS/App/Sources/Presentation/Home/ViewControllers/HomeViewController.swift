@@ -45,7 +45,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         postCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
-        Observable.merge(
+        Observable.concat (
             Observable.just(()).map { Reactor.Action.getFamilyMembers },
             Observable.just(()).map { Reactor.Action.getTodayPostList }
         )

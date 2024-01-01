@@ -16,32 +16,31 @@ import RxSwift
 public final class InviteFamilyViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
-        case didTapInvitationUrlButton
-        case fetchYourFamilyMemeber
+        case didTapShareButton
+        case fetchFamilyMemebers
     }
     
     // MARK: - Mutate
     public enum Mutation {
-        case presentSharePanel(URL?)
-        case presentInvitationUrlCopySuccessToastMessage
-        case presentFetchInvitationUrlFailureTaostMessage
-        case fetchYourFamilyMember(SectionOfFamilyMemberProfile)
+        case makeSharePanel(String)
+        case makeShareSuccessToastMessageView
+        case makeShareFailureTaostMessageView
+        case injectFamilyMembers(SectionOfFamilyMemberProfile)
     }
     
     // MARK: - State
     public struct State {
-        @Pulse var invitationUrl: URL?
-        @Pulse var shouldPresentInvitationUrlCopySuccessToastMessage: Bool = false
-        @Pulse var shouldPresentFetchInvitationUrlFailureToastMessage: Bool = false
-        var familyMemberCount: Int = 0
+        @Pulse var invitationLink: String = ""
+        @Pulse var copySuccessToastMessageView: Bool = false
+        @Pulse var copyFailureToastMessageView: Bool = false
         var familyDatasource: [SectionOfFamilyMemberProfile] = [.init(items: [])]
     }
     
     // MARK: - Properties
     public let initialState: State
-    public let provider: GlobalStateProviderProtocol
     
     public let inviteFamilyUseCase: InviteFamilyViewUseCaseProtocol
+    public let provider: GlobalStateProviderProtocol
     
     // MARK: - Intializer
     init(usecase: InviteFamilyViewUseCaseProtocol, provider: GlobalStateProviderProtocol) {
@@ -57,7 +56,7 @@ public final class InviteFamilyViewReactor: Reactor {
             .flatMap { event -> Observable<Mutation> in
                 switch event {
                 case .didTapCopyInvitationUrlAction:
-                    return Observable<Mutation>.just(.presentInvitationUrlCopySuccessToastMessage)
+                    return Observable<Mutation>.just(.makeShareSuccessToastMessageView)
                 }
             }
         
@@ -67,13 +66,13 @@ public final class InviteFamilyViewReactor: Reactor {
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .didTapInvitationUrlButton:
+        case .didTapShareButton:
             return inviteFamilyUseCase.executeFetchInvitationUrl()
-                .map {
-                    guard let url = $0 else {
-                        return .presentFetchInvitationUrlFailureTaostMessage
+                .flatMap {
+                    guard let invitationLinkResponse = $0 else {
+                        return Observable<Mutation>.just(.makeShareFailureTaostMessageView)
                     }
-                    return .presentSharePanel(url)
+                    return Observable<Mutation>.just(.makeSharePanel(invitationLinkResponse.url))
                 }
             
             // NOTE: - 테스트 코드
@@ -81,13 +80,13 @@ public final class InviteFamilyViewReactor: Reactor {
 //                .presentSharePanel(URL(string: "https://www.naver.com"))
 //            )
             
-        case .fetchYourFamilyMemeber:
+        case .fetchFamilyMemebers:
             return inviteFamilyUseCase.executeFetchFamilyMembers()
                 .map {
                     guard let paginationFamilyMember = $0 else {
-                        return .fetchYourFamilyMember(.init(items: []))
+                        return .injectFamilyMembers(.init(items: []))
                     }
-                    return .fetchYourFamilyMember(.init(items: paginationFamilyMember.results))
+                    return .injectFamilyMembers(.init(items: paginationFamilyMember.results))
                 }
             
             // NOTE: - 테스트 코드
@@ -101,15 +100,17 @@ public final class InviteFamilyViewReactor: Reactor {
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
-        case let .presentSharePanel(url):
-            newState.invitationUrl = url
-        case .presentInvitationUrlCopySuccessToastMessage:
-            newState.shouldPresentInvitationUrlCopySuccessToastMessage = true
-        case .presentFetchInvitationUrlFailureTaostMessage:
-            newState.shouldPresentFetchInvitationUrlFailureToastMessage = true
-        case let .fetchYourFamilyMember(familiyMember):
+        case let .makeSharePanel(urlString):
+            newState.invitationLink = urlString
+            
+        case .makeShareSuccessToastMessageView:
+            newState.copySuccessToastMessageView = true
+            
+        case .makeShareFailureTaostMessageView:
+            newState.copyFailureToastMessageView = true
+            
+        case let .injectFamilyMembers(familiyMember):
             newState.familyDatasource = [familiyMember]
-            newState.familyMemberCount = familiyMember.items.count
         }
         return newState
     }

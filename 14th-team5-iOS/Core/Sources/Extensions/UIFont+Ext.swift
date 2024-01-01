@@ -20,7 +20,7 @@ extension UIFont {
 }
 
 extension UIFont {
-    static func fontAttributes(_ textStyle: BibbiFontStyle = .title, textColor color: UIColor = .bibbiWhite) -> FontAttributes {
+    static func fontAttributes(_ textStyle: BibbiFontStyle = .title, textColor color: UIColor = .bibbiWhite, textAlignment: NSTextAlignment = .left) -> FontAttributes {
         switch textStyle {
         case .title:
             return FontAttributes(
@@ -28,7 +28,8 @@ extension UIFont {
                 weight: .bold, // 폰트 굵기
                 color: color, // 폰트 색상
                 letterSpacing: -0.3, // 자간 (px)
-                lineHeight: 1.38 // 높이 (%)
+                lineHeight: 1.38, // 높이 (%)
+                alignment: textAlignment
             )
         case .head1:
             return FontAttributes(
@@ -36,7 +37,8 @@ extension UIFont {
                 weight: .bold,
                 color: color,
                 letterSpacing: -0.3,
-                lineHeight: 1.38
+                lineHeight: 1.38,
+                alignment: textAlignment
             )
         case .head2Bold:
             return FontAttributes(
@@ -44,7 +46,8 @@ extension UIFont {
                 weight: .semiBold,
                 color: color,
                 letterSpacing: -0.3,
-                lineHeight: 1.40
+                lineHeight: 1.40,
+                alignment: textAlignment
             )
         case .head2Regular:
             return FontAttributes(
@@ -52,7 +55,8 @@ extension UIFont {
                 weight: .regular,
                 color: color,
                 letterSpacing: -0.3,
-                lineHeight: 1.50
+                lineHeight: 1.50,
+                alignment: textAlignment
             )
         case .body1Bold:
             return FontAttributes(
@@ -60,7 +64,8 @@ extension UIFont {
                 weight: .semiBold,
                 color: color,
                 letterSpacing: -0.3,
-                lineHeight: 1.50
+                lineHeight: 1.50,
+                alignment: textAlignment
             )
         case .body1Regular:
             return FontAttributes(
@@ -68,7 +73,8 @@ extension UIFont {
                 weight: .regular,
                 color: color,
                 letterSpacing: -0.3,
-                lineHeight: 1.50
+                lineHeight: 1.50,
+                alignment: textAlignment
             )
         case .body2Bold:
             return FontAttributes(
@@ -76,7 +82,8 @@ extension UIFont {
                 weight: .semiBold,
                 color: color,
                 letterSpacing: -0.3,
-                lineHeight: 1.40
+                lineHeight: 1.40,
+                alignment: textAlignment
             )
         case .body2Regular:
             return FontAttributes(
@@ -84,7 +91,8 @@ extension UIFont {
                 weight: .regular,
                 color: color,
                 letterSpacing: -0.3,
-                lineHeight: 1.40
+                lineHeight: 1.40,
+                alignment: textAlignment
             )
         case .caption:
             return FontAttributes(
@@ -92,7 +100,8 @@ extension UIFont {
                 weight: .regular,
                 color: color,
                 letterSpacing: -0.3,
-                lineHeight: 1.50
+                lineHeight: 1.50,
+                alignment: textAlignment
             )
         }
     }
@@ -134,20 +143,7 @@ extension UIFont {
         let color: UIColor
         let letterSpacing: CGFloat
         let lineHeight: CGFloat
-        
-        init(
-            size: CGFloat,
-            weight: BibbiFontFamily,
-            color: UIColor,
-            letterSpacing: CGFloat,
-            lineHeight: CGFloat
-        ) {
-            self.size = size
-            self.weight = weight
-            self.color = color
-            self.letterSpacing = letterSpacing
-            self.lineHeight = lineHeight
-        }
+        let alignment: NSTextAlignment
     }
 }
 

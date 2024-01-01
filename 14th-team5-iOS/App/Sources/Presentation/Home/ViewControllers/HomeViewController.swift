@@ -23,8 +23,8 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
     private let familyCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let inviteFamilyView: UIView = InviteFamilyView()
     private let dividerView: UIView = UIView()
-    private let timerLabel: UILabel = UILabel()
-    private let descriptionLabel: UILabel = UILabel()
+    private let timerLabel: UILabel = BibbiLabel(.head1, alignment: .center)
+    private let descriptionLabel: UILabel = BibbiLabel(.body2Regular, alignment: .center, textColor: .gray300)
     private let noPostTodayView: UIView = NoPostTodayView()
     private let postCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let balloonView: BalloonView = BalloonView()
@@ -126,13 +126,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .observe(on: Schedulers.main)
             .distinctUntilChanged()
             .withUnretained(self)
-            .bind(onNext: {
-                if $0.1 {
-                    $0.0.addFamilyInviteView()
-                } else {
-                    $0.0.removeFamilyInviteView()
-                }
-            })
+            .bind(onNext: { $0.0.setFamilyInviteView($0.1) })
             .disposed(by: disposeBag)
         
         reactor.state
@@ -140,13 +134,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .observe(on: MainScheduler.instance)
             .distinctUntilChanged()
             .withUnretained(self)
-            .bind(onNext: {
-                if $0.1 {
-                    $0.0.addNoPostTodayView()
-                } else {
-                    $0.0.removeNoPostTodayView()
-                }
-            })
+            .bind(onNext: { $0.0.setNoPostTodayView($0.1) })
             .disposed(by: disposeBag)
         
         reactor.state
@@ -267,18 +255,6 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             $0.backgroundColor = DesignSystemAsset.gray900.color
         }
         
-        
-        timerLabel.do {
-            $0.font = UIFont(name: "Pretendard-Bold", size: 24)
-            $0.textAlignment = .center
-            $0.textColor = .white
-        }
-        
-        descriptionLabel.do {
-            $0.font = UIFont(name: "Pretendard-Regular", size: 14)
-            $0.textColor = DesignSystemAsset.gray300.color
-        }
-        
         feedCollectionViewLayout.do {
             $0.sectionInset = .zero
             $0.minimumLineSpacing = HomeAutoLayout.FeedCollectionView.minimumLineSpacing
@@ -301,36 +277,36 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
 }
 
 extension HomeViewController {
-    private func addFamilyInviteView() {
-        familyCollectionView.isHidden = true
-        view.addSubview(inviteFamilyView)
-        
-        inviteFamilyView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).inset(HomeAutoLayout.InviteFamilyView.topInset)
-            $0.horizontalEdges.equalToSuperview().inset(HomeAutoLayout.InviteFamilyView.horizontalInset)
-            $0.height.equalTo(HomeAutoLayout.InviteFamilyView.height)
+    private func setFamilyInviteView(_ isShow: Bool) {
+        if isShow {
+            familyCollectionView.isHidden = isShow
+            view.addSubview(inviteFamilyView)
+            
+            inviteFamilyView.snp.makeConstraints {
+                $0.top.equalTo(view.safeAreaLayoutGuide).inset(HomeAutoLayout.InviteFamilyView.topInset)
+                $0.horizontalEdges.equalToSuperview().inset(HomeAutoLayout.InviteFamilyView.horizontalInset)
+                $0.height.equalTo(HomeAutoLayout.InviteFamilyView.height)
+            }
+        } else {
+            inviteFamilyView.removeFromSuperview()
         }
     }
     
-    private func removeFamilyInviteView() {
-        inviteFamilyView.removeFromSuperview()
-    }
-    
-    private func addNoPostTodayView() {
-        view.addSubview(noPostTodayView)
-        postCollectionView.isHidden = true
-        
-        noPostTodayView.snp.makeConstraints {
-            $0.top.equalTo(descriptionLabel.snp.bottom).offset(HomeAutoLayout.NoPostTodayView.topOffset)
-            $0.horizontalEdges.equalToSuperview()
-            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+    private func setNoPostTodayView(_ isShow: Bool) {
+        if isShow {
+            view.addSubview(noPostTodayView)
+            postCollectionView.isHidden = isShow
+            
+            noPostTodayView.snp.makeConstraints {
+                $0.top.equalTo(descriptionLabel.snp.bottom).offset(HomeAutoLayout.NoPostTodayView.topOffset)
+                $0.horizontalEdges.equalToSuperview()
+                $0.bottom.equalTo(view.safeAreaLayoutGuide)
+            }
+        } else {
+            noPostTodayView.removeFromSuperview()
         }
     }
-    
-    private func removeNoPostTodayView() {
-        noPostTodayView.removeFromSuperview()
-    }
-    
+
     private func hideCameraButton(_ isShow: Bool) {
         balloonView.isHidden = isShow
         cameraButton.isHidden = isShow

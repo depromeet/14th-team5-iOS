@@ -10,7 +10,7 @@ import DesignSystem
 
 public class BalloonView: UIView {
     private let containerView: UIView = UIView()
-    private let textLabel: UILabel = UILabel()
+    private let textLabel: UILabel = BibbiLabel(.body2Regular)
     
     public var text: String? {
         didSet {
@@ -57,8 +57,6 @@ public class BalloonView: UIView {
         }
         
         textLabel.do {
-            $0.font = .boldSystemFont(ofSize: 14)
-            $0.text = "test"
             $0.textColor = .white
             $0.textAlignment = .center
             $0.numberOfLines = 0

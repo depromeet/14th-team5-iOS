@@ -13,8 +13,8 @@ final class InviteFamilyView: UIView {
     typealias Layout = HomeAutoLayout.InviteFamilyView
     
     private let inviteImageView: UIImageView = UIImageView()
-    private let subLabel: UILabel = UILabel()
-    private let titleLabel: UILabel = UILabel()
+    private let subLabel: UILabel = BibbiLabel(.body2Regular)
+    private let titleLabel: UILabel = BibbiLabel(.head2Bold)
     private let nextIconImageView: UIImageView = UIImageView()
     
     override init(frame: CGRect) {

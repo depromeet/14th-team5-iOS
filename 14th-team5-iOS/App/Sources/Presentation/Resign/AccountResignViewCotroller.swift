@@ -128,9 +128,12 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
     
     override func bind(reactor: AccountResignViewReactor) {
 
+        Observable.just(())
+            .map{ Reactor.Action.viewDidLoad }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
-        // resignViewController -> checkBoxView.checkBoxButtons = isSelected true
-        // scan 해서 true false 체크
+        
         Observable.merge(bibbiTermsView.checkButtons.map { button in
             button.rx.tap.map { _ in button.isSelected }
         })
@@ -158,6 +161,18 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
             .bind(onNext: { $0.0.setupButton(isSelected: $0.1)})
             .disposed(by: disposeBag)
         
+        reactor.state
+            .map { $0.isLoading}
+            .distinctUntilChanged()
+            .bind(to: resignIndicatorView.rx.isAnimating)
+            .disposed(by: disposeBag)
+        
+        NotificationCenter.default
+            .rx.notification(.UserAccountDeleted)
+            .map { _ in Reactor.Action.didTapResignButton}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
     }
     
 }
@@ -183,6 +198,7 @@ extension AccountResignViewCotroller {
         
         let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
             print("확인 Check")
+            NotificationCenter.default.post(name: .UserAccountDeleted, object: nil, userInfo: nil)
         }
         
         [cancelAction, confirmAction].forEach(resignAlertController.addAction(_:))

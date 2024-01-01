@@ -18,21 +18,28 @@ final class AccountResignViewReactor: Reactor {
     enum Action {
         case viewDidLoad
         case didTapCheckButton(Bool)
+        case didTapResignButton
     }
     
     enum Mutation {
         case setLoading(Bool)
         case setSelect(Bool)
+        case setResignEntity(Bool)
     }
     
     struct State {
         var isLoading: Bool
         var isSeleced: Bool
+        var isSuccess: Bool
     }
     
     init(resignUseCase: AccountResignUseCaseProtocol) {
         self.resignUseCase = resignUseCase
-        self.initialState = State(isLoading: false, isSeleced: false)
+        self.initialState = State(
+            isLoading: false,
+            isSeleced: false,
+            isSuccess: false
+        )
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
@@ -45,6 +52,13 @@ final class AccountResignViewReactor: Reactor {
             
         case let .didTapCheckButton(isSelected):
             return .just(.setSelect(isSelected))
+        case .didTapResignButton:
+            return resignUseCase.executeAccountResign(memberId: "16")
+                .asObservable()
+                .flatMap { entity -> Observable<AccountResignViewReactor.Mutation> in
+                    print("Entity Resing \(entity)")
+                    return .just(.setResignEntity(entity.isSuccess))
+                }
         }
     }
     
@@ -56,6 +70,8 @@ final class AccountResignViewReactor: Reactor {
             newState.isLoading = isLoading
         case let .setSelect(isSelected):
             newState.isSeleced = isSelected
+        case let .setResignEntity(isSuccess):
+            newState.isSuccess = isSuccess
         }
         
         return newState

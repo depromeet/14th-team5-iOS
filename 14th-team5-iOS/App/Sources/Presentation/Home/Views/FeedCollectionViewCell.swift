@@ -14,8 +14,8 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
     static let id = "FeedCollectionViewCell"
     
     private let stackView = UIStackView()
-    private let nameLabel = UILabel()
-    private let timeLabel = UILabel()
+    private let nameLabel = BibbiLabel(.body2Regular, textColor: .gray200)
+    private let timeLabel = BibbiLabel(.caption, textColor: .gray400)
     private let imageView = UIImageView()
     
     override func bind(reactor: HomeViewReactor) {

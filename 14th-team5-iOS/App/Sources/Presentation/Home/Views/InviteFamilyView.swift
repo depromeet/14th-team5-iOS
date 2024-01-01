@@ -10,6 +10,7 @@ import Core
 import DesignSystem
 
 final class InviteFamilyView: UIView {
+    typealias String = HomeStrings.InviteFamily
     typealias Layout = HomeAutoLayout.InviteFamilyView
     
     private let inviteImageView: UIImageView = UIImageView()
@@ -58,7 +59,7 @@ final class InviteFamilyView: UIView {
     }
     
     private func setupAttributes() {
-        backgroundColor = DesignSystemAsset.gray900.color
+        backgroundColor = .gray900
         layer.cornerRadius = Layout.cornerRadius
         
         inviteImageView.do {
@@ -66,20 +67,16 @@ final class InviteFamilyView: UIView {
         }
         
         subLabel.do {
-            $0.text = "이런, 아직 아무도 없군요!"
-            $0.textColor = DesignSystemAsset.gray300.color
-            $0.font = UIFont(name: "Pretendard-Regular", size: 14)
+            $0.text = String.subTitle
         }
         
         titleLabel.do {
-            $0.text = "가족 초대하기"
-            $0.textColor = DesignSystemAsset.gray200.color
-            $0.font = UIFont(name: "Pretendard-SemiBold", size: 18)
+            $0.text = String.title
         }
         
         nextIconImageView.do {
             $0.image = DesignSystemAsset.arrowRight.image
-            $0.tintColor = DesignSystemAsset.gray400.color
+            $0.tintColor = .gray400
         }
     }
 }

@@ -225,13 +225,13 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         
         manageFamilyButton.do {
             $0.image = DesignSystemAsset.addPerson.image
-            $0.tintColor = DesignSystemAsset.gray400.color
+            $0.tintColor = .gray400
             $0.target = self
         }
         
         calendarButton.do {
             $0.image = DesignSystemAsset.calendar.image
-            $0.tintColor = DesignSystemAsset.gray400.color
+            $0.tintColor = .gray400
             $0.target = self
         }
         
@@ -252,7 +252,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         
         
         dividerView.do {
-            $0.backgroundColor = DesignSystemAsset.gray900.color
+            $0.backgroundColor = .gray900
         }
         
         feedCollectionViewLayout.do {

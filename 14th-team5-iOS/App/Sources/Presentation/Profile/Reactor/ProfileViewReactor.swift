@@ -48,7 +48,7 @@ public final class ProfileViewReactor: Reactor {
         self.memberId = memberId
         self.initialState = State(
             isLoading: false,
-            memberId: self.memberId,
+            memberId: memberId,
             feedSection: [.feedCategory([])],
             profileMemberEntity: nil,
             isProfileUpload: false,

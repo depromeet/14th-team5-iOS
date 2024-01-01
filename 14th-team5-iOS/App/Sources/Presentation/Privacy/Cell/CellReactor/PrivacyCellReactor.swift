@@ -17,10 +17,11 @@ public final class PrivacyCellReactor: Reactor {
     
     public struct State {
         var descrption: String
+        var isCheck: Bool
     }
     
-    init(descrption: String) {
-        self.initialState = State(descrption: descrption)
+    init(descrption: String, isCheck: Bool) {
+        self.initialState = State(descrption: descrption, isCheck: isCheck)
     }
     
 }

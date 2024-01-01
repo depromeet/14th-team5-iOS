@@ -7,15 +7,37 @@
 
 import Foundation
 
+import Core
 
 public enum Privacy: String, CaseIterable {
-    case version = "버전 정보"
-    case alarm = "알림 설정"
-    case terms = "약관 및 정책"
+    case version
+    case alarm
+    case terms
+    
+    public var descrption: String {
+        switch self {
+        case .version:
+            return "\(Bundle.current.appVersion) 버전"
+        case .alarm:
+            return "알림 설정"
+        case .terms:
+            return "약관 동의"
+        }
+    }
 }
 
 
 public enum UserAuthorization: String, CaseIterable {
-    case logout = "로그 아웃"
-    case unAuthorization = "회원 탈퇴"
+    case logout
+    case unAuthorization
+    
+    public var descrption: String {
+        switch self {
+        case .logout:
+            return "로그 아웃"
+        case .unAuthorization:
+            return "회원 탈퇴"
+        }
+    }
+    
 }

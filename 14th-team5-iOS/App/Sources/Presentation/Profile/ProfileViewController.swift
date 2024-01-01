@@ -229,9 +229,10 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         
         profileNavigationBar.rx.didTapRightBarButton
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .withLatestFrom(reactor.state.map { $0.memberId })
             .withUnretained(self)
-            .bind { owner, _ in
-                let privacyViewController = PrivacyDIContainer().makeViewController()
+            .bind { owner, memberId in
+                let privacyViewController = PrivacyDIContainer(memberId: memberId).makeViewController()
                 owner.navigationController?.pushViewController(privacyViewController, animated: true)
             }.disposed(by: disposeBag)
     }

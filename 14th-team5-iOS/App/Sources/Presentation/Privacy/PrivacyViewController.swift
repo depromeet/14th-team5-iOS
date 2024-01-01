@@ -139,7 +139,9 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
                     if indexPath.item == 0 {
                         self.showResignAlertController()
                     } else {
-                        //TODO: 회원 탈퇴 클릭 시 로직 추가
+                        //TODO: ResignDIContainer, Repositroy, UseCase 추가 예정
+                        let resignViewController = AccountResignViewCotroller()
+                        self.navigationController?.pushViewController(resignViewController, animated: true)
                         print("회원 탈퇴")
                     }
                 }

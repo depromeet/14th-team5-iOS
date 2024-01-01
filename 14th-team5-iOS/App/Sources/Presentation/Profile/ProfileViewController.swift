@@ -111,8 +111,8 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         
         profileNavigationBar.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(42.0)
+            $0.left.right.equalToSuperview()
+            $0.height.equalTo(42)
         }
         
         profileView.snp.makeConstraints {

@@ -8,7 +8,6 @@
 import RxDataSources
 import Domain
 
-// 섹션데이터
 struct SectionOfFamily {
     var items: [ProfileData]
     
@@ -17,7 +16,6 @@ struct SectionOfFamily {
     }
 }
 
-// 섹션 데이터: SectionModelType
 extension SectionOfFamily: SectionModelType {
     typealias Item = ProfileData
     

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Core
 import Domain
 
 import Kingfisher
@@ -15,7 +16,7 @@ final class ProfileView: UIView {
     typealias Layout = HomeAutoLayout.ProfileView
     
     private let imageView = UIImageView()
-    private let nameLabel = UILabel()
+    private let nameLabel = BibbiLabel(.caption, alignment: .center, textColor: .gray300)
     
     let disposeBag = DisposeBag()
     

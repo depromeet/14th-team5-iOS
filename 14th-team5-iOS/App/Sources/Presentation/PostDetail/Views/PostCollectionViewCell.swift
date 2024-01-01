@@ -13,7 +13,8 @@ import DesignSystem
 import RxSwift
 
 final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
-    static let id = "feedDetailCollectionViewCell"
+    typealias Layout = PostAutoLayout.CollectionView.CollectionViewCell
+    static let id = "postCollectionViewCell"
     
     private let postImageView = UIImageView()
     /// 이모지를 선택하기 위한 버튼을 모아둔 stackView
@@ -50,28 +51,20 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             .disposed(by: disposeBag)
         
         reactor.state
-            .compactMap { $0.selectedEmoji }
+            .map { $0.selectedEmoji }
             .distinctUntilChanged { $0 == $1 }
-            .filter { $0.0 != nil }
-            .bind(onNext: { [weak self] emoji, count in
-                guard let self = self,
-                      let emoji = emoji else {
-                    return
-                }
-                self.selectEmoji(emoji: emoji, count: count)
+            .withUnretained(self)
+            .bind(onNext: {
+                self.selectEmoji(emoji: $0.1.0 ?? .emoji1, count: $0.1.1)
             })
             .disposed(by: disposeBag)
         
         reactor.state
-            .compactMap { $0.unselectedEmoji }
+            .map { $0.unselectedEmoji }
             .distinctUntilChanged { $0 == $1 }
-            .filter { $0.0 != nil }
-            .bind(onNext: { [weak self] emoji, count in
-                guard let self = self,
-                      let emoji = emoji else {
-                    return
-                }
-                self.unselectEmoji(emoji: emoji, count: count)
+            .withUnretained(self)
+            .bind(onNext: {
+                self.unselectEmoji(emoji: $0.1.0 ?? .emoji1, count: $0.1.1)
             })
             .disposed(by: disposeBag)
     }
@@ -89,27 +82,26 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         postImageView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(postImageView.snp.width)
-            $0.top.equalToSuperview().inset(82)
+            $0.top.equalToSuperview().inset(Layout.PostImageView.topInset)
         }
         
         showSelectableEmojiButton.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(20)
-            $0.height.equalTo(36)
-            $0.width.equalTo(42)
-            $0.top.equalTo(postImageView.snp.bottom).offset(12)
+            $0.trailing.equalToSuperview().inset(Layout.ShowSelectableEmojiButton.trailingInset)
+            $0.height.equalTo(Layout.ShowSelectableEmojiButton.height)
+            $0.width.equalTo(Layout.ShowSelectableEmojiButton.width)
+            $0.top.equalTo(postImageView.snp.bottom).offset(Layout.ShowSelectableEmojiButton.topOffset)
         }
         
         emojiCountStackView.snp.makeConstraints {
-            $0.trailing.equalTo(showSelectableEmojiButton.snp.leading).inset(4)
-            $0.top.equalTo(postImageView.snp.bottom).offset(6)
-            $0.height.equalTo(36)
+            $0.trailing.equalTo(showSelectableEmojiButton.snp.leading).offset(Layout.EmojiCountStackView.trailingOffset)
+            $0.top.equalTo(postImageView.snp.bottom).offset(Layout.EmojiCountStackView.topOffset)
+            $0.height.equalTo(Layout.EmojiCountStackView.height)
         }
         
         selectableEmojiStackView.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(20)
-//            $0.width.equalTo(290)
-            $0.top.equalTo(emojiCountStackView.snp.bottom).offset(12)
-            $0.height.equalTo(62)
+            $0.trailing.equalToSuperview().inset(Layout.SelectableEmojiStackView.trailingInset)
+            $0.top.equalTo(emojiCountStackView.snp.bottom).offset(Layout.SelectableEmojiStackView.topOffset)
+            $0.height.equalTo(Layout.SelectableEmojiStackView.height)
         }
     }
     
@@ -118,21 +110,21 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         
         postImageView.do {
             $0.clipsToBounds = true
-            $0.layer.cornerRadius = 24
+            $0.layer.cornerRadius = Layout.PostImageView.cornerRadius
         }
         
         selectableEmojiStackView.do {
-            $0.layer.cornerRadius = 31
+            $0.layer.cornerRadius = Layout.SelectableEmojiStackView.cornerRadius
             $0.backgroundColor = DesignSystemAsset.black.color
             $0.distribution = .fillEqually
-            $0.spacing = 16
+            $0.spacing = Layout.SelectableEmojiStackView.spacing
             $0.isHidden = true
-            $0.layoutMargins = UIEdgeInsets(top: 10, left: 16, bottom: 10, right: 16)
+            $0.layoutMargins = Layout.SelectableEmojiStackView.layoutMargins
             $0.isLayoutMarginsRelativeArrangement = true
         }
         
         showSelectableEmojiButton.do {
-            $0.layer.cornerRadius = 18
+            $0.layer.cornerRadius = Layout.ShowSelectableEmojiButton.cornerRadius
             $0.setImage(DesignSystemAsset.addEmoji.image, for: .normal)
             $0.backgroundColor = UIColor(red: 0.141, green: 0.141, blue: 0.153, alpha: 0.5)
         }
@@ -140,8 +132,8 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         emojiCountStackView.do {
             $0.distribution = .fillEqually
             $0.backgroundColor = .clear
-            $0.spacing = 15
-            $0.layer.cornerRadius = 25
+            $0.spacing = Layout.EmojiCountStackView.spacing
+            $0.layer.cornerRadius = Layout.EmojiCountStackView.cornerRadius
         }
     }
 }

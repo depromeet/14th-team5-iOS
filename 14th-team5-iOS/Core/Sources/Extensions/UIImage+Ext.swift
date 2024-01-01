@@ -54,7 +54,7 @@ extension UIImage {
 }
 
 extension UIImage.NavigationBar.IconType {
-    public var topBarButtonImage: UIImage? {
+    public var barButtonImage: UIImage? {
         switch self {
         case .addPerson:
             return DesignSystemAsset.addPerson.image
@@ -71,7 +71,7 @@ extension UIImage.NavigationBar.IconType {
 }
 
 extension UIImage.NavigationBar.ImageType {
-    public var topBarTitleImage: UIImage? {
+    public var barImage: UIImage? {
         switch self {
         case .bibbi:
             return DesignSystemAsset.bibbi.image

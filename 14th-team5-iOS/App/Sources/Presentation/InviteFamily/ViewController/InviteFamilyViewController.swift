@@ -127,7 +127,7 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
         
         shareAreaBackgroundView.do {
             $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = AddFamilyVC.Attribute.backgroundViewCornerRadius
+            $0.layer.cornerRadius = 16.0
             $0.backgroundColor = DesignSystemAsset.gray800.color
         }
         
@@ -205,6 +205,13 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
         Observable<Void>.just(())
             .map { Reactor.Action.fetchYourFamilyMemeber }
             .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        navigationBarView.rx.didTapLeftBarButton
+            .withUnretained(self)
+            .subscribe {
+                $0.0.navigationController?.popViewController(animated: true)
+            }
             .disposed(by: disposeBag)
         
         shareButton.rx.tap

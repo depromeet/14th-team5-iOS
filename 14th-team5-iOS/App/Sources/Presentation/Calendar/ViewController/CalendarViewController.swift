@@ -66,15 +66,8 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
     public override func setupAttributes() {
         super.setupAttributes()
         navigationBarView.do {
-            $0.navigationImage = .bibbi
-            
-            $0.leftBarButtonItem = .addPerson
-            $0.leftBarButtonItemYOffset = 5.0
-            $0.leftBarButtonItemTintColor = UIColor.systemMint
-            
-            $0.rightBarButtonItem = .setting
-            $0.rightBarButtonItemScale = 1.2
-            $0.rightBarButtonItemYOffset = -5.0
+            $0.navigationTitle = "추억 캘린더"
+            $0.leftBarButtonItem = .arrowLeft
         }
         
         collectionView.do {
@@ -100,9 +93,10 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
             .disposed(by: disposeBag)
 
         navigationBarView.rx.didTapLeftBarButton
-            .subscribe(onNext: { button in
-                print("버튼 클릭됨")
-            })
+            .withUnretained(self)
+            .subscribe{
+                $0.0.navigationController?.popViewController(animated: true)
+            }
             .disposed(by: disposeBag)
     }
     

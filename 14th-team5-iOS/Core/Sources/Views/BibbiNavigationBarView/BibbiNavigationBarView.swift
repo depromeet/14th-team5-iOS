@@ -41,25 +41,27 @@ public final class BibbiNavigationBarView: UIView {
             navigationImageView.isHidden = false
             navigationTitleLabel.isHidden = true
             
-            navigationImageView.image = navigationImage?.topBarTitleImage
+            navigationImageView.image = navigationImage?.barImage
         }
     }
     
     public var leftBarButtonItem: UIImage.TopBarIconType?   {
         didSet {
             leftBarButton.setImage(
-                leftBarButtonItem?.topBarButtonImage,
+                leftBarButtonItem?.barButtonImage,
                 for: .normal
             )
+            setupButtonBackground(leftBarButton, type: leftBarButtonItem)
         }
     }
     
     public var rightBarButtonItem: UIImage.TopBarIconType? {
         didSet {
             rightBarButton.setImage(
-                rightBarButtonItem?.topBarButtonImage,
+                rightBarButtonItem?.barButtonImage,
                 for: .normal
             )
+            setupButtonBackground(rightBarButton, type: leftBarButtonItem)
         }
     }
     
@@ -174,21 +176,28 @@ public final class BibbiNavigationBarView: UIView {
         }
         
         leftBarButton.do {
+            $0.layer.masksToBounds = true
+            $0.layer.cornerRadius = 10.0
+            $0.tintColor = DesignSystemAsset.gray300.color
+            
             $0.addTarget(
                 self,
                 action: #selector(didTapLeftButton),
                 for: .touchUpInside
             )
-            $0.tintColor = DesignSystemAsset.gray300.color
+            
         }
         
         rightBarButton.do {
+            $0.layer.masksToBounds = true
+            $0.layer.cornerRadius = 10.0
+            $0.tintColor = DesignSystemAsset.gray300.color
+            
             $0.addTarget(
                 self,
                 action: #selector(didTapRightButton),
                 for: .touchUpInside
             )
-            $0.tintColor = DesignSystemAsset.gray300.color
         }
         
         setupNavigationImageScale(navigationImageScale)
@@ -199,22 +208,30 @@ public final class BibbiNavigationBarView: UIView {
 
 // MARK: - Extensions
 extension BibbiNavigationBarView {
-    func setupNavigationImageScale(_ scale: CGFloat) {
+    private func setupNavigationImageScale(_ scale: CGFloat) {
         navigationImageView.layer.transform = CATransform3DMakeScale(
             scale, scale, scale
         )
     }
     
-    func setupLeftButtonImageScale(_ scale: CGFloat) {
+    private func setupLeftButtonImageScale(_ scale: CGFloat) {
         leftBarButton.imageView?.layer.transform = CATransform3DMakeScale(
             scale, scale, scale
         )
     }
     
-    func setupRightButtonImageScale(_ scale: CGFloat) {
+    private func setupRightButtonImageScale(_ scale: CGFloat) {
         rightBarButton.imageView?.layer.transform = CATransform3DMakeScale(
             scale, scale, scale
         )
+    }
+    
+    private func setupButtonBackground(_ button: UIButton, type: UIImage.TopBarIconType?) {
+        if type == .arrowLeft || type == .xmark {
+            button.backgroundColor = .gray900
+        } else {
+            button.backgroundColor = .clear
+        }
     }
 }
 

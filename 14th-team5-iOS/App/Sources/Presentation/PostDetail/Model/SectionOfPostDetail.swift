@@ -9,6 +9,8 @@ import Domain
 
 import RxDataSources
 
+typealias PostListSectionModel = SectionModel<String, PostListData>
+
 struct SectionOfPostDetail {
     var items: [PostData]
     

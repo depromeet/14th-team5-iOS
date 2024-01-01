@@ -132,8 +132,6 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
 }
 
 // MARK: - Extensions
-extension CalendarViewController: BibbiNavigationBarViewDelegate { }
-
 extension CalendarViewController {
     private var orthogonalCompositionalLayout: UICollectionViewCompositionalLayout {
         // item

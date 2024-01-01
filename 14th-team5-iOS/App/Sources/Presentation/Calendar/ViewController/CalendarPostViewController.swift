@@ -25,9 +25,15 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     private let imageBlurView: UIImageView = UIImageView()
 
     private let calendarView: FSCalendar = FSCalendar()
-    private let postView: UIView = UIView()
+    private lazy var collectionView: UICollectionView = UICollectionView(
+        frame: .zero,
+        collectionViewLayout: orthogonalCompositionalLayout
+    )
     
-    private let postViewController: PostViewController = PostListsDIContainer().makeViewController(postLists: SectionModel(model: "", items: []), selectedIndex: IndexPath(row: 0, section: 0))
+    // MARK: - Properties
+    
+    // TODO: - DataSource 타입 바꾸기
+    private lazy var dataSource: RxCollectionViewSectionedReloadDataSource<PostListSectionModel> = prepareDatasource()
     
     // MARK: - Lifecycles
     public override func viewDidLoad() {
@@ -36,7 +42,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationItem.hidesBackButton = true
         navigationController?.navigationBar.isHidden = true
     }
     
@@ -47,10 +52,8 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             navigationBarView, imageBlurView
         )
         imageBlurView.addSubviews(
-            navigationBarView, calendarView, postView
+            navigationBarView, calendarView, collectionView
         )
-        
-        embedPostViewController()
     }
     
     public override func setupAutoLayout() {
@@ -70,6 +73,11 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             $0.leading.trailing.equalTo(imageBlurView)
             $0.height.equalTo(CalendarVC.AutoLayout.calendarHeightValue)
         }
+        
+        collectionView.snp.makeConstraints {
+            $0.top.equalTo(calendarView.snp.bottom).offset(16.0)
+            $0.leading.bottom.trailing.equalTo(imageBlurView)
+        }
     }
     
     public override func setupAttributes() {
@@ -79,6 +87,11 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
             $0.isUserInteractionEnabled = true
+        }
+        
+        navigationBarView.do {
+            $0.navigationTitle = ""
+            $0.leftBarButtonItem = .setting
         }
         
         calendarView.do {
@@ -102,9 +115,10 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             $0.dataSource = self
         }
         
-        navigationBarView.do {
-            $0.navigationTitle = "1998년 3월 21일"
-            $0.leftBarButtonItem = .arrowLeft
+        collectionView.do {
+            $0.isScrollEnabled = false
+            $0.backgroundColor = UIColor.clear
+            $0.register(PostCollectionViewCell.self, forCellWithReuseIdentifier: PostCollectionViewCell.id)
         }
         
         setupBlurEffect()
@@ -118,12 +132,19 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     }
     
     private func bindInput(reactor: CalendarPostViewReactor) {
-        let previousNextMonths: [String] = reactor.currentState.selectedCalendarCell.generatePreviousNextYearMonth()
+        let selectedDate: Date = reactor.currentState.selectedDate
+        let previousNextMonths: [String] = reactor.currentState.selectedDate.generatePreviousNextYearMonth()
+        
+        Observable<Date>.just(selectedDate)
+            .map { Reactor.Action.didSelectDate($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
         Observable<String>.from(previousNextMonths)
             .map { Reactor.Action.fetchCalendarResponse($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
         
         navigationBarView.rx.didTapLeftBarButton
             .withUnretained(self)
@@ -134,7 +155,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         
         calendarView.rx.didSelect
             .distinctUntilChanged()
-            .map { Reactor.Action.didSelectCalendarCell($0) }
+            .map { Reactor.Action.didSelectDate($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -180,17 +201,52 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.selectedCalendarCell }
+        reactor.state.map { $0.selectedDate }
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
                 $0.0.calendarView.select($0.1, scrollToDate: true)
             }
             .disposed(by: disposeBag)
+
+        reactor.state.map { $0.postListDatasource }
+            .bind(to: collectionView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
     }
 }
 
 // MARK: - Extensions
+extension CalendarPostViewController {
+    private var orthogonalCompositionalLayout: UICollectionViewCompositionalLayout {
+        // item
+        let itemSize: NSCollectionLayoutSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .fractionalHeight(1.0)
+        )
+        let item: NSCollectionLayoutItem = NSCollectionLayoutItem(layoutSize: itemSize)
+        
+        // group
+        let groupSize: NSCollectionLayoutSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .fractionalHeight(1.0)
+        )
+        let group: NSCollectionLayoutGroup = NSCollectionLayoutGroup.horizontal(
+            layoutSize: groupSize,
+            subitem: item,
+            count: 1
+        )
+        
+        // section
+        let section: NSCollectionLayoutSection = NSCollectionLayoutSection(group: group)
+        section.orthogonalScrollingBehavior = .groupPaging
+        
+        // layout
+        let layout: UICollectionViewCompositionalLayout = UICollectionViewCompositionalLayout(section: section)
+        
+        return layout
+    }
+}
+
 extension CalendarPostViewController {
     private func setupBlurEffect() {
         let blurEffect = UIBlurEffect(style: .systemThickMaterialDark)
@@ -204,27 +260,20 @@ extension CalendarPostViewController {
         navigationBarView.navigationTitle = DateFormatter.yyyyMM.string(from: date)
     }
     
-    private func embedPostViewController() {
-        view.addSubview(postView)
-        postView.snp.makeConstraints {
-            $0.top.equalTo(calendarView.snp.bottom)
-            $0.leading.bottom.trailing.equalToSuperview()
-        }
-        postViewController.view.backgroundColor = UIColor.clear
-        
-        addChild(postViewController)
-        postView.addSubview(postViewController.view)
-        postViewController.view.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
-        postViewController.didMove(toParent: self)
-    }
-    
     private func adjustWeeklyCalendarRect(_ bounds: CGRect) {
         calendarView.snp.updateConstraints {
             $0.height.equalTo(bounds.height)
         }
         view.layoutIfNeeded()
+    }
+    
+    // TODO: - 다시 정의하기
+    private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<PostListSectionModel> {
+        return RxCollectionViewSectionedReloadDataSource<PostListSectionModel> { datasource, collectionView, indexPath, item in
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as! PostCollectionViewCell
+            cell.setCell(data: item)
+            return cell
+        }
     }
 }
 
@@ -258,7 +307,7 @@ extension CalendarPostViewController: FSCalendarDataSource {
         cell.reactor = ImageCalendarCellDIContainer(
             .week,
             dayResponse: dayResponse,
-            isSelected: currentState.selectedCalendarCell.isEqual(with: date)
+            isSelected: currentState.selectedDate.isEqual(with: date)
         ).makeReactor()
         return cell
     }

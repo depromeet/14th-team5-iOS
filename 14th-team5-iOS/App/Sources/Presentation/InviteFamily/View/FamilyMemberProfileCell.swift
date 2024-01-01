@@ -17,12 +17,12 @@ import Then
 final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellReactor> {
     // MARK: - Views
     private let memberImageBackgroundView: UIView = UIView()
-    private let firstNameLabel: TypeSystemLabel = TypeSystemLabel(.head2Bold)
+    private let firstNameLabel: BibbiLabel = BibbiLabel(.head2Bold)
     private let memberImageView: UIImageView = UIImageView()
     
     private let namelabelStackView: UIStackView = UIStackView()
-    private let nameLabel: TypeSystemLabel = TypeSystemLabel(.body1Regular)
-    private let isMeLabel: TypeSystemLabel = TypeSystemLabel(.body2Regular)
+    private let nameLabel: BibbiLabel = BibbiLabel(.body1Regular)
+    private let isMeLabel: BibbiLabel = BibbiLabel(.body2Regular)
     
     // MARK: - Properties
     static let id: String = "FamilyProfileCell"

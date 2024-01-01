@@ -18,7 +18,7 @@ public final class BibbiNavigationBarView: UIView {
     // MARK: - Views
     private let backgroundView: UIView = UIView()
     
-    private let navigationTitleLabel: TypeSystemLabel = TypeSystemLabel(.head2Bold, textColor: .gray200)
+    private let navigationTitleLabel: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
     private var navigationImageView: UIImageView = UIImageView()
     
     private let leftBarButton: UIButton = UIButton(type: .system)
@@ -81,19 +81,19 @@ public final class BibbiNavigationBarView: UIView {
         }
     }
     
-    public var navigationTitleTextColor: UIColor = DesignSystemAsset.gray200.color {
+    public var navigationTitleTextColor: UIColor = UIColor.gray200 {
         didSet {
             navigationTitleLabel.textColor = navigationTitleTextColor
         }
     }
     
-    public var leftBarButtonItemTintColor: UIColor = DesignSystemAsset.gray300.color {
+    public var leftBarButtonItemTintColor: UIColor = UIColor.gray300 {
         didSet {
             leftBarButton.tintColor = leftBarButtonItemTintColor
         }
     }
     
-    public var rightBarButtonItemTintColor: UIColor = DesignSystemAsset.gray300.color {
+    public var rightBarButtonItemTintColor: UIColor = UIColor.gray300 {
         didSet {
             rightBarButton.tintColor = rightBarButtonItemTintColor
         }

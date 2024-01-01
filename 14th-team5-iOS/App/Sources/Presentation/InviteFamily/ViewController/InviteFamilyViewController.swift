@@ -23,15 +23,15 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
     private let envelopeImageView: UIImageView = UIImageView()
     
     private let titleLabelStackView: UIStackView = UIStackView()
-    private let inviteFamilyTitleLabel: TypeSystemLabel = TypeSystemLabel(.head2Bold)
-    private let invitationUrlLabel: TypeSystemLabel = TypeSystemLabel(.body2Regular)
+    private let inviteFamilyTitleLabel: BibbiLabel = BibbiLabel(.head2Bold)
+    private let invitationUrlLabel: BibbiLabel = BibbiLabel(.body2Regular)
     private let shareButton: UIButton = UIButton(type: .system)
     
     private let dividerView: UIView = UIView()
     
     private let headerLabelStackView: UIStackView = UIStackView()
-    private let tableTitleLabel: TypeSystemLabel = TypeSystemLabel(.head1)
-    private let tableCountLabel: TypeSystemLabel = TypeSystemLabel(.body1Regular)
+    private let tableTitleLabel: BibbiLabel = BibbiLabel(.head1)
+    private let tableCountLabel: BibbiLabel = BibbiLabel(.body1Regular)
     private let tableView: UITableView = UITableView()
     
     // MARK: - Properties

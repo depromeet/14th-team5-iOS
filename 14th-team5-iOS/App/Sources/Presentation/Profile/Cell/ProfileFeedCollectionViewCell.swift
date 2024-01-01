@@ -19,8 +19,8 @@ import Then
 public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<ProfileFeedCellReactor> {
     private let feedImageView: UIImageView = UIImageView()
     private let feedStackView: UIStackView = UIStackView()
-    private let feedTitleLabel: TypeSystemLabel = TypeSystemLabel(.body2Regular, textColor: .gray200)
-    private let feedUplodeLabel: TypeSystemLabel = TypeSystemLabel(.caption, textColor: .gray400)
+    private let feedTitleLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray200)
+    private let feedUplodeLabel: BibbiLabel = BibbiLabel(.caption, textColor: .gray400)
     
     
     public override func prepareForReuse() {

@@ -19,7 +19,7 @@ import Then
 
 final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {    
     // MARK: - Views
-    private let dayLabel: TypeSystemLabel = TypeSystemLabel(.body1Regular)
+    private let dayLabel: BibbiLabel = BibbiLabel(.body1Regular)
     private let noThumbnailView: UIView = UIView()
     private let thumbnailView: UIImageView = UIImageView()
     private let badgeView: UIImageView = UIImageView()

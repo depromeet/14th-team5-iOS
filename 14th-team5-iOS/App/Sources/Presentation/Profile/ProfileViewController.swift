@@ -35,7 +35,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
 
     private let profileIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 50)
-    private let profileTitleView: TypeSystemLabel = TypeSystemLabel(.head2Bold, textColor: .gray200)
+    private let profileTitleView: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
     private let privacyButton: UIButton = UIButton()
     private let profileLineView: UIView = UIView()
     private lazy var profilePickerController: PHPickerViewController = PHPickerViewController(configuration: pickerConfiguration)

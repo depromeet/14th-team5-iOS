@@ -8,6 +8,7 @@
 import UIKit
 
 import Core
+import DesignSystem
 import Domain
 import FSCalendar
 import Kingfisher
@@ -91,7 +92,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         
         navigationBarView.do {
             $0.navigationTitle = ""
-            $0.leftBarButtonItem = .setting
+            $0.leftBarButtonItem = .arrowLeft
         }
         
         calendarView.do {
@@ -104,9 +105,9 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             
             $0.appearance.selectionColor = UIColor.clear
             
-            $0.appearance.titleFont = UIFont.boldSystemFont(ofSize: CalendarVC.Attribute.calendarTitleFontSize)
-            $0.appearance.titleDefaultColor = UIColor.white
-            $0.appearance.titleSelectionColor = UIColor.white
+            $0.appearance.titleFont = UIFont.pretendard(.body1Regular)
+            $0.appearance.titleDefaultColor = DesignSystemAsset.white.color
+            $0.appearance.titleSelectionColor = DesignSystemAsset.white.color
             
             $0.backgroundColor = UIColor.clear
             $0.register(ImageCalendarCell.self, forCellReuseIdentifier: ImageCalendarCell.id)
@@ -248,6 +249,15 @@ extension CalendarPostViewController {
 }
 
 extension CalendarPostViewController {
+    private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<PostListSectionModel> {
+        return RxCollectionViewSectionedReloadDataSource<PostListSectionModel> { datasource, collectionView, indexPath, item in
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as! PostCollectionViewCell
+            // TODO: - Reactor로 필요한 데이터 주입하기
+            cell.setCell(data: item)
+            return cell
+        }
+    }
+    
     private func setupBlurEffect() {
         let blurEffect = UIBlurEffect(style: .systemThickMaterialDark)
         let visualEffectView = UIVisualEffectView(effect: blurEffect)
@@ -265,15 +275,6 @@ extension CalendarPostViewController {
             $0.height.equalTo(bounds.height)
         }
         view.layoutIfNeeded()
-    }
-    
-    // TODO: - 다시 정의하기
-    private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<PostListSectionModel> {
-        return RxCollectionViewSectionedReloadDataSource<PostListSectionModel> { datasource, collectionView, indexPath, item in
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as! PostCollectionViewCell
-            cell.setCell(data: item)
-            return cell
-        }
     }
 }
 

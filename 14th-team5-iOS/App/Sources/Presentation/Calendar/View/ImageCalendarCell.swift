@@ -129,7 +129,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             .withUnretained(self)
             .subscribe {
                 if $0.1 {
-                    $0.0.dayLabel.textTypeSystemColor = .mainGreen
+                    $0.0.dayLabel.textBibbiColor = .mainGreen
                     $0.0.thumbnailView.layer.borderWidth = 2.0
                     $0.0.thumbnailView.layer.borderColor = UIColor.green.cgColor
                 }
@@ -167,7 +167,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
                         $0.0.thumbnailView.layer.borderWidth = 0.0
                         
                         if reactor.currentState.date.isToday {
-                            $0.0.dayLabel.textTypeSystemColor = .mainGreen
+                            $0.0.dayLabel.textBibbiColor = .mainGreen
                             $0.0.thumbnailView.layer.borderWidth = 2.0
                             $0.0.thumbnailView.layer.borderColor = DesignSystemAsset.mainGreen.color.cgColor
                         }

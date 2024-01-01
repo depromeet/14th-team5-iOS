@@ -14,17 +14,19 @@ import RxDataSources
 
 final class PostReactor: Reactor {
     enum Action {
+        case setPost(Int)
         case fetchPost(String)
     }
     
     enum Mutation {
+        case setSelectedPostIndex(Int)
         case fetchedPost(PostData)
     }
     
     struct State {
         let originPostLists: [SectionModel<String,PostListData>]
 //        let fetchedPostLists: [SectionModel<String, PostData>] 
-        let selectedPostIndex: Int
+        var selectedPost: PostListData = .init(postId: "", author: "", emojiCount: 0, imageURL: "", content: "", time: "")
         var fetchedPost: PostData = .init(writer: "", time: "", imageURL: "", imageText: "", emojis: [])
     }
     
@@ -48,6 +50,8 @@ extension PostReactor {
                 .flatMap { post in
                     return Observable.just(Mutation.fetchedPost(post ?? .init(writer: "", time: "", imageURL: "", imageText: "", emojis: [])))
                 }
+        case let .setPost(index):
+            return Observable.just(Mutation.setSelectedPostIndex(index))
         }
     }
         
@@ -56,6 +60,8 @@ extension PostReactor {
             switch mutation {
             case let .fetchedPost(post):
                 newState.fetchedPost = post
+            case let .setSelectedPostIndex(index):
+                newState.selectedPost = newState.originPostLists[0].items[index]
             }
             return newState
         }

@@ -26,16 +26,32 @@ final class PostViewController: BaseViewController<PostReactor> {
     }
     
     override func bind(reactor: PostReactor) {
+        collectionView.rx.setDelegate(self)
+            .disposed(by: disposeBag)
+        
         reactor.state
             .map { $0.originPostLists }
             .asObservable()
             .bind(to: collectionView.rx.items(dataSource: createDataSource()))
             .disposed(by: disposeBag)
         
-//        collectionView.rx.didScroll
-//            .map { Reactor.Action.fetchPost("01HJBRBSZRF429S1SES900ET5G") }
-//            .bind(to: reactor.action)
-//            .disposed(by: disposeBag)
+        reactor.state
+            .map { $0.selectedPost }
+            .asObservable()
+            .withUnretained(self)
+            .bind(onNext: {
+                $0.0.setNavigationView(data: $0.1)
+                $0.0.setBackgroundView(data: $0.1)
+            })
+            .disposed(by: disposeBag)
+        
+        collectionView.rx
+            .contentOffset
+            .map { [unowned self] in self.calculateCurrentPage(offset: $0) }
+            .distinctUntilChanged()
+            .map { Reactor.Action.setPost($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     override func setupUI() {
@@ -86,7 +102,7 @@ final class PostViewController: BaseViewController<PostReactor> {
         }
         
         collectionView.do {
-            $0.delegate = self
+//            $0.delegate = self
             $0.isPagingEnabled = true
             $0.backgroundColor = .clear
             $0.register(PostCollectionViewCell.self, forCellWithReuseIdentifier: PostCollectionViewCell.id)
@@ -106,11 +122,7 @@ extension PostViewController {
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as? PostCollectionViewCell else {
                     return UICollectionViewCell()
                 }
-//                cell.reactor = self.reactor
-                // 여기가 아니라 didScroll => 로 옮겨야햇
                 cell.setCell(data: item)
-                self.setNavigationView(data: item)
-                self.setBackgroundView(data: item)
                 return cell
             })
     }
@@ -125,6 +137,16 @@ extension PostViewController {
             return
         }
         self.backgroundImageView.kf.setImage(with: url)
+    }
+    
+    private func calculateCurrentPage(offset: CGPoint) -> Int {
+        guard collectionView.frame.width > 0 else {
+               return 0
+           }
+        
+        let width = collectionView.frame.width
+        let currentPage = Int((offset.x + width / 2) / width)
+        return currentPage
     }
 }
 

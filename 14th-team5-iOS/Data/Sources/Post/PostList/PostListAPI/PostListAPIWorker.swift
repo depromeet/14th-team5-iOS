@@ -29,7 +29,7 @@ extension PostListAPIWorker: PostListRepository {
     public func fetchPostDetail(query: Domain.PostQuery) -> RxSwift.Single<Domain.PostData?> {
         let requestDTO = PostRequestDTO(postId: query.postId)
         let spec = PostListAPIs.fetchPostDetail(requestDTO).spec
-        return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MiLCJyZWdEYXRlIjoxNzAzODY0OTY5NzI4LCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwMzk1MTM2OX0.-dpJ9G27rDzd5X3Y8KbVTqRpOLyla8TgLrtyncL927g")])
+        return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJyZWdEYXRlIjoxNzA0MDIzMTcyNDIwLCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDEwOTU3Mn0.tmrN-Mr2Z1C7XgjBqPY_wDuF4Q6O24pGsM--Vod3heM")])
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -45,7 +45,7 @@ extension PostListAPIWorker: PostListRepository {
     public func fetchTodayPostList(query: Domain.PostListQuery) -> RxSwift.Single<Domain.PostListPage?> {
         let requestDTO = PostListRequestDTO(page: query.page, size: query.size, date: query.date, memberId: query.memberId, sort: query.sort)
         let spec = PostListAPIs.fetchPostList(requestDTO).spec
-        return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MiLCJyZWdEYXRlIjoxNzAzODY0OTY5NzI4LCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwMzk1MTM2OX0.-dpJ9G27rDzd5X3Y8KbVTqRpOLyla8TgLrtyncL927g")])
+        return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJyZWdEYXRlIjoxNzA0MDIzMTcyNDIwLCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDEwOTU3Mn0.tmrN-Mr2Z1C7XgjBqPY_wDuF4Q6O24pGsM--Vod3heM")])
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {

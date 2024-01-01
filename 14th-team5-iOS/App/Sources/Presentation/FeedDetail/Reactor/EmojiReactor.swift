@@ -8,6 +8,7 @@
 import Foundation
 import Core
 import ReactorKit
+import Domain
 
 final class EmojiReactor: Reactor {
     enum Action {
@@ -27,13 +28,20 @@ final class EmojiReactor: Reactor {
     }
     
     struct State {
+        var postId: String
         var isShowingSelectableEmojiStackView: Bool = false
         var selectedEmoji: (Emojis?, Int) = (nil, 0)
         var unselectedEmoji: (Emojis?, Int) = (nil, 0)
         var emojiData: [Emojis: Int] = [:]
     }
     
-    let initialState: State = State()
+    let initialState: State
+    let emojiRepository: EmojiUseCaseProtocol
+    
+    init(emojiRepository: EmojiUseCaseProtocol, initialState: State) {
+        self.emojiRepository = emojiRepository
+        self.initialState = initialState
+    }
 }
 
 extension EmojiReactor {
@@ -44,7 +52,14 @@ extension EmojiReactor {
         case let .receiveEmojiData(data):
             return Observable.just(Mutation.setUpEmojiCountStackView(data))
         case let .tappedSelectableEmojiButton(emoji):
-            return Observable.just(Mutation.selectEmoji(emoji))
+            let query: AddEmojiQuery = AddEmojiQuery(postId: initialState.postId)
+            let body: AddEmojiBody = AddEmojiBody(content: emoji.emojiString)
+            return emojiRepository.excute(query: query, body: body)
+                .asObservable()
+                .flatMap { response in
+//                    guard let response else { return }
+                    return Observable.just(Mutation.selectEmoji(emoji))
+                }
         case let .tappedSelectedEmojiCountButton(emoji):
             return Observable.just(Mutation.unselectEmoji(emoji))
         }

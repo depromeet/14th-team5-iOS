@@ -9,11 +9,11 @@ import UIKit
 import DesignSystem
 
 public enum Emojis: Int {
-    case emoji1 = 0
-    case emoji2 = 1
-    case emoji3 = 2
-    case emoji4 = 3
-    case emoji5 = 4
+    case emoji1 = 1
+    case emoji2 = 2
+    case emoji3 = 3
+    case emoji4 = 4
+    case emoji5 = 5
     
     public var emojiImage: UIImage {
         switch self {
@@ -27,6 +27,21 @@ public enum Emojis: Int {
             return DesignSystemAsset.emoji4.image
         case .emoji5:
             return DesignSystemAsset.emoji5.image
+        }
+    }
+    
+    public var emojiString: String {
+        switch self {
+        case .emoji1:
+            return "Emoji_1"
+        case .emoji2:
+            return "Emoji_2"
+        case .emoji3:
+            return "Emoji_3"
+        case .emoji4:
+            return "Emoji_4"
+        case .emoji5:
+            return "Emoji_5"
         }
     }
     

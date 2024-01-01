@@ -22,7 +22,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     /// 이모지 카운트를 보여주기 위한 stackView
     private let emojiCountStackView = UIStackView()
     
-    private let reactor = EmojiReactor()
+    private let reactor = EmojiReactor(emojiRepository: PostListsDIContainer().makeEmojiUseCase(), initialState: .init(postId: "01HJBRBSZRF429S1SES900ET5G"))
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -100,7 +100,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         }
         
         emojiCountStackView.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(20)
+            $0.trailing.equalTo(showSelectableEmojiButton.snp.leading).inset(4)
             $0.top.equalTo(postImageView.snp.bottom).offset(6)
             $0.height.equalTo(36)
         }
@@ -155,7 +155,7 @@ extension PostCollectionViewCell {
         Emojis.allEmojis.enumerated().forEach { index, emoji in
             let selectableEmojiButton = UIButton()
             selectableEmojiButton.setImage(emoji.emojiImage, for: .normal)
-            selectableEmojiButton.tag = index
+            selectableEmojiButton.tag = index + 1
             selectableEmojiStackView.addArrangedSubview(selectableEmojiButton)
             bindButton(selectableEmojiButton)
         }
@@ -189,7 +189,7 @@ extension PostCollectionViewCell {
             emojiCountButton.tag = emoji.emojiIndex
             emojiCountButton.setInitEmoji(emoji: EmojiData(emoji: emoji, count: count))
             bindButton(emojiCountButton)
-            emojiCountStackView.insertArrangedSubview(emojiCountButton, at: stackLength - 1)
+            emojiCountStackView.insertArrangedSubview(emojiCountButton, at: stackLength)
         }
     }
     

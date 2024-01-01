@@ -87,9 +87,12 @@ public final class CalendarPostViewReactor: Reactor {
             
             return Single.zip(singles).asObservable()
                 .flatMap {
-                    if let postResponse: [PostListData] = $0.first??.postLists {
-                        arrayPostResponse.append(contentsOf: postResponse)
+                    guard let postResponse: [PostListData] = $0.first??.postLists,
+                          !postResponse.isEmpty else {
+                        return Observable<Mutation>.empty()
                     }
+                    
+                    arrayPostResponse.append(contentsOf: postResponse)
                     
                     return Observable<Mutation>.concat(
                         Observable.just(.deleteDatasource),

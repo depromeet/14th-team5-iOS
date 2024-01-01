@@ -17,9 +17,8 @@ public protocol AccountImpl: AnyObject {
     
     func kakaoLogin(with snsType: SNS, vc: UIViewController) -> Observable<APIResult>
     func appleLogin(with snsType: SNS, vc: UIViewController) -> Observable<APIResult>
-    
-    func signUp(name: String, date: String, photoURL: String?) -> Observable<Void>
     func executeNicknameUpdate(memberId: String, parameter: AccountNickNameEditParameter) -> Observable<AccountNickNameEditResponse>
+    func signUp(name: String, date: String, photoURL: String?) -> Observable<String?>
 }
 
 public final class AccountRepository: AccountImpl {
@@ -56,10 +55,22 @@ public final class AccountRepository: AccountImpl {
             return Disposables.create()
         }
     }
-    public func signUp(name: String, date: String, photoURL: String?) -> Observable<Void> {
-        return apiWorker.signUpWith(name: name, date: date, photoURL: photoURL)
-            .asObservable()
-            .map { _ in }
+    public func signUp(name: String, date: String, photoURL: String?) -> Observable<String?> {
+        return Observable.create { observer in
+            self.apiWorker.signUpWith(name: name, date: date, photoURL: photoURL)
+                .subscribe(
+                    onSuccess: { accessToken in
+                        observer.onNext(accessToken?.accessToken)
+                        observer.onCompleted()
+                    },
+                    onFailure: { error in
+                        observer.onError(error)
+                    }
+                )
+                .disposed(by: self.disposeBag)
+            
+            return Disposables.create()
+        }
     }
     
     public func executeNicknameUpdate(memberId: String, parameter: AccountNickNameEditParameter) -> Observable<AccountNickNameEditResponse> {

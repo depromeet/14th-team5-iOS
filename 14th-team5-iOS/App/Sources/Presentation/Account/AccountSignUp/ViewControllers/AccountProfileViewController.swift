@@ -9,6 +9,7 @@ import UIKit
 import Core
 import DesignSystem
 import Domain
+import PhotosUI
 
 import ReactorKit
 import RxSwift
@@ -21,7 +22,9 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
     // MARK: SubViews
     private let titleLabel = UILabel()
     private let profileButton = UIButton()
+    
     private let nextButton = UIButton()
+    private let profileView = UIImageView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,9 +38,9 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
     private func bindInput(reactor: AccountSignUpReactor) {
         profileButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .withUnretained(self)
-            .bind(onNext: { $0.0.createAlertController(owner: $0.0) })
-            .disposed(by: self.disposeBag)
+            .map { Reactor.Action.profileImageTapped }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
         nextButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
@@ -57,7 +60,7 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
     override func setupUI() {
         super.setupUI()
         
-        view.addSubviews(titleLabel, profileButton, nextButton)
+        view.addSubviews(titleLabel, profileButton, nextButton, profileView)
     }
     
     override func setupAutoLayout() {
@@ -70,6 +73,12 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
         
         profileButton.snp.makeConstraints {
             $0.centerX.equalToSuperview().inset(20)
+            $0.top.equalTo(titleLabel.snp.bottom).offset(26)
+            $0.width.height.equalTo(90)
+        }
+        
+        profileView.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
             $0.top.equalTo(titleLabel.snp.bottom).offset(26)
             $0.width.height.equalTo(90)
         }
@@ -112,28 +121,5 @@ extension AccountProfileViewController {
         if let firstName = nickname.first {
             profileButton.setTitle(String(firstName), for: .normal)
         }
-    }
-}
-
-// TODO: 테스트용
-extension AccountProfileViewController {
-    private func createAlertController(owner: AccountProfileViewController) {
-        let alertController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        let presentCameraAction: UIAlertAction = UIAlertAction(title: "카메라", style: .default) { _ in
-            let cameraViewController = CameraDIContainer(cameraType: .profile).makeViewController()
-            owner.navigationController?.pushViewController(cameraViewController, animated: true)
-        }
-        let presentAlbumAction: UIAlertAction = UIAlertAction(title: "앨범", style: .default) { _ in
-            print("이미지 피커 컨트롤러")
-        }
-        let presentDefaultAction: UIAlertAction = UIAlertAction(title: "초기화", style: .destructive) { _ in
-            print("초기화 구문")
-        }
-        let presentCancelAction: UIAlertAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)
-        
-        [presentCameraAction, presentAlbumAction, presentDefaultAction, presentCancelAction].forEach {
-            alertController.addAction($0)
-        }
-        owner.present(alertController, animated: true)
     }
 }

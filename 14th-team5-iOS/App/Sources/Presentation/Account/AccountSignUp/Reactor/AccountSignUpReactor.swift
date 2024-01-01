@@ -8,6 +8,8 @@
 import Foundation
 import Data
 import Domain
+import Core
+import SwiftKeychainWrapper
 
 import ReactorKit
 
@@ -26,6 +28,8 @@ public final class AccountSignUpReactor: Reactor {
         case setDay(Int)
         case dateButtonTapped
         case didTapNickNameButton(String)
+        
+        case profileImageTapped
         case profileButtonTapped
     }
     
@@ -39,7 +43,8 @@ public final class AccountSignUpReactor: Reactor {
         case dateButtonTapped
         case setEditNickName(AccountNickNameEditResponse?)
         
-        case profileButtonTapped
+        case profileImageTapped
+        case profileButtonTapped(String?)
     }
     
     public struct State {
@@ -47,18 +52,20 @@ public final class AccountSignUpReactor: Reactor {
         var isValidNickname: Bool = false
         var isValidNicknameButton: Bool = false
         var nicknameButtonTappedFinish: Bool = false
+        
         var memberId: String
         var profileNickNameEditEntity: AccountNickNameEditResponse?
         var year: Int?
         var isValidYear: Bool = false
-        var month: Int?
+        var month: Int = 0
         var isValidMonth: Bool = false
-        var day: Int?
+        var day: Int = 0
         var isValidDay: Bool = false
         var isValidDateButton: Bool = false
         var dateButtonTappedFinish: Bool = false
         
-        var profileButtonTappedFinish: Bool = false
+        var profileImageButtontapped: Bool = false
+        var profileButtonTappedFinish: String = ""
     }
     
     init(accountRepository: AccountRepository, memberId: String = "") {
@@ -89,9 +96,14 @@ extension AccountSignUpReactor {
             return Observable.just(Mutation.dateButtonTapped)
             
             // MARK: Profile
+        case .profileImageTapped:
+            return Observable.just(Mutation.profileImageTapped)
         case .profileButtonTapped:
-            return accountRepository.signUp(name: currentState.nickname, date: "", photoURL: nil).flatMap { Observable.just(Mutation.profileButtonTapped) }
-            
+            let date = getDateToString(year: currentState.year!, month: currentState.month, day: currentState.day)
+            return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: nil)
+                .flatMap { accessToken -> Observable<Mutation> in
+                    return Observable.just(Mutation.profileButtonTapped(accessToken))
+                }
         case let .didTapNickNameButton(nickName):
             let parameters: AccountNickNameEditParameter = AccountNickNameEditParameter(name: nickName)
             return accountRepository.executeNicknameUpdate(memberId: self.currentState.memberId, parameter: parameters)
@@ -111,7 +123,6 @@ extension AccountSignUpReactor {
             newState.isValidNicknameButton = nickname.count > 2
         case .nicknameButtonTapped:
             newState.nicknameButtonTappedFinish = true
-            
         case .setYearValue(let year):
             newState.year = year
             newState.isValidYear = year < 2023
@@ -123,11 +134,14 @@ extension AccountSignUpReactor {
             newState.isValidDay = day < 31
         case .dateButtonTapped:
             newState.dateButtonTappedFinish = true
-            
-            
-        case .profileButtonTapped:
-            newState.profileButtonTappedFinish = true
-            
+        case .profileImageTapped:
+            newState.profileImageButtontapped = true
+        case .profileButtonTapped(let token):
+            if let token = token {
+//                App.Repository.token.fakeAccessToken.accept(nil)
+                App.Repository.token.accessToken.accept(token)
+                newState.profileButtonTappedFinish = token
+            }
         case let .setEditNickName(entity):
             newState.profileNickNameEditEntity = entity
         }
@@ -137,3 +151,17 @@ extension AccountSignUpReactor {
     }
 }
 
+extension AccountSignUpReactor {
+    func getDateToString(year: Int, month: Int, day: Int) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+
+        var components = DateComponents()
+        components.year = year
+        components.month = month
+        components.day = day
+
+        let date = Calendar.current.date(from: components) ?? Date()
+        return dateFormatter.string(from: date)
+    }
+}

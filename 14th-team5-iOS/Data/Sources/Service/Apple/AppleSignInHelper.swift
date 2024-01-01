@@ -30,7 +30,7 @@ class AppleSignInHelper: NSObject, AccountSignInHelperType {
         self.disposeBag = DisposeBag()
     }
     
-    func signIn(on window: UIWindow) -> Observable<APIResult>{
+    func signIn(on window: UIWindow) -> Observable<APIResult> {
         guard #available(iOS 13.0, *) else {
             self._signInState.accept(AccountSignInStateInfo(snsType: .apple))
             return Observable.just(.failed)

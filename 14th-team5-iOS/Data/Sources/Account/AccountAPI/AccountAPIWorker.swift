@@ -7,6 +7,7 @@
 
 import Foundation
 import Domain
+import Core
 
 import RxSwift
 import Alamofire
@@ -25,25 +26,21 @@ extension AccountAPIs {
             super.init()
             self.id = "AccountAPIWorker"
         }
+        
+        // MARK: Values
+        private var _headers: Observable<[APIHeader]?> {
+            
+            return App.Repository.token.fakeAccessToken
+                .map {
+                    guard let token = $0, !token.isEmpty else { return nil }
+                    return [BibbiAPI.Header.xAuthToken(token), BibbiAPI.Header.acceptJson]
+                }
+        }
     }
 }
 
 // MARK: SignIn
 extension AccountAPIWorker {
-    
-    private func signUpWith(spec: APISpec, jsonEncodable: Encodable) -> Single<AccessToken?> {
-        return request(spec: spec, jsonEncodable: jsonEncodable)
-            .subscribe(on: Self.queue)
-            .do(onNext: {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("SignUp result : \(str)")
-                }
-            })
-            .map(BibbiCodableResponse<AccessToken>.self)
-            .catchAndReturn(nil)
-            .map { $0?.result }
-            .asSingle()
-    }
     
     private func signInWith(spec: APISpec, jsonEncodable: Encodable) -> Single<AccessToken?> {
         return request(spec: spec, jsonEncodable: jsonEncodable)
@@ -53,9 +50,8 @@ extension AccountAPIWorker {
                     debugPrint("SignIn result : \(str)")
                 }
             })
-            .map(BibbiCodableResponse<AccessToken>.self)
+            .map(AccessToken.self)
             .catchAndReturn(nil)
-            .map { $0?.result }
             .asSingle()
     }
     
@@ -66,11 +62,31 @@ extension AccountAPIWorker {
         return signInWith(spec: spec, jsonEncodable: payload)
     }
     
-    func signUpWith(name: String?, date: String?, photoURL: String?) -> Single<AccessToken?> {
+    private func signUpWith(headers: [APIHeader]?, jsonEncodable: Encodable) -> Single<AccessToken?> {
+        
         let spec = AccountAPIs.signUp.spec
+        
+        return request(spec: spec, headers: headers, jsonEncodable: jsonEncodable)
+            .subscribe(on: Self.queue)
+            .do(onNext: {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("SignUp result : \(str)")
+                }
+            })
+            .map(AccessToken.self)
+            .catchAndReturn(nil)
+            .asSingle()
+    }
+    
+    func signUpWith(name: String?, date: String?, photoURL: String?) -> Single<AccessToken?> {
         let payLoad = _PayLoad.AccountSignUpPayLoad(memberName: name, dayOfBirth: date, profileImgUrl: photoURL)
         
-        return signUpWith(spec: spec, jsonEncodable: payLoad)
+        return Observable.just(())
+            .withLatestFrom(self._headers)
+            .observe(on: Self.queue)
+            .withUnretained(self)
+            .flatMap { $0.signUpWith(headers: $1, jsonEncodable: payLoad) }
+            .asSingle()
     }
     
     func updateProfileNickName(accessToken: String, memberId: String, parameter: Encodable) -> Single<AccountNickNameEditDTO?> {

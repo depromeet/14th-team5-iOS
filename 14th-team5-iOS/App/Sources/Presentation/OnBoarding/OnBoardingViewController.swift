@@ -22,12 +22,7 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
     private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let horizontalFlowLayout = UICollectionViewFlowLayout()
     
-    private var currentPage: Int = 0 {
-        didSet {
-            self.pageControl.currentPage = currentPage
-            self.nextButton.isEnabled = currentPage == 2
-        }
-    }
+    private var currentPage = PublishRelay<Int>()
     
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,16 +36,17 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
-        
-        pageControl.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
-            $0.height.equalTo(30)
-        }
 
         collectionView.snp.makeConstraints {
             $0.bottom.equalTo(pageControl.snp.top).inset(20)
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(44)
             $0.horizontalEdges.equalToSuperview()
+        }
+        
+        pageControl.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.bottom.equalTo(nextButton.snp.top).offset(-16)
+            $0.height.equalTo(30)
         }
         
         nextButton.snp.makeConstraints {
@@ -85,7 +81,7 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
             $0.isUserInteractionEnabled = false
             $0.currentPage = 0
             $0.numberOfPages = 3
-            $0.pageIndicatorTintColor = .black.withAlphaComponent(0.2)
+            $0.pageIndicatorTintColor = .white.withAlphaComponent(0.2)
             $0.currentPageIndicatorTintColor = .white
         }
         
@@ -93,13 +89,21 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
             $0.setTitle(OnBoardingStrings.buttonTitle, for: .normal)
             $0.setTitleColor(DesignSystemAsset.black.color, for: .normal)
             $0.titleLabel?.font = UIFont(font: DesignSystemFontFamily.Pretendard.bold, size: 16)
-            $0.backgroundColor = DesignSystemAsset.mainGreen.color
+            $0.backgroundColor = DesignSystemAsset.mainGreen.color.withAlphaComponent(0.2)
             $0.layer.cornerRadius = 24
+            $0.isEnabled = false
         }
     }
     
     public override func bind(reactor: OnBoardingReactor) {
         super.bind(reactor: reactor)
+        
+        currentPage
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .observe(on: Schedulers.main)
+            .bind(onNext: { $0.0.validationButtion(for: $0.1) })
+            .disposed(by: disposeBag)
         
         nextButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
@@ -112,6 +116,12 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
             .withUnretained(self)
             .bind(onNext: { _ in print("개발끝") })
             .disposed(by: disposeBag)
+    }
+    
+    private func validationButtion(for index: Int) {
+        let defaultColor = DesignSystemAsset.mainGreen.color
+        nextButton.backgroundColor = index == 2 ? defaultColor : defaultColor.withAlphaComponent(0.2)
+        nextButton.isEnabled = index == 2
     }
 }
 
@@ -133,7 +143,7 @@ extension OnBoardingViewController: UICollectionViewDelegate, UICollectionViewDa
             return
         }
         
-        self.currentPage = Int(contentOffsetX / width)
+        currentPage.accept(Int(contentOffsetX / width))
     }
 }
 

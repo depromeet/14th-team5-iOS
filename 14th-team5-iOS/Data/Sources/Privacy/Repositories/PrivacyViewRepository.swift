@@ -47,13 +47,7 @@ extension PrivacyViewRepository: PrivacyViewInterface {
             return Disposables.create()
         }
     }
-    
-    public func fetchAccountResign(memberId: String) -> Observable<AccountResignResponse> {
-        return privacyAPIWorker.resignUser(accessToken: accessToken, memberId: memberId)
-            .compactMap { $0?.toDomain() }
-            .asObservable()
-    }
-    
+        
     public func fetchBibbiAppVersion(parameter: Encodable) -> Observable<BibbiStoreInfoResponse> {
         return privacyAPIWorker.requestStoreInfo(parameter: parameter)
             .compactMap { $0?.toDomain() }

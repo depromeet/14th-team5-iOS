@@ -34,22 +34,7 @@ extension PrivacyAPIs {
  
 
 extension PrivacyAPIWorker {
-    
-    public func resignUser(accessToken: String, memberId: String) -> Single<AccountResignDTO?> {
-        let spec = PrivacyAPIs.accountResign(memberId).spec
         
-        return request(spec: spec, headers: [BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)])
-            .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("fetch resign Account Result: \(str)")
-                }
-            }
-            .map(AccountResignDTO.self)
-            .catchAndReturn(nil)
-            .asSingle()
-    }
-    
     public func requestStoreInfo(parameter: Encodable) -> Single<BibbiStoreInfoDTO?> {
         let spec = PrivacyAPIs.storeDetail.spec
         

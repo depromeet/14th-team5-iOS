@@ -137,10 +137,10 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
                     }
                 case .userAuthorizationItem:
                     if indexPath.item == 0 {
-                        self.showResignAlertController()
+                        self.showLogoutAlertController()
                     } else {
                         //TODO: ResignDIContainer, Repositroy, UseCase 추가 예정
-                        let resignViewController = AccountResignViewCotroller()
+                        let resignViewController = AccountResignDIContainer().makeViewController()
                         self.navigationController?.pushViewController(resignViewController, animated: true)
                         print("회원 탈퇴")
                     }
@@ -191,24 +191,24 @@ extension PrivacyViewController: UITableViewDelegate {
 
 extension PrivacyViewController {
     
-    private func showResignAlertController() {
-        let resignAlertController = UIAlertController(
+    private func showLogoutAlertController() {
+        let logoutAlertController = UIAlertController(
             title: "로그 아웃",
             message: "로그 아웃 하시겠어요?",
             preferredStyle: .alert
         )
         
         let cancelAction = UIAlertAction(title: "취소", style: .cancel) { _ in
-            resignAlertController.dismiss(animated: true)
+            logoutAlertController.dismiss(animated: true)
         }
         
         let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
             
         }
         
-        [cancelAction, confirmAction].forEach(resignAlertController.addAction(_:))
+        [cancelAction, confirmAction].forEach(logoutAlertController.addAction(_:))
         
-        present(resignAlertController, animated: true)
+        present(logoutAlertController, animated: true)
     }
     
 }

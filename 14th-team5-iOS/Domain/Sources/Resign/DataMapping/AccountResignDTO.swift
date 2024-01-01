@@ -2,11 +2,10 @@
 //  AccountResignDTO.swift
 //  Domain
 //
-//  Created by Kim dohyun on 1/1/24.
+//  Created by Kim dohyun on 1/2/24.
 //
 
 import Foundation
-
 
 public struct AccountResignDTO: Decodable {
     public var success: Bool

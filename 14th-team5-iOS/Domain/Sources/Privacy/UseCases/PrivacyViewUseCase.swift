@@ -11,7 +11,6 @@ import RxSwift
 
 
 public protocol PrivacyViewUseCaseProtocol {
-    func executeAccountResing(memberId: String) -> Observable<AccountResignResponse>
     func executePrivacyItems() -> Observable<Array<String>>
     func executeAuthorizationItem() -> Observable<Array<String>>
     func executeBibbiAppCheck(parameter: Encodable) -> Observable<Bool>
@@ -23,11 +22,6 @@ public final class PrivacyViewUseCase: PrivacyViewUseCaseProtocol {
     
     public init(privacyViewRepository: PrivacyViewInterface) {
         self.privacyViewRepository = privacyViewRepository
-    }
-    
-    
-    public func executeAccountResing(memberId: String) -> Observable<AccountResignResponse> {
-        return privacyViewRepository.fetchAccountResign(memberId: memberId)
     }
     
     public func executePrivacyItems() -> Observable<Array<String>> {

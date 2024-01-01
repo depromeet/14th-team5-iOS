@@ -18,9 +18,8 @@ import Then
 
 public final class PrivacyViewController: BaseViewController<PrivacyViewReactor> {
     //MARK: Views
-    private let titleView: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
-    private let backButton: UIButton = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 52, height: 52)))
     private let privacyTableView: UITableView = UITableView(frame: .zero, style: .grouped)
+    private let privacyNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let privacyIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     private let privacyTableViewDataSources: RxTableViewSectionedReloadDataSource<PrivacySectionModel> = .init { dataSoruces, tableView, indexPath, sectionItem in
         switch sectionItem {
@@ -42,30 +41,26 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
         super.viewDidLoad()
     }
     
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.navigationBar.isHidden = true
+    }
+    
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(privacyTableView, privacyIndicatorView)
+        view.addSubviews(privacyTableView, privacyIndicatorView, privacyNavigationBar)
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
         
-        titleView.do {
-            $0.text = "설정 및 개인정보"
+        privacyNavigationBar.do {
+            $0.navigationTitle = "설정 및 개인정보"
+            $0.leftBarButtonItem = .arrowLeft
+            $0.leftBarButtonItemTintColor = .gray300
         }
         
-        backButton.do {
-            $0.setImage(DesignSystemAsset.arrowLeft.image, for: .normal)
-            $0.backgroundColor = DesignSystemAsset.gray900.color
-            $0.clipsToBounds = true
-            $0.layer.cornerRadius = 10
-        }
-        
-        navigationItem.do {
-            $0.titleView = titleView
-            $0.leftBarButtonItem = UIBarButtonItem(customView: backButton)
-        }
         
         privacyTableView.do {
             $0.backgroundColor = DesignSystemAsset.black.color
@@ -85,8 +80,16 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
+        privacyNavigationBar.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.left.right.equalToSuperview()
+            $0.height.equalTo(42)
+        }
+        
         privacyTableView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.top.equalTo(privacyNavigationBar.snp.bottom)
+            $0.left.bottom.right.equalToSuperview()
+            
         }
         
         privacyIndicatorView.snp.makeConstraints {
@@ -100,12 +103,38 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
             .setDelegate(self)
             .disposed(by: disposeBag)
         
-        backButton
-            .rx.tap
+        privacyNavigationBar.rx
+            .didTapLeftBarButton
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind { owner, _ in
                 owner.navigationController?.popViewController(animated: true)
+            }.disposed(by: disposeBag)
+        
+        privacyTableView.rx
+            .itemSelected
+            .withUnretained(self)
+            .bind { owner, indexPath in
+                switch owner.privacyTableViewDataSources[indexPath] {
+                case .privacyWithAuthItem:
+                    if indexPath.item == 0 {
+                        //TODO: 버전 정보 클릭 시 로직 추가
+                        print("버전 정보")
+                    } else if indexPath.item == 1 {
+                        UIApplication.shared.open(URLTypes.settings.originURL)
+                    } else {
+                        let webContentViewController = WebContentDIContainer().makeViewController()
+                        self.navigationController?.pushViewController(webContentViewController, animated: true)
+                    }
+                case .userAuthorizationItem:
+                    if indexPath.item == 0 {
+                        //TODO: 로그 아웃 클릭 시 로직 추가
+                        print("로그아웃")
+                    } else {
+                        //TODO: 회원 탈퇴 클릭 시 로직 추가
+                        print("회원 탈퇴")
+                    }
+                }
             }.disposed(by: disposeBag)
         
         Observable.just(())

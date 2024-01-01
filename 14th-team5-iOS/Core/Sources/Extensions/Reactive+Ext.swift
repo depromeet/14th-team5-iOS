@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import WebKit
 
 import RxCocoa
 import RxSwift
@@ -67,5 +68,15 @@ extension Reactive where Base: UIStackView {
         Binder(self.base) { stackView, isMe in
             stackView.spacing = isMe ? 3.0 : 0.0
         }
+    }
+}
+
+extension Reactive where Base: WKWebView {
+    public var loadURL: Binder<URL> {
+        return Binder(self.base) { webView, url in
+            let request = URLRequest(url: url)
+            webView.load(request)
+        }
+        
     }
 }

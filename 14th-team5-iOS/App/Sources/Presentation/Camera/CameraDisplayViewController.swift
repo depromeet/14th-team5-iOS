@@ -409,10 +409,7 @@ extension CameraDisplayViewController {
         }
         
         let settingAction: UIAlertAction = UIAlertAction(title: "설정으로 이동하기", style: .default) { _ in
-            guard let settingURL = URL(string: UIApplication.openSettingsURLString),
-                  UIApplication.shared.canOpenURL(settingURL) else { return }
-            UIApplication.shared.open(settingURL)
-            
+            UIApplication.shared.open(URLTypes.settings.originURL)
         }
         
         [cancelAction,settingAction].forEach(permissionAlertController.addAction(_:))
@@ -435,3 +432,4 @@ extension CameraDisplayViewController: UICollectionViewDelegateFlowLayout {
         return 4
     }
 }
+

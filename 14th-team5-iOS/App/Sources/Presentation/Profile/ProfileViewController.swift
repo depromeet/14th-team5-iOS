@@ -220,7 +220,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        profileNavigationBar.rx.didTapRightBarButton
+        profileNavigationBar.rx.didTapLeftBarButton
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind { owner, _ in

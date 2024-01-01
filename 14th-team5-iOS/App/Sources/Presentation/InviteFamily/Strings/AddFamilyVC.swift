@@ -30,7 +30,7 @@ enum AddFamilyVC {
     }
     
     enum Attribute {
-        static let backgroundViewCornerRadius: CGFloat = 20.0
+        static let backgroundViewCornerRadius: CGFloat = 16.0
         static let invitationTitleFontSize: CGFloat = 19.0
         static let invitationUrlFontSize: CGFloat = 14.0
         

@@ -19,6 +19,7 @@ import Then
 // MARK: - ViewController
 public final class CalendarViewController: BaseViewController<CalendarViewReactor> {
     // MARK: - Views
+    private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
     private lazy var collectionView: UICollectionView = UICollectionView(
         frame: .zero,
         collectionViewLayout: orthogonalCompositionalLayout
@@ -37,24 +38,38 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
     
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.navigationBar.isHidden = false
+        navigationController?.navigationBar.isHidden = true
     }
     
     // MARK: - Helpers
     public override func setupUI() {
         super.setupUI()
-        view.addSubview(collectionView)
+        view.addSubviews(
+            navigationBarView, collectionView
+        )
     }
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
+        navigationBarView.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(42.0)
+        }
+        
         collectionView.snp.makeConstraints {
-            $0.edges.equalTo(view.safeAreaLayoutGuide)
+            $0.top.equalTo(navigationBarView.snp.bottom)
+            $0.leading.bottom.trailing.equalToSuperview()
         }
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
+        navigationBarView.do {
+            $0.navigationTitle = "추억 캘린더"
+            $0.leftBarButtonItem = .arrowLeft
+        }
+        
         collectionView.do {
             $0.isScrollEnabled = false
             $0.backgroundColor = UIColor.clear
@@ -75,6 +90,13 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
         Observable<String>.from(yearMonthArray)
             .map { Reactor.Action.addMonthlyCalendarItem($0) }
             .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+
+        navigationBarView.rx.didTapLeftBarButton
+            .withUnretained(self)
+            .subscribe{
+                $0.0.navigationController?.popViewController(animated: true)
+            }
             .disposed(by: disposeBag)
     }
     
@@ -110,6 +132,8 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
 }
 
 // MARK: - Extensions
+extension CalendarViewController: BibbiNavigationBarViewDelegate { }
+
 extension CalendarViewController {
     private var orthogonalCompositionalLayout: UICollectionViewCompositionalLayout {
         // item

@@ -21,12 +21,9 @@ import Then
 
 public final class CalendarPostViewController: BaseViewController<CalendarPostViewReactor> {
     // MARK: - Views
+    private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
     private let imageBlurView: UIImageView = UIImageView()
-    
-    private let navigationBarView: UIView = UIView()
-    private let backButton: UIButton = UIButton(type: .system)
-    private let navigationTitle: UILabel = UILabel()
-    
+
     private let calendarView: FSCalendar = FSCalendar()
     private let postView: UIView = UIView()
     
@@ -46,12 +43,11 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     // MARK: - Helpers
     public override func setupUI() {
         super.setupUI()
-        view.addSubview(imageBlurView)
+        view.addSubviews(
+            navigationBarView, imageBlurView
+        )
         imageBlurView.addSubviews(
             navigationBarView, calendarView, postView
-        )
-        navigationBarView.addSubviews(
-            backButton, navigationTitle
         )
         
         embedPostViewController()
@@ -64,21 +60,13 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         }
         
         navigationBarView.snp.makeConstraints {
-            $0.leading.top.trailing.equalTo(view.safeAreaLayoutGuide)
-            $0.height.equalTo(40)
-        }
-        
-        backButton.snp.makeConstraints {
-            $0.leading.equalTo(navigationBarView.snp.leading).offset(16.0)
-            $0.centerY.equalTo(navigationBarView.snp.centerY)
-        }
-        
-        navigationTitle.snp.makeConstraints {
-            $0.center.equalTo(navigationBarView.snp.center)
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(42.0)
         }
         
         calendarView.snp.makeConstraints {
-            $0.top.equalTo(navigationBarView.snp.bottom)
+            $0.top.equalTo(navigationBarView.snp.bottom).offset(20.0)
             $0.leading.trailing.equalTo(imageBlurView)
             $0.height.equalTo(CalendarVC.AutoLayout.calendarHeightValue)
         }
@@ -115,25 +103,8 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         }
         
         navigationBarView.do {
-            $0.backgroundColor = UIColor.clear
-        }
-        
-        backButton.do {
-            let colorConfig = UIImage.SymbolConfiguration(paletteColors: [UIColor.white])
-            let weightConfig = UIImage.SymbolConfiguration(weight: .bold)
-            
-            let image = UIImage(
-                systemName: "chevron.left",
-                withConfiguration: colorConfig.applying(weightConfig)
-            )
-            $0.setImage(image, for: .normal)
-            $0.contentMode = .scaleAspectFit
-        }
-        
-        navigationTitle.do {
-            $0.text = "2023년 12월"
-            $0.textColor = UIColor.white
-            $0.font = UIFont.boldSystemFont(ofSize: 18.0)
+            $0.navigationTitle = "1998년 3월 21일"
+            $0.leftBarButtonItem = .arrowLeft
         }
         
         setupBlurEffect()
@@ -149,7 +120,12 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     private func bindInput(reactor: CalendarPostViewReactor) {
         let previousNextMonths: [String] = reactor.currentState.selectedCalendarCell.generatePreviousNextYearMonth()
         
-        backButton.rx.tap
+        Observable<String>.from(previousNextMonths)
+            .map { Reactor.Action.fetchCalendarResponse($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        navigationBarView.rx.didTapLeftBarButton
             .withUnretained(self)
             .subscribe {
                 $0.0.navigationController?.popViewController(animated: true)
@@ -170,11 +146,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
-        Observable<String>.from(previousNextMonths)
-            .map { Reactor.Action.fetchCalendarResponse($0) }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
         calendarView.rx.fetchCalendarResponseDidChange
             .distinctUntilChanged()
             .flatMap {
@@ -190,6 +161,13 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .subscribe {
                 $0.0.adjustWeeklyCalendarRect($0.1)
             }
+            .disposed(by: disposeBag)
+        
+        navigationBarView.rx.didTapLeftBarButton
+            .withUnretained(self)
+            .subscribe(onNext: {
+                $0.0.navigationController?.popViewController(animated: true)
+            })
             .disposed(by: disposeBag)
     }
     
@@ -215,7 +193,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
 // MARK: - Extensions
 extension CalendarPostViewController {
     private func setupBlurEffect() {
-        let blurEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
+        let blurEffect = UIBlurEffect(style: .systemThickMaterialDark)
         let visualEffectView = UIVisualEffectView(effect: blurEffect)
         visualEffectView.alpha = 0.9
         visualEffectView.frame = view.frame
@@ -223,7 +201,7 @@ extension CalendarPostViewController {
     }
     
     private func setupNavigationTitle(_ date: Date) {
-        navigationTitle.text = DateFormatter.yyyyMM.string(from: date)
+        navigationBarView.navigationTitle = DateFormatter.yyyyMM.string(from: date)
     }
     
     private func embedPostViewController() {

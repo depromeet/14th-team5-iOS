@@ -7,6 +7,8 @@
 
 import UIKit
 
+import DesignSystem
+
 extension UIImage {
     public func combinedTextWithBackground(target text: String, size: CGSize, attributedString: [NSAttributedString.Key : Any]) -> UIImage {
         let renderImage: UIGraphicsImageRenderer = UIGraphicsImageRenderer(size: size)
@@ -29,5 +31,50 @@ extension UIImage {
         }
         
         return originalImage
+    }
+}
+
+extension UIImage {
+    public typealias TopBarIconType = NavigationBar.IconType
+    public typealias TopBarImageType = NavigationBar.ImageType
+    
+    public enum NavigationBar {
+        public enum ImageType {
+            case bibbi
+        }
+        
+        public enum IconType {
+            case addPerson
+            case arrowLeft
+            case heartCalendar
+            case setting
+            case xmark
+        }
+    }
+}
+
+extension UIImage.NavigationBar.IconType {
+    public var barButtonImage: UIImage? {
+        switch self {
+        case .addPerson:
+            return DesignSystemAsset.addPerson.image
+        case .arrowLeft:
+            return UIImage(systemName: "chevron.backward")
+        case .heartCalendar:
+            return DesignSystemAsset.heartCalendar.image
+        case .setting:
+            return DesignSystemAsset.setting.image
+        case .xmark:
+            return DesignSystemAsset.xmark.image
+        }
+    }
+}
+
+extension UIImage.NavigationBar.ImageType {
+    public var barImage: UIImage? {
+        switch self {
+        case .bibbi:
+            return DesignSystemAsset.bibbi.image
+        }
     }
 }

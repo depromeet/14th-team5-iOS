@@ -19,7 +19,7 @@ import Then
 
 final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     // MARK: - Views
-    private let calendarTitleLabel: TypeSystemLabel = TypeSystemLabel(.head1)
+    private let calendarTitleLabel: BibbiLabel = BibbiLabel(.head1)
     
     private lazy var labelStackView: UIStackView = UIStackView()
     private lazy var calendarInfoButton: UIButton = UIButton(type: .system)

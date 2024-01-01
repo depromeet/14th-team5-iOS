@@ -9,21 +9,21 @@ import UIKit
 
 import DesignSystem
 
-public class TypeSystemLabel: UILabel {
+public class BibbiLabel: UILabel {
     // MARK: - Properties
-    private let textStyle: UIFont.TypeSystemStyle
+    private let textStyle: UIFont.BibbiFontStyle
     
-    public var textTypeSystemColor: UIFont.TypeSystemColor = .white {
+    public var textTypeSystemColor: UIColor = .bibbiWhite {
         didSet {
             let attributes = UIFont.fontAttributes(
                 textColor: textTypeSystemColor
             )
-            textColor = attributes.textColor
+            textColor = attributes.color
         }
     }
     
     // MARK: - Intializer
-    public init(_ style: UIFont.TypeSystemStyle, textColor color: UIFont.TypeSystemColor = .white) {
+    public init(_ style: UIFont.BibbiFontStyle, textColor color: UIColor = .bibbiWhite) {
         self.textStyle = style
         self.textTypeSystemColor = color
         super.init(frame: .zero)
@@ -35,7 +35,7 @@ public class TypeSystemLabel: UILabel {
     }
     
     // MARK: - Helpers
-    private func setupAttributes(_ textStyle: UIFont.TypeSystemStyle, textColor color: UIFont.TypeSystemColor) {
+    private func setupAttributes(_ textStyle: UIFont.BibbiFontStyle, textColor color: UIColor) {
         let attributes = UIFont.fontAttributes(
             textStyle,
             textColor: color
@@ -45,7 +45,7 @@ public class TypeSystemLabel: UILabel {
     }
 }
 
-extension TypeSystemLabel {
+extension BibbiLabel {
     public override var text: String? {
         didSet {
             let attributes = UIFont.fontAttributes(
@@ -56,13 +56,13 @@ extension TypeSystemLabel {
     }
 }
 
-extension TypeSystemLabel {
+extension BibbiLabel {
     private func setupBasicAttributes(_ attributes: UIFont.FontAttributes) {
         font = UIFont(
             font: attributes.font,
             size: attributes.size
         )
-        textColor = attributes.textColor
+        textColor = attributes.color
     }
     
     private func setupDetailAttributes(_ attributes: UIFont.FontAttributes) {

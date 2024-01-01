@@ -45,8 +45,6 @@ public final class PrivacyViewUseCase: PrivacyViewUseCaseProtocol {
                 guard let appInfo = entity.results?.first,
                       let appVersion = appInfo.version
                 else { return .just(false) } // app Store에 올려져 있지 않아서 빈 배열로 넘겨지고 있음 그래서 false 처리함
-                
-                print("check Login App Check")
                 //Store 버전이 높을 경우 true
                 if NSString(string: appVersion).floatValue > NSString(string: Bundle.current.appVersion).floatValue {
                     return .just(true)

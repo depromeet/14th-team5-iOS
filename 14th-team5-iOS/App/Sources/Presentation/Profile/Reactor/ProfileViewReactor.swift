@@ -76,9 +76,12 @@ public final class ProfileViewReactor: Reactor {
                     .asObservable()
                     .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
                         var sectionItem: [ProfileFeedSectionItem] = []
-                        entity.results.forEach {
-                            sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date: $0.createdAt)))
-                            
+                        if entity.results.isEmpty {
+                            sectionItem.append(.feedCateogryEmptyItem(ProfileFeedEmptyCellReactor(descrption: "아직 업로드한 사진이 없어요", resource: "sadEmoji")))
+                        } else {
+                            entity.results.forEach {
+                                sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date:  $0.createdAt.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter())))
+                            }
                         }
                         return .concat(
                             .just(.setProfilePostItems(entity)),
@@ -158,7 +161,7 @@ public final class ProfileViewReactor: Reactor {
                     paginationItems.append(contentsOf: entity.results)
                    
                     paginationItems.forEach {
-                        sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date: $0.createdAt)))
+                        sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date: $0.createdAt.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter())))
                     }
                     
                     return .concat(

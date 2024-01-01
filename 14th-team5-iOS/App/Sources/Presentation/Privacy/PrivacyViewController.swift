@@ -109,7 +109,6 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
             .withLatestFrom(reactor.state.map { $0.isCheck })
             .filter { $0 == true }
             .bind { _ in
-                //임시 App Id(카카오톡) App Id 발급시 추가 예정
                 UIApplication.shared.open(URLTypes.appStore("362057947").originURL)
             }.disposed(by: disposeBag)
 
@@ -138,8 +137,7 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
                     }
                 case .userAuthorizationItem:
                     if indexPath.item == 0 {
-                        //TODO: 로그 아웃 클릭 시 로직 추가
-                        print("로그아웃")
+                        self.showResignAlertController()
                     } else {
                         //TODO: 회원 탈퇴 클릭 시 로직 추가
                         print("회원 탈퇴")
@@ -186,4 +184,29 @@ extension PrivacyViewController: UITableViewDelegate {
     public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 40
     }
+}
+
+
+extension PrivacyViewController {
+    
+    private func showResignAlertController() {
+        let resignAlertController = UIAlertController(
+            title: "로그 아웃",
+            message: "로그 아웃 하시겠어요?",
+            preferredStyle: .alert
+        )
+        
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel) { _ in
+            resignAlertController.dismiss(animated: true)
+        }
+        
+        let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
+            
+        }
+        
+        [cancelAction, confirmAction].forEach(resignAlertController.addAction(_:))
+        
+        present(resignAlertController, animated: true)
+    }
+    
 }

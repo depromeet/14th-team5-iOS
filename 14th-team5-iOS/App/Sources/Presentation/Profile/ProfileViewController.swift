@@ -46,6 +46,11 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             guard let profileFeedCell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProfileFeedCollectionViewCell", for: indexPath) as? ProfileFeedCollectionViewCell else { return UICollectionViewCell() }
             profileFeedCell.reactor = cellReactor
             return profileFeedCell
+            
+        case let .feedCateogryEmptyItem(cellReactor):
+            guard let profileFeedEmptyCell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProfileFeedEmptyCollectionViewCell", for: indexPath) as? ProfileFeedEmptyCollectionViewCell else { return UICollectionViewCell() }
+            profileFeedEmptyCell.reactor = cellReactor
+            return profileFeedEmptyCell
         }
     }
 
@@ -94,6 +99,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         
         profileFeedCollectionView.do {
             $0.register(ProfileFeedCollectionViewCell.self, forCellWithReuseIdentifier: "ProfileFeedCollectionViewCell")
+            $0.register(ProfileFeedEmptyCollectionViewCell.self, forCellWithReuseIdentifier: "ProfileFeedEmptyCollectionViewCell")
             $0.showsVerticalScrollIndicator = true
             $0.showsHorizontalScrollIndicator = false
             $0.backgroundColor = .clear
@@ -203,6 +209,12 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .disposed(by: disposeBag)
         
         
+        reactor.state
+            .compactMap { $0.profilePostEntity?.results.isEmpty }
+            .map { !$0 }
+            .bind(to: profileFeedCollectionView.rx.isScrollEnabled)
+            .disposed(by: disposeBag)
+        
         profileFeedCollectionView.rx
             .didScroll
             .withLatestFrom(profileFeedCollectionView.rx.contentOffset)
@@ -242,7 +254,14 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
 extension ProfileViewController: UICollectionViewDelegateFlowLayout {
     
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: (collectionView.frame.size.width / 2) - 4, height: 243)
+        
+        switch profileFeedDataSources[indexPath] {
+        case .feedCategoryItem:
+            return CGSize(width: (collectionView.frame.size.width / 2) - 4, height: 243)
+        case .feedCateogryEmptyItem:
+            return CGSize(width: collectionView.frame.size.width, height: collectionView.frame.size.height)
+        }
+        
     }
     
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {

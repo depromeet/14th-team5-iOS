@@ -40,6 +40,8 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
         case .App:
             return [
                 .target(name: "WidgetExtension"),
+                .external(name: "FirebaseAnalytics"),
+                .external(name: "FirebaseMessaging"),
                 .with(.Core),
                 .with(.Data),
                 .external(name: "ReactorKit")
@@ -64,8 +66,6 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
                 .external(name: "RxDataSources"),
                 .external(name: "SnapKit"),
                 .external(name: "Then"),
-                .external(name: "FirebaseAnalytics"),
-                .external(name: "FirebaseMessaging"),
                 .external(name: "KakaoSDK"),
                 .external(name: "RxKakaoSDK"),
                 .external(name: "Kingfisher"),

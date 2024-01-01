@@ -103,6 +103,17 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
             .setDelegate(self)
             .disposed(by: disposeBag)
         
+        
+        NotificationCenter.default
+            .rx.notification(.AppVersionsCheckWithRedirectStore)
+            .withLatestFrom(reactor.state.map { $0.isCheck })
+            .filter { $0 == true }
+            .bind { _ in
+                //임시 App Id(카카오톡) App Id 발급시 추가 예정
+                UIApplication.shared.open(URLTypes.appStore("362057947").originURL)
+            }.disposed(by: disposeBag)
+
+        
         privacyNavigationBar.rx
             .didTapLeftBarButton
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
@@ -118,8 +129,7 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
                 switch owner.privacyTableViewDataSources[indexPath] {
                 case .privacyWithAuthItem:
                     if indexPath.item == 0 {
-                        //TODO: 버전 정보 클릭 시 로직 추가
-                        print("버전 정보")
+                        NotificationCenter.default.post(name: .AppVersionsCheckWithRedirectStore, object: nil, userInfo: nil)
                     } else if indexPath.item == 1 {
                         UIApplication.shared.open(URLTypes.settings.originURL)
                     } else {

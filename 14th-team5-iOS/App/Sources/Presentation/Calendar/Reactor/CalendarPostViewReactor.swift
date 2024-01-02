@@ -24,9 +24,8 @@ public final class CalendarPostViewReactor: Reactor {
     
     // MARK: - Mutation
     public enum Mutation {
-        case deleteDatasource
-        case fetchCalendarResponse(String, ArrayResponseCalendarResponse)
-        case fetchPaginationResponsePostResponse([PostListData])
+        case injectCalendarResponse(String, ArrayResponseCalendarResponse)
+        case injectPaginationResponsePostResponse([PostListData])
     }
     
     // MARK: - State
@@ -44,7 +43,7 @@ public final class CalendarPostViewReactor: Reactor {
     private let postListUseCase: PostListUseCaseProtocol
     
     private var isFetchedYearMonths: [String] = [] // API 호출한 월(月)을 저장
-    private var hasThumbnailImageDates: [Date] = [] // 썸네일 이미지가 존재하는 일자를 저장
+    private var hasThumbnailImages: [Date] = [] // 썸네일 이미지가 존재하는 일자를 저장
     
     // MARK: - Intializer
     init(
@@ -65,39 +64,31 @@ public final class CalendarPostViewReactor: Reactor {
         switch action {
         case let .didSelectDate(date):
             // 썸네일 이미지가 존재하는 셀에 한하여
-            if hasThumbnailImageDates.contains(date) {
+            if hasThumbnailImages.contains(date) {
                 // 주간 캘린더 셀 클릭 이벤트 방출
-                provider.calendarGlabalState.didSelectCalendarCell(date)
+                provider.calendarGlabalState.didSelectDate(date)
             }
             
-            // 멤버ID를 순회하며 가족이 게시한 포스트 가져오기
-            let memberIds: [String] = ["01HJBNWZGNP1KJNMKWVZJ039HY"] // TODO: - 가족의 멤버ID 가져오기
+            // 가족이 게시한 포스트 가져오기
             var arrayPostResponse: [PostListData] = []
             
-            let singles = memberIds.map {
-                let postListQuery: PostListQuery = PostListQuery(
-                    page: 1,
-                    size: 10,
-                    date: date.toFormatString(with: "yyyy-MM-dd"),
-                    memberId: $0,
-                    sort: .asc
-                )
-                return postListUseCase.excute(query: postListQuery)
-            }
+            let postListQuery: PostListQuery = PostListQuery(
+                page: 1,
+                size: 10,
+                date: date.toFormatString(with: "yyyy-MM-dd"),
+                sort: .desc
+            )
             
-            return Single.zip(singles).asObservable()
+            return postListUseCase.excute(query: postListQuery).asObservable()
                 .flatMap {
-                    guard let postResponse: [PostListData] = $0.first??.postLists,
+                    guard let postResponse: [PostListData] = $0?.postLists,
                           !postResponse.isEmpty else {
                         return Observable<Mutation>.empty()
                     }
                     
                     arrayPostResponse.append(contentsOf: postResponse)
                     
-                    return Observable<Mutation>.concat(
-                        Observable.just(.deleteDatasource),
-                        Observable.just(.fetchPaginationResponsePostResponse(arrayPostResponse))
-                    )
+                    return Observable.just(.injectPaginationResponsePostResponse(arrayPostResponse))
                 }
             
         case let .fetchCalendarResponse(yearMonth):
@@ -107,14 +98,14 @@ public final class CalendarPostViewReactor: Reactor {
                     .withUnretained(self)
                     .map {
                         guard let arrayCalendarResponse = $0.1 else {
-                            return .fetchCalendarResponse(yearMonth, .init(results: []))
+                            return .injectCalendarResponse(yearMonth, .init(results: []))
                         }
                         $0.0.isFetchedYearMonths.append(yearMonth)
-                        $0.0.hasThumbnailImageDates.append(
+                        $0.0.hasThumbnailImages.append(
                             contentsOf: arrayCalendarResponse.results.map { $0.date }
                         )
                         // 썸네일 이미지 등 데이터가 존재하는 일(日)자에 한하여 데이터를 불러옴
-                        return .fetchCalendarResponse(yearMonth, arrayCalendarResponse)
+                        return .injectCalendarResponse(yearMonth, arrayCalendarResponse)
                     }
             // 이전에 불러온 적이 있다면
             } else {
@@ -128,21 +119,16 @@ public final class CalendarPostViewReactor: Reactor {
         var newState = state
         
         switch mutation {
-        case .deleteDatasource:
-            newState.postListDatasource = [SectionModel(model: "", items: [])]
-            
-        case let .fetchCalendarResponse(yearMonth, arrayCalendarResponse):
+        case let .injectCalendarResponse(yearMonth, arrayCalendarResponse):
             newState.dictCalendarResponse[yearMonth] = arrayCalendarResponse.results
             
-        case let .fetchPaginationResponsePostResponse(postResponse):
-            var postResponse = postResponse.sorted {
-                $0.time.toDate() < $1.time.toDate()
-            }
-            var newItems = SectionModel(model: "", items: postResponse)
+        case let .injectPaginationResponsePostResponse(postResponse):
+            newState.postListDatasource = [SectionModel(model: "", items: [])]
+
             newState.postListDatasource = [
                 SectionModel(
                     model: "",
-                    items: newItems.items
+                    items: postResponse
                 )
             ]
         }

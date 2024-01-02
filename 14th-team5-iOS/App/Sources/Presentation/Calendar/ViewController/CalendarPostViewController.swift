@@ -253,7 +253,15 @@ extension CalendarPostViewController {
         return RxCollectionViewSectionedReloadDataSource<PostListSectionModel> { datasource, collectionView, indexPath, item in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as! PostCollectionViewCell
             // TODO: - Reactor로 필요한 데이터 주입하기
-            cell.setCell(data: item)
+            cell.reactor = EmojiReactor(
+                emojiRepository: PostListsDIContainer().makeEmojiUseCase(),
+                initialState: .init(
+                    type: .calendar,
+                    postId: item.postId,
+                    memberId: item.author,
+                    imageUrl: item.imageURL
+                )
+            )
             return cell
         }
     }

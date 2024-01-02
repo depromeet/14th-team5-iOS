@@ -27,7 +27,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     /// 이모지 카운트를 보여주기 위한 stackView
     private let emojiCountStackView = UIStackView()
     
-    var reactor = EmojiReactor(emojiRepository: PostListsDIContainer().makeEmojiUseCase(), initialState: .init(type: .home, postId: "01HJBRBSZRF429S1SES900ET5G", memberId: ""))
+    let reactor = EmojiReactor(emojiRepository: PostListsDIContainer().makeEmojiUseCase(), initialState: .init(type: .home, postId: "01HJBRBSZRF429S1SES900ET5G", memberId: "", imageUrl: ""))
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -87,15 +87,22 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             }
             .disposed(by: disposeBag)
         
-        // TODO: - 프로필 이미지 및 닉네임 집어넣기
         reactor.state
-            .map { $0.memberId }
+            .debug("============================ 이미지 처리")
+            .map { $0.imageUrl }
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
-                // do something...
+                $0.0.postImageView.kf.setImage(
+                    with: URL(string: $0.1),
+                    options: [
+                        .transition(.fade(0.25))
+                    ]
+                )
             }
             .disposed(by: disposeBag)
+        
+        // TODO: - 프로필 이미지 및 닉네임 집어넣기
     }
     
     

@@ -20,8 +20,9 @@ import Then
 final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {    
     // MARK: - Views
     private let dayLabel: BibbiLabel = BibbiLabel(.body1Regular, alignment: .center)
-    private let noThumbnailView: UIView = UIView()
+    private let thumbnailBackgroundView: UIView = UIView()
     private let thumbnailView: UIImageView = UIImageView()
+    private let todayStrokeView: UIView = UIView()
     private let badgeView: UIImageView = UIImageView()
     
     // MARK: - Properties
@@ -47,14 +48,15 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         thumbnailView.layer.borderWidth = .zero
         thumbnailView.layer.borderColor = UIColor.bibbiWhite.cgColor
         badgeView.isHidden = true
+        todayStrokeView.isHidden = true
     }
     
     // MARK: - Helpers
     private func setupUI() {
         contentView.insertSubview(thumbnailView, at: 0)
-        contentView.insertSubview(noThumbnailView, at: 0)
+        contentView.insertSubview(thumbnailBackgroundView, at: 0)
         contentView.addSubviews(
-            dayLabel, badgeView
+            dayLabel, badgeView, todayStrokeView
         )
     }
     
@@ -63,12 +65,17 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             $0.center.equalTo(contentView.snp.center)
         }
         
-        noThumbnailView.snp.makeConstraints {
+        thumbnailBackgroundView.snp.makeConstraints {
             $0.center.equalTo(contentView.snp.center)
             $0.width.height.equalTo(contentView.snp.width).inset(CalendarCell.AutoLayout.thumbnailInsetValue)
         }
         
         thumbnailView.snp.makeConstraints {
+            $0.center.equalTo(contentView.snp.center)
+            $0.width.height.equalTo(contentView.snp.width).inset(CalendarCell.AutoLayout.thumbnailInsetValue)
+        }
+        
+        todayStrokeView.snp.makeConstraints {
             $0.center.equalTo(contentView.snp.center)
             $0.width.height.equalTo(contentView.snp.width).inset(CalendarCell.AutoLayout.thumbnailInsetValue)
         }
@@ -85,7 +92,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             $0.isHidden = true
         }
         
-        noThumbnailView.do {
+        thumbnailBackgroundView.do {
             $0.clipsToBounds = true
             $0.layer.cornerRadius = 13.0
             $0.backgroundColor = DesignSystemAsset.gray900.color
@@ -98,6 +105,13 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             $0.layer.borderWidth = .zero
             $0.layer.borderColor = DesignSystemAsset.white.color.cgColor
             $0.alpha = CalendarCell.Attribute.defaultAlphaValue
+        }
+        
+        todayStrokeView.do {
+            $0.isHidden = true
+            $0.layer.cornerRadius = 13.0
+            $0.layer.borderWidth = 2.0
+            $0.layer.borderColor = DesignSystemAsset.mainGreen.color.cgColor
         }
         
         badgeView.do {
@@ -125,9 +139,8 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             .withUnretained(self)
             .subscribe {
                 if $0.1 {
+                    $0.0.todayStrokeView.isHidden = false
                     $0.0.dayLabel.textBibbiColor = UIColor.mainGreen
-                    $0.0.thumbnailView.layer.borderWidth = 2.0
-                    $0.0.thumbnailView.layer.borderColor = UIColor.mainGreen.cgColor
                 }
             }
             .disposed(by: disposeBag)
@@ -157,15 +170,20 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             .subscribe {
                 if reactor.type == .week {
                     if $0.1 {
+                        $0.0.todayStrokeView.isHidden = true
+                        
+                        $0.0.thumbnailView.alpha = 1.0
+                        $0.0.thumbnailBackgroundView.alpha = 1.0
                         $0.0.thumbnailView.layer.borderWidth = 2.0
-                        $0.0.thumbnailView.layer.borderColor = DesignSystemAsset.white.color.cgColor
+                        $0.0.thumbnailView.layer.borderColor = UIColor.bibbiWhite.cgColor
                     } else {
+                        $0.0.thumbnailView.alpha = 0.3
+                        $0.0.thumbnailBackgroundView.alpha = 0.3
                         $0.0.thumbnailView.layer.borderWidth = 0.0
                         
                         if reactor.currentState.date.isToday {
+                            $0.0.todayStrokeView.isHidden = false
                             $0.0.dayLabel.textBibbiColor = UIColor.mainGreen
-                            $0.0.thumbnailView.layer.borderWidth = 2.0
-                            $0.0.thumbnailView.layer.borderColor = UIColor.mainGreen.cgColor
                         }
                     }
                 }

@@ -23,7 +23,7 @@ import Then
 public final class CalendarPostViewController: BaseViewController<CalendarPostViewReactor> {
     // MARK: - Views
     private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
-    private let imageBlurView: UIImageView = UIImageView()
+    private let backgroundImageView: UIImageView = UIImageView()
 
     private let calendarView: FSCalendar = FSCalendar()
     private lazy var collectionView: UICollectionView = UICollectionView(
@@ -32,8 +32,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     )
     
     // MARK: - Properties
-    
-    // TODO: - DataSource 타입 바꾸기
+    private let imageIndexRelay: PublishRelay<Int> = PublishRelay<Int>()
     private lazy var dataSource: RxCollectionViewSectionedReloadDataSource<PostListSectionModel> = prepareDatasource()
     
     // MARK: - Lifecycles
@@ -50,16 +49,16 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     public override func setupUI() {
         super.setupUI()
         view.addSubviews(
-            navigationBarView, imageBlurView
+            navigationBarView, backgroundImageView
         )
-        imageBlurView.addSubviews(
+        backgroundImageView.addSubviews(
             navigationBarView, calendarView, collectionView
         )
     }
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
-        imageBlurView.snp.makeConstraints {
+        backgroundImageView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
         
@@ -71,19 +70,19 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         
         calendarView.snp.makeConstraints {
             $0.top.equalTo(navigationBarView.snp.bottom).offset(20.0)
-            $0.leading.trailing.equalTo(imageBlurView)
+            $0.leading.trailing.equalTo(backgroundImageView)
             $0.height.equalTo(CalendarVC.AutoLayout.calendarHeightValue)
         }
         
         collectionView.snp.makeConstraints {
             $0.top.equalTo(calendarView.snp.bottom).offset(16.0)
-            $0.leading.bottom.trailing.equalTo(imageBlurView)
+            $0.leading.bottom.trailing.equalTo(backgroundImageView)
         }
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
-        imageBlurView.do {
+        backgroundImageView.do {
             $0.kf.setImage(with: URL(string: "https://cdn.pixabay.com/photo/2023/12/04/16/12/berlin-8429780_1280.jpg"))
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
@@ -146,6 +145,11 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        imageIndexRelay
+            .distinctUntilChanged()
+            .map { Reactor.Action.acceptBackgroundImageIndex($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
         navigationBarView.rx.didTapLeftBarButton
             .withUnretained(self)
@@ -194,6 +198,27 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     }
     
     private func bindOutput(reactor: CalendarPostViewReactor) {
+        reactor.state.map { $0.backgroundImageUrl }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe {
+                guard let url: URL = $0.1 else { return }
+                KingfisherManager.shared.retrieveImage(with: url) { [unowned self] result in
+                    switch result {
+                    case let .success(value):
+                        UIView.transition(
+                            with: self.backgroundImageView,
+                            duration: 0.25,
+                            options: [.transitionCrossDissolve, .allowUserInteraction]) {
+                                self.backgroundImageView.image = value.image
+                            }
+                    case let .failure(error):
+                        print("Kingfisher RetrieveImage Error")
+                    }
+                }
+            }
+            .disposed(by: disposeBag)
+        
         reactor.state.map { $0.dictCalendarResponse }
             .distinctUntilChanged(\.count)
             .withUnretained(self)
@@ -241,6 +266,16 @@ extension CalendarPostViewController {
         let section: NSCollectionLayoutSection = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .groupPaging
         
+        section.visibleItemsInvalidationHandler = { [unowned self] visibleItems, offset, environment in
+            let position: CGFloat =  offset.x / collectionView.frame.width
+            let floorPosition: CGFloat = floor(position)
+            let fractionPart: CGFloat = position - floorPosition
+            
+            if fractionPart <= 0.0 {
+                imageIndexRelay.accept(Int(floorPosition))
+            }
+        }
+        
         // layout
         let layout: UICollectionViewCompositionalLayout = UICollectionViewCompositionalLayout(section: section)
         
@@ -252,7 +287,6 @@ extension CalendarPostViewController {
     private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<PostListSectionModel> {
         return RxCollectionViewSectionedReloadDataSource<PostListSectionModel> { datasource, collectionView, indexPath, item in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as! PostCollectionViewCell
-            // TODO: - Reactor로 필요한 데이터 주입하기
             cell.reactor = EmojiReactor(
                 emojiRepository: PostListsDIContainer().makeEmojiUseCase(),
                 initialState: .init(
@@ -269,9 +303,9 @@ extension CalendarPostViewController {
     private func setupBlurEffect() {
         let blurEffect = UIBlurEffect(style: .systemThickMaterialDark)
         let visualEffectView = UIVisualEffectView(effect: blurEffect)
-        visualEffectView.alpha = 0.9
+        visualEffectView.alpha = 0.95
         visualEffectView.frame = view.frame
-        imageBlurView.insertSubview(visualEffectView, at: 0)
+        backgroundImageView.insertSubview(visualEffectView, at: 0)
     }
     
     private func setupNavigationTitle(_ date: Date) {

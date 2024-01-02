@@ -19,11 +19,13 @@ public final class CalendarPostViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case didSelectDate(Date)
+        case acceptBackgroundImageIndex(Int)
         case fetchCalendarResponse(String)
     }
     
     // MARK: - Mutation
     public enum Mutation {
+        case setupBackgroundImage(Int)
         case injectCalendarResponse(String, ArrayResponseCalendarResponse)
         case injectPaginationResponsePostResponse([PostListData])
     }
@@ -31,6 +33,7 @@ public final class CalendarPostViewReactor: Reactor {
     // MARK: - State
     public struct State {
         var selectedDate: Date
+        var backgroundImageUrl: URL?
         var postListDatasource: [PostListSectionModel] = [SectionModel(model: "", items: [])]
         var dictCalendarResponse: [String: [CalendarResponse]] = [:] // (월: [일자 데이터]) 형식으로 불러온 데이터를 저장
     }
@@ -62,6 +65,9 @@ public final class CalendarPostViewReactor: Reactor {
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
+        case let .acceptBackgroundImageIndex(index):
+            return Observable<Mutation>.just(.setupBackgroundImage(index))
+
         case let .didSelectDate(date):
             // 썸네일 이미지가 존재하는 셀에 한하여
             if hasThumbnailImages.contains(date) {
@@ -88,7 +94,10 @@ public final class CalendarPostViewReactor: Reactor {
                     
                     arrayPostResponse.append(contentsOf: postResponse)
                     
-                    return Observable.just(.injectPaginationResponsePostResponse(arrayPostResponse))
+                    return Observable.concat(
+                        Observable<Mutation>.just(.injectPaginationResponsePostResponse(arrayPostResponse)),
+                        Observable<Mutation>.just(.setupBackgroundImage(0))
+                    )
                 }
             
         case let .fetchCalendarResponse(yearMonth):
@@ -119,6 +128,15 @@ public final class CalendarPostViewReactor: Reactor {
         var newState = state
         
         switch mutation {
+        case let .setupBackgroundImage(index):
+            guard let items = newState.postListDatasource.first?.items else {
+                return newState
+            }
+            
+            let urlString: String = items[index].imageURL
+            let imageUrl: URL? = URL(string: urlString)
+            newState.backgroundImageUrl = imageUrl
+            
         case let .injectCalendarResponse(yearMonth, arrayCalendarResponse):
             newState.dictCalendarResponse[yearMonth] = arrayCalendarResponse.results
             

@@ -16,9 +16,9 @@ import RxSwift
 public final class CalendarPageCellReactor: Reactor {
     // MARK: - Action
     public enum Action {
-        case fetchCalendarResponse
         case didSelectCalendarCell(Date)
         case didTapInfoButton(UIView)
+        case fetchCalendarResponse
     }
     
     // MARK: - Mutation

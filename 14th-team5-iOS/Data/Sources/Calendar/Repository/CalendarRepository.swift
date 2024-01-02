@@ -16,7 +16,7 @@ import RxSwift
 enum TempStr {
     static let familyId = "familyId"
 
-    static let accessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MiLCJyZWdEYXRlIjoxNzA0MTA3MzQzMTkwfQ.eyJ1c2VySWQiOiIwMUhKQk5XWkdOUDFLSk5NS1dWWkowMzlIWSIsImV4cCI6MTcwNDE5Mzc0M30.hRniUYNHxEb4zVxfWE1UiKdKScaBi0VpAjWZIvd28KU"
+    static let accessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MiLCJyZWdEYXRlIjoxNzA0MTk2NjA2NjE2fQ.eyJ1c2VySWQiOiIwMUhKQk5XWkdOUDFLSk5NS1dWWkowMzlIWSIsImV4cCI6MTcwNDI4MzAwNn0._q3bFjpqj0_WGnE8GOXTXWzXy-V8YkHGbmEtYbQ89cA"
 }
 
 public final class CalendarRepository: CalendarRepositoryProtocol {

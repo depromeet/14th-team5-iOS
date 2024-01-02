@@ -38,6 +38,9 @@ extension FamilyAPIWorker: SearchFamilyRepository {
             .map(FamilySearchResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
+            .do {
+                FamilyUserDefaults.saveFamilyMembers($0?.members ?? [])
+            }
             .asSingle()
     }
     

@@ -82,7 +82,7 @@ extension PostNavigationView {
             return
         }
         profileImageView.kf.setImage(with: url)
-        nameLabel.text = data.author
+        nameLabel.text = data.author?.name
         dateLabel.text = data.time
     }
 }

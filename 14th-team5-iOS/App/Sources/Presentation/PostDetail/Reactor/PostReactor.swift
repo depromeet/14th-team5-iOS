@@ -26,8 +26,8 @@ final class PostReactor: Reactor {
     struct State {
         let originPostLists: [SectionModel<String,PostListData>]
 //        let fetchedPostLists: [SectionModel<String, PostData>] 
-        var selectedPost: PostListData = .init(postId: "", author: "", emojiCount: 0, imageURL: "", content: "", time: "")
-        var fetchedPost: PostData = .init(writer: "", time: "", imageURL: "", imageText: "", emojis: [])
+        var selectedPost: PostListData = .init(postId: "", author: .init(memberId: "", profileImageURL: "", name: ""), emojiCount: 0, imageURL: "", content: "", time: "")
+        var fetchedPost: PostData = .init(writer: .init(memberId: "", profileImageURL: "", name: ""), time: "", imageURL: "", imageText: "", emojis: [])
     }
     
     let initialState: State
@@ -48,7 +48,7 @@ extension PostReactor {
             return postRepository.excute(query: query)
                 .asObservable()
                 .flatMap { post in
-                    return Observable.just(Mutation.fetchedPost(post ?? .init(writer: "", time: "", imageURL: "", imageText: "", emojis: [])))
+                    return Observable.just(Mutation.fetchedPost(post ?? .init(writer: .init(memberId: "", profileImageURL: "", name: ""), time: "", imageURL: "", imageText: "", emojis: [])))
                 }
         case let .setPost(index):
             return Observable.just(Mutation.setSelectedPostIndex(index))

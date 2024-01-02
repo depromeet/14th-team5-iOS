@@ -60,7 +60,7 @@ extension FeedCollectionViewCell {
             return
         }
         
-        nameLabel.text = data.author
+        nameLabel.text = data.author?.name
         timeLabel.text = data.time
 
         imageView.kf.setImage(with: imageURL)

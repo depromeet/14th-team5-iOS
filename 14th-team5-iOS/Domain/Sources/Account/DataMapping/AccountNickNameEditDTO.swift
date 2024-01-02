@@ -14,9 +14,7 @@ public struct AccountNickNameEditDTO: Decodable {
     public var imageUrl: String
     public var familyId: String
     public var dayOfBirth: String
-    
 }
-
 
 extension AccountNickNameEditDTO {
     public func toDomain() -> AccountNickNameEditResponse {

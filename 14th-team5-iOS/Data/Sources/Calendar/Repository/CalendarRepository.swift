@@ -16,25 +16,28 @@ import RxSwift
 enum TempStr {
     static let familyId = "familyId"
 
-    static let accessToken = "eyJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QiLCJyZWdEYXRlIjoxNzAzODI0MDI2NTMyfQ.eyJ1c2VySWQiOiIwMUhKQk5XWkdOUDFLSk5NS1dWWkowMzlIWSIsImV4cCI6MTcwMzkxMDQyNn0.9oLLeuhBcTOvz0Eh0NTfD8fk4rD9yDgEogVEzLf6o5k"
+    static let accessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MiLCJyZWdEYXRlIjoxNzA0MTA3MzQzMTkwfQ.eyJ1c2VySWQiOiIwMUhKQk5XWkdOUDFLSk5NS1dWWkowMzlIWSIsImV4cCI6MTcwNDE5Mzc0M30.hRniUYNHxEb4zVxfWE1UiKdKScaBi0VpAjWZIvd28KU"
 }
 
 public final class CalendarRepository: CalendarRepositoryProtocol {
     public let disposeBag: DisposeBag = DisposeBag()
     
-    private let apiWorker: CalendarAPIWorker = CalendarAPIWorker()
+    private let calendarApiWorker: CalendarAPIWorker = CalendarAPIWorker()
+    private let postListApiWorker: PostListAPIWorker = PostListAPIWorker()
     
     public init() { }
     
     // TODO: - AccessToken 구하는 코드 구현
     public func fetchMonthlyCalendar(_ yearMonth: String) -> Observable<ArrayResponseCalendarResponse?> {
-        return apiWorker.fetchMonthlyCalendar(yearMonth, accessToken: TempStr.accessToken)
+        return calendarApiWorker.fetchMonthlyCalendar(yearMonth, accessToken: TempStr.accessToken)
             .asObservable()
     }
     
     // TODO: - AccessToken 구하는 코드 구현
-    public func fetchWeekCalendar(_ yearMonth: String, week: Int) -> Observable<ArrayResponseCalendarResponse?> {
-        return apiWorker.fetchWeeklyCalendar(yearMonth, week: week, accessToken: TempStr.accessToken)
+    public func fetchWeeklyCalendar(_ yearMonth: String, week: Int) -> Observable<ArrayResponseCalendarResponse?> {
+        return calendarApiWorker.fetchWeeklyCalendar(yearMonth, week: week, accessToken: TempStr.accessToken)
             .asObservable()
     }
+    
+    // TODO: - 
 }

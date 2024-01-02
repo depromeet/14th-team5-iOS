@@ -19,7 +19,7 @@ final class PostListsDIContainer {
         return PostViewController(reactor: makeReactor(postLists: postLists, selectedIndex: selectedIndex.row))
     }
     
-    func makePostRepository() -> PostListRepository {
+    func makePostRepository() -> PostListRepositoryProtocol {
         return PostListAPIs.Worker()
     }
     

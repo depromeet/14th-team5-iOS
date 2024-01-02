@@ -104,7 +104,7 @@ final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellR
         }
         
         isMeLabel.do {
-            $0.textTypeSystemColor = .gray500
+            $0.textBibbiColor = .gray500
         }
         
         contentView.backgroundColor = DesignSystemAsset.black.color

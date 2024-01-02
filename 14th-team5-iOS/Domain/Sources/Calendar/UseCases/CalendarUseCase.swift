@@ -26,6 +26,6 @@ public final class CalendarUseCase: CalendarUseCaseProtocol {
     }
     
     public func executeFetchWeeklyCalendar(_ yearMonth: String, week: Int) -> Observable<ArrayResponseCalendarResponse?> {
-        return calendarRepository.fetchWeekCalendar(yearMonth, week: week)
+        return calendarRepository.fetchWeeklyCalendar(yearMonth, week: week)
     }
 }

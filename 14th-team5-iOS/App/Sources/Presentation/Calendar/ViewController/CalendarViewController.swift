@@ -132,8 +132,6 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
 }
 
 // MARK: - Extensions
-extension CalendarViewController: BibbiNavigationBarViewDelegate { }
-
 extension CalendarViewController {
     private var orthogonalCompositionalLayout: UICollectionViewCompositionalLayout {
         // item
@@ -169,7 +167,7 @@ extension CalendarViewController {
     private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<SectionOfMonthlyCalendar> {
         return RxCollectionViewSectionedReloadDataSource<SectionOfMonthlyCalendar> { datasource, collectionView, indexPath, yearMonth in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarPageCell.id, for: indexPath) as! CalendarPageCell
-            cell.reactor = CalendarPageCellDIContainer().makeReactor(yearMonth: yearMonth)
+            cell.reactor = CalendarPageCellDIContainer(yearMonth: yearMonth).makeReactor()
             return cell
         }
     }

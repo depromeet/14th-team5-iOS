@@ -15,11 +15,24 @@ public struct PostListQuery {
     /// DESC | ASC
     public let sort: String
     
-    public init(page: Int, size: Int, date: String, memberId: String, sort: String) {
+    public init(
+        page: Int,
+        size: Int,
+        date: String,
+        memberId: String = "",
+        sort: PostListQuery.Sort
+    ) {
         self.page = page
         self.size = size
         self.date = date
         self.memberId = memberId
-        self.sort = sort
+        self.sort = sort.rawValue
+    }
+}
+
+extension PostListQuery {
+    public enum Sort: String {
+        case asc = "ASC"
+        case desc = "DESC"
     }
 }

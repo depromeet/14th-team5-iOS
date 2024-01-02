@@ -11,7 +11,7 @@ import Domain
 import Alamofire
 import RxSwift
 
-typealias PostListAPIWorker = PostListAPIs.Worker
+public typealias PostListAPIWorker = PostListAPIs.Worker
 extension PostListAPIs {
     public final class Worker: APIWorker {
         static let queue = {
@@ -25,7 +25,7 @@ extension PostListAPIs {
     }
 }
 
-extension PostListAPIWorker: PostListRepository {
+extension PostListAPIWorker: PostListRepositoryProtocol {
     public func fetchPostDetail(query: Domain.PostQuery) -> RxSwift.Single<Domain.PostData?> {
         let requestDTO = PostRequestDTO(postId: query.postId)
         let spec = PostListAPIs.fetchPostDetail(requestDTO).spec

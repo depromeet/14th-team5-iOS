@@ -13,5 +13,5 @@ public protocol CalendarRepositoryProtocol {
     var disposeBag: DisposeBag { get }
     
     func fetchMonthlyCalendar(_ yearMonth: String) -> Observable<ArrayResponseCalendarResponse?>
-    func fetchWeekCalendar(_ yearMonth: String, week: Int) -> Observable<ArrayResponseCalendarResponse?>
+    func fetchWeeklyCalendar(_ yearMonth: String, week: Int) -> Observable<ArrayResponseCalendarResponse?>
 }

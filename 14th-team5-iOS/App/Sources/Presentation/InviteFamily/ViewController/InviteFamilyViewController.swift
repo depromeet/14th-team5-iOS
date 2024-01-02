@@ -145,13 +145,13 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
         
         inviteFamilyTitleLabel.do {
             $0.text = AddFamilyVC.Strings.addFamilyTitle
-            $0.textTypeSystemColor = .white
+            $0.textBibbiColor = .white
             $0.textAlignment = .left
         }
         
         invitationUrlLabel.do {
             $0.text = AddFamilyVC.Strings.invitationUrlText
-            $0.textTypeSystemColor = .gray500
+            $0.textBibbiColor = .gray500
             $0.textAlignment = .left
         }
         

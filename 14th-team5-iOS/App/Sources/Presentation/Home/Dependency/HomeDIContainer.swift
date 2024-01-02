@@ -19,7 +19,7 @@ public final class HomeDIContainer {
         return HomeViewController(reactor: makeReactor())
     }
     
-    public func makePostRepository() -> PostListRepository {
+    public func makePostRepository() -> PostListRepositoryProtocol {
         return PostListAPIs.Worker()
     }
     

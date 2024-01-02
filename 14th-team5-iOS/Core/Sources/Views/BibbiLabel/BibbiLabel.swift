@@ -12,35 +12,29 @@ import DesignSystem
 public class BibbiLabel: UILabel {
     // MARK: - Properties
     private var textStyle: UIFont.BibbiFontStyle
-    private var alignment: NSTextAlignment = .left // 기본 정렬 속성
+    private var alignment: NSTextAlignment
     
-    public var textTypeSystemColor: UIColor = .bibbiWhite {
+    public var textBibbiColor: UIColor = .bibbiWhite {
         didSet {
             updateAttributes()
         }
     }
     
     // MARK: - Intializer
-    public init(_ style: UIFont.BibbiFontStyle, alignment: NSTextAlignment = .left, textColor color: UIColor = .bibbiWhite) {
+    public init(
+        _ style: UIFont.BibbiFontStyle,
+        alignment: NSTextAlignment = .left,
+        textColor color: UIColor = .bibbiWhite
+    ) {
         self.textStyle = style
         self.alignment = alignment
-        self.textTypeSystemColor = color
+        self.textBibbiColor = color
         super.init(frame: .zero)
         updateAttributes()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    // MARK: - Helpers
-    private func setupAttributes(_ textStyle: UIFont.BibbiFontStyle, textColor color: UIColor) {
-        let attributes = UIFont.fontAttributes(
-            textStyle,
-            textColor: color
-        )
-        setupBasicAttributes(attributes)
-        setupDetailAttributes(attributes)
     }
 }
 
@@ -53,19 +47,25 @@ extension BibbiLabel {
 }
 
 extension BibbiLabel {
-    public func updateTextStyle(_ style: UIFont.BibbiFontStyle, alignment: NSTextAlignment = .left, textColor color: UIColor? = nil) {
+    public func updateTextStyle(
+        _ style: UIFont.BibbiFontStyle,
+        alignment: NSTextAlignment = .left,
+        textColor color: UIColor? = nil
+    ) {
         self.textStyle = style
         self.alignment = alignment
         if let color = color {
-            self.textTypeSystemColor = color
+            self.textBibbiColor = color
         }
         updateAttributes()
     }
-    
+}
+
+extension BibbiLabel {
     private func updateAttributes() {
         let attributes = UIFont.fontAttributes(
             textStyle,
-            textColor: textTypeSystemColor,
+            textColor: textBibbiColor,
             textAlignment: alignment
         )
         setupBasicAttributes(attributes)

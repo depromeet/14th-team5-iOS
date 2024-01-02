@@ -40,7 +40,7 @@ enum PostAutoLayout {
         enum CollectionViewCell {
             enum PostImageView {
                 static let topInset = 82
-                static let cornerRadius: CGFloat = 24
+                static let cornerRadius: CGFloat = 48
             }
             
             enum ShowSelectableEmojiButton {

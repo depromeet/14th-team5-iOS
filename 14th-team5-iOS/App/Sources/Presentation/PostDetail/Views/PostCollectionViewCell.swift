@@ -16,6 +16,10 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     typealias Layout = PostAutoLayout.CollectionView.CollectionViewCell
     static let id = "postCollectionViewCell"
     
+    private let profileStackView = UIStackView()
+    private let profileImageView = UIImageView()
+    private let nickNameLabel = BibbiLabel(.caption, textColor: .gray200)
+    
     private let postImageView = UIImageView()
     /// 이모지를 선택하기 위한 버튼을 모아둔 stackView
     private let selectableEmojiStackView = UIStackView()
@@ -23,7 +27,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     /// 이모지 카운트를 보여주기 위한 stackView
     private let emojiCountStackView = UIStackView()
     
-    private let reactor = EmojiReactor(emojiRepository: PostListsDIContainer().makeEmojiUseCase(), initialState: .init(postId: "01HJBRBSZRF429S1SES900ET5G"))
+    let reactor = EmojiReactor(emojiRepository: PostListsDIContainer().makeEmojiUseCase(), initialState: .init(type: .home, postId: "01HJBRBSZRF429S1SES900ET5G", memberId: "", imageUrl: ""))
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -67,22 +71,64 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
                 self.unselectEmoji(emoji: $0.1.0 ?? .emoji1, count: $0.1.1)
             })
             .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.type }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe {
+                if $0.1 == .calendar {
+                    $0.0.profileStackView.isHidden = false
+                    
+                    $0.0.profileStackView.snp.updateConstraints {
+                        $0.top.equalToSuperview()
+                    }
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .debug("============================ 이미지 처리")
+            .map { $0.imageUrl }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe {
+                $0.0.postImageView.kf.setImage(
+                    with: URL(string: $0.1),
+                    options: [
+                        .transition(.fade(0.25))
+                    ]
+                )
+            }
+            .disposed(by: disposeBag)
+        
+        // TODO: - 프로필 이미지 및 닉네임 집어넣기
     }
     
     
     override func setupUI() {
         super.setupUI()
-        
-        addSubviews(postImageView, showSelectableEmojiButton, emojiCountStackView, selectableEmojiStackView)
+        addSubviews(profileStackView, postImageView, showSelectableEmojiButton, emojiCountStackView, selectableEmojiStackView)
+        profileStackView.addArrangedSubviews(profileImageView, nickNameLabel)
     }
 
     override func setupAutoLayout() {
         super.setupAutoLayout()
 
+        profileStackView.snp.makeConstraints {
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.top.equalToSuperview().offset(Layout.PostImageView.topInset - (34 + 8))
+            $0.height.equalTo(34)
+        }
+        
+        profileImageView.snp.makeConstraints {
+            $0.width.height.equalTo(34)
+        }
+        
         postImageView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(postImageView.snp.width)
-            $0.top.equalToSuperview().inset(Layout.PostImageView.topInset)
+            $0.top.equalTo(profileStackView.snp.bottom).offset(8)
         }
         
         showSelectableEmojiButton.snp.makeConstraints {
@@ -107,6 +153,24 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     
     override func setupAttributes() {
         super.setupAttributes()
+        
+        // TODO: - memberID에 맞게 데이터 주입하기
+        profileStackView.do {
+            $0.axis = .horizontal
+            $0.spacing = 12.0
+            $0.isHidden = true
+        }
+        
+        profileImageView.do {
+            $0.image = DesignSystemAsset.emoji1.image
+            $0.contentMode = .scaleAspectFill
+            $0.layer.masksToBounds = true
+            $0.layer.cornerRadius = 34.0 / 2.0
+        }
+        
+        nickNameLabel.do {
+            $0.text = "김건우"
+        }
         
         postImageView.do {
             $0.clipsToBounds = true

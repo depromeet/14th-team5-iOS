@@ -258,7 +258,7 @@ extension CalendarPostViewController {
                 initialState: .init(
                     type: .calendar,
                     postId: item.postId,
-                    memberId: item.author,
+                    memberId: item.author?.name ?? "",
                     imageUrl: item.imageURL
                 )
             )

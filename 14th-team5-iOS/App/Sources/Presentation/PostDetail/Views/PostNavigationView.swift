@@ -71,6 +71,7 @@ final class PostNavigationView: UIView {
         }
         
         profileImageView.do {
+            $0.clipsToBounds = true
             $0.layer.cornerRadius = Layout.ProfileImageView.cornerRadius
         }
     }
@@ -78,11 +79,12 @@ final class PostNavigationView: UIView {
 
 extension PostNavigationView {
     func setData(data: PostListData) {
-        guard let url = URL(string: data.imageURL) else {
+        guard let author = data.author,
+              let url = URL(string: author.profileImageURL) else {
             return
         }
         profileImageView.kf.setImage(with: url)
-        nameLabel.text = data.author
+        nameLabel.text = author.name
         dateLabel.text = data.time
     }
 }

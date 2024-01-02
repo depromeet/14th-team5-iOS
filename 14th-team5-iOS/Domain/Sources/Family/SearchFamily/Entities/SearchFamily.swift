@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ProfileData: Equatable {
+public struct ProfileData: Equatable, Codable {
     public let memberId: String
     public let profileImageURL: String
     public let name: String

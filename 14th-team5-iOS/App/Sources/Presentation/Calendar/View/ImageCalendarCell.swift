@@ -19,7 +19,7 @@ import Then
 
 final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {    
     // MARK: - Views
-    private let dayLabel: BibbiLabel = BibbiLabel(.body1Regular)
+    private let dayLabel: BibbiLabel = BibbiLabel(.body1Regular, alignment: .center)
     private let noThumbnailView: UIView = UIView()
     private let thumbnailView: UIImageView = UIImageView()
     private let badgeView: UIImageView = UIImageView()
@@ -42,10 +42,10 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
     }
     
     public override func prepareForReuse() {
-        dayLabel.textColor = UIColor.white
+        dayLabel.textBibbiColor = UIColor.bibbiWhite
         thumbnailView.image = nil
         thumbnailView.layer.borderWidth = .zero
-        thumbnailView.layer.borderColor = UIColor.white.cgColor
+        thumbnailView.layer.borderColor = UIColor.bibbiWhite.cgColor
         badgeView.isHidden = true
     }
     
@@ -83,10 +83,6 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
     private func setupAttribute() {
         titleLabel.do {
             $0.isHidden = true
-        }
-        
-        dayLabel.do {
-            $0.textAlignment = .center
         }
         
         noThumbnailView.do {
@@ -129,9 +125,9 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             .withUnretained(self)
             .subscribe {
                 if $0.1 {
-                    $0.0.dayLabel.textBibbiColor = .mainGreen
+                    $0.0.dayLabel.textBibbiColor = UIColor.mainGreen
                     $0.0.thumbnailView.layer.borderWidth = 2.0
-                    $0.0.thumbnailView.layer.borderColor = UIColor.green.cgColor
+                    $0.0.thumbnailView.layer.borderColor = UIColor.mainGreen.cgColor
                 }
             }
             .disposed(by: disposeBag)
@@ -167,9 +163,9 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
                         $0.0.thumbnailView.layer.borderWidth = 0.0
                         
                         if reactor.currentState.date.isToday {
-                            $0.0.dayLabel.textBibbiColor = .mainGreen
+                            $0.0.dayLabel.textBibbiColor = UIColor.mainGreen
                             $0.0.thumbnailView.layer.borderWidth = 2.0
-                            $0.0.thumbnailView.layer.borderColor = DesignSystemAsset.mainGreen.color.cgColor
+                            $0.0.thumbnailView.layer.borderColor = UIColor.mainGreen.cgColor
                         }
                     }
                 }

@@ -66,7 +66,7 @@ extension HomeViewReactor {
             return familyRepository.excute(query: query)
                 .asObservable()
                 .flatMap { familyMembers in
-                    Observable.just(Mutation.setLoading(false))
+//                    Observable.just(Mutation.setLoading(false))
                     guard let familyMembers else {
                         return Observable.just(Mutation.showInviteFamilyView)
                     }
@@ -83,7 +83,7 @@ extension HomeViewReactor {
             return postRepository.excute(query: query)
                 .asObservable()
                 .flatMap { postList in
-                    Observable.just(Mutation.setLoading(false)) // Loading 완료 시점
+//                    Observable.just(Mutation.setLoading(false)) // Loading 완료 시점
                     guard let postList else {
                         return Observable.just(Mutation.showNoPostTodayView)
                     }

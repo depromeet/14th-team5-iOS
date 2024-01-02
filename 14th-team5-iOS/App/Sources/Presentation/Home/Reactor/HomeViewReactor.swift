@@ -65,7 +65,6 @@ extension HomeViewReactor {
             let query: SearchFamilyQuery = SearchFamilyQuery(type: "FAMILY", page: 1, size: 20)
             return familyRepository.excute(query: query)
                 .asObservable()
-                .debug("family")
                 .flatMap { familyMembers in
 //                    Observable.just(Mutation.setLoading(false))
                     guard let familyMembers else {
@@ -83,7 +82,6 @@ extension HomeViewReactor {
             let query: PostListQuery = PostListQuery(page: 1, size: 20, date: "2023-12-05", memberId: "", sort: .desc)
             return postRepository.excute(query: query)
                 .asObservable()
-                .debug("postlist")
                 .flatMap { postList in
 //                    Observable.just(Mutation.setLoading(false)) // Loading 완료 시점
                     guard let postList else {

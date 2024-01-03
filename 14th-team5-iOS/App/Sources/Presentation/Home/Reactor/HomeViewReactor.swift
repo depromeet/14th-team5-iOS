@@ -92,9 +92,12 @@ extension HomeViewReactor {
                         return Observable.just(Mutation.showNoPostTodayView)
                     }
                     
-                    // 내꺼 멤버 아이디 넣기
-                    if postList.checkAuthor(authorId: "") {
+                    if postList.selfUploaded {
                         return Observable.just(Mutation.setDidPost)
+                    }
+                    
+                    if postList.allFamilyMembersUploaded{
+                        return Observable.just(Mutation.setDescriptionText(HomeStrings.Description.allUploaded))
                     }
                     
                     return Observable.just(Mutation.setPostCollectionView([

@@ -19,9 +19,8 @@ public final class FamilyRepository: FamilyRepositoryProtocol {
     
     public init() { }
     
-    // TODO: - FamiliyID, AccessToken 구하는 코드 구현
     public func fetchInvitationUrl() -> Observable<URL?> {
-        return familyApiWorker.fetchInvitationUrl(TempStr.familyId, accessToken: TempStr.accessToken)
+        return familyApiWorker.fetchInvitationUrl()
             .asObservable()
             .compactMap { $0?.url }
             .map { urlString in
@@ -32,9 +31,8 @@ public final class FamilyRepository: FamilyRepositoryProtocol {
             }
     }
     
-    // TODO: - AccessToken 구하는 코드 구현
     public func fetchFamilyMembers() -> Observable<PaginationResponseFamilyMemberProfile?> {
-        return familyApiWorker.fetchFamilyMemeberPage(accessToken: TempStr.accessToken)
+        return familyApiWorker.fetchFamilyMemeberPage()
             .asObservable()
     }
 }

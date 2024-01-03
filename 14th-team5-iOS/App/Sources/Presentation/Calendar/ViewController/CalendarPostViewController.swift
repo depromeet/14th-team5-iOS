@@ -92,7 +92,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     public override func setupAttributes() {
         super.setupAttributes()
         blurImageView.do {
-            $0.kf.setImage(with: URL(string: "https://cdn.pixabay.com/photo/2023/12/04/16/12/berlin-8429780_1280.jpg"))
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
             $0.isUserInteractionEnabled = true
@@ -239,6 +238,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
 
+        // TODO: - 이벤트 스트림 공유하게 하기
         reactor.state.map { $0.postListDatasource }
             .bind(to: collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)

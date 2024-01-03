@@ -259,7 +259,7 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
                 $0.0.makeRoundedToastView(
                     title: AddFamilyVC.Strings.successCopyInvitationUrl,
                     symbol: "link",
-                    width: 194
+                    width: 210
                 )
             }
             .disposed(by: disposeBag)

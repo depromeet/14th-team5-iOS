@@ -29,17 +29,14 @@ public struct PostListPage: Equatable {
     let currentPage: Int
     let totalPages: Int
     public let postLists: [PostListData]
+    public let allFamilyMembersUploaded: Bool
+    public let selfUploaded: Bool
     
-    public init(currentPage: Int, totalPages: Int, postLists: [PostListData]) {
+    public init(currentPage: Int, totalPages: Int, postLists: [PostListData], allFamilyMembersUploaded: Bool, selfUploaded: Bool) {
         self.currentPage = currentPage
         self.totalPages = totalPages
         self.postLists = postLists
-    }
-    
-    public func checkAuthor(authorId: String) -> Bool {
-        for post in postLists {
-            if post.author?.memberId == authorId { return true }
-        }
-        return false
+        self.allFamilyMembersUploaded = allFamilyMembersUploaded
+        self.selfUploaded = selfUploaded
     }
 }

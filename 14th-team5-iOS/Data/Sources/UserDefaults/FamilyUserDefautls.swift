@@ -17,12 +17,23 @@ public class FamilyUserDefaults {
     /// 각 memberId - familymember 객체 저장
 
     private let familyIdKey = "familyId"
+    private static let myMemberIdKey = "myMemberId"
+    private static let memberIdsKey = "memberIds"
 
     func removeFamilyMembers() {
          UserDefaults.standard.removeObject(forKey: familyIdKey)
      }
     
+    static func getMyMemberId() -> String {
+        return UserDefaults.standard.string(forKey: myMemberIdKey) ?? ""
+    }
+    
+    public static func getMemberCount() -> Int {
+        return UserDefaults.standard.stringArray(forKey: memberIdsKey)?.count ?? 0
+    }
+    
     public static func saveFamilyMembers(_ familyMembers: [ProfileData]) {
+        saveMemberIdToUserDefaults(memberIds: familyMembers.map { $0.memberId })
         familyMembers.forEach {
             saveMemberToUserDefaults(familyMember: $0)
         }
@@ -52,6 +63,10 @@ extension FamilyUserDefaults {
         } catch {
             print("Error encoding person: \(error.localizedDescription)")
         }
+    }
+    
+    private static func saveMemberIdToUserDefaults(memberIds: [String]) {
+        UserDefaults.standard.setValue(memberIds, forKey: memberIdsKey)
     }
 
     private func loadMembersFromUserDefaults(memberIds: [String]) -> [ProfileData] {

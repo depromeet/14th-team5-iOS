@@ -54,7 +54,11 @@ extension PostListAPIWorker: PostListRepositoryProtocol {
             }
             .map(PostListResponseDTO.self)
             .catchAndReturn(nil)
-            .map { $0?.toDomain() }
+            .map { 
+                let selfUploaded = $0?.results.map { $0.authorId == FamilyUserDefaults.getMyMemberId() }.isEmpty
+                let familyUploaded = $0?.results.count == FamilyUserDefaults.getMemberCount()
+                return $0?.toDomain(selfUploaded ?? false, familyUploaded)
+            }
             .asSingle()
     }
 }

@@ -11,6 +11,9 @@ extension UserDefaults {
     public enum Key: String, CaseIterable {
         case chekcPermission
         case showTutorial
+        
+        case familyId
+        case memberId
 
         var value: String { "\(Bundle.current.bundleIdentifier ?? "").\(self.rawValue.lowercased())" }
     }
@@ -24,6 +27,16 @@ extension UserDefaults {
     public var showTutorial: Bool {
         get { UserDefaults.standard.bool(forKey: Key.showTutorial.value) }
         set { UserDefaults.standard.set(newValue, forKey: Key.showTutorial.value) }
+    }
+    
+    public var familyId: String? {
+        get { UserDefaults.standard.string(forKey: Key.familyId.value) }
+        set { UserDefaults.standard.set(newValue, forKey: Key.familyId.value) }
+    }
+    
+    public var memberId: String? {
+        get { UserDefaults.standard.string(forKey: Key.memberId.value) }
+        set { UserDefaults.standard.set(newValue, forKey: Key.memberId.value) }
     }
 }
 

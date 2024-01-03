@@ -10,6 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol EmojiRepository {
-    func addEmoji(query: AddEmojiQuery, body: AddEmojiBody) -> Single<AddEmojiData?>
-    func removeEmoji(query: RemoveEmojiQuery, body: RemoveEmojiBody) -> Single<RemoveEmojiData?>
+    func addEmoji(query: AddEmojiQuery, body: AddEmojiBody) -> Single<Void?>
+    func removeEmoji(query: RemoveEmojiQuery, body: RemoveEmojiBody) -> Single<Void?>
+    func fetchEmoji(query: FetchEmojiQuery) -> Single<FetchEmojiList?>
 }

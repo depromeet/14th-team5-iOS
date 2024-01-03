@@ -20,6 +20,10 @@ public class FamilyUserDefaults {
     private static let myMemberIdKey = "myMemberId"
     private static let memberIdsKey = "memberIds"
 
+    public static func checkIsMyMemberId(memberId: String) -> Bool {
+        return memberId == UserDefaults.standard.string(forKey: myMemberIdKey)
+    }
+
     func removeFamilyMembers() {
          UserDefaults.standard.removeObject(forKey: familyIdKey)
      }

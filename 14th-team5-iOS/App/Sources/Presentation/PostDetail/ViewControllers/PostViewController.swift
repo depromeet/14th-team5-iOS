@@ -16,9 +16,15 @@ import RxSwift
 final class PostViewController: BaseViewController<PostReactor> {
     private let backgroundImageView: UIImageView = UIImageView()
     private let blurEffectView: UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffect.Style.dark))
-    private let navigationView: PostNavigationView = PostNavigationView()
+    private var navigationView: PostNavigationView = PostNavigationView()
     private let collectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let collectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
+    
+    convenience init(reactor: Reactor? = nil) {
+        self.init()
+        self.reactor = reactor
+        self.navigationView = PostNavigationView(reactor: reactor)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,8 +46,16 @@ final class PostViewController: BaseViewController<PostReactor> {
             .asObservable()
             .withUnretained(self)
             .bind(onNext: {
-                $0.0.setNavigationView(data: $0.1)
                 $0.0.setBackgroundView(data: $0.1)
+            })
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.isPop }
+            .asObservable()
+            .withUnretained(self)
+            .bind(onNext: { _ in
+                self.navigationController?.popViewController(animated: true)
             })
             .disposed(by: disposeBag)
         
@@ -120,10 +134,6 @@ extension PostViewController {
                 cell.setCell(data: item)
                 return cell
             })
-    }
-    
-    private func setNavigationView(data: PostListData) {
-        self.navigationView.setData(data: data)
     }
     
     private func setBackgroundView(data: PostListData) {

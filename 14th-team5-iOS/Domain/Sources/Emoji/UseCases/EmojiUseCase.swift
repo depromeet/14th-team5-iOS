@@ -9,8 +9,12 @@ import Foundation
 import RxSwift
 
 public protocol EmojiUseCaseProtocol {
-    func excute(query: AddEmojiQuery, body: AddEmojiBody) -> Single<AddEmojiData?>
-    func excute(query: RemoveEmojiQuery, body: RemoveEmojiBody) -> Single<RemoveEmojiData?>
+    /// Add Reactions
+    func excute(query: AddEmojiQuery, body: AddEmojiBody) -> Single<Void?>
+    /// Remove Reactions
+    func excute(query: RemoveEmojiQuery, body: RemoveEmojiBody) -> Single<Void?>
+    /// fetch Reaction List
+    func excute(query: FetchEmojiQuery) -> Single<FetchEmojiList?>
 }
 
 public class EmojiUseCase: EmojiUseCaseProtocol {
@@ -20,11 +24,15 @@ public class EmojiUseCase: EmojiUseCaseProtocol {
         self.emojiRepository = emojiRepository
     }
     
-    public func excute(query: AddEmojiQuery, body: AddEmojiBody) -> Single<AddEmojiData?> {
+    public func excute(query: AddEmojiQuery, body: AddEmojiBody) -> Single<Void?> {
         return emojiRepository.addEmoji(query: query, body: body)
     }
     
-    public func excute(query: RemoveEmojiQuery, body: RemoveEmojiBody) -> Single<RemoveEmojiData?> {
+    public func excute(query: RemoveEmojiQuery, body: RemoveEmojiBody) -> Single<Void?> {
         return emojiRepository.removeEmoji(query: query, body: body)
+    }
+    
+    public func excute(query: FetchEmojiQuery) -> Single<FetchEmojiList?> {
+        return emojiRepository.fetchEmoji(query: query)
     }
 }

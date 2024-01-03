@@ -46,6 +46,11 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        Observable.just(())
+            .map { Reactor.Action.fetchEmojiList }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         reactor.state
             .map { $0.isShowingSelectableEmojiStackView }
             .distinctUntilChanged()
@@ -58,6 +63,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         reactor.state
             .map { $0.selectedEmoji }
             .distinctUntilChanged { $0 == $1 }
+            .skip(1)
             .withUnretained(self)
             .bind(onNext: {
                 self.selectEmoji(emoji: $0.1.0 ?? .emoji1, count: $0.1.1)
@@ -67,6 +73,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         reactor.state
             .map { $0.unselectedEmoji }
             .distinctUntilChanged { $0 == $1 }
+            .skip(1)
             .withUnretained(self)
             .bind(onNext: {
                 self.unselectEmoji(emoji: $0.1.0 ?? .emoji1, count: $0.1.1)
@@ -224,28 +231,20 @@ extension PostCollectionViewCell {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
-    
-    private func bindButton(_ button: EmojiCountButton) {
-        button.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
-            .map { Reactor.Action.tappedSelectedEmojiCountButton(Emojis.emoji(forIndex: button.tag)) }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-    }
-    
+
     private func selectEmoji(emoji: Emojis, count: Int) {
         if let targetView = emojiCountStackView.arrangedSubviews.first(where: { $0.tag == emoji.emojiIndex }) {
             guard let emojiCountButton = targetView as? EmojiCountButton else {
                 return
             }
+            emojiCountButton.isSelected = true
             emojiCountButton.setCountLabel(count)
         } else {
-            let emojiCountButton = EmojiCountButton()
-            let stackLength = emojiCountStackView.arrangedSubviews.count
+            let emojiCountButton = EmojiCountButton(reactor: self.reactor)
             emojiCountButton.tag = emoji.emojiIndex
+            emojiCountButton.isSelected = true
             emojiCountButton.setInitEmoji(emoji: EmojiData(emoji: emoji, count: count))
-            bindButton(emojiCountButton)
-            emojiCountStackView.insertArrangedSubview(emojiCountButton, at: stackLength)
+            emojiCountStackView.addArrangedSubview(emojiCountButton)
         }
     }
     

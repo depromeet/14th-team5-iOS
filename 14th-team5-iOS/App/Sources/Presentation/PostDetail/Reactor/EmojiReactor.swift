@@ -7,8 +7,9 @@
 
 import Foundation
 import Core
-import ReactorKit
 import Domain
+
+import ReactorKit
 
 final class EmojiReactor: Reactor {
     enum CellType {
@@ -23,6 +24,7 @@ final class EmojiReactor: Reactor {
         /// emoji count - 1
         case tappedSelectedEmojiCountButton(Emojis)
         case receiveEmojiData([Emojis: Int])
+        case fetchEmojiList
     }
     
     enum Mutation {
@@ -30,6 +32,7 @@ final class EmojiReactor: Reactor {
         case selectEmoji(Emojis)
         case unselectEmoji(Emojis)
         case setUpEmojiCountStackView([Emojis: Int])
+        case fetchedEmojiList(FetchEmojiList?)
     }
     
     struct State {
@@ -42,6 +45,7 @@ final class EmojiReactor: Reactor {
         var selectedEmoji: (Emojis?, Int) = (nil, 0)
         var unselectedEmoji: (Emojis?, Int) = (nil, 0)
         var emojiData: [Emojis: Int] = [:]
+        var fetchedEmojiList: FetchEmojiList? = nil
     }
     
     let initialState: State
@@ -65,12 +69,30 @@ extension EmojiReactor {
             let body: AddEmojiBody = AddEmojiBody(content: emoji.emojiString)
             return emojiRepository.excute(query: query, body: body)
                 .asObservable()
-                .flatMap { response in
-//                    guard let response else { return }
-                    return Observable.just(Mutation.selectEmoji(emoji))
-                }
+                .flatMap { (response: Void?) -> Observable<Mutation> in
+                            guard let response = response else {
+                                return Observable.empty()
+                            }
+                            return Observable.just(Mutation.selectEmoji(emoji))
+                        }
         case let .tappedSelectedEmojiCountButton(emoji):
-            return Observable.just(Mutation.unselectEmoji(emoji))
+            let query: RemoveEmojiQuery = RemoveEmojiQuery(postId: initialState.postId)
+            let body: RemoveEmojiBody = RemoveEmojiBody(content: emoji)
+            return emojiRepository.excute(query: query, body: body)
+                .asObservable()
+                .flatMap { (response: Void?) -> Observable<Mutation> in
+                    guard let response = response else {
+                        return Observable.empty()
+                    }
+                    return Observable.just(Mutation.unselectEmoji(emoji))
+                }
+        case .fetchEmojiList:
+            let query: FetchEmojiQuery = FetchEmojiQuery(postId: initialState.postId)
+            return emojiRepository.excute(query: query)
+                .asObservable()
+                .flatMap { emojiList in
+                    return Observable.just(Mutation.fetchedEmojiList(emojiList))
+                }
         }
     }
     
@@ -87,6 +109,8 @@ extension EmojiReactor {
         case let .unselectEmoji(emoji):
             newState.emojiData[emoji, default: 0] -= 1
             newState.unselectedEmoji = (emoji, newState.emojiData[emoji] ?? 0)
+        case let .fetchedEmojiList(emojiList):
+            newState.fetchedEmojiList = emojiList
         }
         return newState
     }

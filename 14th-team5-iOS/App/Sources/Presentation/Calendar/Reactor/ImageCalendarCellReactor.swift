@@ -20,7 +20,9 @@ final public class ImageCalendarCellReactor: Reactor {
     }
     
     // MARK: - Action
-    public enum Action { }
+    public enum Action { 
+        case showAllFamilyUploadedToastMessageView(Date)
+    }
     
     // MARK: - Mutate
     public enum Mutation {
@@ -31,10 +33,10 @@ final public class ImageCalendarCellReactor: Reactor {
     // MARK: - State
     public struct State {
         var date: Date
-        var representativePostId: String?
-        var representativeThumbnailUrl: String?
-        var allFamilyMemebersUploaded: Bool = false
-        var isSelected: Bool = false
+        var representativePostId: String
+        var representativeThumbnailUrl: String
+        var allFamilyMemebersUploaded: Bool
+        var isSelected: Bool
     }
     
     // MARK: - Properties
@@ -42,8 +44,10 @@ final public class ImageCalendarCellReactor: Reactor {
     
     private let provider: GlobalStateProviderProtocol
     
+    
     public var type: CalendarType
     private let date: Date
+    private let representativeThumbnailUrl: String
     
     // MARK: - Intializer
     init(
@@ -61,6 +65,8 @@ final public class ImageCalendarCellReactor: Reactor {
         )
         self.type = type
         self.date = dayResponse.date
+        self.representativeThumbnailUrl = dayResponse.representativeThumbnailUrl
+        
         self.provider = provider
     }
     
@@ -70,8 +76,12 @@ final public class ImageCalendarCellReactor: Reactor {
             .withUnretained(self)
             .flatMap {
                 switch $0.1 {
-                case let .didSelectCalendarCell(selectedDate):
-                    if $0.0.date.isEqual(with: selectedDate) {
+                case let .didSelectDate(date):
+                    if $0.0.date.isEqual(with: date) {
+                        // 전체 가족 업로드 유무에 따른 토스트 뷰 출력 이벤트 방출함.
+                        let allFamilyMembersUploaded = $0.0.currentState.allFamilyMemebersUploaded
+                        $0.0.provider.toastGlobalState.hiddenAllFamilyUploadedToastView(!allFamilyMembersUploaded)
+                        
                         return Observable<Mutation>.just(.selectCalendarCell)
                     } else {
                         return Observable<Mutation>.just(.deselectCalendarCell)
@@ -80,7 +90,7 @@ final public class ImageCalendarCellReactor: Reactor {
                     return Observable<Mutation>.empty()
                 }
             }
-        
+
         return Observable<Mutation>.merge(mutation, eventMutation)
     }
 

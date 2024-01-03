@@ -144,7 +144,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
             .disposed(by: disposeBag)
         
         calendarView.rx.didSelect
-            .map { Reactor.Action.didSelectCalendarCell($0) }
+            .map { Reactor.Action.didSelectDate($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }

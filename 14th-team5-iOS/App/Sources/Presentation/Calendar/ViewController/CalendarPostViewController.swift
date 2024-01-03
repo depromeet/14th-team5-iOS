@@ -19,11 +19,10 @@ import RxDataSources
 import SnapKit
 import Then
 
-
 public final class CalendarPostViewController: BaseViewController<CalendarPostViewReactor> {
     // MARK: - Views
     private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
-    private let backgroundImageView: UIImageView = UIImageView()
+    private let blurImageView: UIImageView = UIImageView()
 
     private let calendarView: FSCalendar = FSCalendar()
     private lazy var collectionView: UICollectionView = UICollectionView(
@@ -31,8 +30,12 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         collectionViewLayout: orthogonalCompositionalLayout
     )
     
+    // 내일 할 일: - 토스트 뷰 뜨게하는 로직 고민해보기
+    // - 코드 리팩토링하기
+    private let allFamilyUploadedToastView: BibbiToastMessageView = BibbiToastMessageView()
+    
     // MARK: - Properties
-    private let imageIndexRelay: PublishRelay<Int> = PublishRelay<Int>()
+    private let blurImageIndexRelay: PublishRelay<Int> = PublishRelay<Int>()
     private lazy var dataSource: RxCollectionViewSectionedReloadDataSource<PostListSectionModel> = prepareDatasource()
     
     // MARK: - Lifecycles
@@ -49,16 +52,17 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     public override func setupUI() {
         super.setupUI()
         view.addSubviews(
-            navigationBarView, backgroundImageView
+            navigationBarView, blurImageView
         )
-        backgroundImageView.addSubviews(
+        blurImageView.addSubviews(
             navigationBarView, calendarView, collectionView
         )
+        collectionView.addSubview(allFamilyUploadedToastView)
     }
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
-        backgroundImageView.snp.makeConstraints {
+        blurImageView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
         
@@ -70,19 +74,24 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         
         calendarView.snp.makeConstraints {
             $0.top.equalTo(navigationBarView.snp.bottom).offset(20.0)
-            $0.leading.trailing.equalTo(backgroundImageView)
+            $0.leading.trailing.equalTo(blurImageView)
             $0.height.equalTo(CalendarVC.AutoLayout.calendarHeightValue)
         }
         
         collectionView.snp.makeConstraints {
             $0.top.equalTo(calendarView.snp.bottom).offset(16.0)
-            $0.leading.bottom.trailing.equalTo(backgroundImageView)
+            $0.leading.bottom.trailing.equalTo(blurImageView)
+        }
+        
+        allFamilyUploadedToastView.snp.makeConstraints {
+            $0.bottom.equalTo(view.snp.bottom).offset(-40.0)
+            $0.centerX.equalToSuperview()
         }
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
-        backgroundImageView.do {
+        blurImageView.do {
             $0.kf.setImage(with: URL(string: "https://cdn.pixabay.com/photo/2023/12/04/16/12/berlin-8429780_1280.jpg"))
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
@@ -121,6 +130,11 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             $0.register(PostCollectionViewCell.self, forCellWithReuseIdentifier: PostCollectionViewCell.id)
         }
         
+        allFamilyUploadedToastView.do {
+            $0.text = "🎉우리 가족 모두가 사진을 올린 날🎉"
+            $0.isHidden = true
+        }
+        
         setupBlurEffect()
         setupNavigationTitle(calendarView.currentPage)
     }
@@ -145,9 +159,9 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        imageIndexRelay
+        blurImageIndexRelay
             .distinctUntilChanged()
-            .map { Reactor.Action.acceptBackgroundImageIndex($0) }
+            .map { Reactor.Action.acceptBlurImageIndex($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -189,54 +203,68 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
-        navigationBarView.rx.didTapLeftBarButton
-            .withUnretained(self)
-            .subscribe(onNext: {
-                $0.0.navigationController?.popViewController(animated: true)
-            })
-            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: CalendarPostViewReactor) {
-        reactor.state.map { $0.backgroundImageUrl }
+        reactor.state.compactMap { $0.blurImageUrl }
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
-                guard let url: URL = $0.1 else { return }
+                guard let url: URL = URL(string: $0.1) else { return }
                 KingfisherManager.shared.retrieveImage(with: url) { [unowned self] result in
                     switch result {
                     case let .success(value):
                         UIView.transition(
-                            with: self.backgroundImageView,
-                            duration: 0.25,
+                            with: self.blurImageView,
+                            duration: 0.1,
                             options: [.transitionCrossDissolve, .allowUserInteraction]) {
-                                self.backgroundImageView.image = value.image
+                                self.blurImageView.image = value.image
                             }
-                    case let .failure(error):
+                    case let .failure(_):
                         print("Kingfisher RetrieveImage Error")
                     }
                 }
             }
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.dictCalendarResponse }
+        reactor.state.map { $0.hiddenToastView }
+            .bind(to: allFamilyUploadedToastView.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.arraayCalendarResponse }
             .distinctUntilChanged(\.count)
             .withUnretained(self)
             .subscribe {
                 $0.0.calendarView.reloadData()
             }
             .disposed(by: disposeBag)
+
+        reactor.state.map { $0.postListDatasource }
+            .bind(to: collectionView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
         
+        reactor.state.map { $0.postListDatasource }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe {
+                guard let items = $0.1.first?.items,
+                      !items.isEmpty else { return }
+                let indexPath = IndexPath(item: 0, section: 0)
+                $0.0.collectionView.scrollToItem(
+                    at: indexPath,
+                    at: .centeredHorizontally,
+                    animated: false
+                )
+            }
+            .disposed(by: disposeBag)
+        
+        // 최초 뷰컨 생성 시, 주간 캘린더 위치 조정을 위해 실행됨
         reactor.state.map { $0.selectedDate }
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
                 $0.0.calendarView.select($0.1, scrollToDate: true)
             }
-            .disposed(by: disposeBag)
-
-        reactor.state.map { $0.postListDatasource }
-            .bind(to: collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
     }
 }
@@ -272,7 +300,7 @@ extension CalendarPostViewController {
             let fractionPart: CGFloat = position - floorPosition
             
             if fractionPart <= 0.0 {
-                imageIndexRelay.accept(Int(floorPosition))
+                blurImageIndexRelay.accept(Int(floorPosition))
             }
         }
         
@@ -305,7 +333,7 @@ extension CalendarPostViewController {
         let visualEffectView = UIVisualEffectView(effect: blurEffect)
         visualEffectView.alpha = 0.95
         visualEffectView.frame = view.frame
-        backgroundImageView.insertSubview(visualEffectView, at: 0)
+        blurImageView.insertSubview(visualEffectView, at: 0)
     }
     
     private func setupNavigationTitle(_ date: Date) {
@@ -331,7 +359,7 @@ extension CalendarPostViewController: FSCalendarDataSource {
         // 해당 일에 불러온 데이터가 없다면
         let yyyyMM: String = date.toFormatString()
         guard let currentState = reactor?.currentState,
-              let dayResponse = currentState.dictCalendarResponse[yyyyMM]?.filter({ $0.date == date }).first
+              let dayResponse = currentState.arraayCalendarResponse[yyyyMM]?.filter({ $0.date == date }).first
         else {
             let emptyResponse = CalendarResponse(
                 date: date,

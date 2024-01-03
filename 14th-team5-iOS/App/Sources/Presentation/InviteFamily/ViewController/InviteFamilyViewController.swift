@@ -247,7 +247,7 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
                     title: "링크 불러오기 실패",
                     symbol: "exclamationmark.triangle.fill",
                     palletteColors: [UIColor.systemRed],
-                    width: 190
+                    width: 194
                 )
             }
             .disposed(by: disposeBag)
@@ -259,7 +259,7 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
                 $0.0.makeRoundedToastView(
                     title: AddFamilyVC.Strings.successCopyInvitationUrl,
                     symbol: "link",
-                    width: 200
+                    width: 194
                 )
             }
             .disposed(by: disposeBag)

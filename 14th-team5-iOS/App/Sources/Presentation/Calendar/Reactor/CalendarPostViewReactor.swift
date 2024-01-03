@@ -19,13 +19,14 @@ public final class CalendarPostViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case didSelectDate(Date)
-        case acceptBackgroundImageIndex(Int)
+        case acceptBlurImageIndex(Int)
         case fetchCalendarResponse(String)
     }
     
     // MARK: - Mutation
     public enum Mutation {
-        case setupBackgroundImage(Int)
+        case setupTaostView(Bool)
+        case setupBlurImageView(Int)
         case injectCalendarResponse(String, ArrayResponseCalendarResponse)
         case injectPaginationResponsePostResponse([PostListData])
     }
@@ -33,9 +34,10 @@ public final class CalendarPostViewReactor: Reactor {
     // MARK: - State
     public struct State {
         var selectedDate: Date
-        var backgroundImageUrl: URL?
+        var blurImageUrl: String?
+        var hiddenToastView: Bool = true
         var postListDatasource: [PostListSectionModel] = [SectionModel(model: "", items: [])]
-        var dictCalendarResponse: [String: [CalendarResponse]] = [:] // (월: [일자 데이터]) 형식으로 불러온 데이터를 저장
+        var arraayCalendarResponse: [String: [CalendarResponse]] = [:] // (월: [일자 데이터]) 형식으로 불러온 데이터를 저장
     }
     
     // MARK: - Properties
@@ -45,7 +47,8 @@ public final class CalendarPostViewReactor: Reactor {
     private let calendarUseCase: CalendarUseCaseProtocol
     private let postListUseCase: PostListUseCaseProtocol
     
-    private var isFetchedYearMonths: [String] = [] // API 호출한 월(月)을 저장
+    private var isFirstEvent: Bool = true // 최초 이벤트 받음 유무 저장
+    private var isFetchedResponse: [String] = [] // API 호출한 월(月)을 저장
     private var hasThumbnailImages: [Date] = [] // 썸네일 이미지가 존재하는 일자를 저장
     
     // MARK: - Intializer
@@ -62,22 +65,34 @@ public final class CalendarPostViewReactor: Reactor {
         self.provider = provider
     }
     
+    // MARK: - Transform
+    public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+        let eventMutation = provider.toastGlobalState.event
+            .flatMap {
+                switch $0 {
+                case let .hiddenAllFamilyUploadedToastView(hidden):
+                    return Observable<Mutation>.just(.setupTaostView(hidden))
+                }
+            }
+        
+        return Observable<Mutation>.merge(mutation, eventMutation)
+    }
+    
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case let .acceptBackgroundImageIndex(index):
-            return Observable<Mutation>.just(.setupBackgroundImage(index))
+        case let .acceptBlurImageIndex(index):
+            return Observable<Mutation>.just(.setupBlurImageView(index))
 
         case let .didSelectDate(date):
-            // 썸네일 이미지가 존재하는 셀에 한하여
-            if hasThumbnailImages.contains(date) {
-                // 주간 캘린더 셀 클릭 이벤트 방출
+            // 최초 이벤트가 발생하거나, 썸네일 이미지가 존재하는 셀에 한하여
+            if isFirstEvent || hasThumbnailImages.contains(date) {
+                // 셀 클릭 이벤트 방출
                 provider.calendarGlabalState.didSelectDate(date)
+                isFirstEvent = false
             }
             
             // 가족이 게시한 포스트 가져오기
-            var arrayPostResponse: [PostListData] = []
-            
             let postListQuery: PostListQuery = PostListQuery(
                 page: 1,
                 size: 10,
@@ -92,24 +107,22 @@ public final class CalendarPostViewReactor: Reactor {
                         return Observable<Mutation>.empty()
                     }
                     
-                    arrayPostResponse.append(contentsOf: postResponse)
-                    
                     return Observable.concat(
-                        Observable<Mutation>.just(.injectPaginationResponsePostResponse(arrayPostResponse)),
-                        Observable<Mutation>.just(.setupBackgroundImage(0))
+                        Observable<Mutation>.just(.injectPaginationResponsePostResponse(postResponse)),
+                        Observable<Mutation>.just(.setupBlurImageView(0))
                     )
                 }
             
         case let .fetchCalendarResponse(yearMonth):
             // 이전에 불러온 적이 없다면
-            if !isFetchedYearMonths.contains(yearMonth) {
+            if !isFetchedResponse.contains(yearMonth) {
                 return calendarUseCase.executeFetchMonthlyCalendar(yearMonth)
                     .withUnretained(self)
                     .map {
                         guard let arrayCalendarResponse = $0.1 else {
                             return .injectCalendarResponse(yearMonth, .init(results: []))
                         }
-                        $0.0.isFetchedYearMonths.append(yearMonth)
+                        $0.0.isFetchedResponse.append(yearMonth)
                         $0.0.hasThumbnailImages.append(
                             contentsOf: arrayCalendarResponse.results.map { $0.date }
                         )
@@ -128,21 +141,19 @@ public final class CalendarPostViewReactor: Reactor {
         var newState = state
         
         switch mutation {
-        case let .setupBackgroundImage(index):
+        case let .setupBlurImageView(index):
             guard let items = newState.postListDatasource.first?.items else {
                 return newState
             }
+            newState.blurImageUrl = items[index].imageURL
             
-            let urlString: String = items[index].imageURL
-            let imageUrl: URL? = URL(string: urlString)
-            newState.backgroundImageUrl = imageUrl
+        case let .setupTaostView(isUploaded):
+            newState.hiddenToastView = isUploaded
             
         case let .injectCalendarResponse(yearMonth, arrayCalendarResponse):
-            newState.dictCalendarResponse[yearMonth] = arrayCalendarResponse.results
+            newState.arraayCalendarResponse[yearMonth] = arrayCalendarResponse.results
             
         case let .injectPaginationResponsePostResponse(postResponse):
-            newState.postListDatasource = [SectionModel(model: "", items: [])]
-
             newState.postListDatasource = [
                 SectionModel(
                     model: "",

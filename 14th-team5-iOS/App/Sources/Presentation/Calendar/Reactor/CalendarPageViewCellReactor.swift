@@ -16,7 +16,7 @@ import RxSwift
 public final class CalendarPageCellReactor: Reactor {
     // MARK: - Action
     public enum Action {
-        case didSelectCalendarCell(Date)
+        case didSelectDate(Date)
         case didTapInfoButton(UIView)
         case fetchCalendarResponse
     }
@@ -57,7 +57,7 @@ public final class CalendarPageCellReactor: Reactor {
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case let .didSelectCalendarCell(date):
+        case let .didSelectDate(date):
             return provider.calendarGlabalState.pushCalendarPostVC(date)
                 .flatMap { _ in Observable<Mutation>.empty() }
         case let .didTapInfoButton(sourceView):

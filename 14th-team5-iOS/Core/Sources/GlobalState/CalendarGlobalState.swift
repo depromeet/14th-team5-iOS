@@ -11,8 +11,9 @@ import RxSwift
 
 public enum CalendarEvent {
     case pushCalendarPostVC(Date)
-    case didSelectCalendarCell(Date)
+    case didSelectDate(Date)
     case didTapCalendarInfoButton(UIView)
+    case isAllFamilyUploaded(Bool)
     case none
 }
 
@@ -21,6 +22,7 @@ public protocol CalendarGlobalStateType {
     func pushCalendarPostVC(_ date: Date) -> Observable<Date>
     func didSelectDate(_ date: Date) -> Observable<Date>
     func didTapCalendarInfoButton(_ sourceView: UIView) -> Observable<Void>
+    func isAllFamilyUploaded(_ bool: Bool) -> Observable<Bool>
 }
 
 final public class CalendarGlobalState: BaseGlobalState, CalendarGlobalStateType {
@@ -32,12 +34,17 @@ final public class CalendarGlobalState: BaseGlobalState, CalendarGlobalStateType
     }
     
     public func didSelectDate(_ date: Date) -> Observable<Date> {
-        event.onNext(.didSelectCalendarCell(date))
+        event.onNext(.didSelectDate(date))
         return Observable<Date>.just(date)
     }
     
     public func didTapCalendarInfoButton(_ sourceView: UIView) -> Observable<Void> {
         event.onNext(.didTapCalendarInfoButton(sourceView))
         return Observable<Void>.just(())
+    }
+    
+    public func isAllFamilyUploaded(_ isUploaded: Bool) -> Observable<Bool> {
+        event.onNext(.isAllFamilyUploaded(isUploaded))
+        return Observable<Bool>.just(isUploaded)
     }
 }

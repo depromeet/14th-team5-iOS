@@ -7,16 +7,15 @@
 
 import Foundation
 
+import Domain
+
 enum CalendarAPIs: API {
-    case monthlyCalendar(yearMonth: String)
-    case weeklyCalendar(yearMonth: String, week: Int)
+    case calendarInfo(yearMonth: String)
     
     var spec: APISpec {
         switch self {
-        case let .monthlyCalendar(yearMonth):
+        case let .calendarInfo(yearMonth):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar?type=MONTHLY&yearMonth=\(yearMonth)")
-        case let .weeklyCalendar(yearMonth, week):
-            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar?type=WEEKLY&yearMonth=\(yearMonth)&week=\(week)")
         }
     }
 }

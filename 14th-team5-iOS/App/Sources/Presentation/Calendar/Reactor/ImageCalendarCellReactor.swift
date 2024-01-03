@@ -20,14 +20,12 @@ final public class ImageCalendarCellReactor: Reactor {
     }
     
     // MARK: - Action
-    public enum Action { 
-        case showAllFamilyUploadedToastMessageView(Date)
-    }
+    public enum Action { }
     
     // MARK: - Mutate
     public enum Mutation {
-        case selectCalendarCell
-        case deselectCalendarCell
+        case selectDate
+        case deselectDate
     }
     
     // MARK: - State
@@ -44,10 +42,8 @@ final public class ImageCalendarCellReactor: Reactor {
     
     private let provider: GlobalStateProviderProtocol
     
-    
     public var type: CalendarType
     private let date: Date
-    private let representativeThumbnailUrl: String
     
     // MARK: - Intializer
     init(
@@ -65,7 +61,6 @@ final public class ImageCalendarCellReactor: Reactor {
         )
         self.type = type
         self.date = dayResponse.date
-        self.representativeThumbnailUrl = dayResponse.representativeThumbnailUrl
         
         self.provider = provider
     }
@@ -79,13 +74,14 @@ final public class ImageCalendarCellReactor: Reactor {
                 case let .didSelectDate(date):
                     if $0.0.date.isEqual(with: date) {
                         // 전체 가족 업로드 유무에 따른 토스트 뷰 출력 이벤트 방출함.
-                        let allFamilyMembersUploaded = $0.0.currentState.allFamilyMemebersUploaded
-                        $0.0.provider.toastGlobalState.hiddenAllFamilyUploadedToastView(!allFamilyMembersUploaded)
+                        let uploaded = $0.0.currentState.allFamilyMemebersUploaded
+                        $0.0.provider.toastGlobalState.hiddenAllFamilyUploadedToastMessageView(!uploaded)
                         
-                        return Observable<Mutation>.just(.selectCalendarCell)
+                        return Observable<Mutation>.just(.selectDate)
                     } else {
-                        return Observable<Mutation>.just(.deselectCalendarCell)
+                        return Observable<Mutation>.just(.deselectDate)
                     }
+                    
                 default:
                     return Observable<Mutation>.empty()
                 }
@@ -98,9 +94,10 @@ final public class ImageCalendarCellReactor: Reactor {
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
-        case .selectCalendarCell:
+        case .selectDate:
             newState.isSelected = true
-        case .deselectCalendarCell:
+            
+        case .deselectDate:
             newState.isSelected = false
         }
         

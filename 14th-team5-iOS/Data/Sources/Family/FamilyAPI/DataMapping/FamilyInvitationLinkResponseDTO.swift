@@ -12,9 +12,9 @@ import Domain
 // MARK: - Data Transfer Object (DTO)
 struct FamilyInvitationLinkResponseDTO: Decodable {
     var linkId: String
-    let url: String
-    let type: String
-    let details: [String: String]
+    var url: String
+    var type: String
+    var details: [String: String]
 }
 
 extension FamilyInvitationLinkResponseDTO {

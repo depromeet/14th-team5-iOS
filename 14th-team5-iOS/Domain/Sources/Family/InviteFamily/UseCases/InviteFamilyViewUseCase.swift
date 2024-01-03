@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol InviteFamilyViewUseCaseProtocol {
-    func executeFetchInvitationUrl() -> Observable<URL?>
+    func executeFetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?>
     func executeFetchFamilyMembers() -> Observable<PaginationResponseFamilyMemberProfile?>
 }
 
@@ -22,7 +22,7 @@ public final class InviteFamilyViewUseCase: InviteFamilyViewUseCaseProtocol {
         self.familyRepository = familyRepository
     }
     
-    public func executeFetchInvitationUrl() -> Observable<URL?> {
+    public func executeFetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?> {
         return familyRepository.fetchInvitationUrl()
     }
     

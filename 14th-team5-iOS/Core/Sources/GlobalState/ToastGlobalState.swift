@@ -15,13 +15,13 @@ public enum ToastEvent {
 
 public protocol ToastGlobalStateType {
     var event: BehaviorSubject<ToastEvent> { get }
-    func hiddenAllFamilyUploadedToastView(_ bool: Bool) -> Observable<Bool>
+    func hiddenAllFamilyUploadedToastMessageView(_ bool: Bool) -> Observable<Bool>
 }
 
 final public class ToastGlobalState: BaseGlobalState, ToastGlobalStateType {
     public var event: BehaviorSubject<ToastEvent> = BehaviorSubject<ToastEvent>(value: .hiddenAllFamilyUploadedToastView(true))
     
-    public func hiddenAllFamilyUploadedToastView(_ isUploaded: Bool) -> Observable<Bool> {
+    public func hiddenAllFamilyUploadedToastMessageView(_ isUploaded: Bool) -> Observable<Bool> {
         event.onNext(.hiddenAllFamilyUploadedToastView(isUploaded))
         return Observable<Bool>.just(isUploaded)
     }

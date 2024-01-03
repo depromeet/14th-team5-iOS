@@ -26,30 +26,15 @@ extension CalendarAPIs {
 }
 
 extension CalendarAPIWorker {
-    func fetchMonthlyCalendar(_ yearMonth: String, accessToken: String) -> Single<ArrayResponseCalendarResponse?> {
-        let spec = CalendarAPIs.monthlyCalendar(yearMonth: yearMonth).spec
+    func fetchCalendarInfo(yearMonth: String) -> Single<ArrayResponseCalendarResponse?> {
+        let accessToken: String = "eyJyZWdEYXRlIjoxNzA0Mjg4NTg5NzMxLCJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiIwMUhKQk5XWkdOUDFLSk5NS1dWWkowMzlIWSIsImV4cCI6MTcwNDM3NDk4OX0.Yp--MmXHsTqCJnG-dc43zUMD8HOtn6M0ihdmOce_nrc" // TODO: - 접근 토큰 구하기
+        let spec = CalendarAPIs.calendarInfo(yearMonth: yearMonth).spec
         let headers: [BibbiHeader] = [.acceptJson, .xAuthToken(accessToken)]
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
                     debugPrint("MonthlyCalendar Fetch Result: \(str)")
-                }
-            }
-            .map(ArrayResponseCalendarResponseDTO.self)
-            .catchAndReturn(nil)
-            .map { $0?.toDomain() }
-            .asSingle()
-    }
-    
-    func fetchWeeklyCalendar(_ yearMonth: String, week: Int, accessToken: String) -> Single<ArrayResponseCalendarResponse?> {
-        let spec = CalendarAPIs.weeklyCalendar(yearMonth: yearMonth, week: week).spec
-        let headers: [BibbiHeader] = [.acceptJson, .xAuthToken(accessToken)]
-        return request(spec: spec, headers: headers)
-            .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("WeeklyCalendar Fetch Result: \(str)")
                 }
             }
             .map(ArrayResponseCalendarResponseDTO.self)

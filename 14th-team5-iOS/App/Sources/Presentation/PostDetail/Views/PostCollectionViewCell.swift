@@ -11,6 +11,7 @@ import Domain
 import DesignSystem
 
 import RxSwift
+import Kingfisher
 
 final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     typealias Layout = PostAutoLayout.CollectionView.CollectionViewCell
@@ -102,7 +103,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             }
             .disposed(by: disposeBag)
         
-        // TODO: - 프로필 이미지 및 닉네임 집어넣기
+        // TODO: - MemeberId에 맞게 프로필 이미지 및 닉네임 집어넣기
     }
     
     
@@ -154,7 +155,6 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     override func setupAttributes() {
         super.setupAttributes()
         
-        // TODO: - memberID에 맞게 데이터 주입하기
         profileStackView.do {
             $0.axis = .horizontal
             $0.spacing = 12.0

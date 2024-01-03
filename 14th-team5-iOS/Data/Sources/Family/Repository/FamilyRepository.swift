@@ -19,16 +19,9 @@ public final class FamilyRepository: FamilyRepositoryProtocol {
     
     public init() { }
     
-    public func fetchInvitationUrl() -> Observable<URL?> {
+    public func fetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?> {
         return familyApiWorker.fetchInvitationUrl()
             .asObservable()
-            .compactMap { $0?.url }
-            .map { urlString in
-                guard let url = URL(string: urlString) else {
-                    return nil
-                }
-                return url
-            }
     }
     
     public func fetchFamilyMembers() -> Observable<PaginationResponseFamilyMemberProfile?> {

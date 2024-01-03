@@ -158,17 +158,17 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        blurImageIndexRelay
-            .distinctUntilChanged()
-            .map { Reactor.Action.acceptBlurImageIndex($0) }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
         navigationBarView.rx.didTapLeftBarButton
             .withUnretained(self)
             .subscribe {
                 $0.0.navigationController?.popViewController(animated: true)
             }
+            .disposed(by: disposeBag)
+        
+        blurImageIndexRelay
+            .distinctUntilChanged()
+            .map { Reactor.Action.blurImageIndex($0) }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         calendarView.rx.didSelect
@@ -209,13 +209,14 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
+                // Blur 이미지 뷰에 duration을 0.25로 하면, Blur 이미지 뷰 뿐만 아니라 셀 이미지 뷰에도 동일하게 적용됨.
                 guard let url: URL = URL(string: $0.1) else { return }
                 KingfisherManager.shared.retrieveImage(with: url) { [unowned self] result in
                     switch result {
                     case let .success(value):
                         UIView.transition(
                             with: self.blurImageView,
-                            duration: 0.1,
+                            duration: 0.25,
                             options: [.transitionCrossDissolve, .allowUserInteraction]) {
                                 self.blurImageView.image = value.image
                             }
@@ -223,14 +224,15 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
                         print("Kingfisher RetrieveImage Error")
                     }
                 }
+                // Transition 효과 중에 스크롤을 하면 잔상이 생기게 되기 때문에 Kingfisher의 옵션을 적용하지 않음.
             }
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.hiddenToastView }
+        reactor.state.map { $0.hiddenToastMessageView }
             .bind(to: allFamilyUploadedToastView.rx.isHidden)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.arraayCalendarResponse }
+        reactor.state.map { $0.arrayCalendarResponse }
             .distinctUntilChanged(\.count)
             .withUnretained(self)
             .subscribe {
@@ -359,7 +361,7 @@ extension CalendarPostViewController: FSCalendarDataSource {
         // 해당 일에 불러온 데이터가 없다면
         let yyyyMM: String = date.toFormatString()
         guard let currentState = reactor?.currentState,
-              let dayResponse = currentState.arraayCalendarResponse[yyyyMM]?.filter({ $0.date == date }).first
+              let dayResponse = currentState.arrayCalendarResponse[yyyyMM]?.filter({ $0.date == date }).first
         else {
             let emptyResponse = CalendarResponse(
                 date: date,

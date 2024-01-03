@@ -19,25 +19,25 @@ public final class CalendarPostViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case didSelectDate(Date)
-        case acceptBlurImageIndex(Int)
+        case blurImageIndex(Int)
         case fetchCalendarResponse(String)
     }
     
     // MARK: - Mutation
     public enum Mutation {
-        case setupTaostView(Bool)
         case setupBlurImageView(Int)
+        case setupTaostMessageView(Bool)
         case injectCalendarResponse(String, ArrayResponseCalendarResponse)
-        case injectPaginationResponsePostResponse([PostListData])
+        case injectPostResponse([PostListData])
     }
     
     // MARK: - State
     public struct State {
         var selectedDate: Date
         var blurImageUrl: String?
-        var hiddenToastView: Bool = true
         var postListDatasource: [PostListSectionModel] = [SectionModel(model: "", items: [])]
-        var arraayCalendarResponse: [String: [CalendarResponse]] = [:] // (월: [일자 데이터]) 형식으로 불러온 데이터를 저장
+        var arrayCalendarResponse: [String: [CalendarResponse]] = [:] // (월: [일자 데이터]) 형식으로 불러온 데이터를 저장
+        var hiddenToastMessageView: Bool = true
     }
     
     // MARK: - Properties
@@ -71,7 +71,7 @@ public final class CalendarPostViewReactor: Reactor {
             .flatMap {
                 switch $0 {
                 case let .hiddenAllFamilyUploadedToastView(hidden):
-                    return Observable<Mutation>.just(.setupTaostView(hidden))
+                    return Observable<Mutation>.just(.setupTaostMessageView(hidden))
                 }
             }
         
@@ -81,7 +81,7 @@ public final class CalendarPostViewReactor: Reactor {
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case let .acceptBlurImageIndex(index):
+        case let .blurImageIndex(index):
             return Observable<Mutation>.just(.setupBlurImageView(index))
 
         case let .didSelectDate(date):
@@ -108,7 +108,7 @@ public final class CalendarPostViewReactor: Reactor {
                     }
                     
                     return Observable.concat(
-                        Observable<Mutation>.just(.injectPaginationResponsePostResponse(postResponse)),
+                        Observable<Mutation>.just(.injectPostResponse(postResponse)),
                         Observable<Mutation>.just(.setupBlurImageView(0))
                     )
                 }
@@ -116,7 +116,7 @@ public final class CalendarPostViewReactor: Reactor {
         case let .fetchCalendarResponse(yearMonth):
             // 이전에 불러온 적이 없다면
             if !isFetchedResponse.contains(yearMonth) {
-                return calendarUseCase.executeFetchMonthlyCalendar(yearMonth)
+                return calendarUseCase.execute(yearMonth: yearMonth)
                     .withUnretained(self)
                     .map {
                         guard let arrayCalendarResponse = $0.1 else {
@@ -147,13 +147,13 @@ public final class CalendarPostViewReactor: Reactor {
             }
             newState.blurImageUrl = items[index].imageURL
             
-        case let .setupTaostView(isUploaded):
-            newState.hiddenToastView = isUploaded
+        case let .setupTaostMessageView(isUploaded):
+            newState.hiddenToastMessageView = isUploaded
             
         case let .injectCalendarResponse(yearMonth, arrayCalendarResponse):
-            newState.arraayCalendarResponse[yearMonth] = arrayCalendarResponse.results
+            newState.arrayCalendarResponse[yearMonth] = arrayCalendarResponse.results
             
-        case let .injectPaginationResponsePostResponse(postResponse):
+        case let .injectPostResponse(postResponse):
             newState.postListDatasource = [
                 SectionModel(
                     model: "",

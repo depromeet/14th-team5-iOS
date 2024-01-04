@@ -26,4 +26,11 @@ extension ProfileMemberDTO {
         )
     }
     
+    public func toProfileDomain() -> ProfileData {
+        return .init(
+            memberId: memberId ?? "",
+            profileImageURL: imageUrl ?? "",
+            name: name ?? "")
+    }
+    
 }

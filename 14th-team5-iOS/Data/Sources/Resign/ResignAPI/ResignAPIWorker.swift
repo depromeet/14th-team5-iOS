@@ -46,4 +46,19 @@ extension ResignAPIWorker {
             .asSingle()
     }
     
+    public func resignFcmToken(accessToken: String, fcmToken: String) -> Single<AccountFcmResignDTO?> {
+        let spec = ResignAPIs.accountFcmResign(fcmToken).spec
+        
+        return request(spec: spec, headers: [BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)])
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("fetch resign fcm Result: \(str)")
+                }
+            }
+            .map(AccountFcmResignDTO.self)
+            .catchAndReturn(nil)
+            .asSingle()
+    }
+    
 }

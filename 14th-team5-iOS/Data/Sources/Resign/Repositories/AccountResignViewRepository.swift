@@ -26,4 +26,10 @@ extension AccountResignViewRepository: AccountResignInterface {
             .compactMap { $0?.toDomain() }
             .asObservable()
     }
+    
+    public func fetchAccountFcmResign(fcmToken: String) -> Observable<AccountFcmResignResponse> {
+        return resignAPIWorker.resignFcmToken(accessToken: accessToken, fcmToken: fcmToken)
+            .compactMap { $0?.toDomain() }
+            .asObservable()
+    }
 }

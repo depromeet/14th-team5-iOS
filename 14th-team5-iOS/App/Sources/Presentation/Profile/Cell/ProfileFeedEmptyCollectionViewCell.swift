@@ -18,7 +18,7 @@ final class ProfileFeedEmptyCollectionViewCell: BaseCollectionViewCell<ProfileFe
     
     
     private let emptyImageView: UIImageView = UIImageView()
-    private let emptyDescrptionLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray300)
+    private let emptyDescrptionLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray300)
     
     
     public override func prepareForReuse() {
@@ -46,8 +46,8 @@ final class ProfileFeedEmptyCollectionViewCell: BaseCollectionViewCell<ProfileFe
     override func setupAutoLayout() {
         super.setupAutoLayout()
         emptyImageView.snp.makeConstraints {
-            $0.width.height.equalTo(42)
-            $0.top.equalToSuperview().offset(146)
+            $0.width.height.equalTo(171)
+            $0.top.equalToSuperview().offset(100)
             $0.centerX.equalToSuperview()
         }
         

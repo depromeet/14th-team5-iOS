@@ -7,6 +7,7 @@
 
 import Foundation
 
+import Core
 import Domain
 import ReactorKit
 import RxSwift
@@ -53,11 +54,19 @@ final class AccountResignViewReactor: Reactor {
         case let .didTapCheckButton(isSelected):
             return .just(.setSelect(isSelected))
         case .didTapResignButton:
+            //TODO: MemberID는 유저 디폴트 저장한거 사용 하자
             return resignUseCase.executeAccountResign(memberId: "16")
                 .asObservable()
-                .flatMap { entity -> Observable<AccountResignViewReactor.Mutation> in
-                    print("Entity Resing \(entity)")
-                    return .just(.setResignEntity(entity.isSuccess))
+                .withUnretained(self)
+                .flatMap { owner, entity -> Observable<AccountResignViewReactor.Mutation> in
+                    if entity.isSuccess {
+                        return owner.resignUseCase.executeAccountFcmResign(fcmToken: App.Repository.token.fcmToken.value)
+                            .flatMap { fcmEntity -> Observable<AccountResignViewReactor.Mutation> in
+                                return .just(.setResignEntity(entity.isSuccess))
+                            }
+                    } else {
+                        return .empty()
+                    }
                 }
         }
     }

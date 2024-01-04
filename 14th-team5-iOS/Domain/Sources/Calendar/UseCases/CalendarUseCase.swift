@@ -10,8 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol CalendarUseCaseProtocol {
-    func executeFetchMonthlyCalendar(_ yearMonth: String) -> Observable<ArrayResponseCalendarResponse?>
-    func executeFetchWeeklyCalendar(_ yearMonth: String, week: Int) -> Observable<ArrayResponseCalendarResponse?>
+    func execute(yearMonth: String) -> Observable<ArrayResponseCalendarResponse?>
 }
 
 public final class CalendarUseCase: CalendarUseCaseProtocol {
@@ -21,11 +20,7 @@ public final class CalendarUseCase: CalendarUseCaseProtocol {
         self.calendarRepository = calendarRepository
     }
     
-    public func executeFetchMonthlyCalendar(_ yearMonth: String) -> Observable<ArrayResponseCalendarResponse?> {
-        return calendarRepository.fetchMonthlyCalendar(yearMonth)
-    }
-    
-    public func executeFetchWeeklyCalendar(_ yearMonth: String, week: Int) -> Observable<ArrayResponseCalendarResponse?> {
-        return calendarRepository.fetchWeeklyCalendar(yearMonth, week: week)
+    public func execute(yearMonth: String) -> Observable<ArrayResponseCalendarResponse?> {
+        return calendarRepository.fetchCalendarInfo(yearMonth: yearMonth)
     }
 }

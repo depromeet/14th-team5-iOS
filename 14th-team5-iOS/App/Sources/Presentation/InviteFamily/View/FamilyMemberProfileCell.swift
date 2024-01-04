@@ -148,7 +148,6 @@ final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellR
             .bind(to: isMeLabel.rx.isMeText)
             .disposed(by: disposeBag)
         
-        // TODO: - '나'인지 확인하는 로직 구현하기
         reactor.state.map { $0.memeberId }
             .map { true }
             .bind(to: namelabelStackView.rx.isMeSpacing)

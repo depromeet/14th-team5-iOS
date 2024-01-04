@@ -76,8 +76,6 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
             $0.register(CalendarPageCell.self, forCellWithReuseIdentifier: CalendarPageCell.id)
         }
         scrollToLastIndexPath()
-        
-        navigationItem.title = "추억 캘린더"
     }
     
     public override func bind(reactor: CalendarViewReactor) {
@@ -88,7 +86,7 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
     
     private func bindInput(reactor: CalendarViewReactor) {
         Observable<String>.from(yearMonthArray)
-            .map { Reactor.Action.addMonthlyCalendarItem($0) }
+            .map { Reactor.Action.addYearMonthItem($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
 
@@ -106,14 +104,14 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
             .bind(to: collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$pushCalendarPostVC)
+        reactor.pulse(\.$calendarPostVC).compactMap { $0 }
             .withUnretained(self)
             .subscribe {
-                $0.0.pushCalendarFeedView($0.1 ?? Date())
+                $0.0.pushCalendarPostView($0.1)
             }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldPresentCalendarDescriptionPopoverVC)
+        reactor.pulse(\.$calendarPopoverVC)
             .withUnretained(self)
             .subscribe {
                 $0.0.makeDescriptionPopoverView(
@@ -172,7 +170,7 @@ extension CalendarViewController {
         }
     }
     
-    private func pushCalendarFeedView(_ date: Date) {
+    private func pushCalendarPostView(_ date: Date) {
         navigationController?.pushViewController(
             CalendarPostDIConatainer(selectedDate: date).makeViewController(),
             animated: true
@@ -181,12 +179,12 @@ extension CalendarViewController {
     
     private func scrollToLastIndexPath() {
         collectionView.layoutIfNeeded()
-        let lastIndexPath: IndexPath = IndexPath(
+        let indexPath: IndexPath = IndexPath(
             item: dataSource[0].items.count - 1,
             section: 0
         )
         collectionView.scrollToItem(
-            at: lastIndexPath,
+            at: indexPath,
             at: .centeredHorizontally,
             animated: false
         )

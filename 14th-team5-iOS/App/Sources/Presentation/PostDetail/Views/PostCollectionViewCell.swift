@@ -11,6 +11,7 @@ import Domain
 import DesignSystem
 
 import RxSwift
+import Kingfisher
 
 final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     typealias Layout = PostAutoLayout.CollectionView.CollectionViewCell
@@ -27,7 +28,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     /// 이모지 카운트를 보여주기 위한 stackView
     private let emojiCountStackView = UIStackView()
     
-    let reactor = EmojiReactor(emojiRepository: PostListsDIContainer().makeEmojiUseCase(), initialState: .init(type: .home, postId: "01HJBRBSZRF429S1SES900ET5G", memberId: "", imageUrl: ""))
+    let reactor = EmojiReactor(emojiRepository: PostListsDIContainer().makeEmojiUseCase(), initialState: .init(type: .home, postId: "01HJBRBSZRF429S1SES900ET5G", nickName: "", imageUrl: ""))
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -96,13 +97,13 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
                 $0.0.postImageView.kf.setImage(
                     with: URL(string: $0.1),
                     options: [
-                        .transition(.fade(0.25))
+                        .transition(.fade(0.15))
                     ]
                 )
             }
             .disposed(by: disposeBag)
         
-        // TODO: - 프로필 이미지 및 닉네임 집어넣기
+        // TODO: - MemeberId에 맞게 프로필 이미지 및 닉네임 집어넣기
     }
     
     
@@ -154,7 +155,6 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     override func setupAttributes() {
         super.setupAttributes()
         
-        // TODO: - memberID에 맞게 데이터 주입하기
         profileStackView.do {
             $0.axis = .horizontal
             $0.spacing = 12.0

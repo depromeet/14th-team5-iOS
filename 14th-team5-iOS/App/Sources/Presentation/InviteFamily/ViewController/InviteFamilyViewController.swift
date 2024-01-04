@@ -68,7 +68,6 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
         )
     }
     
-    // 세부 UI 수치 조정하기
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         
@@ -203,10 +202,18 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
     
     private func bindInput(reactor: InviteFamilyViewReactor) {
         Observable<Void>.just(())
-            .map { Reactor.Action.fetchYourFamilyMemeber }
+            .map { Reactor.Action.fetchFamilyMemebers }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        shareButton.rx.tap
+            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .map { Reactor.Action.didTapShareButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+    }
+    
+    private func bindOutput(reactor: InviteFamilyViewReactor) {
         navigationBarView.rx.didTapLeftBarButton
             .withUnretained(self)
             .subscribe {
@@ -214,32 +221,37 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
             }
             .disposed(by: disposeBag)
         
-        shareButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
-            .map { Reactor.Action.didTapInvitationUrlButton }
-            .bind(to: reactor.action)
+        reactor.pulse(\.$invitationLink).skip(1)
+            .withUnretained(self)
+            .subscribe {
+                guard let url: URL = URL(string: $0.1) else { return }
+                $0.0.makeInvitationUrlSharePanel(url, provider: reactor.provider)
+            }
             .disposed(by: disposeBag)
-    }
-    
-    private func bindOutput(reactor: InviteFamilyViewReactor) {
+        
         reactor.state.map { $0.familyDatasource }
+            .distinctUntilChanged(at: \.count)
             .bind(to: tableView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
-        reactor.state.map { "\($0.familyMemberCount)" }
+        reactor.state.compactMap { $0.familyDatasource.first }
+            .map { "\($0.items.count)" }
             .distinctUntilChanged()
             .bind(to: tableCountLabel.rx.text)
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$invitationUrl)
+        reactor.pulse(\.$copySuccessToastMessageView).skip(1)
             .withUnretained(self)
             .subscribe {
-                $0.0.makeInvitationUrlSharePanel($0.1, provider: reactor.provider)
+                $0.0.makeRoundedToastView(
+                    title: AddFamilyVC.Strings.successCopyInvitationUrl,
+                    symbol: "link",
+                    width: 210
+                )
             }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldPresentFetchInvitationUrlFailureToastMessage)
-            .filter { $0 }
+        reactor.pulse(\.$copyFailureToastMessageView).skip(1)
             .throttle(.seconds(3), scheduler: MainScheduler.instance)
             .withUnretained(self)
             .subscribe {
@@ -248,18 +260,6 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
                     symbol: "exclamationmark.triangle.fill",
                     palletteColors: [UIColor.systemRed],
                     width: 190
-                )
-            }
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$shouldPresentInvitationUrlCopySuccessToastMessage)
-            .filter { $0 }
-            .withUnretained(self)
-            .subscribe {
-                $0.0.makeRoundedToastView(
-                    title: AddFamilyVC.Strings.successCopyInvitationUrl,
-                    symbol: "link",
-                    width: 200
                 )
             }
             .disposed(by: disposeBag)

@@ -17,14 +17,17 @@ final public class FamilyMemberProfileCellReactor: Reactor {
     // MARK: - Action
     public typealias Action = NoAction
     
+    // MARK: - State
     public struct State {
         var memeberId: String
         var name: String
         var imageUrl: String?
     }
     
+    // MARK: - Properties
     public var initialState: State
     
+    // MARK: - Intializer
     public init(_ memberResponse: FamilyMemberProfileResponse) {
         self.initialState = State(
             memeberId: memberResponse.memberId,

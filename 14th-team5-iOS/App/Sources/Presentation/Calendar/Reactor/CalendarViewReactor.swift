@@ -16,20 +16,20 @@ import RxSwift
 public final class CalendarViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
-        case addMonthlyCalendarItem(String)
+        case addYearMonthItem(String)
     }
     
     // MARK: - Mutation
     public enum Mutation {
         case pushCalendarPostVC(Date)
-        case presentCalendarDescriptionPopoverVC(UIView)
-        case addMonthlyCalendarItem(String)
+        case makeCalendarPopoverVC(UIView)
+        case injectYearMonthItem(String)
     }
     
     // MARK: - State
     public struct State {
-        @Pulse var pushCalendarPostVC: Date?
-        @Pulse var shouldPresentCalendarDescriptionPopoverVC: UIView?
+        @Pulse var calendarPostVC: Date?
+        @Pulse var calendarPopoverVC: UIView?
         var calendarDatasource: [SectionOfMonthlyCalendar] = [.init(items: [])]
     }
     
@@ -54,8 +54,8 @@ public final class CalendarViewReactor: Reactor {
                 switch event {
                 case let .pushCalendarPostVC(date):
                     return Observable<Mutation>.just(.pushCalendarPostVC(date))
-                case let .didTapCalendarInfoButton(sourceView):
-                    return Observable<Mutation>.just(.presentCalendarDescriptionPopoverVC(sourceView))
+                case let .didTapInfoButton(sourceView):
+                    return Observable<Mutation>.just(.makeCalendarPopoverVC(sourceView))
                 default:
                     return Observable<Mutation>.empty()
                 }
@@ -67,9 +67,9 @@ public final class CalendarViewReactor: Reactor {
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case let .addMonthlyCalendarItem(yearMonth):
+        case let .addYearMonthItem(yearMonth):
             return Observable<Mutation>.just(
-                .addMonthlyCalendarItem(yearMonth)
+                .injectYearMonthItem(yearMonth)
             )
         }
     }
@@ -79,10 +79,12 @@ public final class CalendarViewReactor: Reactor {
         var newState = state
         switch mutation {
         case let .pushCalendarPostVC(date):
-            newState.pushCalendarPostVC = date
-        case let .presentCalendarDescriptionPopoverVC(sourceView):
-            newState.shouldPresentCalendarDescriptionPopoverVC = sourceView
-        case let .addMonthlyCalendarItem(yearMonth):
+            newState.calendarPostVC = date
+            
+        case let .makeCalendarPopoverVC(sourceView):
+            newState.calendarPopoverVC = sourceView
+            
+        case let .injectYearMonthItem(yearMonth):
             guard let datasource: SectionOfMonthlyCalendar = state.calendarDatasource.first else {
                 return state
             }

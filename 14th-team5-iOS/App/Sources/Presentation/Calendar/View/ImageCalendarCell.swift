@@ -164,6 +164,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             }
             .disposed(by: disposeBag)
         
+        // 최초 셀 생성 시, 클릭 이벤트 발생 시 하이라이트를 위해 실행됨
         reactor.state.map { $0.isSelected }
             .distinctUntilChanged()
             .withUnretained(self)

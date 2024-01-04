@@ -11,8 +11,8 @@ import RxSwift
 
 public enum CalendarEvent {
     case pushCalendarPostVC(Date)
-    case didSelectCalendarCell(Date)
-    case didTapCalendarInfoButton(UIView)
+    case didSelectDate(Date)
+    case didTapInfoButton(UIView)
     case none
 }
 
@@ -32,12 +32,12 @@ final public class CalendarGlobalState: BaseGlobalState, CalendarGlobalStateType
     }
     
     public func didSelectDate(_ date: Date) -> Observable<Date> {
-        event.onNext(.didSelectCalendarCell(date))
+        event.onNext(.didSelectDate(date))
         return Observable<Date>.just(date)
     }
     
     public func didTapCalendarInfoButton(_ sourceView: UIView) -> Observable<Void> {
-        event.onNext(.didTapCalendarInfoButton(sourceView))
+        event.onNext(.didTapInfoButton(sourceView))
         return Observable<Void>.just(())
     }
 }

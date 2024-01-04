@@ -35,8 +35,8 @@ final class EmojiReactor: Reactor {
     struct State {
         let type: CellType
         let postId: String
-        let memberId: String // 닉네임 찾기용
         let imageUrl: String
+        let nickName: String
         
         var isShowingSelectableEmojiStackView: Bool = false
         var selectedEmoji: (Emojis?, Int) = (nil, 0)

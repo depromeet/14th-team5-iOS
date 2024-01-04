@@ -209,14 +209,15 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
-                // Blur 이미지 뷰에 duration을 0.25로 하면, Blur 이미지 뷰 뿐만 아니라 셀 이미지 뷰에도 동일하게 적용됨.
+                // 이미지 Transition 효과 도중 스크롤을 하게 된다면, 
+                // 불필요한 잔상 효과가 발생해 Duration을 0.15로 설정함.
                 guard let url: URL = URL(string: $0.1) else { return }
                 KingfisherManager.shared.retrieveImage(with: url) { [unowned self] result in
                     switch result {
                     case let .success(value):
                         UIView.transition(
                             with: self.blurImageView,
-                            duration: 0.25,
+                            duration: 0.15,
                             options: [.transitionCrossDissolve, .allowUserInteraction]) {
                                 self.blurImageView.image = value.image
                             }
@@ -224,7 +225,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
                         print("Kingfisher RetrieveImage Error")
                     }
                 }
-                // Transition 효과 중에 스크롤을 하면 잔상이 생기게 되기 때문에 Kingfisher의 옵션을 적용하지 않음.
             }
             .disposed(by: disposeBag)
         
@@ -322,8 +322,8 @@ extension CalendarPostViewController {
                 initialState: .init(
                     type: .calendar,
                     postId: item.postId,
-                    memberId: item.author?.name ?? "",
-                    imageUrl: item.imageURL
+                    imageUrl: item.imageURL,
+                    nickName: item.author?.name ?? ""
                 )
             )
             return cell

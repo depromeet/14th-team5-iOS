@@ -30,6 +30,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         FirebaseApp.configure()
         setupUserNotificationCenter(application)
         
+        bindRepositories()
+        
         return true
     }
     
@@ -39,6 +41,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         
         return false
+    }
+    
+    func applicationWillTerminate(_ application: UIApplication) {
+        unbindRepositories()
     }
 }
 
@@ -134,10 +140,11 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 extension AppDelegate {
     func bindRepositories() {
         App.Repository.token.bind()
+        App.Repository.member.bind()
     }
 
     func unbindRepositories() {
         App.Repository.token.unbind()
+        App.Repository.member.unbind()
     }
-
 }

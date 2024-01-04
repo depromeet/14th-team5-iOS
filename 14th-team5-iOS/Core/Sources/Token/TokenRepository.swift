@@ -27,6 +27,11 @@ public class TokenRepository: RxObject {
         accessToken.accept(nil)
     }
     
+    func clearFCMToken() {
+        KeychainWrapper.standard.remove(forKey: .fcmToken)
+        fcmToken.accept("")
+    }
+    
     override public func bind() {
         super.bind()
         

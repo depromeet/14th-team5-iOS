@@ -11,5 +11,6 @@ public enum App {
     
     public enum Repository {
         public static let token = TokenRepository()
+        public static let member = MemberRepository()
     }
 }

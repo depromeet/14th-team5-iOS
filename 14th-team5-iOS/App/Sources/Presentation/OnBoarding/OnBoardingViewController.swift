@@ -28,6 +28,11 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
         super.viewDidLoad()
     }
     
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.isHidden = true
+    }
+    
     public override func setupUI() {
         super.setupUI()
         
@@ -39,7 +44,7 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
 
         collectionView.snp.makeConstraints {
             $0.bottom.equalTo(pageControl.snp.top).inset(20)
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(44)
+            $0.top.equalTo(view.safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview()
         }
         
@@ -51,7 +56,7 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
         
         nextButton.snp.makeConstraints {
             $0.top.equalTo(pageControl.snp.bottom)
-            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(-10)
             $0.horizontalEdges.equalToSuperview().inset(12)
             $0.height.equalTo(56)
         }

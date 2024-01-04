@@ -33,9 +33,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
     private let bibbiImageView = UIImageView()
     private let mainTitleLabel = BibbiLabel(.head2Bold, alignment: .center, textColor: .gray100)
     
-    private let imageStack = UIStackView()
-    private let palmTreeImageView = UIImageView()
-    private let beeperImageView = UIImageView()
+    private let loginImageView = UIImageView()
     
     private let kakaoLoginButton = UIButton()
     private let appleLoginButton = UIButton()
@@ -49,8 +47,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
     override public func setupUI() {
         super.setupUI()
         
-        imageStack.addArrangedSubviews(palmTreeImageView, beeperImageView)
-        view.addSubviews(bibbiImageView, mainTitleLabel, imageStack)
+        view.addSubviews(bibbiImageView, mainTitleLabel, loginImageView)
         
         loginStack.addArrangedSubviews(kakaoLoginButton, appleLoginButton)
         view.addSubviews(loginStack)
@@ -68,22 +65,9 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
             $0.text = AccountSignInStrings.mainTitle
         }
         
-        imageStack.do {
-            $0.axis = .horizontal
-            $0.spacing = Metric.imageSpacing
-            $0.alignment = .center
-            $0.distribution = .fillProportionally
-        }
-        
-        palmTreeImageView.do {
-            $0.image = DesignSystemAsset.palmTree.image
+        loginImageView.do {
+            $0.image = DesignSystemAsset.palmTreeBeeper.image
             $0.contentMode = .scaleAspectFill
-        }
-        
-        beeperImageView.do {
-            $0.image = DesignSystemAsset.beeper.image
-            $0.contentMode = .scaleAspectFill
-            $0.transform = CGAffineTransform(translationX: 0, y: 32)
         }
         
         loginStack.do {
@@ -108,7 +92,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
         bibbiImageView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(Metric.bibbiOffset)
             $0.height.equalTo(Metric.bibbiHeight)
-            $0.horizontalEdges.equalToSuperview().inset(Metric.bibbiInset)
+            $0.horizontalEdges.equalToSuperview()
         }
         
         mainTitleLabel.snp.makeConstraints {
@@ -116,7 +100,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
             $0.centerX.equalToSuperview()
         }
         
-        imageStack.snp.makeConstraints {
+        loginImageView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(Metric.imageInset)
             $0.centerY.equalToSuperview().offset(Metric.imageOffset)
         }

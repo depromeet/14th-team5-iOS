@@ -20,7 +20,7 @@ public final class SplashViewController: BaseViewController<SplashReactor> {
     
     // MARK: - Views
     private let bibbiImageView = UIImageView()
-    private let mainTitleLabel = UILabel()
+    private let mainTitleLabel = BibbiLabel(.head2Bold, alignment: .center, textColor: .gray100)
     
     private let iconsImageView = UIImageView()
     

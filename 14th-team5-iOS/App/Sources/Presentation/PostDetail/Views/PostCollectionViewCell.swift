@@ -61,6 +61,14 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             .disposed(by: disposeBag)
         
         reactor.state
+            .compactMap { $0.fetchedEmojiList }
+            .withUnretained(self)
+            .bind(onNext: {
+                $0.0.setEmojiCountStackView(emojiList: $0.1)
+            })
+            .disposed(by: disposeBag)
+        
+        reactor.state
             .map { $0.selectedEmoji }
             .distinctUntilChanged { $0 == $1 }
             .skip(1)
@@ -230,6 +238,19 @@ extension PostCollectionViewCell {
             .map { Reactor.Action.tappedSelectableEmojiButton(Emojis.emoji(forIndex: button.tag)) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+    }
+    
+    private func setEmojiCountStackView(emojiList: FetchEmojiDataList) {
+        for (index, emojiData) in emojiList.emojis_memberIds.enumerated() {
+            if emojiData.count == 0 {
+                continue
+            }
+            
+            let emojiCountButton = EmojiCountButton(reactor: self.reactor)
+            emojiCountButton.tag = index + 1
+            emojiCountButton.isSelected = emojiData.isSelfSelected
+            emojiCountButton.setInitEmoji(emoji: EmojiData(emoji: Emojis.emoji(forIndex: index+1), count: emojiData.count))
+        }
     }
 
     private func selectEmoji(emoji: Emojis, count: Int) {

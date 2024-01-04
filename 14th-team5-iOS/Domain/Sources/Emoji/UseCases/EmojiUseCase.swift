@@ -14,7 +14,7 @@ public protocol EmojiUseCaseProtocol {
     /// Remove Reactions
     func excute(query: RemoveEmojiQuery, body: RemoveEmojiBody) -> Single<Void?>
     /// fetch Reaction List
-    func excute(query: FetchEmojiQuery) -> Single<FetchEmojiList?>
+    func excute(query: FetchEmojiQuery) -> Single<FetchEmojiDataList?>
 }
 
 public class EmojiUseCase: EmojiUseCaseProtocol {
@@ -32,7 +32,7 @@ public class EmojiUseCase: EmojiUseCaseProtocol {
         return emojiRepository.removeEmoji(query: query, body: body)
     }
     
-    public func excute(query: FetchEmojiQuery) -> Single<FetchEmojiList?> {
+    public func excute(query: FetchEmojiQuery) -> Single<FetchEmojiDataList?> {
         return emojiRepository.fetchEmoji(query: query)
     }
 }

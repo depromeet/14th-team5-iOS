@@ -31,7 +31,7 @@ final class PostReactor: Reactor {
 //        let fetchedPostLists: [SectionModel<String, PostData>] 
         var selectedPost: PostListData = .init(postId: "", author: .init(memberId: "", profileImageURL: "", name: ""), emojiCount: 0, imageURL: "", content: "", time: "")
         var fetchedPost: PostData? = nil
-        var fetchedEmoji: FetchEmojiList = .init(reactions: [])
+        var fetchedEmoji: FetchEmojiDataList = .init(emojis_memberIds: [])
     }
     
     let initialState: State

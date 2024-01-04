@@ -32,7 +32,7 @@ final class EmojiReactor: Reactor {
         case selectEmoji(Emojis)
         case unselectEmoji(Emojis)
         case setUpEmojiCountStackView([Emojis: Int])
-        case fetchedEmojiList(FetchEmojiList?)
+        case fetchedEmojiList(FetchEmojiDataList?)
     }
     
     struct State {
@@ -45,7 +45,7 @@ final class EmojiReactor: Reactor {
         var selectedEmoji: (Emojis?, Int) = (nil, 0)
         var unselectedEmoji: (Emojis?, Int) = (nil, 0)
         var emojiData: [Emojis: Int] = [:]
-        var fetchedEmojiList: FetchEmojiList? = nil
+        var fetchedEmojiList: FetchEmojiDataList? = nil
     }
     
     let initialState: State

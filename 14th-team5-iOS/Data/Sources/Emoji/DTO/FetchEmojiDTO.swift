@@ -13,20 +13,34 @@ public struct FetchEmojiRequestDTO: Codable {
 }
 
 struct FetchEmojiResponse: Codable {
-    let reactionId: String
-    let postId: String
-    let memberId: String
-    let emojiType: String
+    let emoji_1: [String]
+    let emoji_2: [String]
+    let emoji_3: [String]
+    let emoji_4: [String]
+    let emoji_5: [String]
     
-    func toDomain() -> FetchEmojiData {
-        return .init(memberId: memberId, isMe: FamilyUserDefaults.checkIsMyMemberId(memberId: memberId), emojiType: emojiType)
+    func toDomain() -> [FetchEmojiData] {
+        let emojis_memberIds: [FetchEmojiData] = [
+            FetchEmojiData(isSelfSelected: containsCurrentUser(memberIds: emoji_1), count: emoji_1.count, memberIds: emoji_1),
+            FetchEmojiData(isSelfSelected: containsCurrentUser(memberIds: emoji_2), count: emoji_2.count, memberIds: emoji_2),
+            FetchEmojiData(isSelfSelected: containsCurrentUser(memberIds: emoji_3), count: emoji_3.count, memberIds: emoji_3),
+            FetchEmojiData(isSelfSelected: containsCurrentUser(memberIds: emoji_4), count: emoji_4.count, memberIds: emoji_4),
+            FetchEmojiData(isSelfSelected: containsCurrentUser(memberIds: emoji_5), count: emoji_5.count, memberIds: emoji_5)
+        ]
+        
+        return emojis_memberIds
+    }
+
+    private func containsCurrentUser(memberIds: [String]) -> Bool {
+        let currentMemberId = FamilyUserDefaults.returnMyMemberId()
+        return memberIds.contains(currentMemberId)
     }
 }
 
 struct FetchEmojiResponseDTO: Codable {
-    let results: [FetchEmojiResponse]
+    let emojiMemberIdsList: FetchEmojiResponse
     
-    func toDomain() -> FetchEmojiList {
-        return .init(reactions: results.map { $0.toDomain()})
+    func toDomain() -> FetchEmojiDataList {
+        return .init(emojis_memberIds: emojiMemberIdsList.toDomain())
     }
 }

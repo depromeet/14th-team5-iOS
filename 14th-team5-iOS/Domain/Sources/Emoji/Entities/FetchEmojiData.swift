@@ -6,23 +6,24 @@
 //
 
 import Foundation
+import Core
 
 public struct FetchEmojiData {
-    let memberId: String
-    let isMe: Bool
-    let emojiType: String
+    public let isSelfSelected: Bool
+    public let count: Int
+    public let memberIds: [String]
     
-    public init(memberId: String, isMe: Bool, emojiType: String) {
-        self.memberId = memberId
-        self.isMe = isMe
-        self.emojiType = emojiType
+    public init(isSelfSelected: Bool, count: Int, memberIds: [String]) {
+        self.isSelfSelected = isSelfSelected
+        self.count = count
+        self.memberIds = memberIds
     }
 }
 
-public struct FetchEmojiList {
-    let reactions: [FetchEmojiData]
+public struct FetchEmojiDataList {
+    public let emojis_memberIds: [FetchEmojiData]
     
-    public init(reactions: [FetchEmojiData]) {
-        self.reactions = reactions
+    public init(emojis_memberIds: [FetchEmojiData]) {
+        self.emojis_memberIds = emojis_memberIds
     }
 }

@@ -28,7 +28,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     /// 이모지 카운트를 보여주기 위한 stackView
     private let emojiCountStackView = UIStackView()
     
-    let reactor = EmojiReactor(emojiRepository: PostListsDIContainer().makeEmojiUseCase(), initialState: .init(type: .home, postId: "01HJBRBSZRF429S1SES900ET5G", nickName: "", imageUrl: ""))
+    let reactor = EmojiReactor(emojiRepository: PostListsDIContainer().makeEmojiUseCase(), initialState: .init(type: .home, postId: "01HJBRBSZRF429S1SES900ET5G", imageUrl: "", nickName: ""))
     
     override init(frame: CGRect) {
         super.init(frame: frame)

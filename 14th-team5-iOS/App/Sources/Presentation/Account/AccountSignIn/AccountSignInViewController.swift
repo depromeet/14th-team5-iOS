@@ -17,7 +17,8 @@ import Then
 
 public final class AccountSignInViewController: BaseViewController<AccountSignInReactor> {
     private enum Metric {
-        static let bibbiOffset: CGFloat = 36
+        static let bibbiOffset: CGFloat = 80
+        static let bibbiHeight: CGFloat = 70
         static let bibbiInset: CGFloat = 100
         static let titleOffset: CGFloat = 26
         static let imageSpacing: CGFloat = -10
@@ -40,8 +41,14 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
     private let appleLoginButton = UIButton()
     private let loginStack = UIStackView()
     
+    override public func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.isHidden = true
+    }
+    
     override public func setupUI() {
         super.setupUI()
+        
         imageStack.addArrangedSubviews(palmTreeImageView, beeperImageView)
         view.addSubviews(bibbiImageView, mainTitleLabel, imageStack)
         
@@ -54,7 +61,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
         
         bibbiImageView.do {
             $0.image = DesignSystemAsset.newBibbi.image
-            $0.contentMode = .scaleAspectFill
+            $0.contentMode = .scaleAspectFit
         }
         
         mainTitleLabel.do {
@@ -100,6 +107,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
         
         bibbiImageView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(Metric.bibbiOffset)
+            $0.height.equalTo(Metric.bibbiHeight)
             $0.horizontalEdges.equalToSuperview().inset(Metric.bibbiInset)
         }
         

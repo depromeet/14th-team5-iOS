@@ -75,6 +75,7 @@ final public class ImageCalendarCellReactor: Reactor {
                     if $0.0.date.isEqual(with: date) {
                         // 전체 가족 업로드 유무에 따른 토스트 뷰 출력 이벤트 방출함.
                         let uploaded = $0.0.currentState.allFamilyMemebersUploaded
+                        // 셀에서 VC에게 전체 업로드 유무를 항목으로 방출함.
                         $0.0.provider.toastGlobalState.hiddenAllFamilyUploadedToastMessageView(!uploaded)
                         
                         return Observable<Mutation>.just(.selectDate)

@@ -5,11 +5,10 @@
 //  Created by 김건우 on 12/15/23.
 //
 
+import Core
+import Domain
 import Foundation
 
-import Domain
-import ReactorKit
-import RxCocoa
 import RxSwift
 
 public final class CalendarRepository: CalendarRepositoryProtocol {
@@ -17,10 +16,13 @@ public final class CalendarRepository: CalendarRepositoryProtocol {
     
     private let calendarApiWorker: CalendarAPIWorker = CalendarAPIWorker()
     
+    private let accessToken: String = App.Repository.token.accessToken.value ?? "eyJ0eXBlIjoiYWNjZXNzIiwicmVnRGF0ZSI6MTcwNDQ2MTA1NTAyOSwidHlwIjoiSldUIiwiYWxnIjoiSFMyNTYifQ.eyJ1c2VySWQiOiIwMUhKQk5XWkdOUDFLSk5NS1dWWkowMzlIWSIsImV4cCI6MTcwNDU0NzQ1NX0.SBez6V6tZ49sr1T-codoXwwQgdtnBoXWyyE2lgjv840"
+    
     public init() { }
     
-    public func fetchCalendarInfo(yearMonth: String) -> Observable<ArrayResponseCalendarResponse?> {
-        return calendarApiWorker.fetchCalendarInfo(yearMonth: yearMonth)
+    public func fetchCalendarInfo(_ yearMonth: String) -> Observable<ArrayResponseCalendarResponse?> {
+        let accessToken = "eyJ0eXBlIjoiYWNjZXNzIiwicmVnRGF0ZSI6MTcwNDQ2MTA1NTAyOSwidHlwIjoiSldUIiwiYWxnIjoiSFMyNTYifQ.eyJ1c2VySWQiOiIwMUhKQk5XWkdOUDFLSk5NS1dWWkowMzlIWSIsImV4cCI6MTcwNDU0NzQ1NX0.SBez6V6tZ49sr1T-codoXwwQgdtnBoXWyyE2lgjv840"
+        return calendarApiWorker.fetchCalendarInfo(yearMonth, token: accessToken)
             .asObservable()
     }
 }

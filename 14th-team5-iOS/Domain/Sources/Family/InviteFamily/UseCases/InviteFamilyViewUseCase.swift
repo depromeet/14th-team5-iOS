@@ -15,7 +15,6 @@ public protocol InviteFamilyViewUseCaseProtocol {
 }
 
 public final class InviteFamilyViewUseCase: InviteFamilyViewUseCaseProtocol {
-    
     private let familyRepository: FamilyRepositoryProtocol
     
     public init(familyRepository: FamilyRepositoryProtocol) {

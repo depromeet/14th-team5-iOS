@@ -10,7 +10,7 @@ import Foundation
 extension UserDefaults {
     public enum Key: String, CaseIterable {
         case chekcPermission
-        case showTutorial
+        case finishTutorial
         
         case familyId
         case memberId
@@ -24,9 +24,9 @@ extension UserDefaults {
         get { UserDefaults.standard.bool(forKey: Key.chekcPermission.value) }
         set { UserDefaults.standard.set(newValue, forKey: Key.chekcPermission.value) }
     }
-    public var showTutorial: Bool {
-        get { UserDefaults.standard.bool(forKey: Key.showTutorial.value) }
-        set { UserDefaults.standard.set(newValue, forKey: Key.showTutorial.value) }
+    public var finishTutorial: Bool {
+        get { UserDefaults.standard.bool(forKey: Key.finishTutorial.value) }
+        set { UserDefaults.standard.set(newValue, forKey: Key.finishTutorial.value) }
     }
     
     public var familyId: String? {

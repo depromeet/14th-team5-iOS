@@ -23,6 +23,7 @@ enum BibbiAPI {
     enum Header: APIHeader {
         case auth(String)
         case xAuthToken(String)
+        case appKey
         case contentForm
         case contentJson
         case contentMulti
@@ -36,6 +37,7 @@ enum BibbiAPI {
             case .contentJson: return "Content-Type"
             case .contentMulti: return "Content-Type"
             case .acceptJson: return "Accept"
+            case .appKey: return "X-APP-KEY"
             }
         }
         
@@ -47,6 +49,7 @@ enum BibbiAPI {
             case .contentJson: return "application/json"
             case .contentMulti: return "multipart/form-data; boundary=\(APIConst.boundary)"
             case .acceptJson: return "application/json"
+            case .appKey: return "9c61cc7b-0fe9-40eb-976e-6a74c8cb9092" // 임시용!
             }
         }
     }

@@ -8,8 +8,13 @@
 import UIKit
 import Core
 import DesignSystem
+import Domain
+import RxSwift
+import RxCocoa
+import SnapKit
+import Then
 
-public final class SplashViewController: BaseViewController<SplashReactor> {
+public final class SplashViewController: BaseViewController<SplashViewReactor> {
     // MARK: - Mertic
     private enum Metric {
         static let bibbiOffset: CGFloat = 80
@@ -77,5 +82,47 @@ public final class SplashViewController: BaseViewController<SplashReactor> {
         }
     }
     
-    override public func bind(reactor: SplashReactor) { }
+    override public func bind(reactor: SplashViewReactor) {
+        Observable.just(())
+            .take(1)
+            .map { Reactor.Action.viewDidLoad }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.memberInfo }
+            .skip(1)
+            .withUnretained(self)
+            .observe(on: Schedulers.main)
+            .bind(onNext: { $0.0.showNextPage(with: $0.1) })
+            .disposed(by: disposeBag)
+    }
+    
+    private func showNextPage(with member: MemberInfo?) {
+        
+        if let _ = member?.memberId {
+            var container: UINavigationController
+            container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+            container.modalPresentationStyle = .fullScreen
+            
+            present(container, animated: false)
+        }
+        
+        let container: UINavigationController
+        let presentationStyle: UIModalPresentationStyle = .fullScreen
+        
+        if App.Repository.token.fakeAccessToken.value == nil {
+            container = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
+        } else if App.Repository.token.accessToken.value == nil {
+            container = UINavigationController(rootViewController: AccountSignUpDIContainer().makeViewController())
+        } else {
+            if UserDefaults.standard.finishTutorial {
+                container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+            } else {
+                container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
+            }
+        }
+        
+        container.modalPresentationStyle = presentationStyle
+        present(container, animated: false)
+    }
 }

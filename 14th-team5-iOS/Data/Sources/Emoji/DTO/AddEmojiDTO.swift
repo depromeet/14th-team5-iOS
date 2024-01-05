@@ -13,7 +13,9 @@ public struct AddEmojiRequestDTO: Codable {
 }
 
 struct AddEmojiResponseDTO: Codable {
-    func toDomain() -> AddEmojiData {
-        return .init()
+    let success: Bool
+    
+    func toDomain() -> Void {
+        return ()
     }
 }

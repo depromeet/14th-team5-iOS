@@ -9,14 +9,11 @@ import Foundation
 import Domain
 
 public struct RemoveEmojiRequestDTO: Codable {
-    /// query
-    let postId: String
-    /// body
     let content: String
 }
 
 struct RemoveEmojiResponseDTO: Codable {
-    func toDomain() -> RemoveEmojiData {
-        return .init()
+    func toDomain() -> Void {
+        return ()
     }
 }

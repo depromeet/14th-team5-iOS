@@ -16,13 +16,18 @@ public final class CalendarRepository: CalendarRepositoryProtocol {
     
     private let calendarApiWorker: CalendarAPIWorker = CalendarAPIWorker()
     
-    private let accessToken: String = App.Repository.token.accessToken.value ?? "eyJ0eXBlIjoiYWNjZXNzIiwicmVnRGF0ZSI6MTcwNDQ2MTA1NTAyOSwidHlwIjoiSldUIiwiYWxnIjoiSFMyNTYifQ.eyJ1c2VySWQiOiIwMUhKQk5XWkdOUDFLSk5NS1dWWkowMzlIWSIsImV4cCI6MTcwNDU0NzQ1NX0.SBez6V6tZ49sr1T-codoXwwQgdtnBoXWyyE2lgjv840"
+    private let familyId: String = App.Repository.member.familyId.value ?? ""
+    private let accessToken: String = App.Repository.token.accessToken.value ?? ""
     
     public init() { }
     
     public func fetchCalendarInfo(_ yearMonth: String) -> Observable<ArrayResponseCalendarResponse?> {
-        let accessToken = "eyJ0eXBlIjoiYWNjZXNzIiwicmVnRGF0ZSI6MTcwNDQ2MTA1NTAyOSwidHlwIjoiSldUIiwiYWxnIjoiSFMyNTYifQ.eyJ1c2VySWQiOiIwMUhKQk5XWkdOUDFLSk5NS1dWWkowMzlIWSIsImV4cCI6MTcwNDU0NzQ1NX0.SBez6V6tZ49sr1T-codoXwwQgdtnBoXWyyE2lgjv840"
         return calendarApiWorker.fetchCalendarInfo(yearMonth, token: accessToken)
+            .asObservable()
+    }
+    
+    public func fetchFamilySummaryInfo() -> Observable<FamilyMonthlyStatisticsResponse?> {
+        return calendarApiWorker.fetchFamilySummaryInfo(token: accessToken, familyId: familyId)
             .asObservable()
     }
 }

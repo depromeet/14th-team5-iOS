@@ -41,9 +41,30 @@ extension CalendarAPIWorker {
     }
     
     public func fetchCalendarInfo(_ yearMonth: String, token accessToken: String) -> Single<ArrayResponseCalendarResponse?> {
-        let spec = CalendarAPIs.calendarInfo(yearMonth: yearMonth).spec
+        let spec = CalendarAPIs.calendarInfo(yearMonth).spec
         let headers: [BibbiHeader] = [.acceptJson, .xAppKey, .xAuthToken(accessToken)]
         
         return fetchCalendarInfo(spec: spec, headers: headers)
+    }
+    
+    private func fetchFamilSummaryInfo(spec: APISpec, headers: [BibbiHeader]) -> Single<FamilyMonthlyStatisticsResponse?> {
+        return request(spec: spec, headers: headers)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("FamilySummaryInfo Fetch Result: \(str)")
+                }
+            }
+            .map(FamilyMonthlyStatisticsResponseDTO.self)
+            .catchAndReturn(nil)
+            .map { $0?.toDomain() }
+            .asSingle()
+    }
+    
+    public func fetchFamilySummaryInfo(token accessToken: String, familyId: String) -> Single<FamilyMonthlyStatisticsResponse?> {
+        let spec = CalendarAPIs.familySummaryInfo(familyId).spec
+        let headers: [BibbiHeader] = [.acceptJson, .xAppKey, .xAuthToken(accessToken)]
+        
+        return fetchFamilSummaryInfo(spec: spec, headers: headers)
     }
 }

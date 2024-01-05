@@ -30,7 +30,7 @@ extension MeAPIs {
 }
 
 // MARK: SignIn
-extension MeAPIWorker: MeRepository {
+extension MeAPIWorker {
     private func saveFcmToken(spec: APISpec, jsonEncodable: Encodable) -> Single<String?> {
         return request(spec: spec)
             .subscribe(on: Self.queue)

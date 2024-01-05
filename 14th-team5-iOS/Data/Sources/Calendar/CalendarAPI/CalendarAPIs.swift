@@ -10,12 +10,15 @@ import Foundation
 import Domain
 
 enum CalendarAPIs: API {
-    case calendarInfo(yearMonth: String)
+    case calendarInfo(String)
+    case familySummaryInfo(String)
     
     var spec: APISpec {
         switch self {
         case let .calendarInfo(yearMonth):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar?type=MONTHLY&yearMonth=\(yearMonth)")
+        case let .familySummaryInfo(familyId):
+            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/families/\(familyId)/summary")
         }
     }
 }

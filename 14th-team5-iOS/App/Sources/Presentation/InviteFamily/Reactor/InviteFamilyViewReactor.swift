@@ -109,8 +109,10 @@ public final class InviteFamilyViewReactor: Reactor {
         case .makeShareFailureTaostMessageView:
             newState.copyFailureToastMessageView = true
             
-        case let .injectFamilyMembers(familiyMember):
-            newState.familyDatasource = [familiyMember]
+        case let .injectFamilyMembers(familyMember):
+            print("불러온 패밀리 멤버: ")
+            print(familyMember)
+            newState.familyDatasource = [familyMember]
         }
         return newState
     }

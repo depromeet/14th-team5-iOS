@@ -30,8 +30,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         collectionViewLayout: orthogonalCompositionalLayout
     )
     
-    // 내일 할 일: - 토스트 뷰 뜨게하는 로직 고민해보기
-    // - 코드 리팩토링하기
     private let allFamilyUploadedToastView: BibbiToastMessageView = BibbiToastMessageView()
     
     // MARK: - Properties
@@ -240,7 +238,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
 
-        // TODO: - 이벤트 스트림 공유하게 하기
         reactor.state.map { $0.postListDatasource }
             .bind(to: collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)

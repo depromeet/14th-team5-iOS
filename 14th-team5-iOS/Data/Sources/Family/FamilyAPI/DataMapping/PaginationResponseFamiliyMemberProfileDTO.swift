@@ -27,6 +27,11 @@ struct PaginationResponseFamilyMemberProfileDTO: Decodable {
 
 extension PaginationResponseFamilyMemberProfileDTO {
     struct FamilyMemberProfileResponseDTO: Decodable {
+        private enum CodingKeys: String, CodingKey {
+            case memberId
+            case name
+            case imageUrl
+        }
         var memberId: String
         var name: String
         var imageUrl: String

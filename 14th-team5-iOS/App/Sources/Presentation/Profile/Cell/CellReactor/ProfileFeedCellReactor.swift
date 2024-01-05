@@ -18,12 +18,12 @@ public final class ProfileFeedCellReactor: Reactor {
     
     public struct State {
         var imageURL: URL
-        var title: String
+        var emojiCount: String
         var date: String
     }
     
-    init(imageURL: URL, title: String, date: String) {
-        self.initialState = State(imageURL: imageURL, title: title, date: date)
+    init(imageURL: URL, emojiCount: String, date: String) {
+        self.initialState = State(imageURL: imageURL, emojiCount: emojiCount, date: date)
     }
     
     

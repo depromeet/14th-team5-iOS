@@ -55,7 +55,11 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        nextButton.rx.tap
+        Observable
+            .zip(
+                reactor.state.map { $0.profileType }.distinctUntilChanged(),
+                nextButton.rx.tap.asObservable()
+            ).filter { $0.0 == .profile }
             .withLatestFrom(inputFielView.rx.text.orEmpty.distinctUntilChanged())
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
             .map { Reactor.Action.didTapNickNameButton($0)}
@@ -80,6 +84,13 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
             .filter { $0 != nil }
             .withUnretained(self)
             .bind(onNext: { $0.0.transitionProfileViewController()})
+            .disposed(by: disposeBag)
+        
+        
+        reactor.state.map { $0.profileType }
+            .filter { $0 == .profile }
+            .map { _ in "완료"}
+            .bind(to: nextButton.rx.title())
             .disposed(by: disposeBag)
         
     }

@@ -30,6 +30,40 @@ extension Date {
 }
 
 extension Date {
+    public func relativeFormatter() -> String {
+        let dateFormatter = DateFormatter()
+        let relativeDateformatter: RelativeDateTimeFormatter = RelativeDateTimeFormatter()
+        relativeDateformatter.unitsStyle = .full
+        relativeDateformatter.locale = Locale(identifier: "ko_KR")
+        relativeDateformatter.dateTimeStyle = .named
+        
+        let dateToString = relativeDateformatter.localizedString(for: self, relativeTo: Date())
+        let yearOfComponents = calendar.component(.year, from: self)
+        let dateOfComponents = calendar.component(.year, from: .now)
+        
+        
+        print("year : \(yearOfComponents)")
+        print("date : \(dateOfComponents)")
+        
+        
+        // 년도 비교 해서 다르면 yyyy mm dd로 표시
+        if yearOfComponents != dateOfComponents {
+            dateFormatter.dateFormat = "yyyy년 MM월 dd일"
+        } else {
+            // 년도 같으니깐 월일 비교하고 월일도 같으면 RelativeDateTimeFormatter 로 표기
+            if isEqual([.month, .day], with: Date()) {
+                return dateToString
+            } else {
+                // 아니면 걍 dateformatter로 표기 return은 최종으로
+                dateFormatter.dateFormat = "MM월 dd일"
+            }
+        }
+        
+
+        return dateFormatter.string(from: self)
+    }
+    
+    
     public func isEqual(
         _ components: Set<Calendar.Component> = [.year, .month, .day],
         with date: Date

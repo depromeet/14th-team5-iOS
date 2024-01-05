@@ -35,8 +35,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
 
     private let profileIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 50)
-    private let profileTitleView: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
-    private let privacyButton: UIButton = UIButton()
+    private let profileNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let profileLineView: UIView = UIView()
     private lazy var profilePickerController: PHPickerViewController = PHPickerViewController(configuration: pickerConfiguration)
     private let profileFeedCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
@@ -47,10 +46,19 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             guard let profileFeedCell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProfileFeedCollectionViewCell", for: indexPath) as? ProfileFeedCollectionViewCell else { return UICollectionViewCell() }
             profileFeedCell.reactor = cellReactor
             return profileFeedCell
+            
+        case let .feedCateogryEmptyItem(cellReactor):
+            guard let profileFeedEmptyCell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProfileFeedEmptyCollectionViewCell", for: indexPath) as? ProfileFeedEmptyCollectionViewCell else { return UICollectionViewCell() }
+            profileFeedEmptyCell.reactor = cellReactor
+            return profileFeedEmptyCell
         }
     }
 
     
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.navigationBar.isHidden = true
+    }
     
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,7 +66,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(profileView, profileLineView, profileFeedCollectionView, profileIndicatorView)
+        view.addSubviews(profileView, profileLineView, profileFeedCollectionView, profileIndicatorView, profileNavigationBar)
     }
     
     public override func setupAttributes() {
@@ -66,11 +74,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         
         profileFeedCollectionViewLayout.do {
             $0.scrollDirection = .vertical
-        }
-        
-        profileTitleView.do {
-            $0.textColor = DesignSystemAsset.gray200.color
-            $0.text = "활동"
         }
         
         profilePickerController.do {
@@ -81,13 +84,12 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             $0.backgroundColor = .separator
         }
         
-        privacyButton.do {
-            $0.setImage(DesignSystemAsset.setting.image, for: .normal)
-        }
-        
-        navigationItem.do {
-            $0.titleView = profileTitleView
-            $0.rightBarButtonItem = UIBarButtonItem(customView: privacyButton)
+        profileNavigationBar.do {
+            $0.navigationTitle = "활동"
+            $0.leftBarButtonItem = .arrowLeft
+            $0.rightBarButtonItem = .setting
+            $0.leftBarButtonItemTintColor = .gray300
+            $0.rightBarButtonItemTintColor = .gray400
         }
         
         profileIndicatorView.do {
@@ -97,6 +99,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         
         profileFeedCollectionView.do {
             $0.register(ProfileFeedCollectionViewCell.self, forCellWithReuseIdentifier: "ProfileFeedCollectionViewCell")
+            $0.register(ProfileFeedEmptyCollectionViewCell.self, forCellWithReuseIdentifier: "ProfileFeedEmptyCollectionViewCell")
             $0.showsVerticalScrollIndicator = true
             $0.showsHorizontalScrollIndicator = false
             $0.backgroundColor = .clear
@@ -105,6 +108,12 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
+        
+        profileNavigationBar.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.left.right.equalToSuperview()
+            $0.height.equalTo(42)
+        }
         
         profileView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide.snp.topMargin)
@@ -146,14 +155,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .setDelegate(self)
             .disposed(by: disposeBag)
         
-        privacyButton
-            .rx.tap
-            .throttle(.microseconds(300), scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind { owner, _ in
-                let privacyViewController = PrivacyDIContainer().makeViewController()
-                owner.navigationController?.pushViewController(privacyViewController, animated: true)
-            }.disposed(by: disposeBag)
         
         profileView.circleButton
             .rx.tap
@@ -161,6 +162,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .withUnretained(self)
             .bind(onNext: {$0.0.createAlertController(owner: $0.0)})
             .disposed(by: disposeBag)
+        
             
         NotificationCenter.default.rx.notification(.PHPickerAssetsDidFinishPickingProcessingPhotoNotification)
             .compactMap { notification -> Data? in
@@ -168,6 +170,12 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
                 return userInfo["selectImage"] as? Data
             }
             .map { Reactor.Action.didSelectPHAssetsImage($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        NotificationCenter.default.rx
+            .notification(.ProfileImageInitializationUpdate)
+            .map { _ in Reactor.Action.didTapInitProfile }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
             
@@ -207,6 +215,12 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .disposed(by: disposeBag)
         
         
+        reactor.state
+            .compactMap { $0.profilePostEntity?.results.isEmpty }
+            .map { !$0 }
+            .bind(to: profileFeedCollectionView.rx.isScrollEnabled)
+            .disposed(by: disposeBag)
+        
         profileFeedCollectionView.rx
             .didScroll
             .withLatestFrom(profileFeedCollectionView.rx.contentOffset)
@@ -224,6 +238,21 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        profileNavigationBar.rx.didTapLeftBarButton
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.navigationController?.popViewController(animated: true)
+            }.disposed(by: disposeBag)
+        
+        profileNavigationBar.rx.didTapRightBarButton
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .withLatestFrom(reactor.state.map { $0.memberId })
+            .withUnretained(self)
+            .bind { owner, memberId in
+                let privacyViewController = PrivacyDIContainer(memberId: memberId).makeViewController()
+                owner.navigationController?.pushViewController(privacyViewController, animated: true)
+            }.disposed(by: disposeBag)
     }
 }
 
@@ -231,7 +260,14 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
 extension ProfileViewController: UICollectionViewDelegateFlowLayout {
     
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: (collectionView.frame.size.width / 2) - 4, height: 243)
+        
+        switch profileFeedDataSources[indexPath] {
+        case .feedCategoryItem:
+            return CGSize(width: (collectionView.frame.size.width / 2) - 4, height: 243)
+        case .feedCateogryEmptyItem:
+            return CGSize(width: collectionView.frame.size.width, height: collectionView.frame.size.height)
+        }
+        
     }
     
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
@@ -263,7 +299,7 @@ extension ProfileViewController {
     }
     
     private func transitionNickNameViewController(memberId: String) {
-        let accountNickNameViewController:AccountNicknameViewController = AccountSignUpDIContainer(memberId: memberId).makeNickNameViewController()
+        let accountNickNameViewController:AccountNicknameViewController = AccountSignUpDIContainer(memberId: memberId, accountType: .profile).makeNickNameViewController()
         self.navigationController?.pushViewController(accountNickNameViewController, animated: false)
     }
     
@@ -283,7 +319,8 @@ extension ProfileViewController {
         }
         
         let presentDefaultAction: UIAlertAction = UIAlertAction(title: "초기화", style: .destructive) { _ in
-            print("초기화 구문")
+            //TODO: 초기화 사진 해야한다..
+            NotificationCenter.default.post(name: .ProfileImageInitializationUpdate, object: nil, userInfo: nil)
         }
         
         let presentCancelAction: UIAlertAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)

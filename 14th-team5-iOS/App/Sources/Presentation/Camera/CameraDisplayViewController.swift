@@ -22,7 +22,8 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     private let displayView: UIImageView = UIImageView()
     private let confirmButton: UIButton = UIButton(configuration: .plain())
     private let displayIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
-    private let titleView: UILabel = UILabel()
+    private let backButton: UIButton = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 52, height: 52)))
+    private let titleView: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
     private let displayEditButton: UIButton = UIButton.createCircleButton(radius: 21.5)
     private let displayEditTextField: UITextField = UITextField()
     private let displayDimView: UIView = UIView()
@@ -53,13 +54,19 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         super.setupAttributes()
         
         titleView.do {
-            $0.textColor = DesignSystemAsset.gray200.color
             $0.text = "사진 올리기"
-            $0.font = DesignSystemFontFamily.Pretendard.bold.font(size: 18)
+        }
+        
+        backButton.do {
+            $0.backgroundColor = DesignSystemAsset.gray900.color
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = 10
+            $0.setImage(DesignSystemAsset.arrowLeft.image, for: .normal)
         }
         
         navigationItem.do {
             $0.titleView = titleView
+            $0.leftBarButtonItem = UIBarButtonItem(customView: backButton)
         }
         
         archiveButton.do {
@@ -94,7 +101,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         }
         
         displayEditTextField.do {
-            $0.textColor = .white
+            $0.textColor = DesignSystemAsset.white.color
             $0.backgroundColor = DesignSystemAsset.black.color
             $0.font = DesignSystemFontFamily.Pretendard.regular.font(size: 17)
             $0.makeLeftPadding(16)
@@ -184,6 +191,15 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .withUnretained(self)
             .subscribe { owner, _ in
                 owner.displayEditTextField.becomeFirstResponder()
+            }.disposed(by: disposeBag)
+        
+        
+        backButton
+            .rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.navigationController?.popViewController(animated: true)
             }.disposed(by: disposeBag)
         
         displayEditTextField.rx
@@ -373,7 +389,7 @@ extension CameraDisplayViewController {
         displayDimView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        view.bringSubviewToFront(displayEditCollectionView)
+        view.bringSubviewToFronts(displayEditCollectionView, displayEditTextField)
         displayDimView.backgroundColor = .black.withAlphaComponent(0.5)
     }
     
@@ -393,10 +409,7 @@ extension CameraDisplayViewController {
         }
         
         let settingAction: UIAlertAction = UIAlertAction(title: "설정으로 이동하기", style: .default) { _ in
-            guard let settingURL = URL(string: UIApplication.openSettingsURLString),
-                  UIApplication.shared.canOpenURL(settingURL) else { return }
-            UIApplication.shared.open(settingURL)
-            
+            UIApplication.shared.open(URLTypes.settings.originURL)
         }
         
         [cancelAction,settingAction].forEach(permissionAlertController.addAction(_:))
@@ -419,3 +432,4 @@ extension CameraDisplayViewController: UICollectionViewDelegateFlowLayout {
         return 4
     }
 }
+

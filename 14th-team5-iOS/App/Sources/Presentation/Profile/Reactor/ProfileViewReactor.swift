@@ -15,12 +15,14 @@ import ReactorKit
 public final class ProfileViewReactor: Reactor {
     public var initialState: State
     private let profileUseCase: ProfileViewUsecaseProtocol
+    private let memberId: String
     
     public enum Action {
         case viewDidLoad
         case viewWillAppear
         case fetchMorePostItems(Bool)
         case didSelectPHAssetsImage(Data)
+        case didTapInitProfile
     }
     
     public enum Mutation {
@@ -34,6 +36,7 @@ public final class ProfileViewReactor: Reactor {
     
     public struct State {
         var isLoading: Bool
+        var memberId: String
         @Pulse var feedSection: [ProfileFeedSectionModel]
         @Pulse var profileMemberEntity: ProfileMemberResponse?
         @Pulse var profilePostEntity: ProfilePostResponse?
@@ -41,27 +44,35 @@ public final class ProfileViewReactor: Reactor {
         @Pulse var profilePresingedURLEntity: CameraDisplayImageResponse?
     }
     
-    init(profileUseCase: ProfileViewUsecaseProtocol) {
+    init(profileUseCase: ProfileViewUsecaseProtocol, memberId: String) {
         self.profileUseCase = profileUseCase
+        self.memberId = memberId
         self.initialState = State(
             isLoading: false,
+            memberId: memberId,
             feedSection: [.feedCategory([])],
             profileMemberEntity: nil,
             isProfileUpload: false,
             profilePresingedURLEntity: nil
         )
+        print("Check Member Id State: \(self.currentState.memberId)")
     }
     
     
     public func mutate(action: Action) -> Observable<Mutation> {
         //TODO: Keychain, UserDefaults 추가
+        //currentState는 선택된 내 멤버아이디임 분기처리 필요 x
+        
         var query: ProfilePostQuery = ProfilePostQuery(page: 1, size: 10)
-        let parameters: ProfilePostDefaultValue = ProfilePostDefaultValue(date: "", memberId: "01HJBNXAV0TYQ1KESWER45A2QP", sort: "DESC")
+        let parameters: ProfilePostDefaultValue = ProfilePostDefaultValue(date: "", memberId: self.currentState.memberId, sort: "DESC")
         switch action {
         case .viewDidLoad:
             return .concat(
                 .just(.setLoading(true)),
-                profileUseCase.executeProfileMemberItems()
+                // 프로필 조회에서 x
+                // 제일 쉬운방법 reactor init 에서 내 맴버 아이디 == 상대방 멤버 아이디 비겨 true false 값 state 주입
+                // reactor.state.map 해서 편집 hidden, enabled 처리 
+                profileUseCase.executeProfileMemberItems(memberId: self.currentState.memberId)
                     .asObservable()
                     .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
                             .just(.setProfileMemberItems(entity))
@@ -71,9 +82,12 @@ public final class ProfileViewReactor: Reactor {
                     .asObservable()
                     .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
                         var sectionItem: [ProfileFeedSectionItem] = []
-                        entity.results.forEach {
-                            sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, title: $0.content, date: DateFormatter.yyyyMMdd.string(from: $0.createdAt))))
-                            
+                        if entity.results.isEmpty {
+                            sectionItem.append(.feedCateogryEmptyItem(ProfileFeedEmptyCellReactor(descrption: "아직 업로드한 사진이 없어요", resource: "EmptyCaseGraphicEmoji")))
+                        } else {
+                            entity.results.forEach {
+                                sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date:  $0.createdAt.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter())))
+                            }
                         }
                         return .concat(
                             .just(.setProfilePostItems(entity)),
@@ -86,7 +100,7 @@ public final class ProfileViewReactor: Reactor {
             
         case .viewWillAppear:
             return .concat(
-                profileUseCase.executeProfileMemberItems()
+                profileUseCase.executeProfileMemberItems(memberId: self.currentState.memberId)
                     .asObservable()
                     .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
                             .concat(
@@ -116,7 +130,7 @@ public final class ProfileViewReactor: Reactor {
                                 let originalPath = owner.configureProfileOriginalS3URL(url: profilePresingedURL)
                                 let profileEditParameter: ProfileImageEditParameter = ProfileImageEditParameter(profileImageUrl: originalPath)
                                 if isSuccess {
-                                    return owner.profileUseCase.executeReloadProfileImage(memberId: "01HJBNXAV0TYQ1KESWER45A2QP", parameter: profileEditParameter)
+                                    return owner.profileUseCase.executeReloadProfileImage(memberId: self.currentState.memberId, parameter: profileEditParameter)
                                         .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                                         .asObservable()
                                         .flatMap { memberEntity -> Observable<ProfileViewReactor.Mutation> in
@@ -153,7 +167,7 @@ public final class ProfileViewReactor: Reactor {
                     paginationItems.append(contentsOf: entity.results)
                    
                     paginationItems.forEach {
-                        sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, title: $0.content, date: DateFormatter.yyyyMMdd.string(from: $0.createdAt))))
+                        sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date: $0.createdAt.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter())))
                     }
                     
                     return .concat(
@@ -162,6 +176,14 @@ public final class ProfileViewReactor: Reactor {
                         .just(.setLoading(false))
                     )
                 }
+        case .didTapInitProfile:
+            //TODO: 유저 디폴트 이미지
+//            let initProfileImage: String = "\(fileData.hashValue).jpg"
+//            let profileImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: initProfileImage)
+            return .concat(
+                .just(.setLoading(true))
+            
+            )
         }
     }
     

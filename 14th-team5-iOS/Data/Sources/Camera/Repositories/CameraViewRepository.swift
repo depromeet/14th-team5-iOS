@@ -21,7 +21,7 @@ public final class CameraViewRepository {
     
     public init() { }
     
-    public var accessToken: String = "eyJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MiLCJyZWdEYXRlIjoxNzAzNzU3MTM1NzcyLCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwMzg0MzUzNX0.-lcEBKB_KI32_rI2Ne1fQPMEa1ueGlK9H1TgSuDTehw"
+    public var accessToken: String = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MiLCJyZWdEYXRlIjoxNzA0MTEwODg1Mzg5fQ.eyJ1c2VySWQiOiIwMUhKQk5XWkdOUDFLSk5NS1dWWkowMzlIWSIsImV4cCI6MTcwNDE5NzI4NX0.smh0Ns7F0OTMFLtaXrP_U0gMuwiindtlsWCfx-vif2I"
         
 }
 

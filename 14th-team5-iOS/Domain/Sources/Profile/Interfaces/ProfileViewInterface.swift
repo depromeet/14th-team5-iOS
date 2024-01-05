@@ -27,7 +27,7 @@ public struct FeedEntity {
 public protocol ProfileViewInterface: AnyObject {
     var disposeBag: DisposeBag { get }
     
-    func fetchProfileMemberItems() -> Observable<ProfileMemberResponse>
+    func fetchProfileMemberItems(memberId: String) -> Observable<ProfileMemberResponse>
     func fetchProfilePostItems(query: ProfilePostQuery, parameter: ProfilePostDefaultValue) -> Observable<ProfilePostResponse>
     func fetchProfileAlbumImageURL(parameter: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?>
     func uploadProfileImageToPresingedURL(to url: String, imageData: Data) -> Observable<Bool>

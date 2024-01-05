@@ -62,7 +62,7 @@ public class FamilyUserDefaults {
 }
 
 extension FamilyUserDefaults {
-    private static func saveMemberToUserDefaults(familyMember: ProfileData) {
+    public static func saveMemberToUserDefaults(familyMember: ProfileData) {
         do {
             let encoder = JSONEncoder()
             let data = try encoder.encode(familyMember)

@@ -22,6 +22,7 @@ public final class ProfileViewReactor: Reactor {
         case viewWillAppear
         case fetchMorePostItems(Bool)
         case didSelectPHAssetsImage(Data)
+        case didTapInitProfile
     }
     
     public enum Mutation {
@@ -60,12 +61,17 @@ public final class ProfileViewReactor: Reactor {
     
     public func mutate(action: Action) -> Observable<Mutation> {
         //TODO: Keychain, UserDefaults 추가
+        //currentState는 선택된 내 멤버아이디임 분기처리 필요 x
+        
         var query: ProfilePostQuery = ProfilePostQuery(page: 1, size: 10)
         let parameters: ProfilePostDefaultValue = ProfilePostDefaultValue(date: "", memberId: self.currentState.memberId, sort: "DESC")
         switch action {
         case .viewDidLoad:
             return .concat(
                 .just(.setLoading(true)),
+                // 프로필 조회에서 x
+                // 제일 쉬운방법 reactor init 에서 내 맴버 아이디 == 상대방 멤버 아이디 비겨 true false 값 state 주입
+                // reactor.state.map 해서 편집 hidden, enabled 처리 
                 profileUseCase.executeProfileMemberItems(memberId: self.currentState.memberId)
                     .asObservable()
                     .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
@@ -170,6 +176,14 @@ public final class ProfileViewReactor: Reactor {
                         .just(.setLoading(false))
                     )
                 }
+        case .didTapInitProfile:
+            //TODO: 유저 디폴트 이미지
+//            let initProfileImage: String = "\(fileData.hashValue).jpg"
+//            let profileImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: initProfileImage)
+            return .concat(
+                .just(.setLoading(true))
+            
+            )
         }
     }
     

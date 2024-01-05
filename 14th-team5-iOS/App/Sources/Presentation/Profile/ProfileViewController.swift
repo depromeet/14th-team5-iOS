@@ -172,6 +172,12 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .map { Reactor.Action.didSelectPHAssetsImage($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        NotificationCenter.default.rx
+            .notification(.ProfileImageInitializationUpdate)
+            .map { _ in Reactor.Action.didTapInitProfile }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
             
         
         reactor.state
@@ -313,7 +319,8 @@ extension ProfileViewController {
         }
         
         let presentDefaultAction: UIAlertAction = UIAlertAction(title: "초기화", style: .destructive) { _ in
-            print("초기화 구문")
+            //TODO: 초기화 사진 해야한다..
+            NotificationCenter.default.post(name: .ProfileImageInitializationUpdate, object: nil, userInfo: nil)
         }
         
         let presentCancelAction: UIAlertAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)

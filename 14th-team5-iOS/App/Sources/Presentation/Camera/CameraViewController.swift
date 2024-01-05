@@ -29,10 +29,11 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     
     //MARK: Views
     private let cameraView: UIView = UIView()
+    private let backButton: UIButton = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 52, height: 52)))
     private let shutterButton: UIButton = UIButton()
     private let flashButton: UIButton = UIButton.createCircleButton(radius: 24)
     private let toggleButton: UIButton = UIButton.createCircleButton(radius: 24)
-    private let titleView: UILabel = UILabel()
+    private let titleView: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
     private let cameraIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     
     private var initialScale: CGFloat = 0
@@ -55,9 +56,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         super.setupAttributes()
         
         titleView.do {
-            $0.textColor = DesignSystemAsset.gray200.color
             $0.text = "카메라"
-            $0.font = DesignSystemFontFamily.Pretendard.bold.font(size: 18)
         }
         
         cameraIndicatorView.do {
@@ -65,8 +64,16 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             $0.color = .gray
         }
         
+        backButton.do {
+            $0.backgroundColor = DesignSystemAsset.gray900.color
+            $0.setImage(DesignSystemAsset.xmark.image, for: .normal)
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = 10
+        }
+        
         navigationItem.do {
             $0.titleView = titleView
+            $0.leftBarButtonItem = UIBarButtonItem(customView: backButton)
         }
 
         cameraView.do {
@@ -138,6 +145,14 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .map { Reactor.Action.didTapShutterButton($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        backButton
+            .rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.navigationController?.popViewController(animated: true)
+            }.disposed(by: disposeBag)
         
         
         reactor.state
@@ -412,10 +427,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         }
         
         let settingAction: UIAlertAction = UIAlertAction(title: "설정으로 이동하기", style: .default) { _ in
-            guard let settingURL = URL(string: UIApplication.openSettingsURLString),
-                  UIApplication.shared.canOpenURL(settingURL) else { return }
-            UIApplication.shared.open(settingURL)
-            
+            UIApplication.shared.open(URLTypes.settings.originURL)
         }
         
         [cancelAction,settingAction].forEach(permissionAlertController.addAction(_:))

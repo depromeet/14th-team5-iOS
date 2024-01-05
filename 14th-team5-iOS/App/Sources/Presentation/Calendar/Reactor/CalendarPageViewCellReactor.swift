@@ -32,10 +32,6 @@ public final class CalendarPageCellReactor: Reactor {
         var arrayCalendarResponse: ArrayResponseCalendarResponse?
     }
     
-    // NOTE: - 주간 캘린더와는 다르게 API 호출한 월(月)을 저장할 수 없음
-    // ・ 그렇게 하려면 CalendarVC에서 필요한 모든 데이터를 불러와야 하는데,
-    //   호출 시간으로 인해 컬렉션 뷰의 셀이 어색하게 배치(ScrollToLast)되는 현상이 발생함.
-    
     // MARK: - Properties
     public var initialState: State
     
@@ -66,7 +62,7 @@ public final class CalendarPageCellReactor: Reactor {
                 .flatMap { _ in Observable<Mutation>.empty() }
             
         case .fetchCalendarResponse:
-            return calendarUseCase.execute(yearMonth: yearMonth)
+            return calendarUseCase.executeFetchCalednarInfo(yearMonth)
                 .map {
                     guard let arrayCalendarResponse = $0 else {
                         return .injectCalendarResponse(.init(results: []))

@@ -18,6 +18,7 @@ public final class AccountSignUpReactor: Reactor {
     public var initialState: State
     private var accountRepository: AccountImpl
     private let memberId: String
+    private let profileType: AccountLoaction
     
     public enum Action {
         case setNickname(String)
@@ -63,15 +64,21 @@ public final class AccountSignUpReactor: Reactor {
         var isValidDay: Bool = false
         var isValidDateButton: Bool = false
         var dateButtonTappedFinish: Bool = false
+        var profileType: AccountLoaction = .account
         
         var profileImageButtontapped: Bool = false
         var profileButtonTappedFinish: AccessToken? = nil
     }
     
-    init(accountRepository: AccountRepository, memberId: String = "") {
+    init(
+        accountRepository: AccountRepository,
+        memberId: String = "",
+        profileType: AccountLoaction = .account
+    ) {
         self.accountRepository = accountRepository
         self.memberId = memberId
-        self.initialState = State(memberId: memberId)
+        self.profileType = profileType
+        self.initialState = State(memberId: memberId, profileType: self.profileType)
     }
 }
 

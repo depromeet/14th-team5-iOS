@@ -153,13 +153,10 @@ public final class CameraDisplayViewReactor: Reactor {
         case let .setDescription(descrption):
             newState.displayDescrption = descrption
         case let .setDisplayEntity(entity):
-            print("displayEntity : \(entity)")
             newState.displayEntity = entity
         case let .setDisplayOriginalEntity(entity):
-            print("displayOriginal Entity: \(entity)")
             newState.displayOringalEntity = entity
         case let .setPostEntity(entity):
-            print("displayPost Entity: \(entity)")
             newState.displayPostEntity = entity
         }
         return newState

@@ -6,11 +6,20 @@
 //
 
 import Foundation
+import Core
 
 public struct RemoveEmojiQuery {
     public let postId: String
+    
+    public init(postId: String) {
+        self.postId = postId
+    }
 }
 
 public struct RemoveEmojiBody {
-    public let content: String
+    public let content: Emojis
+    
+    public init(content: Emojis) {
+        self.content = content
+    }
 }

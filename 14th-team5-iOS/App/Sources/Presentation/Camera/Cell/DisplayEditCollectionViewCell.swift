@@ -53,7 +53,7 @@ public final class DisplayEditCollectionViewCell: BaseCollectionViewCell<Display
         super.setupAutoLayout()
         
         descrptionLabel.snp.makeConstraints {
-            $0.width.equalTo(30)
+            $0.width.equalTo(21)
             $0.height.equalTo(30)
             $0.center.equalToSuperview()
         }

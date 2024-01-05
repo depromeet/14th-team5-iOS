@@ -11,6 +11,7 @@ import RxDataSources
 
 public enum ProfileFeedSectionType: String, Equatable {
     case feed
+    case empty
 }
 
 public enum ProfileFeedSectionModel: SectionModelType {
@@ -34,13 +35,18 @@ public enum ProfileFeedSectionModel: SectionModelType {
 
 public enum ProfileFeedSectionItem {
     case feedCategoryItem(ProfileFeedCellReactor)
+    case feedCateogryEmptyItem(ProfileFeedEmptyCellReactor)
 }
 
 
 extension ProfileFeedSectionModel {
     public func getSectionType() -> ProfileFeedSectionType {
         switch self {
-        case .feedCategory: return .feed
+        case let .feedCategory(items):
+            if items.isEmpty {
+                return .empty
+            }
+            return .feed
         }
     }
 }

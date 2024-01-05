@@ -26,20 +26,45 @@ extension CalendarAPIs {
 }
 
 extension CalendarAPIWorker {
-    func fetchCalendarInfo(yearMonth: String) -> Single<ArrayResponseCalendarResponse?> {
-        let accessToken: String = "eyJyZWdEYXRlIjoxNzA0Mjg4NTg5NzMxLCJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiIwMUhKQk5XWkdOUDFLSk5NS1dWWkowMzlIWSIsImV4cCI6MTcwNDM3NDk4OX0.Yp--MmXHsTqCJnG-dc43zUMD8HOtn6M0ihdmOce_nrc" // TODO: - 접근 토큰 구하기
-        let spec = CalendarAPIs.calendarInfo(yearMonth: yearMonth).spec
-        let headers: [BibbiHeader] = [.acceptJson, .xAuthToken(accessToken)]
+    private func fetchCalendarInfo(spec: APISpec, headers: [BibbiHeader]) -> Single<ArrayResponseCalendarResponse?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("MonthlyCalendar Fetch Result: \(str)")
+                    debugPrint("CalendarInfo Fetch Result: \(str)")
                 }
             }
             .map(ArrayResponseCalendarResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
             .asSingle()
+    }
+    
+    public func fetchCalendarInfo(_ yearMonth: String, token accessToken: String) -> Single<ArrayResponseCalendarResponse?> {
+        let spec = CalendarAPIs.calendarInfo(yearMonth).spec
+        let headers: [BibbiHeader] = [.acceptJson, .xAppKey, .xAuthToken(accessToken)]
+        
+        return fetchCalendarInfo(spec: spec, headers: headers)
+    }
+    
+    private func fetchFamilSummaryInfo(spec: APISpec, headers: [BibbiHeader]) -> Single<FamilyMonthlyStatisticsResponse?> {
+        return request(spec: spec, headers: headers)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("FamilySummaryInfo Fetch Result: \(str)")
+                }
+            }
+            .map(FamilyMonthlyStatisticsResponseDTO.self)
+            .catchAndReturn(nil)
+            .map { $0?.toDomain() }
+            .asSingle()
+    }
+    
+    public func fetchFamilySummaryInfo(token accessToken: String, familyId: String) -> Single<FamilyMonthlyStatisticsResponse?> {
+        let spec = CalendarAPIs.familySummaryInfo(familyId).spec
+        let headers: [BibbiHeader] = [.acceptJson, .xAppKey, .xAuthToken(accessToken)]
+        
+        return fetchFamilSummaryInfo(spec: spec, headers: headers)
     }
 }

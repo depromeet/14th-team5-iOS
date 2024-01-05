@@ -25,10 +25,30 @@ extension EmojiAPIs {
 }
 
 extension EmojiAPIWorker: EmojiRepository {
-    public func addEmoji(query: Domain.AddEmojiQuery, body: Domain.AddEmojiBody) -> RxSwift.Single<Domain.AddEmojiData?> {
+    public func fetchEmoji(query: Domain.FetchEmojiQuery) -> RxSwift.Single<Domain.FetchEmojiDataList?> {
+        let query = FetchEmojiRequestDTO(postId: query.postId)
+        let spec = EmojiAPIs.fetchReactions(query).spec
+        return request(spec: spec, headers: [
+            BibbiHeader.acceptJson,
+            BibbiHeader.xAuthToken("eyJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QiLCJyZWdEYXRlIjoxNzA0MzYyMDY0MTYwfQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDQ0ODQ2NH0.pxu_tVjDSXB63vl74G-ZkuFfk3sE9TcYnQuVcgO2Fwo")])
+        .subscribe(on: Self.queue)
+        .do {
+            if let str = String(data: $0.1, encoding: .utf8) {
+                debugPrint("FetchEmoji Fetch Result: \(str)")
+            }
+        }
+        .map(FetchEmojiResponseDTO.self)
+        .catchAndReturn(nil)
+        .map {
+            $0?.toDomain()
+        }
+        .asSingle()
+    }
+    
+    public func addEmoji(query: Domain.AddEmojiQuery, body: Domain.AddEmojiBody) -> RxSwift.Single<Void?> {
         let requestDTO = AddEmojiRequestDTO(content: body.content)
         let spec = EmojiAPIs.addReactions(query.postId).spec
-        return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJyZWdEYXRlIjoxNzA0MTE2MTMzNzQxLCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDIwMjUzM30.bFx2NB_HEAP4O36WDIMHTw_UE2GYlWjLsTvukmQbVBQ")], jsonEncodable: requestDTO)
+        return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QiLCJyZWdEYXRlIjoxNzA0MzYyMDY0MTYwfQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDQ0ODQ2NH0.pxu_tVjDSXB63vl74G-ZkuFfk3sE9TcYnQuVcgO2Fwo")], jsonEncodable: requestDTO)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -41,14 +61,14 @@ extension EmojiAPIWorker: EmojiRepository {
             .asSingle()
     }
     
-    public func removeEmoji(query: Domain.RemoveEmojiQuery, body: Domain.RemoveEmojiBody) -> RxSwift.Single<Domain.RemoveEmojiData?> {
-        let requestDTO = RemoveEmojiRequestDTO(postId: query.postId, content: body.content)
-        let spec = EmojiAPIs.removeReactions(requestDTO).spec
-        return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJyZWdEYXRlIjoxNzA0MDIzMTcyNDIwLCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDEwOTU3Mn0.tmrN-Mr2Z1C7XgjBqPY_wDuF4Q6O24pGsM--Vod3heM")])
+    public func removeEmoji(query: Domain.RemoveEmojiQuery, body: Domain.RemoveEmojiBody) -> RxSwift.Single<Void?> {
+        let requestDTO = RemoveEmojiRequestDTO(content: body.content.emojiString)
+        let spec = EmojiAPIs.removeReactions(query.postId).spec
+        return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QiLCJyZWdEYXRlIjoxNzA0MzYyMDY0MTYwfQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDQ0ODQ2NH0.pxu_tVjDSXB63vl74G-ZkuFfk3sE9TcYnQuVcgO2Fwo")], jsonEncodable: requestDTO)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("AddEmoji Fetch Result: \(str)")
+                    debugPrint("Remove Fetch Result: \(str)")
                 }
             }
             .map(RemoveEmojiResponseDTO.self)

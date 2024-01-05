@@ -8,7 +8,7 @@
 import Foundation
 
 extension Bundle {
-    internal static var current: Bundle {
+    public static var current: Bundle {
         class __DUMMY__ { }
         return Bundle(for: __DUMMY__.self)
     }
@@ -27,7 +27,7 @@ extension Bundle {
         }
     }
     
-    var displayName: String {
+    public var displayName: String {
         guard let dict = self.infoDictionary else {
             return ""
         }
@@ -40,7 +40,7 @@ extension Bundle {
         
     }
     
-    var appVersion: String {
+    public var appVersion: String {
         guard let dict = self.infoDictionary else {
             return ""
         }
@@ -52,7 +52,7 @@ extension Bundle {
         }
     }
     
-    var appBuildNumber: Int {
+    public var appBuildNumber: Int {
         guard let dict = self.infoDictionary else {
             return 0
         }

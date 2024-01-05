@@ -5,11 +5,10 @@
 //  Created by 김건우 on 12/15/23.
 //
 
+import Core
+import Domain
 import Foundation
 
-import Domain
-import ReactorKit
-import RxCocoa
 import RxSwift
 
 public final class FamilyRepository: FamilyRepositoryProtocol {
@@ -17,15 +16,20 @@ public final class FamilyRepository: FamilyRepositoryProtocol {
     
     private let familyApiWorker: FamilyAPIWorker = FamilyAPIWorker()
     
-    public init() { }
+    private let familyId: String = App.Repository.member.familyId.value ?? ""
+    private let accessToken: String = App.Repository.token.accessToken.value ?? ""
     
+    public init() { }
+}
+
+extension FamilyRepository {
     public func fetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?> {
-        return familyApiWorker.fetchInvitationUrl()
+        return familyApiWorker.fetchInvitationUrl(token: accessToken, familyId: familyId)
             .asObservable()
     }
     
     public func fetchFamilyMembers() -> Observable<PaginationResponseFamilyMemberProfile?> {
-        return familyApiWorker.fetchFamilyMemeberPage()
+        return familyApiWorker.fetchFamilyMemeberPage(token: accessToken)
             .asObservable()
     }
 }

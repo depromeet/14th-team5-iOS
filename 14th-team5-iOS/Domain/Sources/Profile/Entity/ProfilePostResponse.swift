@@ -25,5 +25,5 @@ public struct ProfilePostResultResponse {
     public var emojiCount: String
     public var imageUrl: URL
     public var content: String
-    public var createdAt: Date
+    public var createdAt: String
 }

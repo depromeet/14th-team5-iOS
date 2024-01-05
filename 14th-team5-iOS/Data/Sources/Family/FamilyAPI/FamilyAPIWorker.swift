@@ -78,4 +78,11 @@ extension FamilyAPIWorker: SearchFamilyRepository {
             .map { $0?.toDomain() }
             .asSingle()
     }
+    
+    public func fetchFamilyMemeberPage(token accessToken: String) -> Single<PaginationResponseFamilyMemberProfile?> {
+        let spec: APISpec = FamilyAPIs.familyMembers.spec
+        let headers: [BibbiHeader] = [BibbiHeader.acceptJson, BibbiHeader.xAppKey, BibbiHeader.xAuthToken(accessToken)]
+        
+        return fetchFamilyMemberPage(spec: spec, headers: headers)
+    }
 }

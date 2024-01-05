@@ -230,7 +230,6 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.familyDatasource }
-            .distinctUntilChanged(at: \.count)
             .bind(to: tableView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
@@ -271,7 +270,7 @@ extension InviteFamilyViewController {
     func prepareDatasource() -> RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> {
         return RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> { datasource, tableView, indexPath, memberResponse in
             let cell = tableView.dequeueReusableCell(withIdentifier: FamiliyMemberProfileCell.id, for: indexPath) as! FamiliyMemberProfileCell
-            cell.reactor = FamilyMemberProfileCellDIContainer().makeReactor(memberResponse)
+            cell.reactor = FamilyMemberProfileCellDIContainer(member: memberResponse).makeReactor()
             return cell
         }
     }

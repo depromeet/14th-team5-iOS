@@ -28,8 +28,8 @@ public final class ProfileViewRepository {
 
 extension ProfileViewRepository: ProfileViewInterface {
     
-    public func fetchProfileMemberItems() -> Observable<ProfileMemberResponse> {
-        return profileAPIWorker.fetchProfileMember(accessToken: accessToken, "01HJBNXAV0TYQ1KESWER45A2QP")
+    public func fetchProfileMemberItems(memberId: String) -> Observable<ProfileMemberResponse> {
+        return profileAPIWorker.fetchProfileMember(accessToken: accessToken, memberId: memberId)
             .compactMap { $0?.toDomain() }
             .asObservable()
     }

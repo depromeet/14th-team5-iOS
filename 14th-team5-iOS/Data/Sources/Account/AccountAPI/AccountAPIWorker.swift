@@ -43,7 +43,7 @@ extension AccountAPIs {
 extension AccountAPIWorker {
     
     private func signInWith(spec: APISpec, jsonEncodable: Encodable) -> Single<AccessToken?> {
-        return request(spec: spec, jsonEncodable: jsonEncodable)
+        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey] ,jsonEncodable: jsonEncodable)
             .subscribe(on: Self.queue)
             .do(onNext: {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -79,6 +79,7 @@ extension AccountAPIWorker {
     }
     
     func signUpWith(name: String?, date: String?, photoURL: String?) -> Single<AccessToken?> {
+        print("Check Call With Name")
         let payLoad = _PayLoad.AccountSignUpPayLoad(memberName: name, dayOfBirth: date, profileImgUrl: photoURL)
         
         return Observable.just(())
@@ -92,7 +93,7 @@ extension AccountAPIWorker {
     func updateProfileNickName(accessToken: String, memberId: String, parameter: Encodable) -> Single<AccountNickNameEditDTO?> {
         let spec = AccountAPIs.profileNickNameEdit(memberId).spec
         
-        return request(spec: spec, headers: [BibbiAPI.Header.xAuthToken(accessToken), BibbiAPI.Header.acceptJson], jsonEncodable: parameter)
+        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(accessToken), BibbiAPI.Header.acceptJson], jsonEncodable: parameter)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -102,7 +103,20 @@ extension AccountAPIWorker {
             .map(AccountNickNameEditDTO.self)
             .catchAndReturn(nil)
             .asSingle()
+    }
+    
+    func accountRefreshToken(parameter: Encodable) -> Single<AccountRefreshDTO?> {
+        let spec = AccountAPIs.refreshToken.spec
         
-        
+        return request(spec: spec, jsonEncodable: parameter)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Account Refresh Token Result \(str)")
+                }
+            }
+            .map(AccountRefreshDTO.self)
+            .catchAndReturn(nil)
+            .asSingle()
     }
 }

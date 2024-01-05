@@ -22,8 +22,6 @@ public final class CameraDisplayViewRepository {
     public var disposeBag: DisposeBag = DisposeBag()
     public var token: String = "eyJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QiLCJyZWdEYXRlIjoxNzAzODI0MDI2NTMyfQ.eyJ1c2VySWQiOiIwMUhKQk5XWkdOUDFLSk5NS1dWWkowMzlIWSIsImV4cCI6MTcwMzkxMDQyNn0.9oLLeuhBcTOvz0Eh0NTfD8fk4rD9yDgEogVEzLf6o5k"
     
-   
-    
 }
 
 

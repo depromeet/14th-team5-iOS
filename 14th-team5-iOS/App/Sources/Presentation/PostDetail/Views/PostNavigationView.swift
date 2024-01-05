@@ -12,32 +12,49 @@ import Domain
 import SnapKit
 import Then
 
-final class PostNavigationView: UIView {
+final class PostNavigationView: BaseView<PostReactor> {
     typealias Layout = PostAutoLayout.NavigationView
     
     private let backButton: UIButton = UIButton()
     private let profileImageView: UIImageView = UIImageView()
     private let nameLabel: UILabel = BibbiLabel(.body1Regular, textColor: .gray100)
     private let dateLabel: UILabel = BibbiLabel(.caption, textColor: .gray400)
+    
+    convenience init(reactor: Reactor? = nil) {
+        self.init(frame: .zero)
+        self.reactor = reactor
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
-        setupUI()
-        setupAutoLayout()
-        setupAttributes()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setupUI() {
+    override func bind(reactor: PostReactor) {
+        backButton.rx.tap
+            .map { Reactor.Action.tapBackButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.selectedPost }
+            .asObservable()
+            .withUnretained(self)
+            .bind(onNext: {
+                $0.0.setData(data: $0.1)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    override func setupUI() {
         addSubviews(backButton, profileImageView, nameLabel,
                     dateLabel)
     }
     
-    private func setupAutoLayout() {
+    override func setupAutoLayout() {
         backButton.snp.makeConstraints {
             $0.leading.top.equalToSuperview()
             $0.size.equalTo(Layout.BackButton.size)
@@ -62,7 +79,7 @@ final class PostNavigationView: UIView {
         }
     }
     
-    func setupAttributes() {
+    override func setupAttributes() {
         backButton.do {
             $0.backgroundColor = .clear
             $0.layer.cornerRadius = Layout.BackButton.cornerRadius

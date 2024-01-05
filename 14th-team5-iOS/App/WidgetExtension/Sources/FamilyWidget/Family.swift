@@ -10,5 +10,5 @@ import Foundation
 struct Family: Codable {
     var profileImageUrl: String
     var postImageUrl: String
-    var postConent: String
+    var postConent: String?
 }

@@ -24,8 +24,8 @@ struct FamilyWidget: Widget {
         }
         .supportedFamilies([.systemSmall, .systemLarge])
         .contentMarginsDisabled()
-        .configurationDisplayName("Bibbi")
-        .description("Bibbi description")
+        .configurationDisplayName("삐삐")
+        .description("가족들이 생존신고 한 사진을 빠르게\n확인할 수 있어요.")
     }
 }
 

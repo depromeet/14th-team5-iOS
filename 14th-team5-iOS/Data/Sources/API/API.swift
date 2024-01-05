@@ -21,7 +21,6 @@ enum BibbiAPI {
     
     // MARK: Common Headers
     enum Header: APIHeader {
-        case xAppKey
         case auth(String)
         case xAuthToken(String)
         case contentForm
@@ -31,7 +30,6 @@ enum BibbiAPI {
         
         var key: String {
             switch self {
-            case .xAppKey: return "X-APP-KEY"
             case .auth: return "Authorization"
             case .xAuthToken: return "X-AUTH-TOKEN"
             case .contentForm: return "Content-Type"
@@ -43,7 +41,6 @@ enum BibbiAPI {
         
         var value: String {
             switch self {
-            case .xAppKey: return "9c61cc7b-0fe9-40eb-976e-6a74c8cb9092"
             case .auth(let value): return "Bearer \(value)"
             case .xAuthToken(let value): return "\(value)"
             case .contentForm: return "application/x-www-form-urlencoded"

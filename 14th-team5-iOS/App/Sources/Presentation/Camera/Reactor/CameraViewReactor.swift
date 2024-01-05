@@ -57,8 +57,8 @@ public final class CameraViewReactor: Reactor {
             isFlashMode: false,
             isSwitchPosition: false,
             profileImageURLEntity: nil,
-            cameraType: self.cameraType,
-            memberId: self.memberId,
+            cameraType: cameraType,
+            memberId: memberId,
             isProfileEdit: false,
             profileMemberEntity: nil
         )
@@ -88,6 +88,13 @@ public final class CameraViewReactor: Reactor {
                     .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
                         // presignedURL에 image Upload 이것도 역시 병렬 큐 사용
                         guard let presingedURL = entity?.imageURL else { return .empty() }
+                        
+                        if self.currentState.cameraType == .account {
+                            return .concat(
+                                .just(.setProfileImageURLResponse(entity)),
+                                .just(.setLoading(false))
+                            )
+                        }
                         
                         return owner.cameraUseCase.executeProfileUploadToS3(toURL: presingedURL, imageData: fileData)
                             .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))

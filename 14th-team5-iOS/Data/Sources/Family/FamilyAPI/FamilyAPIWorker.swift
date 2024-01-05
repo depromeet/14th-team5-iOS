@@ -27,7 +27,7 @@ extension FamilyAPIs {
 extension FamilyAPIWorker: SearchFamilyRepository {
     public func fetchFamilyMember(query: Domain.SearchFamilyQuery) -> RxSwift.Single<Domain.SearchFamilyPage?> {
         let spec: APISpec = FamilyAPIs.familyMembers.spec
-        let headers: [BibbiHeader] = [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJyZWdEYXRlIjoxNzA0MTE2MTMzNzQxLCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDIwMjUzM30.bFx2NB_HEAP4O36WDIMHTw_UE2GYlWjLsTvukmQbVBQ")]
+        let headers: [BibbiHeader] = [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJ0eXBlIjoiYWNjZXNzIiwicmVnRGF0ZSI6MTcwNDQ2NjIyMzU3NCwidHlwIjoiSldUIiwiYWxnIjoiSFMyNTYifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDU1MjYyM30.j9RJtR1bqzabskH8vAqUQLggRzjHyI_paAbh3k06NuU")]
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do {
@@ -46,7 +46,7 @@ extension FamilyAPIWorker: SearchFamilyRepository {
     
     func fetchInvitationUrl() -> Single<FamilyInvitationLinkResponse?> {
         let familyId: String = "01HK7JBM4HHFB73C7NF7GNWM11" // TODO: - FamilyID 구하기
-        let accessToken: String = "eyJ0eXAiOiJKV1QiLCJyZWdEYXRlIjoxNzA0MjgyMzI1OTc1LCJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYifQ.eyJ1c2VySWQiOiIwMUhKQk5XWkdOUDFLSk5NS1dWWkowMzlIWSIsImV4cCI6MTcwNDM2ODcyNX0.i-Vvdals7lPe8Eiv8IilITzkbUb7zW5LwJDRmCpbv0k" // TODO: - 접근 토큰 구하기
+        let accessToken: String = "eyJ0eXBlIjoiYWNjZXNzIiwicmVnRGF0ZSI6MTcwNDQ2NjIyMzU3NCwidHlwIjoiSldUIiwiYWxnIjoiSFMyNTYifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDU1MjYyM30.j9RJtR1bqzabskH8vAqUQLggRzjHyI_paAbh3k06NuU" // TODO: - 접근 토큰 구하기
         let spec: APISpec = FamilyAPIs.invitationUrl(familyId).spec
         let headers: [BibbiHeader] = [BibbiAPI.Header.acceptJson, BibbiHeader.xAuthToken(accessToken)]
         return request(spec: spec, headers: headers)
@@ -63,7 +63,7 @@ extension FamilyAPIWorker: SearchFamilyRepository {
     }
     
     func fetchFamilyMemeberPage() -> Single<PaginationResponseFamilyMemberProfile?> {
-        let accessToken: String = "" // TODO: - 접근 토큰 구하기
+        let accessToken: String = "eyJ0eXBlIjoiYWNjZXNzIiwicmVnRGF0ZSI6MTcwNDQ2NjIyMzU3NCwidHlwIjoiSldUIiwiYWxnIjoiSFMyNTYifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDU1MjYyM30.j9RJtR1bqzabskH8vAqUQLggRzjHyI_paAbh3k06NuU" // TODO: - 접근 토큰 구하기
         let spec: APISpec = FamilyAPIs.familyMembers.spec
         let headers: [BibbiHeader] = [BibbiHeader.acceptJson, BibbiHeader.xAuthToken(accessToken)]
         return request(spec: spec, headers: headers)

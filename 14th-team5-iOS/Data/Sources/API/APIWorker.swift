@@ -43,7 +43,7 @@ public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInter
     //TODO: SingleTone이 좋은지 피드백 부탁드립니다.
     private let accountAPIWorker: AccountAPIWorker = AccountAPIWorker()
     private let disposeBag: DisposeBag = DisposeBag()
-    
+    //TODO: Refresh Token 관련 Interceptor 추가 예정임
     
     public func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) {
         var urlRequest = urlRequest
@@ -53,8 +53,8 @@ public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInter
             return
         }
 //        let hds = self.httpHeaders([BibbiAPI.Header.auth(App.Repository.token.accessToken.value ?? "")])
-        urlRequest.headers.add(name: "X-AUTH-TOKEN", value: App.Repository.token.accessToken.value ?? "")
-        print("check RefreshToken \(App.Repository.token.refreshToken.value) or check AccessToken \(App.Repository.token.accessToken.value)")
+//        urlRequest.headers.add(name: "X-AUTH-TOKEN", value: App.Repository.token.accessToken.value ?? "")
+        print(" or check AccessToken \(App.Repository.token.accessToken.value)")
 //        setValue(App.Repository.token.accessToken.value, forHTTPHeaderField: "X-AUTH-TOKEN")
         print("check Adapter : \(urlRequest.headers)")
         
@@ -62,13 +62,13 @@ public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInter
     }
     
     public func retry(_ request: Request, for session: Session, dueTo error: Error, completion: @escaping (RetryResult) -> Void) {
-//        guard let statusCode = request.response?.statusCode, statusCode == 401 else {
-//                completion(.doNotRetryWithError(error))
-//                return
-//            }
-//            
+        guard let statusCode = request.response?.statusCode, statusCode == 401 else {
+                completion(.doNotRetryWithError(error))
+                return
+            }
+            
             print("check Retry and : \(App.Repository.token.refreshToken.value)")
-            let parameter = AccountRefreshParameter(refreshToken: App.Repository.token.refreshToken.value)
+            let parameter = AccountRefreshParameter(refreshToken: App.Repository.token.refreshToken.value ?? "" )
             
             accountAPIWorker.accountRefreshToken(parameter: parameter)
                 .compactMap { $0?.toDomain() }

@@ -30,7 +30,7 @@ public final class AccountSignUpReactor: Reactor {
         case didTapNickNameButton(String)
         
         case profileImageTapped
-        case profileButtonTapped
+        case profilePresignedURL(String)
     }
     
     public enum Mutation {
@@ -98,11 +98,10 @@ extension AccountSignUpReactor {
             // MARK: Profile
         case .profileImageTapped:
             return Observable.just(Mutation.profileImageTapped)
-        case .profileButtonTapped:
+        case let .profilePresignedURL(presignedURL):
             let date = getDateToString(year: currentState.year!, month: currentState.month, day: currentState.day)
-            return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: nil)
+            return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: presignedURL)
                 .flatMap { tokenEntity -> Observable<Mutation> in
-                    // 요기임
                     return Observable.just(Mutation.profileButtonTapped(tokenEntity))
                 }
         case let .didTapNickNameButton(nickName):

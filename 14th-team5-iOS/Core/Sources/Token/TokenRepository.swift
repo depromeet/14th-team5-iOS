@@ -15,12 +15,14 @@ fileprivate extension KeychainWrapper.Key {
     static let fcmToken: KeychainWrapper.Key = "FCMToken"
     static let fakeAccessToken: KeychainWrapper.Key = "fakeAccessToken"
     static let accessToken: KeychainWrapper.Key = "accessToken"
+    static let refreshToken: KeychainWrapper.Key = "refreshToken"
 }
 
 public class TokenRepository: RxObject {
     public let fcmToken = BehaviorRelay<String>(value: KeychainWrapper.standard[.fcmToken] ?? "")
     public let fakeAccessToken = BehaviorRelay<String?>(value: (KeychainWrapper.standard[.fakeAccessToken] ?? ""))
     public let accessToken = BehaviorRelay<String?>(value: (KeychainWrapper.standard[.accessToken] ?? ""))
+    public let refreshToken = BehaviorRelay<String>(value: KeychainWrapper.standard[.refreshToken] ?? "")
     
     func clearAccessToken() {
         KeychainWrapper.standard.remove(forKey: .accessToken)
@@ -30,6 +32,11 @@ public class TokenRepository: RxObject {
     func clearFCMToken() {
         KeychainWrapper.standard.remove(forKey: .fcmToken)
         fcmToken.accept("")
+    }
+    
+    func clearRefreshToken() {
+        KeychainWrapper.standard.remove(forKey: .refreshToken)
+        refreshToken.accept("")
     }
     
     override public func bind() {
@@ -68,6 +75,20 @@ public class TokenRepository: RxObject {
                 KeychainWrapper.standard[.accessToken] = jsonStr
             })
             .disposed(by: self.disposeBag)
+        
+        refreshToken
+            .subscribe(on: Schedulers.io)
+            .withUnretained(self)
+            .subscribe {
+                guard let jsonData = try? JSONEncoder().encode($0.1),
+                      let jsonStr = String(data: jsonData, encoding: .utf8) else {
+                    KeychainWrapper.standard.remove(forKey: .refreshToken)
+                    return
+                }
+                KeychainWrapper.standard[.refreshToken] = jsonStr
+            }.disposed(by: disposeBag)
+
+        
     }
     
     override public func unbind() {

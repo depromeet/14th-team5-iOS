@@ -44,7 +44,7 @@ public final class AccountSignUpReactor: Reactor {
         case setEditNickName(AccountNickNameEditResponse?)
         
         case profileImageTapped
-        case profileButtonTapped(String?)
+        case profileButtonTapped(AccessToken?)
     }
     
     public struct State {
@@ -65,7 +65,7 @@ public final class AccountSignUpReactor: Reactor {
         var dateButtonTappedFinish: Bool = false
         
         var profileImageButtontapped: Bool = false
-        var profileButtonTappedFinish: String = ""
+        var profileButtonTappedFinish: AccessToken? = nil
     }
     
     init(accountRepository: AccountRepository, memberId: String = "") {
@@ -101,8 +101,9 @@ extension AccountSignUpReactor {
         case .profileButtonTapped:
             let date = getDateToString(year: currentState.year!, month: currentState.month, day: currentState.day)
             return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: nil)
-                .flatMap { accessToken -> Observable<Mutation> in
-                    return Observable.just(Mutation.profileButtonTapped(accessToken))
+                .flatMap { tokenEntity -> Observable<Mutation> in
+                    // 요기임
+                    return Observable.just(Mutation.profileButtonTapped(tokenEntity))
                 }
         case let .didTapNickNameButton(nickName):
             let parameters: AccountNickNameEditParameter = AccountNickNameEditParameter(name: nickName)
@@ -138,8 +139,8 @@ extension AccountSignUpReactor {
             newState.profileImageButtontapped = true
         case .profileButtonTapped(let token):
             if let token = token {
-//                App.Repository.token.fakeAccessToken.accept(nil)
-                App.Repository.token.accessToken.accept(token)
+                App.Repository.token.accessToken.accept(token.accessToken ?? "")
+                App.Repository.token.refreshToken.accept(token.refreshToken ?? "")
                 newState.profileButtonTappedFinish = token
             }
         case let .setEditNickName(entity):

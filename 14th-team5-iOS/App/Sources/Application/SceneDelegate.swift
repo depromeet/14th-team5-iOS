@@ -25,7 +25,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     ) {
         guard let scene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: scene)
-        window?.rootViewController = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+        let accountDIContaner = AccountSignInDIContainer().makeViewController()
+        window?.rootViewController = UINavigationController(rootViewController: accountDIContaner)
         window?.makeKeyAndVisible()
         
         // splash로 이동, 토큰값이 널이라면 건너뛰는 로직 필요

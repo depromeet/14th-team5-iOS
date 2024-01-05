@@ -21,7 +21,7 @@ public struct AppFactory {
     
     
     public init(
-        name: String = "pippi",
+        name: String = "bibbi",
         platform: Platform = .iOS,
         products: [ProductsType] = [.app, .uiTests, .unitTests],
         dependencies: [TargetDependency] = [],

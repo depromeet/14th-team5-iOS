@@ -7,6 +7,8 @@
 
 import UIKit
 
+import DesignSystem
+
 typealias OnBoardingInfo = OnBoarding.Info
 enum OnBoarding {
     struct Info {
@@ -15,8 +17,8 @@ enum OnBoarding {
     }
     
     static var info: [Self.Info] = [
-        Info(title: OnBoardingStrings.push, image: UIImage()),
-        Info(title: OnBoardingStrings.widget, image: UIImage()),
-        Info(title: OnBoardingStrings.permission, image: UIImage())
+        Info(title: OnBoardingStrings.push, image: DesignSystemAsset.onBoarding01.image), // ❗️
+        Info(title: OnBoardingStrings.widget, image: DesignSystemAsset.onBoarding02.image),
+        Info(title: OnBoardingStrings.permission, image: DesignSystemAsset.onBoarding03.image)
     ]
 }

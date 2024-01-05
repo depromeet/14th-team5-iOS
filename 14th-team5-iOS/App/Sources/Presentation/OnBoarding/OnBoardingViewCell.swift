@@ -29,7 +29,7 @@ final class OnBoardingCollectionViewCell: BaseCollectionViewCell<OnBoardingReact
     
     override func setupAutoLayout() {
         titleLabel.snp.makeConstraints {
-            $0.top.equalToSuperview()
+            $0.top.equalToSuperview().offset(20)
             $0.horizontalEdges.equalToSuperview().inset(20)
         }
         
@@ -48,7 +48,7 @@ final class OnBoardingCollectionViewCell: BaseCollectionViewCell<OnBoardingReact
         }
         
         imageView.do {
-//            $0.contentMode = .center
+            $0.contentMode = .scaleAspectFill
             $0.image = DesignSystemAsset.emoji.image
         }
     }

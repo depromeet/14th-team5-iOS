@@ -26,6 +26,6 @@ public final class CalendarUseCase: CalendarUseCaseProtocol {
     }
     
     public func executeFetchFamilySummaryInfo() -> Observable<FamilyMonthlyStatisticsResponse?> {
-        return calendarRepository.fetchFamilySummaryInfo()
+        return calendarRepository.fetchFamilyStatisticsInfo()
     }
 }

@@ -68,8 +68,10 @@ extension AccountSignInHelper {
                     return .failed
                 }
                 
-                if token.isTemporaryToken == true {
-                    App.Repository.token.fakeAccessToken.accept(token.accessToken)
+//                isTemporaryToken = false 회원가입된 appleID
+                
+                if token.isTemporaryToken == false {
+                    App.Repository.token.accessToken.accept(token.accessToken)
                 }
                 
                 return .success

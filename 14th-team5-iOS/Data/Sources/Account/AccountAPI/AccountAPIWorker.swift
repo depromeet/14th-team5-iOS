@@ -29,8 +29,7 @@ extension AccountAPIs {
         
         // MARK: Values
         private var _headers: Observable<[APIHeader]?> {
-            
-            return App.Repository.token.fakeAccessToken
+            return App.Repository.token.accessToken
                 .map {
                     guard let token = $0, !token.isEmpty else { return nil }
                     return [BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(token), BibbiAPI.Header.acceptJson]
@@ -58,6 +57,7 @@ extension AccountAPIWorker {
     func signInWith(snsType: SNS, snsToken: String) -> Single<AccessToken?> {
         let spec = AccountAPIs.signIn(snsType).spec
         let payload = _PayLoad.LoginPayload(accessToken: snsToken)
+        let headers = [BibbiAPI.Header.appKey]
         
         return signInWith(spec: spec,jsonEncodable: payload)
     }
@@ -102,7 +102,20 @@ extension AccountAPIWorker {
             .map(AccountNickNameEditDTO.self)
             .catchAndReturn(nil)
             .asSingle()
+    }
+    
+    func accountRefreshToken(parameter: Encodable) -> Single<AccountRefreshDTO?> {
+        let spec = AccountAPIs.refreshToken.spec
         
-        
+        return request(spec: spec, jsonEncodable: parameter)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Account Refresh Token Result \(str)")
+                }
+            }
+            .map(AccountRefreshDTO.self)
+            .catchAndReturn(nil)
+            .asSingle()
     }
 }

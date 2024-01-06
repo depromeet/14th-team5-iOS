@@ -42,9 +42,13 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        nextButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .map { Reactor.Action.profileButtonTapped }
+        NotificationCenter.default.rx
+            .notification(.AccountViewPresignURLDismissNotification)
+            .compactMap { notification -> String? in
+                guard let userInfo = notification.userInfo else { return nil }
+                return userInfo["presignedURL"] as? String
+            }
+            .map { Reactor.Action.profilePresignedURL($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }

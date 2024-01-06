@@ -8,7 +8,7 @@
 import Foundation
 import Domain
 
-enum MeAPIs: API {
+public enum MeAPIs: API {
     case saveFcmToken
     case deleteFcmToken(String)
     case memberInfo

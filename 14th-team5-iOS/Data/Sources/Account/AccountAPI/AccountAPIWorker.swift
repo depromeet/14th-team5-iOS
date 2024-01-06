@@ -33,7 +33,7 @@ extension AccountAPIs {
             return App.Repository.token.fakeAccessToken
                 .map {
                     guard let token = $0, !token.isEmpty else { return nil }
-                    return [BibbiAPI.Header.xAuthToken(token), BibbiAPI.Header.acceptJson]
+                    return [BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(token), BibbiAPI.Header.acceptJson]
                 }
         }
     }
@@ -43,7 +43,7 @@ extension AccountAPIs {
 extension AccountAPIWorker {
     
     private func signInWith(spec: APISpec, jsonEncodable: Encodable) -> Single<AccessToken?> {
-        return request(spec: spec, jsonEncodable: jsonEncodable)
+        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey], jsonEncodable: jsonEncodable)
             .subscribe(on: Self.queue)
             .do(onNext: {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -59,7 +59,7 @@ extension AccountAPIWorker {
         let spec = AccountAPIs.signIn(snsType).spec
         let payload = _PayLoad.LoginPayload(accessToken: snsToken)
         
-        return signInWith(spec: spec, jsonEncodable: payload)
+        return signInWith(spec: spec,jsonEncodable: payload)
     }
     
     private func signUpWith(headers: [APIHeader]?, jsonEncodable: Encodable) -> Single<AccessToken?> {
@@ -92,7 +92,7 @@ extension AccountAPIWorker {
     func updateProfileNickName(accessToken: String, memberId: String, parameter: Encodable) -> Single<AccountNickNameEditDTO?> {
         let spec = AccountAPIs.profileNickNameEdit(memberId).spec
         
-        return request(spec: spec, headers: [BibbiAPI.Header.xAuthToken(accessToken), BibbiAPI.Header.acceptJson], jsonEncodable: parameter)
+        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(accessToken), BibbiAPI.Header.acceptJson], jsonEncodable: parameter)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {

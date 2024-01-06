@@ -29,11 +29,10 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     
     //MARK: Views
     private let cameraView: UIView = UIView()
-    private let backButton: UIButton = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 52, height: 52)))
+    private let cameraNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let shutterButton: UIButton = UIButton()
     private let flashButton: UIButton = UIButton.createCircleButton(radius: 24)
     private let toggleButton: UIButton = UIButton.createCircleButton(radius: 24)
-    private let titleView: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
     private let cameraIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     
     private var initialScale: CGFloat = 0
@@ -41,6 +40,11 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     private var isToggle: Bool = false
     
     //MARK: LifeCylce
+    
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.navigationBar.isHidden = true
+    }
     public override func viewDidLoad() {
         super.viewDidLoad()
         setupCameraPermission()
@@ -49,32 +53,24 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(cameraView, shutterButton, flashButton, toggleButton, cameraIndicatorView)
+        view.addSubviews(cameraView, shutterButton, flashButton, toggleButton, cameraIndicatorView, cameraNavigationBar)
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
-        
-        titleView.do {
-            $0.text = "카메라"
-        }
         
         cameraIndicatorView.do {
             $0.hidesWhenStopped = true
             $0.color = .gray
         }
         
-        backButton.do {
-            $0.backgroundColor = DesignSystemAsset.gray900.color
-            $0.setImage(DesignSystemAsset.xmark.image, for: .normal)
-            $0.clipsToBounds = true
-            $0.layer.cornerRadius = 10
+        cameraNavigationBar.do {
+            $0.navigationTitle = "카메라"
+            $0.leftBarButtonItem = .xmark
+            $0.leftBarButtonItemTintColor = .gray300
         }
         
-        navigationItem.do {
-            $0.titleView = titleView
-            $0.leftBarButtonItem = UIBarButtonItem(customView: backButton)
-        }
+        
 
         cameraView.do {
             $0.layer.cornerRadius = 40
@@ -98,6 +94,12 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
+        
+        cameraNavigationBar.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.left.right.equalToSuperview()
+            $0.height.equalTo(42)
+        }
         
         cameraView.snp.makeConstraints {
             $0.width.equalToSuperview()
@@ -146,8 +148,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        backButton
-            .rx.tap
+        cameraNavigationBar.rx.didTapLeftBarButton
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind { owner, _ in
@@ -155,12 +156,11 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             }.disposed(by: disposeBag)
         
         
-        reactor.state
-            .map { $0.profileMemberEntity }
+        reactor.pulse(\.$profileMemberEntity)
             .filter { $0 != nil }
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .bind(onNext: { $0.0.dismissCameraViewController(owner: $0.0) } )
+            .bind(onNext: { $0.0.dismissCameraViewController() } )
             .disposed(by: disposeBag)
         
         
@@ -384,8 +384,8 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         
     }
     
-    private func dismissCameraViewController(owner: CameraViewController) {
-        owner.navigationController?.popViewController(animated: true)
+    private func dismissCameraViewController() {
+        self.navigationController?.popViewController(animated: true)
     }
     
     private func transitionImageScale(owner: CameraViewController, gesture: UIPinchGestureRecognizer, camera: AVCaptureDevice) {

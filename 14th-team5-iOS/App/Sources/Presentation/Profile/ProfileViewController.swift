@@ -214,6 +214,12 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(onNext: { $0.0.transitionNickNameViewController(memberId: $0.1)})
             .disposed(by: disposeBag)
         
+        reactor.state
+            .map { $0.isUser }
+            .distinctUntilChanged()
+            .bind(to: profileView.rx.isSetting)
+            .disposed(by: disposeBag)
+        
         
         reactor.state
             .compactMap { $0.profilePostEntity?.results.isEmpty }

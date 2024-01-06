@@ -19,9 +19,11 @@ public final class ProfileDIContainer: BaseDIContainer {
     public typealias UseCase = ProfileViewUsecaseProtocol
     
     private let memberId: String
+    private let isUser: Bool
     
     public init(memberId: String = "") {
         self.memberId = memberId
+        self.isUser = App.Repository.member.memberID.value == memberId ? true : false
     }
     
     public func makeViewController() -> ProfileViewController {
@@ -37,7 +39,7 @@ public final class ProfileDIContainer: BaseDIContainer {
     }
     
     public func makeReactor() -> ProfileViewReactor {
-        return ProfileViewReactor(profileUseCase: makeUseCase(), memberId: memberId)
+        return ProfileViewReactor(profileUseCase: makeUseCase(), memberId: memberId, isUser: isUser)
     }
     
     

@@ -36,7 +36,7 @@ extension ProfileAPIWorker {
     public func fetchProfileMember(accessToken: String, memberId: String) -> Single<ProfileMemberDTO?> {
         let spec = ProfileAPIs.profileMember(memberId).spec
 
-        return request(spec: spec, headers: [BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)])
+        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)])
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -53,7 +53,7 @@ extension ProfileAPIWorker {
         let spec = ProfileAPIs.profilePost.spec
         print("check FetchProfile post and url \(spec.url)")
         
-        return request(spec: spec, headers: [BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], parameters: parameter)
+        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], parameters: parameter)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -69,7 +69,7 @@ extension ProfileAPIWorker {
     public func createProfileImagePresingedURL(accessToken: String, parameters: Encodable) -> Single<CameraDisplayImageDTO?> {
         let spec = ProfileAPIs.profileAlbumUploadImageURL.spec
         
-        return request(spec: spec, headers: [BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
+        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -84,7 +84,7 @@ extension ProfileAPIWorker {
     public func uploadToProfilePresingedURL(accessToken: String, toURL url: String, with imageData: Data) -> Single<Bool> {
         let spec = ProfileAPIs.profileUploadToPreSignedURL(url).spec
         
-        return upload(spec: spec, headers: [BibbiAPI.Header.xAuthToken(accessToken)], image: imageData)
+        return upload(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(accessToken)], image: imageData)
             .subscribe(on: Self.queue)
             .catchAndReturn(false)
             .debug("preSingedURL Upload To Profile")
@@ -94,7 +94,7 @@ extension ProfileAPIWorker {
     public func updateProfileAlbumImageToS3(accessToken: String, memberId: String, parameter: Encodable) -> Single<ProfileMemberDTO?> {
         let spec = ProfileAPIs.profileEditImage(memberId).spec
         
-        return request(spec: spec, headers: [BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameter)
+        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameter)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {

@@ -42,7 +42,7 @@ public final class CameraViewReactor: Reactor {
         var cameraType: UploadLocation = .feed
         var memberId: String
         var isProfileEdit: Bool
-        var profileMemberEntity: ProfileMemberResponse?
+        @Pulse var profileMemberEntity: ProfileMemberResponse?
     }
     
     init(cameraUseCase: CameraViewUseCaseProtocol,

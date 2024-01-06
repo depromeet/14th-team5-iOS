@@ -22,6 +22,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     private let displayView: UIImageView = UIImageView()
     private let confirmButton: UIButton = UIButton(configuration: .plain())
     private let displayIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
+    private let displayNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let backButton: UIButton = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 52, height: 52)))
     private let titleView: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
     private let displayEditButton: UIButton = UIButton.createCircleButton(radius: 21.5)
@@ -39,6 +40,11 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     }
     
     //MARK: LifeCylce
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.navigationBar.isHidden = true
+    }
+    
     public override func viewDidLoad() {
         super.viewDidLoad()
     }
@@ -46,27 +52,17 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(displayView, confirmButton, archiveButton, displayIndicatorView, displayEditTextField, displayEditCollectionView)
+        view.addSubviews(displayView, confirmButton, archiveButton, displayIndicatorView, displayEditTextField, displayEditCollectionView, displayNavigationBar)
         displayView.addSubviews(displayEditButton)
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
         
-        titleView.do {
-            $0.text = "사진 올리기"
-        }
-        
-        backButton.do {
-            $0.backgroundColor = DesignSystemAsset.gray900.color
-            $0.clipsToBounds = true
-            $0.layer.cornerRadius = 10
-            $0.setImage(DesignSystemAsset.arrowLeft.image, for: .normal)
-        }
-        
-        navigationItem.do {
-            $0.titleView = titleView
-            $0.leftBarButtonItem = UIBarButtonItem(customView: backButton)
+        displayNavigationBar.do {
+            $0.navigationTitle = "사진 올리기"
+            $0.leftBarButtonItem = .arrowLeft
+            $0.leftBarButtonItemTintColor = .gray300
         }
         
         archiveButton.do {
@@ -135,6 +131,12 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         
+        displayNavigationBar.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.left.right.equalToSuperview()
+            $0.height.equalTo(42)
+        }
+        
         displayEditTextField.snp.makeConstraints {
             $0.height.equalTo(0)
             $0.left.right.equalToSuperview()
@@ -194,8 +196,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             }.disposed(by: disposeBag)
         
         
-        backButton
-            .rx.tap
+        displayNavigationBar.rx.didTapLeftBarButton
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind { owner, _ in

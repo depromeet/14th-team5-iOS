@@ -119,7 +119,7 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
         reactor.state.map { $0.isPermissionGranted ?? false }
             .observe(on: Schedulers.main)
             .withUnretained(self)
-            .bind(onNext: { _ in print("개발끝") })
+            .bind(onNext: { UserDefaults.standard.finishTutorial = $0.1 })
             .disposed(by: disposeBag)
     }
     

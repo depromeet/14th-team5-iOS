@@ -19,8 +19,10 @@ fileprivate extension KeychainWrapper.Key {
 
 public class TokenRepository: RxObject {
     public let fcmToken = BehaviorRelay<String>(value: KeychainWrapper.standard[.fcmToken] ?? "")
-    public let fakeAccessToken = BehaviorRelay<String?>(value: (KeychainWrapper.standard[.fakeAccessToken] ?? ""))
-    public let accessToken = BehaviorRelay<String?>(value: (KeychainWrapper.standard[.accessToken] ?? ""))
+    //    public let fakeAccessToken = BehaviorRelay<String?>(value: (KeychainWrapper.standard[.fakeAccessToken]))
+    //    public let accessToken = BehaviorRelay<String?>(value: (KeychainWrapper.standard[.accessToken]))
+    public let fakeAccessToken = BehaviorRelay<String?>(value: nil)
+    public let accessToken = BehaviorRelay<String?>(value: nil)
     
     func clearAccessToken() {
         KeychainWrapper.standard.remove(forKey: .accessToken)
@@ -46,28 +48,52 @@ public class TokenRepository: RxObject {
         fakeAccessToken
             .subscribe(on: Schedulers.io)
             .withUnretained(self)
-            .bind(onNext: {
-                guard let jsonData = try? JSONEncoder().encode($0.1),
-                        let jsonStr = String(data: jsonData, encoding: .utf8) else {
+            .bind(onNext: { (owner, value) in
+                do {
+                    if let value = value {
+                        let jsonData = try JSONEncoder().encode(value)
+                        if let jsonStr = String(data: jsonData, encoding: .utf8) {
+                            print("jsonStr: \(jsonStr)")
+                            KeychainWrapper.standard[.fakeAccessToken] = jsonStr
+                        } else {
+                            print("Failed to convert JSON data to string.")
+                            KeychainWrapper.standard.remove(forKey: .fakeAccessToken)
+                        }
+                    } else {
+                        print("Value is nil.")
+                        KeychainWrapper.standard.remove(forKey: .fakeAccessToken)
+                    }
+                } catch {
+                    print("Error encoding value to JSON: \(error)")
                     KeychainWrapper.standard.remove(forKey: .fakeAccessToken)
-                    return
                 }
-                KeychainWrapper.standard[.accessToken] = jsonStr
             })
-            .disposed(by: self.disposeBag)
+            .disposed(by: disposeBag)
         
         accessToken
             .subscribe(on: Schedulers.io)
             .withUnretained(self)
-            .bind(onNext: {
-                guard let jsonData = try? JSONEncoder().encode($0.1),
-                        let jsonStr = String(data: jsonData, encoding: .utf8) else {
-                    KeychainWrapper.standard.remove(forKey: .accessToken)
-                    return
+            .bind(onNext: { (owner, value) in
+                do {
+                    if let value = value {
+                        let jsonData = try JSONEncoder().encode(value)
+                        if let jsonStr = String(data: jsonData, encoding: .utf8) {
+                            print("jsonStr: \(jsonStr)")
+                            KeychainWrapper.standard[.fakeAccessToken] = jsonStr
+                        } else {
+                            print("Failed to convert JSON data to string.")
+                            KeychainWrapper.standard.remove(forKey: .fakeAccessToken)
+                        }
+                    } else {
+                        print("Value is nil.")
+                        KeychainWrapper.standard.remove(forKey: .fakeAccessToken)
+                    }
+                } catch {
+                    print("Error encoding value to JSON: \(error)")
+                    KeychainWrapper.standard.remove(forKey: .fakeAccessToken)
                 }
-                KeychainWrapper.standard[.accessToken] = jsonStr
             })
-            .disposed(by: self.disposeBag)
+            .disposed(by: disposeBag)
     }
     
     override public func unbind() {

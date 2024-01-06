@@ -31,7 +31,7 @@ public final class AccountSignUpReactor: Reactor {
         case didTapNickNameButton(String)
         
         case profileImageTapped
-        case profileButtonTapped
+        case profilePresignedURL(String)
     }
     
     public enum Mutation {
@@ -45,7 +45,7 @@ public final class AccountSignUpReactor: Reactor {
         case setEditNickName(AccountNickNameEditResponse?)
         
         case profileImageTapped
-        case profileButtonTapped(String?)
+        case profileButtonTapped(AccessToken?)
     }
     
     public struct State {
@@ -67,7 +67,7 @@ public final class AccountSignUpReactor: Reactor {
         var profileType: AccountLoaction = .account
         
         var profileImageButtontapped: Bool = false
-        var profileButtonTappedFinish: String = ""
+        var profileButtonTappedFinish: AccessToken? = nil
     }
     
     init(
@@ -105,11 +105,11 @@ extension AccountSignUpReactor {
             // MARK: Profile
         case .profileImageTapped:
             return Observable.just(Mutation.profileImageTapped)
-        case .profileButtonTapped:
+        case let .profilePresignedURL(presignedURL):
             let date = getDateToString(year: currentState.year!, month: currentState.month, day: currentState.day)
-            return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: nil)
-                .flatMap { accessToken -> Observable<Mutation> in
-                    return Observable.just(Mutation.profileButtonTapped(accessToken))
+            return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: presignedURL)
+                .flatMap { tokenEntity -> Observable<Mutation> in
+                    return Observable.just(Mutation.profileButtonTapped(tokenEntity))
                 }
         case let .didTapNickNameButton(nickName):
             let parameters: AccountNickNameEditParameter = AccountNickNameEditParameter(name: nickName)
@@ -145,8 +145,8 @@ extension AccountSignUpReactor {
             newState.profileImageButtontapped = true
         case .profileButtonTapped(let token):
             if let token = token {
-//                App.Repository.token.fakeAccessToken.accept(nil)
-                App.Repository.token.accessToken.accept(token)
+                App.Repository.token.accessToken.accept(token.accessToken ?? "")
+                App.Repository.token.refreshToken.accept(token.refreshToken ?? "")
                 newState.profileButtonTappedFinish = token
             }
         case let .setEditNickName(entity):

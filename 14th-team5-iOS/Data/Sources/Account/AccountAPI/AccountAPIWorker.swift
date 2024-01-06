@@ -41,8 +41,8 @@ extension AccountAPIs {
 // MARK: SignIn
 extension AccountAPIWorker {
     
-    private func signInWith(spec: APISpec, headers: [APIHeader]?, jsonEncodable: Encodable) -> Single<AccessToken?> {
-        return request(spec: spec, headers: headers, jsonEncodable: jsonEncodable)
+    private func signInWith(spec: APISpec, jsonEncodable: Encodable) -> Single<AccessToken?> {
+        return request(spec: spec ,jsonEncodable: jsonEncodable)
             .subscribe(on: Self.queue)
             .do(onNext: {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -105,7 +105,20 @@ extension AccountAPIWorker {
             .map(AccountNickNameEditDTO.self)
             .catchAndReturn(nil)
             .asSingle()
+    }
+    
+    func accountRefreshToken(parameter: Encodable) -> Single<AccountRefreshDTO?> {
+        let spec = AccountAPIs.refreshToken.spec
         
-        
+        return request(spec: spec, jsonEncodable: parameter)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Account Refresh Token Result \(str)")
+                }
+            }
+            .map(AccountRefreshDTO.self)
+            .catchAndReturn(nil)
+            .asSingle()
     }
 }

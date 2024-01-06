@@ -160,8 +160,18 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .filter { $0 != nil }
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .bind(onNext: { $0.0.dismissCameraViewController(owner: $0.0) } )
+            .bind(onNext: { $0.0.dismissCameraViewController() } )
             .disposed(by: disposeBag)
+        
+        reactor.state
+            .compactMap { $0.profileImageURLEntity }
+            .map { $0.imageURL }
+            .withUnretained(self)
+            .subscribe(onNext: { owner, entity in
+                let userInfo: [AnyHashable: Any] = ["presignedURL": entity]
+                NotificationCenter.default.post(name: .AccountViewPresignURLDismissNotification, object: nil, userInfo: userInfo)
+                owner.dismissCameraViewController()
+            }).disposed(by: disposeBag)
         
         
         shutterButton
@@ -361,7 +371,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
     public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         guard let photoData = photo.fileDataRepresentation(),
         let imageData = UIImage(data: photoData)?.jpegData(compressionQuality: 1.0) else { return }
-        if self.reactor?.cameraType == .profile {
+        if self.reactor?.cameraType == .profile || self.reactor?.cameraType == .account {
             output.photoOutputDidFinshProcessing(photo: imageData, error: error)
         } else {
             let cameraDisplayViewController = CameraDisplayDIContainer(displayData: imageData).makeViewController()
@@ -383,9 +393,9 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         }
         
     }
-    
-    private func dismissCameraViewController(owner: CameraViewController) {
-        owner.navigationController?.popViewController(animated: true)
+        
+    private func dismissCameraViewController() {
+        self.navigationController?.popViewController(animated: true)
     }
     
     private func transitionImageScale(owner: CameraViewController, gesture: UIPinchGestureRecognizer, camera: AVCaptureDevice) {

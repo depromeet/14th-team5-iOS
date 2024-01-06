@@ -7,6 +7,7 @@
 
 import Foundation
 
+import Core
 import Domain
 import RxCocoa
 import RxSwift
@@ -21,7 +22,7 @@ public final class CameraViewRepository {
     
     public init() { }
     
-    public var accessToken: String = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MiLCJyZWdEYXRlIjoxNzA0MTEwODg1Mzg5fQ.eyJ1c2VySWQiOiIwMUhKQk5XWkdOUDFLSk5NS1dWWkowMzlIWSIsImV4cCI6MTcwNDE5NzI4NX0.smh0Ns7F0OTMFLtaXrP_U0gMuwiindtlsWCfx-vif2I"
+    public var accessToken: String = "eyJ0eXBlIjoiYWNjZXNzIiwicmVnRGF0ZSI6MTcwNDQ2NjIyMzU3NCwidHlwIjoiSldUIiwiYWxnIjoiSFMyNTYifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDU1MjYyM30.j9RJtR1bqzabskH8vAqUQLggRzjHyI_paAbh3k06NuU"
         
 }
 

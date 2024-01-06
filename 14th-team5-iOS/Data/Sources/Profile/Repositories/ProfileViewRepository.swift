@@ -66,6 +66,10 @@ extension ProfileViewRepository: ProfileViewInterface {
     
     public func updataProfileImageToS3(memberId: String, parameter: ProfileImageEditParameter) -> Observable<ProfileMemberResponse?> {
         return profileAPIWorker.updateProfileAlbumImageToS3(accessToken: accessToken, memberId: memberId, parameter: parameter)
+            .do {
+                guard let userEntity = $0?.toProfileDomain() else { return }
+                FamilyUserDefaults.saveMemberToUserDefaults(familyMember: userEntity)
+            }
             .compactMap { $0?.toDomain() }
             .asObservable()
     }

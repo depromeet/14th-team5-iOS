@@ -19,7 +19,7 @@ public final class AccountSignUpDIContainer: BaseDIContainer {
     private let memberId: String
     private let accountType: AccountLoaction
     
-    public init(memberId: String = "", accountType: AccountLoaction = .profile) {
+    public init(memberId: String = "", accountType: AccountLoaction = .account) {
         self.memberId = memberId
         self.accountType = accountType
     }

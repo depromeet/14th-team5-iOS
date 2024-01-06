@@ -37,7 +37,8 @@ extension Date {
         relativeDateformatter.locale = Locale(identifier: "ko_KR")
         relativeDateformatter.dateTimeStyle = .named
         
-        let dateToString = relativeDateformatter.localizedString(for: self, relativeTo: Date())
+        
+        let dateToString = relativeDateformatter.localizedString(for: Date(), relativeTo: self)
         let yearOfComponents = calendar.component(.year, from: self)
         let dateOfComponents = calendar.component(.year, from: .now)
         

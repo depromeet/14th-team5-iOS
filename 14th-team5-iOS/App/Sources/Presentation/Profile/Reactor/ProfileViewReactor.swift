@@ -16,6 +16,7 @@ public final class ProfileViewReactor: Reactor {
     public var initialState: State
     private let profileUseCase: ProfileViewUsecaseProtocol
     private let memberId: String
+    private let isUser: Bool
     
     public enum Action {
         case viewDidLoad
@@ -37,6 +38,7 @@ public final class ProfileViewReactor: Reactor {
     public struct State {
         var isLoading: Bool
         var memberId: String
+        var isUser: Bool
         @Pulse var feedSection: [ProfileFeedSectionModel]
         @Pulse var profileMemberEntity: ProfileMemberResponse?
         @Pulse var profilePostEntity: ProfilePostResponse?
@@ -44,18 +46,20 @@ public final class ProfileViewReactor: Reactor {
         @Pulse var profilePresingedURLEntity: CameraDisplayImageResponse?
     }
     
-    init(profileUseCase: ProfileViewUsecaseProtocol, memberId: String) {
+    init(profileUseCase: ProfileViewUsecaseProtocol, memberId: String, isUser: Bool) {
         self.profileUseCase = profileUseCase
         self.memberId = memberId
+        self.isUser = isUser
         self.initialState = State(
             isLoading: false,
             memberId: memberId,
+            isUser: isUser,
             feedSection: [.feedCategory([])],
             profileMemberEntity: nil,
             isProfileUpload: false,
             profilePresingedURLEntity: nil
         )
-        print("Check Member Id State: \(self.currentState.memberId)")
+        
     }
     
     

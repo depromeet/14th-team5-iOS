@@ -32,6 +32,11 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
         super.viewDidLoad()
     }
     
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.navigationBar.isHidden = false
+    }
+    
     public override func bind(reactor: AccountSignUpReactor) {
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)

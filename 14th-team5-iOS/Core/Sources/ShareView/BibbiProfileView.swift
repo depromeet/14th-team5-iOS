@@ -21,6 +21,11 @@ public class BibbiProfileView: UIView {
     public let profileImageView: UIImageView = UIImageView()
     public let circleButton: UIButton = UIButton.createCircleButton(radius: 15)
     public let profileNickNameButton: UIButton = UIButton(configuration: .plain())
+    public var isSetting: Bool = false {
+        didSet {
+            setupUserProfile(isUser: isSetting)
+        }
+    }
     
     private var cornerRadius: CGFloat
     public init(cornerRadius: CGFloat) {
@@ -55,10 +60,14 @@ public class BibbiProfileView: UIView {
         }
         
         profileNickNameButton.do {
-            let paragraphStyle = NSMutableParagraphStyle()
+            $0.changesSelectionAsPrimaryAction = true
             $0.configuration?.imagePlacement = .trailing
             $0.configuration?.baseBackgroundColor = .clear
-            $0.configuration?.image = DesignSystemAsset.edit.image
+            $0.configurationUpdateHandler = { button in
+                button.configuration?.image = button.isEnabled ? DesignSystemAsset.edit.image : nil
+            }
+            
+            
             $0.configuration?.imagePadding = 5
             $0.configuration?.attributedTitle = AttributedString(NSAttributedString(string: "하나밖에없는 혈육", attributes: [
                 .foregroundColor: DesignSystemAsset.gray200.color,
@@ -90,5 +99,11 @@ public class BibbiProfileView: UIView {
         }
     }
     
+    private func setupUserProfile(isUser: Bool) {
+        circleButton.isHidden = isUser
+        circleButton.isEnabled = !isUser
+        profileNickNameButton.isHidden = isUser
+        profileNickNameButton.isEnabled = !isUser
+    }
     
 }

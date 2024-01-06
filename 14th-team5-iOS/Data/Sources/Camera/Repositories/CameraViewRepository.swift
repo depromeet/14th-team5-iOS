@@ -61,6 +61,10 @@ extension CameraViewRepository: CameraViewInterface {
     
     public func editProfleImageToS3(memberId: String, parameter: ProfileImageEditParameter) -> Observable<ProfileMemberResponse?> {
         return cameraAPIWorker.editProfileImageToS3(accessToken: accessToken, memberId: memberId, parameters: parameter)
+            .do {
+                guard let userEntity = $0?.toProfileDomain() else { return }
+                FamilyUserDefaults.saveMemberToUserDefaults(familyMember: userEntity)
+            }
             .compactMap { $0?.toDomain() }
             .asObservable()
     }

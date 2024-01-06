@@ -19,6 +19,12 @@ struct ArrayResponseCalendarResponseDTO: Decodable {
 
 extension ArrayResponseCalendarResponseDTO {
     struct CalendarResponseDTO: Decodable {
+        private enum CodingKeys: String, CodingKey {
+            case date
+            case representativePostId
+            case representativeThumbnailUrl
+            case allFamilyMembersUploaded
+        }
         var date: String
         var representativePostId: String
         var representativeThumbnailUrl: String

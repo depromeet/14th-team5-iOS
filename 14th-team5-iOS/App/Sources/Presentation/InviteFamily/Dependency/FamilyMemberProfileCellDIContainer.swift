@@ -10,9 +10,14 @@ import Foundation
 import Domain
 
 public final class FamilyMemberProfileCellDIContainer {
-    public func makeReactor(
-        _ memberResponse: FamilyMemberProfileResponse
-    ) -> FamilyMemberProfileCellReactor {
+    
+    let memberResponse: FamilyMemberProfileResponse
+    
+    public init(member: FamilyMemberProfileResponse) {
+        self.memberResponse = member
+    }
+    
+    public func makeReactor() -> FamilyMemberProfileCellReactor {
         return FamilyMemberProfileCellReactor(memberResponse)
     }
 }

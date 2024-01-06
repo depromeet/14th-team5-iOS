@@ -11,7 +11,7 @@ import RxCocoa
 import RxSwift
 
 public protocol ProfileViewUsecaseProtocol {
-    func executeProfileMemberItems() -> Observable<ProfileMemberResponse>
+    func executeProfileMemberItems(memberId: String) -> Observable<ProfileMemberResponse>
     func executeProfilePostItems(query: ProfilePostQuery, parameters: ProfilePostDefaultValue) -> Observable<ProfilePostResponse>
     func executeProfileImageURLCreate(parameter: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?>
     func executeProfileImageToPresingedUpload(to url: String, data: Data) -> Observable<Bool>
@@ -27,8 +27,8 @@ public final class ProfileViewUseCase: ProfileViewUsecaseProtocol {
         self.profileViewRepository = profileViewRepository
     }
     
-    public func executeProfileMemberItems() -> Observable<ProfileMemberResponse> {
-        return profileViewRepository.fetchProfileMemberItems()
+    public func executeProfileMemberItems(memberId: String) -> Observable<ProfileMemberResponse> {
+        return profileViewRepository.fetchProfileMemberItems(memberId: memberId)
     }
     
     public func executeProfilePostItems(query: ProfilePostQuery, parameters: ProfilePostDefaultValue) -> Observable<ProfilePostResponse> {

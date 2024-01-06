@@ -7,14 +7,22 @@
 
 import Foundation
 
-import Data
 import Core
+import Data
+import Domain
 
 
-public final class PrivacyDIContainer: BaseDIContainer {
+public final class PrivacyDIContainer {
     public typealias ViewContrller = PrivacyViewController
-    public typealias Repository = PrivacyViewImpl
+    public typealias Repository = PrivacyViewInterface
     public typealias Reactor = PrivacyViewReactor
+    public typealias UseCase = PrivacyViewUseCaseProtocol
+    
+    public let memberId: String
+    
+    public init(memberId: String) {
+        self.memberId = memberId
+    }
     
     
     public func makeViewController() -> PrivacyViewController {
@@ -26,7 +34,11 @@ public final class PrivacyDIContainer: BaseDIContainer {
     }
     
     public func makeReactor() -> PrivacyViewReactor {
-        return PrivacyViewReactor(privacyRepository: makeRepository())
+        return PrivacyViewReactor(privacyUseCase: makeUseCase(), memberId: memberId)
+    }
+    
+    public func makeUseCase() -> PrivacyViewUseCase {
+        return PrivacyViewUseCase(privacyViewRepository: makeRepository())
     }
     
 }

@@ -106,7 +106,8 @@ public final class CalendarPostViewReactor: Reactor {
                           !postResponse.isEmpty else {
                         return Observable<Mutation>.empty()
                     }
-                    
+                    print("가져온 포스트 = ")
+                    print(postResponse)
                     return Observable.concat(
                         Observable<Mutation>.just(.injectPostResponse(postResponse)),
                         Observable<Mutation>.just(.setupBlurImageView(0))
@@ -116,7 +117,7 @@ public final class CalendarPostViewReactor: Reactor {
         case let .fetchCalendarResponse(yearMonth):
             // 이전에 불러온 적이 없다면
             if !isFetchedResponse.contains(yearMonth) {
-                return calendarUseCase.execute(yearMonth: yearMonth)
+                return calendarUseCase.executeFetchCalednarInfo(yearMonth)
                     .withUnretained(self)
                     .map {
                         guard let arrayCalendarResponse = $0.1 else {

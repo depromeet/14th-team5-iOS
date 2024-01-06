@@ -57,8 +57,8 @@ public final class CameraViewReactor: Reactor {
             isFlashMode: false,
             isSwitchPosition: false,
             profileImageURLEntity: nil,
-            cameraType: self.cameraType,
-            memberId: self.memberId,
+            cameraType: cameraType,
+            memberId: memberId,
             isProfileEdit: false,
             profileMemberEntity: nil
         )

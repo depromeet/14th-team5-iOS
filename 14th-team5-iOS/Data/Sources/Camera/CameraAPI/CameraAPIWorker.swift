@@ -35,7 +35,10 @@ extension CameraAPIWorker {
     public func createPresignedURL(accessToken: String, parameters: Encodable, type: UploadLocation) -> Single<CameraDisplayImageDTO?> {
         let spec = type == .feed ? CameraAPIs.uploadImageURL.spec : CameraAPIs.uploadProfileImageURL.spec
         
-        return request(spec: spec, headers: [BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
+        
+        let token = "eyJyZWdEYXRlIjoxNzA0Mjg3MTI0OTY4LCJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDM3MzUyNH0.iiTMFXPfHXgt0c7TfCGUiSLbmvuSUWSU7PnxPUrHuFs"
+        
+        return request(spec: spec, headers: [BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(token)], jsonEncodable: parameters)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -77,7 +80,7 @@ extension CameraAPIWorker {
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("combine With TextImage Result: \(str)")
+                    debugPrint("editProfile Image Upload Result: \(str)")
                 }
             }
             .map(CameraDisplayPostDTO.self)

@@ -19,7 +19,7 @@ public final class ProfileViewRepository {
         
     public var disposeBag: DisposeBag = DisposeBag()
     private let profileAPIWorker: ProfileAPIWorker = ProfileAPIWorker()
-    private let accessToken: String = "eyJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MiLCJyZWdEYXRlIjoxNzAzODM2OTUzMzkwLCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwMzkyMzM1M30.sROYEmc6sxcSY82UKsei95EaDEw0Af8rx6q0qdmValI"
+    private let accessToken: String = "eyJyZWdEYXRlIjoxNzA0MTE4NDIzMzc5LCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDIwNDgyM30.pjas-Dx3zYwU1LsrW-FoJl12tr3hZ8DLI7gCX28DePE"
     
     public init() { }
     
@@ -28,8 +28,8 @@ public final class ProfileViewRepository {
 
 extension ProfileViewRepository: ProfileViewInterface {
     
-    public func fetchProfileMemberItems() -> Observable<ProfileMemberResponse> {
-        return profileAPIWorker.fetchProfileMember(accessToken: accessToken, "01HJBNXAV0TYQ1KESWER45A2QP")
+    public func fetchProfileMemberItems(memberId: String) -> Observable<ProfileMemberResponse> {
+        return profileAPIWorker.fetchProfileMember(accessToken: accessToken, memberId: memberId)
             .compactMap { $0?.toDomain() }
             .asObservable()
     }

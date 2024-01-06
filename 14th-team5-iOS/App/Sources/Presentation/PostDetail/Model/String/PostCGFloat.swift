@@ -59,7 +59,7 @@ enum PostAutoLayout {
                 static let cornerRadius: CGFloat = 25
                 
                 enum EmojiCountButton {
-                    static let cornerRadius: CGFloat = 15
+                    static let cornerRadius: CGFloat = 18
                     
                     enum EmojiImageView {
                         static let leadingInset = 8

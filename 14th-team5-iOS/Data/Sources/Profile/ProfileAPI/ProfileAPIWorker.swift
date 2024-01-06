@@ -33,7 +33,7 @@ extension ProfileAPIs {
 extension ProfileAPIWorker {
     
     
-    public func fetchProfileMember(accessToken: String, _ memberId: String) -> Single<ProfileMemberDTO?> {
+    public func fetchProfileMember(accessToken: String, memberId: String) -> Single<ProfileMemberDTO?> {
         let spec = ProfileAPIs.profileMember(memberId).spec
 
         return request(spec: spec, headers: [BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)])

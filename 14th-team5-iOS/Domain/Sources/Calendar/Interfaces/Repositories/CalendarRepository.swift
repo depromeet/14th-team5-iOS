@@ -12,5 +12,6 @@ import RxSwift
 public protocol CalendarRepositoryProtocol {
     var disposeBag: DisposeBag { get }
     
-    func fetchCalendarInfo(yearMonth: String) -> Observable<ArrayResponseCalendarResponse?>
+    func fetchCalendarInfo(_ yearMonth: String) -> Observable<ArrayResponseCalendarResponse?>
+    func fetchFamilySummaryInfo() -> Observable<FamilyMonthlyStatisticsResponse?>
 }

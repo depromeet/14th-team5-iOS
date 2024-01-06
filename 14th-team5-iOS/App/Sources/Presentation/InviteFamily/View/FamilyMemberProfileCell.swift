@@ -16,7 +16,7 @@ import Then
 
 final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellReactor> {
     // MARK: - Views
-    private let memberImageBackgroundView: UIView = UIView()
+    private let imageBackgroundView: UIView = UIView()
     private let firstNameLabel: BibbiLabel = BibbiLabel(.head2Bold)
     private let memberImageView: UIImageView = UIImageView()
     
@@ -25,6 +25,8 @@ final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellR
     private let isMeLabel: BibbiLabel = BibbiLabel(.body2Regular)
     
     // MARK: - Properties
+    let memberId: String? = App.Repository.member.memberID.value
+    
     static let id: String = "FamilyProfileCell"
     
     // MARK: - Intializer
@@ -43,11 +45,11 @@ final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellR
     // MARK: - Helpers
     override func setupUI() {
         super.setupUI()
-        memberImageBackgroundView.addSubviews(
+        imageBackgroundView.addSubviews(
             firstNameLabel, memberImageView
         )
         contentView.addSubviews(
-            memberImageBackgroundView, namelabelStackView
+            imageBackgroundView, namelabelStackView
         )
         
         namelabelStackView.addArrangedSubviews(
@@ -57,7 +59,7 @@ final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellR
     
     override func setupAutoLayout() {
         super.setupAutoLayout()
-        memberImageBackgroundView.snp.makeConstraints {
+        imageBackgroundView.snp.makeConstraints {
             $0.leading.equalTo(contentView.snp.leading).offset(20.0)
             $0.top.equalTo(contentView.snp.top).offset(AddFamilyCell.AutoLayout.profileImageTopOffsetValue)
             $0.bottom.equalTo(contentView.snp.bottom).offset(-AddFamilyCell.AutoLayout.profileImageTopOffsetValue)
@@ -80,10 +82,10 @@ final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellR
     
     override func setupAttributes() {
         super.setupAttributes()
-        memberImageBackgroundView.do {
+        imageBackgroundView.do {
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = AddFamilyCell.AutoLayout.profileImageWidthValue / 2.0
-            $0.backgroundColor = UIColor.darkGray
+            $0.backgroundColor = DesignSystemAsset.gray800.color
         }
         
         firstNameLabel.do {
@@ -142,14 +144,15 @@ final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellR
             .bind(to: firstNameLabel.rx.text)
             .disposed(by: disposeBag)
         
-        // TODO: - '나'인지 확인하는 로직 구현하기
         reactor.state.map { $0.memeberId }
-            .map { true }
+            .withUnretained(self)
+            .map { $0.1 == $0.0.memberId }
             .bind(to: isMeLabel.rx.isMeText)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.memeberId }
-            .map { true }
+            .withUnretained(self)
+            .map { $0.1 == $0.0.memberId }
             .bind(to: namelabelStackView.rx.isMeSpacing)
             .disposed(by: disposeBag)
     }

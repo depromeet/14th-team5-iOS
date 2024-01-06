@@ -29,11 +29,10 @@ extension AccountAPIs {
         
         // MARK: Values
         private var _headers: Observable<[APIHeader]?> {
-            
-            return App.Repository.token.fakeAccessToken
+            return App.Repository.token.accessToken
                 .map {
                     guard let token = $0, !token.isEmpty else { return nil }
-                    return [BibbiAPI.Header.xAuthToken(token), BibbiAPI.Header.acceptJson]
+                    return [BibbiAPI.Header.appKey, BibbiAPI.Header.xAuthToken(token), BibbiAPI.Header.acceptJson]
                 }
         }
     }
@@ -58,8 +57,12 @@ extension AccountAPIWorker {
     func signInWith(snsType: SNS, snsToken: String) -> Single<AccessToken?> {
         let spec = AccountAPIs.signIn(snsType).spec
         let payload = _PayLoad.LoginPayload(accessToken: snsToken)
+        let headers = [BibbiAPI.Header.appKey]
         
-        return signInWith(spec: spec, jsonEncodable: payload)
+        return Observable.just(())
+            .withUnretained(self)
+            .flatMap { $0.0.signInWith(spec: spec, headers: headers, jsonEncodable: payload) }
+            .asSingle()
     }
     
     private func signUpWith(headers: [APIHeader]?, jsonEncodable: Encodable) -> Single<AccessToken?> {

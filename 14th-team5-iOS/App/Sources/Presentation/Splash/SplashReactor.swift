@@ -7,35 +7,63 @@
 
 import Foundation
 import Core
+import Domain
 
 import ReactorKit
 import RxSwift
 
-public final class SplashReactor: Reactor {
+public final class SplashViewReactor: Reactor {
     // MARK: - Action
-    public enum Action { }
+    public enum Action { 
+        case viewDidLoad
+    }
     
     // MARK: - Mutation
-    public enum Mutation { }
+    public enum Mutation {
+        case setMemberInfo(MemberInfo?)
+    }
     
     // MARK: - State
-    public struct State { }
+    public struct State {
+        var memberInfo: MemberInfo?
+    }
     
     // MARK: - Properties
-    public var initialState: State
+    private let meRepository: MeUseCaseProtocol
+    public let initialState: State = State()
     
     // MARK: - Intializer
-    public init(initialState: State) {
-        self.initialState = initialState
+    init(meRepository: MeUseCaseProtocol) {
+        self.meRepository = meRepository
     }
     
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
-        return Observable<Mutation>.empty()
+        
+        switch action {
+        case .viewDidLoad:
+            meRepository.getMemberInfo()
+                .asObservable()
+                .flatMap { info in
+                    guard let info else {
+                        return Observable.just(Mutation.setMemberInfo(nil))
+                    }
+                    return Observable.just(Mutation.setMemberInfo(info))
+                }
+        }
     }
     
     // MARK: - Reduce
     public func reduce(state: State, mutation: Mutation) -> State {
-        return state
+        var newState = state
+        switch mutation {
+        case .setMemberInfo(let memberInfo):
+            App.Repository.member.memberID.accept(memberInfo?.memberId)
+            App.Repository.member.familyId.accept(memberInfo?.familyId)
+            
+            newState.memberInfo = memberInfo
+        }
+        
+        return newState
     }
 }

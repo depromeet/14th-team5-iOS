@@ -15,24 +15,35 @@ import Alamofire
 fileprivate typealias _PayLoad = MeAPIs.PayLoad
 typealias MeAPIWorker = MeAPIs.Worker
 extension MeAPIs {
-    
-    final class Worker: APIWorker {
+    public final class Worker: APIWorker {
         
         static let queue = {
             ConcurrentDispatchQueueScheduler(queue: DispatchQueue(label: "MeAPIQueue", qos: .utility))
         }()
         
-        override init() {
+        public override init() {
             super.init()
             self.id = "MeAPIWorker"
+        }
+        
+        // MARK: Values
+        private var _headers: Observable<[APIHeader]?> {
+            
+            return App.Repository.token.accessToken
+                .map {
+                    guard let token = $0, !token.isEmpty else { return nil }
+                    return [BibbiAPI.Header.appKey]
+                }
         }
     }
 }
 
 // MARK: SignIn
-extension MeAPIWorker {
-    private func saveFcmToken(spec: APISpec, jsonEncodable: Encodable) -> Single<String?> {
-        return request(spec: spec)
+extension MeAPIWorker: MeRepositoryProtocol {
+    private func saveFcmToken(headers: [APIHeader]?, jsonEncodable: Encodable) -> Single<String?> {
+        let spec = MeAPIs.saveFcmToken.spec
+        
+        return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do(onNext: {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -44,15 +55,19 @@ extension MeAPIWorker {
             .asSingle()
     }
     
-    func saveFcmToken(token: String) -> Single<String?> {
-        let spec = MeAPIs.saveFcmToken.spec
+    public func saveFcmToken(token: String) -> Single<String?> {
+        
         let payload = _PayLoad.FcmPayload(fcmToken: token)
         
-        return saveFcmToken(spec: spec, jsonEncodable: payload)
+        return Observable.just(())
+            .withLatestFrom(self._headers)
+            .withUnretained(self)
+            .flatMap { $0.0.saveFcmToken(headers: $0.1, jsonEncodable: payload) }
+            .asSingle()
     }
     
-    private func deleteFcmToken(spec: APISpec) -> Single<String?> {
-        return request(spec: spec)
+    private func deleteFcmToken(spec: APISpec, headers: [APIHeader]?) -> Single<String?> {
+        return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do(onNext: {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -64,13 +79,19 @@ extension MeAPIWorker {
             .asSingle()
     }
     
-    func deleteFcmToken(token: String) -> Single<String?> {
+    public func deleteFcmToken(token: String) -> Single<String?> {
         let spec = MeAPIs.deleteFcmToken(token).spec
-        return deleteFcmToken(spec: spec)
+        
+        return Observable.just(())
+            .withLatestFrom(self._headers)
+            .withUnretained(self)
+            .flatMap { $0.0.deleteFcmToken(spec: spec, headers: $0.1) }
+            .asSingle()
     }
     
-    private func getMemberInfo(spec: APISpec) -> Single<MemberInfo?> {
-        return request(spec: spec)
+    private func getMemberInfo(spec: APISpec, headers: [APIHeader]?) -> Single<MemberInfo?> {
+        
+        return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do(onNext: {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -82,8 +103,12 @@ extension MeAPIWorker {
             .asSingle()
     }
     
-    func getMemberInfo() -> Single<MemberInfo?> {
+    public func fetchMemberInfo() -> Single<MemberInfo?> {
         let spec = MeAPIs.memberInfo.spec
-        return getMemberInfo(spec: spec)
+        return Observable.just(())
+            .withLatestFrom(self._headers)
+            .withUnretained(self)
+            .flatMap { $0.0.getMemberInfo(spec: spec, headers: $0.1)}
+            .asSingle()
     }
 }

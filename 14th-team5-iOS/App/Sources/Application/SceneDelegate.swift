@@ -24,6 +24,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         options connectionOptions: UIScene.ConnectionOptions
     ) {
         guard let scene = (scene as? UIWindowScene) else { return }
+        
+        guard let userActivity = connectionOptions.userActivities.first,
+              userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+              let incomingURL = userActivity.webpageURL,
+              let components = NSURLComponents(url: incomingURL, resolvingAgainstBaseURL: true) else {
+            return
+        }
+        
+        guard let path = components.path else {
+            return
+        }
+        print("path: \(path)")
         window = UIWindow(windowScene: scene)
         window?.rootViewController = UINavigationController(rootViewController: SplashDIContainer().makeViewController())
         window?.makeKeyAndVisible()

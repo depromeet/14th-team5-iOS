@@ -139,12 +139,12 @@ final class PostViewController: BaseViewController<PostReactor> {
 extension PostViewController {
     private func createDataSource() -> RxCollectionViewSectionedReloadDataSource<SectionModel<String, PostListData>> {
         return RxCollectionViewSectionedReloadDataSource<SectionModel<String, PostListData>>(
-            configureCell: { dataSource, collectionView, indexPath, item in
+            configureCell: { dataSource, collectionView, indexPath, post in
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as? PostCollectionViewCell else {
                     return UICollectionViewCell()
                 }
-                cell.reactor = ReactionDIContainer().makeReactor(postId: "01HJBRBSZRF429S1SES900ET5G")
-                cell.setCell(data: item)
+                cell.reactor = ReactionDIContainer().makeReactor(post: post)
+                cell.setCell(data: post)
                 return cell
             })
     }

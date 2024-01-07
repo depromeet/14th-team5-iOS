@@ -20,3 +20,16 @@ extension UIView {
         }
     }
 }
+
+extension UIView {
+    public func findSubview<T: UIView>(of type: T.Type) -> T? {
+        if let test = subviews.first(where: { $0 is T }) as? T {
+            return test
+        } else {
+            for view in subviews {
+                return view.findSubview(of: type)
+            }
+        }
+        return nil
+    }
+}

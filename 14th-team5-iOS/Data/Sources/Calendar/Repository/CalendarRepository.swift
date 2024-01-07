@@ -25,8 +25,13 @@ public final class CalendarRepository: CalendarRepositoryProtocol {
             .asObservable()
     }
     
-    public func fetchFamilySummaryInfo() -> Observable<FamilyMonthlyStatisticsResponse?> {
-        return calendarApiWorker.fetchFamilySummaryInfo(token: accessToken, familyId: familyId)
+    public func fetchFamilyStatisticsInfo() -> Observable<FamilyMonthlyStatisticsResponse?> {
+        return calendarApiWorker.fetchFamilyStatisticsInfo(token: accessToken, familyId: familyId)
+            .asObservable()
+    }
+    
+    public func fetchFamilyCreatedAt() -> Observable<FamilyCreatedAtResponse?> {
+        return calendarApiWorker.fetchFamilyCreatedAt(token: accessToken, familyId: familyId)
             .asObservable()
     }
 }

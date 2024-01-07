@@ -30,7 +30,11 @@ final class ReactionDIContainer {
         return EmojiUseCase(emojiRepository: makeEmojiRepository())
     }
     
-    func makeReactor(postId: String) -> EmojiReactor {
-        return EmojiReactor(provider: globalState, emojiRepository: makeEmojiUseCase(), initialState: .init(type: .home, postId: postId, imageUrl: "", nickName: ""))
+    func makeReactor(post: PostListData) -> EmojiReactor {
+        return EmojiReactor(
+            provider: globalState,
+            emojiRepository: makeEmojiUseCase(),
+            initialState: .init(type: .home, post: post)
+        )
     }
 }

@@ -220,7 +220,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .withUnretained(self)
             .bind { owner, isShow in
                 guard isShow == true else { return }
-                owner.makeRoundedToastView(title: "8자까지 입력가능해요", designSystemImage: DesignSystemAsset.warning.image, width: 211, height: 56, offset: 400)
+                owner.makeBibbiToastView(text: "8자까지 입력가능해요", designSystemImage: DesignSystemAsset.warning.image, width: 211, height: 56, offset: 400)
             }.disposed(by: disposeBag)
         
         displayEditTextField.rx
@@ -337,8 +337,8 @@ extension CameraDisplayViewController {
             PHPhotoLibrary.shared().performChanges {
                 let creationRequest = PHAssetCreationRequest.forAsset()
                 creationRequest.addResource(with: .photo, data: originalData, options: nil)
-                owner.makeRoundedToastView(
-                    title: "사진이 저장되었습니다.",
+                owner.makeBibbiToastView(
+                    text: "사진이 저장되었습니다.",
                     designSystemImage: DesignSystemAsset.camera.image.withTintColor(DesignSystemAsset.gray300.color),
                     height: 56
                 )

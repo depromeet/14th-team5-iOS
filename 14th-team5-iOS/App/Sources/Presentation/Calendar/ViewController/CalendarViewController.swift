@@ -91,10 +91,8 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
             .disposed(by: disposeBag)
 
         navigationBarView.rx.didTapLeftBarButton
-            .withUnretained(self)
-            .subscribe{
-                $0.0.navigationController?.popViewController(animated: true)
-            }
+            .map { _ in Reactor.Action.popViewController }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
     
@@ -124,6 +122,16 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
                     ),
                     permittedArrowDrections: [.up]
                 )
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.shouldPopCalendarVC }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe {
+                if $0.1 {
+                    $0.0.navigationController?.popViewController(animated: true)
+                }
             }
             .disposed(by: disposeBag)
     }

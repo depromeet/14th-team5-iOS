@@ -14,6 +14,12 @@ public class BibbiLabel: UILabel {
     private var textStyle: UIFont.BibbiFontStyle
     private var alignment: NSTextAlignment
     
+    public override var text: String? {
+        didSet {
+            updateAttributes()
+        }
+    }
+    
     public var textBibbiColor: UIColor = .bibbiWhite {
         didSet {
             updateAttributes()
@@ -35,14 +41,6 @@ public class BibbiLabel: UILabel {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-}
-
-extension BibbiLabel {
-    public override var text: String? {
-        didSet {
-            updateAttributes()
-        }
     }
 }
 

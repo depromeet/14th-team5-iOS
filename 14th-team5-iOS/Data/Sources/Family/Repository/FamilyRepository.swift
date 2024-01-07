@@ -18,6 +18,7 @@ public final class FamilyRepository: FamilyRepositoryProtocol {
     
     private let familyId: String = App.Repository.member.familyId.value ?? ""
     private let accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
+    
     public init() { }
 }
 

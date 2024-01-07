@@ -10,8 +10,9 @@ import Core
 import Domain
 import DesignSystem
 
-import RxSwift
 import Kingfisher
+import RxSwift
+import RxDataSources
 
 final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     typealias Layout = PostAutoLayout.CollectionView.CollectionViewCell
@@ -28,7 +29,14 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     /// 이모지 카운트를 보여주기 위한 stackView
     private let emojiCountStackView = UIStackView()
     
-    let reactor: EmojiReactor? = nil
+    private let contentCollectionView = UICollectionView(
+        frame: .zero,
+        collectionViewLayout: UICollectionViewFlowLayout()
+    )
+    private let collectionViewFlowLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
+    private lazy var contentDatasource = createContentDataSource()
+    
+//    let reactor: EmojiReactor? = nil
     
     convenience init(reacter: EmojiReactor? = nil) {
         self.init(frame: .zero)
@@ -53,7 +61,14 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             .disposed(by: disposeBag)
         
         Observable.just(())
+            .take(1)
             .map { Reactor.Action.fetchEmojiList }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        Observable.just(())
+            .take(1)
+            .map { Reactor.Action.fetchDisplayContent(reactor.currentState.post.content) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -91,13 +106,22 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             .disposed(by: disposeBag)
         
         reactor.state
-            .debug("============================ 이미지 처리")
-            .map { $0.imageUrl }
+            .map { $0.post }
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
                 $0.0.postImageView.kf.setImage(
-                    with: URL(string: $0.1),
+                    with: URL(string: $0.1.imageURL),
+                    options: [
+                        .transition(.fade(0.15))
+                    ]
+                )
+                
+                guard let author = $0.1.author else { return }
+                guard let profileImageUrl = $0.1.author?.profileImageURL else { return }
+                $0.0.nickNameLabel.text = author.name
+                $0.0.profileImageView.kf.setImage(
+                    with: URL(string: profileImageUrl),
                     options: [
                         .transition(.fade(0.15))
                     ]
@@ -105,7 +129,10 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             }
             .disposed(by: disposeBag)
         
-        // TODO: - MemeberId에 맞게 프로필 이미지 및 닉네임 집어넣기
+        reactor.state
+            .map { $0.fetchedDisplayContent }
+            .bind(to: contentCollectionView.rx.items(dataSource: contentDatasource))
+            .disposed(by: disposeBag)
     }
     
     
@@ -113,11 +140,12 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         super.setupUI()
         addSubviews(profileStackView, postImageView, showSelectableEmojiButton, emojiCountStackView, selectableEmojiStackView)
         profileStackView.addArrangedSubviews(profileImageView, nickNameLabel)
+        postImageView.addSubview(contentCollectionView)
     }
 
     override func setupAutoLayout() {
         super.setupAutoLayout()
-
+        
         profileStackView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.top.equalToSuperview().offset(Layout.PostImageView.topInset - (34 + 8))
@@ -126,6 +154,12 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         
         profileImageView.snp.makeConstraints {
             $0.width.height.equalTo(34)
+        }
+        
+        contentCollectionView.snp.makeConstraints {
+            $0.height.equalTo(41)
+            $0.bottom.equalTo(postImageView.snp.bottom).offset(-20)
+            $0.horizontalEdges.equalToSuperview()
         }
         
         postImageView.snp.makeConstraints {
@@ -171,12 +205,27 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         }
         
         nickNameLabel.do {
-            $0.text = "김건우"
+            $0.text = "(알 수 없음)"
         }
         
         postImageView.do {
             $0.clipsToBounds = true
             $0.layer.cornerRadius = Layout.PostImageView.cornerRadius
+        }
+        
+        contentCollectionView.do {
+            $0.backgroundColor = .clear
+            $0.isScrollEnabled = false
+            $0.showsVerticalScrollIndicator = false
+            $0.showsHorizontalScrollIndicator = false
+            $0.collectionViewLayout = collectionViewFlowLayout
+            $0.register(DisplayEditCollectionViewCell.self, forCellWithReuseIdentifier: "DisplayEditCollectionViewCell")
+            $0.delegate = self
+        }
+        
+        collectionViewFlowLayout.do {
+            $0.itemSize = CGSize(width: 28, height: 41)
+            $0.minimumInteritemSpacing = 2
         }
         
         selectableEmojiStackView.do {
@@ -243,6 +292,37 @@ extension PostCollectionViewCell {
             emojiCountButton.setInitEmoji(emoji: EmojiData(emoji: Emojis.emoji(forIndex: index+1), count: emojiData.count))
             emojiCountStackView.addArrangedSubview(emojiCountButton)
         }
+    }
+}
+
+extension PostCollectionViewCell {
+    private func createContentDataSource() -> RxCollectionViewSectionedReloadDataSource<DisplayEditSectionModel> {
+        return RxCollectionViewSectionedReloadDataSource<DisplayEditSectionModel> { datasources, collectionView, indexPath, sectionItem in
+            switch sectionItem {
+            case let .fetchDisplayItem(cellReactor):
+                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DisplayEditCollectionViewCell", for: indexPath) as? DisplayEditCollectionViewCell else {
+                    return UICollectionViewCell()
+                }
+                cell.reactor = cellReactor
+                return cell
+            }
+        }
+    }
+}
+
+extension PostCollectionViewCell: UICollectionViewDelegateFlowLayout {
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        guard let cellCount = reactor?.currentState.post.content.count else {
+            return .zero
+        }
+        
+        let totalCellWidth = 28 * cellCount
+        let totalSpacingWidth = 2 * (cellCount - 1)
+
+        let leftInset = (collectionView.frame.width - CGFloat(totalCellWidth + totalSpacingWidth)) / 2
+        let rightInset = leftInset
+
+        return UIEdgeInsets(top: 0, left: leftInset, bottom: 0, right: rightInset)
     }
 }
 

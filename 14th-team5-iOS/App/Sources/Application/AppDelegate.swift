@@ -67,7 +67,10 @@ extension AppDelegate {
 
 extension AppDelegate {
     func kakaoApp(_ app: UIApplication, didFinishLauchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) {
-        RxKakaoSDK.initSDK(appKey: "")
+        guard let kakaoLoginAPIKey = Bundle.main.object(forInfoDictionaryKey: "KAKAO_LOGIN_API_KEY") as? String else {
+            return
+        }
+        RxKakaoSDK.initSDK(appKey: kakaoLoginAPIKey)
     }
     
     func kakaoApp(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {

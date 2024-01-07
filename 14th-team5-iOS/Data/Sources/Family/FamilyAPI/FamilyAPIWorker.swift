@@ -9,6 +9,7 @@ import Foundation
 
 import Domain
 import RxSwift
+import SwiftKeychainWrapper
 
 typealias FamilyAPIWorker = FamilyAPIs.Worker
 extension FamilyAPIs {
@@ -27,7 +28,10 @@ extension FamilyAPIs {
 extension FamilyAPIWorker: SearchFamilyRepository {
     public func fetchFamilyMember(query: Domain.SearchFamilyQuery) -> RxSwift.Single<Domain.SearchFamilyPage?> {
         let spec: APISpec = FamilyAPIs.familyMembers.spec
-        let headers: [BibbiHeader] = [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QiLCJyZWdEYXRlIjoxNzA0MzYyMDY0MTYwfQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDQ0ODQ2NH0.pxu_tVjDSXB63vl74G-ZkuFfk3sE9TcYnQuVcgO2Fwo")]
+        let token = KeychainWrapper.standard.set("eyJyZWdEYXRlIjoxNzA0NjI5MzMxNTg3LCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MifQ.eyJ1c2VySWQiOiIyIiwiZXhwIjoxNzA0NjI5MzMxfQ.2KnitlchstGo95Zy6J49OzUShDTd7hjHzSMigpnMKLo", forKey: "accessToken")
+        
+        guard let accessToken = KeychainWrapper.standard.string(forKey: "accessToken") else { return .never()}
+        let headers: [BibbiHeader] = [BibbiAPI.Header.appKey, BibbiHeader.acceptJson, BibbiHeader.xAuthToken(accessToken)]
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do {

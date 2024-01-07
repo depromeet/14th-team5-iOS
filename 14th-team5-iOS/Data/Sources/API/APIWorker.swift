@@ -70,13 +70,14 @@ public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInter
         }
         
 
-        let parameter = AccountRefreshParameter(refreshToken: "eyJyZWdEYXRlIjoxNzA0NjIxNjg1NzMxLCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJyZWZyZXNoIn0.eyJ1c2VySWQiOiIwMUhLN0NDUVZYRVQ1NlE5REQxM1ZGWEo0VCIsImV4cCI6MTcwNTAwNTY4NX0.3qFRq6NASsjfwjuvFTDPe2mvcdw2TLbxHs23V__BHvQ")
+        let parameter = AccountRefreshParameter(refreshToken: "eyJyZWdEYXRlIjoxNzA0NjI5MzMxNjIwLCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJyZWZyZXNoIn0.eyJleHAiOjE3MDQ2MjkzMzF9.59ZRX0p0zUWs-lHZ4p6opCBCcJeNXc_hZ3VutwNplps")
             
             accountAPIWorker.accountRefreshToken(parameter: parameter)
                 .compactMap { $0?.toDomain() }
                 .asObservable()
                 .debug("account Refresh Token")
                 .subscribe(onNext: { entity in
+                    print("entity Test: \(entity)")
                     KeychainWrapper.standard.set(entity.accessToken, forKey: "accessToken")
                     App.Repository.token.refreshToken.accept(entity.refreshToken)
                     App.Repository.token.accessToken.accept(entity.accessToken)

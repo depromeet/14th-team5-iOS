@@ -29,7 +29,8 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     private let displayEditTextField: UITextField = UITextField()
     private let displayDimView: UIView = UIView()
     private let archiveButton: UIButton = UIButton.createCircleButton(radius: 24)
-    private let displayEditCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private var displayEditCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
+    private lazy var  displayEditCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: displayEditCollectionViewLayout)
     private let displayEditDataSources: RxCollectionViewSectionedReloadDataSource<DisplayEditSectionModel> = .init { dataSources, collectionView, indexPath, sectionItem in
         switch sectionItem {
         case let .fetchDisplayItem(cellReactor):
@@ -58,6 +59,11 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     
     public override func setupAttributes() {
         super.setupAttributes()
+        
+        displayEditCollectionViewLayout.do {
+            $0.itemSize = CGSize(width: 38, height: 61)
+            $0.minimumInteritemSpacing = 4
+        }
         
         displayNavigationBar.do {
             $0.navigationTitle = "사진 올리기"
@@ -434,14 +440,5 @@ extension CameraDisplayViewController {
     }
 }
 
-extension CameraDisplayViewController: UICollectionViewDelegateFlowLayout {
-    
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: collectionView.frame.size.width, height: collectionView.frame.size.height)
-    }
-    
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 4
-    }
-}
+extension CameraDisplayViewController: UICollectionViewDelegateFlowLayout {}
 

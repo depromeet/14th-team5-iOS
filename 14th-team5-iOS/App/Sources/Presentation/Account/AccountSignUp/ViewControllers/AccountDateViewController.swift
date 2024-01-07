@@ -96,7 +96,7 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
         
         nextButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .map { Reactor.Action.dateButtonTapped }
+            .map { Reactor.Action.didTapDateNextButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }

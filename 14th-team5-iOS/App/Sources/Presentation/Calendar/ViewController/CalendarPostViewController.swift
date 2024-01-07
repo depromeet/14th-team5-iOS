@@ -310,14 +310,7 @@ extension CalendarPostViewController {
     private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<PostListSectionModel> {
         return RxCollectionViewSectionedReloadDataSource<PostListSectionModel> { datasource, collectionView, indexPath, post in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as! PostCollectionViewCell
-            
-            cell.reactor = EmojiReactor(
-                emojiRepository: PostListsDIContainer().makeEmojiUseCase(),
-                initialState: .init(
-                    type: .calendar,
-                    post: post
-                )
-            )
+            cell.reactor = ReactionDIContainer().makeReactor(post: post)
             return cell
         }
     }

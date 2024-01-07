@@ -8,10 +8,10 @@
 import Foundation
 import Core
 
-public struct FetchEmojiData {
-    public let isSelfSelected: Bool
-    public let count: Int
-    public let memberIds: [String]
+public struct FetchEmojiData: Equatable {
+    public var isSelfSelected: Bool
+    public var count: Int
+    public var memberIds: [String]
     
     public init(isSelfSelected: Bool, count: Int, memberIds: [String]) {
         self.isSelfSelected = isSelfSelected
@@ -21,7 +21,7 @@ public struct FetchEmojiData {
 }
 
 public struct FetchEmojiDataList {
-    public let emojis_memberIds: [FetchEmojiData]
+    public var emojis_memberIds: [FetchEmojiData]
     
     public init(emojis_memberIds: [FetchEmojiData]) {
         self.emojis_memberIds = emojis_memberIds

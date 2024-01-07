@@ -26,6 +26,8 @@ extension BibbiRouterInterface {
             result[header.key] = header.value
         }
         
+        result["X-APP-KEY"] = "9c61cc7b-0fe9-40eb-976e-6a74c8cb9092"
+        
         return HTTPHeaders(result)
     }
 }
@@ -54,7 +56,7 @@ public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInter
         }
 //        let hds = self.httpHeaders([BibbiAPI.Header.auth(App.Repository.token.accessToken.value ?? "")])
 //        urlRequest.headers.add(name: "X-AUTH-TOKEN", value: App.Repository.token.accessToken.value ?? "")
-        print(" or check AccessToken \(App.Repository.token.accessToken.value)")
+//        print(" or check AccessToken \(App.Repository.token.accessToken.value)")
 //        setValue(App.Repository.token.accessToken.value, forHTTPHeaderField: "X-AUTH-TOKEN")
         print("check Adapter : \(urlRequest.headers)")
         
@@ -66,110 +68,35 @@ public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInter
                 completion(.doNotRetryWithError(error))
                 return
             }
-            
-            print("check Retry and : \(App.Repository.token.refreshToken.value)")
-            let parameter = AccountRefreshParameter(refreshToken: App.Repository.token.refreshToken.value ?? "" )
+        let parameter = AccountRefreshParameter(refreshToken: App.Repository.token.accessToken.value?.refreshToken ?? "")
             
             accountAPIWorker.accountRefreshToken(parameter: parameter)
                 .compactMap { $0?.toDomain() }
                 .asObservable()
                 .subscribe(onNext: { entity in
                     print("refresh Entity Check: \(entity)")
-                    App.Repository.token.refreshToken.accept(entity.refreshToken)
-                    App.Repository.token.accessToken.accept(entity.accessToken)
+                    
+                    let token = AccessToken(accessToken: entity.accessToken, refreshToken: entity.refreshToken, isTemporaryToken: entity.isTemporaryToken)
+                    App.Repository.token.accessToken.accept(token)
                     completion(.retry)
                 }, onError: { error in
                     completion(.doNotRetryWithError(error))
                 })
                 .disposed(by: disposeBag)
-            
-        
-    }
-}
-
-
-// MARK: File private Extension for NSMutableData
-fileprivate extension NSMutableData {
-    
-    func appendMultipartParams( _ parameters: [APIParameter]?) {
-        guard let params = parameters else {
-            return
-        }
-        
-        var formField: String = ""
-        for param in params {
-            
-            guard let val = param.value else {
-                continue
-            }
-            
-            formField += self.getFieldString(value: val, for: param.key)
-        }
-        
-        if !formField.isEmpty {
-            self.appendString(formField)
-        }
-    }
-    
-    func appendMultipartParams(jsonString: String?) {
-        guard let data = jsonString?.data(using: .utf8), let dict: [String: Any] = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else {
-            return
-        }
-        
-        var formField: String = ""
-        for (k, v) in dict {
-            
-            formField += self.getFieldString(value: v, for: k)
-        }
-        
-        if !formField.isEmpty {
-            self.appendString(formField)
-        }
-    }
-    
-    private func getFieldString(value: Any, for key: String) -> String {
-        var s: String = ""
-        
-        if let strings = value as? [Any] {
-            
-            strings.forEach { v in
-                s += "--\(APIConst.boundary)\r\n"
-                s += "Content-Disposition: form-data; name=\"\(key)\"\r\n"
-                s += "\r\n"
-                s += "\(v)\r\n"
-            }
-            
-        } else {
-            s += "--\(APIConst.boundary)\r\n"
-            s += "Content-Disposition: form-data; name=\"\(key)\"\r\n"
-            s += "\r\n"
-            s += "\(value)\r\n"
-        }
-        
-        return s
-    }
-    
-    func appendMultipartMedias( _ mediaParameters: [APIMediaParameter]?) {
-        guard let params = mediaParameters else {
-            return
-        }
-        
-        for param in params {
-            guard let data = (param.fileURL != nil) ? try? Data(contentsOf: param.fileURL!) : param.fileData else {
-                continue
-            }
-            
-            self.appendString("--\(APIConst.boundary)\r\n")
-            self.appendString("Content-Disposition: form-data; name=\"\(param.name)\"; filename=\"\(param.fileName)\"\r\n")
-            self.appendString("Content-Type: \(param.mimeType)\r\n\r\n")
-                self.append(data)
-            self.appendString("\r\n")
-        }
     }
 }
 
 // MARK: API Worker
 public class APIWorker: NSObject, BibbiRouterInterface {
+    
+    private func appendCommonHeaders(to headers: [APIHeader]?) -> [APIHeader] {
+        var result: [APIHeader] = BibbiAPI.Header.baseHeaders
+        guard let headers = headers else { return result }
+        
+        result.append(contentsOf: headers)
+        
+        return result
+    }
     
     private func parameters(_ parameters: [APIParameter]?) -> Parameters? {
         guard let kvs = parameters else { return nil }

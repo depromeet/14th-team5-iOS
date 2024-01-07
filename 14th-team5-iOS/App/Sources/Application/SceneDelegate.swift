@@ -27,16 +27,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: scene)
         window?.rootViewController = UINavigationController(rootViewController: SplashDIContainer().makeViewController())
         window?.makeKeyAndVisible()
-        
-        // splash로 이동, 토큰값이 널이라면 건너뛰는 로직 필요
-        let familyRepository = HomeDIContainer().makeFamilyUseCase()
-        let query: SearchFamilyQuery = SearchFamilyQuery(type: "FAMILY", page: 1, size: 20)
-        familyRepository.excute(query: query)
-            .asObservable()
-            .subscribe {
-                
-            }
-            .disposed(by: DisposeBag())
     }
     
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {

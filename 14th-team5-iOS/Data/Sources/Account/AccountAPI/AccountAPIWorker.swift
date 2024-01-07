@@ -29,10 +29,10 @@ extension AccountAPIs {
         
         // MARK: Values
         private var _headers: Observable<[APIHeader]?> {
-            return App.Repository.token.accessToken
+            return App.Repository.token.fakeAccessToken
                 .map {
-                    guard let token = $0, !token.isEmpty else { return nil }
-                    return [BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(token), BibbiAPI.Header.acceptJson]
+                    guard let token = $0, let accessToken = token.accessToken, !accessToken.isEmpty else { return [] }
+                    return [BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(accessToken)]
                 }
         }
     }
@@ -40,8 +40,7 @@ extension AccountAPIs {
 
 // MARK: SignIn
 extension AccountAPIWorker {
-    
-    private func signInWith(spec: APISpec, jsonEncodable: Encodable) -> Single<AccessToken?> {
+    private func signInWith(spec: APISpec, jsonEncodable: Encodable) -> Single<AccessTokenResponse?> {
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey], jsonEncodable: jsonEncodable)
             .subscribe(on: Self.queue)
             .do(onNext: {
@@ -49,20 +48,19 @@ extension AccountAPIWorker {
                     debugPrint("SignIn result : \(str)")
                 }
             })
-            .map(AccessToken.self)
+            .map(AccessTokenResponse.self)
             .catchAndReturn(nil)
             .asSingle()
     }
     
-    func signInWith(snsType: SNS, snsToken: String) -> Single<AccessToken?> {
+    func signInWith(snsType: SNS, snsToken: String) -> Single<AccessTokenResponse?> {
         let spec = AccountAPIs.signIn(snsType).spec
         let payload = _PayLoad.LoginPayload(accessToken: snsToken)
-        let headers = [BibbiAPI.Header.appKey]
         
-        return signInWith(spec: spec,jsonEncodable: payload)
+        return signInWith(spec: spec, jsonEncodable: payload)
     }
     
-    private func signUpWith(headers: [APIHeader]?, jsonEncodable: Encodable) -> Single<AccessToken?> {
+    private func signUpWith(headers: [APIHeader]?, jsonEncodable: Encodable) -> Single<AccessTokenResponse?> {
         
         let spec = AccountAPIs.signUp.spec
         
@@ -73,12 +71,12 @@ extension AccountAPIWorker {
                     debugPrint("SignUp result : \(str)")
                 }
             })
-            .map(AccessToken.self)
+            .map(AccessTokenResponse.self)
             .catchAndReturn(nil)
             .asSingle()
     }
     
-    func signUpWith(name: String?, date: String?, photoURL: String?) -> Single<AccessToken?> {
+    func signUpWith(name: String?, date: String?, photoURL: String?) -> Single<AccessTokenResponse?> {
         let payLoad = _PayLoad.AccountSignUpPayLoad(memberName: name, dayOfBirth: date, profileImgUrl: photoURL)
         
         return Observable.just(())

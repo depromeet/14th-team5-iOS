@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AccessToken: Codable, Equatable {
+public struct AccessTokenResponse: Codable, Equatable {
     public var accessToken: String?
     public var refreshToken: String?
     public var isTemporaryToken: Bool?

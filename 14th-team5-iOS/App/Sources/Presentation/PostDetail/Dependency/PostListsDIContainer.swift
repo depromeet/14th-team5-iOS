@@ -5,7 +5,9 @@
 //  Created by 마경미 on 30.12.23.
 //
 
-import Foundation
+import UIKit
+
+import Core
 import Data
 import Domain
 
@@ -14,6 +16,13 @@ import RxDataSources
 final class PostListsDIContainer {
     typealias ViewContrller = PostViewController
     typealias Reactor = PostReactor
+    
+    private var globalState: GlobalStateProviderProtocol {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return GlobalStateProvider()
+        }
+        return appDelegate.globalStateProvider
+    }
     
     func makeViewController(postLists: SectionModel<String, PostListData>, selectedIndex: IndexPath) -> ViewContrller {
         return PostViewController(reactor: makeReactor(postLists: postLists, selectedIndex: selectedIndex.row))
@@ -36,7 +45,6 @@ final class PostListsDIContainer {
     }
     
     func makeReactor(postLists: SectionModel<String, PostListData>, selectedIndex: Int) -> Reactor {
-        return PostReactor(postRepository: makePostUseCase(), emojiRepository: makeEmojiUseCase(), initialState: PostReactor.State(originPostLists: [postLists]))
+        return PostReactor(provider: globalState, postRepository: makePostUseCase(), emojiRepository: makeEmojiUseCase(), initialState: PostReactor.State(originPostLists: [postLists]))
     }
-    
 }

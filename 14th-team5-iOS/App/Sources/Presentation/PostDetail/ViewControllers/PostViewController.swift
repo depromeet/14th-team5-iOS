@@ -51,8 +51,20 @@ final class PostViewController: BaseViewController<PostReactor> {
             .disposed(by: disposeBag)
         
         reactor.state
+            .map { $0.isShowingReactionMemberSheet }
+            .asObservable()
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: {
+                $0.0.showReactionSheet($0.1)
+            })
+            .disposed(by: disposeBag)
+        
+        reactor.state
             .map { $0.isPop }
             .asObservable()
+            .distinctUntilChanged()
             .withUnretained(self)
             .bind(onNext: { _ in
                 self.navigationController?.popViewController(animated: true)
@@ -127,11 +139,12 @@ final class PostViewController: BaseViewController<PostReactor> {
 extension PostViewController {
     private func createDataSource() -> RxCollectionViewSectionedReloadDataSource<SectionModel<String, PostListData>> {
         return RxCollectionViewSectionedReloadDataSource<SectionModel<String, PostListData>>(
-            configureCell: { dataSource, collectionView, indexPath, item in
+            configureCell: { dataSource, collectionView, indexPath, post in
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as? PostCollectionViewCell else {
                     return UICollectionViewCell()
                 }
-                cell.setCell(data: item)
+                cell.reactor = ReactionDIContainer().makeReactor(post: post)
+                cell.setCell(data: post)
                 return cell
             })
     }
@@ -141,6 +154,18 @@ extension PostViewController {
             return
         }
         self.backgroundImageView.kf.setImage(with: url)
+    }
+    
+    private func showReactionSheet(_ isShow: Bool) {
+        if !isShow { return }
+        
+        let reactionMembersViewController = ReactionMembersViewController()
+//        reactionMembersViewController.data = ["" , "", ""]
+        if let sheet = reactionMembersViewController.sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(reactionMembersViewController, animated: true)
     }
     
     private func calculateCurrentPage(offset: CGPoint) -> Int {

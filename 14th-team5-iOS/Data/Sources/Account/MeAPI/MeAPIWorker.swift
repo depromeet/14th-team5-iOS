@@ -30,8 +30,8 @@ extension MeAPIs {
         private var _headers: Observable<[APIHeader]?> {
             return App.Repository.token.accessToken
                 .map {
-                    guard let token = $0, !token.isEmpty else { return nil }
-                    return [BibbiAPI.Header.xAppKey]
+                    guard let token = $0, let accessToken = token.accessToken, !accessToken.isEmpty else { return [] }
+                    return [BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(accessToken), BibbiAPI.Header.acceptJson]
                 }
         }
     }
@@ -89,6 +89,7 @@ extension MeAPIWorker: MeRepositoryProtocol {
     }
     
     private func getMemberInfo(spec: APISpec, headers: [APIHeader]?) -> Single<MemberInfo?> {
+        
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do(onNext: {

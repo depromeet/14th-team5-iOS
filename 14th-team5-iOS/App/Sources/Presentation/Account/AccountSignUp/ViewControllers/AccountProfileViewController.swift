@@ -65,6 +65,12 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
             .observe(on: Schedulers.main)
             .bind(onNext: { $0.0.setProfilewView(with: $0.1) })
             .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.didTapCompletehButtonFinish }
+            .withUnretained(self)
+            .observe(on: Schedulers.main)
+            .bind(onNext: { $0.0.showNextPage(accessToken: $0.1) })
+            .disposed(by: disposeBag)
     }
     
     override func setupUI() {
@@ -131,5 +137,21 @@ extension AccountProfileViewController {
         if let firstName = nickname.first {
             profileButton.setTitle(String(firstName), for: .normal)
         }
+    }
+    
+    private func showNextPage(accessToken: AccessTokenResponse?) {
+        
+        guard let accessToken = accessToken else { return }
+        
+        let token = accessToken.accessToken
+        let refreshToken = accessToken.refreshToken
+        let isTemporaryToken = accessToken.isTemporaryToken
+        
+        let tk = AccessToken(accessToken: token, refreshToken: refreshToken, isTemporaryToken: isTemporaryToken)
+        App.Repository.token.accessToken.accept(tk)
+        
+        let container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
+        container.modalPresentationStyle = .fullScreen
+        present(container, animated: false)
     }
 }

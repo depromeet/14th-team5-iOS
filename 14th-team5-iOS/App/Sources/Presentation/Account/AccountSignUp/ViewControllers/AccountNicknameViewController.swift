@@ -91,13 +91,11 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
             .bind(onNext: { $0.0.transitionProfileViewController()})
             .disposed(by: disposeBag)
         
-        
         reactor.state.map { $0.profileType }
             .filter { $0 == .profile }
             .map { _ in "완료"}
             .bind(to: nextButton.rx.title())
             .disposed(by: disposeBag)
-        
     }
     
     public override func setupUI() {

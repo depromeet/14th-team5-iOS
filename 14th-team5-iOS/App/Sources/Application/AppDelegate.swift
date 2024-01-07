@@ -44,6 +44,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func applicationWillTerminate(_ application: UIApplication) {
+//        App.Repository.token.accessToken.accept(nil)
         unbindRepositories()
     }
 }
@@ -90,7 +91,7 @@ extension AppDelegate {
     
     func appleApp(_ app: UIApplication, didFinishLauchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) {
         
-        guard let accessToken = App.Repository.token.accessToken.value else {
+        guard let accessToken = App.Repository.token.accessToken.value?.accessToken else {
             return
         }
         

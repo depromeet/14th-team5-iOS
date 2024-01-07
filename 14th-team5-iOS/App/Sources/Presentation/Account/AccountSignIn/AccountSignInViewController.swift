@@ -125,6 +125,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.pushAccountSingUpVC }
+            .distinctUntilChanged()
             .filter { $0 }
             .withLatestFrom(App.Repository.token.accessToken)
             .observe(on: Schedulers.main)
@@ -135,11 +136,15 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
 }
 
 extension AccountSignInViewController {
-    private func showNextPage(token: String?) {
-        let container = UINavigationController(rootViewController: token != nil ?
-                                HomeDIContainer().makeViewController() :
-                                AccountSignUpDIContainer().makeViewController())
-        container.modalPresentationStyle = .fullScreen
-        present(container, animated: false)
+    private func showNextPage(token: AccessToken?) {
+        if let _ = token {
+            let container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+            container.modalPresentationStyle = .fullScreen
+            present(container, animated: false)
+        } else {
+            let container = UINavigationController(rootViewController: AccountSignUpDIContainer().makeViewController())
+            container.modalPresentationStyle = .fullScreen
+            present(container, animated: false)
+        }
     }
 }

@@ -105,23 +105,29 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
             container.modalPresentationStyle = .fullScreen
             
             present(container, animated: false)
+            return
         }
         
         let container: UINavigationController
         let presentationStyle: UIModalPresentationStyle = .fullScreen
-        container = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
         
-//        if App.Repository.token.fakeAccessToken.value == nil {
-//            container = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
-//        } else if App.Repository.token.accessToken.value == nil {
-//            container = UINavigationController(rootViewController: AccountSignUpDIContainer().makeViewController())
-//        } else {
-//            if UserDefaults.standard.finishTutorial {
-//                container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
-//            } else {
-//                container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
-//            }
-//        }
+        guard let isTemporaryToken = App.Repository.token.accessToken.value?.isTemporaryToken else {
+            container = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
+            container.modalPresentationStyle = presentationStyle
+            present(container, animated: false)
+            
+            return
+        }
+        
+        if isTemporaryToken {
+            container = UINavigationController(rootViewController: AccountSignUpDIContainer().makeViewController())
+        } else {
+            if UserDefaults.standard.finishTutorial {
+                container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+            } else {
+                container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
+            }
+        }
         
         container.modalPresentationStyle = presentationStyle
         present(container, animated: false)

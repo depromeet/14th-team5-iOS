@@ -27,7 +27,7 @@ public final class OnBoardingReactor: Reactor {
     }
     
     public struct State {
-        var isPermissionGranted: Bool? = false
+        @Pulse var isPermissionGranted: Bool = false
     }
     
     init(accountRepository: AccountRepository) {

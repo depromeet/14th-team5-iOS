@@ -47,7 +47,7 @@ public final class AccountSignUpReactor: Reactor {
         
         case profileImageTapped
         case setprofilePresignedURL(String)
-        case didTapCompletehButton(AccessToken?)
+        case didTapCompletehButton(AccessTokenResponse?)
     }
     
     public struct State {
@@ -70,7 +70,7 @@ public final class AccountSignUpReactor: Reactor {
         
         var profilePresignedURL: String = ""
         var profileImageButtontapped: Bool = false
-        var didTapCompletehButtonFinish: AccessToken? = nil
+        var didTapCompletehButtonFinish: AccessTokenResponse? = nil
     }
     
     init(
@@ -154,8 +154,13 @@ extension AccountSignUpReactor {
             newState.profileImageButtontapped = true
         case .didTapCompletehButton(let token):
             if let token = token {
-                App.Repository.token.accessToken.accept(token.accessToken ?? "")
-                App.Repository.token.refreshToken.accept(token.refreshToken ?? "")
+                
+                let accessToken = token.accessToken
+                let refreshToken = token.refreshToken
+                let isTemporaryToken = token.isTemporaryToken
+                
+                let tk = AccessToken(accessToken: accessToken, refreshToken: refreshToken, isTemporaryToken: isTemporaryToken)
+                App.Repository.token.accessToken.accept(tk)
                 newState.didTapCompletehButtonFinish = token
             }
         case let .setEditNickName(entity):

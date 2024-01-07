@@ -66,17 +66,16 @@ public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInter
                 completion(.doNotRetryWithError(error))
                 return
             }
-            
-//            print("check Retry and : \(App.Repository.token.refreshToken.value)")
-            let parameter = AccountRefreshParameter(refreshToken: App.Repository.token.refreshToken.value ?? "" )
+        let parameter = AccountRefreshParameter(refreshToken: App.Repository.token.accessToken.value?.refreshToken ?? "")
             
             accountAPIWorker.accountRefreshToken(parameter: parameter)
                 .compactMap { $0?.toDomain() }
                 .asObservable()
                 .subscribe(onNext: { entity in
                     print("refresh Entity Check: \(entity)")
-                    App.Repository.token.refreshToken.accept(entity.refreshToken)
-                    App.Repository.token.accessToken.accept(entity.accessToken)
+                    
+                    let token = AccessToken(accessToken: entity.accessToken, refreshToken: entity.refreshToken, isTemporaryToken: entity.isTemporaryToken)
+                    App.Repository.token.accessToken.accept(token)
                     completion(.retry)
                 }, onError: { error in
                     completion(.doNotRetryWithError(error))

@@ -116,10 +116,14 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.isPermissionGranted ?? false }
+        reactor.state.map { $0.isPermissionGranted }
+            .filter { $0 }
             .observe(on: Schedulers.main)
             .withUnretained(self)
-            .bind(onNext: { UserDefaults.standard.finishTutorial = $0.1 })
+            .bind(onNext: {
+                UserDefaults.standard.finishTutorial = $0.1
+                
+            })
             .disposed(by: disposeBag)
     }
     
@@ -127,6 +131,15 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
         let defaultColor = DesignSystemAsset.mainGreen.color
         nextButton.backgroundColor = index == 2 ? defaultColor : defaultColor.withAlphaComponent(0.2)
         nextButton.isEnabled = index == 2
+    }
+    
+    private func showNextPage() {
+        var container: UINavigationController
+        container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+        container.modalPresentationStyle = .fullScreen
+        
+        present(container, animated: false)
+        return
     }
 }
 

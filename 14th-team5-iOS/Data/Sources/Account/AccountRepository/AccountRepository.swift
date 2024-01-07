@@ -17,15 +17,13 @@ public enum AccountLoaction {
     case account
 }
 
-
-
 public protocol AccountImpl: AnyObject {
     var disposeBag: DisposeBag { get }
     
     func kakaoLogin(with snsType: SNS, vc: UIViewController) -> Observable<APIResult>
     func appleLogin(with snsType: SNS, vc: UIViewController) -> Observable<APIResult>
     func executeNicknameUpdate(memberId: String, parameter: AccountNickNameEditParameter) -> Observable<AccountNickNameEditResponse>
-    func signUp(name: String, date: String, photoURL: String?) -> Observable<AccessToken?>
+    func signUp(name: String, date: String, photoURL: String?) -> Observable<AccessTokenResponse?>
 }
 
 public final class AccountRepository: AccountImpl {
@@ -44,6 +42,8 @@ public final class AccountRepository: AccountImpl {
                 .subscribe(onNext: { result in
                     observer.onNext(result)
                     observer.onCompleted()
+                }, onError: { error in
+                    print("error: \(error.localizedDescription)")
                 })
                 .disposed(by: self.disposeBag)
             
@@ -56,13 +56,15 @@ public final class AccountRepository: AccountImpl {
                 .subscribe(onNext: { result in
                     observer.onNext(result)
                     observer.onCompleted()
+                }, onError: { error in
+                    print("error: \(error.localizedDescription)")
                 })
                 .disposed(by: self.disposeBag)
             
             return Disposables.create()
         }
     }
-    public func signUp(name: String, date: String, photoURL: String?) -> Observable<AccessToken?> {
+    public func signUp(name: String, date: String, photoURL: String?) -> Observable<AccessTokenResponse?> {
         return Observable.create { observer in
             self.apiWorker.signUpWith(name: name, date: date, photoURL: photoURL)
                 .subscribe(

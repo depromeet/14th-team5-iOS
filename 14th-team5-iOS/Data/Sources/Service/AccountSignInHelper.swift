@@ -63,15 +63,25 @@ extension AccountSignInHelper {
     
     func signInWith(snsType: SNS, snsToken: String) -> Single<APIResult> {
         return apiWorker.signInWith(snsType: snsType, snsToken: snsToken)
-            .map { token in
+            .flatMap {
+                
+                let accessToken = $0?.accessToken
+                let refreshToken = $0?.refreshToken
+                let isTemporaryToken = $0?.isTemporaryToken
+                
+                let token = AccessToken(accessToken: accessToken, refreshToken: refreshToken, isTemporaryToken: isTemporaryToken)
+                
+                return Single.just(token)
+            }
+            .map { (token: AccessToken?) -> APIResult in
                 guard let token = token else {
                     return .failed
                 }
                 
                 if token.isTemporaryToken == false {
-                    App.Repository.token.accessToken.accept(token.accessToken)
+                    App.Repository.token.accessToken.accept(token)
                 } else {
-                    App.Repository.token.fakeAccessToken.accept(token.accessToken)
+                    App.Repository.token.fakeAccessToken.accept(token)
                 }
                 
                 return .success

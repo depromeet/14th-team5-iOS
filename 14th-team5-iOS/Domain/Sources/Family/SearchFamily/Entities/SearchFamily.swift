@@ -9,10 +9,10 @@ import Foundation
 
 public struct ProfileData: Equatable, Codable {
     public let memberId: String
-    public let profileImageURL: String
+    public let profileImageURL: String?
     public let name: String
     
-    public init(memberId: String, profileImageURL: String, name: String) {
+    public init(memberId: String, profileImageURL: String?, name: String) {
         self.memberId = memberId
         self.profileImageURL = profileImageURL
         self.name = name

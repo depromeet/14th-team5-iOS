@@ -13,6 +13,8 @@ public struct RemoveEmojiRequestDTO: Codable {
 }
 
 struct RemoveEmojiResponseDTO: Codable {
+    let success: Bool
+    
     func toDomain() -> Void {
         return ()
     }

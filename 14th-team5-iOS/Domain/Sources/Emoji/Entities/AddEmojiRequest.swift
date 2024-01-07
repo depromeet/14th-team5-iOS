@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Core
 
 public struct AddEmojiQuery {
     public let postId: String
@@ -16,9 +17,9 @@ public struct AddEmojiQuery {
 }
 
 public struct AddEmojiBody {
-    public let content: String
+    public let content: Emojis
     
-    public init(content: String) {
+    public init(content: Emojis) {
         self.content = content
     }
 }

@@ -119,7 +119,14 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
         reactor.state.map { $0.isPermissionGranted ?? false }
             .observe(on: Schedulers.main)
             .withUnretained(self)
-            .bind(onNext: { UserDefaults.standard.finishTutorial = $0.1 })
+            .bind(onNext: {
+                UserDefaults.standard.finishTutorial = $0.1
+                var container: UINavigationController
+                container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+                container.modalPresentationStyle = .fullScreen
+                
+                self.present(container, animated: false)
+            })
             .disposed(by: disposeBag)
     }
     

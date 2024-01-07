@@ -17,7 +17,7 @@ struct FamilySearchRequestDTO: Codable {
 struct FamilyMemberDTO: Codable {
     let memberId: String
     let name: String
-    let imageUrl: String
+    let imageUrl: String?
 }
 
 struct FamilySearchResponseDTO: Codable {

@@ -36,7 +36,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     private let collectionViewFlowLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     private lazy var contentDatasource = createContentDataSource()
     
-    let reactor: EmojiReactor? = nil
+//    let reactor: EmojiReactor? = nil
     
     convenience init(reacter: EmojiReactor? = nil) {
         self.init(frame: .zero)
@@ -319,7 +319,7 @@ extension PostCollectionViewCell: UICollectionViewDelegateFlowLayout {
         let totalCellWidth = 28 * cellCount
         let totalSpacingWidth = 2 * (cellCount - 1)
 
-        let leftInset = (contentCollectionView.frame.width - CGFloat(totalCellWidth + totalSpacingWidth)) / 2
+        let leftInset = (collectionView.frame.width - CGFloat(totalCellWidth + totalSpacingWidth)) / 2
         let rightInset = leftInset
 
         return UIEdgeInsets(top: 0, left: leftInset, bottom: 0, right: rightInset)

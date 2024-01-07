@@ -72,7 +72,7 @@ extension EmojiReactor {
             return emojiRepository.excute(query: query, body: body)
                 .asObservable()
                 .flatMap { (response: Void?) -> Observable<Mutation> in
-                    guard let response = response else {
+                    guard let response else {
                         return Observable.empty()
                     }
                     return Observable.just(Mutation.selectEmoji(emoji))

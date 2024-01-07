@@ -50,7 +50,7 @@ final class EmojiCountButton: BaseView<EmojiReactor> {
             .disposed(by: disposeBag)
         
         self.rx.longPress
-            .map { Reactor.Action.longPressedEmojiCountButton }
+            .map { _ in Reactor.Action.longPressedEmojiCountButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }

@@ -155,12 +155,12 @@ extension AccountSignUpReactor {
         case .didTapCompletehButton(let token):
             if let token = token {
                 
-                let accessToken = token.accessToken
-                let refreshToken = token.refreshToken
-                let isTemporaryToken = token.isTemporaryToken
-                
-                let tk = AccessToken(accessToken: accessToken, refreshToken: refreshToken, isTemporaryToken: isTemporaryToken)
-                App.Repository.token.accessToken.accept(tk)
+//                let accessToken = token.accessToken
+//                let refreshToken = token.refreshToken
+//                let isTemporaryToken = token.isTemporaryToken
+//                
+//                let tk = AccessToken(accessToken: accessToken, refreshToken: refreshToken, isTemporaryToken: isTemporaryToken)
+//                App.Repository.token.accessToken.accept(tk)
                 newState.didTapCompletehButtonFinish = token
             }
         case let .setEditNickName(entity):

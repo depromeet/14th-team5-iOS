@@ -5,11 +5,11 @@
 //  Created by 김건우 on 12/8/23.
 //
 
-import UIKit
-
 import Core
 import DesignSystem
 import Domain
+import UIKit
+
 import FSCalendar
 import Kingfisher
 import ReactorKit
@@ -310,13 +310,15 @@ extension CalendarPostViewController {
     private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<PostListSectionModel> {
         return RxCollectionViewSectionedReloadDataSource<PostListSectionModel> { datasource, collectionView, indexPath, item in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as! PostCollectionViewCell
+            
             cell.reactor = EmojiReactor(
                 emojiRepository: PostListsDIContainer().makeEmojiUseCase(),
                 initialState: .init(
                     type: .calendar,
                     postId: item.postId,
+                    profile: item.author ?? .init(memberId: "", profileImageURL: "", name: ""), // 임시 코드
                     imageUrl: item.imageURL,
-                    nickName: item.author?.name ?? ""
+                    content: item.content
                 )
             )
             return cell

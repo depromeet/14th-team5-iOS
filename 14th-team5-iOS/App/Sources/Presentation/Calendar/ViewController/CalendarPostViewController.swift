@@ -30,8 +30,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         collectionViewLayout: orthogonalCompositionalLayout
     )
     
-    private let allFamilyUploadedToastView: BibbiToastMessageView = BibbiToastMessageView()
-    
     // MARK: - Properties
     private let blurImageIndexRelay: PublishRelay<Int> = PublishRelay<Int>()
     private lazy var dataSource: RxCollectionViewSectionedReloadDataSource<PostListSectionModel> = prepareDatasource()
@@ -55,7 +53,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         blurImageView.addSubviews(
             navigationBarView, calendarView, collectionView
         )
-        collectionView.addSubview(allFamilyUploadedToastView)
     }
     
     public override func setupAutoLayout() {
@@ -79,11 +76,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         collectionView.snp.makeConstraints {
             $0.top.equalTo(calendarView.snp.bottom).offset(16.0)
             $0.leading.bottom.trailing.equalTo(blurImageView)
-        }
-        
-        allFamilyUploadedToastView.snp.makeConstraints {
-            $0.bottom.equalTo(view.snp.bottom).offset(-40.0)
-            $0.centerX.equalToSuperview()
         }
     }
     
@@ -125,11 +117,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             $0.isScrollEnabled = false
             $0.backgroundColor = UIColor.clear
             $0.register(PostCollectionViewCell.self, forCellWithReuseIdentifier: PostCollectionViewCell.id)
-        }
-        
-        allFamilyUploadedToastView.do {
-            $0.text = "🎉우리 가족 모두가 사진을 올린 날🎉"
-            $0.isHidden = true
         }
         
         setupBlurEffect()
@@ -226,8 +213,17 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.hiddenToastMessageView }
-            .bind(to: allFamilyUploadedToastView.rx.isHidden)
+        reactor.pulse(\.$toastMessageView).skip(1)
+            .delay(.milliseconds(300), scheduler: Schedulers.main)
+            .withUnretained(self)
+            .subscribe {
+                if $0.1 {
+                    $0.0.makeBibbiToastView(
+                        text: "🎉우리 가족 모두가 사진을 올린 날🎉",
+                        width: 300
+                    )
+                }
+            }
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.arrayCalendarResponse }

@@ -37,7 +37,7 @@ public final class CalendarPostViewReactor: Reactor {
         var blurImageUrl: String?
         var postListDatasource: [PostListSectionModel] = [SectionModel(model: "", items: [])]
         var arrayCalendarResponse: [String: [CalendarResponse]] = [:] // (월: [일자 데이터]) 형식으로 불러온 데이터를 저장
-        var hiddenToastMessageView: Bool = true
+        @Pulse var toastMessageView: Bool = true
     }
     
     // MARK: - Properties
@@ -70,8 +70,8 @@ public final class CalendarPostViewReactor: Reactor {
         let eventMutation = provider.toastGlobalState.event
             .flatMap {
                 switch $0 {
-                case let .hiddenAllFamilyUploadedToastView(hidden):
-                    return Observable<Mutation>.just(.setupTaostMessageView(hidden))
+                case let .showAllFamilyUploadedToastView(uploaded):
+                    return Observable<Mutation>.just(.setupTaostMessageView(uploaded))
                 }
             }
         
@@ -106,8 +106,7 @@ public final class CalendarPostViewReactor: Reactor {
                           !postResponse.isEmpty else {
                         return Observable<Mutation>.empty()
                     }
-                    print("가져온 포스트 = ")
-                    print(postResponse)
+                    
                     return Observable.concat(
                         Observable<Mutation>.just(.injectPostResponse(postResponse)),
                         Observable<Mutation>.just(.setupBlurImageView(0))
@@ -149,7 +148,7 @@ public final class CalendarPostViewReactor: Reactor {
             newState.blurImageUrl = items[index].imageURL
             
         case let .setupTaostMessageView(isUploaded):
-            newState.hiddenToastMessageView = isUploaded
+            newState.toastMessageView = isUploaded
             
         case let .injectCalendarResponse(yearMonth, arrayCalendarResponse):
             newState.arrayCalendarResponse[yearMonth] = arrayCalendarResponse.results

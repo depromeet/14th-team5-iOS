@@ -54,17 +54,17 @@ extension UIViewController {
     
     /// 둥근 모양의 토스트 메시지를 보여줍니다.
     /// - Parameters:
-    ///   - title: 토스트 메시지
+    ///   - text: 토스트 메시지
     ///   - name: SFSymbol 이름
-    ///   - pattetteColors: SFSymbol 색상 (기본값 darkGray)
+    ///   - pattetteColors: SFSymbol 색상 (기본값 .gray300)
     ///   - width: 너비 (기본값 250)
     ///   - height: 높이 (기본값 56)
     ///   - duration: 알림 표시 지속 시간 (기본값 0.5)
     ///   - offset: 표시할 위치 (기본값 40)
-    public func makeRoundedToastView(
-        title: String,
-        symbol name: String,
-        palletteColors colors: [UIColor] = [.darkGray],
+    public func makeBibbiToastView(
+        text: String,
+        symbol name: String = "",
+        palletteColors colors: [UIColor] = [.gray300],
         width: CGFloat = 250,
         height: CGFloat = 56,
         duration: CGFloat = 0.5,
@@ -73,14 +73,16 @@ extension UIViewController {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
-            let toastView: UIView = self.getRoundedToastView(
-                title,
+            guard let toastView = self.prepareBibbiToastView(
+                text: text,
                 symbol: name,
                 palletteColors: colors,
                 width: width,
                 height: height,
                 offset: offset
-            )
+            ) else {
+                return
+            }
             
             UIView.animate(withDuration: 0.6, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.4) {
                 toastView.transform = CGAffineTransform(translationX: 0, y: -offset * 2)
@@ -97,14 +99,14 @@ extension UIViewController {
     
     /// 둥근 모양의 토스트 메시지를 보여줍니다.
     /// - Parameters:
-    ///   - title: 토스트 메시지
+    ///   - text: 토스트 메시지
     ///   - designSystemImage: 이미지
     ///   - width: 너비 (기본값 250)
     ///   - height: 높이 (기본값 56)
     ///   - duration: 알림 표시 지속 시간 (기본값 0.5)
     ///   - offset: 표시할 위치 (기본값 40)
-    public func makeRoundedToastView(
-        title: String,
+    public func makeBibbiToastView(
+        text: String,
         designSystemImage image: DesignSystemImages.Image,
         width: CGFloat = 250,
         height: CGFloat = 56,
@@ -114,13 +116,15 @@ extension UIViewController {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
-            let toastView: UIView = self.getRoundedToastView(
-                title,
+            guard let toastView = self.prepareBibbiToastView(
+                text: text,
                 designSystemImage: image,
                 width: width,
                 height: height,
                 offset: offset
-            )
+            ) else {
+                return
+            }
             
             UIView.animate(withDuration: 0.6, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.4) {
                 toastView.transform = CGAffineTransform(translationX: 0, y: -offset * 2)
@@ -135,66 +139,43 @@ extension UIViewController {
         }
     }
     
-    private func getRoundedToastView(
-        _ title: String,
+    private func prepareBibbiToastView(
+        text: String,
         symbol name: String? = nil,
         palletteColors colors: [UIColor]? = nil,
         designSystemImage image: DesignSystemImages.Image? = nil,
         width: CGFloat,
         height: CGFloat,
         offset: CGFloat
-    ) -> UIView {
-        let toastView: UIView = UIView()
-        let stackView: UIStackView = UIStackView()
-        let labelView: UILabel = UILabel()
-        var imageView: UIImageView!
-        
-        // SF심볼 이미지를 받았다면
-        if let name = name {
-            let config = UIImage.SymbolConfiguration(paletteColors: colors ?? [.darkGray])
-            let symbol: UIImage? = UIImage(systemName: name, withConfiguration: config)
-            
-            imageView = UIImageView(image: symbol)
-            // 일반 이미지를 받았다면
-        } else {
-            imageView = UIImageView(image: image)
+    ) -> UIView? {
+        // 하위 뷰에 이미 ToastView가 존재한다면
+        guard view.findSubview(of: BibbiToastMessageView.self) == nil else {
+            return nil
         }
         
-        labelView.text = title
-        labelView.textColor = UIColor.white
-        labelView.textAlignment = .center
-        labelView.font = UIFont.systemFont(ofSize: 17)
+        let image: UIImage? = {
+            if let name = name {
+                let colors: [UIColor] = colors ?? [.gray300]
+                let config = UIImage.SymbolConfiguration(paletteColors: colors)
+                return UIImage(systemName: name, withConfiguration: config)
+            } else {
+                return image
+            }
+        }()
         
-        imageView.contentMode = .scaleAspectFit
-        
-        stackView.axis = .horizontal
-        stackView.spacing = 5.0
-        stackView.alignment = .fill
-        stackView.distribution = .fillProportionally
-        
-        toastView.alpha = 1.0
-        toastView.backgroundColor = UIColor.black.withAlphaComponent(0.7)
-        toastView.layer.cornerRadius = height / 2.0
-        toastView.layer.masksToBounds = true
-        
-        self.view.addSubview(toastView)
-        toastView.addSubview(stackView)
-        stackView.addArrangedSubviews(
-            imageView, labelView
+        let toastView: BibbiToastMessageView = BibbiToastMessageView(
+            text: text,
+            image: image,
+            width: width,
+            height: height
         )
         
+        self.view.addSubview(toastView)
         toastView.snp.makeConstraints {
-            $0.height.equalTo(height)
             $0.width.equalTo(width)
+            $0.height.equalTo(height)
             $0.bottom.equalToSuperview().offset(offset)
             $0.centerX.equalToSuperview()
-        }
-        
-        stackView.snp.makeConstraints {
-            $0.top.bottom.equalToSuperview()
-            $0.leading.equalTo(toastView.snp.leading).offset(16.0)
-            $0.trailing.equalTo(toastView.snp.trailing).offset(-16.0)
-            $0.centerY.equalTo(toastView.snp.centerY)
         }
         
         return toastView

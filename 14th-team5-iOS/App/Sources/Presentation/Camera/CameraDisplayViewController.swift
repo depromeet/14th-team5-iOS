@@ -206,7 +206,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         displayEditTextField.rx
             .text.orEmpty
             .distinctUntilChanged()
-            .filter { $0.count <= 8 }
+            .filter { $0.count <= 8 && !$0.contains(" ") }
             .observe(on: MainScheduler.instance)
             .map { Reactor.Action.fetchDisplayImage($0) }
             .bind(to: reactor.action)
@@ -214,9 +214,20 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         displayEditTextField.rx
             .text.orEmpty
+            .map { $0.contains(" ") }
+            .distinctUntilChanged()
+            .debounce(.seconds(1), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, isShow in
+                guard isShow == true else { return }
+                owner.makeRoundedToastView(title: "띄어쓰기는 할 수 없어요", designSystemImage: DesignSystemAsset.warning.image, width: 230, height: 56, offset: 400)
+            }.disposed(by: disposeBag)
+        
+        displayEditTextField.rx
+            .text.orEmpty
             .distinctUntilChanged()
             .map { ($0.count > 8) }
-            .throttle(.seconds(1), scheduler: MainScheduler.instance)
+            .debounce(.seconds(1), scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind { owner, isShow in
                 guard isShow == true else { return }
@@ -426,7 +437,7 @@ extension CameraDisplayViewController {
 extension CameraDisplayViewController: UICollectionViewDelegateFlowLayout {
     
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 38, height: 61)
+        return CGSize(width: collectionView.frame.size.width, height: collectionView.frame.size.height)
     }
     
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {

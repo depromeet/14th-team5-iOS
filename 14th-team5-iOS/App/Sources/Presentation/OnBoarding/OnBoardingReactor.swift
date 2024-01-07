@@ -27,7 +27,7 @@ public final class OnBoardingReactor: Reactor {
     }
     
     public struct State {
-        @Pulse var isPermissionGranted: Bool = false
+        var isPermissionGranted: Bool = false
     }
     
     init(accountRepository: AccountRepository) {
@@ -58,7 +58,7 @@ extension OnBoardingReactor {
         var newState = state
         switch mutation {
         case .setPermissionStatus(let isPermissionGranted):
-            newState.isPermissionGranted = isPermissionGranted
+            newState.isPermissionGranted = true
         }
         return newState
     }

@@ -33,9 +33,22 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         frame: .zero,
         collectionViewLayout: UICollectionViewFlowLayout()
     )
+    private let collectionViewFlowLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     private lazy var contentDatasource = createContentDataSource()
     
-    let reactor = EmojiReactor(emojiRepository: PostListsDIContainer().makeEmojiUseCase(), initialState: .init(type: .home, postId: "01HJBRBSZRF429S1SES900ET5G", profile: ProfileData(memberId: "", profileImageURL: "", name: ""), imageUrl: "", content: ""))
+    let reactor = EmojiReactor(
+        emojiRepository: PostListsDIContainer().makeEmojiUseCase(),
+        initialState: .init(
+            type: .home,
+            post: .init(
+                postId: "",
+                author: .init(memberId: "", profileImageURL: "", name: ""),
+                emojiCount: 0,
+                imageURL: "",
+                content: "",
+                time: ""
+            )
+        ))
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -54,12 +67,14 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             .disposed(by: disposeBag)
         
         Observable.just(())
+            .take(1)
             .map { Reactor.Action.fetchEmojiList }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         Observable.just(())
-            .map { Reactor.Action.fetchDisplayContent(reactor.currentState.content) }
+            .take(1)
+            .map { Reactor.Action.fetchDisplayContent(reactor.currentState.post.content) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -116,12 +131,22 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             .disposed(by: disposeBag)
         
         reactor.state
-            .map { $0.imageUrl }
+            .map { $0.post }
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
                 $0.0.postImageView.kf.setImage(
-                    with: URL(string: $0.1),
+                    with: URL(string: $0.1.imageURL),
+                    options: [
+                        .transition(.fade(0.15))
+                    ]
+                )
+                
+                guard let author = $0.1.author else { return }
+                guard let profileImageUrl = $0.1.author?.profileImageURL else { return }
+                $0.0.nickNameLabel.text = author.name
+                $0.0.profileImageView.kf.setImage(
+                    with: URL(string: profileImageUrl),
                     options: [
                         .transition(.fade(0.15))
                     ]
@@ -132,21 +157,6 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         reactor.state
             .map { $0.fetchedDisplayContent }
             .bind(to: contentCollectionView.rx.items(dataSource: contentDatasource))
-            .disposed(by: disposeBag)
-        
-        reactor.state
-            .map { $0.profile }
-            .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe {
-                $0.0.nickNameLabel.text = $0.1.name
-                $0.0.profileImageView.kf.setImage(
-                    with: URL(string: $0.1.profileImageURL),
-                    options: [
-                        .transition(.fade(0.15))
-                    ]
-                )
-            }
             .disposed(by: disposeBag)
     }
     
@@ -233,8 +243,14 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             $0.isScrollEnabled = false
             $0.showsVerticalScrollIndicator = false
             $0.showsHorizontalScrollIndicator = false
+            $0.collectionViewLayout = collectionViewFlowLayout
             $0.register(DisplayEditCollectionViewCell.self, forCellWithReuseIdentifier: "DisplayEditCollectionViewCell")
             $0.delegate = self
+        }
+        
+        collectionViewFlowLayout.do {
+            $0.itemSize = CGSize(width: 28, height: 41)
+            $0.minimumInteritemSpacing = 2
         }
         
         selectableEmojiStackView.do {
@@ -331,7 +347,7 @@ extension PostCollectionViewCell {
 }
 
 extension PostCollectionViewCell {
-    func createContentDataSource() -> RxCollectionViewSectionedReloadDataSource<DisplayEditSectionModel> {
+    private func createContentDataSource() -> RxCollectionViewSectionedReloadDataSource<DisplayEditSectionModel> {
         return RxCollectionViewSectionedReloadDataSource<DisplayEditSectionModel> { datasources, collectionView, indexPath, sectionItem in
             switch sectionItem {
             case let .fetchDisplayItem(cellReactor):
@@ -345,32 +361,24 @@ extension PostCollectionViewCell {
     }
 }
 
-extension PostCollectionViewCell {
-    func setCell(data: PostListData) {
-        postImageView.kf.setImage(with: URL(string: data.imageURL))
-    }
-}
-
 extension PostCollectionViewCell: UICollectionViewDelegateFlowLayout {
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 28, height: 41)
-    }
-    
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 2
-    }
-    
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        guard let cellCount = reactor?.currentState.content.count else {
+        guard let cellCount = reactor?.currentState.post.content.count else {
             return .zero
         }
         
         let totalCellWidth = 28 * cellCount
         let totalSpacingWidth = 2 * (cellCount - 1)
 
-        let leftInset = (collectionView.frame.width - CGFloat(totalCellWidth + totalSpacingWidth)) / 2
+        let leftInset = (contentCollectionView.frame.width - CGFloat(totalCellWidth + totalSpacingWidth)) / 2
         let rightInset = leftInset
 
         return UIEdgeInsets(top: 0, left: leftInset, bottom: 0, right: rightInset)
+    }
+}
+
+extension PostCollectionViewCell {
+    func setCell(data: PostListData) {
+        postImageView.kf.setImage(with: URL(string: data.imageURL))
     }
 }

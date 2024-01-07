@@ -26,7 +26,7 @@ public final class CalendarPostViewReactor: Reactor {
     // MARK: - Mutation
     public enum Mutation {
         case setupBlurImageView(Int)
-        case setupTaostMessageView(Bool)
+        case setupToastMessageView(Bool)
         case injectCalendarResponse(String, ArrayResponseCalendarResponse)
         case injectPostResponse([PostListData])
     }
@@ -35,9 +35,9 @@ public final class CalendarPostViewReactor: Reactor {
     public struct State {
         var selectedDate: Date
         var blurImageUrl: String?
-        var postListDatasource: [PostListSectionModel] = [SectionModel(model: "", items: [])]
-        var arrayCalendarResponse: [String: [CalendarResponse]] = [:] // (월: [일자 데이터]) 형식으로 불러온 데이터를 저장
-        @Pulse var toastMessageView: Bool = true
+        var displayPost: [PostListSectionModel]
+        var displayCalendar: [String: [CalendarResponse]] // (월: [일자 데이터]) 형식으로 불러온 데이터를 저장
+        @Pulse var shouldPresentToastMessageView: Bool
     }
     
     // MARK: - Properties
@@ -58,7 +58,12 @@ public final class CalendarPostViewReactor: Reactor {
         postListUseCase: PostListUseCaseProtocol,
         provider: GlobalStateProviderProtocol
     ) {
-        self.initialState = State(selectedDate: selection)
+        self.initialState = State(
+            selectedDate: selection,
+            displayPost: [],
+            displayCalendar: [:],
+            shouldPresentToastMessageView: false
+        )
         
         self.calendarUseCase = calendarUseCase
         self.postListUseCase = postListUseCase
@@ -71,7 +76,7 @@ public final class CalendarPostViewReactor: Reactor {
             .flatMap {
                 switch $0 {
                 case let .showAllFamilyUploadedToastView(uploaded):
-                    return Observable<Mutation>.just(.setupTaostMessageView(uploaded))
+                    return Observable<Mutation>.just(.setupToastMessageView(uploaded))
                 }
             }
         
@@ -142,19 +147,19 @@ public final class CalendarPostViewReactor: Reactor {
         
         switch mutation {
         case let .setupBlurImageView(index):
-            guard let items = newState.postListDatasource.first?.items else {
+            guard let items = newState.displayPost.first?.items else {
                 return newState
             }
             newState.blurImageUrl = items[index].imageURL
             
-        case let .setupTaostMessageView(isUploaded):
-            newState.toastMessageView = isUploaded
+        case let .setupToastMessageView(uploaded):
+            newState.shouldPresentToastMessageView = uploaded
             
         case let .injectCalendarResponse(yearMonth, arrayCalendarResponse):
-            newState.arrayCalendarResponse[yearMonth] = arrayCalendarResponse.results
+            newState.displayCalendar[yearMonth] = arrayCalendarResponse.results
             
         case let .injectPostResponse(postResponse):
-            newState.postListDatasource = [
+            newState.displayPost = [
                 SectionModel(
                     model: "",
                     items: postResponse

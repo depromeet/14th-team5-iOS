@@ -39,10 +39,7 @@ final class EmojiReactor: Reactor {
     
     struct State {
         let type: CellType
-        let postId: String
-        let profile: ProfileData
-        let imageUrl: String
-        let content: String
+        let post: PostListData
         
         var isShowingSelectableEmojiStackView: Bool = false
         var selectedEmoji: (Emojis?, Int) = (nil, 0)
@@ -69,7 +66,7 @@ extension EmojiReactor {
         case let .receiveEmojiData(data):
             return Observable.just(Mutation.setUpEmojiCountStackView(data))
         case let .tappedSelectableEmojiButton(emoji):
-            let query: AddEmojiQuery = AddEmojiQuery(postId: initialState.postId)
+            let query: AddEmojiQuery = AddEmojiQuery(postId: initialState.post.postId)
             let body: AddEmojiBody = AddEmojiBody(content: emoji.emojiString)
             return emojiRepository.excute(query: query, body: body)
                 .asObservable()
@@ -80,7 +77,7 @@ extension EmojiReactor {
                     return Observable.just(Mutation.selectEmoji(emoji))
                 }
         case let .tappedSelectedEmojiCountButton(emoji):
-            let query: RemoveEmojiQuery = RemoveEmojiQuery(postId: initialState.postId)
+            let query: RemoveEmojiQuery = RemoveEmojiQuery(postId: initialState.post.postId)
             let body: RemoveEmojiBody = RemoveEmojiBody(content: emoji)
             return emojiRepository.excute(query: query, body: body)
                 .asObservable()
@@ -91,7 +88,7 @@ extension EmojiReactor {
                     return Observable.just(Mutation.unselectEmoji(emoji))
                 }
         case .fetchEmojiList:
-            let query: FetchEmojiQuery = FetchEmojiQuery(postId: initialState.postId)
+            let query: FetchEmojiQuery = FetchEmojiQuery(postId: initialState.post.postId)
             return emojiRepository.excute(query: query)
                 .asObservable()
                 .flatMap { emojiList in

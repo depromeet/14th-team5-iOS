@@ -213,7 +213,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$toastMessageView).skip(1)
+        reactor.pulse(\.$shouldPresentToastMessageView)
             .delay(.milliseconds(300), scheduler: Schedulers.main)
             .withUnretained(self)
             .subscribe {
@@ -226,7 +226,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.arrayCalendarResponse }
+        reactor.state.map { $0.displayCalendar }
             .distinctUntilChanged(\.count)
             .withUnretained(self)
             .subscribe {
@@ -234,11 +234,11 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
 
-        reactor.state.map { $0.postListDatasource }
+        reactor.state.map { $0.displayPost }
             .bind(to: collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.postListDatasource }
+        reactor.state.map { $0.displayPost }
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
@@ -308,17 +308,14 @@ extension CalendarPostViewController {
 
 extension CalendarPostViewController {
     private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<PostListSectionModel> {
-        return RxCollectionViewSectionedReloadDataSource<PostListSectionModel> { datasource, collectionView, indexPath, item in
+        return RxCollectionViewSectionedReloadDataSource<PostListSectionModel> { datasource, collectionView, indexPath, post in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as! PostCollectionViewCell
             
             cell.reactor = EmojiReactor(
                 emojiRepository: PostListsDIContainer().makeEmojiUseCase(),
                 initialState: .init(
                     type: .calendar,
-                    postId: item.postId,
-                    profile: item.author ?? .init(memberId: "", profileImageURL: "", name: ""), // 임시 코드
-                    imageUrl: item.imageURL,
-                    content: item.content
+                    post: post
                 )
             )
             return cell
@@ -356,7 +353,7 @@ extension CalendarPostViewController: FSCalendarDataSource {
         // 해당 일에 불러온 데이터가 없다면
         let yyyyMM: String = date.toFormatString()
         guard let currentState = reactor?.currentState,
-              let dayResponse = currentState.arrayCalendarResponse[yyyyMM]?.filter({ $0.date == date }).first
+              let dayResponse = currentState.displayCalendar[yyyyMM]?.filter({ $0.date == date }).first
         else {
             let emptyResponse = CalendarResponse(
                 date: date,

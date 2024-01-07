@@ -69,8 +69,6 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             })
             .disposed(by: disposeBag)
         
-            
-        
         familyCollectionView
             .rx.modelSelected(ProfileData.self)
             .map { $0.memberId }
@@ -79,8 +77,6 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
                 let profileViewController = ProfileDIContainer(memberId: memberId).makeViewController()
                 self.navigationController?.pushViewController(profileViewController, animated: true)
             }.disposed(by: disposeBag)
-        
-
         
         postCollectionView.rx.itemSelected
 //            .withUnretained(self)
@@ -162,6 +158,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         reactor.state
             .map { $0.didPost }
             .observe(on: MainScheduler.instance)
+            .distinctUntilChanged()
             .withUnretained(self)
             .bind(onNext: {
                 $0.0.hideCameraButton($0.1)

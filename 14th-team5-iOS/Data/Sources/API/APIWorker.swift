@@ -26,6 +26,8 @@ extension BibbiRouterInterface {
             result[header.key] = header.value
         }
         
+        result["X-APP-KEY"] = "9c61cc7b-0fe9-40eb-976e-6a74c8cb9092"
+        
         return HTTPHeaders(result)
     }
 }

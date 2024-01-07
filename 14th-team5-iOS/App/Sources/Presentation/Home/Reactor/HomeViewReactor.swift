@@ -92,17 +92,18 @@ extension HomeViewReactor {
                         return Observable.just(Mutation.showNoPostTodayView)
                     }
                     
+                    var observables = [Observable.just(Mutation.setPostCollectionView([
+                        SectionModel<String, PostListData>(model: "section1", items: postList.postLists)]))]
+                                                                                      
                     if postList.selfUploaded {
-                        return Observable.just(Mutation.setDidPost)
+                        observables.append(Observable.just(Mutation.setDidPost))
+                    }
+
+                    if postList.allFamilyMembersUploaded {
+                        observables.append(Observable.just(Mutation.setDescriptionText("우리 가족 모두가 사진을 올린 날🎉")))
                     }
                     
-                    if postList.allFamilyMembersUploaded{
-                        return Observable.just(Mutation.setDescriptionText(HomeStrings.Description.allUploaded))
-                    }
-                    
-                    return Observable.just(Mutation.setPostCollectionView([
-                        SectionModel<String, PostListData>(model: "section1", items: postList.postLists)
-                    ]))
+                    return Observable.concat(observables)
                 }
         }
     }

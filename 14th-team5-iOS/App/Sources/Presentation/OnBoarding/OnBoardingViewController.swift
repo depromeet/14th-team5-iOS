@@ -122,7 +122,7 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
             .withUnretained(self)
             .bind(onNext: {
                 UserDefaults.standard.finishTutorial = $0.1
-                
+                $0.0.showNextPage()
             })
             .disposed(by: disposeBag)
     }

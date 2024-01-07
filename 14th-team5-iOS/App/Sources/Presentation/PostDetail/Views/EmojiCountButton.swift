@@ -48,6 +48,11 @@ final class EmojiCountButton: BaseView<EmojiReactor> {
             .map { Reactor.Action.tappedSelectedEmojiCountButton(Emojis.emoji(forIndex: self.tag)) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        self.rx.longPress
+            .map { Reactor.Action.longPressedEmojiCountButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     override func setupUI() {
@@ -85,7 +90,6 @@ extension EmojiCountButton {
         backgroundColor = .gray800
         layer.borderWidth = 1
         layer.borderColor = UIColor(red: 0.318, green: 0.318, blue: 0.333, alpha: 1).cgColor
-        clipsToBounds = true
     }
 }
 
@@ -99,4 +103,3 @@ extension EmojiCountButton {
         countLabel.text = "\(count)"
     }
 }
-

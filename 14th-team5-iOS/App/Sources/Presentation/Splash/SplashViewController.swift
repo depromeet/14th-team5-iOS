@@ -109,18 +109,19 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
         
         let container: UINavigationController
         let presentationStyle: UIModalPresentationStyle = .fullScreen
+        container = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
         
-        if App.Repository.token.fakeAccessToken.value == nil {
-            container = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
-        } else if App.Repository.token.accessToken.value == nil {
-            container = UINavigationController(rootViewController: AccountSignUpDIContainer().makeViewController())
-        } else {
-            if UserDefaults.standard.finishTutorial {
-                container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
-            } else {
-                container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
-            }
-        }
+//        if App.Repository.token.fakeAccessToken.value == nil {
+//            container = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
+//        } else if App.Repository.token.accessToken.value == nil {
+//            container = UINavigationController(rootViewController: AccountSignUpDIContainer().makeViewController())
+//        } else {
+//            if UserDefaults.standard.finishTutorial {
+//                container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+//            } else {
+//                container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
+//            }
+//        }
         
         container.modalPresentationStyle = presentationStyle
         present(container, animated: false)

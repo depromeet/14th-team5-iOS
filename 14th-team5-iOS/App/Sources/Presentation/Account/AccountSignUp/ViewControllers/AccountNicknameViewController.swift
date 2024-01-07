@@ -56,7 +56,7 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
         
         nextButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .map { Reactor.Action.nicknameButtonTapped }
+            .map { Reactor.Action.didTapNicknameNextButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         

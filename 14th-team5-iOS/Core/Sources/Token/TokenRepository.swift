@@ -53,51 +53,28 @@ public class TokenRepository: RxObject {
         fakeAccessToken
             .subscribe(on: Schedulers.io)
             .withUnretained(self)
-            .bind(onNext: { (owner, value) in
-                do {
-                    if let value = value {
-                        let jsonData = try JSONEncoder().encode(value)
-                        if let jsonStr = String(data: jsonData, encoding: .utf8) {
-                            print("jsonStr: \(jsonStr)")
-                            KeychainWrapper.standard[.fakeAccessToken] = jsonStr
-                        } else {
-                            print("Failed to convert JSON data to string.")
-                            KeychainWrapper.standard.remove(forKey: .fakeAccessToken)
-                        }
-                    } else {
-                        print("Value is nil.")
-                        KeychainWrapper.standard.remove(forKey: .fakeAccessToken)
-                    }
-                } catch {
-                    print("Error encoding value to JSON: \(error)")
+            .subscribe {
+                guard let jsonData = try? JSONEncoder().encode($0.1),
+                      let jsonStr = String(data: jsonData, encoding: .utf8) else {
                     KeychainWrapper.standard.remove(forKey: .fakeAccessToken)
+                    return
                 }
-            })
+                KeychainWrapper.standard[.fakeAccessToken] = jsonStr
+            }
             .disposed(by: disposeBag)
         
         accessToken
             .subscribe(on: Schedulers.io)
             .withUnretained(self)
-            .bind(onNext: { (owner, value) in
-                do {
-                    if let value = value {
-                        let jsonData = try JSONEncoder().encode(value)
-                        if let jsonStr = String(data: jsonData, encoding: .utf8) {
-                            print("jsonStr: \(jsonStr)")
-                            KeychainWrapper.standard[.fakeAccessToken] = jsonStr
-                        } else {
-                            print("Failed to convert JSON data to string.")
-                            KeychainWrapper.standard.remove(forKey: .fakeAccessToken)
-                        }
-                    } else {
-                        print("Value is nil.")
-                        KeychainWrapper.standard.remove(forKey: .fakeAccessToken)
-                    }
-                } catch {
-                    print("Error encoding value to JSON: \(error)")
-                    KeychainWrapper.standard.remove(forKey: .fakeAccessToken)
+            .subscribe {
+                guard let jsonData = try? JSONEncoder().encode($0.1),
+                      let jsonStr = String(data: jsonData, encoding: .utf8) else {
+                    KeychainWrapper.standard.remove(forKey: .accessToken)
+                    return
                 }
-            })
+                KeychainWrapper.standard[.accessToken] = jsonStr
+            }
+            .disposed(by: disposeBag)
         
         refreshToken
             .subscribe(on: Schedulers.io)

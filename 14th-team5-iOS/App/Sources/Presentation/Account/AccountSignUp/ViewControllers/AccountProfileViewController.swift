@@ -36,6 +36,12 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
     }
     
     private func bindInput(reactor: AccountSignUpReactor) {
+        nextButton.rx.tap
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .map { Reactor.Action.didTapCompletehButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         profileButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
             .map { Reactor.Action.profileImageTapped }

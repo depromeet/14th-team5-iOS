@@ -32,7 +32,7 @@ extension AccountAPIs {
             return App.Repository.token.accessToken
                 .map {
                     guard let token = $0, !token.isEmpty else { return nil }
-                    return [BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(token), BibbiAPI.Header.acceptJson]
+                    return [BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(token)]
                 }
         }
     }
@@ -57,7 +57,6 @@ extension AccountAPIWorker {
     func signInWith(snsType: SNS, snsToken: String) -> Single<AccessToken?> {
         let spec = AccountAPIs.signIn(snsType).spec
         let payload = _PayLoad.LoginPayload(accessToken: snsToken)
-        let headers = [BibbiAPI.Header.appKey]
         
         return signInWith(spec: spec,jsonEncodable: payload)
     }

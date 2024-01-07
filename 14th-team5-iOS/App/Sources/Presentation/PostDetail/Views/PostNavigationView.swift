@@ -97,7 +97,7 @@ final class PostNavigationView: BaseView<PostReactor> {
 extension PostNavigationView {
     func setData(data: PostListData) {
         guard let author = data.author,
-              let url = URL(string: author.profileImageURL) else {
+              let url = URL(string: author.profileImageURL ?? "https://search.pstatic.net/sunny/?src=https%3A%2F%2Fi.pinimg.com%2Foriginals%2F37%2F1e%2F6f%2F371e6f8759c86ad13023ac032d612dc2.jpg&type=sc960_832") else {
             return
         }
         profileImageView.kf.setImage(with: url)

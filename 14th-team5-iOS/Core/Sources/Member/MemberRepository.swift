@@ -12,9 +12,11 @@ import RxCocoa
 
 public class MemberRepository: RxObject {
     public let familyId = BehaviorRelay<String?>(value: nil)
-    public let memberID = BehaviorRelay<String?>(value: nil)
+    public let memberID = BehaviorRelay<String?>(value: "01HJBNWZGNP1KJNMKWVZJ039HY")
     
     override public func bind() {
+        memberID.accept("01HJBNWZGNP1KJNMKWVZJ039HY")
+        
         memberID
             .withUnretained(self)
             .bind(onNext: { $0.0.saveMemberId(with: $0.1) })

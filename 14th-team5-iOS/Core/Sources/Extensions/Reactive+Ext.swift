@@ -11,8 +11,6 @@ import WebKit
 import RxCocoa
 import RxSwift
 
-
-
 extension Reactive where Base: UIViewController {
     public var viewWillAppear: ControlEvent<Bool> {
         let event = self.methodInvoked(#selector(Base.viewWillAppear)).map { $0.first as? Bool ?? false }
@@ -25,19 +23,26 @@ extension Reactive where Base: UIView {
     public var tapGesture: UITapGestureRecognizer {
         return UITapGestureRecognizer()
     }
-
+    
     public var tap: ControlEvent<Void> {
         let tapGestureRecognizer = tapGesture
         base.addGestureRecognizer(tapGestureRecognizer)
-
+        
         return tapGestureRecognizer.rx.tapGesture
     }
     
     public var pinchGesture: ControlEvent<UIPinchGestureRecognizer> {
         let pinchGestureRecognizer = UIPinchGestureRecognizer()
         base.addGestureRecognizer(pinchGestureRecognizer)
-
+        
         return ControlEvent(events: pinchGestureRecognizer.rx.event)
+    }
+    
+    public var longPress: ControlEvent<UILongPressGestureRecognizer> {
+        let gestureRecognizer = UILongPressGestureRecognizer()
+        self.base.addGestureRecognizer(gestureRecognizer)
+        
+        return ControlEvent(events: gestureRecognizer.rx.event)
     }
 }
 

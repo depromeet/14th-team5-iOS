@@ -41,22 +41,20 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
-
+        
         collectionView.snp.makeConstraints {
-            $0.bottom.equalTo(pageControl.snp.top).inset(20)
-            $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.horizontalEdges.equalToSuperview()
+            $0.top.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
         }
         
         pageControl.snp.makeConstraints {
+            $0.top.equalTo(collectionView.snp.bottom).offset(55)
             $0.centerX.equalToSuperview()
-            $0.bottom.equalTo(nextButton.snp.top).offset(-16)
-            $0.height.equalTo(30)
+            $0.height.equalTo(8)
         }
         
         nextButton.snp.makeConstraints {
-            $0.top.equalTo(pageControl.snp.bottom)
-            $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(-10)
+            $0.top.equalTo(pageControl.snp.bottom).offset(16)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(10)
             $0.horizontalEdges.equalToSuperview().inset(12)
             $0.height.equalTo(56)
         }
@@ -73,7 +71,7 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
             $0.collectionViewLayout = horizontalFlowLayout
             $0.backgroundColor = DesignSystemAsset.black.color
             $0.showsHorizontalScrollIndicator = false
-            $0.register(OnBoardingCollectionViewCell.self, 
+            $0.register(OnBoardingCollectionViewCell.self,
                         forCellWithReuseIdentifier: OnBoardingCollectionViewCell.id)
         }
         
@@ -107,7 +105,10 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
             .distinctUntilChanged()
             .withUnretained(self)
             .observe(on: Schedulers.main)
-            .bind(onNext: { $0.0.validationButtion(for: $0.1) })
+            .bind(onNext: {
+                $0.0.validationButtion(for: $0.1)
+                $0.0.pageControl.currentPage = $0.1
+            })
             .disposed(by: disposeBag)
         
         nextButton.rx.tap
@@ -117,12 +118,12 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.isPermissionGranted }
-            .filter { $0 }
+            .distinctUntilChanged()
             .observe(on: Schedulers.main)
             .withUnretained(self)
             .bind(onNext: {
                 UserDefaults.standard.finishTutorial = $0.1
-                $0.0.showNextPage()
+                $0.0.showNextPage($0.1)
             })
             .disposed(by: disposeBag)
     }
@@ -133,13 +134,12 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
         nextButton.isEnabled = index == 2
     }
     
-    private func showNextPage() {
-        var container: UINavigationController
-        container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
-        container.modalPresentationStyle = .fullScreen
+    private func showNextPage(_ show: Bool) {
+        guard show else { return }
+        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
         
-        present(container, animated: false)
-        return
+        sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+        sceneDelegate.window?.makeKeyAndVisible()
     }
 }
 

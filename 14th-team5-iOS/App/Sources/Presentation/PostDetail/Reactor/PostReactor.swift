@@ -23,23 +23,27 @@ final class PostReactor: Reactor {
         case setPop
         case setSelectedPostIndex(Int)
         case fetchedPost(PostData?)
+        case showReactionSheet(Bool)
     }
     
     struct State {
-        var isPop: Bool = false
         let originPostLists: [SectionModel<String,PostListData>]
-//        let fetchedPostLists: [SectionModel<String, PostData>] 
+        
+        var isPop: Bool = false
         var selectedPost: PostListData = .init(postId: "", author: .init(memberId: "", profileImageURL: "", name: ""), emojiCount: 0, imageURL: "", content: "", time: "")
         var fetchedPost: PostData? = nil
         var fetchedEmoji: FetchEmojiDataList = .init(emojis_memberIds: [])
+        var isShowingReactionMemberSheet: Bool = false
     }
     
     let initialState: State
     
     let postRepository: PostListUseCaseProtocol
     let emojiRepository: EmojiUseCaseProtocol
+    let provider: GlobalStateProviderProtocol
     
-    init(postRepository: PostListUseCaseProtocol, emojiRepository: EmojiUseCaseProtocol, initialState: State) {
+    init(provider: GlobalStateProviderProtocol, postRepository: PostListUseCaseProtocol, emojiRepository: EmojiUseCaseProtocol, initialState: State) {
+        self.provider = provider
         self.postRepository = postRepository
         self.emojiRepository = emojiRepository
         self.initialState = initialState
@@ -47,6 +51,18 @@ final class PostReactor: Reactor {
 }
 
 extension PostReactor {
+    func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+        let eventMutation = provider.reactionSheetGloablState.event
+            .flatMap { event -> Observable<Mutation> in
+                switch event {
+                case let .showReactionMemberSheet(isShowing):
+                    return Observable<Mutation>.just(.showReactionSheet(isShowing))
+                }
+            }
+        
+        return Observable<Mutation>.merge(mutation, eventMutation)
+    }
+    
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case let .fetchPost(postId):
@@ -72,6 +88,8 @@ extension PostReactor {
                 newState.selectedPost = newState.originPostLists[0].items[index]
             case .setPop:
                 newState.isPop = true
+            case let .showReactionSheet(isShow):
+                newState.isShowingReactionMemberSheet = isShow
             }
             return newState
         }

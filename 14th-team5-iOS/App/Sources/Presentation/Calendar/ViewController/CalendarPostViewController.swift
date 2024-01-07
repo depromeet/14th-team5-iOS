@@ -5,11 +5,11 @@
 //  Created by 김건우 on 12/8/23.
 //
 
-import UIKit
-
 import Core
 import DesignSystem
 import Domain
+import UIKit
+
 import FSCalendar
 import Kingfisher
 import ReactorKit
@@ -29,8 +29,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         frame: .zero,
         collectionViewLayout: orthogonalCompositionalLayout
     )
-    
-    private let allFamilyUploadedToastView: BibbiToastMessageView = BibbiToastMessageView()
     
     // MARK: - Properties
     private let blurImageIndexRelay: PublishRelay<Int> = PublishRelay<Int>()
@@ -55,7 +53,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         blurImageView.addSubviews(
             navigationBarView, calendarView, collectionView
         )
-        collectionView.addSubview(allFamilyUploadedToastView)
     }
     
     public override func setupAutoLayout() {
@@ -79,11 +76,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         collectionView.snp.makeConstraints {
             $0.top.equalTo(calendarView.snp.bottom).offset(16.0)
             $0.leading.bottom.trailing.equalTo(blurImageView)
-        }
-        
-        allFamilyUploadedToastView.snp.makeConstraints {
-            $0.bottom.equalTo(view.snp.bottom).offset(-40.0)
-            $0.centerX.equalToSuperview()
         }
     }
     
@@ -125,11 +117,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             $0.isScrollEnabled = false
             $0.backgroundColor = UIColor.clear
             $0.register(PostCollectionViewCell.self, forCellWithReuseIdentifier: PostCollectionViewCell.id)
-        }
-        
-        allFamilyUploadedToastView.do {
-            $0.text = "🎉우리 가족 모두가 사진을 올린 날🎉"
-            $0.isHidden = true
         }
         
         setupBlurEffect()
@@ -226,11 +213,20 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.hiddenToastMessageView }
-            .bind(to: allFamilyUploadedToastView.rx.isHidden)
+        reactor.pulse(\.$shouldPresentToastMessageView)
+            .delay(.milliseconds(300), scheduler: Schedulers.main)
+            .withUnretained(self)
+            .subscribe {
+                if $0.1 {
+                    $0.0.makeBibbiToastView(
+                        text: "🎉우리 가족 모두가 사진을 올린 날🎉",
+                        width: 300
+                    )
+                }
+            }
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.arrayCalendarResponse }
+        reactor.state.map { $0.displayCalendar }
             .distinctUntilChanged(\.count)
             .withUnretained(self)
             .subscribe {
@@ -238,11 +234,11 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
 
-        reactor.state.map { $0.postListDatasource }
+        reactor.state.map { $0.displayPost }
             .bind(to: collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.postListDatasource }
+        reactor.state.map { $0.displayPost }
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
@@ -312,17 +308,9 @@ extension CalendarPostViewController {
 
 extension CalendarPostViewController {
     private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<PostListSectionModel> {
-        return RxCollectionViewSectionedReloadDataSource<PostListSectionModel> { datasource, collectionView, indexPath, item in
+        return RxCollectionViewSectionedReloadDataSource<PostListSectionModel> { datasource, collectionView, indexPath, post in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as! PostCollectionViewCell
-            cell.reactor = EmojiReactor(
-                emojiRepository: PostListsDIContainer().makeEmojiUseCase(),
-                initialState: .init(
-                    type: .calendar,
-                    postId: item.postId,
-                    imageUrl: item.imageURL,
-                    nickName: item.author?.name ?? ""
-                )
-            )
+            cell.reactor = ReactionDIContainer().makeReactor(post: post)
             return cell
         }
     }
@@ -358,7 +346,7 @@ extension CalendarPostViewController: FSCalendarDataSource {
         // 해당 일에 불러온 데이터가 없다면
         let yyyyMM: String = date.toFormatString()
         guard let currentState = reactor?.currentState,
-              let dayResponse = currentState.arrayCalendarResponse[yyyyMM]?.filter({ $0.date == date }).first
+              let dayResponse = currentState.displayCalendar[yyyyMM]?.filter({ $0.date == date }).first
         else {
             let emptyResponse = CalendarResponse(
                 date: date,

@@ -32,7 +32,8 @@ struct FetchEmojiResponse: Codable {
     }
 
     private func containsCurrentUser(memberIds: [String]) -> Bool {
-        let currentMemberId = FamilyUserDefaults.returnMyMemberId()
+//        let currentMemberId = FamilyUserDefaults.returnMyMemberId()
+        let currentMemberId = "01HJBNWZGNP1KJNMKWVZJ039HY"
         return memberIds.contains(currentMemberId)
     }
 }

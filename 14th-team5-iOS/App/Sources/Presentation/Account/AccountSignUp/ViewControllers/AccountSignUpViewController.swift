@@ -37,14 +37,6 @@ public final class AccountSignUpViewController: BasePageViewController<AccountSi
     }
     
     public override func bind(reactor: AccountSignUpReactor) {
-        App.Repository.token.accessToken
-            .filter { $0?.isEmpty == true }
-            .withUnretained(self)
-            .take(1)
-            .observe(on: Schedulers.main)
-            .bind(onNext: { $0.0.showOnboardingViewCotnroller() })
-            .disposed(by: disposeBag)
-        
         reactor.state.map { $0.nicknameButtonTappedFinish }
             .filter { $0 }
             .take(1)

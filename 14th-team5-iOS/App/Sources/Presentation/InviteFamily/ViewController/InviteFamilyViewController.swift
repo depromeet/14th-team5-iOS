@@ -239,23 +239,25 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
             .bind(to: tableCountLabel.rx.text)
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$copySuccessToastMessageView).skip(1)
+        reactor.pulse(\.$copySuccessToastMessageView)
+            .skip(1)
             .withUnretained(self)
             .subscribe {
-                $0.0.makeRoundedToastView(
-                    title: AddFamilyVC.Strings.successCopyInvitationUrl,
+                $0.0.makeBibbiToastView(
+                    text: AddFamilyVC.Strings.successCopyInvitationUrl,
                     symbol: "link",
                     width: 210
                 )
             }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$copyFailureToastMessageView).skip(1)
-            .throttle(.seconds(3), scheduler: MainScheduler.instance)
+        reactor.pulse(\.$copyFailureToastMessageView)
+            .skip(1)
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
             .withUnretained(self)
             .subscribe {
-                $0.0.makeRoundedToastView(
-                    title: "링크 불러오기 실패",
+                $0.0.makeBibbiToastView(
+                    text: "링크 불러오기 실패",
                     symbol: "exclamationmark.triangle.fill",
                     palletteColors: [UIColor.systemRed],
                     width: 190

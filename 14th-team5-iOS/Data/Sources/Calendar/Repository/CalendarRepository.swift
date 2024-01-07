@@ -17,8 +17,7 @@ public final class CalendarRepository: CalendarRepositoryProtocol {
     private let calendarApiWorker: CalendarAPIWorker = CalendarAPIWorker()
     
     private let familyId: String = App.Repository.member.familyId.value ?? ""
-    private let accessToken: String = App.Repository.token.accessToken.value ?? ""
-    
+    private let accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
     public init() { }
     
     public func fetchCalendarInfo(_ yearMonth: String) -> Observable<ArrayResponseCalendarResponse?> {
@@ -26,8 +25,13 @@ public final class CalendarRepository: CalendarRepositoryProtocol {
             .asObservable()
     }
     
-    public func fetchFamilySummaryInfo() -> Observable<FamilyMonthlyStatisticsResponse?> {
-        return calendarApiWorker.fetchFamilySummaryInfo(token: accessToken, familyId: familyId)
+    public func fetchFamilyStatisticsInfo() -> Observable<FamilyMonthlyStatisticsResponse?> {
+        return calendarApiWorker.fetchFamilyStatisticsInfo(token: accessToken, familyId: familyId)
+            .asObservable()
+    }
+    
+    public func fetchFamilyCreatedAt() -> Observable<FamilyCreatedAtResponse?> {
+        return calendarApiWorker.fetchFamilyCreatedAt(token: accessToken, familyId: familyId)
             .asObservable()
     }
 }

@@ -32,7 +32,7 @@ final class KakaoSignInHelper: AccountSignInHelperType {
         if UserApi.isKakaoTalkLoginAvailable() {
             return UserApi.shared.rx.loginWithKakaoTalk()
                 .map { [weak self] response in
-                    self?._signInState.accept(AccountSignInStateInfo(snsType: .kakao, snsToken: response.idToken))
+                    self?._signInState.accept(AccountSignInStateInfo(snsType: .kakao, snsToken: response.accessToken))
                     return .success
                 }
                 .catch { error in

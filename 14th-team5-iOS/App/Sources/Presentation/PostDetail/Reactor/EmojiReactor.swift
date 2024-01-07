@@ -25,6 +25,8 @@ final class EmojiReactor: Reactor {
         case tappedSelectedEmojiCountButton(Emojis)
         case receiveEmojiData([Emojis: Int])
         case fetchEmojiList
+        case fetchDisplayContent(String)
+        case longPressedEmojiCountButton
     }
     
     enum Mutation {
@@ -33,25 +35,25 @@ final class EmojiReactor: Reactor {
         case unselectEmoji(Emojis)
         case setUpEmojiCountStackView([Emojis: Int])
         case fetchedEmojiList(FetchEmojiDataList?)
+        case injectDisplayContent([DisplayEditItemModel])
     }
     
     struct State {
         let type: CellType
-        let postId: String
-        let imageUrl: String
-        let nickName: String
+        let post: PostListData
         
         var isShowingSelectableEmojiStackView: Bool = false
-        var selectedEmoji: (Emojis?, Int) = (nil, 0)
-        var unselectedEmoji: (Emojis?, Int) = (nil, 0)
         var emojiData: [Emojis: Int] = [:]
         var fetchedEmojiList: FetchEmojiDataList? = nil
+        var fetchedDisplayContent: [DisplayEditSectionModel] = [.displayKeyword([])]
     }
     
     let initialState: State
+    let provider: GlobalStateProviderProtocol
     let emojiRepository: EmojiUseCaseProtocol
     
-    init(emojiRepository: EmojiUseCaseProtocol, initialState: State) {
+    init(provider: GlobalStateProviderProtocol, emojiRepository: EmojiUseCaseProtocol, initialState: State) {
+        self.provider = provider
         self.emojiRepository = emojiRepository
         self.initialState = initialState
     }
@@ -65,34 +67,48 @@ extension EmojiReactor {
         case let .receiveEmojiData(data):
             return Observable.just(Mutation.setUpEmojiCountStackView(data))
         case let .tappedSelectableEmojiButton(emoji):
-            let query: AddEmojiQuery = AddEmojiQuery(postId: initialState.postId)
-            let body: AddEmojiBody = AddEmojiBody(content: emoji.emojiString)
+            let query: AddEmojiQuery = AddEmojiQuery(postId: initialState.post.postId)
+            let body: AddEmojiBody = AddEmojiBody(content: emoji)
             return emojiRepository.excute(query: query, body: body)
                 .asObservable()
                 .flatMap { (response: Void?) -> Observable<Mutation> in
-                            guard let response = response else {
-                                return Observable.empty()
-                            }
-                            return Observable.just(Mutation.selectEmoji(emoji))
-                        }
+                    guard let response else {
+                        return Observable.empty()
+                    }
+                    return Observable.just(Mutation.selectEmoji(emoji))
+                }
         case let .tappedSelectedEmojiCountButton(emoji):
-            let query: RemoveEmojiQuery = RemoveEmojiQuery(postId: initialState.postId)
+            let query: RemoveEmojiQuery = RemoveEmojiQuery(postId: initialState.post.postId)
             let body: RemoveEmojiBody = RemoveEmojiBody(content: emoji)
             return emojiRepository.excute(query: query, body: body)
                 .asObservable()
                 .flatMap { (response: Void?) -> Observable<Mutation> in
-                    guard let response = response else {
+                    guard let response else {
                         return Observable.empty()
                     }
                     return Observable.just(Mutation.unselectEmoji(emoji))
                 }
         case .fetchEmojiList:
-            let query: FetchEmojiQuery = FetchEmojiQuery(postId: initialState.postId)
+            let query: FetchEmojiQuery = FetchEmojiQuery(postId: initialState.post.postId)
             return emojiRepository.excute(query: query)
                 .asObservable()
                 .flatMap { emojiList in
                     return Observable.just(Mutation.fetchedEmojiList(emojiList))
                 }
+            
+        case let .fetchDisplayContent(content):
+            var sectionItem: [DisplayEditItemModel] = []
+            content.forEach {
+                sectionItem.append(
+                    .fetchDisplayItem(DisplayEditCellReactor(title: String($0)))
+                )
+            }
+            return Observable<Mutation>.just(.injectDisplayContent(sectionItem))
+
+        case .longPressedEmojiCountButton:
+            return provider.reactionSheetGloablState.showReactionMemberSheet(true)
+                .flatMap { _ in Observable<Mutation>.empty() }
+
         }
     }
     
@@ -104,13 +120,29 @@ extension EmojiReactor {
         case let .setUpEmojiCountStackView(data):
             newState.emojiData = data
         case let .selectEmoji(emoji):
-            newState.emojiData[emoji, default: 0] += 1
-            newState.selectedEmoji = (emoji, newState.emojiData[emoji] ?? 0)
+            guard let myMemberId = UserDefaults.standard.memberId,
+                  let fetchedEmojiList = newState.fetchedEmojiList else {
+                return newState
+            }
+            
+            var temp = fetchedEmojiList.emojis_memberIds[emoji.emojiIndex - 1]
+            temp.memberIds.append(myMemberId)
+            temp = FetchEmojiData(isSelfSelected: true, count: temp.count + 1 , memberIds: temp.memberIds )
+            newState.fetchedEmojiList?.emojis_memberIds[emoji.emojiIndex - 1] = temp
         case let .unselectEmoji(emoji):
-            newState.emojiData[emoji, default: 0] -= 1
-            newState.unselectedEmoji = (emoji, newState.emojiData[emoji] ?? 0)
+            guard let myMemberId = UserDefaults.standard.memberId,
+                  let fetchedEmojiList = newState.fetchedEmojiList else {
+                return newState
+            }
+            
+            var temp = fetchedEmojiList.emojis_memberIds[emoji.emojiIndex - 1]
+            let memberIds = temp.memberIds.filter { $0 != myMemberId }
+            temp = FetchEmojiData(isSelfSelected: false, count: temp.count - 1, memberIds: memberIds)
+            newState.fetchedEmojiList?.emojis_memberIds[emoji.emojiIndex - 1] = temp
         case let .fetchedEmojiList(emojiList):
             newState.fetchedEmojiList = emojiList
+        case let .injectDisplayContent(section):
+            newState.fetchedDisplayContent = [.displayKeyword(section)]
         }
         return newState
     }

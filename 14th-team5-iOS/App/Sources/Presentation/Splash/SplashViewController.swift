@@ -105,14 +105,21 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
             container.modalPresentationStyle = .fullScreen
             
             present(container, animated: false)
+            return
         }
         
         let container: UINavigationController
         let presentationStyle: UIModalPresentationStyle = .fullScreen
         
-        if App.Repository.token.fakeAccessToken.value == nil {
+        guard let isTemporaryToken = App.Repository.token.accessToken.value?.isTemporaryToken else {
             container = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
-        } else if App.Repository.token.accessToken.value == nil {
+            container.modalPresentationStyle = presentationStyle
+            present(container, animated: false)
+            
+            return
+        }
+        
+        if isTemporaryToken {
             container = UINavigationController(rootViewController: AccountSignUpDIContainer().makeViewController())
         } else {
             if UserDefaults.standard.finishTutorial {

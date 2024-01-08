@@ -8,7 +8,7 @@
 import Foundation
 import Domain
 
-struct FamilySearchRequestDTO: Codable {
+public struct FamilySearchRequestDTO: Codable {
     let type: String
     let page: Int
     let size: Int
@@ -30,7 +30,15 @@ struct FamilySearchResponseDTO: Codable {
 
 extension FamilySearchResponseDTO {
     func toDomain() -> SearchFamilyPage {
-        return .init(page: currentPage, totalPages: totalPage, members: results.map { $0.toDomain() })
+        var sortedResults: [FamilyMemberDTO] = results
+        let myMemberId = FamilyUserDefaults.getMyMemberId()
+        print("여기야 \(myMemberId)")
+        if let index = results.firstIndex(where: { $0.memberId == FamilyUserDefaults.getMyMemberId() }) {
+            let element = sortedResults.remove(at: index)
+            sortedResults.insert(element, at: 0)
+        }
+
+        return .init(page: currentPage, totalPages: totalPage, members: sortedResults.map { $0.toDomain() })
     }
 }
 

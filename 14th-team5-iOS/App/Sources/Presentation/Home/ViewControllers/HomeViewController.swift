@@ -247,6 +247,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         }
         
         familyCollectionViewLayout.do {
+            $0.scrollDirection = .horizontal
             $0.sectionInset = UIEdgeInsets(
                 top: HomeAutoLayout.FamilyCollectionView.edgeInsetTop,
                 left: HomeAutoLayout.FamilyCollectionView.edgeInsetLeft,
@@ -256,6 +257,8 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         }
         
         familyCollectionView.do {
+            $0.showsVerticalScrollIndicator = false
+            $0.showsHorizontalScrollIndicator = false
             $0.register(FamilyCollectionViewCell.self, forCellWithReuseIdentifier: FamilyCollectionViewCell.id)
             $0.backgroundColor = .clear
             $0.collectionViewLayout = familyCollectionViewLayout

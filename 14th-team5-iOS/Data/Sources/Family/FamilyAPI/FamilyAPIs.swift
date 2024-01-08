@@ -11,14 +11,14 @@ import Core
 
 public enum FamilyAPIs: API {
     case invitationUrl(String)
-    case familyMembers
+    case familyMembers(FamilySearchRequestDTO)
     
     var spec: APISpec {
         switch self {
         case let .invitationUrl(familyId):
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/links/family/\(familyId)")
-        case .familyMembers:
-            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/members?type=FAMILY")
+        case let .familyMembers(query):
+            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/members?type=FAMILY&page=\(query.page)&size=\(query.size)")
         }
     }
 }

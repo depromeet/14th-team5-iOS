@@ -15,6 +15,7 @@ import RxSwift
 final class ProfileView: UIView {
     typealias Layout = HomeAutoLayout.ProfileView
     
+    private let defaultNameLabel = BibbiLabel(.head1, alignment: .center, textColor: .gray200)
     private let imageView = UIImageView()
     private let nameLabel = BibbiLabel(.caption, alignment: .center, textColor: .gray300)
     
@@ -32,12 +33,13 @@ final class ProfileView: UIView {
     }
     
     private func setupUI() {
-        addSubviews(imageView, nameLabel)
+        addSubviews(imageView, nameLabel, defaultNameLabel)
     }
     
     private func setupAutoLayout() {
         imageView.snp.makeConstraints {
-            $0.size.equalTo(Layout.ImageView.size)
+            $0.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(imageView.snp.width)
             $0.top.leading.equalToSuperview()
         }
         
@@ -46,6 +48,10 @@ final class ProfileView: UIView {
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalToSuperview()
         }
+        
+        defaultNameLabel.snp.makeConstraints {
+            $0.center.equalTo(imageView)
+        }
     }
     
     private func setupAttributes() {
@@ -53,19 +59,23 @@ final class ProfileView: UIView {
             $0.clipsToBounds = true
             $0.layer.cornerRadius = Layout.ImageView.cornerRadius
         }
-        
-        nameLabel.do {
-            $0.textAlignment = .center
-        }
     }
 }
 
 extension ProfileView {
     func setProfile(profile: ProfileData) {
-        guard let imageURL: URL = URL(string: profile.profileImageURL ?? "https://search.pstatic.net/sunny/?src=https%3A%2F%2Fi.pinimg.com%2Foriginals%2F37%2F1e%2F6f%2F371e6f8759c86ad13023ac032d612dc2.jpg&type=sc960_832") else {
-            return
+        
+        if let profileImageURL = profile.profileImageURL,
+           let url = URL(string: profileImageURL), !profileImageURL.isEmpty {
+            imageView.kf.setImage(with: url)
+            defaultNameLabel.isHidden = true
+        } else {
+            guard let name = profile.name.first else {
+                return
+            }
+            imageView.backgroundColor = .gray800
+            defaultNameLabel.text = "\(name)"
         }
-        imageView.kf.setImage(with: imageURL)
         nameLabel.text = profile.name
     }
 }

@@ -137,13 +137,13 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
             $0.layer.cornerRadius = 30
         }
         
-        let profileImageData = profileButton.asImage().jpegData(compressionQuality: 1.0)
-        UserDefaults.standard.profileImage = profileImageData
     }
 }
 
 extension AccountProfileViewController {
     private func setProfilewView(with nickname: String) {
+        let profileImageData = profileButton.asImage().jpegData(compressionQuality: 1.0)
+        UserDefaults.standard.profileImage = profileImageData
         titleLabel.text = String(format: _Str.title, nickname)
         
         if let firstName = nickname.first {

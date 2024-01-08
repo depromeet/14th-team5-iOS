@@ -111,7 +111,24 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
             .bind { _ in
                 UIApplication.shared.open(URLTypes.appStore("362057947").originURL)
             }.disposed(by: disposeBag)
-
+        
+        
+        reactor.state
+            .map { $0.isSuccess }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .bind { owner, isSuccess in
+                guard isSuccess else { return }
+                guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
+                sceneDelegate.window?.rootViewController = AccountSignInDIContainer().makeViewController()
+                sceneDelegate.window?.makeKeyAndVisible()
+            }.disposed(by: disposeBag)
+        
+        NotificationCenter.default
+            .rx.notification(.UserAccountLogout)
+            .map { _ in Reactor.Action.didTapLogoutButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
         privacyNavigationBar.rx
             .didTapLeftBarButton
@@ -137,12 +154,11 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
                     }
                 case .userAuthorizationItem:
                     if indexPath.item == 0 {
+                        NotificationCenter.default.post(name: .UserAccountLogout, object: nil, userInfo: nil)
                         self.showLogoutAlertController()
                     } else {
-                        //TODO: ResignDIContainer, Repositroy, UseCase 추가 예정
                         let resignViewController = AccountResignDIContainer().makeViewController()
                         self.navigationController?.pushViewController(resignViewController, animated: true)
-                        print("회원 탈퇴")
                     }
                 }
             }.disposed(by: disposeBag)

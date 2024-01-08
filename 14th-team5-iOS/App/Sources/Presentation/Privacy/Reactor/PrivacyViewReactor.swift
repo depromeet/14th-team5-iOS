@@ -8,6 +8,7 @@
 import Foundation
 
 import Domain
+import Data
 import ReactorKit
 
 
@@ -19,6 +20,7 @@ public final class PrivacyViewReactor: Reactor {
     
     public enum Action {
         case viewDidLoad
+        case didTapLogoutButton
     }
     
     public enum Mutation {
@@ -26,12 +28,14 @@ public final class PrivacyViewReactor: Reactor {
         case setVersionCheck(Bool)
         case setPrivacyItemModel([PrivacyItemModel])
         case setAuthorizationItemModel([PrivacyItemModel])
+        case setLogout(Bool)
     }
     
     public struct State {
         var isLoading: Bool
         var isCheck: Bool
         var memberId: String
+        var isSuccess: Bool
         @Pulse var section: [PrivacySectionModel]
     }
     
@@ -42,6 +46,7 @@ public final class PrivacyViewReactor: Reactor {
             isLoading: false,
             isCheck: false,
             memberId: memberId,
+            isSuccess: false,
             section: [
                 .privacyWithAuth([]),
                 .userAuthorization([])
@@ -91,6 +96,19 @@ public final class PrivacyViewReactor: Reactor {
                         }
                 )
             )
+        case .didTapLogoutButton:
+            return .concat(
+                .just(.setLoading(true)),
+                privacyUseCase.executeLogout()
+                    .asObservable()
+                    .flatMap { _ -> Observable<PrivacyViewReactor.Mutation> in
+                        return .concat(
+                            .just(.setLogout(true)),
+                            .just(.setLoading(false))
+                        )
+                    }
+                
+            )
         }
         
     }
@@ -110,6 +128,8 @@ public final class PrivacyViewReactor: Reactor {
             let sectionIndex = getSection(.userAuthorization([]))
             print("section Items:2 \(items)")
             newState.section[sectionIndex] = .userAuthorization(items)
+        case let .setLogout(isSuccess):
+            newState.isSuccess = isSuccess
         }
         
         return newState

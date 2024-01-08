@@ -8,6 +8,7 @@
 import Foundation
 
 import Domain
+import Data
 import RxSwift
 import RxCocoa
 
@@ -19,6 +20,7 @@ public final class PrivacyViewRepository {
     public init() { }
     
     private let privacyAPIWorker: PrivacyAPIWorker = PrivacyAPIWorker()
+    private let signInHelper: AccountSignInHelper = AccountSignInHelper()
     public var disposeBag: DisposeBag = DisposeBag()
     
 }
@@ -50,6 +52,12 @@ extension PrivacyViewRepository: PrivacyViewInterface {
     public func fetchBibbiAppVersion(parameter: Encodable) -> Observable<BibbiStoreInfoResponse> {
         return privacyAPIWorker.requestStoreInfo(parameter: parameter)
             .compactMap { $0?.toDomain() }
+            .asObservable()
+    }
+    
+    public func fetchAccountLogout() -> Observable<Void> {
+        guard let accountSnsType = UserDefaults.standard.snsType else { return .empty() }
+        return signInHelper.signOut(sns: accountSnsType)
             .asObservable()
     }
     

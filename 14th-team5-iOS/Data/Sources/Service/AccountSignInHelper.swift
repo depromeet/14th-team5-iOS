@@ -15,7 +15,7 @@ import RxCocoa
 import AuthenticationServices
 
 protocol AccountSignInHelperConfigType {
-    var snsHelpers: [SNS: AccountSignInHelperType] { get }
+    var snsHelpers: [String: AccountSignInHelperType] { get }
 }
 
 final class AccountSignInHelper: NSObject {
@@ -24,7 +24,7 @@ final class AccountSignInHelper: NSObject {
     private let config: AccountSignInHelperConfigType = AccountSignInHelperConfig()
     
     // MARK: SNS SignIn Helpers
-    private var signInHelper: [SNS: AccountSignInHelperType] {
+    private var signInHelper: [String: AccountSignInHelperType] {
         return self.config.snsHelpers
     }
     
@@ -60,7 +60,7 @@ final class AccountSignInHelper: NSObject {
 // MARK: SignIn Functions
 extension AccountSignInHelper {
     func trySignInWith(sns: SNS, window: UIWindow?) -> Observable<APIResult> {
-        guard let helper = signInHelper[sns], let window = window else {
+        guard let helper = signInHelper[sns.rawValue], let window = window else {
             return Observable.just(.failed)
         }
         return helper.signIn(on: window)
@@ -92,8 +92,15 @@ extension AccountSignInHelper {
                 return .success
             }
     }
-    
-    func signOut(sns: SNS) {
-        signInHelper[sns]?.signOut()
+        
+    public func signOut(sns: String) -> Observable<Void> {
+        return Observable<Void>.create { [weak self] observer in
+            guard let signOut = self?.signInHelper[sns]?.signOut() else { return Disposables.create() }
+            observer.onNext(signOut)
+            
+            
+            
+            return Disposables.create()
+        }
     }
 }

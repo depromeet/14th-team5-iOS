@@ -25,7 +25,7 @@ public class FamilyUserDefaults {
     }
     
     public static func returnMyMemberId() -> String {
-        return UserDefaults.standard.string(forKey: memberIdsKey) ?? ""
+        return UserDefaults.standard.string(forKey: myMemberIdKey) ?? ""
     }
 
     func removeFamilyMembers() {
@@ -33,7 +33,7 @@ public class FamilyUserDefaults {
      }
     
     static func saveMyMemberId(memberId: String) {
-        UserDefaults.standard.setValue(memberId, forKey: memberIdsKey)
+        UserDefaults.standard.setValue(memberId, forKey: myMemberIdKey)
     }
     
     static func getMyMemberId() -> String {
@@ -41,7 +41,7 @@ public class FamilyUserDefaults {
     }
     
     public static func getMemberCount() -> Int {
-        return UserDefaults.standard.stringArray(forKey: memberIdsKey)?.count ?? 0
+        return UserDefaults.standard.stringArray(forKey: myMemberIdKey)?.count ?? 0
     }
     
     public static func saveFamilyMembers(_ familyMembers: [ProfileData]) {

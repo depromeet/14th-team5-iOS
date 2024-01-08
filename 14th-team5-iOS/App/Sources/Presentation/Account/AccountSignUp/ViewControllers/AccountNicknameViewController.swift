@@ -89,6 +89,7 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.profileNickNameEditEntity }
+            .debug("ProfileEntity Test")
             .filter { $0 != nil }
             .withUnretained(self)
             .bind(onNext: { $0.0.transitionProfileViewController()})

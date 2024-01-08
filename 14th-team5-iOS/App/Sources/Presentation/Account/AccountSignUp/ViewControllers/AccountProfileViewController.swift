@@ -136,6 +136,8 @@ extension AccountProfileViewController {
         
         if let firstName = nickname.first {
             profileButton.setTitle(String(firstName), for: .normal)
+            let profileImageData = profileButton.asImage().jpegData(compressionQuality: 1.0)
+            UserDefaults.standard.profileImage = profileImageData
         }
     }
     

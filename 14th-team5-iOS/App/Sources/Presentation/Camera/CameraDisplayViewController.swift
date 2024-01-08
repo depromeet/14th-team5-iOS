@@ -226,7 +226,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .withUnretained(self)
             .bind { owner, isShow in
                 guard isShow == true else { return }
-                owner.makeRoundedToastView(title: "띄어쓰기는 할 수 없어요", designSystemImage: DesignSystemAsset.warning.image, width: 230, height: 56, offset: 400)
+                owner.makeBibbiToastView(text: "띄어쓰기는 할 수 없어요", designSystemImage: DesignSystemAsset.warning.image, width: 230, height: 56, offset: 400)
             }.disposed(by: disposeBag)
         
         displayEditTextField.rx

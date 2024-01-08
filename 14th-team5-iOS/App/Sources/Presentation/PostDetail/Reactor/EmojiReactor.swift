@@ -100,7 +100,7 @@ extension EmojiReactor {
             var sectionItem: [DisplayEditItemModel] = []
             content.forEach {
                 sectionItem.append(
-                    .fetchDisplayItem(DisplayEditCellReactor(title: String($0)))
+                    .fetchDisplayItem(DisplayEditCellReactor(title: String($0), radius: 10, font: .head2Bold))
                 )
             }
             return Observable<Mutation>.just(.injectDisplayContent(sectionItem))

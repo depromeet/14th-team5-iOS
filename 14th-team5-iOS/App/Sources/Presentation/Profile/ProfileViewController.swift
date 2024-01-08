@@ -216,6 +216,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         
         reactor.state
             .map { $0.isUser }
+            .debug("isSetting Value")
             .distinctUntilChanged()
             .bind(to: profileView.rx.isSetting)
             .disposed(by: disposeBag)

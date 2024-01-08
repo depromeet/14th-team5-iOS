@@ -23,7 +23,8 @@ public final class ProfileDIContainer: BaseDIContainer {
     
     public init(memberId: String = "") {
         self.memberId = memberId
-        self.isUser = App.Repository.member.memberID.value == memberId ? true : false
+        print("my memberID: \(memberId) or \(FamilyUserDefaults.checkIsMyMemberId(memberId: memberId)) or \(FamilyUserDefaults.returnMyMemberId())")
+        self.isUser = FamilyUserDefaults.checkIsMyMemberId(memberId: memberId)
     }
     
     public func makeViewController() -> ProfileViewController {

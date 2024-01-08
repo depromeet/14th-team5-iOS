@@ -36,9 +36,7 @@ extension CameraAPIWorker {
         let spec = type == .feed ? CameraAPIs.uploadImageURL.spec : CameraAPIs.uploadProfileImageURL.spec
         
         
-        let token = "eyJyZWdEYXRlIjoxNzA0Mjg3MTI0OTY4LCJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDM3MzUyNH0.iiTMFXPfHXgt0c7TfCGUiSLbmvuSUWSU7PnxPUrHuFs"
-        
-        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(token)], jsonEncodable: parameters)
+        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {

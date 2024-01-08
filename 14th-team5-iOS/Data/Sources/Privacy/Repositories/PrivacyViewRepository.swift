@@ -20,7 +20,6 @@ public final class PrivacyViewRepository {
     
     private let privacyAPIWorker: PrivacyAPIWorker = PrivacyAPIWorker()
     public var disposeBag: DisposeBag = DisposeBag()
-    private let accessToken: String = ""
     
 }
 

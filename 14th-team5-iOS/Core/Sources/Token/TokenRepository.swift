@@ -58,12 +58,12 @@ public class TokenRepository: RxObject {
     public let fcmToken = BehaviorRelay<String>(value: KeychainWrapper.standard[.fcmToken] ?? "")
     public let fakeAccessToken = BehaviorRelay<AccessToken?>(value: (KeychainWrapper.standard[.accessToken] as String?)?.decode(AccessToken.self))
     public let accessToken = BehaviorRelay<AccessToken?>(value: (KeychainWrapper.standard[.accessToken] as String?)?.decode(AccessToken.self))
-    func clearAccessToken() {
+    public func clearAccessToken() {
         KeychainWrapper.standard.remove(forKey: .accessToken)
         accessToken.accept(nil)
     }
     
-    func clearFCMToken() {
+    public func clearFCMToken() {
         KeychainWrapper.standard.remove(forKey: .fcmToken)
         fcmToken.accept("")
     }

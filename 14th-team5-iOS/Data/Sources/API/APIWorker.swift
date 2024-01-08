@@ -55,9 +55,8 @@ public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInter
             completion(.success(urlRequest))
             return
         }
-        
-        urlRequest.setValue(KeychainWrapper.standard.string(forKey: "accessToken"), forHTTPHeaderField: "X-AUTH-TOKEN")
-        print("AccessToken Keychain: \(KeychainWrapper.standard.string(forKey: "accessToken"))")
+        print("App AccessToken: \(App.Repository.token.accessToken.value?.accessToken) \n App RefreshToken: \(App.Repository.token.accessToken.value?.refreshToken)")
+        urlRequest.setValue(App.Repository.token.accessToken.value?.accessToken ?? "", forHTTPHeaderField: "X-AUTH-TOKEN")
         completion(.success(urlRequest))
         print("check Adapter : \(urlRequest.headers)")
     }
@@ -72,7 +71,7 @@ public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInter
         }
         
 
-        let parameter = AccountRefreshParameter(refreshToken: "eyJyZWdEYXRlIjoxNzA0NjI5MzMxNjIwLCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJyZWZyZXNoIn0.eyJleHAiOjE3MDQ2MjkzMzF9.59ZRX0p0zUWs-lHZ4p6opCBCcJeNXc_hZ3VutwNplps")
+        let parameter = AccountRefreshParameter(refreshToken: App.Repository.token.accessToken.value?.refreshToken ?? "")
             
             accountAPIWorker.accountRefreshToken(parameter: parameter)
                 .compactMap { $0?.toDomain() }
@@ -81,8 +80,6 @@ public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInter
                 .subscribe(onNext: { entity in
                     print("entity Test: \(entity)")
                     KeychainWrapper.standard.set(entity.accessToken, forKey: "accessToken")
-                    App.Repository.token.refreshToken.accept(entity.refreshToken)
-                    App.Repository.token.accessToken.accept(entity.accessToken)
                     completion(.retry)
                 }, onError: { error in
                     completion(.doNotRetryWithError(error))

@@ -18,7 +18,7 @@ extension UserDefaults {
         case inviteCode
         
         case profileImage
-        
+        case snsType
         
         var value: String { "\(Bundle.current.bundleIdentifier ?? "").\(self.rawValue.lowercased())" }
     }
@@ -57,7 +57,11 @@ extension UserDefaults {
         get { UserDefaults.standard.data(forKey: Key.profileImage.value) }
         set { UserDefaults.standard.setValue(newValue, forKey: Key.profileImage.value)}
     }
-        
+    
+    public var snsType: String? {
+        get { UserDefaults.standard.string(forKey: Key.snsType.value) }
+        set { UserDefaults.standard.set(newValue, forKey: Key.snsType.value) }
+    }
 }
 
 extension UserDefaults {

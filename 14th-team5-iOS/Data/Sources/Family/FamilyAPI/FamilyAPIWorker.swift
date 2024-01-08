@@ -36,14 +36,6 @@ extension FamilyAPIs {
 }
 
 extension FamilyAPIWorker: SearchFamilyRepository {
-<<<<<<< Updated upstream
-    public func fetchFamilyMember(query: Domain.SearchFamilyQuery) -> RxSwift.Single<Domain.SearchFamilyPage?> {
-        let spec: APISpec = FamilyAPIs.familyMembers.spec
-        let token = KeychainWrapper.standard.set("eyJyZWdEYXRlIjoxNzA0NjI5MzMxNTg3LCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MifQ.eyJ1c2VySWQiOiIyIiwiZXhwIjoxNzA0NjI5MzMxfQ.2KnitlchstGo95Zy6J49OzUShDTd7hjHzSMigpnMKLo", forKey: "accessToken")
-        
-        guard let accessToken = KeychainWrapper.standard.string(forKey: "accessToken") else { return .never()}
-        let headers: [BibbiHeader] = [BibbiAPI.Header.xAppKey, BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJyZWdEYXRlIjoxNzA0NjM2Mzg1NTg0LCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MifQ.eyJ1c2VySWQiOiIwMUhLN0NDUVZYRVQ1NlE5REQxM1ZGWEo0VCIsImV4cCI6MTcwNDcyMjc4NX0.ZQDcC_OuGpG55cz4PUI6umcfymRk5OhK4VBnRByI280")]
-=======
     public func fetchFamilyMember(query: SearchFamilyQuery) -> Single<SearchFamilyPage?> {
         return Observable.just(())
             .withLatestFrom(self._headers)
@@ -55,7 +47,6 @@ extension FamilyAPIWorker: SearchFamilyRepository {
     private func fetchFamilyMember(headers: [APIHeader]?, query: Domain.SearchFamilyQuery) -> RxSwift.Single<Domain.SearchFamilyPage?> {
         let query = FamilySearchRequestDTO(type: query.type, page: query.page, size: query.size)
         let spec: APISpec = FamilyAPIs.familyMembers(query).spec
->>>>>>> Stashed changes
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do {

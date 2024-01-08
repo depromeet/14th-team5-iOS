@@ -35,6 +35,7 @@ public final class AccountRepository: AccountImpl {
     
     let signInHelper = AccountSignInHelper()
     private let apiWorker = AccountAPIWorker()
+    private let meApiWorekr = MeAPIWorker()
     
     private let signInResult = PublishRelay<APIResult>()
     
@@ -70,12 +71,23 @@ public final class AccountRepository: AccountImpl {
         }
     }
     
+    // MARK: 회원가입 이후 멤버 조회
     private func fetchMember() {
-        let myApiWorker = MeAPIWorker()
-        myApiWorker.fetchMemberInfo()
+        meApiWorekr.fetchMemberInfo()
             .asObservable()
-            .subscribe(onNext: { [weak self] _ in
-            })
+            .withLatestFrom(App.Repository.member.inviteCode)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.joinFamily(inviteCode: $0.1 ) })
+            .disposed(by: disposeBag)
+    }
+    
+    // MARK: 링크가입 사용자 -> 가입 이후 가족가입
+    private func joinFamily(inviteCode: String?) {
+        guard let inviteCode else { return }
+        meApiWorekr.joinFamily(with: inviteCode)
+            .asObservable()
+            .withUnretained(self)
+            .bind(onNext: { App.Repository.member.familyId.accept($0.1?.familyId) })
             .disposed(by: disposeBag)
     }
     

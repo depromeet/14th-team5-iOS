@@ -122,4 +122,28 @@ extension MeAPIWorker: MeRepositoryProtocol {
             .flatMap { $0.0.getMemberInfo(spec: spec, headers: $0.1)}
             .asSingle()
     }
+    
+    private func joinFamily(spec: APISpec, headers: [APIHeader]?, jsonEncodable: Encodable) -> Single<FamilyInfo?> {
+        return request(spec: spec, headers: headers)
+            .subscribe(on: Self.queue)
+            .do(onNext: {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("getFamilyInfo result : \(str)")
+                }
+            })
+            .map(FamilyInfo.self)
+            .catchAndReturn(nil)
+            .asSingle()
+    }
+    
+    public func joinFamily(with inviteCode: String) -> Single<FamilyInfo?> {
+        let payload = _PayLoad.FamilyPayload(inviteCode: inviteCode)
+        let spec = MeAPIs.joinFamily.spec
+        
+        return Observable.just(())
+            .withLatestFrom(self._headers)
+            .withUnretained(self)
+            .flatMap { $0.0.joinFamily(spec: spec, headers: $0.1, jsonEncodable: payload) }
+            .asSingle()
+    }
 }

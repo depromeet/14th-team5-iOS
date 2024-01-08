@@ -89,7 +89,7 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
         }
         
         nextButton.do {
-            $0.setTitle(OnBoardingStrings.buttonTitle, for: .normal)
+            $0.setTitle(OnBoardingStrings.normalButtonTitle, for: .normal)
             $0.setTitleColor(DesignSystemAsset.black.color, for: .normal)
             $0.titleLabel?.font = UIFont(font: DesignSystemFontFamily.Pretendard.bold, size: 16)
             $0.backgroundColor = DesignSystemAsset.mainGreen.color.withAlphaComponent(0.2)
@@ -100,6 +100,14 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
     
     public override func bind(reactor: OnBoardingReactor) {
         super.bind(reactor: reactor)
+        
+        App.Repository.member.inviteCode
+            .filter { $0?.isEmpty == true }
+            .withUnretained(self)
+            .bind(onNext: {
+                $0.0.nextButton.setTitle(OnBoardingStrings.inviteButtonTitle, for: .normal)
+            })
+            .disposed(by: disposeBag)
         
         currentPage
             .distinctUntilChanged()

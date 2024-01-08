@@ -57,11 +57,11 @@ struct FamilyWidgetView: View {
     // MARK: 가족중 일부가 사진을 올렸을 때 뷰
     private func getPhotoView(info: Family) -> some View {
         ZStack {
-            NetworkImageView(url: URL(string: info.postImageUrl))
+            NetworkImageView(url: URL(string: info.postImageUrl ?? ""))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             VStack {
                 HStack {
-                    NetworkImageView(url: URL(string: info.profileImageUrl))
+                    NetworkImageView(url: URL(string: info.profileImageUrl ?? ""))
                         .frame(height: family == .systemSmall ? 34 : 52)
                         .frame(width: family == .systemSmall ? 34 : 52)
                         .clipShape(Circle())
@@ -71,7 +71,7 @@ struct FamilyWidgetView: View {
                     Spacer()
                 }
                 Spacer()
-                getContentView(for: info.postConent ?? "", family: family)
+                getContentView(for: info.postContent ?? "할 말이 없네", family: family)
                     .padding(.bottom, family == .systemSmall ? 16 : 22)
             }
         }

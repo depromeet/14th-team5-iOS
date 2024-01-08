@@ -10,60 +10,39 @@ import UIKit
 import Core
 
 struct FamilyService {
-    func getFamilyInfo() async throws -> Family? {
-        let token = "eyJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QiLCJyZWdEYXRlIjoxNzA0MzY3NjYzODA2fQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDQ1NDA2M30.XSJCrFz68TobU0Ry35r6Mu9y9f57knsqhSWDipTjKDw"
-        let url = URL(string: "https://dev.api.no5ing.kr/v1/widgets/single-recent-family-post")!
+    func fetchInfo(completion: @escaping (Result<Family?, Error>) -> Void) {
+//        let token = "eyJyZWdEYXRlIjoxNzA0Njc1NDEwODk4LCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MifQ.eyJ1c2VySWQiOiIwMUhKQk5XWkdOUDFLSk5NS1dWWkowMzlIWSIsImV4cCI6MTcwNDc2MTgxMH0.cSf1uH8G-kVZS1dpf4eJwutoAlj2-oK-z05rIaSdtbk"
         
-        var request = URLRequest(url: url)
-        request.addValue("application/json", forHTTPHeaderField: "accept")
-        request.addValue(token, forHTTPHeaderField: "X-AUTH-TOKEN")
-        request.httpMethod = "GET"
-        
-        do {
-            let (data, _) = try await URLSession.shared.data(for: request)
-            let familyInfo = try JSONDecoder().decode(Family.self, from: data)
-            return familyInfo
-        } catch {
-            return nil
-        }
-    }
-    
-    func getPhoto(completion: @escaping (Result<Family, Error>) -> Void) {
+        let token = App.Repository.token.accessToken.value?.accessToken
+        let appKey = "9c61cc7b-0fe9-40eb-976e-6a74c8cb9092"
         let urlString = "https://dev.api.no5ing.kr/v1/widgets/single-recent-family-post"
-        guard let url = URL(string: urlString) else {
-            fatalError("Invalid URL")
-        }
         
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
+        var request = URLRequest(url: URL(string: urlString)!)
         request.addValue("application/json", forHTTPHeaderField: "accept")
-        request.addValue("eyJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYiLCJ0eXAiOiJKV1QiLCJyZWdEYXRlIjoxNzA0MzY3NjYzODA2fQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDQ1NDA2M30.XSJCrFz68TobU0Ry35r6Mu9y9f57knsqhSWDipTjKDw", forHTTPHeaderField: "X-AUTH-TOKEN")
+        request.addValue(token ?? "", forHTTPHeaderField: "X-AUTH-TOKEN")
+        request.addValue(appKey, forHTTPHeaderField: "X-APP-KEY")
+        request.httpMethod = "GET"
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             if let error = error {
                 completion(.failure(error))
                 return
-            } else if let response = response as? HTTPURLResponse {
-                let statusCode = response.statusCode
-                
-                guard (200..<300).contains(statusCode) else {
-                    let error = NSError(domain: "HTTPError", code: statusCode, userInfo: nil)
-                    completion(.failure(error))
-                    return
-                }
-                
-                if let data = data {
-                    do {
-                        let decoder = JSONDecoder()
-                        let family = try decoder.decode(Family.self, from: data)
-                        completion(.success(family))
-                    } catch {
-                        completion(.failure(error))
-                    }
-                }
+            }
+            
+            guard let data = data else {
+                let noDataError = NSError(domain: "NoDataError", code: 0, userInfo: nil)
+                completion(.failure(noDataError))
+                return
+            }
+            
+            do {
+                let decoder = JSONDecoder()
+                let family = try decoder.decode(Family.self, from: data)
+                completion(.success(family))
+            } catch {
+                completion(.failure(error))
             }
         }
-        
         task.resume()
     }
 }

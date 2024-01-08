@@ -64,7 +64,8 @@ extension UIViewController {
     public func makeBibbiToastView(
         text: String,
         symbol name: String = "",
-        palletteColors colors: [UIColor] = [.gray300],
+        palletteColors: [UIColor] = [.gray300],
+        backgroundColor: UIColor = .gray900,
         width: CGFloat = 250,
         height: CGFloat = 56,
         duration: CGFloat = 0.5,
@@ -76,7 +77,8 @@ extension UIViewController {
             guard let toastView = self.prepareBibbiToastView(
                 text: text,
                 symbol: name,
-                palletteColors: colors,
+                palletteColors: palletteColors,
+                backgroundColor: backgroundColor,
                 width: width,
                 height: height,
                 offset: offset
@@ -108,6 +110,7 @@ extension UIViewController {
     public func makeBibbiToastView(
         text: String,
         designSystemImage image: DesignSystemImages.Image,
+        backgroundColor: UIColor = .gray900,
         width: CGFloat = 250,
         height: CGFloat = 56,
         duration: CGFloat = 0.5,
@@ -119,6 +122,7 @@ extension UIViewController {
             guard let toastView = self.prepareBibbiToastView(
                 text: text,
                 designSystemImage: image,
+                backgroundColor: backgroundColor,
                 width: width,
                 height: height,
                 offset: offset
@@ -144,6 +148,7 @@ extension UIViewController {
         symbol name: String? = nil,
         palletteColors colors: [UIColor]? = nil,
         designSystemImage image: DesignSystemImages.Image? = nil,
+        backgroundColor: UIColor = .gray900,
         width: CGFloat,
         height: CGFloat,
         offset: CGFloat
@@ -166,6 +171,7 @@ extension UIViewController {
         let toastView: BibbiToastMessageView = BibbiToastMessageView(
             text: text,
             image: image,
+            containerColor: backgroundColor,
             width: width,
             height: height
         )

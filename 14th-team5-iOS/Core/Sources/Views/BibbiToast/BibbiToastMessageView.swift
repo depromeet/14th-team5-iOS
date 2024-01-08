@@ -12,7 +12,7 @@ import Then
 
 final public class BibbiToastMessageView: UIView {
     // MARK: - Views
-    private let backgroundView: UIView = UIView()
+    private let containerView: UIView = UIView()
     
     private let stackView: UIStackView = UIStackView()
     private let textLabel: BibbiLabel = BibbiLabel(.body1Regular, alignment: .center, textColor: .bibbiWhite)
@@ -24,6 +24,7 @@ final public class BibbiToastMessageView: UIView {
             textLabel.text = text
         }
     }
+    
     public var image: UIImage? {
         didSet {
             imageView.image = image
@@ -32,7 +33,7 @@ final public class BibbiToastMessageView: UIView {
     
     public var width: CGFloat {
         didSet {
-            backgroundView.snp.updateConstraints {
+            containerView.snp.updateConstraints {
                 $0.width.equalTo(width)
             }
         }
@@ -40,9 +41,15 @@ final public class BibbiToastMessageView: UIView {
     
     public var height: CGFloat {
         didSet {
-            backgroundView.snp.updateConstraints {
+            containerView.snp.updateConstraints {
                 $0.height.equalTo(height)
             }
+        }
+    }
+    
+    public var containerColor: UIColor? {
+        didSet {
+            containerView.backgroundColor = backgroundColor
         }
     }
     
@@ -50,11 +57,13 @@ final public class BibbiToastMessageView: UIView {
     public init(
         text: String,
         image: UIImage? = nil,
+        containerColor: UIColor = .gray900,
         width: CGFloat = 300,
         height: CGFloat = 56
     ) {
         self.text = text
         self.image = image
+        self.containerColor = containerColor
         self.width = width
         self.height = height
         super.init(frame: .zero)
@@ -70,15 +79,15 @@ final public class BibbiToastMessageView: UIView {
     
     // MARK: - Helpers
     private func setupUI() {
-        addSubview(backgroundView)
+        addSubview(containerView)
         stackView.addArrangedSubviews(
             imageView, textLabel
         )
-        backgroundView.addSubview(stackView)
+        containerView.addSubview(stackView)
     }
     
     private func setupAutoLayout() {
-        backgroundView.snp.makeConstraints {
+        containerView.snp.makeConstraints {
             $0.width.equalTo(width)
             $0.height.equalTo(height)
             $0.bottom.equalToSuperview()
@@ -88,7 +97,7 @@ final public class BibbiToastMessageView: UIView {
         stackView.snp.makeConstraints {
             $0.top.bottom.equalToSuperview()
             $0.horizontalEdges.equalToSuperview().inset(16.0)
-            $0.centerY.equalTo(backgroundView.snp.centerY)
+            $0.centerY.equalTo(containerView.snp.centerY)
         }
     }
     
@@ -109,8 +118,8 @@ final public class BibbiToastMessageView: UIView {
             $0.distribution = .fillProportionally
         }
         
-        backgroundView.do {
-            $0.backgroundColor = DesignSystemAsset.black.color
+        containerView.do {
+            $0.backgroundColor = containerColor
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = 28.0
         }

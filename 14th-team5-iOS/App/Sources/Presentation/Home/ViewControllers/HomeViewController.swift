@@ -18,8 +18,7 @@ import Then
 import Domain
 
 public final class HomeViewController: BaseViewController<HomeViewReactor> {
-    private let manageFamilyButton: UIBarButtonItem = UIBarButtonItem()
-    private let calendarButton: UIBarButtonItem = UIBarButtonItem()
+    private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
     private let familyCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let inviteFamilyView: UIView = InviteFamilyView()
     private let dividerView: UIView = UIView()
@@ -37,7 +36,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
     
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.navigationBar.isHidden = false
+        navigationController?.navigationBar.isHidden = true
     }
     
     deinit {
@@ -73,6 +72,28 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
                 guard let self = self else { return }
                 self.timerLabel.text = time
             })
+            .disposed(by: disposeBag)
+        
+        navigationBarView.rx.didTapLeftBarButton
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.navigationController?.pushViewController(
+                    InviteFamilyDIContainer().makeViewController(),
+                    animated: true
+                )
+            }
+            .disposed(by: disposeBag)
+        
+        navigationBarView.rx.didTapRightBarButton
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.navigationController?.pushViewController(
+                    CalendarDIConatainer().makeViewController(),
+                    animated: true
+                )
+            }
             .disposed(by: disposeBag)
         
         familyCollectionView
@@ -175,15 +196,21 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
     public override func setupUI() {
         super.setupUI()
         
-        view.addSubviews(familyCollectionView, dividerView, timerLabel, descriptionLabel,
+        view.addSubviews(navigationBarView, familyCollectionView, dividerView, timerLabel, descriptionLabel,
                          postCollectionView, balloonView, cameraButton)
     }
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         
+        navigationBarView.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.height.equalTo(33)
+            $0.horizontalEdges.equalToSuperview()
+        }
+        
         familyCollectionView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).inset(HomeAutoLayout.FamilyCollectionView.topInset)
+            $0.top.equalTo(navigationBarView.snp.bottom).offset(HomeAutoLayout.FamilyCollectionView.topInset)
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(HomeAutoLayout.FamilyCollectionView.height)
         }
@@ -233,22 +260,17 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         let familyCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
         let feedCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
         
-        navigationItem.do {
-            $0.titleView = UIImageView(image: DesignSystemAsset.bibbi.image)
-            $0.leftBarButtonItem = manageFamilyButton
-            $0.rightBarButtonItem = calendarButton
-        }
-        
-        manageFamilyButton.do {
-            $0.image = DesignSystemAsset.addPerson.image
-            $0.tintColor = .gray400
-            $0.target = self
-        }
-        
-        calendarButton.do {
-            $0.image = DesignSystemAsset.calendar.image
-            $0.tintColor = .gray400
-            $0.target = self
+        navigationBarView.do {
+            $0.navigationImage = .newBibbi
+            $0.navigationImageScale = 0.8
+            
+            $0.leftBarButtonItem = .addPerson
+            $0.leftBarButtonItemScale = 1.2
+            $0.leftBarButtonItemYOffset = 10.0
+            
+            $0.rightBarButtonItem = .heartCalendar
+            $0.rightBarButtonItemScale = 1.2
+            $0.rightBarButtonItemYOffset = -10.0
         }
         
         familyCollectionViewLayout.do {
@@ -302,7 +324,7 @@ extension HomeViewController {
             view.addSubview(inviteFamilyView)
             
             inviteFamilyView.snp.makeConstraints {
-                $0.top.equalTo(view.safeAreaLayoutGuide).inset(HomeAutoLayout.InviteFamilyView.topInset)
+                $0.top.equalTo(navigationBarView.snp.bottom).offset(HomeAutoLayout.InviteFamilyView.topInset)
                 $0.horizontalEdges.equalToSuperview().inset(HomeAutoLayout.InviteFamilyView.horizontalInset)
                 $0.height.equalTo(HomeAutoLayout.InviteFamilyView.height)
             }

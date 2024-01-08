@@ -11,7 +11,11 @@ import DesignSystem
 
 public class BibbiLabel: UILabel {
     // MARK: - Properties
-    private var textStyle: UIFont.BibbiFontStyle
+    public var textStyle: UIFont.BibbiFontStyle {
+        didSet {
+            updateAttributes(textStyle)
+        }
+    }
     private var alignment: NSTextAlignment
     
     public override var text: String? {
@@ -19,6 +23,7 @@ public class BibbiLabel: UILabel {
             updateAttributes()
         }
     }
+    
     
     public var textBibbiColor: UIColor = .bibbiWhite {
         didSet {
@@ -60,6 +65,17 @@ extension BibbiLabel {
 }
 
 extension BibbiLabel {
+    private func updateAttributes(_ textStyle: UIFont.BibbiFontStyle) {
+        let attributes = UIFont.fontAttributes(
+            textStyle,
+            textColor: textBibbiColor,
+            textAlignment: alignment
+        )
+        setupBasicAttributes(attributes)
+        setupDetailAttributes(attributes)
+    }
+    
+    
     private func updateAttributes() {
         let attributes = UIFont.fontAttributes(
             textStyle,

@@ -17,7 +17,7 @@ public enum ResignAPIs: API {
         case let .accountResign(memeberId):
             return APISpec(method: .delete, url: "\(BibbiAPI.hostApi)/members/\(memeberId)")
         case let .accountFcmResign(token):
-            return APISpec(method: .delete, url: "\(BibbiAPI.hostApi)/members/\(token)")
+            return APISpec(method: .delete, url: "\(BibbiAPI.hostApi)/me/fcm/\(token)")
         }
     }
     

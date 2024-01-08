@@ -100,10 +100,9 @@ public class BibbiProfileView: UIView {
     }
     
     private func setupUserProfile(isUser: Bool) {
-        circleButton.isHidden = isUser
-        circleButton.isEnabled = !isUser
-        profileNickNameButton.isHidden = isUser
-        profileNickNameButton.isEnabled = !isUser
+        circleButton.isHidden = !isUser
+        circleButton.isEnabled = isUser
+        profileNickNameButton.isEnabled = isUser
     }
     
 }

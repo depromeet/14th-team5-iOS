@@ -7,6 +7,7 @@
 
 import Foundation
 
+import Core
 import Domain
 import RxSwift
 
@@ -15,8 +16,8 @@ public final class AccountResignViewRepository {
     public init() { }
     
     private let resignAPIWorker: ResignAPIWorker = ResignAPIWorker()
+    private let accessToken = App.Repository.token.accessToken.value?.accessToken ?? ""
     public var disposeBag: DisposeBag = DisposeBag()
-    private let accessToken = ""
 }
 
 extension AccountResignViewRepository: AccountResignInterface {

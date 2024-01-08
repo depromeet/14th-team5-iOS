@@ -173,6 +173,24 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        resignNavigationBarView.rx.didTapLeftBarButton
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.navigationController?.popViewController(animated: true)
+            }.disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.isSuccess }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .bind { owner, isSuccess in
+                guard isSuccess else { return }
+                App.Repository.token.clearAccessToken()
+                App.Repository.token.clearFCMToken()
+                owner.makeRootViewController()
+            }.disposed(by: disposeBag)
+        
     }
     
 }
@@ -204,6 +222,12 @@ extension AccountResignViewCotroller {
         [cancelAction, confirmAction].forEach(resignAlertController.addAction(_:))
         
         present(resignAlertController, animated: true)
+    }
+    
+    private func makeRootViewController() {
+        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
+        sceneDelegate.window?.rootViewController = SplashDIContainer().makeViewController()
+        sceneDelegate.window?.makeKeyAndVisible()
     }
     
 }

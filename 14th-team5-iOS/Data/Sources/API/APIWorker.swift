@@ -42,42 +42,45 @@ extension NSMutableData {
 }
 
 public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInterface {
-    //TODO: SingleTone이 좋은지 피드백 부탁드립니다.
+
+    //TODO: Test용 KeychainWrapper 코드 다 제거하기
     private let accountAPIWorker: AccountAPIWorker = AccountAPIWorker()
     private let disposeBag: DisposeBag = DisposeBag()
-    //TODO: Refresh Token 관련 Interceptor 추가 예정임
     
-    public func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) {
+    public func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) { 
         var urlRequest = urlRequest
-        print("url AbsoluteString: \(BibbiAPI.hostApi) check \(urlRequest.url?.absoluteString)")
-        guard urlRequest.url?.absoluteString.hasPrefix(BibbiAPI.hostApi) == true else {
+        
+        guard urlRequest.url?.absoluteString.hasPrefix("https://dev.api.no5ing.kr/v1") == true else {
             completion(.success(urlRequest))
             return
         }
-//        let hds = self.httpHeaders([BibbiAPI.Header.auth(App.Repository.token.accessToken.value ?? "")])
-//        urlRequest.headers.add(name: "X-AUTH-TOKEN", value: App.Repository.token.accessToken.value ?? "")
-//        print(" or check AccessToken \(App.Repository.token.accessToken.value)")
-//        setValue(App.Repository.token.accessToken.value, forHTTPHeaderField: "X-AUTH-TOKEN")
-        print("check Adapter : \(urlRequest.headers)")
+        guard let accessToken = App.Repository.token.accessToken.value?.accessToken,
+              let fakeToken = App.Repository.token.fakeAccessToken.value?.accessToken else { return }
         
+        print("App AccessToken: \(App.Repository.token.accessToken.value?.accessToken) \n App RefreshToken: \(App.Repository.token.accessToken.value?.refreshToken)")
+        urlRequest.setValue(accessToken.isEmpty ? fakeToken : accessToken , forHTTPHeaderField: "X-AUTH-TOKEN")
         completion(.success(urlRequest))
+        print("check Adapter : \(urlRequest.headers)")
     }
     
     public func retry(_ request: Request, for session: Session, dueTo error: Error, completion: @escaping (RetryResult) -> Void) {
-        guard let statusCode = request.response?.statusCode, statusCode == 401 else {
-                completion(.doNotRetryWithError(error))
-                return
-            }
+        
+        print("statusCode : \(request.response?.statusCode) check 좀 내놔 아아아아아아아앙아 이고 \(request.task?.response)")
+      
+        guard let response = request.task?.response as? HTTPURLResponse, response.statusCode == 401 else {
+            completion(.doNotRetryWithError(error))
+            return
+        }
+        
+
         let parameter = AccountRefreshParameter(refreshToken: App.Repository.token.accessToken.value?.refreshToken ?? "")
             
             accountAPIWorker.accountRefreshToken(parameter: parameter)
                 .compactMap { $0?.toDomain() }
                 .asObservable()
+                .debug("account Refresh Token")
                 .subscribe(onNext: { entity in
-                    print("refresh Entity Check: \(entity)")
-                    
-                    let token = AccessToken(accessToken: entity.accessToken, refreshToken: entity.refreshToken, isTemporaryToken: entity.isTemporaryToken)
-                    App.Repository.token.accessToken.accept(token)
+                    print("entity Test: \(entity)")
                     completion(.retry)
                 }, onError: { error in
                     completion(.doNotRetryWithError(error))
@@ -118,6 +121,7 @@ public class APIWorker: NSObject, BibbiRouterInterface {
         let hds = self.httpHeaders(headers)
         
         return AF.rx.request(spec.method, spec.url, parameters: params, encoding: encoding!, headers: hds, interceptor: BibbiRequestInterceptor())
+            .validate(statusCode: 200..<300)
             .responseData()
             .debug("API Worker has received data from \"\(spec.url)\"")
     }
@@ -127,6 +131,7 @@ public class APIWorker: NSObject, BibbiRouterInterface {
         let hds = self.httpHeaders(headers)
         
         return AF.rx.request(spec.method, spec.url, parameters: params, encoding: encoding!, headers: hds, interceptor: BibbiRequestInterceptor())
+            .validate(statusCode: 200..<300)
             .responseData()
             .debug("API Worker has received data from \"\(spec.url)\"")
     }
@@ -145,6 +150,7 @@ public class APIWorker: NSObject, BibbiRouterInterface {
         request.headers = hds
         print("interCepter call with name \(url)")
         return AF.rx.request(urlRequest: request, interceptor: BibbiRequestInterceptor())
+            .validate(statusCode: 200..<300)
             .responseData()
             .debug("API Worker has received data from \"\(spec.url)\"")
     }
@@ -155,6 +161,7 @@ public class APIWorker: NSObject, BibbiRouterInterface {
         }
         
         return self.request(spec: spec, headers: headers, jsonData: jsonData)
+            
     }
     
     func upload(spec: APISpec, headers: [APIHeader]? = nil, image: Data) -> Single<Bool> {

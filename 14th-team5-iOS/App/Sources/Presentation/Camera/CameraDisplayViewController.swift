@@ -29,7 +29,8 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     private let displayEditTextField: UITextField = UITextField()
     private let displayDimView: UIView = UIView()
     private let archiveButton: UIButton = UIButton.createCircleButton(radius: 24)
-    private let displayEditCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private var displayEditCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
+    private lazy var  displayEditCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: displayEditCollectionViewLayout)
     private let displayEditDataSources: RxCollectionViewSectionedReloadDataSource<DisplayEditSectionModel> = .init { dataSources, collectionView, indexPath, sectionItem in
         switch sectionItem {
         case let .fetchDisplayItem(cellReactor):
@@ -58,6 +59,11 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     
     public override func setupAttributes() {
         super.setupAttributes()
+        
+        displayEditCollectionViewLayout.do {
+            $0.itemSize = CGSize(width: 38, height: 61)
+            $0.minimumInteritemSpacing = 4
+        }
         
         displayNavigationBar.do {
             $0.navigationTitle = "사진 올리기"
@@ -206,7 +212,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         displayEditTextField.rx
             .text.orEmpty
             .distinctUntilChanged()
-            .filter { $0.count <= 8 }
+            .filter { $0.count <= 8 && !$0.contains(" ") }
             .observe(on: MainScheduler.instance)
             .map { Reactor.Action.fetchDisplayImage($0) }
             .bind(to: reactor.action)
@@ -214,9 +220,20 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         displayEditTextField.rx
             .text.orEmpty
+            .map { $0.contains(" ") }
+            .distinctUntilChanged()
+            .debounce(.seconds(1), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, isShow in
+                guard isShow == true else { return }
+                owner.makeBibbiToastView(text: "띄어쓰기는 할 수 없어요", designSystemImage: DesignSystemAsset.warning.image, width: 230, height: 56, offset: 400)
+            }.disposed(by: disposeBag)
+        
+        displayEditTextField.rx
+            .text.orEmpty
             .distinctUntilChanged()
             .map { ($0.count > 8) }
-            .throttle(.seconds(1), scheduler: MainScheduler.instance)
+            .debounce(.seconds(1), scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind { owner, isShow in
                 guard isShow == true else { return }
@@ -423,14 +440,5 @@ extension CameraDisplayViewController {
     }
 }
 
-extension CameraDisplayViewController: UICollectionViewDelegateFlowLayout {
-    
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 38, height: 61)
-    }
-    
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 4
-    }
-}
+extension CameraDisplayViewController: UICollectionViewDelegateFlowLayout {}
 

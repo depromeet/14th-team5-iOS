@@ -97,7 +97,7 @@ public final class CameraDisplayViewReactor: Reactor {
                     .flatMap { items -> Observable<CameraDisplayViewReactor.Mutation> in
                         var sectionItem: [DisplayEditItemModel] = []
                         items.forEach {
-                            sectionItem.append(.fetchDisplayItem(DisplayEditCellReactor(title: $0)))
+                            sectionItem.append(.fetchDisplayItem(DisplayEditCellReactor(title: $0, radius: 8, font: .head1)))
                         }
                         
                         return Observable.concat(

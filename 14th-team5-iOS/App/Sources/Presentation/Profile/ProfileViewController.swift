@@ -175,7 +175,11 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         
         NotificationCenter.default.rx
             .notification(.ProfileImageInitializationUpdate)
-            .map { _ in Reactor.Action.didTapInitProfile }
+            .compactMap { notification -> Data? in
+                guard let userInfo = notification.userInfo else { return nil }
+                return userInfo["profileData"] as? Data
+            }
+            .map { Reactor.Action.didTapInitProfile($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
             
@@ -216,6 +220,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         
         reactor.state
             .map { $0.isUser }
+            .debug("isSetting Value")
             .distinctUntilChanged()
             .bind(to: profileView.rx.isSetting)
             .disposed(by: disposeBag)
@@ -324,9 +329,19 @@ extension ProfileViewController {
             self.present(self.profilePickerController, animated: true)
         }
         
-        let presentDefaultAction: UIAlertAction = UIAlertAction(title: "초기화", style: .destructive) { _ in
+        let presentDefaultAction: UIAlertAction = UIAlertAction(title: "초기화", style: .destructive) { [self] _ in
             //TODO: 초기화 사진 해야한다..
-            NotificationCenter.default.post(name: .ProfileImageInitializationUpdate, object: nil, userInfo: nil)
+            guard let nickName = self.reactor?.currentState.profileMemberEntity?.memberName.first,
+                  let profile  = UserDefaults.standard.profileImage else { return }
+            print("test Profile Defaults: \(profile)")
+            let profileImage = UIImage(data: profile)?.combinedTextWithBackground(target: "\(nickName)", size: profileView.profileImageView.frame.size, attributedString: [
+                .foregroundColor: DesignSystemAsset.white.color,
+                .font: DesignSystemFontFamily.Pretendard.semiBold.font(size: 18)
+            ])
+            guard let profileData = profileImage?.jpegData(compressionQuality: 1.0) else { return }
+            print("default Profile Data: \(profileData)")
+            let userInfo: [AnyHashable: Any] = ["profileData": profileData]
+            NotificationCenter.default.post(name: .ProfileImageInitializationUpdate, object: nil, userInfo: userInfo)
         }
         
         let presentCancelAction: UIAlertAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)

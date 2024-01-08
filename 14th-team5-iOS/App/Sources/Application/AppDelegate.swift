@@ -29,7 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         FirebaseApp.configure()
         setupUserNotificationCenter(application)
-        
+        removeKeychainAtFirstLaunch()
         bindRepositories()
         
         return true
@@ -44,8 +44,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func applicationWillTerminate(_ application: UIApplication) {
-//        App.Repository.token.accessToken.accept(nil)
         unbindRepositories()
+    }
+}
+
+extension AppDelegate {
+    private func removeKeychainAtFirstLaunch() {
+        guard UserDefaults.isFirstLaunch() else {
+            return
+        }
+        App.Repository.token.clearAccessToken()
+        App.Repository.token.clearFCMToken()
     }
 }
 

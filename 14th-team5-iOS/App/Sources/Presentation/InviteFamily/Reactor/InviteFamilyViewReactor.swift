@@ -10,8 +10,11 @@ import Foundation
 import Core
 import Data
 import Domain
+import Differentiator
 import ReactorKit
 import RxSwift
+
+typealias FamilyMemberProfileSectionModel = SectionModel<Void, FamilyMemberProfileCellReactor>
 
 public final class InviteFamilyViewReactor: Reactor {
     // MARK: - Action
@@ -22,18 +25,19 @@ public final class InviteFamilyViewReactor: Reactor {
     
     // MARK: - Mutate
     public enum Mutation {
-        case makeSharePanel(String)
-        case makeShareSuccessToastMessageView
-        case makeShareFailureTaostMessageView
-        case injectFamilyMembers(SectionOfFamilyMemberProfile)
+        case setSharePanel(String)
+        case setCopySuccessToastMessageView
+        case setFetchFailureTaostMessageView
+        case injectFamilyMembers([FamilyMemberProfileCellReactor])
     }
     
     // MARK: - State
     public struct State {
-        @Pulse var invitationLink: String = ""
-        @Pulse var copySuccessToastMessageView: Bool = false
-        @Pulse var copyFailureToastMessageView: Bool = false
-        var familyDatasource: [SectionOfFamilyMemberProfile] = [.init(items: [])]
+        @Pulse var familyInvitationUrl: URL?
+        @Pulse var shouldPresentCopySuccessToastMessageView: Bool
+        @Pulse var shouldPresentFetchFailureToastMessageView: Bool
+        var displayMemberCount: Int
+        var displayFamilyMembers: [FamilyMemberProfileSectionModel]
     }
     
     // MARK: - Properties
@@ -42,9 +46,17 @@ public final class InviteFamilyViewReactor: Reactor {
     public let inviteFamilyUseCase: InviteFamilyViewUseCaseProtocol
     public let provider: GlobalStateProviderProtocol
     
+    private let memberId: String? = App.Repository.member.memberID.value
+    
     // MARK: - Intializer
     init(usecase: InviteFamilyViewUseCaseProtocol, provider: GlobalStateProviderProtocol) {
-        self.initialState = State()
+        self.initialState = State(
+            familyInvitationUrl: nil,
+            shouldPresentCopySuccessToastMessageView: false,
+            shouldPresentFetchFailureToastMessageView: false,
+            displayMemberCount: 0,
+            displayFamilyMembers: []
+        )
         
         self.inviteFamilyUseCase = usecase
         self.provider = provider
@@ -56,7 +68,7 @@ public final class InviteFamilyViewReactor: Reactor {
             .flatMap { event -> Observable<Mutation> in
                 switch event {
                 case .didTapCopyInvitationUrlAction:
-                    return Observable<Mutation>.just(.makeShareSuccessToastMessageView)
+                    return Observable<Mutation>.just(.setCopySuccessToastMessageView)
                 }
             }
         
@@ -68,31 +80,30 @@ public final class InviteFamilyViewReactor: Reactor {
         switch action {
         case .didTapShareButton:
             return inviteFamilyUseCase.executeFetchInvitationUrl()
-                .flatMap {
-                    guard let invitationLinkResponse = $0 else {
-                        return Observable<Mutation>.just(.makeShareFailureTaostMessageView)
+                .map {
+                    guard let invitationLink = $0?.url else {
+                        return .setFetchFailureTaostMessageView
                     }
-                    return Observable<Mutation>.just(.makeSharePanel(invitationLinkResponse.url))
+                    return .setSharePanel(invitationLink)
                 }
-            
-            // NOTE: - 테스트 코드
-//            return Observable<Mutation>.just(
-//                .presentSharePanel(URL(string: "https://www.naver.com"))
-//            )
             
         case .fetchFamilyMemebers:
             return inviteFamilyUseCase.executeFetchFamilyMembers()
+                .withUnretained(self)
                 .map {
-                    guard let paginationFamilyMember = $0 else {
-                        return .injectFamilyMembers(.init(items: []))
+                    let myMemberId: String? = $0.0.memberId
+                    guard let familyResponse = $0.1?.results else {
+                        return .injectFamilyMembers([])
                     }
-                    return .injectFamilyMembers(.init(items: paginationFamilyMember.results))
+                    
+                    return .injectFamilyMembers(
+                        familyResponse.map {
+                            FamilyMemberProfileCellReactor(
+                                $0, isMe: myMemberId == $0.memberId
+                            )
+                        }
+                    )
                 }
-            
-            // NOTE: - 테스트 코드
-//            return Observable<Mutation>.just(
-//                .fetchYourFamilyMember(SectionOfFamilyMemberProfile.generateTestData())
-//            )
         }
     }
     
@@ -100,19 +111,20 @@ public final class InviteFamilyViewReactor: Reactor {
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
-        case let .makeSharePanel(urlString):
-            newState.invitationLink = urlString
+        case let .setSharePanel(urlString):
+            newState.familyInvitationUrl = URL(string: urlString)
             
-        case .makeShareSuccessToastMessageView:
-            newState.copySuccessToastMessageView = true
+        case .setCopySuccessToastMessageView:
+            newState.shouldPresentCopySuccessToastMessageView = true
             
-        case .makeShareFailureTaostMessageView:
-            newState.copyFailureToastMessageView = true
+        case .setFetchFailureTaostMessageView:
+            newState.shouldPresentFetchFailureToastMessageView = true
             
-        case let .injectFamilyMembers(familyMember):
-            print("불러온 패밀리 멤버: ")
-            print(familyMember)
-            newState.familyDatasource = [familyMember]
+        case let .injectFamilyMembers(familyMembers):
+            newState.displayMemberCount = familyMembers.count
+            newState.displayFamilyMembers = [
+                .init(model: Void(), items: familyMembers.sorted { $0.currentState.isMe && !$1.currentState.isMe })
+            ]
         }
         return newState
     }

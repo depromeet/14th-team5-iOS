@@ -36,7 +36,7 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
     private let tableView: UITableView = UITableView()
     
     // MARK: - Properties
-    lazy var dataSource: RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> = prepareDatasource()
+    lazy var dataSource: RxTableViewSectionedReloadDataSource<FamilyMemberProfileSectionModel> = prepareDatasource()
     
     // MARK: - Lifecycles
     public override func viewDidLoad() {
@@ -188,7 +188,7 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
             $0.backgroundColor = UIColor.clear
             $0.contentInset = AddFamilyVC.Attribute.tableContentInset
             
-            $0.register(FamiliyMemberProfileCell.self, forCellReuseIdentifier: FamiliyMemberProfileCell.id)
+            $0.register(FamilyMemberProfileCell.self, forCellReuseIdentifier: FamilyMemberProfileCell.id)
         }
         
         navigationItem.title = AddFamilyVC.Strings.navgationTitle
@@ -221,25 +221,24 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
             }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$invitationLink).skip(1)
+        reactor.pulse(\.$familyInvitationUrl)
             .withUnretained(self)
             .subscribe {
-                guard let url: URL = URL(string: $0.1) else { return }
-                $0.0.makeInvitationUrlSharePanel(url, provider: reactor.provider)
+                $0.0.makeInvitationUrlSharePanel($0.1, provider: reactor.provider)
             }
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.familyDatasource }
-            .bind(to: tableView.rx.items(dataSource: dataSource))
-            .disposed(by: disposeBag)
-        
-        reactor.state.compactMap { $0.familyDatasource.first }
-            .map { "\($0.items.count)" }
+        reactor.state.map { "\($0.displayMemberCount)" }
             .distinctUntilChanged()
             .bind(to: tableCountLabel.rx.text)
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$copySuccessToastMessageView)
+        reactor.state.map { $0.displayFamilyMembers }
+            .distinctUntilChanged(at: \.count)
+            .bind(to: tableView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentCopySuccessToastMessageView)
             .skip(1)
             .withUnretained(self)
             .subscribe {
@@ -251,9 +250,8 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
             }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$copyFailureToastMessageView)
+        reactor.pulse(\.$shouldPresentFetchFailureToastMessageView)
             .skip(1)
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
             .withUnretained(self)
             .subscribe {
                 $0.0.makeBibbiToastView(
@@ -269,10 +267,10 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
 
 // MARK: - Extensions
 extension InviteFamilyViewController {
-    func prepareDatasource() -> RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> {
-        return RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> { datasource, tableView, indexPath, memberResponse in
-            let cell = tableView.dequeueReusableCell(withIdentifier: FamiliyMemberProfileCell.id, for: indexPath) as! FamiliyMemberProfileCell
-            cell.reactor = FamilyMemberProfileCellDIContainer(member: memberResponse).makeReactor()
+    private func prepareDatasource() -> RxTableViewSectionedReloadDataSource<FamilyMemberProfileSectionModel> {
+        return RxTableViewSectionedReloadDataSource<FamilyMemberProfileSectionModel> { datasource, tableView, indexPath, reactor in
+            let cell = tableView.dequeueReusableCell(withIdentifier: FamilyMemberProfileCell.id, for: indexPath) as! FamilyMemberProfileCell
+            cell.reactor = reactor
             return cell
         }
     }

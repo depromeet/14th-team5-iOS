@@ -31,7 +31,7 @@ public protocol AccountImpl: AnyObject {
 public final class AccountRepository: AccountImpl {
     public var disposeBag: DisposeBag = DisposeBag()
     
-    private let accessToken: String = "eyJyZWdEYXRlIjoxNzA0MTE4NDIzMzc5LCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDIwNDgyM30.pjas-Dx3zYwU1LsrW-FoJl12tr3hZ8DLI7gCX28DePE"
+    private let accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
     
     let signInHelper = AccountSignInHelper()
     private let apiWorker = AccountAPIWorker()

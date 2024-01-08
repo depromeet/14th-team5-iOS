@@ -18,35 +18,20 @@ struct FamilyWidgetTimelineProvider: TimelineProvider {
         completion(FamilyWidgetEntry(date: Date(), family: nil))
     }
     func getTimeline(in context: Context, completion: @escaping (Timeline<FamilyWidgetEntry>) -> Void) {
-        
         let currentDate = Date()
-        let nextUpdateDate = Calendar.current.date(byAdding: .minute, value: 5, to: currentDate) ?? currentDate
+        let refreshDate = Calendar.current.date(byAdding: .minute, value: 5, to: currentDate)!
         
-        FamilyService().getPhoto { result in
+        FamilyService().fetchInfo { result in
+            var entry: FamilyWidgetEntry
             switch result {
             case .success(let family):
-                let entry = FamilyWidgetEntry(date: currentDate, family: family)
-                let timeline = Timeline(entries: [entry], policy: .after(nextUpdateDate))
-                completion(timeline)
+                entry = FamilyWidgetEntry(date: currentDate, family: family)
             case .failure(let error):
-                print(error.localizedDescription)
+                entry = FamilyWidgetEntry(date: currentDate, family: nil)
             }
+            
+            let timeline = Timeline(entries: [entry], policy: .after(refreshDate))
+            completion(timeline)
         }
-        
-//        Task {
-//            do {
-//                let family = try await FamilyService().getFamilyInfo()
-//                let entry = FamilyWidgetEntry(date: Date(), family: family)
-//                let currentDate = Date()
-//                let nextRefresh = Calendar.current.date(byAdding: .minute, value: 1, to: currentDate)!
-//                let timeline = Timeline(entries: [entry], policy: .after(nextRefresh))
-//                completion(timeline)
-//            } catch {
-//                let entry = FamilyWidgetEntry(date: Date(), family: nil)
-//                let nextUpdateDate = Calendar.current.date(byAdding: .minute, value: 1, to: Date()) ?? Date()
-//                let time = Timeline(entries: [entry], policy: .after(nextUpdateDate))
-//                completion(time)
-//            }
-//        }
     }
 }

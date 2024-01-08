@@ -17,6 +17,9 @@ extension UserDefaults {
         case memberId
         case inviteCode
 
+        case profileImage
+
+
         var value: String { "\(Bundle.current.bundleIdentifier ?? "").\(self.rawValue.lowercased())" }
     }
 }
@@ -44,9 +47,15 @@ extension UserDefaults {
         get { UserDefaults.standard.string(forKey: Key.memberId.value) }
         set { UserDefaults.standard.set(newValue, forKey: Key.memberId.value) }
     }
+
     public var inviteCode: String? {
         get { UserDefaults.standard.string(forKey: Key.inviteCode.value) }
         set { UserDefaults.standard.set(newValue, forKey: Key.inviteCode.value) }
+
+    
+    public var profileImage: Data? {
+        get { UserDefaults.standard.data(forKey: Key.profileImage.value) }
+        set { UserDefaults.standard.setValue(newValue, forKey: Key.profileImage.value)}
     }
 }
 

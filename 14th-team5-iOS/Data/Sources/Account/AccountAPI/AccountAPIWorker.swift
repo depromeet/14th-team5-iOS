@@ -105,7 +105,7 @@ extension AccountAPIWorker {
     func accountRefreshToken(parameter: Encodable) -> Single<AccountRefreshDTO?> {
         let spec = AccountAPIs.refreshToken.spec
         
-        return request(spec: spec, jsonEncodable: parameter)
+        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.contentJson] ,jsonEncodable: parameter)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {

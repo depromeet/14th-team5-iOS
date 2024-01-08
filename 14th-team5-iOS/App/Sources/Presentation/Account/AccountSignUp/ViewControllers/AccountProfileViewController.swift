@@ -127,6 +127,9 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
             $0.backgroundColor = DesignSystemAsset.mainGreen.color
             $0.layer.cornerRadius = 30
         }
+        
+        let profileImageData = profileButton.asImage().jpegData(compressionQuality: 1.0)
+        UserDefaults.standard.profileImage = profileImageData
     }
 }
 

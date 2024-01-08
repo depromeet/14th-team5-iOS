@@ -19,7 +19,7 @@ import Then
 public final class DisplayEditCollectionViewCell: BaseCollectionViewCell<DisplayEditCellReactor> {
     
 
-    private let descrptionLabel: UILabel = UILabel()
+    private let descrptionLabel: BibbiLabel = BibbiLabel(.head1)
     private let blurContainerView: UIVisualEffectView = UIVisualEffectView.makeBlurView(style: .dark)
     
     
@@ -35,11 +35,6 @@ public final class DisplayEditCollectionViewCell: BaseCollectionViewCell<Display
             $0.backgroundColor = .clear
         }
         
-        descrptionLabel.do {
-            $0.textColor = DesignSystemAsset.white.color
-            $0.textAlignment = .center
-            $0.font = DesignSystemFontFamily.Pretendard.bold.font(size: 18)
-        }
         
         blurContainerView.do {
             $0.alpha = 0.8
@@ -71,6 +66,17 @@ public final class DisplayEditCollectionViewCell: BaseCollectionViewCell<Display
             .bind(to: descrptionLabel.rx.text)
             .disposed(by: disposeBag)
         
+        reactor.state
+            .map { $0.radius }
+            .distinctUntilChanged()
+            .bind(to: blurContainerView.layer.rx.cornerRadius)
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.font }
+            .distinctUntilChanged()
+            .bind(to: descrptionLabel.rx.textStyle)
+            .disposed(by: disposeBag)
     }
     
     

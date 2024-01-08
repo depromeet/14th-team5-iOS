@@ -22,7 +22,7 @@ public final class CameraViewRepository {
     
     public init() { }
     
-    public var accessToken: String = "eyJ0eXBlIjoiYWNjZXNzIiwicmVnRGF0ZSI6MTcwNDQ2NjIyMzU3NCwidHlwIjoiSldUIiwiYWxnIjoiSFMyNTYifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDU1MjYyM30.j9RJtR1bqzabskH8vAqUQLggRzjHyI_paAbh3k06NuU"
+    public var accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
         
 }
 
@@ -49,6 +49,8 @@ extension CameraViewRepository: CameraViewInterface {
     
     
     public func fetchProfileImageURL(parameters: CameraDisplayImageParameters, type: UploadLocation) -> Observable<CameraDisplayImageResponse?> {
+        
+        let accessToken = App.Repository.token.accessToken.value?.accessToken?.isEmpty ?? true ? App.Repository.token.fakeAccessToken.value?.accessToken ?? "" : App.Repository.token.accessToken.value?.accessToken ?? ""
         return cameraAPIWorker.createPresignedURL(accessToken: accessToken, parameters: parameters, type: type)
             .compactMap { $0?.toDomain() }
             .asObservable()

@@ -20,7 +20,7 @@ public final class CameraDisplayViewRepository {
     private let cameraDisplayAPIWorker: CameraAPIWorker = CameraAPIWorker()
     
     public var disposeBag: DisposeBag = DisposeBag()
-    public var token: String = "eyJ0eXBlIjoiYWNjZXNzIiwicmVnRGF0ZSI6MTcwNDQ2NjIyMzU3NCwidHlwIjoiSldUIiwiYWxnIjoiSFMyNTYifQ.eyJ1c2VySWQiOiIwMUhKQk5YQVYwVFlRMUtFU1dFUjQ1QTJRUCIsImV4cCI6MTcwNDU1MjYyM30.j9RJtR1bqzabskH8vAqUQLggRzjHyI_paAbh3k06NuU"
+    public var accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
     
 }
 
@@ -38,20 +38,20 @@ extension CameraDisplayViewRepository: CameraDisplayViewInterface {
     }
     
     public func fetchImageURL(parameters: CameraDisplayImageParameters, type: UploadLocation) -> Observable<CameraDisplayImageResponse?>  {
-        return cameraDisplayAPIWorker.createPresignedURL(accessToken: token, parameters: parameters, type: type)
+        return cameraDisplayAPIWorker.createPresignedURL(accessToken: accessToken, parameters: parameters, type: type)
             .compactMap { $0?.toDomain() }
             .asObservable()
                 
     }
     
     public func uploadImageToS3(toURL url: String, imageData: Data) -> Observable<Bool> {
-        return cameraDisplayAPIWorker.uploadImageToPresignedURL(accessToken: token, toURL: url, withImageData: imageData)
+        return cameraDisplayAPIWorker.uploadImageToPresignedURL(accessToken: accessToken, toURL: url, withImageData: imageData)
             .asObservable()
     }
     
     
     public func combineWithTextImage(parameters: CameraDisplayPostParameters) -> Observable<CameraDisplayPostResponse?> {
-        return cameraDisplayAPIWorker.combineWithTextImageUpload(accessToken: token, parameters: parameters)
+        return cameraDisplayAPIWorker.combineWithTextImageUpload(accessToken: accessToken, parameters: parameters)
             .compactMap { $0?.toDomain() }
             .asObservable()
     }

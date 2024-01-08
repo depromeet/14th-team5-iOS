@@ -6,6 +6,8 @@
 //
 
 import Foundation
+
+import Core
 import Domain
 
 import RxSwift
@@ -21,16 +23,30 @@ extension EmojiAPIs {
             super.init()
             self.id = "EmojiAPIWorker"
         }
+        
+        private var _headers: Observable<[APIHeader]?> {
+            return App.Repository.token.accessToken
+                .map {
+                    guard let token = $0, let accessToken = token.accessToken, !accessToken.isEmpty else { return [] }
+                    return [BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(accessToken), BibbiAPI.Header.acceptJson]
+                }
+        }
     }
 }
 
 extension EmojiAPIWorker: EmojiRepository {
-    public func fetchEmoji(query: Domain.FetchEmojiQuery) -> RxSwift.Single<Domain.FetchEmojiDataList?> {
+    public func fetchEmoji(query: FetchEmojiQuery) -> Single<FetchEmojiDataList?> {
+        return Observable.just(())
+            .withLatestFrom(self._headers)
+            .withUnretained(self)
+            .flatMap { $0.0.fetchEmoji(headers: $0.1, query: query) }
+            .asSingle()
+    }
+    
+    private func fetchEmoji(headers: [APIHeader]?, query: Domain.FetchEmojiQuery) -> RxSwift.Single<Domain.FetchEmojiDataList?> {
         let query = FetchEmojiRequestDTO(postId: query.postId)
         let spec = EmojiAPIs.fetchReactions(query).spec
-        return request(spec: spec, headers: [
-            BibbiHeader.acceptJson,
-            BibbiHeader.xAuthToken("eyJyZWdEYXRlIjoxNzA0NjE4NTg2MTU1LCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MifQ.eyJ1c2VySWQiOiIwMUhLMVczNEZUNzIwQzJRWDRUVDRLWThCRCIsImV4cCI6MTcwNDcwNDk4Nn0.GP-eOFDBacxqZG4klG2oP84KHjeqKh3Ilq6AtobrlZs")])
+        return request(spec: spec, headers: headers)
         .subscribe(on: Self.queue)
         .do {
             if let str = String(data: $0.1, encoding: .utf8) {
@@ -45,10 +61,18 @@ extension EmojiAPIWorker: EmojiRepository {
         .asSingle()
     }
     
-    public func addEmoji(query: Domain.AddEmojiQuery, body: Domain.AddEmojiBody) -> RxSwift.Single<Void?> {
+    public func addEmoji(query: AddEmojiQuery, body: AddEmojiBody) -> Single<Void?> {
+        return Observable.just(())
+            .withLatestFrom(self._headers)
+            .withUnretained(self)
+            .flatMap { $0.0.addEmoji(headers: $0.1, query: query, body: body) }
+            .asSingle()
+    }
+    
+    private func addEmoji(headers: [APIHeader]?, query: Domain.AddEmojiQuery, body: Domain.AddEmojiBody) -> RxSwift.Single<Void?> {
         let requestDTO = AddEmojiRequestDTO(content: body.content.emojiString)
         let spec = EmojiAPIs.addReactions(query.postId).spec
-        return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJyZWdEYXRlIjoxNzA0NjE4NTg2MTU1LCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MifQ.eyJ1c2VySWQiOiIwMUhLMVczNEZUNzIwQzJRWDRUVDRLWThCRCIsImV4cCI6MTcwNDcwNDk4Nn0.GP-eOFDBacxqZG4klG2oP84KHjeqKh3Ilq6AtobrlZs")], jsonEncodable: requestDTO)
+        return request(spec: spec, headers: headers, jsonEncodable: requestDTO)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -61,10 +85,18 @@ extension EmojiAPIWorker: EmojiRepository {
             .asSingle()
     }
     
-    public func removeEmoji(query: Domain.RemoveEmojiQuery, body: Domain.RemoveEmojiBody) -> RxSwift.Single<Void?> {
+    public func removeEmoji(query: RemoveEmojiQuery, body: RemoveEmojiBody) -> Single<Void?> {
+        return Observable.just(())
+            .withLatestFrom(self._headers)
+            .withUnretained(self)
+            .flatMap { $0.0.removeEmoji(headers: $0.1, query: query, body: body) }
+            .asSingle()
+    }
+    
+    private func removeEmoji(headers: [APIHeader]?, query: Domain.RemoveEmojiQuery, body: Domain.RemoveEmojiBody) -> RxSwift.Single<Void?> {
         let requestDTO = RemoveEmojiRequestDTO(content: body.content.emojiString)
         let spec = EmojiAPIs.removeReactions(query.postId).spec
-        return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJyZWdEYXRlIjoxNzA0NjE4NTg2MTU1LCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MifQ.eyJ1c2VySWQiOiIwMUhLMVczNEZUNzIwQzJRWDRUVDRLWThCRCIsImV4cCI6MTcwNDcwNDk4Nn0.GP-eOFDBacxqZG4klG2oP84KHjeqKh3Ilq6AtobrlZs")], jsonEncodable: requestDTO)
+        return request(spec: spec, headers: headers, jsonEncodable: requestDTO)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {

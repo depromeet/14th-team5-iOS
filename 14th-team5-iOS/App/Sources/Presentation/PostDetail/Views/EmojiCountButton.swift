@@ -50,7 +50,7 @@ final class EmojiCountButton: BaseView<EmojiReactor> {
             .disposed(by: disposeBag)
         
         self.rx.longPress
-            .map { _ in Reactor.Action.longPressedEmojiCountButton }
+            .map { _ in Reactor.Action.longPressedEmojiCountButton(self.tag) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
@@ -87,9 +87,9 @@ extension EmojiCountButton {
     }
     
     private func setSelected() {
-        backgroundColor = .gray800
+        backgroundColor = UIColor(red: 0.141, green: 0.141, blue: 0.153, alpha: 1)
         layer.borderWidth = 1
-        layer.borderColor = UIColor(red: 0.318, green: 0.318, blue: 0.333, alpha: 1).cgColor
+        layer.borderColor = UIColor(red: 0.908, green: 0.908, blue: 0.908, alpha: 1).cgColor
     }
 }
 

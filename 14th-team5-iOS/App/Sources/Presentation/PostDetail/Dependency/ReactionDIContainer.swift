@@ -22,6 +22,22 @@ final class ReactionDIContainer {
         return appDelegate.globalStateProvider
     }
     
+    func makeFamilyRepository() -> SearchFamilyRepository {
+        return FamilyAPIs.Worker()
+    }
+    
+    func makeFamilyUseCase() -> SearchFamilyUseCase {
+        return SearchFamilyUseCase(searchFamilyRepository: makeFamilyRepository())
+    }
+    
+    func makeReactionMemberReactor(memberIds: [String]) -> ReactionMemberReactor {
+        return ReactionMemberReactor(initialState: .init(reactionMemberIds: memberIds), familyRepository: makeFamilyUseCase())
+    }
+    
+    func makeViewController(memberIds: [String]) -> ReactionMembersViewController {
+        return ReactionMembersViewController(reactor: makeReactionMemberReactor(memberIds: memberIds))
+    }
+    
     func makeEmojiRepository() -> EmojiRepository {
         return EmojiAPIs.Worker()
     }

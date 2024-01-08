@@ -15,6 +15,23 @@ public enum Emojis: Int {
     case emoji4 = 4
     case emoji5 = 5
     
+    public static func getEmojiImage(index: Int) -> UIImage {
+        switch index {
+        case 1:
+            return DesignSystemAsset.emoji1.image
+        case 2:
+            return DesignSystemAsset.emoji2.image
+        case 3:
+            return DesignSystemAsset.emoji3.image
+        case 4:
+            return DesignSystemAsset.emoji4.image
+        case 5:
+            return DesignSystemAsset.emoji5.image
+        default:
+            return DesignSystemAsset.emoji1.image
+        }
+    }
+    
     public var emojiImage: UIImage {
         switch self {
         case .emoji1:

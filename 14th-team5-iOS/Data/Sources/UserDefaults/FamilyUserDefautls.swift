@@ -81,7 +81,7 @@ extension FamilyUserDefaults {
         UserDefaults.standard.setValue(memberIds, forKey: memberIdsKey)
     }
 
-    private func loadMembersFromUserDefaults(memberIds: [String]) -> [ProfileData] {
+    static func loadMembersFromUserDefaults(memberIds: [String]) -> [ProfileData] {
         var datas: [ProfileData] = []
         memberIds.forEach {
             if let data = UserDefaults.standard.data(forKey: $0) {

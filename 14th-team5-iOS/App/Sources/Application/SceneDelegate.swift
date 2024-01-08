@@ -25,6 +25,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     ) {
         guard let scene = (scene as? UIWindowScene) else { return }
         
+        window = UIWindow(windowScene: scene)
+        window?.rootViewController = UINavigationController(rootViewController: SplashDIContainer().makeViewController())
+        window?.makeKeyAndVisible()
+        
         guard let userActivity = connectionOptions.userActivities.first,
               userActivity.activityType == NSUserActivityTypeBrowsingWeb,
               let incomingURL = userActivity.webpageURL,
@@ -35,10 +39,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let path = components.path else {
             return
         }
-        print("path: \(path)")
-        window = UIWindow(windowScene: scene)
-        window?.rootViewController = UINavigationController(rootViewController: SplashDIContainer().makeViewController())
-        window?.makeKeyAndVisible()
     }
     
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {

@@ -17,7 +17,7 @@ private let targets: [Target] = [
             bundleId: "com.5ing.bibbi",
             infoPlist: .extendingDefault(with: [
                 "CFBundleVersion": .string("1"),
-                "CFBundleDisplayName": .string("pippi"),
+                "CFBundleDisplayName": .string("Bibbi"),
                 "CFBuildVersion": .string("0"),
                 "UILaunchStoryboardName": .string("Launch Screen"),
                 "UISupportedInterfaceOrientations": .array([.string("UIInterfaceOrientationPortrait")]),
@@ -41,6 +41,7 @@ private let targets: [Target] = [
                         "CFBundleURLSchemes": .array([.string("$(KAKAO_API_KEY)")]),
                     ]),
                 ]),
+                "KAKAO_LOGIN_API_KEY": .string("$(KAKAO_LOGIN_API_KEY)"),
             ]),
             entitlements: .file(path: .relativeToRoot("App.entitlements"))
         )
@@ -50,7 +51,7 @@ private let targets: [Target] = [
         dependencies: ExtensionsLayer.Widget.dependencies,
         bundleId: "com.5ing.bibbi.widgetExtenions",
         infoPlist: .extendingDefault(with: [
-            "CFBundleDisplayName": .string("pippi"),
+            "CFBundleDisplayName": .string("Bibbi"),
             "NSExtension" : .dictionary([
                 "NSExtensionPointIdentifier": .string("com.apple.widgetkit-extension")
             ])

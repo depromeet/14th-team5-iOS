@@ -51,12 +51,14 @@ extension UserDefaults {
     public var inviteCode: String? {
         get { UserDefaults.standard.string(forKey: Key.inviteCode.value) }
         set { UserDefaults.standard.set(newValue, forKey: Key.inviteCode.value) }
+    }
 
     
     public var profileImage: Data? {
         get { UserDefaults.standard.data(forKey: Key.profileImage.value) }
         set { UserDefaults.standard.setValue(newValue, forKey: Key.profileImage.value)}
     }
+        
 }
 
 extension UserDefaults {

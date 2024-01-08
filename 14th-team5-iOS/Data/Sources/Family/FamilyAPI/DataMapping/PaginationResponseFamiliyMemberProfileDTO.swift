@@ -34,7 +34,7 @@ extension PaginationResponseFamilyMemberProfileDTO {
         }
         var memberId: String
         var name: String
-        var imageUrl: String
+        var imageUrl: String?
     }
 }
 

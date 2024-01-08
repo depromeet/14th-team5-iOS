@@ -10,6 +10,7 @@ import Foundation
 import Domain
 import RxDataSources
 
+//: Deprecated
 public struct SectionOfFamilyMemberProfile {
     public var items: [Item]
 }

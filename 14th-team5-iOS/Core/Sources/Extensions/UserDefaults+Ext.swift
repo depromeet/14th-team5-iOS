@@ -9,6 +9,7 @@ import Foundation
 
 extension UserDefaults {
     public enum Key: String, CaseIterable {
+        case isFirstLaunch
         case chekcPermission
         case finishTutorial
         
@@ -21,6 +22,10 @@ extension UserDefaults {
 }
 
 extension UserDefaults {
+    public var isFirstLaunch: Bool {
+        get { UserDefaults.standard.bool(forKey: Key.isFirstLaunch.value) }
+        set { UserDefaults.standard.set(newValue, forKey: Key.isFirstLaunch.value) }
+    }
     public var chekcPermission: Bool {
         get { UserDefaults.standard.bool(forKey: Key.chekcPermission.value) }
         set { UserDefaults.standard.set(newValue, forKey: Key.chekcPermission.value) }
@@ -43,6 +48,16 @@ extension UserDefaults {
     public var profileImage: Data? {
         get { UserDefaults.standard.data(forKey: Key.profileImage.value) }
         set { UserDefaults.standard.setValue(newValue, forKey: Key.profileImage.value)}
+    }
+}
+
+extension UserDefaults {
+    public static func isFirstLaunch() -> Bool {
+        let isFirstLaunch = !Self.standard.isFirstLaunch
+        if isFirstLaunch {
+            Self.standard.isFirstLaunch = true
+        }
+        return isFirstLaunch
     }
 }
 

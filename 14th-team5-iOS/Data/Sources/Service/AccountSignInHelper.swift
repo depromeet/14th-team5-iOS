@@ -49,6 +49,11 @@ final class AccountSignInHelper: NSObject {
             .withUnretained(self)
             .bind(onNext: { $0.snsSignInResult.accept($1) })
             .disposed(by: self.disposeBag)
+        
+        snsSignInResult.map { $0.1 }
+            .withUnretained(self)
+            .bind(onNext: { UserDefaults.standard.snsType = $0.1.snsType.rawValue })
+            .disposed(by: disposeBag)
     }
 }
 

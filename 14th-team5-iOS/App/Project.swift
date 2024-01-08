@@ -22,8 +22,8 @@ private let targets: [Target] = [
                 "UILaunchStoryboardName": .string("Launch Screen"),
                 "UISupportedInterfaceOrientations": .array([.string("UIInterfaceOrientationPortrait")]),
                 "UIUserInterfaceStyle": .string("Light"),
-                "NSPhotoLibraryAddUsageDescription" : .string("앨범에 저장하려면 접근 권한이 필요합니다. 접근을 허용하지 않으면 저장 할 수 없으니 '확인'을 선택해 주세요."),
-                "NSCameraUsageDescription": .string("사진 및 동영상 촬영을 위한 카메라 사용 권한"),
+                "NSPhotoLibraryAddUsageDescription" : .string("프로필 사진, 피드 업로드를 위한 사진 촬영을 위해 Bibbi가 앨범에 접근할 수 있도록 허용해 주세요"),
+                "NSCameraUsageDescription": .string("프로필 사진, 피드 업로드를 위한 사진 촬영을 위해 Bibbi가 카메라에 접근할 수 있도록 허용해 주세요"),
                 "UIApplicationSceneManifest" : .dictionary([
                     "UIApplicationSupportsMultipleScenes" : .boolean(false),
                     "UISceneConfigurations" : .dictionary([
@@ -49,7 +49,7 @@ private let targets: [Target] = [
     .makeModular(extenions: .Widget, factory: .init(
         products: .appExtension,
         dependencies: ExtensionsLayer.Widget.dependencies,
-        bundleId: "com.5ing.bibbi.widgetExtenions",
+        bundleId: "com.5ing.bibbi.widget",
         infoPlist: .extendingDefault(with: [
             "CFBundleDisplayName": .string("Bibbi"),
             "NSExtension" : .dictionary([

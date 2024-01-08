@@ -19,11 +19,9 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
     private enum Metric {
         static let bibbiOffset: CGFloat = 80
         static let bibbiHeight: CGFloat = 70
-        static let bibbiInset: CGFloat = 100
         static let titleOffset: CGFloat = 26
-        static let imageSpacing: CGFloat = -10
         static let imageInset: CGFloat = 60
-        static let imageOffset: CGFloat = 50
+        static let imageOffset: CGFloat = 55
         static let loginOffset: CGFloat = -10
         
         static let spacing: CGFloat = 12

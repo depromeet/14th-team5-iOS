@@ -5,8 +5,10 @@
 //  Created by Kim dohyun on 12/13/23.
 //
 
-import Foundation
+import UIKit
 
+import Core
+import DesignSystem
 import ReactorKit
 
 
@@ -19,11 +21,13 @@ public final class DisplayEditCellReactor: Reactor {
     
     public struct State {
         var title: String
+        var radius: CGFloat
+        var font: UIFont.BibbiFontStyle
     }
     
     
-    init(title: String) {
-        self.initialState = State(title: title)
+    init(title: String, radius: CGFloat, font: UIFont.BibbiFontStyle) {
+        self.initialState = State(title: title, radius: radius, font: font)
     }
     
     

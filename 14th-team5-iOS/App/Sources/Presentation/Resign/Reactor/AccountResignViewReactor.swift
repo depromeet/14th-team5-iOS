@@ -61,7 +61,8 @@ final class AccountResignViewReactor: Reactor {
                 .flatMap { owner, entity -> Observable<AccountResignViewReactor.Mutation> in
                     if entity.isSuccess {
                         return owner.resignUseCase.executeAccountFcmResign(fcmToken: App.Repository.token.fcmToken.value)
-                            .flatMap { fcmEntity -> Observable<AccountResignViewReactor.Mutation> in
+                            .flatMap { fcmEntity ->
+                                Observable<AccountResignViewReactor.Mutation> in
                                 return .concat(
                                     .just(.setLoading(true)),
                                     .just(.setResignEntity(entity.isSuccess)),
@@ -84,6 +85,7 @@ final class AccountResignViewReactor: Reactor {
         case let .setSelect(isSelected):
             newState.isSeleced = isSelected
         case let .setResignEntity(isSuccess):
+            print("resign success: \(isSuccess)")
             newState.isSuccess = isSuccess
         }
         

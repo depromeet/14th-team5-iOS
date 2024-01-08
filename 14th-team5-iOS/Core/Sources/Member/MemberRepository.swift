@@ -12,11 +12,10 @@ import RxCocoa
 
 public class MemberRepository: RxObject {
     public let familyId = BehaviorRelay<String?>(value: nil)
-    public let memberID = BehaviorRelay<String?>(value: "01HJBNWZGNP1KJNMKWVZJ039HY")
+    public let memberID = BehaviorRelay<String?>(value: nil)
+    public let inviteCode = BehaviorRelay<String?>(value: nil)
     
     override public func bind() {
-        memberID.accept("01HJBNWZGNP1KJNMKWVZJ039HY")
-        
         memberID
             .withUnretained(self)
             .bind(onNext: { $0.0.saveMemberId(with: $0.1) })
@@ -25,6 +24,11 @@ public class MemberRepository: RxObject {
         familyId
             .withUnretained(self)
             .bind(onNext: { $0.0.saveMemberId(with: $0.1) })
+            .disposed(by: disposeBag)
+        
+        inviteCode
+            .withUnretained(self)
+            .bind(onNext: { $0.0.saveInviteCode(with: $0.1) })
             .disposed(by: disposeBag)
     }
     
@@ -36,6 +40,11 @@ public class MemberRepository: RxObject {
     private func saveFamilyId(with id: String?) {
         guard let familyId = id else { return }
         UserDefaults.standard.familyId = familyId
+    }
+    
+    private func saveInviteCode(with code: String?) {
+        guard let code = code else { return }
+        UserDefaults.standard.inviteCode = code
     }
     
     override public func unbind() {

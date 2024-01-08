@@ -29,6 +29,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.rootViewController = UINavigationController(rootViewController: SplashDIContainer().makeViewController())
         window?.makeKeyAndVisible()
         
+        handleUniversalLinks(options: connectionOptions)
+    }
+    
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        if let url = URLContexts.first?.url {
+            if (AuthApi.isKakaoTalkLoginUrl(url)) {
+                _ = AuthController.rx.handleOpenUrl(url: url)
+            }
+        }
+    }
+    
+    private func handleUniversalLinks(options connectionOptions: UIScene.ConnectionOptions) {
         guard let userActivity = connectionOptions.userActivities.first,
               userActivity.activityType == NSUserActivityTypeBrowsingWeb,
               let incomingURL = userActivity.webpageURL,
@@ -39,13 +51,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let path = components.path else {
             return
         }
-    }
-    
-    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-        if let url = URLContexts.first?.url {
-            if (AuthApi.isKakaoTalkLoginUrl(url)) {
-                _ = AuthController.rx.handleOpenUrl(url: url)
-            }
+        
+        let pathComponents = path.components(separatedBy: "/")
+        if pathComponents.count > 1 {
+            let inviteCode = pathComponents[1]
+            App.Repository.member.inviteCode.accept(inviteCode)
+            print(inviteCode)
+        } else {
+            print("Invalid path format")
         }
     }
 }

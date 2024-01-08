@@ -393,7 +393,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         }
         
     }
-
+    
     private func dismissCameraViewController() {
         self.navigationController?.popViewController(animated: true)
     }

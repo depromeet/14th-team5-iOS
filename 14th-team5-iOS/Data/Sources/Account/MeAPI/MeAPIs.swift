@@ -12,6 +12,7 @@ public enum MeAPIs: API {
     case saveFcmToken
     case deleteFcmToken(String)
     case memberInfo
+    case joinFamily
     
     var spec: APISpec {
         switch self {
@@ -21,12 +22,17 @@ public enum MeAPIs: API {
             return APISpec(method: .delete, url: "\(BibbiAPI.hostApi)/me/fcm/\(token)")
         case .memberInfo:
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/me/member-info")
+        case .joinFamily:
+            return APISpec(method: .post, url:  "\(BibbiAPI.hostApi)/me/join-family")
         }
     }
     
     enum PayLoad {
         struct FcmPayload: Encodable, Equatable {
             var fcmToken: String?
+        }
+        struct FamilyPayload: Encodable, Equatable {
+            var inviteCode: String
         }
     }
 }

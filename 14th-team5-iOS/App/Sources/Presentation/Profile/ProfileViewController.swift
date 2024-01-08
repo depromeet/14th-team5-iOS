@@ -331,8 +331,11 @@ extension ProfileViewController {
         
         let presentDefaultAction: UIAlertAction = UIAlertAction(title: "초기화", style: .destructive) { [self] _ in
             //TODO: 초기화 사진 해야한다..
+            
+            print("nickanameCheck : \(self.reactor?.currentState.profileMemberEntity?.memberName.first) or userDefaults Data: \(UserDefaults.standard.profileImage)")
             guard let nickName = self.reactor?.currentState.profileMemberEntity?.memberName.first,
                   let profile  = UserDefaults.standard.profileImage else { return }
+            
             print("test Profile Defaults: \(profile)")
             let profileImage = UIImage(data: profile)?.combinedTextWithBackground(target: "\(nickName)", size: profileView.profileImageView.frame.size, attributedString: [
                 .foregroundColor: DesignSystemAsset.white.color,

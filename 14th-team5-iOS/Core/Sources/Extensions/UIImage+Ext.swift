@@ -14,7 +14,7 @@ extension UIImage {
         let renderImage: UIGraphicsImageRenderer = UIGraphicsImageRenderer(size: size)
         let targetText: NSString = (text as NSString)
         let targetTextSize: CGSize = targetText.size(withAttributes: attributedString)
-        let targetRect: CGRect = CGRect(x: (size.width - targetTextSize.width) / 2, y: (size.height - targetTextSize.height) - 10, width: 100, height: 100)
+        let targetRect: CGRect = CGRect(x: (size.width - targetTextSize.width) / 2, y: (size.height - targetTextSize.height) - 10, width: size.width, height: size.height)
         let originalImage: UIImage = renderImage.image { _ in
             draw(in: CGRect(origin: .zero, size: size))
             targetText.size(withAttributes: attributedString)

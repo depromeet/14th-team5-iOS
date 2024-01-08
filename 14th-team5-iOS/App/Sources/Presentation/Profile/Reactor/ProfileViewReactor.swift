@@ -104,7 +104,7 @@ public final class ProfileViewReactor: Reactor {
             
         case .viewWillAppear:
             return .concat(
-                profileUseCase.executeProfileMemberItems(memberId: self.currentState.memberId)
+                profileUseCase.executeProfileMemberItems(memberId: currentState.memberId)
                     .asObservable()
                     .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
                             .concat(

@@ -113,7 +113,7 @@ extension AccountSignUpReactor {
             return Observable.just(Mutation.setprofilePresignedURL(presignedURL))
         case let .didTapNickNameButton(nickName):
             let parameters: AccountNickNameEditParameter = AccountNickNameEditParameter(name: nickName)
-            return accountRepository.executeNicknameUpdate(memberId: self.currentState.memberId, parameter: parameters)
+            return accountRepository.executeNicknameUpdate(memberId: currentState.memberId, parameter: parameters)
                 .asObservable()
                 .flatMap { entity -> Observable<AccountSignUpReactor.Mutation> in
                         .just(.setEditNickName(entity))

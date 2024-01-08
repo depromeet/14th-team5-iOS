@@ -17,16 +17,14 @@ import Then
 final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellReactor> {
     // MARK: - Views
     private let imageBackgroundView: UIView = UIView()
-    private let firstNameLabel: BibbiLabel = BibbiLabel(.head2Bold)
+    private let firstNameLabel: BibbiLabel = BibbiLabel(.head2Bold, alignment: .center, textColor: .gray200)
     private let memberImageView: UIImageView = UIImageView()
     
     private let namelabelStackView: UIStackView = UIStackView()
-    private let nameLabel: BibbiLabel = BibbiLabel(.body1Regular)
-    private let isMeLabel: BibbiLabel = BibbiLabel(.body2Regular)
+    private let nameLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray200)
+    private let isMeLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray500)
     
     // MARK: - Properties
-    let memberId: String? = App.Repository.member.memberID.value
-    
     static let id: String = "FamilyProfileCell"
     
     // MARK: - Intializer
@@ -88,10 +86,6 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
             $0.backgroundColor = DesignSystemAsset.gray800.color
         }
         
-        firstNameLabel.do {
-            $0.textAlignment = .center
-        }
-        
         memberImageView.do {
             $0.contentMode = .scaleAspectFill
             $0.layer.masksToBounds = true
@@ -103,10 +97,6 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
             $0.spacing = 3.0
             $0.alignment = .fill
             $0.distribution = .fillProportionally
-        }
-        
-        isMeLabel.do {
-            $0.textBibbiColor = .gray500
         }
         
         contentView.backgroundColor = DesignSystemAsset.black.color

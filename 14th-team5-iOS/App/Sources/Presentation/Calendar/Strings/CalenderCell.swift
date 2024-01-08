@@ -20,7 +20,7 @@ enum CalendarCell {
         static let calendarLeadingTrailingOffsetValue: CGFloat = 0.5
         static let calendarHeightMultiplier: CGFloat = 0.98
         
-        static let thumbnailInsetValue: CGFloat = 2.5
+        static let thumbnailInsetValue: CGFloat = 2.25
         static let badgeHeightValue: CGFloat = 9.0
         static let badgeOffsetValue: CGFloat = 2.0
     }

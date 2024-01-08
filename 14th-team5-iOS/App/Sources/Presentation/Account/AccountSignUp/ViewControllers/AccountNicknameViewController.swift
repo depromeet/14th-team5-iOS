@@ -20,13 +20,16 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
     private enum Metric {}
     
     // MARK: SubViews
-    private let titleLabel = UILabel()
+    private let titleLabel = BibbiLabel(.head2Bold, textColor: .gray300)
     private let inputFielView = UITextField()
-    private let errorLabel = UILabel()
+    private let errorLabel = BibbiLabel(.body1Regular, textColor: .warningRed)
     private let errorImage = UIImageView()
     private let errorStackView = UIStackView()
     private let nextButton = UIButton()
-    private let descLabel = UILabel()
+    private let descLabel = BibbiLabel(.body1Regular, textColor: .gray400)
+    
+    private let infoCircleFill = DesignSystemAsset.infoCircleFill.image
+        .withRenderingMode(.alwaysTemplate)
     
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -111,7 +114,7 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
         
         titleLabel.snp.makeConstraints {
             $0.centerX.equalToSuperview().inset(20)
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(190)
+            $0.top.equalTo(view.safeAreaLayoutGuide).offset(130)
         }
         
         inputFielView.snp.makeConstraints {
@@ -124,26 +127,20 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
             $0.top.equalTo(inputFielView.snp.bottom).offset(12)
         }
         
-        descLabel.do {
-            $0.text = _Str.desc
-            $0.textColor = DesignSystemAsset.gray400.color
-            $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.regular, size: 16)
+        descLabel.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.bottom.equalTo(nextButton.snp.top).offset(-14)
         }
         
-        nextButton.do {
-            $0.setTitle("계속", for: .normal)
-            $0.titleLabel?.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 16)
-            $0.setTitleColor(DesignSystemAsset.black.color, for: .normal)
-            $0.backgroundColor = DesignSystemAsset.mainGreen.color.withAlphaComponent(0.2)
-            $0.isEnabled = false
-            $0.layer.cornerRadius = 30
+        nextButton.snp.makeConstraints {
+            $0.horizontalEdges.equalToSuperview().inset(12)
+            $0.bottom.equalTo(view.keyboardLayoutGuide.snp.top).offset(-10)
+            $0.height.equalTo(56)
         }
     }
     
     public override func setupAttributes() {
         titleLabel.do {
-            $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 18)
-            $0.textColor = DesignSystemAsset.gray300.color
             $0.text = _Str.title
         }
         
@@ -154,17 +151,17 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
             ])
             $0.textColor = DesignSystemAsset.gray200.color
             $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.bold, size: 36)
+            $0.autocorrectionType = .no
+            $0.spellCheckingType = .no
         }
         
         errorImage.do {
+            $0.image = infoCircleFill.withTintColor(.warningRed)
             $0.contentMode = .scaleAspectFit
-            $0.backgroundColor = DesignSystemAsset.warningRed.color
-            $0.image = DesignSystemAsset.infoCircleFill.image
+            $0.tintColor = DesignSystemAsset.warningRed.color
         }
         
         errorLabel.do {
-            $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.regular, size: 16)
-            $0.textColor = DesignSystemAsset.warningRed.color
             $0.text = _Str.errorMsg
         }
         
@@ -176,15 +173,17 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
             $0.isHidden = true
         }
         
-        descLabel.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
-            $0.bottom.equalTo(nextButton.snp.top).offset(-10)
+        descLabel.do {
+            $0.text = _Str.desc
         }
         
-        nextButton.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview().inset(12)
-            $0.bottom.equalTo(view.keyboardLayoutGuide.snp.top).offset(-10)
-            $0.height.equalTo(56)
+        nextButton.do {
+            $0.setTitle("계속", for: .normal)
+            $0.titleLabel?.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 16)
+            $0.setTitleColor(DesignSystemAsset.black.color, for: .normal)
+            $0.backgroundColor = DesignSystemAsset.mainGreen.color.withAlphaComponent(0.2)
+            $0.isEnabled = false
+            $0.layer.cornerRadius = 30
         }
     }
 }

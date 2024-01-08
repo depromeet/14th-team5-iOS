@@ -25,12 +25,16 @@ public class FamilyUserDefaults {
     }
     
     public static func returnMyMemberId() -> String {
-        return UserDefaults.standard.string(forKey: "myMemberId") ?? ""
+        return UserDefaults.standard.string(forKey: memberIdsKey) ?? ""
     }
 
     func removeFamilyMembers() {
          UserDefaults.standard.removeObject(forKey: familyIdKey)
      }
+    
+    static func saveMyMemberId(memberId: String) {
+        UserDefaults.standard.setValue(memberId, forKey: memberIdsKey)
+    }
     
     static func getMyMemberId() -> String {
         return UserDefaults.standard.string(forKey: myMemberIdKey) ?? ""

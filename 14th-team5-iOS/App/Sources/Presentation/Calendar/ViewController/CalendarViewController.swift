@@ -28,8 +28,8 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
     // MARK: - Properties
     private lazy var dataSource: RxCollectionViewSectionedReloadDataSource<SectionOfMonthlyCalendar> = prepareDatasource()
     
-    // 캘린더에 표시할 월 별 날짜(2023. 1. ~ 오늘까지)
-    private let yearMonthArray: [String] = Date.for20230101.generateYearMonthStringsToToday()
+    // 캘린더에 표시할 월 별 날짜(2024. 1. ~ 오늘까지)
+    private let yearMonthArray: [String] = Date.for20240101.generateYearMonthStringsToToday()
     
     // MARK: - Lifecycles
     public override func viewDidLoad() {

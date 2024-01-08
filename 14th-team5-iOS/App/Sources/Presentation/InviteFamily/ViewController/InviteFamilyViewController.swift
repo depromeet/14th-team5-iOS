@@ -20,19 +20,19 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
     // MARK: - Views
     private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
     
-    private let shareAreaBackgroundView: UIView = UIView()
+    private let shareContainerView: UIView = UIView()
     private let envelopeImageView: UIImageView = UIImageView()
     
-    private let titleLabelStackView: UIStackView = UIStackView()
-    private let inviteFamilyTitleLabel: BibbiLabel = BibbiLabel(.head2Bold)
-    private let invitationUrlLabel: BibbiLabel = BibbiLabel(.body2Regular)
+    private let labelStackView: UIStackView = UIStackView()
+    private let inviteFamilyTitleLabel: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
+    private let invitationUrlLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray300)
     private let shareButton: UIButton = UIButton(type: .system)
     
     private let dividerView: UIView = UIView()
     
     private let headerLabelStackView: UIStackView = UIStackView()
-    private let tableTitleLabel: BibbiLabel = BibbiLabel(.head1)
-    private let tableCountLabel: BibbiLabel = BibbiLabel(.body1Regular)
+    private let tableTitleLabel: BibbiLabel = BibbiLabel(.head1, textColor: .gray200)
+    private let tableCountLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray400)
     private let tableView: UITableView = UITableView()
     
     // MARK: - Properties
@@ -52,12 +52,12 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
     public override func setupUI() {
         super.setupUI()
         view.addSubviews(
-            navigationBarView, shareAreaBackgroundView
+            navigationBarView, shareContainerView
         )
-        shareAreaBackgroundView.addSubviews(
-            envelopeImageView, titleLabelStackView, shareButton
+        shareContainerView.addSubviews(
+            envelopeImageView, labelStackView, shareButton
         )
-        titleLabelStackView.addArrangedSubviews(
+        labelStackView.addArrangedSubviews(
             inviteFamilyTitleLabel, invitationUrlLabel
         )
         view.addSubviews(
@@ -77,36 +77,37 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
             $0.height.equalTo(42.0)
         }
         
-        shareAreaBackgroundView.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview().inset(20.0)
-            $0.top.equalTo(navigationBarView.snp.bottom).offset(16.0)
+        shareContainerView.snp.makeConstraints {
+            $0.horizontalEdges.equalToSuperview().inset(20.0)
+            $0.top.equalTo(navigationBarView.snp.bottom).offset(24.0)
             $0.height.equalTo(90.0)
         }
         
         envelopeImageView.snp.makeConstraints {
-            $0.leading.equalTo(shareAreaBackgroundView.snp.leading).offset(AddFamilyVC.AutoLayout.defaultOffsetValue)
+            $0.leading.equalTo(shareContainerView.snp.leading).offset(AddFamilyVC.AutoLayout.defaultOffsetValue)
             $0.width.height.equalTo(AddFamilyVC.AutoLayout.imageBackgroundViewHeightValue)
-            $0.centerY.equalTo(shareAreaBackgroundView.snp.centerY)
+            $0.centerY.equalTo(shareContainerView.snp.centerY)
         }
         
-        titleLabelStackView.snp.makeConstraints {
+        labelStackView.snp.makeConstraints {
             $0.leading.equalTo(envelopeImageView.snp.trailing).offset(AddFamilyVC.AutoLayout.defaultOffsetValue)
-            $0.centerY.equalTo(shareAreaBackgroundView.snp.centerY)
+            $0.centerY.equalTo(shareContainerView.snp.centerY)
         }
         
         shareButton.snp.makeConstraints {
-            $0.trailing.equalTo(shareAreaBackgroundView.snp.trailing).offset(-AddFamilyVC.AutoLayout.shareInvitationUrlButtonTrailingOffsetValue)
-            $0.centerY.equalTo(shareAreaBackgroundView.snp.centerY)
+            $0.trailing.equalTo(shareContainerView.snp.trailing).offset(-AddFamilyVC.AutoLayout.shareInvitationUrlButtonTrailingOffsetValue)
+            $0.width.height.equalTo(23.0)
+            $0.centerY.equalTo(shareContainerView.snp.centerY)
         }
         
         dividerView.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview()
-            $0.top.equalTo(shareAreaBackgroundView.snp.bottom).offset(AddFamilyVC.AutoLayout.dividerViewTopOffsetValue)
+            $0.horizontalEdges.equalToSuperview()
+            $0.top.equalTo(shareContainerView.snp.bottom).offset(AddFamilyVC.AutoLayout.dividerViewTopOffsetValue)
             $0.height.equalTo(1.0)
         }
         
         headerLabelStackView.snp.makeConstraints {
-            $0.leading.equalTo(view).inset(20.0)
+            $0.leading.equalTo(view).inset(24.0)
             $0.top.equalTo(dividerView.snp.bottom).offset(AddFamilyVC.AutoLayout.tableHeaderStackViewTopOffsetValue)
         }
         
@@ -124,7 +125,7 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
             $0.leftBarButtonItem = .arrowLeft
          }
         
-        shareAreaBackgroundView.do {
+        shareContainerView.do {
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = 16.0
             $0.backgroundColor = DesignSystemAsset.gray800.color
@@ -135,7 +136,7 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
             $0.contentMode = .scaleAspectFit
         }
         
-        titleLabelStackView.do {
+        labelStackView.do {
             $0.axis = .vertical
             $0.spacing = 3.0
             $0.alignment = .leading
@@ -144,14 +145,10 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
         
         inviteFamilyTitleLabel.do {
             $0.text = AddFamilyVC.Strings.addFamilyTitle
-            $0.textBibbiColor = .white
-            $0.textAlignment = .left
         }
         
         invitationUrlLabel.do {
             $0.text = AddFamilyVC.Strings.invitationUrlText
-            $0.textBibbiColor = .gray500
-            $0.textAlignment = .left
         }
         
         shareButton.do {

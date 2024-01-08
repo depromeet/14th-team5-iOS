@@ -35,6 +35,11 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         print("AccessTokne 내놔 : \(App.Repository.token.accessToken.value?.accessToken) or refreshToken : \(App.Repository.token.accessToken.value?.refreshToken)")
     }
     
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.isHidden = false
+    }
+    
     deinit {
         print("deinit HomeViewController")
     }
@@ -247,6 +252,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         }
         
         familyCollectionViewLayout.do {
+            $0.scrollDirection = .horizontal
             $0.sectionInset = UIEdgeInsets(
                 top: HomeAutoLayout.FamilyCollectionView.edgeInsetTop,
                 left: HomeAutoLayout.FamilyCollectionView.edgeInsetLeft,
@@ -256,6 +262,8 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         }
         
         familyCollectionView.do {
+            $0.showsVerticalScrollIndicator = false
+            $0.showsHorizontalScrollIndicator = false
             $0.register(FamilyCollectionViewCell.self, forCellWithReuseIdentifier: FamilyCollectionViewCell.id)
             $0.backgroundColor = .clear
             $0.collectionViewLayout = familyCollectionViewLayout

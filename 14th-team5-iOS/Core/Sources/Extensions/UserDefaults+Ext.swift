@@ -57,6 +57,7 @@ extension UserDefaults {
         get { UserDefaults.standard.data(forKey: Key.profileImage.value) }
         set { UserDefaults.standard.setValue(newValue, forKey: Key.profileImage.value)}
     }
+        
 }
 
 extension UserDefaults {

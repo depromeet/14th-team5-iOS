@@ -25,6 +25,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     private let postImageView = UIImageView()
     /// 이모지를 선택하기 위한 버튼을 모아둔 stackView
     private let selectableEmojiStackView = UIStackView()
+    private let reactionButtons: [UIButton] = [UIButton(), UIButton(), UIButton(), UIButton(), UIButton()]
     private let showSelectableEmojiButton = UIButton()
     /// 이모지 카운트를 보여주기 위한 stackView
     private let emojiCountStackView = UIStackView()
@@ -45,6 +46,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        setupSelectableEmojiStackView()
     }
     
     required init?(coder: NSCoder) {
@@ -52,8 +54,13 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     }
     
     override func bind(reactor: EmojiReactor) {
-        
-        setupSelectableEmojiStackView(reactor: reactor)
+        reactionButtons.enumerated().forEach { index, button in
+            button.rx.tap
+                .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+                .map { Reactor.Action.tappedSelectableEmojiButton(Emojis.emoji(forIndex: index + 1)) }
+                .bind(to: reactor.action)
+                .disposed(by: disposeBag)
+        }
         
         showSelectableEmojiButton.rx.tap
             .map { Reactor.Action.tappedSelectableEmojiStackView }
@@ -86,6 +93,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             .distinctUntilChanged { $0.emojis_memberIds == $1.emojis_memberIds }
             .withUnretained(self)
             .bind(onNext: {
+                print($0.1)
                 $0.0.setEmojiCountStackView(reactor: reactor, emojiList: $0.1)
             })
             .disposed(by: disposeBag)
@@ -258,22 +266,12 @@ extension PostCollectionViewCell {
         selectableEmojiStackView.isHidden = !isShowing
     }
     
-    private func setupSelectableEmojiStackView(reactor: EmojiReactor) {
-        Emojis.allEmojis.enumerated().forEach { index, emoji in
-            let selectableEmojiButton = UIButton()
-            selectableEmojiButton.setImage(emoji.emojiImage, for: .normal)
-            selectableEmojiButton.tag = index + 1
-            selectableEmojiStackView.addArrangedSubview(selectableEmojiButton)
-            bindButton(reactor: reactor, selectableEmojiButton)
+    private func setupSelectableEmojiStackView() {
+        reactionButtons.enumerated().forEach { index, button in
+            button.setImage(Emojis.getEmojiImage(index: index + 1), for: .normal)
+            button.tag = index + 1
+            selectableEmojiStackView.addArrangedSubview(button)
         }
-    }
-    
-    private func bindButton(reactor: EmojiReactor, _ button: UIButton) {
-        button.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
-            .map { Reactor.Action.tappedSelectableEmojiButton(Emojis.emoji(forIndex: button.tag)) }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
     }
     
     private func setEmojiCountStackView(reactor: EmojiReactor, emojiList: FetchEmojiDataList) {

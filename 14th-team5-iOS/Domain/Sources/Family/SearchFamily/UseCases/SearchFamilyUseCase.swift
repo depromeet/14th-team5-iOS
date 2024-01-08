@@ -10,6 +10,7 @@ import RxSwift
 
 public protocol SearchFamilyMemberUseCaseProtocol {
     func excute(query: SearchFamilyQuery) -> Single<SearchFamilyPage?>
+    func execute(memberIds: [String]) -> [ProfileData]?
 }
 
 public class SearchFamilyUseCase: SearchFamilyMemberUseCaseProtocol {
@@ -23,4 +24,7 @@ public class SearchFamilyUseCase: SearchFamilyMemberUseCaseProtocol {
         return searchFamilyRepository.fetchFamilyMember(query: query)
     }
     
+    public func execute(memberIds: [String]) -> [ProfileData]? {
+        return searchFamilyRepository.getSavedFamilyMember(memberIds: memberIds)
+    }
 }

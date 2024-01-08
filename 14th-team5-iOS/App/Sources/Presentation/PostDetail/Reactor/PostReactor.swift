@@ -23,7 +23,7 @@ final class PostReactor: Reactor {
         case setPop
         case setSelectedPostIndex(Int)
         case fetchedPost(PostData?)
-        case showReactionSheet(Bool)
+        case showReactionSheet([String])
     }
     
     struct State {
@@ -33,7 +33,7 @@ final class PostReactor: Reactor {
         var selectedPost: PostListData = .init(postId: "", author: .init(memberId: "", profileImageURL: "", name: ""), emojiCount: 0, imageURL: "", content: "", time: "")
         var fetchedPost: PostData? = nil
         var fetchedEmoji: FetchEmojiDataList = .init(emojis_memberIds: [])
-        var isShowingReactionMemberSheet: Bool = false
+        var reactionMemberIds: [String] = []
     }
     
     let initialState: State
@@ -55,8 +55,8 @@ extension PostReactor {
         let eventMutation = provider.reactionSheetGloablState.event
             .flatMap { event -> Observable<Mutation> in
                 switch event {
-                case let .showReactionMemberSheet(isShowing):
-                    return Observable<Mutation>.just(.showReactionSheet(isShowing))
+                case let .showReactionMemberSheet(memberIds):
+                    return Observable<Mutation>.just(.showReactionSheet(memberIds))
                 }
             }
         
@@ -88,8 +88,8 @@ extension PostReactor {
                 newState.selectedPost = newState.originPostLists[0].items[index]
             case .setPop:
                 newState.isPop = true
-            case let .showReactionSheet(isShow):
-                newState.isShowingReactionMemberSheet = isShow
+            case let .showReactionSheet(memberIds):
+                newState.reactionMemberIds = memberIds
             }
             return newState
         }

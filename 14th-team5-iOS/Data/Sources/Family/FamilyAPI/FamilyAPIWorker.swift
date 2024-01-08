@@ -36,6 +36,10 @@ extension FamilyAPIs {
 }
 
 extension FamilyAPIWorker: SearchFamilyRepository {
+    public func getSavedFamilyMember(memberIds: [String]) -> [Domain.ProfileData]? {
+        return FamilyUserDefaults.loadMembersFromUserDefaults(memberIds: memberIds)
+    }
+    
     public func fetchFamilyMember(query: SearchFamilyQuery) -> Single<SearchFamilyPage?> {
         return Observable.just(())
             .withLatestFrom(self._headers)

@@ -19,9 +19,6 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberReac
     private let memberTableView: UITableView = UITableView()
     private let closeButton: UIButton = UIButton()
     
-    // 임시 memberId 배열 => tableview에 연결하고, 해당 memberId -> userdefaults에서 출력하기!
-    let data: PublishSubject<[String]> = PublishSubject<[String]>()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -29,13 +26,30 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberReac
     }
     
     override func bind(reactor: ReactionMemberReactor) {
-        data.map { "총 \($0.count)명이 반응을 남겼어요" }
+        Observable.just(())
+            .map { Reactor.Action.makeDataSource }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { "총 \($0.reactionMemberIds.count)명이 반응을 남겼어요" }
+            .distinctUntilChanged()
+            .observe(on: MainScheduler.instance)
             .bind(to: reactionLabel.rx.text)
             .disposed(by: disposeBag)
         
-//        data
-//            .bind(to: memberTableView.rx.items(dataSource: createDataSource($0)))
-//            .disposed(by: disposeBag)
+        reactor.state
+            .map { $0.memberDataSource }
+            .bind(to: memberTableView.rx.items(dataSource: createDataSource()))
+            .disposed(by: disposeBag)
+        
+        closeButton.rx.tap
+            .asObservable()
+            .withUnretained(self)
+            .bind(onNext: {
+                $0.0.dismiss(animated: true)
+            })
+            .disposed(by: disposeBag)
     }
     
     override func setupUI() {
@@ -87,7 +101,13 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberReac
         }
 
         memberTableView.do {
-            $0.backgroundColor = .clear
+            $0.delegate = self
+            $0.separatorStyle = .none
+            $0.allowsSelection = false
+            $0.backgroundColor = UIColor.clear
+            $0.contentInset = AddFamilyVC.Attribute.tableContentInset
+            
+            $0.register(FamilyMemberProfileCell.self, forCellReuseIdentifier: FamilyMemberProfileCell.id)
         }
         
         closeButton.do {
@@ -100,11 +120,17 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberReac
     }
 }
 
+extension ReactionMembersViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 80
+    }
+}
+
 extension ReactionMembersViewController {
-    private func createDataSource() -> RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> {
-        return RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> { datasource, tableView, indexPath, memberResponse in
+    private func createDataSource() -> RxTableViewSectionedReloadDataSource<FamilyMemberProfileSectionModel> {
+        return RxTableViewSectionedReloadDataSource<FamilyMemberProfileSectionModel> { datasource, tableView, indexPath, reactor in
             let cell = tableView.dequeueReusableCell(withIdentifier: FamilyMemberProfileCell.id, for: indexPath) as! FamilyMemberProfileCell
-            cell.reactor = FamilyMemberProfileCellDIContainer(member: memberResponse).makeReactor()
+            cell.reactor = reactor
             return cell
         }
     }

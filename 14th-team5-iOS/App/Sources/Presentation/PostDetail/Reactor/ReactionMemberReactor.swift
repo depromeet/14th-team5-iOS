@@ -40,10 +40,19 @@ extension ReactionMemberReactor {
         switch action {
         case .makeDataSource:
             let profiles: [ProfileData] = familyRepository.execute(memberIds: currentState.reactionMemberIds) ?? []
+            
             var items: [FamilyMemberProfileCellReactor] = []
             profiles.forEach {
                 let member = FamilyMemberProfileResponse(memberId: $0.memberId, name: $0.name, imageUrl: $0.profileImageURL)
                 items.append(FamilyMemberProfileCellReactor(member, isMe: false))
+            }
+            
+            if  profiles.count != currentState.reactionMemberIds.count {
+                let len = currentState.reactionMemberIds.count - profiles.count
+                for _ in 0...(len - 1) {
+                    let member = FamilyMemberProfileResponse(memberId: "", name: "알 수 없음")
+                    items.append(FamilyMemberProfileCellReactor(member, isMe: false))
+                }
             }
             
             let dataSource: FamilyMemberProfileSectionModel = .init(model: (), items: items)
@@ -55,7 +64,6 @@ extension ReactionMemberReactor {
         var newState = state
         switch mutation {
         case let .setMemberDataSource(dataSource):
-            print(dataSource)
             newState.memberDataSource = dataSource
         }
         return newState

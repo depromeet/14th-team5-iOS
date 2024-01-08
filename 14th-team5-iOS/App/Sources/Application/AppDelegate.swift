@@ -17,6 +17,8 @@ import RxKakaoSDKAuth
 import RxKakaoSDKCommon
 import AuthenticationServices
 
+import SwiftKeychainWrapper
+
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -24,6 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let globalStateProvider: GlobalStateProviderProtocol = GlobalStateProvider()
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+//        KeychainWrapper.standard.removeAllKeys()
         kakaoApp(application, didFinishLauchingWithOptions: launchOptions)
         appleApp(application, didFinishLauchingWithOptions: launchOptions)
         

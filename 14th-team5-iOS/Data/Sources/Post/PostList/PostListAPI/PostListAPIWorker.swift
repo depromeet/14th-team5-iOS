@@ -6,6 +6,8 @@
 //
 
 import Foundation
+
+import Core
 import Domain
 
 import Alamofire
@@ -22,14 +24,30 @@ extension PostListAPIs {
             super.init()
             self.id = "PostListAPIWorker"
         }
+        
+        private var _headers: Observable<[APIHeader]?> {
+            return App.Repository.token.accessToken
+                .map {
+                    guard let token = $0, let accessToken = token.accessToken, !accessToken.isEmpty else { return [] }
+                    return [BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(accessToken), BibbiAPI.Header.acceptJson]
+                }
+        }
     }
 }
 
 extension PostListAPIWorker: PostListRepositoryProtocol {
-    public func fetchPostDetail(query: Domain.PostQuery) -> RxSwift.Single<Domain.PostData?> {
+    public func fetchPostDetail(query: PostQuery) -> Single<PostData?> {
+        return Observable.just(())
+            .withLatestFrom(self._headers)
+            .withUnretained(self)
+            .flatMap { $0.0.fetchPostDetail(headers: $0.1, query: query) }
+            .asSingle()
+    }
+    
+    private func fetchPostDetail(headers: [APIHeader]?, query: Domain.PostQuery) -> RxSwift.Single<Domain.PostData?> {
         let requestDTO = PostRequestDTO(postId: query.postId)
         let spec = PostListAPIs.fetchPostDetail(requestDTO).spec
-        return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJyZWdEYXRlIjoxNzA0NjE4NTg2MTU1LCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MifQ.eyJ1c2VySWQiOiIwMUhLMVczNEZUNzIwQzJRWDRUVDRLWThCRCIsImV4cCI6MTcwNDcwNDk4Nn0.GP-eOFDBacxqZG4klG2oP84KHjeqKh3Ilq6AtobrlZs")])
+        return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -42,10 +60,18 @@ extension PostListAPIWorker: PostListRepositoryProtocol {
             .asSingle()
     }
     
-    public func fetchTodayPostList(query: Domain.PostListQuery) -> RxSwift.Single<Domain.PostListPage?> {
+    public func fetchTodayPostList(query: PostListQuery) -> Single<PostListPage?> {
+        return Observable.just(())
+            .withLatestFrom(self._headers)
+            .withUnretained(self)
+            .flatMap { $0.0.fetchTodayPostList(headers: $0.1, query: query) }
+            .asSingle()
+    }
+    
+    private func fetchTodayPostList(headers: [APIHeader]?, query: Domain.PostListQuery) -> RxSwift.Single<Domain.PostListPage?> {
         let requestDTO = PostListRequestDTO(page: query.page, size: query.size, date: query.date, memberId: query.memberId, sort: query.sort)
         let spec = PostListAPIs.fetchPostList(requestDTO).spec
-        return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAuthToken("eyJyZWdEYXRlIjoxNzA0NjE4NTg2MTU1LCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MifQ.eyJ1c2VySWQiOiIwMUhLMVczNEZUNzIwQzJRWDRUVDRLWThCRCIsImV4cCI6MTcwNDcwNDk4Nn0.GP-eOFDBacxqZG4klG2oP84KHjeqKh3Ilq6AtobrlZs")])
+        return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {

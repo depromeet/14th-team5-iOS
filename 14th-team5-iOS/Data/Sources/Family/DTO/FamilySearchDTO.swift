@@ -8,7 +8,7 @@
 import Foundation
 import Domain
 
-struct FamilySearchRequestDTO: Codable {
+public struct FamilySearchRequestDTO: Codable {
     let type: String
     let page: Int
     let size: Int

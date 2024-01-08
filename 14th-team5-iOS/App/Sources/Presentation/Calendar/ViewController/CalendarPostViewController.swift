@@ -68,7 +68,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         }
         
         calendarView.snp.makeConstraints {
-            $0.top.equalTo(navigationBarView.snp.bottom).offset(20.0)
+            $0.top.equalTo(navigationBarView.snp.bottom).offset(16.0)
             $0.leading.trailing.equalTo(blurImageView)
             $0.height.equalTo(CalendarVC.AutoLayout.calendarHeightValue)
         }
@@ -311,7 +311,7 @@ extension CalendarPostViewController {
     private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<PostListSectionModel> {
         return RxCollectionViewSectionedReloadDataSource<PostListSectionModel> { datasource, collectionView, indexPath, post in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as! PostCollectionViewCell
-            cell.reactor = ReactionDIContainer().makeReactor(post: post)
+            cell.reactor = ReactionDIContainer().makeReactor(type: .calendar, post: post)
             return cell
         }
     }

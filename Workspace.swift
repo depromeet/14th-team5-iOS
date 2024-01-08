@@ -12,6 +12,6 @@ private let projects: [Path] = ModuleLayer.allCases.map { moduleType in
     "14th-team5-iOS/\(moduleType.rawValue)"
 }
 let workspace = Workspace(
-    name: "pippi",
+    name: "Bibbi",
     projects: projects
 )

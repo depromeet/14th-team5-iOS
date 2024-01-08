@@ -12,8 +12,16 @@ import DesignSystem
 final class OnBoardingCollectionViewCell: BaseCollectionViewCell<OnBoardingReactor> {
     static let id = "onBoardingCollectionViewCell"
     
-    private let titleLabel = UILabel()
+    private let titleLabel = BibbiLabel(.head1, textColor: .gray100)
     private let imageView = UIImageView()
+    
+    private let screenSize = UIApplication.shared.connectedScenes
+                    .compactMap({ scene -> UIWindow? in
+                        (scene as? UIWindowScene)?.keyWindow
+                    })
+                    .first?
+                    .frame
+                    .size
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -36,20 +44,18 @@ final class OnBoardingCollectionViewCell: BaseCollectionViewCell<OnBoardingReact
         imageView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(20)
             $0.horizontalEdges.equalToSuperview()
-            $0.bottom.equalTo(self.safeAreaLayoutGuide).inset(50)
+            $0.bottom.equalTo(self.safeAreaLayoutGuide)
         }
     }
     
     override func setupAttributes() {
         titleLabel.do {
             $0.numberOfLines = 2
-            $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.bold, size: 24)
-            $0.textColor = DesignSystemAsset.gray100.color
         }
         
         imageView.do {
-            $0.contentMode = .scaleAspectFill
             $0.image = DesignSystemAsset.emoji.image
+            $0.contentMode = (screenSize?.height == 667.0) ? .scaleAspectFit : .scaleAspectFill
         }
     }
     

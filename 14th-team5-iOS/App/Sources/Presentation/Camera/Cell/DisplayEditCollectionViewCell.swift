@@ -19,7 +19,7 @@ import Then
 public final class DisplayEditCollectionViewCell: BaseCollectionViewCell<DisplayEditCellReactor> {
     
 
-    private let descrptionLabel: BibbiLabel = BibbiLabel(.head1)
+    private let descrptionLabel: BibbiLabel = BibbiLabel(.head1, alignment: .center)
     private let blurContainerView: UIVisualEffectView = UIVisualEffectView.makeBlurView(style: .dark)
     
     

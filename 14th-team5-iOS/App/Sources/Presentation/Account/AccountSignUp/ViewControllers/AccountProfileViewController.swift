@@ -20,11 +20,12 @@ import Then
 fileprivate typealias _Str = AccountSignUpStrings.Profile
 final class AccountProfileViewController: BaseViewController<AccountSignUpReactor> {
     // MARK: SubViews
-    private let titleLabel = UILabel()
+    private let titleLabel = BibbiLabel(.head2Bold, alignment: .center, textColor: .gray300)
     private let profileButton = UIButton()
     
     private let nextButton = UIButton()
     private let profileView = UIImageView()
+    private let cameraView = UIImageView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -76,6 +77,7 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
     override func setupUI() {
         super.setupUI()
         
+        profileView.addSubview(cameraView)
         view.addSubviews(titleLabel, profileButton, nextButton, profileView)
     }
     
@@ -84,7 +86,7 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
         
         titleLabel.snp.makeConstraints {
             $0.centerX.equalToSuperview().inset(20)
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(190)
+            $0.top.equalTo(view.safeAreaLayoutGuide).offset(130)
         }
         
         profileButton.snp.makeConstraints {
@@ -99,6 +101,11 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
             $0.width.height.equalTo(90)
         }
         
+        cameraView.snp.makeConstraints {
+            $0.bottom.trailing.equalToSuperview()
+            $0.width.height.equalTo(28)
+        }
+        
         nextButton.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(12)
             $0.bottom.equalTo(view.keyboardLayoutGuide.snp.top).offset(-10)
@@ -108,16 +115,18 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
     
     override func setupAttributes() {
         titleLabel.do {
-            $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 18)
-            $0.textColor = DesignSystemAsset.gray300.color
             $0.numberOfLines = 2
-            $0.textAlignment = .center
         }
         
         profileButton.do {
             $0.tintColor = DesignSystemAsset.gray200.color
             $0.backgroundColor = DesignSystemAsset.gray800.color
             $0.layer.cornerRadius = 45
+        }
+        
+        cameraView.do {
+            $0.image = DesignSystemAsset.cameraCircle.image
+            $0.contentMode = .scaleAspectFit
         }
         
         nextButton.do {

@@ -35,6 +35,11 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         print("AccessTokne 내놔 : \(App.Repository.token.accessToken.value?.accessToken) or refreshToken : \(App.Repository.token.accessToken.value?.refreshToken)")
     }
     
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.isHidden = false
+    }
+    
     deinit {
         print("deinit HomeViewController")
     }

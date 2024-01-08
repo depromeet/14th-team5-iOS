@@ -19,7 +19,6 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
     private enum Metric {
         static let bibbiOffset: CGFloat = 80
         static let bibbiHeight: CGFloat = 70
-        static let bibbiInset: CGFloat = 100
         static let titleOffset: CGFloat = 26
     }
     

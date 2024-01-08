@@ -19,7 +19,7 @@ import Then
 
 final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     // MARK: - Views
-    private let calendarTitleLabel: BibbiLabel = BibbiLabel(.head1)
+    private let calendarTitleLabel: BibbiLabel = BibbiLabel(.head1, alignment: .center, textColor: .gray200)
     
     private lazy var labelStackView: UIStackView = UIStackView()
     private lazy var calendarInfoButton: UIButton = UIButton(type: .system)
@@ -27,6 +27,9 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     private let calendarView: FSCalendar = FSCalendar()
     
     // MARK: - Properties
+    private let infoCircleFill: UIImage = DesignSystemAsset.infoCircleFill.image
+        .withRenderingMode(.alwaysTemplate)
+    
     static var id: String = "CalendarPageCell"
     
     // MARK: - Intializer
@@ -52,14 +55,13 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     override func setupAutoLayout() {
         super.setupAutoLayout()
         labelStackView.snp.makeConstraints {
-            $0.top.equalTo(contentView.snp.top).offset(CalendarCell.AutoLayout.defaultOffsetValue)
+            $0.top.equalTo(contentView.snp.top).offset(56.0)
             $0.leading.equalTo(contentView.snp.leading).offset(CalendarCell.AutoLayout.calendarTopOffsetValue)
         }
         
         calendarView.snp.makeConstraints {
-            $0.leading.equalTo(contentView.snp.leading).offset(CalendarCell.AutoLayout.calendarLeadingTrailingOffsetValue)
-            $0.top.equalTo(labelStackView.snp.bottom).offset(CalendarCell.AutoLayout.calendarTopOffsetValue)
-            $0.trailing.equalTo(contentView.snp.trailing).offset(-CalendarCell.AutoLayout.calendarLeadingTrailingOffsetValue)
+            $0.top.equalTo(labelStackView.snp.bottom).offset(32.0)
+            $0.horizontalEdges.equalToSuperview().inset(CalendarCell.AutoLayout.calendarLeadingTrailingOffsetValue)
             $0.height.equalTo(contentView.snp.width).multipliedBy(CalendarCell.AutoLayout.calendarHeightMultiplier)
         }
         
@@ -70,17 +72,12 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     
     override func setupAttributes() {
         super.setupAttributes()
-        calendarTitleLabel.do {
-            $0.textColor = DesignSystemAsset.gray200.color
-            $0.textAlignment = .center
-        }
-        
         calendarInfoButton.do {
             $0.setImage(
-                DesignSystemAsset.infoCircleFill.image.withRenderingMode(.alwaysTemplate),
+                infoCircleFill,
                 for: .normal
             )
-            $0.tintColor = DesignSystemAsset.gray300.color
+            $0.tintColor = .gray300
         }
         
         labelStackView.do {

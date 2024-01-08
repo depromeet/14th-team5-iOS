@@ -11,7 +11,7 @@ enum AddFamilyCell {
     enum AutoLayout {
         static let profileImageLeadingOffsetValue: CGFloat = 16.0
         static let profileImageTopOffsetValue: CGFloat = 12.0
-        static let profileImageWidthValue: CGFloat = 50.0
+        static let profileImageWidthValue: CGFloat = 52.0
     }
     
     enum Attribute {

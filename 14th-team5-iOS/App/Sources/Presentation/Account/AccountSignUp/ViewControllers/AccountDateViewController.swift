@@ -13,7 +13,7 @@ import RxSwift
 
 fileprivate typealias _Str = AccountSignUpStrings.Date
 final class AccountDateViewController: BaseViewController<AccountSignUpReactor> {
-    private let titleLabel = UILabel()
+    private let titleLabel = BibbiLabel(.head2Bold, textColor: .gray300)
     
     private let yearInputFieldView = UITextField()
     private let yearLabel = UILabel()
@@ -29,12 +29,15 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
     
     private let fieldStackView = UIStackView()
     
-    private let errorLabel = UILabel()
+    private let errorLabel = BibbiLabel(.body1Regular, textColor: .warningRed)
     private let errorImage = UIImageView()
     private let errorStackView = UIStackView()
     
     private let nextButton = UIButton()
-    private let descLabel = UILabel()
+    private let descLabel = BibbiLabel(.body1Regular, textColor: .gray400)
+    
+    private let infoCircleFill = DesignSystemAsset.infoCircleFill.image
+        .withRenderingMode(.alwaysTemplate)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -168,7 +171,7 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
         
         titleLabel.snp.makeConstraints {
             $0.centerX.equalToSuperview().inset(20)
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(190)
+            $0.top.equalTo(view.safeAreaLayoutGuide).offset(130)
         }
         
         fieldStackView.snp.makeConstraints {
@@ -183,7 +186,7 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
         
         descLabel.snp.makeConstraints {
             $0.centerX.equalToSuperview()
-            $0.bottom.equalTo(nextButton.snp.top).offset(-10)
+            $0.bottom.equalTo(nextButton.snp.top).offset(-14)
         }
         
         nextButton.snp.makeConstraints {
@@ -195,15 +198,10 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
     
     override func setupAttributes() {
         super.setupAttributes()
-        
-        titleLabel.do {
-            $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 18)
-            $0.textColor = DesignSystemAsset.gray300.color
-        }
-        
+    
         errorImage.do {
+            $0.image = infoCircleFill.withTintColor(.warningRed)
             $0.contentMode = .scaleAspectFit
-            $0.image = DesignSystemAsset.infoCircleFill.image
         }
         
         yearInputFieldView.do {
@@ -262,8 +260,6 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
         }
         
         errorLabel.do {
-            $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.regular, size: 16)
-            $0.textColor = DesignSystemAsset.warningRed.color
             $0.text = _Str.errorMsg
         }
         
@@ -277,8 +273,6 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
         
         descLabel.do {
             $0.text = _Str.desc
-            $0.textColor = DesignSystemAsset.gray400.color
-            $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.regular, size: 16)
         }
         
         nextButton.do {

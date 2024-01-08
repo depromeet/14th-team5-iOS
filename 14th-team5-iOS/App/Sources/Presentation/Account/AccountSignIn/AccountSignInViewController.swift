@@ -17,7 +17,7 @@ import Then
 
 public final class AccountSignInViewController: BaseViewController<AccountSignInReactor> {
     private enum Metric {
-        static let bibbiOffset: CGFloat = 80
+        static let bibbiOffset: CGFloat = 36
         static let bibbiHeight: CGFloat = 70
         static let titleOffset: CGFloat = 26
         static let imageInset: CGFloat = 60
@@ -36,11 +36,6 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
     private let kakaoLoginButton = UIButton()
     private let appleLoginButton = UIButton()
     private let loginStack = UIStackView()
-    
-    override public func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.navigationBar.isHidden = true
-    }
     
     override public func setupUI() {
         super.setupUI()

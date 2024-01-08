@@ -14,7 +14,7 @@ import RxSwift
 import SnapKit
 import Then
 
-final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellReactor> {
+final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellReactor> {
     // MARK: - Views
     private let imageBackgroundView: UIView = UIView()
     private let firstNameLabel: BibbiLabel = BibbiLabel(.head2Bold)
@@ -144,15 +144,13 @@ final class FamiliyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellR
             .bind(to: firstNameLabel.rx.text)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.memeberId }
-            .withUnretained(self)
-            .map { $0.1 == $0.0.memberId }
+        reactor.state.map { $0.isMe }
+            .distinctUntilChanged()
             .bind(to: isMeLabel.rx.isMeText)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.memeberId }
-            .withUnretained(self)
-            .map { $0.1 == $0.0.memberId }
+        reactor.state.map { $0.isMe }
+            .distinctUntilChanged()
             .bind(to: namelabelStackView.rx.isMeSpacing)
             .disposed(by: disposeBag)
     }

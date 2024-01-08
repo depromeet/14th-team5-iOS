@@ -19,20 +19,20 @@ final public class FamilyMemberProfileCellReactor: Reactor {
     
     // MARK: - State
     public struct State {
-        var memeberId: String
         var name: String
         var imageUrl: String?
+        var isMe: Bool
     }
     
     // MARK: - Properties
     public var initialState: State
     
     // MARK: - Intializer
-    public init(_ memberResponse: FamilyMemberProfileResponse) {
+    public init(_ memberResponse: FamilyMemberProfileResponse, isMe: Bool) {
         self.initialState = State(
-            memeberId: memberResponse.memberId,
             name: memberResponse.name,
-            imageUrl: memberResponse.imageUrl
+            imageUrl: memberResponse.imageUrl,
+            isMe: isMe
         )
     }
 }

@@ -103,7 +103,7 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberReac
 extension ReactionMembersViewController {
     private func createDataSource() -> RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> {
         return RxTableViewSectionedReloadDataSource<SectionOfFamilyMemberProfile> { datasource, tableView, indexPath, memberResponse in
-            let cell = tableView.dequeueReusableCell(withIdentifier: FamiliyMemberProfileCell.id, for: indexPath) as! FamiliyMemberProfileCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: FamilyMemberProfileCell.id, for: indexPath) as! FamilyMemberProfileCell
             cell.reactor = FamilyMemberProfileCellDIContainer(member: memberResponse).makeReactor()
             return cell
         }

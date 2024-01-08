@@ -9,6 +9,7 @@ import Foundation
 
 import Domain
 
+//: Deprecated
 public final class FamilyMemberProfileCellDIContainer {
     
     let memberResponse: FamilyMemberProfileResponse
@@ -18,6 +19,6 @@ public final class FamilyMemberProfileCellDIContainer {
     }
     
     public func makeReactor() -> FamilyMemberProfileCellReactor {
-        return FamilyMemberProfileCellReactor(memberResponse)
+        return FamilyMemberProfileCellReactor(memberResponse, isMe: false)
     }
 }

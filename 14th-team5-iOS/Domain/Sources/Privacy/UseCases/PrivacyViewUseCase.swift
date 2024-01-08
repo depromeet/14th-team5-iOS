@@ -14,6 +14,7 @@ public protocol PrivacyViewUseCaseProtocol {
     func executePrivacyItems() -> Observable<Array<String>>
     func executeAuthorizationItem() -> Observable<Array<String>>
     func executeBibbiAppCheck(parameter: Encodable) -> Observable<Bool>
+    func executeLogout() -> Observable<Void>
 }
 
 
@@ -47,5 +48,10 @@ public final class PrivacyViewUseCase: PrivacyViewUseCaseProtocol {
                 }
                 
             }
+    }
+    
+    public func executeLogout() -> Observable<Void> {
+        return privacyViewRepository.fetchAccountLogout()
+        
     }
 }

@@ -23,7 +23,7 @@ public final class ProfileViewReactor: Reactor {
         case viewWillAppear
         case fetchMorePostItems(Bool)
         case didSelectPHAssetsImage(Data)
-        case didTapInitProfile(Data)
+        case didTapInitProfile
     }
     
     public enum Mutation {
@@ -180,11 +180,10 @@ public final class ProfileViewReactor: Reactor {
                         .just(.setLoading(false))
                     )
                 }
-        case let .didTapInitProfile(defualtData):
+        case .didTapInitProfile:
             //TODO: 유저 디폴트 이미지
-//            guard let profileImage = UserDefaults.standard.profileImage else { return .empty() }
-            
-            let initProfileImage: String = "\(defualtData.hashValue).jpg"
+            guard let profileImage = UserDefaults.standard.profileImage else { return .empty() }
+            let initProfileImage: String = "\(profileImage.hashValue).jpg"
             let profileImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: initProfileImage)
             return .concat(
                 .just(.setLoading(true)),
@@ -195,7 +194,7 @@ public final class ProfileViewReactor: Reactor {
                     .flatMap { owner, entity -> Observable<ProfileViewReactor.Mutation> in
                         guard let profilePresingedURL = entity?.imageURL else { return .empty() }
                         return owner.profileUseCase
-                            .executeProfileImageToPresingedUpload(to: profilePresingedURL, data: defualtData)
+                            .executeProfileImageToPresingedUpload(to: profilePresingedURL, data: profileImage)
                             .subscribe(on:  ConcurrentDispatchQueueScheduler.init(qos: .background))
                             .asObservable()
                             .flatMap { isSuccess -> Observable<ProfileViewReactor.Mutation> in

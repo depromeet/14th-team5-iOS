@@ -23,7 +23,7 @@ public final class ProfileDIContainer: BaseDIContainer {
     
     public init(memberId: String = "") {
         self.memberId = memberId
-        print("my memberID: \(memberId) or \(FamilyUserDefaults.checkIsMyMemberId(memberId: memberId)) or \(FamilyUserDefaults.returnMyMemberId())")
+        print("my memberID: \(memberId) or \(FamilyUserDefaults.checkIsMyMemberId(memberId: memberId)) \(UserDefaults.standard.memberId)")
         self.isUser = FamilyUserDefaults.checkIsMyMemberId(memberId: memberId)
     }
     

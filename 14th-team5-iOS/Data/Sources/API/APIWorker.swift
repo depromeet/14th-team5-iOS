@@ -12,7 +12,6 @@ import RxSwift
 import RxCocoa
 import Core
 import Domain
-import SwiftKeychainWrapper
 
 protocol BibbiRouterInterface {
     func httpHeaders(_ headers: [APIHeader]?) -> HTTPHeaders
@@ -79,7 +78,6 @@ public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInter
                 .debug("account Refresh Token")
                 .subscribe(onNext: { entity in
                     print("entity Test: \(entity)")
-                    KeychainWrapper.standard.set(entity.accessToken, forKey: "accessToken")
                     completion(.retry)
                 }, onError: { error in
                     completion(.doNotRetryWithError(error))

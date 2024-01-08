@@ -93,6 +93,7 @@ extension MeAPIWorker: MeRepositoryProtocol {
         App.Repository.member.familyId.accept(memberInfo.familyId)
         
         let member: ProfileData = ProfileData(memberId: memberInfo.memberId, profileImageURL: memberInfo.imageUrl, name: memberInfo.name)
+        FamilyUserDefaults.saveMyMemberId(memberId: memberInfo.memberId)
         FamilyUserDefaults.saveMemberToUserDefaults(familyMember: member)
     }
     

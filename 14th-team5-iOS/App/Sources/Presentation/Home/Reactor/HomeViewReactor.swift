@@ -28,10 +28,13 @@ public final class HomeViewReactor: Reactor {
         case showNoPostTodayView
         case setFamilyCollectionView([SectionModel<String, ProfileData>])
         case setPostCollectionView([SectionModel<String, PostListData>])
+        case setCopySuccessToastMessageView
+        case setFetchFailureToastMessageView
+        case setSharePanel(String)
     }
     
     public struct State {
-        var inviteLink: URL?
+        var familyInvitationLink: URL?
         var showLoading: Bool = true
         var didPost: Bool = false
         var descriptionText: String = HomeStrings.Description.standard
@@ -39,28 +42,46 @@ public final class HomeViewReactor: Reactor {
         var isShowingInviteFamilyView: Bool = false
         var familySections: [SectionModel<String, ProfileData>] = []
         var feedSections: [SectionModel<String, PostListData>] = []
+        @Pulse var shouldPresentCopySuccessToastMessageView: Bool = false
+        @Pulse var shouldPresentFetchFailureToastMessageView: Bool = false
     }
     
     public let initialState: State = State()
     public let provider: GlobalStateProviderProtocol = GlobalStateProvider()
     private let familyRepository: SearchFamilyMemberUseCaseProtocol
     private let postRepository: PostListUseCaseProtocol
+    private let familyUseCase: InviteFamilyViewUseCaseProtocol
     
-    init(familyRepository: SearchFamilyMemberUseCaseProtocol, postRepository: PostListUseCaseProtocol) {
+    init(familyRepository: SearchFamilyMemberUseCaseProtocol, postRepository: PostListUseCaseProtocol, familyUseCase: InviteFamilyViewUseCaseProtocol) {
+        self.familyUseCase = familyUseCase
         self.familyRepository = familyRepository
         self.postRepository = postRepository
     }
 }
 
 extension HomeViewReactor {
+    public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+        let eventMutation = provider.activityGlobalState.event
+            .flatMap { event -> Observable<Mutation> in
+                switch event {
+                case .didTapCopyInvitationUrlAction:
+                    return Observable<Mutation>.just(.setCopySuccessToastMessageView)
+                }
+            }
+        
+        return Observable<Mutation>.merge(mutation, eventMutation)
+    }
+    
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .tapInviteFamily:
-            return Observable.concat(
-                Observable.just(Mutation.setLoading(true)),
-                Observable.just(Mutation.showShareAcitivityView(URL(string: "https://github.com/depromeet/14th-team5-iOS"))),
-                Observable.just(Mutation.setLoading(false))
-            )
+            return familyUseCase.executeFetchInvitationUrl()
+                .map {
+                    guard let invitationLink = $0?.url else {
+                        return .setFetchFailureToastMessageView
+                    }
+                    return .setSharePanel(invitationLink)
+                }
         case .getFamilyMembers:
             let query: SearchFamilyQuery = SearchFamilyQuery(type: "FAMILY", page: 1, size: 20)
             return familyRepository.excute(query: query)
@@ -121,13 +142,19 @@ extension HomeViewReactor {
         case let .setPostCollectionView(data):
             newState.feedSections = data
         case let .showShareAcitivityView(url):
-            newState.inviteLink = url
+            newState.familyInvitationLink = url
         case .setDidPost:
             newState.didPost = true
         case .setDescriptionText(_):
             break
         case .setLoading:
             newState.showLoading = false
+        case .setCopySuccessToastMessageView:
+            newState.shouldPresentCopySuccessToastMessageView = true
+        case .setFetchFailureToastMessageView:
+            newState.shouldPresentFetchFailureToastMessageView = true
+        case let .setSharePanel(urlString):
+            newState.familyInvitationLink = URL(string: urlString)
         }
         
         return newState

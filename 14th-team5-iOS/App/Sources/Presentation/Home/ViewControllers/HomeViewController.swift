@@ -182,7 +182,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .disposed(by: disposeBag)
         
         reactor.state
-            .map { $0.inviteLink }
+            .map { $0.familyInvitationLink }
             .distinctUntilChanged()
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
@@ -199,6 +199,31 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .bind(onNext: {
                 $0.0.hideCameraButton($0.1)
             })
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentCopySuccessToastMessageView)
+            .skip(1)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.makeBibbiToastView(
+                    text: AddFamilyVC.Strings.successCopyInvitationUrl,
+                    symbol: "link",
+                    width: 210
+                )
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentFetchFailureToastMessageView)
+            .skip(1)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.makeBibbiToastView(
+                    text: "링크 불러오기 실패",
+                    symbol: "exclamationmark.triangle.fill",
+                    palletteColors: [UIColor.systemRed],
+                    width: 190
+                )
+            }
             .disposed(by: disposeBag)
     }
     

@@ -14,6 +14,7 @@ final class InviteFamilyView: UIView {
     typealias Layout = HomeAutoLayout.InviteFamilyView
     
     private let inviteImageView: UIImageView = UIImageView()
+    private let labelStack: UIStackView = UIStackView()
     private let subLabel: UILabel = BibbiLabel(.body2Regular)
     private let titleLabel: UILabel = BibbiLabel(.head2Bold)
     private let nextIconImageView: UIImageView = UIImageView()
@@ -30,25 +31,21 @@ final class InviteFamilyView: UIView {
     }
     
     private func setupUI() {
-        addSubviews(inviteImageView, subLabel, titleLabel,
+        labelStack.addArrangedSubviews(subLabel, titleLabel)
+        addSubviews(inviteImageView, labelStack,
                     nextIconImageView)
     }
     
     private func setupAutoLayout() {
         inviteImageView.snp.makeConstraints {
             $0.size.equalTo(Layout.InviteImageView.size)
-            $0.leading.equalToSuperview().inset(Layout.InviteImageView.leadingInset)
+            $0.leading.equalToSuperview().offset(Layout.InviteImageView.leadingInset)
             $0.centerY.equalToSuperview()
         }
         
-        subLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().inset(Layout.SubLabel.topInset)
-            $0.leading.equalTo(inviteImageView.snp.trailing).offset(Layout.SubLabel.leadingOffset)
-        }
-        
-        titleLabel.snp.makeConstraints {
-            $0.top.equalTo(subLabel.snp.bottom).offset(Layout.TitleLabel.topOffset)
-            $0.leading.equalTo(subLabel)
+        labelStack.snp.makeConstraints {
+            $0.centerY.equalTo(inviteImageView)
+            $0.leading.equalTo(inviteImageView.snp.trailing).offset(16)
         }
         
         nextIconImageView.snp.makeConstraints {
@@ -64,6 +61,13 @@ final class InviteFamilyView: UIView {
         
         inviteImageView.do {
             $0.image = DesignSystemAsset.envelopeBackground.image
+        }
+        
+        labelStack.do {
+            $0.axis = .vertical
+            $0.spacing = 8
+            $0.alignment = .fill
+            $0.distribution = .fillProportionally
         }
         
         subLabel.do {

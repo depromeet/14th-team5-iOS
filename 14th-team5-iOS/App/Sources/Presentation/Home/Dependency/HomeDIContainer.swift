@@ -27,6 +27,10 @@ public final class HomeDIContainer {
         return FamilyAPIs.Worker()
     }
     
+    public func makeInviteFamilyRepository() -> FamilyRepositoryProtocol {
+        return FamilyRepository()
+    }
+    
     func makePostUseCase() -> PostListUseCaseProtocol {
         return PostListUseCase(postListRepository: makePostRepository())
     }
@@ -35,8 +39,12 @@ public final class HomeDIContainer {
         return SearchFamilyUseCase(searchFamilyRepository: makeFamilyRepository())
     }
     
+    func makeInviteFamilyUseCase() -> InviteFamilyViewUseCaseProtocol {
+        return InviteFamilyViewUseCase(familyRepository: makeInviteFamilyRepository())
+    }
+    
     public func makeReactor() -> Reactor {
-        return HomeViewReactor(familyRepository: makeFamilyUseCase(), postRepository: makePostUseCase())
+        return HomeViewReactor(familyRepository: makeFamilyUseCase(), postRepository: makePostUseCase(), familyUseCase: makeInviteFamilyUseCase())
     }
     
 }

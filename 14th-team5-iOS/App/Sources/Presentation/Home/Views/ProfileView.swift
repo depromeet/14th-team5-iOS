@@ -45,7 +45,7 @@ final class ProfileView: UIView {
         
         nameLabel.snp.makeConstraints {
             $0.top.equalTo(imageView.snp.bottom).offset(Layout.NameLabel.topOffset)
-            $0.width.equalTo(64)
+            $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalToSuperview()
         }
         

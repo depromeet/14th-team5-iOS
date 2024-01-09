@@ -37,6 +37,11 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
     private let appleLoginButton = UIButton()
     private let loginStack = UIStackView()
     
+    override public func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.isHidden = false
+    }
+    
     override public func setupUI() {
         super.setupUI()
         

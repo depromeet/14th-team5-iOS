@@ -12,5 +12,9 @@ protocol BibbiAPIConfigType {
 }
 
 struct BibbiAPIConfig: BibbiAPIConfigType {
+    #if PRD
+    var hostApi: String = "https://api.no5ing.kr/v1"
+    #else
     var hostApi: String = "https://dev.api.no5ing.kr/v1"
+    #endif
 }

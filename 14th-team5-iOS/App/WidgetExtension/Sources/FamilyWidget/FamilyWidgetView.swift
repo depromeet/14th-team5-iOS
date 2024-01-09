@@ -57,22 +57,50 @@ struct FamilyWidgetView: View {
     // MARK: 가족중 일부가 사진을 올렸을 때 뷰
     private func getPhotoView(info: Family) -> some View {
         ZStack {
-            NetworkImageView(url: URL(string: info.postImageUrl ?? ""))
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            VStack {
-                HStack {
-                    NetworkImageView(url: URL(string: info.profileImageUrl ?? ""))
-                        .frame(height: family == .systemSmall ? 34 : 52)
-                        .frame(width: family == .systemSmall ? 34 : 52)
-                        .clipShape(Circle())
-                        .background(Circle().stroke(Color.white, lineWidth: 4))
-                        .padding(.leading, 14)
-                        .padding(.top, 14)
+            if let postImageUrl = info.postImageUrl {
+                
+                NetworkImageView(url: URL(string: postImageUrl))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                
+                VStack {
+                    
+                    HStack {
+                    
+                        if let profileImageUrl = info.authorProfileImageUrl {
+                            NetworkImageView(url: URL(string: profileImageUrl))
+                                .frame(height: family == .systemSmall ? 34 : 52)
+                                .frame(width: family == .systemSmall ? 34 : 52)
+                                .clipShape(Circle())
+                                .background(Circle().stroke(Color.white, lineWidth: 4))
+                                .padding(.leading, 14)
+                                .padding(.top, 14)
+                            
+                        } else {
+                            
+                            if let firstName = info.authorName.first {
+                                Text(String(firstName))
+                                    .font(family == .systemSmall ?
+                                          DesignSystemFontFamily.Pretendard.semiBold.swiftUIFont(size: 16) :
+                                            DesignSystemFontFamily.Pretendard.semiBold.swiftUIFont(size: 18))
+                                    .frame(height: family == .systemSmall ? 34 : 52)
+                                    .frame(width: family == .systemSmall ? 34 : 52)
+                                    .background(Circle().stroke(Color.white, lineWidth: 4))
+                                    .background(DesignSystemAsset.gray700.swiftUIColor)
+                                    .clipShape(Circle())
+                                    .padding(.leading, 14)
+                                    .padding(.top, 14)
+                            }
+                        }
+                        Spacer()
+                    }
+                    
                     Spacer()
+                    
+                    getContentView(for: info.postContent ?? "", family: family)
+                        .padding(.bottom, family == .systemSmall ? 16 : 22)
                 }
-                Spacer()
-                getContentView(for: info.postContent ?? "할 말이 없네", family: family)
-                    .padding(.bottom, family == .systemSmall ? 16 : 22)
+            } else {
+                timeToPhotoView
             }
         }
     }

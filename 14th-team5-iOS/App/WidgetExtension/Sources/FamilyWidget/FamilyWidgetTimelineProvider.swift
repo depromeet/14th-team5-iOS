@@ -26,7 +26,7 @@ struct FamilyWidgetTimelineProvider: TimelineProvider {
             switch result {
             case .success(let family):
                 entry = FamilyWidgetEntry(date: currentDate, family: family)
-            case .failure(let error):
+            case .failure:
                 entry = FamilyWidgetEntry(date: currentDate, family: nil)
             }
             

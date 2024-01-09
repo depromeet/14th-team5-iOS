@@ -41,6 +41,7 @@ extension UIImage {
     public enum NavigationBar {
         public enum ImageType {
             case bibbi
+            case newBibbi
         }
         
         public enum IconType {
@@ -75,6 +76,8 @@ extension UIImage.NavigationBar.ImageType {
         switch self {
         case .bibbi:
             return DesignSystemAsset.bibbi.image
+        case .newBibbi:
+            return DesignSystemAsset.newBibbi.image
         }
     }
 }

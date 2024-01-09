@@ -16,7 +16,7 @@ import Then
 
 final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellReactor> {
     // MARK: - Views
-    private let imageBackgroundView: UIView = UIView()
+    private let containerView: UIView = UIView()
     private let firstNameLabel: BibbiLabel = BibbiLabel(.head2Bold, alignment: .center, textColor: .gray200)
     private let memberImageView: UIImageView = UIImageView()
     
@@ -43,11 +43,11 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
     // MARK: - Helpers
     override func setupUI() {
         super.setupUI()
-        imageBackgroundView.addSubviews(
+        containerView.addSubviews(
             firstNameLabel, memberImageView
         )
         contentView.addSubviews(
-            imageBackgroundView, namelabelStackView
+            containerView, namelabelStackView
         )
         
         namelabelStackView.addArrangedSubviews(
@@ -57,7 +57,7 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
     
     override func setupAutoLayout() {
         super.setupAutoLayout()
-        imageBackgroundView.snp.makeConstraints {
+        containerView.snp.makeConstraints {
             $0.leading.equalTo(contentView.snp.leading).offset(20.0)
             $0.top.equalTo(contentView.snp.top).offset(AddFamilyCell.AutoLayout.profileImageTopOffsetValue)
             $0.bottom.equalTo(contentView.snp.bottom).offset(-AddFamilyCell.AutoLayout.profileImageTopOffsetValue)
@@ -80,7 +80,7 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
     
     override func setupAttributes() {
         super.setupAttributes()
-        imageBackgroundView.do {
+        containerView.do {
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = AddFamilyCell.AutoLayout.profileImageWidthValue / 2.0
             $0.backgroundColor = DesignSystemAsset.gray800.color

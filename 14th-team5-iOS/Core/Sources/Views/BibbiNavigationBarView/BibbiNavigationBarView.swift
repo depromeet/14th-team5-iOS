@@ -16,7 +16,7 @@ import RxCocoa
 
 public final class BibbiNavigationBarView: UIView {
     // MARK: - Views
-    private let backgroundView: UIView = UIView()
+    private let containerView: UIView = UIView()
     
     private let navigationTitleLabel: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
     private var navigationImageView: UIImageView = UIImageView()
@@ -132,14 +132,14 @@ public final class BibbiNavigationBarView: UIView {
     
     // MARK: - Helpers
     func setupUI() {
-        addSubview(backgroundView)
-        backgroundView.addSubviews(
+        addSubview(containerView)
+        containerView.addSubviews(
             leftBarButton, navigationImageView, navigationTitleLabel, rightBarButton
         )
     }
     
     func setupAutolayout() {
-        backgroundView.snp.makeConstraints {
+        containerView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
         
@@ -167,7 +167,7 @@ public final class BibbiNavigationBarView: UIView {
     }
     
     func setupAttributes() {
-        backgroundView.do {
+        containerView.do {
             $0.backgroundColor = UIColor.clear
         }
         

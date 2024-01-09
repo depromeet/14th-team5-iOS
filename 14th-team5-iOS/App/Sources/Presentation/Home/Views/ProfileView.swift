@@ -17,7 +17,7 @@ final class ProfileView: UIView {
     
     private let defaultNameLabel = BibbiLabel(.head1, alignment: .center, textColor: .gray200)
     private let imageView = UIImageView()
-    private let nameLabel = BibbiLabel(.caption, alignment: .center, textColor: .gray300)
+    private let nameLabel = UILabel()
     
     let disposeBag = DisposeBag()
     
@@ -39,7 +39,7 @@ final class ProfileView: UIView {
     private func setupAutoLayout() {
         imageView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(imageView.snp.width)
+            $0.width.height.equalTo(64)
             $0.top.leading.equalToSuperview()
         }
         
@@ -55,9 +55,19 @@ final class ProfileView: UIView {
     }
     
     private func setupAttributes() {
+        nameLabel.do {
+            $0.font = UIFont.pretendard(.caption)
+            $0.textAlignment = .center
+            $0.textColor = .gray300
+            
+            $0.numberOfLines = 1
+            $0.lineBreakMode = .byTruncatingTail
+        }
+        
         imageView.do {
             $0.clipsToBounds = true
-            $0.layer.cornerRadius = Layout.ImageView.cornerRadius
+            $0.contentMode = .scaleAspectFill
+            $0.layer.cornerRadius = 64 / 2
         }
     }
 }

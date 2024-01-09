@@ -21,7 +21,7 @@ enum HomeAutoLayout {
     }
     
     enum DividerView {
-        static let topInset = 138
+        static let topInset = 170
         static let height = 1
     }
     

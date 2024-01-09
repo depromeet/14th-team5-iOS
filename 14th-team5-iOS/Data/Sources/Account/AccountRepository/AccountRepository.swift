@@ -75,9 +75,8 @@ public final class AccountRepository: AccountImpl {
     private func fetchMember() {
         meApiWorekr.fetchMemberInfo()
             .asObservable()
-            .withLatestFrom(App.Repository.member.inviteCode)
             .withUnretained(self)
-            .bind(onNext: { $0.0.joinFamily(inviteCode: $0.1 ) })
+            .bind(onNext: { $0.0.joinFamily(inviteCode: UserDefaults.standard.inviteCode) })
             .disposed(by: disposeBag)
     }
     

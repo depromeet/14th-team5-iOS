@@ -96,18 +96,14 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
             $0.layer.cornerRadius = 24
             $0.isEnabled = false
         }
+        
+        if UserDefaults.standard.inviteCode?.isEmpty == false {
+            nextButton.setTitle(OnBoardingStrings.inviteButtonTitle, for: .normal)
+        }
     }
     
     public override func bind(reactor: OnBoardingReactor) {
         super.bind(reactor: reactor)
-        
-        App.Repository.member.inviteCode
-            .filter { $0?.isEmpty == true }
-            .withUnretained(self)
-            .bind(onNext: {
-                $0.0.nextButton.setTitle(OnBoardingStrings.inviteButtonTitle, for: .normal)
-            })
-            .disposed(by: disposeBag)
         
         currentPage
             .distinctUntilChanged()

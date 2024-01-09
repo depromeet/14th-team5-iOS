@@ -8,5 +8,6 @@
 import RxSwift
 
 public protocol SearchFamilyRepository {
+    func getSavedFamilyMember(memberIds: [String]) -> [ProfileData]?
     func fetchFamilyMember(query: SearchFamilyQuery) -> Single<SearchFamilyPage?>
 }

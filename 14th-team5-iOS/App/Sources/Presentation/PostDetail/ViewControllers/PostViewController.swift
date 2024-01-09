@@ -51,7 +51,7 @@ final class PostViewController: BaseViewController<PostReactor> {
             .disposed(by: disposeBag)
         
         reactor.state
-            .map { $0.isShowingReactionMemberSheet }
+            .map { $0.reactionMemberIds }
             .asObservable()
             .distinctUntilChanged()
             .withUnretained(self)
@@ -156,11 +156,9 @@ extension PostViewController {
         self.backgroundImageView.kf.setImage(with: url)
     }
     
-    private func showReactionSheet(_ isShow: Bool) {
-        if !isShow { return }
-        
-        let reactionMembersViewController = ReactionMembersViewController()
-//        reactionMembersViewController.data = ["" , "", ""]
+    private func showReactionSheet(_ memberIds: [String]) {
+        if memberIds.isEmpty { return }
+        let reactionMembersViewController = ReactionDIContainer().makeViewController(memberIds: memberIds)
         if let sheet = reactionMembersViewController.sheetPresentationController {
             sheet.detents = [.medium()]
             sheet.prefersGrabberVisible = true

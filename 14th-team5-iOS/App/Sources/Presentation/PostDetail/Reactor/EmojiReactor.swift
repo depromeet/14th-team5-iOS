@@ -23,17 +23,15 @@ final class EmojiReactor: Reactor {
         case tappedSelectableEmojiButton(Emojis)
         /// emoji count - 1
         case tappedSelectedEmojiCountButton(Emojis)
-        case receiveEmojiData([Emojis: Int])
         case fetchEmojiList
         case fetchDisplayContent(String)
-        case longPressedEmojiCountButton
+        case longPressedEmojiCountButton(Int)
     }
     
     enum Mutation {
         case showSelectableEmojiStackView
         case selectEmoji(Emojis)
         case unselectEmoji(Emojis)
-        case setUpEmojiCountStackView([Emojis: Int])
         case fetchedEmojiList(FetchEmojiDataList?)
         case injectDisplayContent([DisplayEditItemModel])
     }
@@ -43,7 +41,6 @@ final class EmojiReactor: Reactor {
         let post: PostListData
         
         var isShowingSelectableEmojiStackView: Bool = false
-        var emojiData: [Emojis: Int] = [:]
         var fetchedEmojiList: FetchEmojiDataList? = nil
         var fetchedDisplayContent: [DisplayEditSectionModel] = [.displayKeyword([])]
     }
@@ -64,8 +61,6 @@ extension EmojiReactor {
         switch action {
         case .tappedSelectableEmojiStackView:
             return Observable.just(Mutation.showSelectableEmojiStackView)
-        case let .receiveEmojiData(data):
-            return Observable.just(Mutation.setUpEmojiCountStackView(data))
         case let .tappedSelectableEmojiButton(emoji):
             let query: AddEmojiQuery = AddEmojiQuery(postId: initialState.post.postId)
             let body: AddEmojiBody = AddEmojiBody(content: emoji)
@@ -105,8 +100,11 @@ extension EmojiReactor {
             }
             return Observable<Mutation>.just(.injectDisplayContent(sectionItem))
 
-        case .longPressedEmojiCountButton:
-            return provider.reactionSheetGloablState.showReactionMemberSheet(true)
+        case let .longPressedEmojiCountButton(index):
+            guard let emojiList = currentState.fetchedEmojiList else {
+                return Observable.empty()
+            }
+            return provider.reactionSheetGloablState.showReactionMemberSheet(emojiList.emojis_memberIds[index - 1].memberIds)
                 .flatMap { _ in Observable<Mutation>.empty() }
 
         }
@@ -117,8 +115,6 @@ extension EmojiReactor {
         switch mutation {
         case .showSelectableEmojiStackView:
             newState.isShowingSelectableEmojiStackView.toggle()
-        case let .setUpEmojiCountStackView(data):
-            newState.emojiData = data
         case let .selectEmoji(emoji):
             guard let myMemberId = UserDefaults.standard.memberId,
                   let fetchedEmojiList = newState.fetchedEmojiList else {

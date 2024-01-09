@@ -15,6 +15,7 @@ import Then
 final class PostNavigationView: BaseView<PostReactor> {
     typealias Layout = PostAutoLayout.NavigationView
     
+    private let defaultNameLabel: UILabel = BibbiLabel(.head1, textColor: .gray200)
     private let backButton: UIButton = UIButton()
     private let profileImageView: UIImageView = UIImageView()
     private let nameLabel: UILabel = BibbiLabel(.body1Regular, textColor: .gray100)
@@ -51,7 +52,7 @@ final class PostNavigationView: BaseView<PostReactor> {
     
     override func setupUI() {
         addSubviews(backButton, profileImageView, nameLabel,
-                    dateLabel)
+                    dateLabel, defaultNameLabel)
     }
     
     override func setupAutoLayout() {
@@ -77,6 +78,10 @@ final class PostNavigationView: BaseView<PostReactor> {
             $0.bottom.equalTo(profileImageView)
             $0.height.equalTo(Layout.DateLabel.height)
         }
+        
+        defaultNameLabel.snp.makeConstraints {
+            $0.center.equalTo(profileImageView)
+        }
     }
     
     override func setupAttributes() {
@@ -96,12 +101,22 @@ final class PostNavigationView: BaseView<PostReactor> {
 
 extension PostNavigationView {
     func setData(data: PostListData) {
-        guard let author = data.author,
-              let url = URL(string: author.profileImageURL ?? "https://search.pstatic.net/sunny/?src=https%3A%2F%2Fi.pinimg.com%2Foriginals%2F37%2F1e%2F6f%2F371e6f8759c86ad13023ac032d612dc2.jpg&type=sc960_832") else {
-            return
+        if let author = data.author,
+           let profileImageURL = author.profileImageURL,
+           let url = URL(string: profileImageURL), !profileImageURL.isEmpty {
+            profileImageView.kf.setImage(with: url)
+            defaultNameLabel.isHidden = true
+        } else {
+            if let author = data.author {
+                defaultNameLabel.text = "\(author.name.first)"
+            } else {
+                defaultNameLabel.text = "알"
+            }
+            
+            profileImageView.backgroundColor = .gray800
         }
-        profileImageView.kf.setImage(with: url)
-        nameLabel.text = author.name
-        dateLabel.text = data.time
+
+        nameLabel.text = data.author?.name ?? "알 수 없음"
+        dateLabel.text = data.time.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter()
     }
 }

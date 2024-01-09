@@ -74,7 +74,6 @@ final class ProfileView: UIView {
 
 extension ProfileView {
     func setProfile(profile: ProfileData) {
-        
         if let profileImageURL = profile.profileImageURL,
            let url = URL(string: profileImageURL), !profileImageURL.isEmpty {
             imageView.kf.setImage(with: url)

@@ -45,6 +45,6 @@ final class PostListsDIContainer {
     }
     
     func makeReactor(postLists: SectionModel<String, PostListData>, selectedIndex: Int) -> Reactor {
-        return PostReactor(provider: globalState, postRepository: makePostUseCase(), emojiRepository: makeEmojiUseCase(), initialState: PostReactor.State(originPostLists: [postLists]))
+        return PostReactor(provider: globalState, postRepository: makePostUseCase(), emojiRepository: makeEmojiUseCase(), initialState: PostReactor.State(selectedIndex: selectedIndex, originPostLists: [postLists]))
     }
 }

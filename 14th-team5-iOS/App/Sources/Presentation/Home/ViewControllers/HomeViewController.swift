@@ -61,15 +61,23 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .startWith(0)
             .map { [weak self] _ in
                 guard let self = self else { return HomeStrings.Timer.notTime }
-                guard let time = self.calculateRemainingTime().setTimerFormat() else {
+                let time = self.calculateRemainingTime()
+                guard let timeString = time.setTimerFormat() else {
                     self.hideCameraButton(true)
                     return HomeStrings.Timer.notTime
                 }
-                return time
+
+                if time <= 3600 && !reactor.currentState.didPost {
+                    self.timerLabel.textColor = .warningRed
+                    self.descriptionLabel.text = "시간이 얼마 남지 않았어요!"
+                }
+
+                return timeString
             }
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] time in
                 guard let self = self else { return }
+
                 self.timerLabel.text = time
             })
             .disposed(by: disposeBag)
@@ -106,7 +114,6 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             }.disposed(by: disposeBag)
         
         postCollectionView.rx.itemSelected
-//            .withUnretained(self)
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
             .bind(onNext: { [weak self] indexPath in
                 guard let self else { return }

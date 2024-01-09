@@ -27,6 +27,7 @@ final class PostReactor: Reactor {
     }
     
     struct State {
+        let selectedIndex: Int
         let originPostLists: [SectionModel<String,PostListData>]
         
         var isPop: Bool = false

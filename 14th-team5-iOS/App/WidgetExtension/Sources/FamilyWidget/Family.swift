@@ -8,7 +8,8 @@
 import Foundation
 
 struct Family: Codable {
-    var profileImageUrl: String?
+    var authorName: String
+    var authorProfileImageUrl: String?
     var postImageUrl: String?
     var postContent: String?
 }

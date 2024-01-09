@@ -111,6 +111,7 @@ extension AccountSignUpViewController {
         }
         let presentAlbumAction: UIAlertAction = UIAlertAction(title: "앨범", style: .default) { _ in
             self.profilePickerController.modalPresentationStyle = .fullScreen
+            self.profilePickerController.overrideUserInterfaceStyle = .dark
             self.present(self.profilePickerController, animated: true)
         }
         let presentDefaultAction: UIAlertAction = UIAlertAction(title: "초기화", style: .destructive) { _ in
@@ -121,6 +122,7 @@ extension AccountSignUpViewController {
         [presentCameraAction, presentAlbumAction, presentDefaultAction, presentCancelAction].forEach {
             alertController.addAction($0)
         }
+        alertController.overrideUserInterfaceStyle = .dark
         owner.present(alertController, animated: true)
     }
 }

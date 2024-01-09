@@ -85,7 +85,6 @@ final class AccountResignViewReactor: Reactor {
         case let .setSelect(isSelected):
             newState.isSeleced = isSelected
         case let .setResignEntity(isSuccess):
-            print("resign success: \(isSuccess)")
             newState.isSuccess = isSuccess
         }
         

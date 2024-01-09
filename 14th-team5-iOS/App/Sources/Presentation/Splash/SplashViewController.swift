@@ -98,23 +98,22 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
     
     private func showNextPage(with member: MemberInfo?) {
         
+        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
+        
         if let _ = member?.memberId {
             var container: UINavigationController
             container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
-            container.modalPresentationStyle = .fullScreen
-            
-            present(container, animated: false)
+            sceneDelegate.window?.rootViewController = container
+            sceneDelegate.window?.makeKeyAndVisible()
             return
         }
         
         let container: UINavigationController
-        let presentationStyle: UIModalPresentationStyle = .fullScreen
         
         guard let isTemporaryToken = App.Repository.token.accessToken.value?.isTemporaryToken else {
             container = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
-            container.modalPresentationStyle = presentationStyle
-            present(container, animated: false)
-            
+            sceneDelegate.window?.rootViewController = container
+            sceneDelegate.window?.makeKeyAndVisible()
             return
         }
         
@@ -128,7 +127,7 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
             }
         }
         
-        container.modalPresentationStyle = presentationStyle
-        present(container, animated: false)
+        sceneDelegate.window?.rootViewController = container
+        sceneDelegate.window?.makeKeyAndVisible()
     }
 }

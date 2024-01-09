@@ -14,8 +14,7 @@ public class WebContentViewReactor: Reactor {
     public var initialState: State
     
     public enum Action {
-        case didCommitLoad(Bool)
-        case didFinishLoad(Bool)
+        case viewDidLoad
     }
     
     public enum Mutation {
@@ -36,11 +35,12 @@ public class WebContentViewReactor: Reactor {
     
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case let .didCommitLoad(isLoading):
-            return .just(.setLoading(isLoading))
-
-        case let .didFinishLoad(isLoading):
-            return .just(.setLoading(isLoading))
+        case .viewDidLoad:
+            return .concat(
+                .just(.setLoading(true)),
+                .just(.setLoading(false))
+            )
+  
         }
     }
     

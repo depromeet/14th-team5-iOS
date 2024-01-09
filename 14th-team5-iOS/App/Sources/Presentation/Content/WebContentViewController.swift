@@ -44,21 +44,11 @@ public class WebContentViewController: BaseViewController<WebContentViewReactor>
     
     
     public override func bind(reactor: WebContentViewReactor) {
-                
-        webView.rx.didCommit
-            .withLatestFrom(reactor.state.map { $0.isLoading} )
-            .map { _ in true }
-            .map { Reactor.Action.didCommitLoad($0)}
+
+        Observable.just(())
+            .map { Reactor.Action.viewDidLoad }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
-        webView.rx.didFinishLoad
-            .withLatestFrom(reactor.state.map { $0.isLoading} )
-            .map { _ in false }
-            .map { Reactor.Action.didFinishLoad($0)}
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
         
         reactor.state
             .compactMap { $0.url }

@@ -8,6 +8,7 @@
 import SwiftUI
 import DesignSystem
 import WidgetKit
+import Core
 
 struct FamilyWidgetView: View {
     @Environment(\.widgetFamily) var family: WidgetFamily
@@ -16,11 +17,12 @@ struct FamilyWidgetView: View {
     private let defaultContent: String = "가족에게\n생존신고 할 시간"
     
     var body: some View {
-        if let info = entry.family {
-            getPhotoView(info: info)
-        } else {
-            timeToPhotoView
-        }
+        Text(App.Repository.token.accessToken.value?.accessToken ?? "123123")
+//        if let info = entry.family {
+//            getPhotoView(info: info)
+//        } else {
+//            timeToPhotoView
+//        }
     }
     
     // MARK: 기본상태의 위젯
@@ -79,14 +81,12 @@ struct FamilyWidgetView: View {
                             
                             if let firstName = info.authorName.first {
                                 Text(String(firstName))
-                                    .font(family == .systemSmall ?
-                                          DesignSystemFontFamily.Pretendard.semiBold.swiftUIFont(size: 16) :
-                                            DesignSystemFontFamily.Pretendard.semiBold.swiftUIFont(size: 18))
+                                    .font(family == .systemSmall ? DesignSystemFontFamily.Pretendard.bold.swiftUIFont(size: 14) : DesignSystemFontFamily.Pretendard.regular.swiftUIFont(size: 16))
                                     .frame(height: family == .systemSmall ? 34 : 52)
                                     .frame(width: family == .systemSmall ? 34 : 52)
-                                    .background(Circle().stroke(Color.white, lineWidth: 4))
-                                    .background(DesignSystemAsset.gray700.swiftUIColor)
                                     .clipShape(Circle())
+                                    .background(Circle().stroke(Color.white, lineWidth: 2))
+                                    .background(DesignSystemAsset.gray700.swiftUIColor)
                                     .padding(.leading, 14)
                                     .padding(.top, 14)
                             }

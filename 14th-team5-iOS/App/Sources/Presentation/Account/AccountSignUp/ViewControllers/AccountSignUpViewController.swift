@@ -64,11 +64,11 @@ public final class AccountSignUpViewController: BasePageViewController<AccountSi
         
         let nicknamePage = AccountNicknameViewController(reactor: reactor)
         let datePage = AccountDateViewController(reactor: reactor)
-        let profilePage = AccountProfileViewController(reactor: reactor)
+//        let profilePage = AccountProfileViewController(reactor: reactor)
         
         pages.append(nicknamePage)
         pages.append(datePage)
-        pages.append(profilePage)
+//        pages.append(profilePage)
         
         view.addSubviews(descLabel, nextButton)
     }

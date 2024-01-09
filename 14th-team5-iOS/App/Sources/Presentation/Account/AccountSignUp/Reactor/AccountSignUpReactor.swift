@@ -121,7 +121,7 @@ extension AccountSignUpReactor {
             
         case .didTapCompletehButton:
             let date = getDateToString(year: currentState.year!, month: currentState.month, day: currentState.day)
-            return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: currentState.profilePresignedURL)
+            return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: nil)
                 .flatMap { tokenEntity -> Observable<Mutation> in
                     return Observable.just(Mutation.didTapCompletehButton(tokenEntity))
                 }

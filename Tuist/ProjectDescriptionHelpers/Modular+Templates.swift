@@ -63,6 +63,7 @@ extension Target {
                 infoPlist: factory.infoPlist,
                 sources: factory.products.isExtensions ? .widgetExtensionSources : .default,
                 resources: factory.products.isExtensions ? .widgetExtensionResources : .default,
+                entitlements: factory.entitlements, 
                 dependencies: factory.dependencies,
                 settings: factory.settings
             )

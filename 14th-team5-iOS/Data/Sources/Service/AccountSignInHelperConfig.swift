@@ -9,8 +9,8 @@ import Foundation
 import Domain
 
 struct AccountSignInHelperConfig: AccountSignInHelperConfigType {
-    let snsHelpers: [SNS: AccountSignInHelperType] = [
-        .apple: AppleSignInHelper(),
-        .kakao: KakaoSignInHelper()
+    let snsHelpers: [String: AccountSignInHelperType] = [
+        "APPLE": AppleSignInHelper(),
+        "KAKAO": KakaoSignInHelper()
     ]
 }

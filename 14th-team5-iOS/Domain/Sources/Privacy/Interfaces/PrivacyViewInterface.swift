@@ -16,4 +16,5 @@ public protocol PrivacyViewInterface: AnyObject {
     func fetchPrivacyItem() -> Observable<Array<String>>
     func fetchAuthorizationItem() -> Observable<Array<String>>
     func fetchBibbiAppVersion(parameter: Encodable) -> Observable<BibbiStoreInfoResponse>
+    func fetchAccountLogout() -> Observable<Void>
 }

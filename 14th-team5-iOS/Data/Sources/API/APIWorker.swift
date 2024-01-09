@@ -48,7 +48,7 @@ public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInter
     public func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) { 
         var urlRequest = urlRequest
         
-        guard urlRequest.url?.absoluteString.hasPrefix("https://dev.api.no5ing.kr/v1") == true else {
+        guard urlRequest.url?.absoluteString.hasPrefix(BibbiAPI.hostApi) == true else {
             completion(.success(urlRequest))
             return
         }
@@ -58,16 +58,12 @@ public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInter
             return
         }
     
-        print("App AccessToken: \(App.Repository.token.accessToken.value?.accessToken) \n App RefreshToken: \(App.Repository.token.accessToken.value?.refreshToken)")
         urlRequest.setValue(accessToken.isEmpty ? fakeToken : accessToken , forHTTPHeaderField: "X-AUTH-TOKEN")
         completion(.success(urlRequest))
-        print("check Adapter : \(urlRequest.headers)")
     }
     
     public func retry(_ request: Request, for session: Session, dueTo error: Error, completion: @escaping (RetryResult) -> Void) {
         
-        print("statusCode : \(request.response?.statusCode) check 좀 내놔 아아아아아아아앙아 이고 \(request.task?.response)")
-      
         guard let response = request.task?.response as? HTTPURLResponse, response.statusCode == 401 else {
             completion(.doNotRetryWithError(error))
             return
@@ -79,9 +75,9 @@ public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInter
             accountAPIWorker.accountRefreshToken(parameter: parameter)
                 .compactMap { $0?.toDomain() }
                 .asObservable()
-                .debug("account Refresh Token")
                 .subscribe(onNext: { entity in
-                    print("entity Test: \(entity)")
+                    let refreshToken = AccessToken(accessToken: entity.accessToken, refreshToken: entity.refreshToken, isTemporaryToken: entity.isTemporaryToken)
+                    App.Repository.token.accessToken.accept(refreshToken)
                     completion(.retry)
                 }, onError: { error in
                     completion(.doNotRetryWithError(error))

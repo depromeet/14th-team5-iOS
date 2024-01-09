@@ -158,14 +158,16 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         reactor.pulse(\.$profileMemberEntity)
             .filter { $0 != nil }
-            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .bind(onNext: { $0.0.dismissCameraViewController() } )
             .disposed(by: disposeBag)
         
-        reactor.state
-            .compactMap { $0.profileImageURLEntity }
-            .map { $0.imageURL }
+        Observable
+            .zip(
+                reactor.state.map { $0.profileImageURLEntity },
+                reactor.state.map { $0.cameraType }
+            ).filter { $0.1 == .account }
+            .map { $0.0 }
             .withUnretained(self)
             .subscribe(onNext: { owner, entity in
                 let userInfo: [AnyHashable: Any] = ["presignedURL": entity]

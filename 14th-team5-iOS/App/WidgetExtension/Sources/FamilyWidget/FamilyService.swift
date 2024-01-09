@@ -11,9 +11,8 @@ import Core
 
 struct FamilyService {
     func fetchInfo(completion: @escaping (Result<Family?, Error>) -> Void) {
-//        let token = "eyJyZWdEYXRlIjoxNzA0Njc1NDEwODk4LCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MifQ.eyJ1c2VySWQiOiIwMUhKQk5XWkdOUDFLSk5NS1dWWkowMzlIWSIsImV4cCI6MTcwNDc2MTgxMH0.cSf1uH8G-kVZS1dpf4eJwutoAlj2-oK-z05rIaSdtbk"
         
-        let token = App.Repository.token.accessToken.value?.accessToken
+        let token = App.Repository.token.keychain.string(forKey: "accessToken")
         let appKey = "9c61cc7b-0fe9-40eb-976e-6a74c8cb9092"
         let urlString = "https://dev.api.no5ing.kr/v1/widgets/single-recent-family-post"
         

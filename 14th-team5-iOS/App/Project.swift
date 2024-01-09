@@ -42,6 +42,7 @@ private let targets: [Target] = [
                     ]),
                 ]),
                 "KAKAO_LOGIN_API_KEY": .string("$(KAKAO_LOGIN_API_KEY)"),
+                "TEAM_ID": .string("$(TEAM_ID)"),
             ]),
             entitlements: .file(path: .relativeToRoot("App.entitlements"))
         )
@@ -55,7 +56,8 @@ private let targets: [Target] = [
             "NSExtension" : .dictionary([
                 "NSExtensionPointIdentifier": .string("com.apple.widgetkit-extension")
             ])
-        ])
+        ]),
+        entitlements: .file(path: .relativeToRoot("WidgetExtension.entitlements"))
     )
 )
 ]

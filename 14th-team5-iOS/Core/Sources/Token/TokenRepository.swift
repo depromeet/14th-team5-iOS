@@ -55,6 +55,8 @@ public extension String {
 }
 
 public class TokenRepository: RxObject {
+    public lazy var keychain = KeychainWrapper(serviceName: "Bibbi", accessGroup: "P9P4WJ623F.com.5ing.bibbi")
+    
     public let fcmToken = BehaviorRelay<String>(value: KeychainWrapper.standard[.fcmToken] ?? "")
     public let fakeAccessToken = BehaviorRelay<AccessToken?>(value: (KeychainWrapper.standard[.accessToken] as String?)?.decode(AccessToken.self))
     public let accessToken = BehaviorRelay<AccessToken?>(value: (KeychainWrapper.standard[.accessToken] as String?)?.decode(AccessToken.self))
@@ -104,6 +106,14 @@ public class TokenRepository: RxObject {
                     KeychainWrapper.standard.remove(forKey: .accessToken)
                     return
                 }
+                
+                if let jsonData = jsonStr.data(using: .utf8),
+                   let decodedUser = try? JSONDecoder().decode(AccessToken.self, from: jsonData) {
+                    self.keychain.set(decodedUser.accessToken ?? "fail", forKey: "accessToken")
+                } else {
+                    print("Failed to decode jsonStr or jsonStr is nil")
+                }
+                
                 KeychainWrapper.standard[.accessToken] = jsonStr
             }
             .disposed(by: disposeBag)

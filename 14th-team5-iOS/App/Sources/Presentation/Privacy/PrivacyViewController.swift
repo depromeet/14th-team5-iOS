@@ -223,7 +223,7 @@ extension PrivacyViewController {
         }
         
         [cancelAction, confirmAction].forEach(logoutAlertController.addAction(_:))
-        
+        logoutAlertController.overrideUserInterfaceStyle = .dark
         present(logoutAlertController, animated: true)
     }
     

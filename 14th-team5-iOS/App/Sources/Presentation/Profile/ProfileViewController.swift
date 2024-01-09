@@ -205,8 +205,19 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .compactMap { $0 }
             .map { $0.memberImage }
             .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
             .bind(onNext: { $0.0.setupProfileImage($0.1)})
             .disposed(by: disposeBag)
+        
+        
+        reactor.pulse(\.$profileMemberEntity)
+            .map { $0 }
+            .filter { $0?.memberImage == nil }
+            .map { _ in Void.self }
+            .withUnretained(self)
+            .bind(onNext: {$0.0.setupDefaultProfileImage()})
+            .disposed(by: disposeBag)
+
         
         profileView.profileNickNameButton
             .rx.tap
@@ -218,7 +229,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         
         reactor.state
             .map { $0.isUser }
-            .debug("isSetting Value")
             .distinctUntilChanged()
             .bind(to: profileView.rx.isSetting)
             .disposed(by: disposeBag)
@@ -295,8 +305,13 @@ extension ProfileViewController: UICollectionViewDelegateFlowLayout {
 
 
 extension ProfileViewController {
+    private func setupDefaultProfileImage() {
+        profileView.profileImageView.backgroundColor = DesignSystemAsset.gray800.color
+    }
+    
     private func setupProfileImage(_ url: URL) {
-        profileView.profileImageView.kf.setImage(with: url)
+        profileView.profileImageView.kf.indicatorType = .activity
+        profileView.profileImageView.kf.setImage(with: url, placeholder: nil, options: [.transition(.fade(0.5))], completionHandler: nil)
     }
     
     private func setupProfileButton(title: String) {
@@ -324,6 +339,7 @@ extension ProfileViewController {
         
         let presentAlbumAction: UIAlertAction = UIAlertAction(title: "앨범", style: .default) { _ in
             self.profilePickerController.modalPresentationStyle = .fullScreen
+            self.profilePickerController.overrideUserInterfaceStyle = .dark
             self.present(self.profilePickerController, animated: true)
         }
         
@@ -336,7 +352,7 @@ extension ProfileViewController {
         [presentCameraAction, presentAlbumAction, presentDefaultAction, presentCancelAction].forEach {
             alertController.addAction($0)
         }
-        
+        alertController.overrideUserInterfaceStyle = .dark
         owner.present(alertController, animated: true)
     }
     

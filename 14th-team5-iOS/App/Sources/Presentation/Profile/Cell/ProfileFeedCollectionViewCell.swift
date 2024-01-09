@@ -129,6 +129,7 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
 
 extension ProfileFeedCollectionViewCell {
     private func setupProfileFeedImage(_ url: URL) {
-        feedImageView.kf.setImage(with: url)
+        feedImageView.kf.indicatorType = .activity
+        feedImageView.kf.setImage(with: url, placeholder: nil, options: [.transition(.fade(0.5))], completionHandler: nil)
     }
 }

@@ -215,12 +215,11 @@ extension AccountResignViewCotroller {
         }
         
         let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
-            print("확인 Check")
             NotificationCenter.default.post(name: .UserAccountDeleted, object: nil, userInfo: nil)
         }
         
         [cancelAction, confirmAction].forEach(resignAlertController.addAction(_:))
-        
+        resignAlertController.overrideUserInterfaceStyle = .dark
         present(resignAlertController, animated: true)
     }
     

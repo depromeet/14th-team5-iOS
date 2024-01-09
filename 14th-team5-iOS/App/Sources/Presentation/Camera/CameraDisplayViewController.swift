@@ -431,7 +431,7 @@ extension CameraDisplayViewController {
         }
         
         [cancelAction,settingAction].forEach(permissionAlertController.addAction(_:))
-        
+        permissionAlertController.overrideUserInterfaceStyle = .dark
         present(permissionAlertController, animated: true)
     }
     

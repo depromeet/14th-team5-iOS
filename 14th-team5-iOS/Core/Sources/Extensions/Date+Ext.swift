@@ -35,10 +35,11 @@ extension Date {
         let relativeDateformatter: RelativeDateTimeFormatter = RelativeDateTimeFormatter()
         relativeDateformatter.unitsStyle = .full
         relativeDateformatter.locale = Locale(identifier: "ko_KR")
+        relativeDateformatter.calendar = .autoupdatingCurrent
         relativeDateformatter.dateTimeStyle = .named
         
         
-        let dateToString = relativeDateformatter.localizedString(for: Date(), relativeTo: self)
+        let dateToString = relativeDateformatter.localizedString(for: self, relativeTo: Date())
         let yearOfComponents = calendar.component(.year, from: self)
         let dateOfComponents = calendar.component(.year, from: .now)
         

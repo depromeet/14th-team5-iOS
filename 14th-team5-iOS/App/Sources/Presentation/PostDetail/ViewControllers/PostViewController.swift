@@ -28,6 +28,7 @@ final class PostViewController: BaseViewController<PostReactor> {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
         self.navigationController?.navigationBar.isHidden = true
     }
     
@@ -43,8 +44,8 @@ final class PostViewController: BaseViewController<PostReactor> {
         
         reactor.state
             .map { $0.selectedPost }
-            .asObservable()
             .withUnretained(self)
+            .observe(on: MainScheduler.instance)
             .bind(onNext: {
                 $0.0.setBackgroundView(data: $0.1)
             })
@@ -133,6 +134,9 @@ final class PostViewController: BaseViewController<PostReactor> {
             $0.showsVerticalScrollIndicator = false
             $0.showsHorizontalScrollIndicator = false
         }
+        
+        collectionView.layoutIfNeeded()
+        collectionView.scrollToItem(at: IndexPath(row: reactor?.currentState.selectedIndex ?? 1, section: 0), at: .centeredHorizontally, animated: false)
     }
 }
 
@@ -169,7 +173,7 @@ extension PostViewController {
     private func calculateCurrentPage(offset: CGPoint) -> Int {
         guard collectionView.frame.width > 0 else {
                return 0
-           }
+        }
         
         let width = collectionView.frame.width
         let currentPage = Int((offset.x + width / 2) / width)

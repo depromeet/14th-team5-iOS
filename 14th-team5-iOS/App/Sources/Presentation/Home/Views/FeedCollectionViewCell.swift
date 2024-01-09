@@ -14,8 +14,8 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
     static let id = "FeedCollectionViewCell"
     
     private let stackView = UIStackView()
-    private let nameLabel = BibbiLabel(.body2Regular, textColor: .gray200)
-    private let timeLabel = BibbiLabel(.caption, textColor: .gray400)
+    private let nameLabel = BibbiLabel(.body2Regular, alignment: .left, textColor: .gray200)
+    private let timeLabel = BibbiLabel(.caption, alignment: .right, textColor: .gray400)
     private let imageView = UIImageView()
     
     override func bind(reactor: HomeViewReactor) {
@@ -60,8 +60,8 @@ extension FeedCollectionViewCell {
             return
         }
         
-        nameLabel.text = data.author?.name
-        timeLabel.text = data.time
+        nameLabel.text = data.author?.name ?? "알 수 없음"
+        timeLabel.text = data.time.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter()
 
         imageView.kf.setImage(with: imageURL)
     }

@@ -43,11 +43,6 @@ extension Date {
         let yearOfComponents = calendar.component(.year, from: self)
         let dateOfComponents = calendar.component(.year, from: .now)
         
-        
-        print("year : \(yearOfComponents)")
-        print("date : \(dateOfComponents)")
-        
-        
         // 년도 비교 해서 다르면 yyyy mm dd로 표시
         if yearOfComponents != dateOfComponents {
             dateFormatter.dateFormat = "yyyy년 MM월 dd일"
@@ -60,7 +55,6 @@ extension Date {
                 dateFormatter.dateFormat = "MM월 dd일"
             }
         }
-        
 
         return dateFormatter.string(from: self)
     }

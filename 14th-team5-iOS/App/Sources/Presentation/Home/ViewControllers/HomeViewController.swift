@@ -22,7 +22,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
     private let familyCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let inviteFamilyView: UIView = InviteFamilyView()
     private let dividerView: UIView = UIView()
-    private let timerLabel: UILabel = BibbiLabel(.head1, alignment: .center)
+    private let timerLabel: BibbiLabel = BibbiLabel(.head1, alignment: .center)
     private let descriptionLabel: UILabel = BibbiLabel(.body2Regular, alignment: .center, textColor: .gray300)
     private let noPostTodayView: UIView = NoPostTodayView()
     private let postCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
@@ -61,15 +61,23 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .startWith(0)
             .map { [weak self] _ in
                 guard let self = self else { return HomeStrings.Timer.notTime }
-                guard let time = self.calculateRemainingTime().setTimerFormat() else {
+                let time = self.calculateRemainingTime()
+                guard let timeString = time.setTimerFormat() else {
                     self.hideCameraButton(true)
                     return HomeStrings.Timer.notTime
                 }
-                return time
+
+                if time <= 3600 && !reactor.currentState.didPost {
+                    self.timerLabel.textBibbiColor = .warningRed
+                    self.descriptionLabel.text = "시간이 얼마 남지 않았어요!"
+                }
+
+                return timeString
             }
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] time in
                 guard let self = self else { return }
+
                 self.timerLabel.text = time
             })
             .disposed(by: disposeBag)
@@ -106,7 +114,6 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             }.disposed(by: disposeBag)
         
         postCollectionView.rx.itemSelected
-//            .withUnretained(self)
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
             .bind(onNext: { [weak self] indexPath in
                 guard let self else { return }
@@ -140,6 +147,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         
         reactor.state
             .map { $0.descriptionText }
+            .distinctUntilChanged()
             .compactMap({$0})
             .observe(on: Schedulers.main)
             .bind(to: descriptionLabel.rx.text)
@@ -153,28 +161,29 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         
         reactor.state
             .map { $0.feedSections }
-            .asObservable()
+            .distinctUntilChanged()
             .bind(to: postCollectionView.rx.items(dataSource: createFeedDataSource()))
             .disposed(by: disposeBag)
         
         reactor.state
             .map { $0.isShowingInviteFamilyView }
-            .observe(on: Schedulers.main)
             .distinctUntilChanged()
+            .observe(on: Schedulers.main)
             .withUnretained(self)
             .bind(onNext: { $0.0.setFamilyInviteView($0.1) })
             .disposed(by: disposeBag)
         
         reactor.state
             .map { $0.isShowingNoPostTodayView }
-            .observe(on: MainScheduler.instance)
             .distinctUntilChanged()
+            .observe(on: MainScheduler.instance)
             .withUnretained(self)
             .bind(onNext: { $0.0.setNoPostTodayView($0.1) })
             .disposed(by: disposeBag)
         
         reactor.state
             .map { $0.inviteLink }
+            .distinctUntilChanged()
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
             .bind(onNext: {

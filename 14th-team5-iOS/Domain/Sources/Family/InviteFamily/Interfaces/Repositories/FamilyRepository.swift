@@ -12,6 +12,7 @@ import RxSwift
 public protocol FamilyRepositoryProtocol {
     var disposeBag: DisposeBag { get }
     
+    func createFamily() -> Observable<FamilyResponse?>
     func fetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?>
     func fetchFamilyMembers() -> Observable<PaginationResponseFamilyMemberProfile?>
 }

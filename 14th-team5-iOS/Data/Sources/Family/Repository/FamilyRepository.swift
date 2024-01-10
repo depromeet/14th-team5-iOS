@@ -16,14 +16,21 @@ public final class FamilyRepository: FamilyRepositoryProtocol {
     
     private let familyApiWorker: FamilyAPIWorker = FamilyAPIWorker()
     
-    private let familyId: String = App.Repository.member.familyId.value ?? ""
-    private let accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
+    private let familyId: String = App.Repository.member.familyId.value ?? "(가족ID 없음)"
+    private let accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? "(토큰 없음)"
     
     public init() { }
 }
 
 extension FamilyRepository {
+    public func createFamily() -> Observable<FamilyResponse?> {
+        return familyApiWorker.createFamily(token: accessToken)
+            .asObservable()
+    }
+    
     public func fetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?> {
+        debugPrint("= familyId: \(familyId)")
+        debugPrint("= accessToken: \(accessToken)")
         return familyApiWorker.fetchInvitationUrl(token: accessToken, familyId: familyId)
             .asObservable()
     }

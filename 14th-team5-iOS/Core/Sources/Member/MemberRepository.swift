@@ -23,7 +23,7 @@ public class MemberRepository: RxObject {
         
         familyId
             .withUnretained(self)
-            .bind(onNext: { $0.0.saveMemberId(with: $0.1) })
+            .bind(onNext: { $0.0.saveFamilyId(with: $0.1) })
             .disposed(by: disposeBag)
         
         inviteCode

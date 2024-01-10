@@ -67,6 +67,27 @@ extension FamilyAPIWorker: SearchFamilyRepository {
             .asSingle()
     }
     
+    private func createFamily(spec: APISpec, headers: [BibbiHeader]) -> Single<FamilyResponse?> {
+        return request(spec: spec, headers: headers)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Family Create Result: \(str)")
+                }
+            }
+            .map(FamilyResponseDTO.self)
+            .catchAndReturn(nil)
+            .map { $0?.toDomain() }
+            .asSingle()
+    }
+    
+    public func createFamily(token accessToken: String) -> Single<FamilyResponse?> {
+        let spec: APISpec = FamilyAPIs.createFamily.spec
+        let headers: [BibbiHeader] = [.acceptJson, .xAppKey, .xAuthToken(accessToken)]
+        
+        return createFamily(spec: spec, headers: headers)
+    }
+    
     private func fetchInvitationUrl(spec: APISpec, headers: [BibbiHeader]) -> Single<FamilyInvitationLinkResponse?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)

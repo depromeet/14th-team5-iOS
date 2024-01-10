@@ -10,11 +10,14 @@ import Foundation
 import Core
 
 public enum FamilyAPIs: API {
+    case createFamily
     case invitationUrl(String)
     case familyMembers(FamilySearchRequestDTO)
     
     var spec: APISpec {
         switch self {
+        case let .createFamily:
+            return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/me/create-family")
         case let .invitationUrl(familyId):
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/links/family/\(familyId)")
         case let .familyMembers(query):

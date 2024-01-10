@@ -14,12 +14,14 @@ import RxDataSources
 
 public final class HomeViewReactor: Reactor {
     public enum Action {
+        case viewDidLoad
         case getFamilyMembers
         case getTodayPostList
         case tapInviteFamily
     }
     
     public enum Mutation {
+        case setFamilyResponse(FamilyResponse?)
         case setLoading(Bool)
         case setDidPost
         case setDescriptionText(String)
@@ -34,6 +36,7 @@ public final class HomeViewReactor: Reactor {
     }
     
     public struct State {
+        var familyResponse: FamilyResponse?
         var familyInvitationLink: URL?
         var showLoading: Bool = true
         var didPost: Bool = false
@@ -74,6 +77,19 @@ extension HomeViewReactor {
     
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
+        case .viewDidLoad:
+            guard App.Repository.member.familyId.value == nil else {
+                return .empty()
+            }
+            
+            return familyUseCase.executeCreateFamily()
+                .map {
+                    guard let familyResponse: FamilyResponse = $0 else {
+                        return .setFamilyResponse(nil)
+                    }
+                    return .setFamilyResponse(familyResponse)
+                }
+                
         case .tapInviteFamily:
             return familyUseCase.executeFetchInvitationUrl()
                 .map {
@@ -90,7 +106,7 @@ extension HomeViewReactor {
                     guard let familyMembers else {
                         return Observable.just(Mutation.showInviteFamilyView)
                     }
-                    if familyMembers.members.isEmpty {
+                    if familyMembers.members.count == 1 {
                         return Observable.just(Mutation.showInviteFamilyView)
                     } else {
                         return Observable.just(.setFamilyCollectionView([
@@ -155,6 +171,10 @@ extension HomeViewReactor {
             newState.shouldPresentFetchFailureToastMessageView = true
         case let .setSharePanel(urlString):
             newState.familyInvitationLink = URL(string: urlString)
+        case let .setFamilyResponse(familyResponse):
+            App.Repository.member.familyId.accept(familyResponse?.familyId)
+            
+            newState.familyResponse = familyResponse
         }
         
         return newState

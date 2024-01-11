@@ -187,13 +187,14 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .bind(onNext: { $0.0.setNoPostTodayView($0.1) })
             .disposed(by: disposeBag)
         
-        reactor.state
-            .map { $0.familyInvitationLink }
-            .distinctUntilChanged()
-            .observe(on: MainScheduler.instance)
+        reactor.pulse(\.$familyInvitationLink)
+            .observe(on: Schedulers.main)
             .withUnretained(self)
             .bind(onNext: {
-                $0.0.makeInvitationUrlSharePanel($0.1, provider: reactor.provider)
+                $0.0.makeInvitationUrlSharePanel(
+                    $0.1,
+                    provider: reactor.provider
+                )
             })
             .disposed(by: disposeBag)
         
@@ -224,10 +225,10 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .withUnretained(self)
             .subscribe {
                 $0.0.makeBibbiToastView(
-                    text: "링크 불러오기 실패",
+                    text: "잠시 후에 다시 시도해주세요",
                     symbol: "exclamationmark.triangle.fill",
-                    palletteColors: [UIColor.systemRed],
-                    width: 190
+                    palletteColors: [UIColor.systemYellow],
+                    width: 230
                 )
             }
             .disposed(by: disposeBag)

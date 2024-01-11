@@ -132,18 +132,6 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
             .observe(on: Schedulers.main)
             .bind(onNext: { $0.0.validationButton($0.1) })
             .disposed(by: disposeBag)
-        
-        nextButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .map { Reactor.Action.didTapCompletehButton }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        reactor.state.map { $0.didTapCompletehButtonFinish }
-            .withUnretained(self)
-            .observe(on: Schedulers.main)
-            .bind(onNext: { $0.0.showNextPage(accessToken: $0.1) })
-            .disposed(by: disposeBag)
     }
     
     private func bindView() {
@@ -297,23 +285,6 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
 }
 
 fileprivate extension AccountDateViewController {
-    
-    private func showNextPage(accessToken: AccessTokenResponse?) {
-        
-        guard let accessToken = accessToken else { return }
-        
-        let token = accessToken.accessToken
-        let refreshToken = accessToken.refreshToken
-        let isTemporaryToken = accessToken.isTemporaryToken
-        
-        let tk = AccessToken(accessToken: token, refreshToken: refreshToken, isTemporaryToken: isTemporaryToken)
-        App.Repository.token.accessToken.accept(tk)
-        
-        let container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
-        container.modalPresentationStyle = .fullScreen
-        present(container, animated: false)
-    }
-    
     func validationYear(_ isValid: Bool) {
         errorStackView.isHidden = isValid
         yearInputFieldView.textColor = isValid ? DesignSystemAsset.gray200.color : DesignSystemAsset.warningRed.color

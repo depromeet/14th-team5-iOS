@@ -225,10 +225,10 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .withUnretained(self)
             .subscribe {
                 $0.0.makeBibbiToastView(
-                    text: "링크 불러오기 실패",
+                    text: "잠시 후에 다시 시도해주세요",
                     symbol: "exclamationmark.triangle.fill",
-                    palletteColors: [UIColor.systemRed],
-                    width: 190
+                    palletteColors: [UIColor.systemYellow],
+                    width: 220
                 )
             }
             .disposed(by: disposeBag)

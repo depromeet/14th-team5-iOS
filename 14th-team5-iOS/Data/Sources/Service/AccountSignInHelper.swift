@@ -82,12 +82,7 @@ extension AccountSignInHelper {
                 guard let token = token else {
                     return .failed
                 }
-                
-                if token.isTemporaryToken == false {
-                    App.Repository.token.accessToken.accept(token)
-                } else {
-                    App.Repository.token.fakeAccessToken.accept(token)
-                }
+                App.Repository.token.accessToken.accept(token)
                 
                 return .success
             }

@@ -13,7 +13,6 @@ import SwiftKeychainWrapper
 
 fileprivate extension KeychainWrapper.Key {
     static let fcmToken: KeychainWrapper.Key = "FCMToken"
-    static let fakeAccessToken: KeychainWrapper.Key = "fakeAccessToken"
     static let accessToken: KeychainWrapper.Key = "accessToken"
     static let refreshToken: KeychainWrapper.Key = "refreshToken"
 }
@@ -58,7 +57,6 @@ public class TokenRepository: RxObject {
     public lazy var keychain = KeychainWrapper(serviceName: "Bibbi", accessGroup: "P9P4WJ623F.com.5ing.bibbi")
     
     public let fcmToken = BehaviorRelay<String>(value: KeychainWrapper.standard[.fcmToken] ?? "")
-    public let fakeAccessToken = BehaviorRelay<AccessToken?>(value: (KeychainWrapper.standard[.accessToken] as String?)?.decode(AccessToken.self))
     public let accessToken = BehaviorRelay<AccessToken?>(value: (KeychainWrapper.standard[.accessToken] as String?)?.decode(AccessToken.self))
     public func clearAccessToken() {
         KeychainWrapper.standard.remove(forKey: .accessToken)
@@ -81,20 +79,6 @@ public class TokenRepository: RxObject {
             .map { $0.0 }
             .bind(onNext: { KeychainWrapper.standard[.fcmToken] = $0 })
             .disposed(by: self.disposeBag)
-        
-        fakeAccessToken
-            .distinctUntilChanged()
-            .subscribe(on: Schedulers.io)
-            .withUnretained(self)
-            .subscribe {
-                guard let jsonData = try? JSONEncoder().encode($0.1),
-                      let jsonStr = String(data: jsonData, encoding: .utf8) else {
-                    KeychainWrapper.standard.remove(forKey: .fakeAccessToken)
-                    return
-                }
-                KeychainWrapper.standard[.fakeAccessToken] = jsonStr
-            }
-            .disposed(by: disposeBag)
         
         accessToken
             .distinctUntilChanged()

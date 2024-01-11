@@ -52,13 +52,12 @@ public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInter
             completion(.success(urlRequest))
             return
         }
-        guard let accessToken = App.Repository.token.accessToken.value?.accessToken,
-              let fakeToken = App.Repository.token.fakeAccessToken.value?.accessToken else {
+        guard let accessToken = App.Repository.token.accessToken.value?.accessToken else {
             completion(.success(urlRequest))
             return
         }
     
-        urlRequest.setValue(accessToken.isEmpty ? fakeToken : accessToken , forHTTPHeaderField: "X-AUTH-TOKEN")
+        urlRequest.setValue(accessToken, forHTTPHeaderField: "X-AUTH-TOKEN")
         completion(.success(urlRequest))
     }
     

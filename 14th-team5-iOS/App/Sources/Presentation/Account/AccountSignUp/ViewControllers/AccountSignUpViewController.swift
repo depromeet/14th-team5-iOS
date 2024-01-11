@@ -57,6 +57,17 @@ public final class AccountSignUpViewController: BasePageViewController<AccountSi
             .withUnretained(self)
             .bind(onNext: { $0.0.createAlertController(owner: $0.0) })
             .disposed(by: disposeBag)
+        
+        NotificationCenter.default.rx
+            .notification(.PHPickerAssetsDidFinishPickingProcessingPhotoNotification)
+            .compactMap { notification -> Data? in
+                guard let userInfo = notification.userInfo else { return nil }
+                return userInfo["selectImage"] as? Data
+            }
+            .map{ Reactor.Action.didTapPHAssetsImage($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
     }
     
     public override func setupUI() {

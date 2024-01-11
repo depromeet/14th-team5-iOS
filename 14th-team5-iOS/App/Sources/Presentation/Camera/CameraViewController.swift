@@ -163,19 +163,16 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .disposed(by: disposeBag)
         
         
-        Observable
-            .zip(
-                reactor.pulse(\.$profileMemberEntity),
-                reactor.state.map { $0.memberId }.distinctUntilChanged()
-            ).filter { $0.1.isEmpty }
-            .compactMap { $0.0 }
-            .compactMap { (try Data(contentsOf: $0.memberImage), $0.memberImage.absoluteString) }
+        reactor.state
+            .map { ($0.accountImage, $0.profileImageURLEntity)}
+            .filter { $0.1 != nil }
             .withUnretained(self)
-            .subscribe { (owner, originEntity) in
-                let userInfo: [AnyHashable: Any] = ["presignedURL": originEntity.1, "originImage": originEntity.0]
+            .subscribe(onNext: { (owner, originEntity) in
+                let userInfo: [AnyHashable: Any] = ["presignedURL": originEntity.1?.imageURL, "originImage": originEntity.0]
                 NotificationCenter.default.post(name: .AccountViewPresignURLDismissNotification, object: nil, userInfo: userInfo)
                 owner.dismissCameraViewController()
-            }.disposed(by: disposeBag)
+            }).disposed(by: disposeBag)
+            
         
         shutterButton
             .rx.tap

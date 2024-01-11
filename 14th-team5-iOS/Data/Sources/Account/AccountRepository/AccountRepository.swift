@@ -26,6 +26,8 @@ public protocol AccountImpl: AnyObject {
     func appleLogin(with snsType: SNS, vc: UIViewController) -> Observable<APIResult>
     func executeNicknameUpdate(memberId: String, parameter: AccountNickNameEditParameter) -> Observable<AccountNickNameEditResponse>
     func signUp(name: String, date: String, photoURL: String?) -> Observable<AccessTokenResponse?>
+    func executePresignedImageURLCreate(parameter: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?>
+    func executeProfileImageUpload(to url: String, data: Data) -> Observable<Bool>
 }
 
 public final class AccountRepository: AccountImpl {
@@ -35,6 +37,7 @@ public final class AccountRepository: AccountImpl {
     
     let signInHelper = AccountSignInHelper()
     private let apiWorker = AccountAPIWorker()
+    private let profileWorker = ProfileAPIWorker()
     private let meApiWorekr = MeAPIWorker()
     
     private let signInResult = PublishRelay<APIResult>()
@@ -119,6 +122,18 @@ public final class AccountRepository: AccountImpl {
             .compactMap { $0?.toDomain() }
             .asObservable()
     }
+    
+    public func executePresignedImageURLCreate(parameter: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?> {
+        return profileWorker.createProfileImagePresingedURL(accessToken: accessToken, parameters: parameter)
+            .compactMap { $0?.toDomain() }
+            .asObservable()
+    }
+    
+    public func executeProfileImageUpload(to url: String, data: Data) -> Observable<Bool> {
+        return profileWorker.uploadToProfilePresingedURL(accessToken: accessToken, toURL: url, with: data)
+            .asObservable()
+    }
+    
     
     public init() {
         signInHelper.bind()

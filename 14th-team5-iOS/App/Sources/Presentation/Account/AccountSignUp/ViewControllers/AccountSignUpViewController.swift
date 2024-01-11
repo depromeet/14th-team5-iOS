@@ -106,7 +106,7 @@ extension AccountSignUpViewController {
     private func createAlertController(owner: AccountSignUpViewController) {
         let alertController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         let presentCameraAction: UIAlertAction = UIAlertAction(title: "카메라", style: .default) { _ in
-            let cameraViewController = CameraDIContainer(cameraType: .account).makeViewController()
+            let cameraViewController = CameraDIContainer(cameraType: .profile).makeViewController()
             owner.navigationController?.pushViewController(cameraViewController, animated: true)
         }
         let presentAlbumAction: UIAlertAction = UIAlertAction(title: "앨범", style: .default) { _ in

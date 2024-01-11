@@ -32,7 +32,7 @@ public final class AccountSignUpReactor: Reactor {
         
         case profileImageTapped // Action Sheet출력 하는 이벤트
         case didTapCompletehButton
-        case profilePresignedURL(String)
+        case profilePresignedURL(String, Data)
     }
     
     public enum Mutation {
@@ -47,6 +47,7 @@ public final class AccountSignUpReactor: Reactor {
         
         case profileImageTapped
         case setprofilePresignedURL(String)
+        case setprofileImage(Data)
         case didTapCompletehButton(AccessTokenResponse?)
     }
     
@@ -70,6 +71,7 @@ public final class AccountSignUpReactor: Reactor {
         
         var profilePresignedURL: String = ""
         var profileImageButtontapped: Bool = false
+        var profileImage: Data? = nil
         var didTapCompletehButtonFinish: AccessTokenResponse? = nil
     }
     
@@ -109,8 +111,11 @@ extension AccountSignUpReactor {
         case .profileImageTapped:
             return Observable.just(Mutation.profileImageTapped)
         
-        case let .profilePresignedURL(presignedURL):
-            return Observable.just(Mutation.setprofilePresignedURL(presignedURL))
+        case let .profilePresignedURL(presignedURL, originImage):
+            return .concat(
+                .just(.setprofilePresignedURL(presignedURL)),
+                .just(.setprofileImage(originImage))
+            )
         case let .didTapNickNameButton(nickName):
             let parameters: AccountNickNameEditParameter = AccountNickNameEditParameter(name: nickName)
             return accountRepository.executeNicknameUpdate(memberId: currentState.memberId, parameter: parameters)
@@ -121,7 +126,7 @@ extension AccountSignUpReactor {
             
         case .didTapCompletehButton:
             let date = getDateToString(year: currentState.year!, month: currentState.month, day: currentState.day)
-            return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: nil)
+            return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: currentState.profilePresignedURL)
                 .flatMap { tokenEntity -> Observable<Mutation> in
                     return Observable.just(Mutation.didTapCompletehButton(tokenEntity))
                 }
@@ -166,6 +171,8 @@ extension AccountSignUpReactor {
             newState.profilePresignedURL = url
         case .profileImageTapped:
             newState.profileImageButtontapped = true
+        case let .setprofileImage(profileImage):
+            newState.profileImage = profileImage
         case .didTapCompletehButton(let token):
             if let token = token {
                 newState.didTapCompletehButtonFinish = token

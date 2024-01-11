@@ -110,15 +110,11 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
         
         let container: UINavigationController
         
-        guard let isTemporaryToken = App.Repository.token.accessToken.value?.isTemporaryToken else {
+        if App.Repository.token.accessToken.value?.isTemporaryToken == true {
             container = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
             sceneDelegate.window?.rootViewController = container
             sceneDelegate.window?.makeKeyAndVisible()
             return
-        }
-        
-        if isTemporaryToken {
-            container = UINavigationController(rootViewController: AccountSignUpDIContainer().makeViewController())
         } else {
             if UserDefaults.standard.finishTutorial {
                 container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())

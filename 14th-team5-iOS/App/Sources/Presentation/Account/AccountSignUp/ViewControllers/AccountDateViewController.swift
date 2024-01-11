@@ -57,7 +57,7 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
             .text.orEmpty
             .distinctUntilChanged()
             .filter { $0.count <= 4 }
-            .compactMap { Int($0) }
+            .map { Int($0) }
         
         yearEditingChange
             .map { Reactor.Action.setYear($0) }
@@ -75,25 +75,22 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
         let monthEditingChange = monthInputFieldView.rx
             .text.orEmpty
             .distinctUntilChanged()
-            .filter { $0.count <= 2 }
-            .compactMap { Int($0) }
         
         monthEditingChange
+            .map { Int($0) }
             .map { Reactor.Action.setMonth($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         monthEditingChange
-            .withUnretained(self)
-            .map { $0.0.moveToNextDayField($0.1) }
-            .filter { $0 }
+            .filter { $0.count >= 2 }
             .withUnretained(self)
             .bind(onNext: { $0.0.dayInputFieldView.becomeFirstResponder() })
             .disposed(by: disposeBag)
         
-        dayInputFieldView.rx.text
+        dayInputFieldView.rx.text.orEmpty
             .distinctUntilChanged()
-            .compactMap { $0.flatMap { Int($0) } }
+            .map { Int($0) }
             .map { Reactor.Action.setDay($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -347,11 +344,10 @@ fileprivate extension AccountDateViewController {
 }
 
 fileprivate extension AccountDateViewController {
-    private func moveToNextMonthField(_ value: Int) -> Bool {
-        value >= 1000 ? true : false
-    }
-    
-    private func moveToNextDayField(_ value: Int) -> Bool {
-        value >= 10 ? true : false
+    private func moveToNextMonthField(_ value: Int?) -> Bool {
+        guard let value = value else {
+            return false
+        }
+        return value >= 1900 ? true : false
     }
 }

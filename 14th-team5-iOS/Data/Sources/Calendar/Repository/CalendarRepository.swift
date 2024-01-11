@@ -25,15 +25,16 @@ public final class CalendarRepository: CalendarRepositoryProtocol {
     
     private func bind() {
         App.Repository.member.familyId
+            .compactMap { $0 }
             .withUnretained(self)
-            .bind(onNext: { $0.0.familyId = $0.1 ?? "" })
+            .bind(onNext: { $0.0.familyId = $0.1 })
             .disposed(by: disposeBag)
         
         App.Repository.token.accessToken
+            .compactMap { $0?.accessToken }
             .withUnretained(self)
-            .bind(onNext: { $0.0.accessToken = $0.1?.accessToken ?? "" })
+            .bind(onNext: { $0.0.accessToken = $0.1 })
             .disposed(by: disposeBag)
-        
     }
 }
 

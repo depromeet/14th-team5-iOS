@@ -99,19 +99,29 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
     private func showNextPage(with member: MemberInfo?) {
         
         guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
+        let container: UINavigationController
         
         if let _ = member?.memberId {
             var container: UINavigationController
-            container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+            if UserDefaults.standard.finishTutorial {
+                container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+            } else {
+                container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
+            }
             sceneDelegate.window?.rootViewController = container
             sceneDelegate.window?.makeKeyAndVisible()
             return
         }
         
-        let container: UINavigationController
-        
-        if App.Repository.token.accessToken.value?.isTemporaryToken == true {
+        guard let isTemporary = App.Repository.token.accessToken.value?.isTemporaryToken else {
             container = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
+            sceneDelegate.window?.rootViewController = container
+            sceneDelegate.window?.makeKeyAndVisible()
+            return
+        }
+        
+        if isTemporary {
+            container = UINavigationController(rootViewController: AccountSignUpDIContainer().makeViewController())
             sceneDelegate.window?.rootViewController = container
             sceneDelegate.window?.makeKeyAndVisible()
             return

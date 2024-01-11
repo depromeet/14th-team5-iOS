@@ -12,7 +12,6 @@ import Data
 
 import ReactorKit
 
-
 public final class OnBoardingReactor: Reactor {
     
     public var initialState: State
@@ -58,7 +57,7 @@ extension OnBoardingReactor {
         var newState = state
         switch mutation {
         case .setPermissionStatus(let isPermissionGranted):
-            newState.isPermissionGranted = true
+            newState.isPermissionGranted = isPermissionGranted
         }
         return newState
     }

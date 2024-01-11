@@ -122,10 +122,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.pushAccountSingUpVC }
-            .distinctUntilChanged()
-            .filter { $0 }
-            .withLatestFrom(App.Repository.token.accessToken)
+        App.Repository.token.accessToken
             .observe(on: Schedulers.main)
             .withUnretained(self)
             .bind(onNext: { $0.0.showNextPage(token: $0.1) })
@@ -135,12 +132,15 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
 
 extension AccountSignInViewController {
     private func showNextPage(token: AccessToken?) {
-        if let _ = token {
-            let container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+        
+        guard let token = token, let isTemporaryToken = token.isTemporaryToken else { return }
+        
+        if isTemporaryToken {
+            let container = UINavigationController(rootViewController: AccountSignUpDIContainer().makeViewController())
             container.modalPresentationStyle = .fullScreen
             present(container, animated: false)
         } else {
-            let container = UINavigationController(rootViewController: AccountSignUpDIContainer().makeViewController())
+            let container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
             container.modalPresentationStyle = .fullScreen
             present(container, animated: false)
         }

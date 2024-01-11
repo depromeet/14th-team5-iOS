@@ -31,7 +31,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
     
     public override func viewDidLoad() {
         super.viewDidLoad()
-        print("AccessTokne 내놔 : \(App.Repository.token.accessToken.value?.accessToken) or refreshToken : \(App.Repository.token.accessToken.value?.refreshToken)")
+        
     }
     
     public override func viewWillAppear(_ animated: Bool) {

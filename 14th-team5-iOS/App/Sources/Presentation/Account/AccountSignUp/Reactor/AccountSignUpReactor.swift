@@ -25,9 +25,9 @@ public final class AccountSignUpReactor: Reactor {
         case didTapNicknameNextButton
         case didTapNickNameButton(String)
         
-        case setYear(Int)
-        case setMonth(Int)
-        case setDay(Int)
+        case setYear(Int?)
+        case setMonth(Int?)
+        case setDay(Int?)
         case didTapDateNextButton
         
         case profileImageTapped // Action Sheet출력 하는 이벤트
@@ -39,9 +39,9 @@ public final class AccountSignUpReactor: Reactor {
         case setNickname(String)
         case didTapNicknameNextButton
         
-        case setYearValue(Int)
-        case setMonthValue(Int)
-        case setDayValue(Int)
+        case setYearValue(Int?)
+        case setMonthValue(Int?)
+        case setDayValue(Int?)
         case didTapDateNextButton
         case setEditNickName(AccountNickNameEditResponse?)
         
@@ -134,18 +134,32 @@ extension AccountSignUpReactor {
         case .setNickname(let nickname):
             newState.nickname = nickname
             newState.isValidNickname = nickname.count <= 10
-            newState.isValidNicknameButton = nickname.count > 2
+            newState.isValidNicknameButton = nickname.count >= 1
         case .didTapNicknameNextButton:
             newState.nicknameButtonTappedFinish = true
         case .setYearValue(let year):
-            newState.year = year
-            newState.isValidYear = year < 2023
+            
+            if let year = year {
+                newState.year = year
+                newState.isValidYear = year < 2023
+            } else {
+                newState.isValidDay = false
+            }
+           
         case .setMonthValue(let month):
-            newState.month = month
-            newState.isValidMonth = month < 13
+            if let month = month {
+                newState.month = month
+                newState.isValidMonth = month < 13
+            } else {
+                newState.isValidMonth = false
+            }
         case .setDayValue(let day):
-            newState.day = day
-            newState.isValidDay = day < 31
+            if let day = day {
+                newState.day = day
+                newState.isValidDay = day < 31
+            } else {
+                newState.isValidDay = false
+            }
         case .didTapDateNextButton:
             newState.dateButtonTappedFinish = true
         case .setprofilePresignedURL(let url):
@@ -154,13 +168,6 @@ extension AccountSignUpReactor {
             newState.profileImageButtontapped = true
         case .didTapCompletehButton(let token):
             if let token = token {
-                
-//                let accessToken = token.accessToken
-//                let refreshToken = token.refreshToken
-//                let isTemporaryToken = token.isTemporaryToken
-//                
-//                let tk = AccessToken(accessToken: accessToken, refreshToken: refreshToken, isTemporaryToken: isTemporaryToken)
-//                App.Repository.token.accessToken.accept(tk)
                 newState.didTapCompletehButtonFinish = token
             }
         case let .setEditNickName(entity):

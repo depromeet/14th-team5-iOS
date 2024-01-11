@@ -50,7 +50,7 @@ extension CameraViewRepository: CameraViewInterface {
     
     public func fetchProfileImageURL(parameters: CameraDisplayImageParameters, type: UploadLocation) -> Observable<CameraDisplayImageResponse?> {
         
-        let accessToken = App.Repository.token.accessToken.value?.accessToken?.isEmpty ?? true ? App.Repository.token.fakeAccessToken.value?.accessToken ?? "" : App.Repository.token.accessToken.value?.accessToken ?? ""
+        let accessToken = App.Repository.token.accessToken.value?.accessToken ?? ""
         return cameraAPIWorker.createPresignedURL(accessToken: accessToken, parameters: parameters, type: type)
             .compactMap { $0?.toDomain() }
             .asObservable()

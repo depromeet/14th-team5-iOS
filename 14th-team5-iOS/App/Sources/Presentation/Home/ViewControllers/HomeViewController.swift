@@ -187,13 +187,14 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .bind(onNext: { $0.0.setNoPostTodayView($0.1) })
             .disposed(by: disposeBag)
         
-        reactor.state
-            .map { $0.familyInvitationLink }
-            .distinctUntilChanged()
-            .observe(on: MainScheduler.instance)
+        reactor.pulse(\.$familyInvitationLink)
+            .observe(on: Schedulers.main)
             .withUnretained(self)
             .bind(onNext: {
-                $0.0.makeInvitationUrlSharePanel($0.1, provider: reactor.provider)
+                $0.0.makeInvitationUrlSharePanel(
+                    $0.1,
+                    provider: reactor.provider
+                )
             })
             .disposed(by: disposeBag)
         

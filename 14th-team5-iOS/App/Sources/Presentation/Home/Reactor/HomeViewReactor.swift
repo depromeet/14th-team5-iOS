@@ -37,7 +37,7 @@ public final class HomeViewReactor: Reactor {
     
     public struct State {
         var familyResponse: FamilyResponse?
-        var familyInvitationLink: URL?
+        @Pulse var familyInvitationLink: URL?
         var showLoading: Bool = true
         var didPost: Bool = false
         var descriptionText: String = HomeStrings.Description.standard

@@ -16,10 +16,29 @@ public final class CalendarRepository: CalendarRepositoryProtocol {
     
     private let calendarApiWorker: CalendarAPIWorker = CalendarAPIWorker()
     
-    private let familyId: String = App.Repository.member.familyId.value ?? ""
-    private let accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
-    public init() { }
+    private var familyId: String = App.Repository.member.familyId.value ?? ""
+    private var accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
     
+    public init() {
+        bind()
+    }
+    
+    private func bind() {
+        App.Repository.member.familyId
+            .compactMap { $0 }
+            .withUnretained(self)
+            .bind(onNext: { $0.0.familyId = $0.1 })
+            .disposed(by: disposeBag)
+        
+        App.Repository.token.accessToken
+            .compactMap { $0?.accessToken }
+            .withUnretained(self)
+            .bind(onNext: { $0.0.accessToken = $0.1 })
+            .disposed(by: disposeBag)
+    }
+}
+
+extension CalendarRepository {
     public func fetchCalendarInfo(_ yearMonth: String) -> Observable<ArrayResponseCalendarResponse?> {
         return calendarApiWorker.fetchCalendarInfo(yearMonth, token: accessToken)
             .asObservable()

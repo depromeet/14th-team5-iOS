@@ -5,24 +5,27 @@ name: Bibbi
 
 on:
   push:
-    branches:
-      - develop
-      - feature/*
-      - fix/*
-      - refactor/*
+    tags:
+      - "v*"
       
-  pull_request:
-    branches: 
-      - develop
+
       
 jobs:
-  build:
-
+  appstore:
     runs-on: macos-latest
-
     steps:
     - uses: actions/checkout@v3
-    - name: Build
-      run: swift build -v
-    - name: Run tests
-      run: swift test -v
+    - uses: tuist/tuist-action@0.13.0 # Tuist clean 명령어 실행
+      with:
+        command: 'clean'
+    - uses: tuist/tuist-action@0.13.0 # Tuist Fetch 명령어 실행
+      with:
+        command: 'fetch'
+    - uses: tuist/tuist-action@0.13.0 # Tuist generate 명령어 실행
+      with:
+        command: 'generate'
+    - run: fastlane # fastalne 실행 명령여 추가
+      env:
+        APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} # APP_STORE CONNECT API KEY
+        APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }} # APP_STORE_CONNECT_API_ISSUER_ID
+        APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT}} #APP_STORE_CONNECT_API_KEY_CONTENT

@@ -5,27 +5,53 @@ name: Bibbi
 
 on:
   push:
+    branches:
+      - develop
+      - feature/*
     tags:
       - "v*"
-      
-
-      
-jobs:
-  appstore:
+  
+jobs:  
+  build:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3
+    - name: tuist clean command start or codecov
+    - uses: codecov/codecov-action@v3 # Codecov 실행
+    - name: Upload coverage reports to Codecov
+    - uses: codecov/codecov-action@v3
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - uses: tuist/tuist-action@0.13.0 # Tuist clean 명령어 실행
       with:
         command: 'clean'
     - uses: tuist/tuist-action@0.13.0 # Tuist Fetch 명령어 실행
+    - name: tuist fetch command start
       with:
         command: 'fetch'
     - uses: tuist/tuist-action@0.13.0 # Tuist generate 명령어 실행
+    - name: tuist generate command start
       with:
         command: 'generate'
+    - uses: tuist/tuist-action@0.13.0 # Tuist Build 📲
+    - name: tuist build command start
+      with:
+        command: 'build'
+        arguments: ''
+    - name: xcode build 🛠️
+      run: xcode Build
+        xcodebuild clean build -workspace "Bibbi.xcworkspace" -scheme "App" -destination "platform=iOS Simulator,name=iPhone 13 mini,OS=latest" -enabledCodeCoverage YES build test
+  deploy:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: fastlane deploy start
     - run: fastlane # fastalne 실행 명령여 추가
       env:
         APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} # APP_STORE CONNECT API KEY
         APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }} # APP_STORE_CONNECT_API_ISSUER_ID
         APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT}} #APP_STORE_CONNECT_API_KEY_CONTENT
+
+      
+      
+      

@@ -79,18 +79,14 @@ extension HomeViewReactor {
         switch action {
         case .viewDidLoad:
             guard App.Repository.member.familyId.value == nil else {
-                debugPrint("===== 이미 패밀리 아이디 있음!")
                 return .empty()
             }
             
             return familyUseCase.executeCreateFamily()
                 .map {
-                    debugPrint("===== 패밀리 아이디 없어서 새로 만듬!")
                     guard let familyResponse: FamilyResponse = $0 else {
-                        debugPrint("===== 패밀리 아이디 만들기 실패!!!!")
                         return .setFamilyResponse(nil)
                     }
-                    debugPrint("===== 패밀리 아이디 만들기 성공***")
                     return .setFamilyResponse(familyResponse)
                 }
                 

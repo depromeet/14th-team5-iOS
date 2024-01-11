@@ -255,7 +255,7 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
                     text: "잠시 후에 다시 시도해주세요",
                     symbol: "exclamationmark.triangle.fill",
                     palletteColors: [UIColor.systemYellow],
-                    width: 220
+                    width: 230
                 )
             }
             .disposed(by: disposeBag)

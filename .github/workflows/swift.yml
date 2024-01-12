@@ -17,8 +17,9 @@ jobs:
     steps:
       - name: Checkout branch
         uses: actions/checkout@v3
+        
       - name: Tuist Clean Command
-      - uses: tuist/tuist-action@0.13.0 
+        uses: tuist/tuist-action@0.13.0 
         with:
           command: 'clean'
           arguments: ''

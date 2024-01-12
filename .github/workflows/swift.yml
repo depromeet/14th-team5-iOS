@@ -35,10 +35,10 @@ jobs:
       - name: bibbi app scheme output # Bibbi App Scheme Output Code
         run: xcodebuild -list -workspace "Bibbi.xcworkspace"
       - name: xcode build App 🛠️ # Bibbi App Build
-        run: xcodebuild clean build -workspace "Bibbi.xcworkspace" -target "App" -destination "platform=iOS Simulator,name=iPhone 13 mini,OS=latest"
+        run: xcodebuild clean build -workspace "Bibbi.xcworkspace" -scheme "App" -destination "platform=iOS Simulator,name=iPhone 13 mini,OS=latest"
       
       - name: xcode build WidgetExtension 🛠️ # Bibbi Widget Build
-        run: xcodebuild clean build -workspace "Bibbi.xcworkspace" -target "WidgetExtension" -destination "platform=iOS Simulator,name=iPhone 13 mini,OS=latest"
+        run: xcodebuild clean build -workspace "Bibbi.xcworkspace" -scheme "WidgetExtension" -destination "platform=iOS Simulator,name=iPhone 13 mini,OS=latest"
      
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1.2.1

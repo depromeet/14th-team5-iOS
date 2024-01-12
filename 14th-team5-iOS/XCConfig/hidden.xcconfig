@@ -1,0 +1,5 @@
+OTHER_SWIFT_FLAGS[config=DEV][sdk=*] = $(inherited) -DDEV
+OTHER_SWIFT_FLAGS[config=PRD][sdk=*] = $(inherited) -DPRD
+
+KAKAO_API_KEY = kakaoef9633acbec7061b1f9e424206f4e4b8
+KAKAO_LOGIN_API_KEY = ef9633acbec7061b1f9e424206f4e4b8

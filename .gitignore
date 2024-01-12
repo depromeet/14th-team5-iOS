@@ -89,7 +89,6 @@ fastlane/test_output
 
 iOSInjectionProject/
 
-14th-team5-iOS/XCConfig/hidden.xcconfig
 
 ### Xcode Patch ###
 *.xcodeproj/*

@@ -78,17 +78,18 @@ extension HomeViewReactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewDidLoad:
-            guard App.Repository.member.familyId.value == nil else {
-                return .empty()
-            }
-            
-            return familyUseCase.executeCreateFamily()
-                .map {
-                    guard let familyResponse: FamilyResponse = $0 else {
-                        return .setFamilyResponse(nil)
-                    }
-                    return .setFamilyResponse(familyResponse)
-                }
+//            guard App.Repository.member.familyId.value == nil else {
+//                return .empty()
+//            }
+//            
+//            return familyUseCase.executeCreateFamily()
+//                .map {
+//                    guard let familyResponse: FamilyResponse = $0 else {
+//                        return .setFamilyResponse(nil)
+//                    }
+//                    return .setFamilyResponse(familyResponse)
+//                }
+            return Observable.empty()
                 
         case .tapInviteFamily:
             return familyUseCase.executeFetchInvitationUrl()

@@ -57,6 +57,17 @@ public final class AccountSignUpViewController: BasePageViewController<AccountSi
             .withUnretained(self)
             .bind(onNext: { $0.0.createAlertController(owner: $0.0) })
             .disposed(by: disposeBag)
+        
+        NotificationCenter.default.rx
+            .notification(.PHPickerAssetsDidFinishPickingProcessingPhotoNotification)
+            .compactMap { notification -> Data? in
+                guard let userInfo = notification.userInfo else { return nil }
+                return userInfo["selectImage"] as? Data
+            }
+            .map{ Reactor.Action.didTapPHAssetsImage($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
     }
     
     public override func setupUI() {
@@ -106,7 +117,7 @@ extension AccountSignUpViewController {
     private func createAlertController(owner: AccountSignUpViewController) {
         let alertController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         let presentCameraAction: UIAlertAction = UIAlertAction(title: "카메라", style: .default) { _ in
-            let cameraViewController = CameraDIContainer(cameraType: .account).makeViewController()
+            let cameraViewController = CameraDIContainer(cameraType: .profile).makeViewController()
             owner.navigationController?.pushViewController(cameraViewController, animated: true)
         }
         let presentAlbumAction: UIAlertAction = UIAlertAction(title: "앨범", style: .default) { _ in

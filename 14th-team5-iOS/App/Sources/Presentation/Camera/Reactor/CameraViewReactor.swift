@@ -30,6 +30,7 @@ public final class CameraViewReactor: Reactor {
         case setPosition(Bool)
         case setFlashMode(Bool)
         case setProfileS3Edit(Bool)
+        case setAccountProfileData(Data)
         case setProfileImageURLResponse(CameraDisplayImageResponse?)
         case setProfileMemberResponse(ProfileMemberResponse?)
     }
@@ -40,6 +41,7 @@ public final class CameraViewReactor: Reactor {
         @Pulse var isSwitchPosition: Bool
         @Pulse var profileImageURLEntity: CameraDisplayImageResponse?
         var cameraType: UploadLocation = .feed
+        var accountImage: Data?
         var memberId: String
         var isProfileEdit: Bool
         @Pulse var profileMemberEntity: ProfileMemberResponse?
@@ -58,6 +60,7 @@ public final class CameraViewReactor: Reactor {
             isSwitchPosition: false,
             profileImageURLEntity: nil,
             cameraType: cameraType,
+            accountImage: nil,
             memberId: memberId,
             isProfileEdit: false,
             profileMemberEntity: nil
@@ -88,19 +91,21 @@ public final class CameraViewReactor: Reactor {
                     .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
                         // presignedURL에 image Upload 이것도 역시 병렬 큐 사용
                         guard let presingedURL = entity?.imageURL else { return .empty() }
-                        
-                        if self.currentState.cameraType == .account {
-                            return .concat(
-                                .just(.setProfileImageURLResponse(entity)),
-                                .just(.setLoading(false))
-                            )
-                        }
-                        
+                                                
                         return owner.cameraUseCase.executeProfileUploadToS3(toURL: presingedURL, imageData: fileData)
                             .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                             .asObservable()
                             .flatMap { isSuccess -> Observable<CameraViewReactor.Mutation> in
                                 guard let profilePresingedURL = entity?.imageURL else { return .empty() }
+                                
+                                if owner.memberId.isEmpty {
+                                    return .concat(
+                                        .just(.setProfileImageURLResponse(entity)),
+                                        .just(.setAccountProfileData(fileData)),
+                                        .just(.setLoading(false))
+                                    )
+                                }
+                                
                                 // 최종 Member Entity API 호출 작업 병렬 큐 사용 -> 사용 안하니 로딩 속도 느림
                                 let originalURL = owner.configureProfileOriginalS3URL(url: profilePresingedURL, with: .profile)
                                 let profileImageEditParameter: ProfileImageEditParameter = ProfileImageEditParameter(profileImageUrl: originalURL)
@@ -137,13 +142,12 @@ public final class CameraViewReactor: Reactor {
             newState.isFlashMode = isFlash
         case let .setProfileImageURLResponse(entity):
             newState.profileImageURLEntity = entity
-            print("newState profileimageURL: \(newState.profileImageURLEntity)")
         case let .setProfileS3Edit(isProfileEdit):
             newState.isProfileEdit = isProfileEdit
-            print("newState isProfileEdit: \(newState.isProfileEdit)")
         case let .setProfileMemberResponse(entity):
             newState.profileMemberEntity = entity
-            print("newState profileMemberEnity: \(newState.profileMemberEntity)")
+        case let .setAccountProfileData(accountImage):
+            newState.accountImage = accountImage
         }
         
         return newState

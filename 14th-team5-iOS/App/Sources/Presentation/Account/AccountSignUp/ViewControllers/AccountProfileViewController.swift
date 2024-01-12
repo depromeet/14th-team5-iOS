@@ -51,11 +51,15 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
         
         NotificationCenter.default.rx
             .notification(.AccountViewPresignURLDismissNotification)
-            .compactMap { notification -> String? in
-                guard let userInfo = notification.userInfo else { return nil }
-                return userInfo["presignedURL"] as? String
+            .compactMap { notification -> (String, Data)? in
+                guard let userInfo = notification.userInfo,
+                      let presignedURL = userInfo["presignedURL"] as? String,
+                      let originImage = userInfo["originImage"] as? Data else { return nil
+                }
+                
+                return (presignedURL, originImage)
             }
-            .map { Reactor.Action.profilePresignedURL($0)}
+            .map { Reactor.Action.profilePresignedURL($0.0, $0.1)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
@@ -67,11 +71,18 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
             .bind(onNext: { $0.0.setProfilewView(with: $0.1) })
             .disposed(by: disposeBag)
         
+        reactor.state.compactMap { $0.profileImage }
+            .map { UIImage(data: $0) }
+            .debug("ProfileView Account Bind")
+            .bind(to: profileView.rx.image)
+            .disposed(by: disposeBag)
+        
         reactor.state.map { $0.didTapCompletehButtonFinish }
             .withUnretained(self)
             .observe(on: Schedulers.main)
             .bind(onNext: { $0.0.showNextPage(accessToken: $0.1) })
             .disposed(by: disposeBag)
+
     }
     
     override func setupUI() {

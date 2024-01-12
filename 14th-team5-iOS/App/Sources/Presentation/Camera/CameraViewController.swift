@@ -162,19 +162,17 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .bind(onNext: { $0.0.dismissCameraViewController() } )
             .disposed(by: disposeBag)
         
-        Observable
-            .zip(
-                reactor.state.map { $0.profileImageURLEntity },
-                reactor.state.map { $0.cameraType }
-            ).filter { $0.1 == .account }
-            .map { $0.0 }
+        
+        reactor.state
+            .map { ($0.accountImage, $0.profileImageURLEntity)}
+            .filter { $0.1 != nil }
             .withUnretained(self)
-            .subscribe(onNext: { owner, entity in
-                let userInfo: [AnyHashable: Any] = ["presignedURL": entity]
+            .subscribe(onNext: { (owner, originEntity) in
+                let userInfo: [AnyHashable: Any] = ["presignedURL": originEntity.1?.imageURL, "originImage": originEntity.0]
                 NotificationCenter.default.post(name: .AccountViewPresignURLDismissNotification, object: nil, userInfo: userInfo)
                 owner.dismissCameraViewController()
             }).disposed(by: disposeBag)
-        
+            
         
         shutterButton
             .rx.tap
@@ -373,7 +371,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
     public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         guard let photoData = photo.fileDataRepresentation(),
         let imageData = UIImage(data: photoData)?.jpegData(compressionQuality: 1.0) else { return }
-        if self.reactor?.cameraType == .profile || self.reactor?.cameraType == .account {
+        if self.reactor?.cameraType == .profile  {
             output.photoOutputDidFinshProcessing(photo: imageData, error: error)
         } else {
             let cameraDisplayViewController = CameraDisplayDIContainer(displayData: imageData).makeViewController()

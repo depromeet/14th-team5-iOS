@@ -23,7 +23,7 @@ public enum MeAPIs: API {
         case .memberInfo:
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/me/member-info")
         case .joinFamily:
-            return APISpec(method: .post, url:  "\(BibbiAPI.hostApi)/me/join-family")
+            return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/me/join-family")
         }
     }
     

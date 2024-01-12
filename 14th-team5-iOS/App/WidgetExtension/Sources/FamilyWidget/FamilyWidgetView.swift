@@ -83,9 +83,10 @@ struct FamilyWidgetView: View {
                                     .font(family == .systemSmall ? DesignSystemFontFamily.Pretendard.semiBold.swiftUIFont(size: 16) : DesignSystemFontFamily.Pretendard.semiBold.swiftUIFont(size: 18))
                                     .frame(height: family == .systemSmall ? 34 : 52)
                                     .frame(width: family == .systemSmall ? 34 : 52)
+                                    .foregroundColor(.white)
                                     .background(Circle().stroke(Color.white, lineWidth: 4))
-                                    .clipShape(Circle())
                                     .background(DesignSystemAsset.gray700.swiftUIColor)
+                                    .clipShape(Circle())
                                     .padding(.leading, 14)
                                     .padding(.top, 14)
                             }

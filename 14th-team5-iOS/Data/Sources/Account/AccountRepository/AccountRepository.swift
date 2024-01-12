@@ -37,7 +37,8 @@ public final class AccountRepository: AccountImpl {
     private let apiWorker = AccountAPIWorker()
     private let meApiWorekr = MeAPIWorker()
     
-    private let signInResult = PublishRelay<APIResult>()
+    private let fetchMemberInfo = PublishRelay<Void>()
+    private let signUpFinished = PublishRelay<Void>()
     
     public func kakaoLogin(with snsType: SNS, vc: UIViewController) -> Observable<APIResult> {
         return Observable.create { observer in
@@ -76,13 +77,19 @@ public final class AccountRepository: AccountImpl {
         meApiWorekr.fetchMemberInfo()
             .asObservable()
             .withUnretained(self)
-            .bind(onNext: { $0.0.joinFamily(inviteCode: UserDefaults.standard.inviteCode) })
+            .bind(onNext: {
+                let memberInfo = $0.1
+                print("member Info: \(memberInfo?.memberId)")
+            })
             .disposed(by: disposeBag)
     }
     
     // MARK: 링크가입 사용자 -> 가입 이후 가족가입
     private func joinFamily(inviteCode: String?) {
         guard let inviteCode else { return }
+        
+        print("inviteCode: \(inviteCode)")
+        
         meApiWorekr.joinFamily(with: inviteCode)
             .asObservable()
             .withUnretained(self)
@@ -99,7 +106,8 @@ public final class AccountRepository: AccountImpl {
                         let tk = AccessToken(accessToken: token.accessToken, refreshToken: token.refreshToken, isTemporaryToken: token.isTemporaryToken)
                         App.Repository.token.accessToken.accept(tk)
                         
-                        self.fetchMember()
+                        self.fetchMemberInfo.accept(())
+                        self.signUpFinished.accept(())
                         
                         observer.onNext(token)
                         observer.onCompleted()
@@ -122,5 +130,15 @@ public final class AccountRepository: AccountImpl {
     
     public init() {
         signInHelper.bind()
+        
+        fetchMemberInfo
+            .withUnretained(self)
+            .bind(onNext: { $0.0.fetchMember() })
+            .disposed(by: disposeBag)
+        
+        signUpFinished
+            .withUnretained(self)
+            .bind(onNext: { $0.0.joinFamily(inviteCode: UserDefaults.standard.inviteCode) })
+            .disposed(by: disposeBag)
     }
 }

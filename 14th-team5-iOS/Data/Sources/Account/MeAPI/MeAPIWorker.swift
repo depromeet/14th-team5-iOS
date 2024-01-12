@@ -125,11 +125,12 @@ extension MeAPIWorker: MeRepositoryProtocol {
     }
     
     private func joinFamily(spec: APISpec, headers: [APIHeader]?, jsonEncodable: Encodable) -> Single<FamilyInfo?> {
-        return request(spec: spec, headers: headers)
+        
+        return request(spec: spec, headers: headers, jsonEncodable: jsonEncodable)
             .subscribe(on: Self.queue)
             .do(onNext: {
                 if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("getFamilyInfo result : \(str)")
+                    debugPrint("Join Family result : \(str)")
                 }
             })
             .map(FamilyInfo.self)
@@ -138,6 +139,7 @@ extension MeAPIWorker: MeRepositoryProtocol {
     }
     
     public func joinFamily(with inviteCode: String) -> Single<FamilyInfo?> {
+        
         let payload = _PayLoad.FamilyPayload(inviteCode: inviteCode)
         let spec = MeAPIs.joinFamily.spec
         

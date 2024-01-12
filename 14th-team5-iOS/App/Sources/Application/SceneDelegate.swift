@@ -29,11 +29,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
               userActivity.activityType == NSUserActivityTypeBrowsingWeb,
               let incomingURL = userActivity.webpageURL,
               let components = NSURLComponents(url: incomingURL, resolvingAgainstBaseURL: true) else {
+
+            
+            print(" 여기얌 !! \(App.Repository.token.accessToken.value?.accessToken)")
+            App.Repository.token.accessToken.accept(nil)
             
             window = UIWindow(windowScene: scene)
             window?.rootViewController = UINavigationController(rootViewController: SplashDIContainer().makeViewController())
             window?.makeKeyAndVisible()
-            
+
             return
         }
         

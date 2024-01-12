@@ -54,7 +54,7 @@ extension JoinFamilyReactor {
                     return Observable.just(Mutation.setShowHome(true))
                 }
         case .joinFamily:
-            return Observable.empty()
+            return Observable.just(Mutation.setShowJoineFamily(true))
         }
     }
     
@@ -62,10 +62,10 @@ extension JoinFamilyReactor {
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
-        case .setShowHome(_):
-            break
-        case .setShowJoineFamily(_):
-            break
+        case let .setShowHome(isShow):
+            newState.isShowHome = isShow
+        case let .setShowJoineFamily(isShow):
+            newState.isShowJoinFamily = isShow
         }
         return newState
     }

@@ -8,5 +8,9 @@
 import Foundation
 
 public struct JoinFamilyRequest {
-    let familyId: String
+    public let inviteCode: String
+    
+    public init(inviteCode: String) {
+        self.inviteCode = inviteCode
+    }
 }

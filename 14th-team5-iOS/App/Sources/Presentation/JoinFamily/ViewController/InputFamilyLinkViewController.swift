@@ -102,12 +102,23 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
     
     private func bindOutput(reactor: InputFamilyLinkReactor) {
         reactor.state
-            .map { $0.statusJoinFamily }
-            .distinctUntilChanged()
+            .map { $0.isShowHome }
             .filter { $0 }
+            .distinctUntilChanged()
             .withUnretained(self)
             .bind(onNext: {
                 $0.0.showHomeViewController()
+            })
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.linkString }
+            .filter { !$0.isEmpty }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .bind(onNext: {
+                $0.0.joinFamilyButton.isEnabled = true
+                $0.0.joinFamilyButton.backgroundColor = .mainGreen
             })
             .disposed(by: disposeBag)
     }
@@ -115,6 +126,7 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
 
 extension InputFamilyLinkViewController {
     private func showHomeViewController() {
-        
+        let homeViewController = HomeDIContainer().makeViewController()
+        self.navigationController?.pushViewController(homeViewController, animated: true)
     }
 }

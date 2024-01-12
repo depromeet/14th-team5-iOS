@@ -130,7 +130,7 @@ extension JoinFamilyViewController {
     }
     
     private func showInputLinkViewController(_ isShow: Bool) {
-        guard isShow else { return}
+        guard isShow else { return }
         
         let inputFamilyLinkViewController = InputFamilyLinkDIContainer().makeViewController()
         self.navigationController?.pushViewController(inputFamilyLinkViewController, animated: true)

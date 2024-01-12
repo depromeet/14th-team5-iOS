@@ -12,29 +12,34 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: tuist clean command start or codecov
-      run: echo "tuist clean command start or codecov"
-    - uses: codecov/codecov-action@v3
-    - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v3
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-    - uses: tuist/tuist-action@0.13.0
-      with:
-        command: 'clean'
-    - uses: tuist/tuist-action@0.13.0
-      with:
-        command: 'fetch'
-    - uses: tuist/tuist-action@0.13.0
-      with:
-        command: 'generate'
-    - uses: tuist/tuist-action@0.13.0
-      with:
-        command: 'build'
-        arguments: ''
-    - name: xcode build 🛠️
-      run: xcodebuild clean build -workspace "Bibbi.xcworkspace" -scheme "App" -destination "platform=iOS Simulator,name=iPhone 13 mini,OS=latest" -enabledCodeCoverage YES build test
+      - name: Checkout branch
+        uses: actions/checkout@v3
+
+      - name: Tuist Clean Command
+        uses: tuist/tuist-action@0.13.0
+        with:
+          subcommand: 'clean'
+          arguments: ''
+
+      - name: Tuist Fetch Command
+        uses: tuist/tuist-action@0.13.0 
+        with:
+          subcommand: 'fetch'
+          arguments: ''
+
+      - name: Tuist Generate Command
+        uses: tuist/tuist-action@0.13.0 
+        with:
+          subcommand: 'generate'
+          arguments: ''
+
+      - name: xcode build 🛠️
+        run: xcodebuild clean build -workspace "Bibbi.xcworkspace" -scheme "App" -destination "platform=iOS Simulator,name=iPhone 13 mini,OS=latest" -enabledCodeCoverage YES build test
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1.2.1
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   deploy:
     runs-on: macos-latest
     steps:

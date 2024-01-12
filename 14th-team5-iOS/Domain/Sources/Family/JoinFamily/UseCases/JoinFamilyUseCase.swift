@@ -11,7 +11,7 @@ import RxSwift
 
 public protocol JoinFamilyUseCaseProtocol {
     /// joinFamily
-    func execute(body: JoinFamilyRequest) -> Single<Void?>
+    func execute(body: JoinFamilyRequest) -> Single<JoinFamilyData?>
 }
 
 public class JoinFamilyUseCase: JoinFamilyUseCaseProtocol {
@@ -21,7 +21,7 @@ public class JoinFamilyUseCase: JoinFamilyUseCaseProtocol {
         self.joinFamilyRepository = joinFamilyRepository
     }
     
-    public func execute(body: JoinFamilyRequest) -> Single<Void?> {
+    public func execute(body: JoinFamilyRequest) -> Single<JoinFamilyData?> {
         return joinFamilyRepository.joinFamily(body: body)
     }
 }

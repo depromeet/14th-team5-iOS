@@ -16,12 +16,12 @@ final class InputFamilyLinkDIContainer {
         return InputFamilyLinkViewController(reactor: makeReactor())
     }
     
-    public func makeUsecase() -> InviteFamilyViewUseCaseProtocol {
-        return InviteFamilyViewUseCase(familyRepository: makeRepository())
+    public func makeUsecase() -> JoinFamilyUseCaseProtocol {
+        return JoinFamilyUseCase(joinFamilyRepository: makeRepository())
     }
     
-    public func makeRepository() -> FamilyRepositoryProtocol {
-        return FamilyRepository()
+    public func makeRepository() -> JoinFamilyRepository {
+        return MeAPIs.Worker()
     }
     
     public func makeReactor() -> InputFamilyLinkReactor {

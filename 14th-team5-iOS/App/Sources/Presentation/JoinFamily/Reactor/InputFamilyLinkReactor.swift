@@ -21,21 +21,22 @@ public final class InputFamilyLinkReactor: Reactor {
     // MARK: - Mutate
     public enum Mutation {
         case setLinkString(String)
-        case setJoinFamily
+        case setShowHome(Bool)
+        case setToastMessage(String)
     }
     
     // MARK: - State
     public struct State {
         var linkString: String = ""
-        var statusJoinFamily: Bool = false
+        var isShowHome: Bool = false
         var showToastMessage: String = ""
     }
     
     // MARK: - Properties
     public let initialState: State
-    private let familyUseCase: InviteFamilyViewUseCaseProtocol
+    private let familyUseCase: JoinFamilyUseCaseProtocol
     
-    init(initialState: State, familyUseCase: InviteFamilyViewUseCaseProtocol) {
+    init(initialState: State, familyUseCase: JoinFamilyUseCaseProtocol) {
         self.initialState = initialState
         self.familyUseCase = familyUseCase
     }
@@ -46,10 +47,31 @@ extension InputFamilyLinkReactor {
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .inputLink:
-            return Observable.empty()
+        case let .inputLink(link):
+            return Observable.just(Mutation.setLinkString(link))
         case .tapJoinFamily:
-            return Observable.empty()
+            
+            let urlString = currentState.linkString
+
+            guard let firstIndex = urlString.lastIndex(of: "/") else {
+                return Observable.just(Mutation.setToastMessage("링크 형식이 맞지 않습니다."))
+            }
+
+            let endIndex = urlString.endIndex
+            let afterSlashIndex = urlString.index(after: firstIndex)
+            let result = urlString[afterSlashIndex..<endIndex]
+            // result 가 invite 코드거든?
+            let request = JoinFamilyRequest(inviteCode: String(result))
+            
+            return familyUseCase.execute(body: request)
+                .asObservable()
+                .flatMap { joinFamilyData in
+                    guard let joinFamilyData else {
+                        return Observable.just(Mutation.setShowHome(false))
+                    }
+                    
+                    return Observable.just(Mutation.setShowHome(true))
+                }
         }
     }
     
@@ -57,10 +79,12 @@ extension InputFamilyLinkReactor {
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
-        case .setLinkString(_):
-            break
-        case .setJoinFamily:
-            break
+        case let .setLinkString(link):
+            newState.linkString = link
+        case let .setShowHome(isShow):
+            newState.isShowHome = isShow
+        case let .setToastMessage(message):
+            newState.showToastMessage = message
         }
         return newState
     }

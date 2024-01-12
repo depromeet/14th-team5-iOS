@@ -9,5 +9,5 @@ import Foundation
 import RxSwift
 
 public protocol JoinFamilyRepository {
-    func joinFamily(body: JoinFamilyRequest) -> Single<Void?>
+    func joinFamily(body: JoinFamilyRequest) -> Single<JoinFamilyData?>
 }

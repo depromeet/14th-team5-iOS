@@ -136,8 +136,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             })
             .disposed(by: disposeBag)
         
-        cameraButton
-            .rx.tap
+        cameraButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind { owner, _ in
@@ -238,7 +237,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         super.setupUI()
         
         view.addSubviews(navigationBarView, familyCollectionView, dividerView, timerLabel, descriptionLabel,
-                         postCollectionView, balloonView, cameraButton)
+                         postCollectionView, noPostTodayView, balloonView, cameraButton)
     }
     
     public override func setupAutoLayout() {
@@ -291,6 +290,12 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         cameraButton.snp.makeConstraints {
             $0.size.equalTo(HomeAutoLayout.CamerButton.size)
             $0.centerX.equalToSuperview()
+            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+        }
+        
+        noPostTodayView.snp.makeConstraints {
+            $0.top.equalTo(descriptionLabel.snp.bottom).offset(HomeAutoLayout.NoPostTodayView.topOffset)
+            $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
         }
     }
@@ -348,6 +353,10 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             $0.backgroundColor = .clear
         }
         
+        noPostTodayView.do {
+            $0.isHidden = true
+        }
+        
         balloonView.do {
             $0.text = "하루에 한번 사진을 올릴 수 있어요"
         }
@@ -376,16 +385,10 @@ extension HomeViewController {
     
     private func setNoPostTodayView(_ isShow: Bool) {
         if isShow {
-            view.addSubview(noPostTodayView)
+            noPostTodayView.isHidden = !isShow
             postCollectionView.isHidden = isShow
-            
-            noPostTodayView.snp.makeConstraints {
-                $0.top.equalTo(descriptionLabel.snp.bottom).offset(HomeAutoLayout.NoPostTodayView.topOffset)
-                $0.horizontalEdges.equalToSuperview()
-                $0.bottom.equalTo(view.safeAreaLayoutGuide)
-            }
         } else {
-            noPostTodayView.removeFromSuperview()
+            noPostTodayView.isHidden = !isShow
         }
     }
 

@@ -40,8 +40,9 @@ jobs:
           command: 'build'
           arguments: ''
       
-      # - name: bibbi app scheme output # Bibbi App Scheme Output Code
-      #   run: xcodebuild -list -workspace "Bibbi.xcworkspace"
+      
+      - name: bibbi app scheme output # Bibbi App Scheme Output Code
+        run: xcodebuild -list -workspace "Bibbi.xcworkspace"
         
       # - name: xcode build App 🛠️ # Bibbi App Build
       #   run: xcodebuild clean build -workspace "Bibbi.xcworkspace" -scheme "${{ matrix.xcodebuild-scheme }}" -destination "platform=iOS Simulator,name=iPhone 13 mini,OS=latest"

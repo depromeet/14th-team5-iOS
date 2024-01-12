@@ -50,11 +50,11 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         postCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
-        Observable<Void>.just(())
-            .take(1)
-            .map { Reactor.Action.viewDidLoad }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
+//        Observable<Void>.just(())
+//            .take(1)
+//            .map { Reactor.Action.viewDidLoad }
+//            .bind(to: reactor.action)
+//            .disposed(by: disposeBag)
         
         Observable.concat (
             Observable.just(()).map { Reactor.Action.getFamilyMembers },

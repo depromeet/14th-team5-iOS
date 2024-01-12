@@ -34,7 +34,7 @@ jobs:
           arguments: ''
 
       - name: xcode build 🛠️
-        run: xcodebuild clean build -workspace "Bibbi.xcworkspace" -scheme "App" -destination "platform=iOS Simulator,name=iPhone 13 mini,OS=latest"
+        run: xcodebuild clean build -workspace "Bibbi.xcworkspace" -allTargets -destination "platform=iOS Simulator,name=iPhone 13 mini,OS=latest"
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1.2.1
         env:

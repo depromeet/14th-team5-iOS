@@ -40,13 +40,13 @@ jobs:
         uses: codecov/codecov-action@v1.2.1
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  deploy:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: fastlane deploy start
-      run: echo "fastlane deploy start"
-      env:
-        APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-        APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
-        APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+  # deploy:
+  #   runs-on: macos-latest
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: fastlane deploy start
+  #     run: echo "fastlane deploy start"
+  #     env:
+  #       APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+  #       APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+  #       APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}

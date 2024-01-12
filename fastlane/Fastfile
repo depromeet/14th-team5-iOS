@@ -1,0 +1,218 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+#✅ 상수
+APP_NAME = ENV["APP_NAME"]
+WIDGET_NAME = ENV["WIDGET_NAME"]
+
+PRD_SCHEME = ENV["PRD_SCHEME"]
+DEV_SCHEME = ENV["DEV_SCHEME"]
+BUNDLE_ID = ENV["BUNDLE_ID"]
+WIDGET_BUNDLE_ID = ENV["WIDGET_BUNDLE_ID"]
+
+APP_STORE_CONNECT_KEY_ID = ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"]
+APP_STORE_CONNECT_ISSUER_ID = ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"]
+APP_STORE_CONNECT_API_KEY = ENV["APP_STORE_CONNECT_API_KEY_KEY"]
+
+KEYCHAIN_NAME = ENV["KEYCHAIN_NAME"]
+KEYCHAIN_PASSWORD = ENV["KEYCHAIN_PASSWORD"]
+
+PROJECT_PATH = ENV["PROJECT_PATH"]
+SLACK_HOOK_URL = ENV["SLACK_HOOK_URL"]
+
+
+default_platform(:ios)
+
+platform :ios do
+  #✅ 인증서를 키체인에 저장
+  lane :setup_keychain do
+    create_keychain(
+      name: "#{KEYCHAIN_NAME}",
+      password: "#{KEYCHAIN_PASSWORD}",
+      default_keychain: true,
+      unlock: true,
+      timeout: 3600,
+      lock_when_sleeps: true
+    )
+
+    import_certificate(
+      certificate_path: "Tuist/Signing/prd.cer",
+      keychain_name: "#{KEYCHAIN_NAME}",
+      keychain_password: "#{KEYCHAIN_PASSWORD}"
+    )
+
+    import_certificate(
+      certificate_path: "Tuist/Signing/prd.p12",
+      keychain_name: "#{KEYCHAIN_NAME}",
+      keychain_password: "#{KEYCHAIN_PASSWORD}"
+    )
+
+    import_certificate(
+      certificate_path: "Tuist/Signing/dev.cer",
+      keychain_name: "#{KEYCHAIN_NAME}",
+      keychain_password: "#{KEYCHAIN_PASSWORD}"
+    )
+
+    import_certificate(
+      certificate_path: "Tuist/Signing/dev.p12",
+      keychain_name: "#{KEYCHAIN_NAME}",
+      keychain_password: "#{KEYCHAIN_PASSWORD}"
+    )
+
+    install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.PRD.mobileprovision")
+    install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.DEV.mobileprovision")
+
+    install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.PRD.mobileprovision")
+    install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.DEV.mobileprovision")
+  end
+
+
+
+
+  #✅ 테스트 플라이트에 PRD 업로드
+  lane :upload_prd_to_testflight do |options|
+    app_store_connect_api_key(
+      key_id: "#{APP_STORE_CONNECT_KEY_ID}",
+      issuer_id: "#{APP_STORE_CONNECT_ISSUER_ID}",
+      key_content: "#{APP_STORE_CONNECT_API_KEY}",
+      is_key_content_base64: true,
+      in_house: false
+    )
+
+    new_build_number = latest_testflight_build_number() + 1
+
+    increment_build_number(
+      xcodeproj: "#{PROJECT_PATH}",
+      build_number: new_build_number
+    )
+
+    build_app(
+      workspace: "#{APP_NAME}.xcworkspace",
+      scheme: "#{PRD_SCHEME}",
+      export_method: "app-store",
+      export_options: {
+        method: "app-store", 
+	provisioningProfiles: {
+          "#{BUNDLE_ID}" => "App.PRD",
+          "#{WIDGET_BUNDLE_ID}" => "WidgetExtension.PRD",
+        }
+      }
+    )
+
+    upload_to_testflight(skip_waiting_for_build_processing: true)
+
+    slack(
+      message: "⭐️ 테스트 플라이트 업로드 성공",
+      slack_url: "#{SLACK_HOOK_URL}",
+      username: "오잉봇",
+      icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
+      payload: {
+        "Build Date" => Time.new.to_s,
+      },
+      attachment_properties: {
+        fields: [
+          {
+            title: "Scheme",
+            value: "#{PRD_SCHEME}",
+          },
+          {
+            title: "Build Number",
+            value: "#{new_build_number.to_s}",
+          }
+        ]
+      },
+      success: true
+    )        
+  end
+
+  #✅ 테스트 플라이트에 DEV 업로드
+  lane :upload_dev_to_testflight do |options|
+    app_store_connect_api_key(
+      key_id: "#{APP_STORE_CONNECT_KEY_ID}",
+      issuer_id: "#{APP_STORE_CONNECT_ISSUER_ID}",
+      key_content: "#{APP_STORE_CONNECT_API_KEY}",
+      is_key_content_base64: true,
+      in_house: false
+    )
+
+    new_build_number = latest_testflight_build_number() + 1
+
+    increment_build_number(
+      xcodeproj: "#{PROJECT_PATH}",
+      build_number: new_build_number
+    )
+
+    build_app(
+      workspace: "#{APP_NAME}.xcworkspace",
+      scheme: "#{DEV_SCHEME}",
+      export_method: "app-store",
+      export_options: {
+        method: "app-store", 
+	provisioningProfiles: {
+          "#{BUNDLE_ID}" => "App.DEV",
+          "#{WIDGET_BUNDLE_ID}" => "WidgetExtension.DEV",
+        }
+      }
+    )
+
+    upload_to_testflight(skip_waiting_for_build_processing: true)
+
+    slack(
+      message: "⭐️ 테스트 플라이트 업로드 성공",
+      slack_url: "#{SLACK_HOOK_URL}",
+      username: "오잉봇",
+      icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
+      payload: {
+        "Build Date" => Time.new.to_s,
+      },
+      attachment_properties: {
+        fields: [
+          {
+            title: "Scheme",
+            value: "#{DEV_SCHEME}-DEV",
+          },
+          {
+            title: "Build Number",
+            value: "#{new_build_number.to_s}",
+          }
+        ]
+      },
+      success: true
+    )        
+  end
+
+
+
+
+  #🔴 예외 처리
+  error do |lane, exception, options|
+    slack(
+      message: "❗️ 테스트 플라이트 업로드 실패",
+      slack_url: "#{SLACK_HOOK_URL}",
+      username: "오잉봇",
+      icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
+      success: false,
+      attachment_properties: {
+        fields: [
+          {
+            title: "Error message",
+            value: "#{exception.to_s}",
+            short: false
+          }
+        ]
+      },
+    )        
+  end
+end

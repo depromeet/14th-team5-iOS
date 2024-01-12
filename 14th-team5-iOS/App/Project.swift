@@ -15,10 +15,11 @@ private let targets: [Target] = [
             products: .app,
             dependencies: ModuleLayer.App.dependencies,
             bundleId: "com.5ing.bibbi",
-            infoPlist: .extendingDefault(with: [
-                "CFBundleVersion": .string("1"),
+            infoPlist: .extendingDefault(with: [                
                 "CFBundleDisplayName": .string("Bibbi"),
+                "CFBundleVersion": .string("1"),
                 "CFBuildVersion": .string("0"),
+                "CFBundleShortVersionString": .string("1.0.1"),
                 "UILaunchStoryboardName": .string("Launch Screen"),
                 "UISupportedInterfaceOrientations": .array([.string("UIInterfaceOrientationPortrait")]),
                 "UIUserInterfaceStyle": .string("Light"),

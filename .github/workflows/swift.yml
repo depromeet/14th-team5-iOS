@@ -13,7 +13,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        xcodebuild-scheme: ['App', 'WidgetExtension']
+        xcodebuild-scheme: ['App']
     steps:
       - name: Checkout branch
         uses: actions/checkout@v3

@@ -18,19 +18,19 @@ jobs:
       - name: Tuist Clean Command
         uses: tuist/tuist-action@0.13.0
         with:
-          subcommand: 'clean'
+          command: 'clean'
           arguments: ''
 
       - name: Tuist Fetch Command
         uses: tuist/tuist-action@0.13.0 
         with:
-          subcommand: 'fetch'
+          command: 'fetch'
           arguments: ''
 
       - name: Tuist Generate Command
         uses: tuist/tuist-action@0.13.0 
         with:
-          subcommand: 'generate'
+          command: 'generate'
           arguments: ''
 
       - name: xcode build 🛠️

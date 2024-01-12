@@ -17,6 +17,11 @@ jobs:
     steps:
       - name: Checkout branch
         uses: actions/checkout@v3
+      - name: Tuist Clean Command
+      - uses: tuist/tuist-action@0.13.0 
+        with:
+          command: 'clean'
+          arguments: ''
 
       - name: Tuist Fetch Command
         uses: tuist/tuist-action@0.13.0 
@@ -35,16 +40,16 @@ jobs:
           command: 'build'
           arguments: ''
       
-      - name: bibbi app scheme output # Bibbi App Scheme Output Code
-        run: xcodebuild -list -workspace "Bibbi.xcworkspace"
+      # - name: bibbi app scheme output # Bibbi App Scheme Output Code
+      #   run: xcodebuild -list -workspace "Bibbi.xcworkspace"
         
-      - name: xcode build App 🛠️ # Bibbi App Build
-        run: xcodebuild clean build -workspace "Bibbi.xcworkspace" -scheme "${{ matrix.xcodebuild-scheme }}" -destination "platform=iOS Simulator,name=iPhone 13 mini,OS=latest"
+      # - name: xcode build App 🛠️ # Bibbi App Build
+      #   run: xcodebuild clean build -workspace "Bibbi.xcworkspace" -scheme "${{ matrix.xcodebuild-scheme }}" -destination "platform=iOS Simulator,name=iPhone 13 mini,OS=latest"
      
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1.2.1
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      # - name: Upload coverage to Codecov
+      #   uses: codecov/codecov-action@v1.2.1
+      #   env:
+      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   # deploy:
   #   runs-on: macos-latest
   #   steps:

@@ -18,29 +18,20 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v3
         
+      - name: Install Tuist CLI
+        run: curl -Ls https://install.tuist.io | bash
+        
       - name: Tuist Clean Command
-        uses: tuist/tuist-action@0.13.0 
-        with:
-          command: 'clean'
-          arguments: ''
+        run: tuist clean
 
       - name: Tuist Fetch Command
-        uses: tuist/tuist-action@0.13.0 
-        with:
-          command: 'fetch'
-          arguments: ''
+        run: tuist fetch
 
-      - name: Tuist Generate Command
-        uses: tuist/tuist-action@0.13.0 
-        with:
-          command: 'generate'
-          arguments: ''
+      - name: Tuist generate Command
+        run: tuist generate
+
       - name: Tuist Build Command
-        uses: tuist/tuist-action@0.13.0
-        with:
-          command: 'build'
-          arguments: ''
-      
+        run: tuist build      
       
       - name: bibbi app scheme output # Bibbi App Scheme Output Code
         run: xcodebuild -list -workspace "Bibbi.xcworkspace"

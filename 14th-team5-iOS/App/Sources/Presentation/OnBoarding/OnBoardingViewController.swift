@@ -121,7 +121,7 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.isPermissionGranted }
+        reactor.state.map { $0.permissionTappedFinish }
             .distinctUntilChanged()
             .observe(on: Schedulers.main)
             .withUnretained(self)

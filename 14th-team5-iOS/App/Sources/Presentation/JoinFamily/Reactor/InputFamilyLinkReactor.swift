@@ -16,6 +16,7 @@ public final class InputFamilyLinkReactor: Reactor {
     public enum Action {
         case inputLink(String)
         case tapJoinFamily
+        case tapPopButton
     }
     
     // MARK: - Mutate
@@ -23,6 +24,7 @@ public final class InputFamilyLinkReactor: Reactor {
         case setLinkString(String)
         case setShowHome(Bool)
         case setToastMessage(String)
+        case setPoped(Bool)
     }
     
     // MARK: - State
@@ -30,6 +32,7 @@ public final class InputFamilyLinkReactor: Reactor {
         var linkString: String = ""
         var isShowHome: Bool = false
         var showToastMessage: String = ""
+        var isPoped: Bool = false
     }
     
     // MARK: - Properties
@@ -67,11 +70,13 @@ extension InputFamilyLinkReactor {
                 .asObservable()
                 .flatMap { joinFamilyData in
                     guard let joinFamilyData else {
-                        return Observable.just(Mutation.setShowHome(false))
+                        return Observable.just(Mutation.setToastMessage("가족에 입장할 수 없습니다."))
                     }
                     
                     return Observable.just(Mutation.setShowHome(true))
                 }
+        case .tapPopButton:
+            return Observable.just(Mutation.setPoped(true))
         }
     }
     
@@ -85,6 +90,8 @@ extension InputFamilyLinkReactor {
             newState.isShowHome = isShow
         case let .setToastMessage(message):
             newState.showToastMessage = message
+        case let .setPoped(isPop):
+            newState.isPoped = isPop
         }
         return newState
     }

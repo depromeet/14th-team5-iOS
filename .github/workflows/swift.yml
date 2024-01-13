@@ -40,7 +40,7 @@ jobs:
           path: Tuist
           token: ${{secrets.ACTION_TOKEN}}
 
-      - name: Tuist Manster Key Log
+      - name: Tuist Manster Key Check Log
         run: |
           echo "MASTER_KEY" : ${{ secrets.MASTER_KEY}}
     

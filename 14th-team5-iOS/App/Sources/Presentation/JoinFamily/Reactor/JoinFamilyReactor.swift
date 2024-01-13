@@ -31,9 +31,9 @@ public final class JoinFamilyReactor: Reactor {
     
     // MARK: - Properties
     public let initialState: State
-    private let familyUseCase: InviteFamilyViewUseCaseProtocol
+    private let familyUseCase: FamilyViewUseCaseProtocol
     
-    init(initialState: State, familyUseCase: InviteFamilyViewUseCaseProtocol) {
+    init(initialState: State, familyUseCase: FamilyViewUseCaseProtocol) {
         self.initialState = initialState
         self.familyUseCase = familyUseCase
     }

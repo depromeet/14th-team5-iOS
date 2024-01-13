@@ -69,18 +69,18 @@ jobs:
             KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
             KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
-      - name: Fastalne setup Keychain
-        run: fastlane setup_keychain
-        env:
-            KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
-            KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      # - name: Fastalne setup Keychain
+      #   run: fastlane setup_keychain
+      #   env:
+      #       KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
+      #       KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
             
 
       # - name: Tuist generate Command      
       #   run: tuist generate  
 
-      - name: Tuist Build Command
-        run: tuist build
+      # - name: Tuist Build Command
+      #   run: tuist build
                   
       - run: fastlane upload_dev_to_testfligh
         env:

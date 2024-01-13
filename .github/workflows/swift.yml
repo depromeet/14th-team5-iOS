@@ -82,7 +82,7 @@ jobs:
       # - name: Tuist Build Command
       #   run: tuist build
                   
-      - run: fastlane upload_dev_to_testfligh
+      - run: fastlane upload_dev_to_testflight
         env:
           KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}

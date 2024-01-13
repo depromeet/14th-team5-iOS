@@ -216,7 +216,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .withUnretained(self)
             .subscribe {
                 $0.0.makeBibbiToastView(
-                    text: AddFamilyVC.Strings.successCopyInvitationUrl,
+                    text: "링크가 복사되었어요",
                     symbol: "link",
                     width: 210
                 )

@@ -18,9 +18,9 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
     // MARK: - Views
     private let containerView: UIView = UIView()
     private let firstNameLabel: BibbiLabel = BibbiLabel(.head2Bold, alignment: .center, textColor: .gray200)
-    private let memberImageView: UIImageView = UIImageView()
+    private let profileImageView: UIImageView = UIImageView()
     
-    private let namelabelStackView: UIStackView = UIStackView()
+    private let labelStack: UIStackView = UIStackView()
     private let nameLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray200)
     private let isMeLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray500)
     
@@ -37,71 +37,10 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
     }
     
     override func prepareForReuse() {
-        memberImageView.image = nil
+        profileImageView.image = nil
     }
     
     // MARK: - Helpers
-    override func setupUI() {
-        super.setupUI()
-        containerView.addSubviews(
-            firstNameLabel, memberImageView
-        )
-        contentView.addSubviews(
-            containerView, namelabelStackView
-        )
-        
-        namelabelStackView.addArrangedSubviews(
-            nameLabel, isMeLabel
-        )
-    }
-    
-    override func setupAutoLayout() {
-        super.setupAutoLayout()
-        containerView.snp.makeConstraints {
-            $0.leading.equalTo(contentView.snp.leading).offset(20.0)
-            $0.top.equalTo(contentView.snp.top).offset(AddFamilyCell.AutoLayout.profileImageTopOffsetValue)
-            $0.bottom.equalTo(contentView.snp.bottom).offset(-AddFamilyCell.AutoLayout.profileImageTopOffsetValue)
-            $0.width.height.equalTo(AddFamilyCell.AutoLayout.profileImageWidthValue)
-        }
-        
-        firstNameLabel.snp.makeConstraints {
-            $0.center.equalToSuperview()
-        }
-        
-        memberImageView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
-        
-        namelabelStackView.snp.makeConstraints {
-            $0.leading.equalTo(memberImageView.snp.trailing).offset(AddFamilyCell.AutoLayout.profileImageLeadingOffsetValue)
-            $0.centerY.equalTo(memberImageView.snp.centerY)
-        }
-    }
-    
-    override func setupAttributes() {
-        super.setupAttributes()
-        containerView.do {
-            $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = AddFamilyCell.AutoLayout.profileImageWidthValue / 2.0
-            $0.backgroundColor = DesignSystemAsset.gray800.color
-        }
-        
-        memberImageView.do {
-            $0.contentMode = .scaleAspectFill
-            $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = AddFamilyCell.AutoLayout.profileImageWidthValue / 2.0
-        }
-        
-        namelabelStackView.do {
-            $0.axis = .vertical
-            $0.spacing = 3.0
-            $0.alignment = .fill
-            $0.distribution = .fillProportionally
-        }
-        
-        contentView.backgroundColor = DesignSystemAsset.black.color
-    }
-    
     override func bind(reactor: FamilyMemberProfileCellReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
@@ -115,7 +54,7 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
             .compactMap { $0 }
             .withUnretained(self)
             .subscribe {
-                $0.0.memberImageView.kf.setImage(
+                $0.0.profileImageView.kf.setImage(
                     with: URL(string: $0.1),
                     options: [
                         .transition(.fade(0.25))
@@ -141,7 +80,67 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
         
         reactor.state.map { $0.isMe }
             .distinctUntilChanged()
-            .bind(to: namelabelStackView.rx.isMeSpacing)
+            .bind(to: labelStack.rx.isMeSpacing)
             .disposed(by: disposeBag)
+    }
+    
+    override func setupUI() {
+        super.setupUI()
+        containerView.addSubviews(
+            firstNameLabel, profileImageView
+        )
+        contentView.addSubviews(
+            containerView, labelStack
+        )
+        
+        labelStack.addArrangedSubviews(
+            nameLabel, isMeLabel
+        )
+    }
+    
+    override func setupAutoLayout() {
+        super.setupAutoLayout()
+        containerView.snp.makeConstraints {
+            $0.size.equalTo(52)
+            $0.leading.equalTo(contentView.snp.leading).offset(20)
+            $0.verticalEdges.equalToSuperview().inset(12)
+        }
+        
+        firstNameLabel.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
+        
+        profileImageView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        labelStack.snp.makeConstraints {
+            $0.leading.equalTo(profileImageView.snp.trailing).offset(16)
+            $0.centerY.equalTo(profileImageView.snp.centerY)
+        }
+    }
+    
+    override func setupAttributes() {
+        super.setupAttributes()
+        containerView.do {
+            $0.layer.masksToBounds = true
+            $0.layer.cornerRadius = 52 / 2
+            $0.backgroundColor = .gray800
+        }
+        
+        profileImageView.do {
+            $0.contentMode = .scaleAspectFill
+            $0.layer.masksToBounds = true
+            $0.layer.cornerRadius = 52 / 2
+        }
+        
+        labelStack.do {
+            $0.axis = .vertical
+            $0.spacing = 3
+            $0.alignment = .fill
+            $0.distribution = .fillProportionally
+        }
+        
+        contentView.backgroundColor = .bibbiBlack
     }
 }

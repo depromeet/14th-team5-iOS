@@ -105,7 +105,9 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberReac
             $0.separatorStyle = .none
             $0.allowsSelection = false
             $0.backgroundColor = UIColor.clear
-            $0.contentInset = AddFamilyVC.Attribute.tableContentInset
+            $0.contentInset = UIEdgeInsets(
+                top: 10, left: 0, bottom: 0, right: 0
+            )
             
             $0.register(FamilyMemberProfileCell.self, forCellReuseIdentifier: FamilyMemberProfileCell.id)
         }

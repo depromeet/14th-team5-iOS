@@ -14,8 +14,6 @@ import Differentiator
 import ReactorKit
 import RxSwift
 
-typealias FamilyMemberProfileSectionModel = SectionModel<Void, FamilyMemberProfileCellReactor>
-
 public final class InviteFamilyViewReactor: Reactor {
     // MARK: - Action
     public enum Action {

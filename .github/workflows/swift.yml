@@ -33,12 +33,12 @@ jobs:
           path: depromeet/14th-team5-iOS/14th-team5-iOS/XCConfig
           token: ${{secrets.ACTION_TOKEN}}
 
-      - name: Biring Bibbi ignored file with MasterKey
-        uses: actions/checkout@v3
-        with:
-          repository: depromeet/14th-team5-iOS-ignored
-          path: Tuist
-          token: ${{secrets.ACTION_TOKEN}}
+      # - name: Biring Bibbi ignored file with MasterKey
+      #   uses: actions/checkout@v3
+      #   with:
+      #     repository: depromeet/14th-team5-iOS-ignored
+      #     path: Tuist
+      #     token: ${{secrets.ACTION_TOKEN}}
 
       - name: Tuist Manster Key Check Log
         run: |

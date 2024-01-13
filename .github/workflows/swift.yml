@@ -44,14 +44,14 @@ jobs:
       - name: Tuist Clean Command
         run: tuist clean
 
-      - name: Tuist Siging Decrept
-        run: tuist signing decrypt
-
       - name: Tuist Fetch Command
         run: tuist fetch
 
       - name: Tuist generate Command
         run: tuist generate
+        
+      - name: Tuist Siging Decrept
+        run: tuist signing decrypt
 
       - name: Tuist Build Command
         run: tuist build      

@@ -58,7 +58,10 @@ extension Project {
             name: name,
             settings: .settings(
                 base: [
-                    "OTHER_LDFLAGS": ["-ObjC"]
+                    "OTHER_LDFLAGS": ["-ObjC"],
+                    "MARKETING_VERSION": "1.0",
+                    "CURRENT_PROJECT_VERSION": "1",
+                    "VERSIONING_SYSTEM": "apple-generic"
                 ],
                 configurations: [
                     .build(.dev, name: name),

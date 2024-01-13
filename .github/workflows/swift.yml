@@ -15,9 +15,28 @@ jobs:
     strategy:
       matrix:
         xcodebuild-scheme: ['App']
+        ruby-version: ["3.2.2"]
     steps:
       - name: Checkout branch
         uses: actions/checkout@v3
+
+      - name: Bring Bibbi ignored file with Config
+        uses: actions/checkout@v3
+        with: 
+          repository: depromeet/14th-team5-iOS-ignored
+          path: depromeet/14th-team5-iOS/14th-team5-iOS/XCConfig
+          token: ${{secrets.ACTION_TOKEN}}
+
+      - name: Biring Bibbi ignored file with MasterKey
+        uses: actions/checkout@v3
+        with:
+          repository: depromeet/14th-team5-iOS-ignored
+          path: depromeet/14th-team5-iOS/Tuist/Signing
+          token: ${{secrets.ACTION_TOKEN}}
+    
+      - name: Setting Tuist Master Key
+        run: |
+          echo "$MASTER_KEY" > Tuist/master.key
         
       - name: Install Tuist CLI
         run: curl -Ls https://install.tuist.io | bash
@@ -33,6 +52,12 @@ jobs:
 
       - name: Tuist Build Command
         run: tuist build      
+
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version:
+            "${{ matrix.ruby-version}}"
+      - run: brew install fastlane
       
       - name: bibbi app scheme output # Bibbi App Scheme Output Code
         run: xcodebuild -list -workspace "Bibbi.xcworkspace"

@@ -19,10 +19,10 @@ jobs:
         
     steps:
     
-      # - name: Setup Xcode version
-      #   uses: maxim-lobanov/setup-xcode@v1
-      #   with:
-      #       xcode-version: 14.2.0
+      - name: Setup Xcode version
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+            xcode-version: latest
             
       - name: Checkout branch
         uses: actions/checkout@v3
@@ -47,70 +47,54 @@ jobs:
         
       - name: Install Tuist CLI
         run: curl -Ls https://install.tuist.io | bash
+        
+      - name: Install FastLane 
+        run: brew install fastlane
                 
       - name: Tuist Clean Command
-      - uses: actions/checkout@v3
-      - uses: tuist/tuist-action@0.13.0
-        with:
-          command: clean
-          arguments: ''
-        # run: tuist clean
+        run: tuist clean
       
       - name: Tuist Fetch Command
-      - uses: actions/checkout@v3
-      - uses: tuist/tuist-action@0.13.0
-        with:
-          command: fetch
-          arguments: ''
+        run: tuist fetch
 
-        # run: tuist fetch
+      - name: Tuist Siging Decrept
+        run: tuist signing decrypt
 
-      # - name: Tuist Siging Decrept
-      #   run: tuist signing decrypt   
-
-      - name: Tuist generate Command
-      - uses: actions/checkout@v3
-      - uses: tuist/tuist-action@0.13.0
-        with:
-          command: generate
-          arguments: ''
         
-      
-        # run: tuist generate  
+      - name: Set Keychain
+        run: fastlane setup_keychain
+        env:
+            KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
+            KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+
+      - name: Tuist generate Command      
+        run: tuist generate  
 
       - name: Tuist Build Command
-      - uses: action/checkout@v3
-      - uses: tuist/tuist-action@0.13.0
-        with:
-          command: build
-          arguments: ''
-        # run: tuist build      
-
-      # - uses: actions/setup-ruby@v1
-      #   with:
-      #     ruby-version:
-      #       "${{ matrix.ruby-version}}"
-
-            
-      # - run: brew install fastlane
+        run: tuist build
       
-      - name: bibbi app scheme output # Bibbi App Scheme Output Code
-        run: xcodebuild -list -workspace "Bibbi.xcworkspace"
+
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version:
+            "${{ matrix.ruby-version}}"
+            
+      - run: fastlane upload_dev_to_testfligh
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+
+    
+      
+      # - name: bibbi app scheme output # Bibbi App Scheme Output Code
+      #   run: xcodebuild -list -workspace "Bibbi.xcworkspace"
         
-      - name: xcode build App 🛠️ # Bibbi App Build
-        run: xcodebuild clean build -workspace "./Bibbi.xcworkspace" -scheme "${{ matrix.xcodebuild-scheme }}" -destination "platform=iOS Simulator,name=iPhone 13 mini,OS=latest"
+      # - name: xcode build App 🛠️ # Bibbi App Build
+      #   run: xcodebuild clean build -workspace "./Bibbi.xcworkspace" -scheme "${{ matrix.xcodebuild-scheme }}" -destination "platform=iOS Simulator,name=iPhone 13 mini,OS=latest"
      
       # - name: Upload coverage to Codecov
       #   uses: codecov/codecov-action@v1.2.1
       #   env:
       #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  # deploy:
-  #   runs-on: macos-latest
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #   - name: fastlane deploy start
-  #     run: echo "fastlane deploy start"
-  #     env:
-  #       APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-  #       APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
-  #       APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+

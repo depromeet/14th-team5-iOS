@@ -19,10 +19,10 @@ jobs:
         
     steps:
     
-      - name: Setup Xcode version
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-            xcode-version: 14.2.0
+      # - name: Setup Xcode version
+      #   uses: maxim-lobanov/setup-xcode@v1
+      #   with:
+      #       xcode-version: 14.2.0
             
       - name: Checkout branch
         uses: actions/checkout@v3
@@ -54,8 +54,8 @@ jobs:
       - name: Tuist Fetch Command
         run: tuist fetch
 
-      - name: Tuist Siging Decrept
-        run: tuist signing decrypt   
+      # - name: Tuist Siging Decrept
+      #   run: tuist signing decrypt   
 
       - name: Tuist generate Command
         run: tuist generate

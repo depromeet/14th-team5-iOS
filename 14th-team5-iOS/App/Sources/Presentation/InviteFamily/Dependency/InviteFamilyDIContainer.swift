@@ -13,7 +13,7 @@ import Domain
 
 public final class InviteFamilyDIContainer: BaseDIContainer {
     public typealias ViewController = InviteFamilyViewController
-    public typealias UseCase = InviteFamilyViewUseCaseProtocol
+    public typealias UseCase = FamilyViewUseCaseProtocol
     public typealias Repository = FamilyRepositoryProtocol
     public typealias Reactor = InviteFamilyViewReactor
     
@@ -28,7 +28,7 @@ public final class InviteFamilyDIContainer: BaseDIContainer {
         return InviteFamilyViewController(reactor: makeReactor())
     }
     
-    public func makeUsecase() -> InviteFamilyViewUseCaseProtocol {
+    public func makeUsecase() -> FamilyViewUseCaseProtocol {
         return InviteFamilyViewUseCase(familyRepository: makeRepository())
     }
     

@@ -53,9 +53,9 @@ public final class HomeViewReactor: Reactor {
     public let provider: GlobalStateProviderProtocol = GlobalStateProvider()
     private let familyRepository: SearchFamilyMemberUseCaseProtocol
     private let postRepository: PostListUseCaseProtocol
-    private let familyUseCase: InviteFamilyViewUseCaseProtocol
+    private let familyUseCase: FamilyViewUseCaseProtocol
     
-    init(familyRepository: SearchFamilyMemberUseCaseProtocol, postRepository: PostListUseCaseProtocol, familyUseCase: InviteFamilyViewUseCaseProtocol) {
+    init(familyRepository: SearchFamilyMemberUseCaseProtocol, postRepository: PostListUseCaseProtocol, familyUseCase: FamilyViewUseCaseProtocol) {
         self.familyUseCase = familyUseCase
         self.familyRepository = familyRepository
         self.postRepository = postRepository

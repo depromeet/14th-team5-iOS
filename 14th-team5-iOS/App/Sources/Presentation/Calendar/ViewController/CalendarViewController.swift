@@ -89,6 +89,11 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
             .map { Reactor.Action.addYearMonthItem($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        Observable<Void>.just(())
+            .map { Reactor.Action.fetchFamilyMembers }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
 
         navigationBarView.rx.didTapLeftBarButton
             .map { _ in Reactor.Action.popViewController }

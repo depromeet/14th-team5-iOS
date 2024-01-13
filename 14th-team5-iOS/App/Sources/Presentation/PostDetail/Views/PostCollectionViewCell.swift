@@ -131,10 +131,14 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
                     ]
                 )
                 
-                guard let author = $0.1.author else { return }
-                $0.0.userNameLabel.text = author.name
+                guard let name = $0.1.author?.name,
+                      let profileImageUrl = $0.1.author?.profileImageURL else {
+                    return
+                }
+                
+                $0.0.userNameLabel.text = name
                 $0.0.profileImageView.kf.setImage(
-                    with: URL(string: author.profileImageURL ?? ""),
+                    with: URL(string: profileImageUrl),
                     options: [
                         .transition(.fade(0.15))
                     ]
@@ -211,6 +215,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         }
         
         profileImageView.do {
+            $0.backgroundColor = .gray300
             $0.contentMode = .scaleAspectFill
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = 34.0 / 2.0
@@ -221,6 +226,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         }
         
         postImageView.do {
+            $0.backgroundColor = .gray300
             $0.clipsToBounds = true
             $0.layer.cornerRadius = Layout.PostImageView.cornerRadius
         }

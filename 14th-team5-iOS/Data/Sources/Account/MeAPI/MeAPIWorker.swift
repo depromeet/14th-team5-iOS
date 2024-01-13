@@ -38,7 +38,7 @@ extension MeAPIs {
 }
 
 // MARK: SignIn
-extension MeAPIWorker: MeRepositoryProtocol {
+extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
     private func saveFcmToken(headers: [APIHeader]?, jsonEncodable: Encodable) -> Single<String?> {
         let spec = MeAPIs.saveFcmToken.spec
         
@@ -136,6 +136,31 @@ extension MeAPIWorker: MeRepositoryProtocol {
             .map(FamilyInfo.self)
             .catchAndReturn(nil)
             .asSingle()
+    }
+    
+    public func joinFamily(body: JoinFamilyRequest) -> Single<JoinFamilyData?> {
+        return Observable.just(())
+            .withLatestFrom(self._headers)
+            .withUnretained(self)
+            .flatMap { $0.0.joinFamily(headers: $0.1, body: body) }
+            .asSingle()
+    }
+    
+    private func joinFamily(headers: [APIHeader]?, body: Domain.JoinFamilyRequest) -> RxSwift.Single<JoinFamilyData?> {
+
+        let spec = MeAPIs.joinFamily.spec
+        let requestDTO: JoinFamilyRequestDTO = JoinFamilyRequestDTO(inviteCode: body.inviteCode)
+        return request(spec: spec, headers: headers, jsonEncodable: requestDTO)
+        .subscribe(on: Self.queue)
+        .do {
+            if let str = String(data: $0.1, encoding: .utf8) {
+                debugPrint("Join Family Fetch Result: \(str)")
+            }
+        }
+        .map(JoinFamilyResponseDTO.self)
+        .catchAndReturn(nil)
+        .map { $0?.toDomain() }
+        .asSingle()
     }
     
     public func joinFamily(with inviteCode: String) -> Single<FamilyInfo?> {

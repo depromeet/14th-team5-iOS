@@ -32,7 +32,7 @@ extension FamilySearchResponseDTO {
     func toDomain() -> SearchFamilyPage {
         var sortedResults: [FamilyMemberDTO] = results
         let myMemberId = FamilyUserDefaults.getMyMemberId()
-        print("여기야 \(myMemberId)")
+
         if let index = results.firstIndex(where: { $0.memberId == FamilyUserDefaults.getMyMemberId() }) {
             let element = sortedResults.remove(at: index)
             sortedResults.insert(element, at: 0)

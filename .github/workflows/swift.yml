@@ -35,12 +35,12 @@ jobs:
 
       - name: Setting Tuist Master Key
         run: | 
-          echo "${MASTER_KEY//[$'\r\n']}" > Tuist/master.key
+          echo -n "${MASTER_KEY}" | tr -d '\r\n' > Tuist/master.key
         env:
           MASTER_KEY: ${{secrets.MASTER_KEY}}
         
       - name: Install Tuist CLI
-        run: curl -Ls https://install.tuist.io|bash
+        run: curl -Ls https://install.tuist.io| bash
         
       - name: Install FastLane 
         run: brew install fastlane

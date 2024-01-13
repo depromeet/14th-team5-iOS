@@ -67,10 +67,16 @@ jobs:
         run: |
           echo "KEYCHAIN_NAME: ${{secrets.KEYCHAIN_NAME}}
           echo "KEYCHAIN_PASSWORD: ${{secrets.KEYCHAIN_PASSWORD}}
+
+      - name: Fastalne setup Keychina
+        run: fastlane setup_keychain
+        env:
+            KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
+            KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
             
 
-      - name: Tuist generate Command      
-        run: tuist generate  
+      # - name: Tuist generate Command      
+      #   run: tuist generate  
 
       - name: Tuist Build Command
         run: tuist build

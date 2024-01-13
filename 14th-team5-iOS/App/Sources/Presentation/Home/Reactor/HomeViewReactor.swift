@@ -48,7 +48,7 @@ extension HomeViewReactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .getTodayPostList:
-            let query: PostListQuery = PostListQuery(page: 1, size: 20, date: "2024-01-13", memberId: "", sort: .desc)
+            let query: PostListQuery = PostListQuery(page: 1, size: 20, date: Date().toFormatString(with: "YYYY-MM-DD"), memberId: "", sort: .desc)
             return postRepository.excute(query: query)
                 .asObservable()
                 .flatMap { postList in
@@ -75,7 +75,6 @@ extension HomeViewReactor {
                     return Observable.concat(observables)
                 }
         case .refreshCollectionview:
-//            Observable.just(Mutation.setRefreshing(true))
             let getTodayPostListAction = Action.getTodayPostList
             return mutate(action: getTodayPostListAction)
         }

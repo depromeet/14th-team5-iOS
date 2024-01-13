@@ -16,6 +16,7 @@ final class HomeFamilyViewController: BaseViewController<HomeFamilyViewReactor> 
     private let inviteFamilyView: UIView = InviteFamilyView()
     private let familyCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     private let familyCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private let refreshControl: UIRefreshControl = UIRefreshControl()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,9 +37,7 @@ final class HomeFamilyViewController: BaseViewController<HomeFamilyViewReactor> 
     
     override func setupAutoLayout() {
         familyCollectionView.snp.makeConstraints {
-            $0.top.equalToSuperview()
-            $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(HomeAutoLayout.FamilyCollectionView.height)
+            $0.edges.equalToSuperview()
         }
     }
     
@@ -54,6 +53,7 @@ final class HomeFamilyViewController: BaseViewController<HomeFamilyViewReactor> 
         }
         
         familyCollectionView.do {
+            $0.refreshControl = refreshControl
             $0.showsVerticalScrollIndicator = false
             $0.showsHorizontalScrollIndicator = false
             $0.register(FamilyCollectionViewCell.self, forCellWithReuseIdentifier: FamilyCollectionViewCell.id)
@@ -87,6 +87,11 @@ extension HomeFamilyViewController {
                 let profileViewController = ProfileDIContainer(memberId: memberId).makeViewController()
                 self.navigationController?.pushViewController(profileViewController, animated: true)
             }.disposed(by: disposeBag)
+        
+        refreshControl.rx.controlEvent(.valueChanged)
+            .map { Reactor.Action.refreshCollectionview }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: HomeFamilyViewReactor) {
@@ -139,6 +144,16 @@ extension HomeFamilyViewController {
                     width: 230
                 )
             }
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.isRefreshing }
+            .observe(on: Schedulers.main)
+            .bind(onNext: { [weak familyCollectionView] isRefreshing in
+                if let refreshControl = familyCollectionView?.refreshControl {
+                    refreshControl.endRefreshing()
+                }
+            })
             .disposed(by: disposeBag)
     }
 }

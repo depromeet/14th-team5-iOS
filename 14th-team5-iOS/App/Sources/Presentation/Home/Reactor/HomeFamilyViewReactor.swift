@@ -17,6 +17,7 @@ public final class HomeFamilyViewReactor: Reactor {
     public enum Action {
         case getFamilyMembers
         case tapInviteFamily
+        case refreshCollectionview
     }
     
     public enum Mutation {
@@ -27,13 +28,15 @@ public final class HomeFamilyViewReactor: Reactor {
         case setCopySuccessToastMessageView
         case setFetchFailureToastMessageView
         case setSharePanel(String)
+        case setRefreshing(Bool)
     }
     
     public struct State {
-        @Pulse var familyInvitationLink: URL?
+        var isRefreshing: Bool = false
         var showLoading: Bool = true
         var isShowingInviteFamilyView: Bool = false
         var familySections: [SectionModel<String, ProfileData>] = []
+        @Pulse var familyInvitationLink: URL?
         @Pulse var shouldPresentCopySuccessToastMessageView: Bool = false
         @Pulse var shouldPresentFetchFailureToastMessageView: Bool = false
     }
@@ -77,18 +80,21 @@ extension HomeFamilyViewReactor {
             return searchFamilyUseCase.excute(query: query)
                 .asObservable()
                 .flatMap { familyMembers in
-                    guard let familyMembers else {
+                    guard let familyMembers,
+                          familyMembers.members.count > 1 else {
                         return Observable.just(Mutation.showInviteFamilyView)
                     }
                     
-                    if familyMembers.members.count == 1 {
-                        return Observable.just(Mutation.showInviteFamilyView)
-                    } else {
-                        return Observable.just(.setFamilyCollectionView([
-                            SectionModel<String, ProfileData>(model: "section1", items: familyMembers.members)
-                        ]))
-                    }
+                    var observables = [Observable.just(Mutation.setFamilyCollectionView([
+                        SectionModel<String, ProfileData>(model: "section1", items: familyMembers.members)]))]
+        
+                    
+                    observables.append(Observable.just(Mutation.setRefreshing(false)))
+                    return Observable.concat(observables)
                 }
+        case .refreshCollectionview:
+            let getFamilyMembersAction = Action.getFamilyMembers
+            return mutate(action: getFamilyMembersAction)
         }
     }
     
@@ -110,6 +116,8 @@ extension HomeFamilyViewReactor {
             newState.shouldPresentFetchFailureToastMessageView = true
         case let .setSharePanel(urlString):
             newState.familyInvitationLink = URL(string: urlString)
+        case let .setRefreshing(isRefreshing):
+            newState.isRefreshing = isRefreshing
         }
         
         return newState

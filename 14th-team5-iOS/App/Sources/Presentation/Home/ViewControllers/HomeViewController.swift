@@ -27,13 +27,10 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
     private let postCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let balloonView: BalloonView = BalloonView()
     private let cameraButton: UIButton = UIButton()
-    
     private let refreshControl: UIRefreshControl = UIRefreshControl()
     
     public override func viewDidLoad() {
         super.viewDidLoad()
-        
-        hideCameraButton(false)
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -55,30 +52,30 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-//        Observable<Int>.interval(.seconds(1), scheduler: MainScheduler.instance)
-//            .startWith(0)
-//            .map { [weak self] _ in
-//                guard let self = self else { return HomeStrings.Timer.notTime }
-//                let time = self.calculateRemainingTime()
-//                guard let timeString = time.setTimerFormat() else {
-//                    self.hideCameraButton(true)
-//                    return HomeStrings.Timer.notTime
-//                }
-//
-//                if time <= 3600 && !reactor.currentState.didPost {
-//                    self.timerLabel.textBibbiColor = .warningRed
-//                    self.descriptionLabel.text = "시간이 얼마 남지 않았어요!"
-//                }
-//
-//                return timeString
-//            }
-//            .observe(on: MainScheduler.instance)
-//            .subscribe(onNext: { [weak self] time in
-//                guard let self = self else { return }
-//
-//                self.timerLabel.text = time
-//            })
-//            .disposed(by: disposeBag)
+        Observable<Int>.interval(.seconds(1), scheduler: MainScheduler.instance)
+            .startWith(0)
+            .map { [weak self] _ in
+                guard let self = self else { return HomeStrings.Timer.notTime }
+                let time = self.calculateRemainingTime()
+                guard let timeString = time.setTimerFormat() else {
+                    self.hideCameraButton(true)
+                    return HomeStrings.Timer.notTime
+                }
+
+                if time <= 3600 && !reactor.currentState.didPost {
+                    self.timerLabel.textBibbiColor = .warningRed
+                    self.descriptionLabel.text = "시간이 얼마 남지 않았어요!"
+                }
+
+                return timeString
+            }
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] time in
+                guard let self = self else { return }
+
+                self.timerLabel.text = time
+            })
+            .disposed(by: disposeBag)
         
         navigationBarView.rx.didTapLeftBarButton
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)

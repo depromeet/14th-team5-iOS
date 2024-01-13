@@ -29,7 +29,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
               userActivity.activityType == NSUserActivityTypeBrowsingWeb,
               let incomingURL = userActivity.webpageURL,
               let components = NSURLComponents(url: incomingURL, resolvingAgainstBaseURL: true) else {
-            
             window = UIWindow(windowScene: scene)
             window?.rootViewController = UINavigationController(rootViewController: SplashDIContainer().makeViewController())
             window?.makeKeyAndVisible()

@@ -37,16 +37,15 @@ jobs:
       - name: Setting Tuist Master Key
         run: |
           echo "$MASTER_KEY" > Tuist/master.key
-
-      - name: Tuist Siging Decrept
-        run: tuist signing decrypt
-
         
       - name: Install Tuist CLI
         run: curl -Ls https://install.tuist.io | bash
         
       - name: Tuist Clean Command
         run: tuist clean
+
+      - name: Tuist Siging Decrept
+        run: tuist signing decrypt
 
       - name: Tuist Fetch Command
         run: tuist fetch

@@ -104,11 +104,12 @@ extension PostNavigationView {
         if let author = data.author,
            let profileImageURL = author.profileImageURL,
            let url = URL(string: profileImageURL), !profileImageURL.isEmpty {
-            profileImageView.kf.setImage(with: url)
+            profileImageView.load(url: url)
             defaultNameLabel.isHidden = true
         } else {
-            if let author = data.author {
-                defaultNameLabel.text = "\(author.name.first)"
+            if let author = data.author,
+               let first = author.name.first {
+                defaultNameLabel.text = "\(first)"
             } else {
                 defaultNameLabel.text = "알"
             }

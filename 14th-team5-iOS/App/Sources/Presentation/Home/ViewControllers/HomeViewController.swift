@@ -36,6 +36,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
     
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+    
         navigationController?.navigationBar.isHidden = true
     }
     
@@ -56,12 +57,15 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
 //            .bind(to: reactor.action)
 //            .disposed(by: disposeBag)
         
-        Observable.concat (
-            Observable.just(()).map { Reactor.Action.getFamilyMembers },
-            Observable.just(()).map { Reactor.Action.getTodayPostList }
-        )
-        .bind(to: reactor.action)
-        .disposed(by: disposeBag)
+        rx.viewWillAppear
+            .map { _ in Reactor.Action.getTodayPostList }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        Observable.just(())
+            .map { Reactor.Action.getFamilyMembers }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
         Observable<Int>.interval(.seconds(1), scheduler: MainScheduler.instance)
             .startWith(0)

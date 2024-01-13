@@ -63,12 +63,19 @@ jobs:
       - name: Tuist Siging Decrept
         run: tuist signing decrypt
 
+      - name: Tuist Keychain Log
+        run: |
+          set -x
+        env:
+          KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }
+
         
       - name: Set Keychain
-        run: fastlane setup_keychain
-        env:
-            KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
-            KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          echo "KEYCHAIN_NAME: $KEYCHAIN_NAME"
+          echo "KEYCHAIN_PASSWORD: $KEYCHAIN_PASSWORD"
+            
 
       - name: Tuist generate Command      
         run: tuist generate  

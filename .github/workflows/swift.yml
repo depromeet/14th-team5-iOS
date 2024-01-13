@@ -43,7 +43,7 @@ jobs:
     
       - name: Setting Tuist Master Key
         run: |
-          echo "$MASTER_KEY" > Tuist/master.key
+          echo "$MASTER_KEY" > master.key
         
       - name: Install Tuist CLI
         run: curl -Ls https://install.tuist.io | bash

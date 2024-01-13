@@ -19,8 +19,7 @@ import Domain
 
 public final class HomeViewController: BaseViewController<HomeViewReactor> {
     private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
-    private let familyCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-    private let inviteFamilyView: InviteFamilyView = InviteFamilyView()
+    private let familyViewController: HomeFamilyViewController = HomeFamilyDIContainer().makeViewController()
     private let dividerView: UIView = UIView()
     private let timerLabel: BibbiLabel = BibbiLabel(.head1, alignment: .center)
     private let descriptionLabel: UILabel = BibbiLabel(.body2Regular, alignment: .center, textColor: .gray300)
@@ -29,9 +28,12 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
     private let balloonView: BalloonView = BalloonView()
     private let cameraButton: UIButton = UIButton()
     
+    private let refreshControl: UIRefreshControl = UIRefreshControl()
+    
     public override func viewDidLoad() {
         super.viewDidLoad()
         
+        hideCameraButton(true)
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -45,52 +47,38 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
     }
     
     public override func bind(reactor: HomeViewReactor) {
-        familyCollectionView.rx.setDelegate(self)
-            .disposed(by: disposeBag)
-        
         postCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
-        
-//        Observable<Void>.just(())
-//            .take(1)
-//            .map { Reactor.Action.viewDidLoad }
-//            .bind(to: reactor.action)
-//            .disposed(by: disposeBag)
         
         rx.viewWillAppear
             .map { _ in Reactor.Action.getTodayPostList }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        Observable.just(())
-            .map { Reactor.Action.getFamilyMembers }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        Observable<Int>.interval(.seconds(1), scheduler: MainScheduler.instance)
-            .startWith(0)
-            .map { [weak self] _ in
-                guard let self = self else { return HomeStrings.Timer.notTime }
-                let time = self.calculateRemainingTime()
-                guard let timeString = time.setTimerFormat() else {
-                    self.hideCameraButton(true)
-                    return HomeStrings.Timer.notTime
-                }
-
-                if time <= 3600 && !reactor.currentState.didPost {
-                    self.timerLabel.textBibbiColor = .warningRed
-                    self.descriptionLabel.text = "시간이 얼마 남지 않았어요!"
-                }
-
-                return timeString
-            }
-            .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { [weak self] time in
-                guard let self = self else { return }
-
-                self.timerLabel.text = time
-            })
-            .disposed(by: disposeBag)
+//        Observable<Int>.interval(.seconds(1), scheduler: MainScheduler.instance)
+//            .startWith(0)
+//            .map { [weak self] _ in
+//                guard let self = self else { return HomeStrings.Timer.notTime }
+//                let time = self.calculateRemainingTime()
+//                guard let timeString = time.setTimerFormat() else {
+//                    self.hideCameraButton(true)
+//                    return HomeStrings.Timer.notTime
+//                }
+//
+//                if time <= 3600 && !reactor.currentState.didPost {
+//                    self.timerLabel.textBibbiColor = .warningRed
+//                    self.descriptionLabel.text = "시간이 얼마 남지 않았어요!"
+//                }
+//
+//                return timeString
+//            }
+//            .observe(on: MainScheduler.instance)
+//            .subscribe(onNext: { [weak self] time in
+//                guard let self = self else { return }
+//
+//                self.timerLabel.text = time
+//            })
+//            .disposed(by: disposeBag)
         
         navigationBarView.rx.didTapLeftBarButton
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
@@ -114,15 +102,6 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             }
             .disposed(by: disposeBag)
         
-        familyCollectionView
-            .rx.modelSelected(ProfileData.self)
-            .map { $0.memberId }
-            .withUnretained(self)
-            .bind { owner, memberId in
-                let profileViewController = ProfileDIContainer(memberId: memberId).makeViewController()
-                self.navigationController?.pushViewController(profileViewController, animated: true)
-            }.disposed(by: disposeBag)
-        
         postCollectionView.rx.itemSelected
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
             .bind(onNext: { [weak self] indexPath in
@@ -140,6 +119,17 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             })
             .disposed(by: disposeBag)
         
+        refreshControl.rx.controlEvent(.valueChanged)
+            .map { Reactor.Action.refreshCollectionview }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        reactor.state
+              .map { $0.isRefreshing }
+              .distinctUntilChanged()
+              .bind(to: refreshControl.rx.isRefreshing)
+              .disposed(by: disposeBag)
+        
         cameraButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .withUnretained(self)
@@ -147,12 +137,6 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
                 let cameraViewController = CameraDIContainer(cameraType: .feed).makeViewController()
                 owner.navigationController?.pushViewController(cameraViewController, animated: true)
             }.disposed(by: disposeBag)
-        
-        inviteFamilyView.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .map { Reactor.Action.tapInviteFamily }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
         
         reactor.state
             .map { $0.descriptionText }
@@ -163,23 +147,9 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .disposed(by: disposeBag)
         
         reactor.state
-            .map { $0.familySections }
-            .asObservable()
-            .bind(to: familyCollectionView.rx.items(dataSource: createFamilyDataSource()))
-            .disposed(by: disposeBag)
-        
-        reactor.state
             .map { $0.feedSections }
             .distinctUntilChanged()
             .bind(to: postCollectionView.rx.items(dataSource: createFeedDataSource()))
-            .disposed(by: disposeBag)
-        
-        reactor.state
-            .map { $0.isShowingInviteFamilyView }
-            .distinctUntilChanged()
-            .observe(on: Schedulers.main)
-            .withUnretained(self)
-            .bind(onNext: { $0.0.setFamilyInviteView($0.1) })
             .disposed(by: disposeBag)
         
         reactor.state
@@ -188,17 +158,6 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
             .bind(onNext: { $0.0.setNoPostTodayView($0.1) })
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$familyInvitationLink)
-            .observe(on: Schedulers.main)
-            .withUnretained(self)
-            .bind(onNext: {
-                $0.0.makeInvitationUrlSharePanel(
-                    $0.1,
-                    provider: reactor.provider
-                )
-            })
             .disposed(by: disposeBag)
         
         reactor.state
@@ -210,38 +169,17 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
                 $0.0.hideCameraButton($0.1)
             })
             .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$shouldPresentCopySuccessToastMessageView)
-            .skip(1)
-            .withUnretained(self)
-            .subscribe {
-                $0.0.makeBibbiToastView(
-                    text: "링크가 복사되었어요",
-                    symbol: "link",
-                    width: 210
-                )
-            }
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$shouldPresentFetchFailureToastMessageView)
-            .skip(1)
-            .withUnretained(self)
-            .subscribe {
-                $0.0.makeBibbiToastView(
-                    text: "잠시 후에 다시 시도해주세요",
-                    symbol: "exclamationmark.triangle.fill",
-                    palletteColors: [UIColor.systemYellow],
-                    width: 230
-                )
-            }
-            .disposed(by: disposeBag)
     }
     
     public override func setupUI() {
         super.setupUI()
         
-        view.addSubviews(navigationBarView, familyCollectionView, dividerView, timerLabel, descriptionLabel,
-                         postCollectionView, noPostTodayView, balloonView, cameraButton)
+        addChild(familyViewController)
+        view.addSubviews(navigationBarView, dividerView, timerLabel,
+                         descriptionLabel, postCollectionView, noPostTodayView,
+                         balloonView, cameraButton, familyViewController.view)
+        
+        familyViewController.didMove(toParent: self)
     }
     
     public override func setupAutoLayout() {
@@ -253,10 +191,10 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             $0.horizontalEdges.equalToSuperview()
         }
         
-        familyCollectionView.snp.makeConstraints {
-            $0.top.equalTo(navigationBarView.snp.bottom).offset(HomeAutoLayout.FamilyCollectionView.topInset)
+        familyViewController.view.snp.makeConstraints {
+            $0.top.equalTo(navigationBarView.snp.bottom).offset(24)
             $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(HomeAutoLayout.FamilyCollectionView.height)
+            $0.height.equalTo(90)
         }
         
         dividerView.snp.makeConstraints {
@@ -306,8 +244,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
     
     public override func setupAttributes() {
         super.setupAttributes()
-        
-        let familyCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
+
         let feedCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
         
         navigationBarView.do {
@@ -323,28 +260,6 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             $0.rightBarButtonItemYOffset = -10.0
         }
         
-        familyCollectionViewLayout.do {
-            $0.scrollDirection = .horizontal
-            $0.sectionInset = UIEdgeInsets(
-                top: HomeAutoLayout.FamilyCollectionView.edgeInsetTop,
-                left: HomeAutoLayout.FamilyCollectionView.edgeInsetLeft,
-                bottom: HomeAutoLayout.FamilyCollectionView.edgeInsetBottom,
-                right: HomeAutoLayout.FamilyCollectionView.edgeInsetRight)
-            $0.minimumLineSpacing = HomeAutoLayout.FamilyCollectionView.minimumLineSpacing
-        }
-        
-        familyCollectionView.do {
-            $0.showsVerticalScrollIndicator = false
-            $0.showsHorizontalScrollIndicator = false
-            $0.register(FamilyCollectionViewCell.self, forCellWithReuseIdentifier: FamilyCollectionViewCell.id)
-            $0.backgroundColor = .clear
-            $0.collectionViewLayout = familyCollectionViewLayout
-        }
-        
-        inviteFamilyView.do {
-            $0.setLabel(caption: "이런, 아직 아무도 없군요!", title: "가족 초대하기")
-        }
-        
         dividerView.do {
             $0.backgroundColor = .gray900
         }
@@ -356,6 +271,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         }
         
         postCollectionView.do {
+            $0.refreshControl = refreshControl
             $0.register(FeedCollectionViewCell.self, forCellWithReuseIdentifier: FeedCollectionViewCell.id)
             $0.backgroundColor = .clear
         }
@@ -375,21 +291,6 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
 }
 
 extension HomeViewController {
-    private func setFamilyInviteView(_ isShow: Bool) {
-        if isShow {
-            familyCollectionView.isHidden = isShow
-            view.addSubview(inviteFamilyView)
-            
-            inviteFamilyView.snp.makeConstraints {
-                $0.top.equalTo(navigationBarView.snp.bottom).offset(HomeAutoLayout.InviteFamilyView.topInset)
-                $0.horizontalEdges.equalToSuperview().inset(HomeAutoLayout.InviteFamilyView.horizontalInset)
-                $0.height.equalTo(HomeAutoLayout.InviteFamilyView.height)
-            }
-        } else {
-            inviteFamilyView.removeFromSuperview()
-        }
-    }
-    
     private func setNoPostTodayView(_ isShow: Bool) {
         if isShow {
             noPostTodayView.isHidden = !isShow
@@ -402,17 +303,6 @@ extension HomeViewController {
     private func hideCameraButton(_ isShow: Bool) {
         balloonView.isHidden = isShow
         cameraButton.isHidden = isShow
-    }
-    
-    private func createFamilyDataSource() -> RxCollectionViewSectionedReloadDataSource<SectionModel<String, ProfileData>> {
-        return RxCollectionViewSectionedReloadDataSource<SectionModel<String, ProfileData>>(
-            configureCell: { (_, collectionView, indexPath, item) in
-                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FamilyCollectionViewCell.id, for: indexPath) as? FamilyCollectionViewCell else {
-                    return UICollectionViewCell()
-                }
-                cell.setCell(data: item)
-                return cell
-            })
     }
     
     private func createFeedDataSource() -> RxCollectionViewSectionedReloadDataSource<SectionModel<String, PostListData>> {
@@ -429,11 +319,7 @@ extension HomeViewController {
 
 extension HomeViewController: UICollectionViewDelegateFlowLayout {
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if collectionView == familyCollectionView {
-            return CGSize(width: HomeAutoLayout.FamilyCollectionView.cellWidth, height: HomeAutoLayout.FamilyCollectionView.cellHeight)
-        } else {
             let width = (collectionView.frame.size.width - 10) / 2
             return CGSize(width: width, height: width + 36)
-        }
     }
 }

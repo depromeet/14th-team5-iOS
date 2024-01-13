@@ -44,7 +44,7 @@ public final class HomeDIContainer {
     }
     
     public func makeReactor() -> Reactor {
-        return HomeViewReactor(familyRepository: makeFamilyUseCase(), postRepository: makePostUseCase(), familyUseCase: makeInviteFamilyUseCase())
+        return HomeViewReactor(postRepository: makePostUseCase())
     }
     
 }

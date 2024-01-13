@@ -33,18 +33,14 @@ jobs:
           path: depromeet/14th-team5-iOS/14th-team5-iOS/XCConfig
           token: ${{secrets.ACTION_TOKEN}}
 
-      - name: Tuist Manster Key Check Log
-        run: |
-          echo "MASTER_KEY" : ${{ secrets.MASTER_KEY}}
-    
       - name: Setting Tuist Master Key
-        run: |
-          echo "$MASTER_KEY" > Tuist/master.key
+        run: | 
+          echo "${MASTER_KEY//[$'\r\n']}" > Tuist/master.key
         env:
           MASTER_KEY: ${{secrets.MASTER_KEY}}
         
       - name: Install Tuist CLI
-        run: curl -Ls https://install.tuist.io | bash
+        run: curl -Ls https://install.tuist.io|bash
         
       - name: Install FastLane 
         run: brew install fastlane

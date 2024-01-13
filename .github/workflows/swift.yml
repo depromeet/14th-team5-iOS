@@ -65,12 +65,11 @@ jobs:
         run: |
           echo "KEYCHAIN_NAME: ${{secrets.KEYCHAIN_NAME}}
           echo "KEYCHAIN_PASSWORD: ${{secrets.KEYCHAIN_PASSWORD}}
-          fastlane setup_keychain
         env:
             KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
             KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
-      - name: Fastalne setup Keychina
+      - name: Fastalne setup Keychain
         run: fastlane setup_keychain
         env:
             KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}

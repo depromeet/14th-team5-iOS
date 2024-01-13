@@ -71,15 +71,13 @@ extension HomeViewReactor {
                         observables.append(Observable.just(Mutation.setDescriptionText("우리 가족 모두가 사진을 올린 날🎉")))
                     }
                     
+                    observables.append(Observable.just(Mutation.setRefreshing(false)))
                     return Observable.concat(observables)
                 }
         case .refreshCollectionview:
 //            Observable.just(Mutation.setRefreshing(true))
             let getTodayPostListAction = Action.getTodayPostList
             return mutate(action: getTodayPostListAction)
-                .flatMap { _ in
-                    return Observable.just(Mutation.setRefreshing(false))
-                  }
         }
     }
     
@@ -93,8 +91,8 @@ extension HomeViewReactor {
             newState.feedSections = data
         case .setDidPost:
             newState.didPost = true
-        case .setDescriptionText(_):
-            break
+        case let .setDescriptionText(message):
+            newState.descriptionText = message
         case .setLoading:
             newState.showLoading = false
         case let .setRefreshing(isRefreshing):

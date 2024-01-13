@@ -9,13 +9,13 @@ import Foundation
 
 import RxSwift
 
-public protocol FamilyViewUseCaseProtocol {
+public protocol InviteFamilyViewUseCaseProtocol {
     func executeCreateFamily() -> Observable<FamilyResponse?>
     func executeFetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?>
     func executeFetchFamilyMembers() -> Observable<PaginationResponseFamilyMemberProfile?>
 }
 
-public final class InviteFamilyViewUseCase: FamilyViewUseCaseProtocol {
+public final class InviteFamilyViewUseCase: InviteFamilyViewUseCaseProtocol {
     private let familyRepository: FamilyRepositoryProtocol
     
     public init(familyRepository: FamilyRepositoryProtocol) {

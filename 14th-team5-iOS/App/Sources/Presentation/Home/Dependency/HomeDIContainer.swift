@@ -39,7 +39,7 @@ public final class HomeDIContainer {
         return SearchFamilyUseCase(searchFamilyRepository: makeFamilyRepository())
     }
     
-    func makeInviteFamilyUseCase() -> FamilyViewUseCaseProtocol {
+    func makeInviteFamilyUseCase() -> InviteFamilyViewUseCaseProtocol {
         return InviteFamilyViewUseCase(familyRepository: makeInviteFamilyRepository())
     }
     

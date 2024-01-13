@@ -33,7 +33,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
     public override func viewDidLoad() {
         super.viewDidLoad()
         
-        hideCameraButton(true)
+        hideCameraButton(false)
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -125,10 +125,14 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .disposed(by: disposeBag)
         
         reactor.state
-              .map { $0.isRefreshing }
-              .distinctUntilChanged()
-              .bind(to: refreshControl.rx.isRefreshing)
-              .disposed(by: disposeBag)
+            .map { $0.isRefreshing }
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: { [weak postCollectionView] isRefreshing in
+                if let refreshControl = postCollectionView?.refreshControl {
+                    refreshControl.endRefreshing()
+                }
+            })
+            .disposed(by: disposeBag)
         
         cameraButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)

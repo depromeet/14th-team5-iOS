@@ -48,7 +48,7 @@ platform :ios do
     )
 
     import_certificate(
-      certificate_path: "Tuist/Signing/prd.cer",
+      certificate_path: "./Tuist/Signing/prd.cer",
       keychain_name: "#{KEYCHAIN_NAME}",
       keychain_password: "#{KEYCHAIN_PASSWORD}"
     )

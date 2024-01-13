@@ -13,7 +13,7 @@ public enum FamilyAPIs: API {
     case createFamily
     case invitationUrl(String)
     case familyMembers(FamilySearchRequestDTO)
-    
+
     var spec: APISpec {
         switch self {
         case let .createFamily:

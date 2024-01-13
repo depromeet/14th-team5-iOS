@@ -39,7 +39,7 @@ jobs:
     
       - name: Setting Tuist Master Key
         run: |
-          echo "$MASTER_KEY" > Tuist/master.key
+          echo "$MASTER_KEY" > ./Tuist/master.key
         
       - name: Install Tuist CLI
         run: curl -Ls https://install.tuist.io | bash
@@ -65,27 +65,33 @@ jobs:
         run: |
           echo "KEYCHAIN_NAME: ${{secrets.KEYCHAIN_NAME}}
           echo "KEYCHAIN_PASSWORD: ${{secrets.KEYCHAIN_PASSWORD}}
-
-      - name: Fastalne setup Keychina
-        run: fastlane setup_keychain
         env:
             KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
             KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+
+      # - name: Fastalne setup Keychain
+      #   run: fastlane setup_keychain
+      #   env:
+      #       KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
+      #       KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
             
 
       # - name: Tuist generate Command      
       #   run: tuist generate  
 
-      - name: Tuist Build Command
-        run: tuist build
+      # - name: Tuist Build Command
+      #   run: tuist build
                   
-      - run: fastlane upload_dev_to_testfligh
+      - run: fastlane upload_dev_to_testflight
         env:
           KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+          BUNDLE_ID: ${{secrets.BUNDLE_ID}}
+          PROJECT_PATH: ${{secrets.PROJECT_PATH}}
+
 
     
       

@@ -20,7 +20,7 @@ import Domain
 public final class HomeViewController: BaseViewController<HomeViewReactor> {
     private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
     private let familyCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-    private let inviteFamilyView: UIView = InviteFamilyView()
+    private let inviteFamilyView: InviteFamilyView = InviteFamilyView()
     private let dividerView: UIView = UIView()
     private let timerLabel: BibbiLabel = BibbiLabel(.head1, alignment: .center)
     private let descriptionLabel: UILabel = BibbiLabel(.body2Regular, alignment: .center, textColor: .gray300)
@@ -341,6 +341,9 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             $0.collectionViewLayout = familyCollectionViewLayout
         }
         
+        inviteFamilyView.do {
+            $0.setLabel(caption: "이런, 아직 아무도 없군요!", title: "가족 초대하기")
+        }
         
         dividerView.do {
             $0.backgroundColor = .gray900

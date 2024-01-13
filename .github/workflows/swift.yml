@@ -54,9 +54,9 @@ jobs:
       - name: Install FastLane 
         run: brew install fastlane
         
-      - uses: ruby/setup-ruby@ec02537da5712d66d4d50a0f33b7eb52773b5ed1
+      - uses: actions/setup-ruby@v1
         with:
-          ruby-version: '3.2.1'
+          ruby-version: 2.7
                 
       - name: Tuist Clean Command
         run: tuist clean

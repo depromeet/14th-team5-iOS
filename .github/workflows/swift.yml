@@ -76,11 +76,15 @@ jobs:
           arguments: ''
         
       
-        # run: tuist generate
-        
+        # run: tuist generate  
 
       - name: Tuist Build Command
-        run: tuist build      
+      - uses: action/checkout@v3
+      - uses: tuist/tuist-action@0.13.0
+        with:
+          command: build
+          arguments: ''
+        # run: tuist build      
 
       # - uses: actions/setup-ruby@v1
       #   with:

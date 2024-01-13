@@ -76,20 +76,19 @@ jobs:
       #       KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
             
 
-      # - name: Tuist generate Command      
-      #   run: tuist generate  
+      - name: Tuist generate Command      
+        run: tuist generate  
 
       # - name: Tuist Build Command
       #   run: tuist build
                   
-      - run: fastlane upload_dev_to_testflight
-        env:
-          KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
-          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
-          BUNDLE_ID: ${{secrets.BUNDLE_ID}}
+      # - run: fastlane upload_dev_to_testflight
+      #   env:
+      #     KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
+      #     KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      #     APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+      #     APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+      #     APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
 
 
     

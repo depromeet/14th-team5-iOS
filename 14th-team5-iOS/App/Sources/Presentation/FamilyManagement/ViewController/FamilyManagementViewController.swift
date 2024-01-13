@@ -16,7 +16,7 @@ import RxSwift
 import SnapKit
 import Then
 
-public final class InviteFamilyViewController: BaseViewController<InviteFamilyViewReactor> {
+public final class FamilyManagementViewController: BaseViewController<FamilyManagementViewReactor> {
     // MARK: - Views
     private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
     
@@ -49,13 +49,13 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
     }
     
     // MARK: - Helpers
-    public override func bind(reactor: InviteFamilyViewReactor) {
+    public override func bind(reactor: FamilyManagementViewReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: InviteFamilyViewReactor) {
+    private func bindInput(reactor: FamilyManagementViewReactor) {
         Observable<Void>.just(())
             .map { Reactor.Action.fetchFamilyMemebers }
             .bind(to: reactor.action)
@@ -68,7 +68,7 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
             .disposed(by: disposeBag)
     }
     
-    private func bindOutput(reactor: InviteFamilyViewReactor) {
+    private func bindOutput(reactor: FamilyManagementViewReactor) {
         navigationBarView.rx.didTapLeftBarButton
             .withUnretained(self)
             .subscribe {
@@ -100,7 +100,7 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
             .withUnretained(self)
             .subscribe {
                 $0.0.makeBibbiToastView(
-                    text: InviteFamilyStrings.sucessCopyInvitationUrlText,
+                    text: FamilyManagementStrings.sucessCopyInvitationUrlText,
                     symbol: "link",
                     width: 210
                 )
@@ -112,7 +112,7 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
             .withUnretained(self)
             .subscribe {
                 $0.0.makeBibbiToastView(
-                    text: InviteFamilyStrings.fetchFailInvitationUrlText,
+                    text: FamilyManagementStrings.fetchFailInvitationUrlText,
                     symbol: "exclamationmark.triangle.fill",
                     palletteColors: [UIColor.systemYellow],
                     width: 230
@@ -193,7 +193,7 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
     public override func setupAttributes() {
         super.setupAttributes()
         navigationBarView.do {
-            $0.navigationTitle = InviteFamilyStrings.mainTitle
+            $0.navigationTitle = FamilyManagementStrings.mainTitle
             $0.leftBarButtonItem = .arrowLeft
          }
         
@@ -216,11 +216,11 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
         }
         
         invitationDescLabel.do {
-            $0.text = InviteFamilyStrings.inviteDescText
+            $0.text = FamilyManagementStrings.inviteDescText
         }
         
         invitationUrlLabel.do {
-            $0.text = InviteFamilyStrings.invitationUrlText
+            $0.text = FamilyManagementStrings.invitationUrlText
         }
         
         shareLineImageView.do {
@@ -241,11 +241,11 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
         }
         
         tableTitleLabel.do {
-            $0.text = InviteFamilyStrings.headerTitle
+            $0.text = FamilyManagementStrings.headerTitle
         }
         
         tableCountLabel.do {
-            $0.text = InviteFamilyStrings.headerCount
+            $0.text = FamilyManagementStrings.headerCount
         }
         
         familyTableView.do {
@@ -263,7 +263,7 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
 }
 
 // MARK: - Extensions
-extension InviteFamilyViewController {
+extension FamilyManagementViewController {
     private func prepareDatasource() -> RxTableViewSectionedReloadDataSource<FamilyMemberProfileSectionModel> {
         return RxTableViewSectionedReloadDataSource<FamilyMemberProfileSectionModel> { datasource, tableView, indexPath, reactor in
             let cell = tableView.dequeueReusableCell(withIdentifier: FamilyMemberProfileCell.id, for: indexPath) as! FamilyMemberProfileCell

@@ -7,12 +7,12 @@
 
 import UIKit
 
-typealias InviteFamilyStrings = String.InviteFamily
+typealias FamilyManagementStrings = String.FamilyManagement
 extension String {
-    enum InviteFamily {}
+    enum FamilyManagement {}
 }
 
-extension InviteFamilyStrings {
+extension FamilyManagementStrings {
     static let mainTitle: String = "가족"
     static let inviteDescText: String = "삐삐에 가족 초대하기"
     static let invitationUrlText: String = "https://no5ing.kr/"

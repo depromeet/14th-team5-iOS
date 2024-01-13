@@ -97,7 +97,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .withUnretained(self)
             .subscribe {
                 $0.0.navigationController?.pushViewController(
-                    InviteFamilyDIContainer().makeViewController(),
+                    FamilyManagementDIContainer().makeViewController(),
                     animated: true
                 )
             }

@@ -14,7 +14,7 @@ import Differentiator
 import ReactorKit
 import RxSwift
 
-public final class InviteFamilyViewReactor: Reactor {
+public final class FamilyManagementViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case didTapShareButton

@@ -26,7 +26,7 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
     private let labelStackView: UIStackView = UIStackView()
     private let inviteFamilyTitleLabel: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
     private let invitationUrlLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray300)
-    private let shareButton: UIButton = UIButton(type: .system)
+    private let shareImageView: UIImageView = UIImageView()
     
     private let dividerView: UIView = UIView()
     
@@ -55,7 +55,7 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
             navigationBarView, shareContainerView
         )
         shareContainerView.addSubviews(
-            envelopeImageView, labelStackView, shareButton
+            envelopeImageView, labelStackView, shareImageView
         )
         labelStackView.addArrangedSubviews(
             inviteFamilyTitleLabel, invitationUrlLabel
@@ -94,7 +94,7 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
             $0.centerY.equalTo(shareContainerView.snp.centerY)
         }
         
-        shareButton.snp.makeConstraints {
+        shareImageView.snp.makeConstraints {
             $0.trailing.equalTo(shareContainerView.snp.trailing).offset(-AddFamilyVC.AutoLayout.shareInvitationUrlButtonTrailingOffsetValue)
             $0.width.height.equalTo(23.0)
             $0.centerY.equalTo(shareContainerView.snp.centerY)
@@ -151,12 +151,10 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
             $0.text = AddFamilyVC.Strings.invitationUrlText
         }
         
-        shareButton.do {
-            $0.setImage(
-                DesignSystemAsset.shareLine.image.withRenderingMode(.alwaysTemplate),
-                for: .normal
-            )
+        shareImageView.do {
+            $0.image = DesignSystemAsset.shareLine.image
             $0.tintColor = DesignSystemAsset.gray500.color
+            $0.contentMode = .scaleAspectFit
         }
         
         dividerView.do {
@@ -203,7 +201,7 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        shareButton.rx.tap
+        shareContainerView.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .map { Reactor.Action.didTapShareButton }
             .bind(to: reactor.action)

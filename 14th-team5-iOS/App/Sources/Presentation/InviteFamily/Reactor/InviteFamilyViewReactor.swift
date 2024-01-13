@@ -43,13 +43,13 @@ public final class InviteFamilyViewReactor: Reactor {
     // MARK: - Properties
     public let initialState: State
     
-    public let inviteFamilyUseCase: InviteFamilyViewUseCaseProtocol
+    public let inviteFamilyUseCase: FamilyViewUseCaseProtocol
     public let provider: GlobalStateProviderProtocol
     
     private let memberId: String? = App.Repository.member.memberID.value
     
     // MARK: - Intializer
-    init(usecase: InviteFamilyViewUseCaseProtocol, provider: GlobalStateProviderProtocol) {
+    init(usecase: FamilyViewUseCaseProtocol, provider: GlobalStateProviderProtocol) {
         self.initialState = State(
             familyInvitationUrl: nil,
             shouldPresentCopySuccessToastMessageView: false,

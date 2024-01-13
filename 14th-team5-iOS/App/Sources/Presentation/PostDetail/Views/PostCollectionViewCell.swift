@@ -20,7 +20,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     
     private let profileStackView = UIStackView()
     private let profileImageView = UIImageView()
-    private let nickNameLabel = BibbiLabel(.caption, textColor: .gray200)
+    private let userNameLabel = BibbiLabel(.caption, textColor: .gray200)
     
     private let postImageView = UIImageView()
     /// 이모지를 선택하기 위한 버튼을 모아둔 stackView
@@ -51,6 +51,12 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func prepareForReuse() {
+        userNameLabel.text = nil
+        profileImageView.image = nil
+        postImageView.image = nil
     }
     
     override func bind(reactor: EmojiReactor) {
@@ -125,9 +131,12 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
                     ]
                 )
                 
-                guard let author = $0.1.author else { return }
-                guard let profileImageUrl = $0.1.author?.profileImageURL else { return }
-                $0.0.nickNameLabel.text = author.name
+                guard let name = $0.1.author?.name,
+                      let profileImageUrl = $0.1.author?.profileImageURL else {
+                    return
+                }
+                
+                $0.0.userNameLabel.text = name
                 $0.0.profileImageView.kf.setImage(
                     with: URL(string: profileImageUrl),
                     options: [
@@ -147,7 +156,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     override func setupUI() {
         super.setupUI()
         addSubviews(profileStackView, postImageView, showSelectableEmojiButton, emojiCountStackView, selectableEmojiStackView)
-        profileStackView.addArrangedSubviews(profileImageView, nickNameLabel)
+        profileStackView.addArrangedSubviews(profileImageView, userNameLabel)
         postImageView.addSubview(contentCollectionView)
     }
 
@@ -206,17 +215,18 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         }
         
         profileImageView.do {
-            $0.image = DesignSystemAsset.emoji1.image
+            $0.backgroundColor = .gray300
             $0.contentMode = .scaleAspectFill
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = 34.0 / 2.0
         }
         
-        nickNameLabel.do {
+        userNameLabel.do {
             $0.text = "(알 수 없음)"
         }
         
         postImageView.do {
+            $0.backgroundColor = .gray300
             $0.clipsToBounds = true
             $0.layer.cornerRadius = Layout.PostImageView.cornerRadius
         }

@@ -11,7 +11,7 @@ import Core
 import Data
 import Domain
 
-public final class CalendarDIConatainer: BaseDIContainer {
+public final class CalendarDIConatainer {
     public typealias ViewController = CalendarViewController
     public typealias UseCase = CalendarUseCaseProtocol
     public typealias Repository = CalendarRepositoryProtocol
@@ -28,15 +28,28 @@ public final class CalendarDIConatainer: BaseDIContainer {
         return CalendarViewController(reactor: makeReactor())
     }
     
-    public func makeUseCase() -> UseCase {
-        return CalendarUseCase(calendarRepository: makeRepository())
+    public func makeFamilyUseCase() -> SearchFamilyUseCase {
+        return SearchFamilyUseCase(searchFamilyRepository: makeFamilyRepository())
     }
     
-    public func makeRepository() -> Repository {
+    public func makeCalendarUseCase() -> UseCase {
+        return CalendarUseCase(calendarRepository: makeCalendarRepository())
+    }
+    
+    public func makeCalendarRepository() -> Repository {
         return CalendarRepository()
     }
     
+    public func makeFamilyRepository() -> SearchFamilyRepository {
+        return FamilyAPIs.Worker()
+    }
+    
+    
     public func makeReactor() -> Reactor {
-        return CalendarViewReactor(usecase: makeUseCase(), provider: globalState)
+        return CalendarViewReactor(
+            familyUseCase: makeFamilyUseCase(),
+            calendarUseCase: makeCalendarUseCase(),
+            provider: globalState
+        )
     }
 }

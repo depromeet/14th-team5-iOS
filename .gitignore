@@ -6,7 +6,6 @@
 xcuserdata/
 
 .env
-master.key
 
 
 ## compatibility with Xcode 8 and earlier (ignoring not required starting Xcode 9)

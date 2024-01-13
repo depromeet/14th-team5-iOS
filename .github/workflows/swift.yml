@@ -37,6 +37,10 @@ jobs:
       - name: Setting Tuist Master Key
         run: |
           echo "$MASTER_KEY" > Tuist/master.key
+
+      - name: Tuist Siging Decrept
+        run: tuist signing decrypt
+
         
       - name: Install Tuist CLI
         run: curl -Ls https://install.tuist.io | bash
@@ -57,7 +61,9 @@ jobs:
         with:
           ruby-version:
             "${{ matrix.ruby-version}}"
-      - run: brew install fastlane
+
+            
+      # - run: brew install fastlane
       
       - name: bibbi app scheme output # Bibbi App Scheme Output Code
         run: xcodebuild -list -workspace "Bibbi.xcworkspace"

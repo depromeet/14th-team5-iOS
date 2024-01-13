@@ -37,6 +37,6 @@ public final class InviteFamilyDIContainer: BaseDIContainer {
     }
     
     public func makeReactor() -> InviteFamilyViewReactor {
-        return InviteFamilyViewReactor(usecase: makeUsecase(), provider: globalState)
+        return InviteFamilyViewReactor(familyUseCase: makeUsecase(), provider: globalState)
     }
 }

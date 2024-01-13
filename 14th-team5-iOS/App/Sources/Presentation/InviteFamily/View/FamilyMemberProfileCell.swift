@@ -57,7 +57,7 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
                 $0.0.profileImageView.kf.setImage(
                     with: URL(string: $0.1),
                     options: [
-                        .transition(.fade(0.25))
+                        .transition(.fade(0.15))
                     ]
                 )
             }

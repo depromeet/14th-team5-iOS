@@ -79,17 +79,19 @@ public final class InviteFamilyViewController: BaseViewController<InviteFamilyVi
         reactor.pulse(\.$familyInvitationUrl)
             .withUnretained(self)
             .subscribe {
-                $0.0.makeInvitationUrlSharePanel($0.1, provider: reactor.provider)
+                $0.0.makeInvitationUrlSharePanel(
+                    $0.1,
+                    provider: reactor.provider
+                )
             }
             .disposed(by: disposeBag)
         
-        reactor.state.map { "\($0.displayMemberCount)" }
+        reactor.state.map { "\($0.displayFamilyMemberCount)" }
             .distinctUntilChanged()
             .bind(to: tableCountLabel.rx.text)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.displayFamilyMembers }
-            .distinctUntilChanged(at: \.count)
+        reactor.pulse(\.$displayFamilyMemberInfo)
             .bind(to: familyTableView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         

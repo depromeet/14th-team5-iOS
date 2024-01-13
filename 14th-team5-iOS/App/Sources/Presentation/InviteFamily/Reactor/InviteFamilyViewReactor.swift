@@ -34,29 +34,29 @@ public final class InviteFamilyViewReactor: Reactor {
         @Pulse var familyInvitationUrl: URL?
         @Pulse var shouldPresentCopySuccessToastMessageView: Bool
         @Pulse var shouldPresentFetchFailureToastMessageView: Bool
-        var displayMemberCount: Int
-        var displayFamilyMembers: [FamilyMemberProfileSectionModel]
+        @Pulse var displayFamilyMemberInfo: [FamilyMemberProfileSectionModel]
+        var displayFamilyMemberCount: Int
     }
     
     // MARK: - Properties
     public let initialState: State
     
-    public let inviteFamilyUseCase: FamilyViewUseCaseProtocol
+    public let familyUseCase: FamilyViewUseCaseProtocol
     public let provider: GlobalStateProviderProtocol
     
     private let memberId: String? = App.Repository.member.memberID.value
     
     // MARK: - Intializer
-    init(usecase: FamilyViewUseCaseProtocol, provider: GlobalStateProviderProtocol) {
+    init(familyUseCase: FamilyViewUseCaseProtocol, provider: GlobalStateProviderProtocol) {
         self.initialState = State(
             familyInvitationUrl: nil,
             shouldPresentCopySuccessToastMessageView: false,
             shouldPresentFetchFailureToastMessageView: false,
-            displayMemberCount: 0,
-            displayFamilyMembers: []
+            displayFamilyMemberInfo: [],
+            displayFamilyMemberCount: 0
         )
         
-        self.inviteFamilyUseCase = usecase
+        self.familyUseCase = familyUseCase
         self.provider = provider
     }
     
@@ -77,7 +77,7 @@ public final class InviteFamilyViewReactor: Reactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .didTapShareButton:
-            return inviteFamilyUseCase.executeFetchInvitationUrl()
+            return familyUseCase.executeFetchInvitationUrl()
                 .map {
                     guard let invitationLink = $0?.url else {
                         return .setFetchFailureTaostMessageView
@@ -86,7 +86,7 @@ public final class InviteFamilyViewReactor: Reactor {
                 }
             
         case .fetchFamilyMemebers:
-            return inviteFamilyUseCase.executeFetchFamilyMembers()
+            return familyUseCase.executeFetchFamilyMembers()
                 .withUnretained(self)
                 .map {
                     let myMemberId: String? = $0.0.memberId
@@ -119,8 +119,8 @@ public final class InviteFamilyViewReactor: Reactor {
             newState.shouldPresentFetchFailureToastMessageView = true
             
         case let .injectFamilyMembers(familyMembers):
-            newState.displayMemberCount = familyMembers.count
-            newState.displayFamilyMembers = [
+            newState.displayFamilyMemberCount = familyMembers.count
+            newState.displayFamilyMemberInfo = [
                 .init(model: Void(), items: familyMembers.sorted { $0.currentState.isMe && !$1.currentState.isMe })
             ]
         }

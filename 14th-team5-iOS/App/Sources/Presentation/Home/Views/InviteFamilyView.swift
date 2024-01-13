@@ -10,7 +10,6 @@ import Core
 import DesignSystem
 
 final class InviteFamilyView: UIView {
-    typealias String = HomeStrings.InviteFamily
     typealias Layout = HomeAutoLayout.InviteFamilyView
     
     private let inviteImageView: UIImageView = UIImageView()
@@ -70,17 +69,16 @@ final class InviteFamilyView: UIView {
             $0.distribution = .fillProportionally
         }
         
-        subLabel.do {
-            $0.text = String.subTitle
-        }
-        
-        titleLabel.do {
-            $0.text = String.title
-        }
-        
         nextIconImageView.do {
             $0.image = DesignSystemAsset.arrowRight.image
             $0.tintColor = .gray400
         }
+    }
+}
+
+extension InviteFamilyView {
+    func setLabel(caption: String, title: String) {
+        titleLabel.text = title
+        subLabel.text = caption
     }
 }

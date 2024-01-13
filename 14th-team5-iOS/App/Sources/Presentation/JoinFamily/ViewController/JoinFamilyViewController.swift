@@ -78,6 +78,10 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
         createFamilyButton.do {
             $0.setImage(DesignSystemAsset.makeGroupButton.image, for: .normal)
         }
+        
+        joinFamilyButton.do {
+            $0.setLabel(caption: "이미 초대링크를 받았다면", title: "그룹 입장하기")
+        }
     }
     
     override func bind(reactor: JoinFamilyReactor) {

@@ -47,18 +47,36 @@ jobs:
         
       - name: Install Tuist CLI
         run: curl -Ls https://install.tuist.io | bash
-        
+                
       - name: Tuist Clean Command
-        run: tuist clean
-
+      - uses: actions/checkout@v3
+      - uses: tuist/tuist-action@0.13.0
+        with:
+          command: clean
+          arguments: ''
+        # run: tuist clean
+      
       - name: Tuist Fetch Command
-        run: tuist fetch
+      - uses: actions/checkout@v3
+      - uses: tuist/tuist-action@0.13.0
+        with:
+          command: fetch
+          arguments: ''
+
+        # run: tuist fetch
 
       # - name: Tuist Siging Decrept
       #   run: tuist signing decrypt   
 
       - name: Tuist generate Command
-        run: tuist generate
+      - uses: actions/checkout@v3
+      - uses: tuist/tuist-action@0.13.0
+        with:
+          command: generate
+          arguments: ''
+        
+      
+        # run: tuist generate
         
 
       - name: Tuist Build Command

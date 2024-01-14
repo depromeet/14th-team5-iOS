@@ -35,7 +35,7 @@ jobs:
 
       - name: Setting Tuist Master Key
         run: | 
-          echo -n "${MASTER_KEY}" | tr -d '\r\n' > Tuist/master.key
+          echo -n "$MASTER_KEY" > Tuist/master.key
         env:
           MASTER_KEY: ${{secrets.MASTER_KEY}}
         

@@ -31,9 +31,12 @@ extension String {
 }
 
 extension String {
-    public subscript(_ index: Int) -> String {
-        let index = self.index(self.startIndex, offsetBy: index)
+    public subscript(_ index: Int) -> String? {
+        guard index >= 0 && index < count else {
+            return nil
+        }
         
-        return self[index].description
+        let index = self.index(self.startIndex, offsetBy: index)
+        return String(self[index])
     }
 }

@@ -19,7 +19,9 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     static let id = "postCollectionViewCell"
     
     private let profileStackView = UIStackView()
+    private let containerView = UIView()
     private let profileImageView = UIImageView()
+    private let firstNameLabel = BibbiLabel(.caption, textColor: .bibbiWhite)
     private let userNameLabel = BibbiLabel(.caption, textColor: .gray200)
     
     private let postImageView = UIImageView()
@@ -103,6 +105,11 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             })
             .disposed(by: disposeBag)
         
+        reactor.state.map { $0.post.author?.name[0] }
+            .distinctUntilChanged()
+            .bind(to: firstNameLabel.rx.text)
+            .disposed(by: disposeBag)
+        
         reactor.state
             .map { $0.type }
             .distinctUntilChanged()
@@ -155,7 +162,8 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     override func setupUI() {
         super.setupUI()
         addSubviews(profileStackView, postImageView, showSelectableEmojiButton, emojiCountStackView, selectableEmojiStackView)
-        profileStackView.addArrangedSubviews(profileImageView, userNameLabel)
+        containerView.addSubviews(firstNameLabel, profileImageView)
+        profileStackView.addArrangedSubviews(containerView, userNameLabel)
         postImageView.addSubview(contentCollectionView)
     }
 
@@ -168,8 +176,16 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             $0.height.equalTo(34)
         }
         
+        containerView.snp.makeConstraints {
+            $0.size.equalTo(34)
+        }
+        
+        firstNameLabel.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
+        
         profileImageView.snp.makeConstraints {
-            $0.width.height.equalTo(34)
+            $0.size.equalTo(34)
         }
         
         contentCollectionView.snp.makeConstraints {
@@ -213,8 +229,13 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             $0.isHidden = true
         }
         
+        containerView.do {
+            $0.layer.masksToBounds = true
+            $0.layer.cornerRadius = 34 / 2
+            $0.backgroundColor = .gray800
+        }
+        
         profileImageView.do {
-            $0.backgroundColor = .gray300
             $0.contentMode = .scaleAspectFill
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = 34.0 / 2.0
@@ -226,7 +247,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         
         postImageView.do {
             $0.clipsToBounds = true
-            $0.backgroundColor = .gray300
+            $0.backgroundColor = .gray100
             $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = Layout.PostImageView.cornerRadius
         }

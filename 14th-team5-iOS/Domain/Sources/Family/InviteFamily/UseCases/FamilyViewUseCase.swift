@@ -15,7 +15,7 @@ public protocol FamilyViewUseCaseProtocol {
     func executeFetchFamilyMembers() -> Observable<PaginationResponseFamilyMemberProfile?>
 }
 
-public final class InviteFamilyViewUseCase: FamilyViewUseCaseProtocol {
+public final class FamilyViewUseCase: FamilyViewUseCaseProtocol {
     private let familyRepository: FamilyRepositoryProtocol
     
     public init(familyRepository: FamilyRepositoryProtocol) {

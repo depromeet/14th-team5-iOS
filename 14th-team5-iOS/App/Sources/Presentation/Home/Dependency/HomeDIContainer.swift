@@ -40,11 +40,11 @@ public final class HomeDIContainer {
     }
     
     func makeInviteFamilyUseCase() -> FamilyViewUseCaseProtocol {
-        return InviteFamilyViewUseCase(familyRepository: makeInviteFamilyRepository())
+        return FamilyViewUseCase(familyRepository: makeInviteFamilyRepository())
     }
     
     public func makeReactor() -> Reactor {
-        return HomeViewReactor(familyRepository: makeFamilyUseCase(), postRepository: makePostUseCase(), familyUseCase: makeInviteFamilyUseCase())
+        return HomeViewReactor(postRepository: makePostUseCase())
     }
     
 }

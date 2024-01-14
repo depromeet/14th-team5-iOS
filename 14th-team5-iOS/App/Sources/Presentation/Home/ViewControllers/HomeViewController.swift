@@ -216,9 +216,9 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .withUnretained(self)
             .subscribe {
                 $0.0.makeBibbiToastView(
-                    text: "링크가 복사되었어요",
-                    symbol: "link",
-                    width: 210
+                    text: FamilyManagementStrings.sucessCopyInvitationUrlText,
+                    designSystemImage: DesignSystemAsset.link.image,
+                    width: 220
                 )
             }
             .disposed(by: disposeBag)
@@ -228,10 +228,9 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .withUnretained(self)
             .subscribe {
                 $0.0.makeBibbiToastView(
-                    text: "잠시 후에 다시 시도해주세요",
-                    symbol: "exclamationmark.triangle.fill",
-                    palletteColors: [UIColor.systemYellow],
-                    width: 230
+                    text: FamilyManagementStrings.fetchFailInvitationUrlText,
+                    designSystemImage: DesignSystemAsset.warning.image,
+                    width: 240
                 )
             }
             .disposed(by: disposeBag)

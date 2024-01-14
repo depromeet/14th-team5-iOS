@@ -11,11 +11,11 @@ import Core
 import Data
 import Domain
 
-public final class InviteFamilyDIContainer: BaseDIContainer {
-    public typealias ViewController = InviteFamilyViewController
+public final class FamilyManagementDIContainer: BaseDIContainer {
+    public typealias ViewController = FamilyManagementViewController
     public typealias UseCase = FamilyViewUseCaseProtocol
     public typealias Repository = FamilyRepositoryProtocol
-    public typealias Reactor = InviteFamilyViewReactor
+    public typealias Reactor = FamilyManagementViewReactor
     
     private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
@@ -24,11 +24,11 @@ public final class InviteFamilyDIContainer: BaseDIContainer {
         return appDelegate.globalStateProvider
     }
     
-    public func makeViewController() -> InviteFamilyViewController {
-        return InviteFamilyViewController(reactor: makeReactor())
+    public func makeViewController() -> ViewController {
+        return FamilyManagementViewController(reactor: makeReactor())
     }
     
-    public func makeUsecase() -> FamilyViewUseCaseProtocol {
+    public func makeUsecase() -> UseCase {
         return InviteFamilyViewUseCase(familyRepository: makeRepository())
     }
     
@@ -36,7 +36,7 @@ public final class InviteFamilyDIContainer: BaseDIContainer {
         return FamilyRepository()
     }
     
-    public func makeReactor() -> InviteFamilyViewReactor {
-        return InviteFamilyViewReactor(usecase: makeUsecase(), provider: globalState)
+    public func makeReactor() -> FamilyManagementViewReactor {
+        return FamilyManagementViewReactor(familyUseCase: makeUsecase(), provider: globalState)
     }
 }

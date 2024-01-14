@@ -235,7 +235,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
 
-        reactor.state.map { $0.displayPost }
+        reactor.pulse(\.$displayPost)
             .bind(to: collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         

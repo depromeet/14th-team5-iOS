@@ -35,7 +35,7 @@ public final class CalendarPostViewReactor: Reactor {
     public struct State {
         var selectedDate: Date
         var blurImageUrl: String?
-        var displayPost: [PostListSectionModel]
+        @Pulse var displayPost: [PostListSectionModel]
         var displayCalendar: [String: [CalendarResponse]] // (월: [일자 데이터]) 형식으로 불러온 데이터를 저장
         @Pulse var shouldPresentToastMessageView: Bool
     }

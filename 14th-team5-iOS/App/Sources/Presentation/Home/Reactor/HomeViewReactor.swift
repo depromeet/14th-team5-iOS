@@ -52,17 +52,14 @@ extension HomeViewReactor {
             return postRepository.excute(query: query)
                 .asObservable()
                 .flatMap { postList in
-                    guard let postList else {
-                        return Observable.just(Mutation.showNoPostTodayView)
-                    }
-                    
-                    if postList.postLists.isEmpty {
+                    guard let postList,
+                          !postList.postLists.isEmpty else {
                         return Observable.just(Mutation.showNoPostTodayView)
                     }
                     
                     var observables = [Observable.just(Mutation.setPostCollectionView([
                         SectionModel<String, PostListData>(model: "section1", items: postList.postLists)]))]
-                                                                                      
+                    
                     if postList.selfUploaded {
                         observables.append(Observable.just(Mutation.setDidPost))
                     }

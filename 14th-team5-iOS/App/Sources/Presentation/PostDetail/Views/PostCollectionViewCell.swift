@@ -99,7 +99,6 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             .distinctUntilChanged { $0.emojis_memberIds == $1.emojis_memberIds }
             .withUnretained(self)
             .bind(onNext: {
-                print($0.1)
                 $0.0.setEmojiCountStackView(reactor: reactor, emojiList: $0.1)
             })
             .disposed(by: disposeBag)
@@ -226,8 +225,9 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         }
         
         postImageView.do {
-            $0.backgroundColor = .gray300
             $0.clipsToBounds = true
+            $0.backgroundColor = .gray300
+            $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = Layout.PostImageView.cornerRadius
         }
         

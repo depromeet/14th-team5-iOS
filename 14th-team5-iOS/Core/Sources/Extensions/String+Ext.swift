@@ -31,9 +31,9 @@ extension String {
 }
 
 extension String {
-    public subscript(_ index: Int) -> Character {
+    public subscript(_ index: Int) -> String {
         let index = self.index(self.startIndex, offsetBy: index)
         
-        return self[index]
+        return self[index].description
     }
 }

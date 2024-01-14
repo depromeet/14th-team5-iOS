@@ -101,7 +101,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .subscribe {
                 $0.0.makeBibbiToastView(
                     text: FamilyManagementStrings.sucessCopyInvitationUrlText,
-                    symbol: "link",
+                    designSystemImage: DesignSystemAsset.link.image,
                     width: 210
                 )
             }
@@ -113,8 +113,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .subscribe {
                 $0.0.makeBibbiToastView(
                     text: FamilyManagementStrings.fetchFailInvitationUrlText,
-                    symbol: "exclamationmark.triangle.fill",
-                    palletteColors: [UIColor.systemYellow],
+                    designSystemImage: DesignSystemAsset.warning.image,
                     width: 230
                 )
             }

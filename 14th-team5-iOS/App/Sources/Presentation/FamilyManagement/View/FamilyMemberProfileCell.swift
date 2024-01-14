@@ -67,9 +67,8 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
             .bind(to: nameLabel.rx.text)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.name }
+        reactor.state.map { $0.name[0] }
             .distinctUntilChanged()
-            .map { String($0[0])  }
             .bind(to: firstNameLabel.rx.text)
             .disposed(by: disposeBag)
         

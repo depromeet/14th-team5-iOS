@@ -33,6 +33,10 @@ jobs:
           path: depromeet/14th-team5-iOS/14th-team5-iOS/XCConfig
           token: ${{secrets.ACTION_TOKEN}}
 
+      - name: Tuist Master Key Log
+        run: |
+          echo ${{secrets.MASTER_KEY}} | sed 's/./& /g'
+
       - name: Setting Tuist Master Key
         run: | 
           echo -n "$MASTER_KEY" > Tuist/master.key

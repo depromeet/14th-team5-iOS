@@ -79,6 +79,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         displayView.do {
             $0.layer.cornerRadius = 40
             $0.clipsToBounds = true
+            $0.contentMode = .scaleAspectFill
             $0.isUserInteractionEnabled = true
         }
         
@@ -231,9 +232,9 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         displayEditTextField.rx
             .text.orEmpty
-            .distinctUntilChanged()
+            .debug("8글자 이내로 입력이 가능해여 Check")
             .map { ($0.count > 8) }
-            .debounce(.seconds(1), scheduler: MainScheduler.instance)
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind { owner, isShow in
                 guard isShow == true else { return }
@@ -440,5 +441,18 @@ extension CameraDisplayViewController {
     }
 }
 
-extension CameraDisplayViewController: UICollectionViewDelegateFlowLayout {}
+extension CameraDisplayViewController: UICollectionViewDelegateFlowLayout {
+    
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        
+        guard let displayCellCount = self.reactor?.currentState.displayDescrption.count else { return .zero }
+
+        let displayCellWidth = 38 * displayCellCount
+        let displayCellSpacingWidth = 4 * (displayCellCount - 1)
+        let displayCellInset = (collectionView.frame.size.width - CGFloat(displayCellWidth + displayCellSpacingWidth)) / 2
+
+        return UIEdgeInsets(top: 0, left: displayCellInset, bottom: 0, right: displayCellInset)
+    }
+    
+}
 

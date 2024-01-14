@@ -17,11 +17,9 @@ import ReactorKit
 public class WebContentViewController: BaseViewController<WebContentViewReactor> {
     
     private let webView: WKWebView = WKWebView()
+    private let webNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let webViewIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     
-    public override func loadView() {
-        view = webView
-    }
     
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,15 +27,41 @@ public class WebContentViewController: BaseViewController<WebContentViewReactor>
     
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(webViewIndicatorView)
+        view.addSubviews(webView, webNavigationBar, webViewIndicatorView)
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
         
+        
+        webNavigationBar.do {
+            $0.navigationTitle = "약관 및 정책"
+            $0.leftBarButtonItem = .arrowLeft
+            $0.leftBarButtonItemTintColor = .gray300
+        }
+        
         webViewIndicatorView.do {
             $0.hidesWhenStopped = true
             $0.color = .gray
+        }
+        
+    }
+    
+    public override func setupAutoLayout() {
+        super.setupAutoLayout()
+        webViewIndicatorView.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
+        
+        webNavigationBar.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.left.right.equalToSuperview()
+            $0.height.equalTo(42)
+        }
+        
+        webView.snp.makeConstraints {
+            $0.top.equalTo(webNavigationBar.snp.bottom)
+            $0.left.right.bottom.equalToSuperview()
         }
         
     }

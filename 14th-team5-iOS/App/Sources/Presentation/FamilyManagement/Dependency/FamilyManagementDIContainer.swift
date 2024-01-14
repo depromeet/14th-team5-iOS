@@ -29,7 +29,7 @@ public final class FamilyManagementDIContainer: BaseDIContainer {
     }
     
     public func makeUsecase() -> UseCase {
-        return InviteFamilyViewUseCase(familyRepository: makeRepository())
+        return FamilyViewUseCase(familyRepository: makeRepository())
     }
     
     public func makeRepository() -> FamilyRepositoryProtocol {

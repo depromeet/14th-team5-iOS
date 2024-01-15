@@ -57,7 +57,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         contentView.insertSubview(thumbnailView, at: 0)
         contentView.insertSubview(containerView, at: 0)
         contentView.addSubviews(
-            dayLabel, allFamilyUploadedBadge, dateOfBirthBadge, todayStrokeView
+            dayLabel, todayStrokeView, allFamilyUploadedBadge, dateOfBirthBadge
         )
     }
     

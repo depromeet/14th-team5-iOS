@@ -61,6 +61,8 @@ jobs:
       - name: Fastalne setup Keychain
         run: fastlane setup_keychain
         env:
+            APP_NAME: ${{secrets.APP_NAME}},
+            WIDGET_NAME: ${{secrets.WIDGET_NAME}},
             KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
             KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 

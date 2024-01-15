@@ -12,7 +12,6 @@ import Domain
 import RxDataSources
 import RxSwift
 
-// index 조회 필요 => index 조회 이후 스크롤시 이전/이후 포스트 조회 할 수 있어야함
 final class PostViewController: BaseViewController<PostReactor> {
     private let backgroundImageView: UIImageView = UIImageView()
     private let blurEffectView: UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffect.Style.dark))
@@ -46,20 +45,14 @@ final class PostViewController: BaseViewController<PostReactor> {
             .map { $0.selectedPost }
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
-            .bind(onNext: {
-                $0.0.setBackgroundView(data: $0.1)
-            })
+            .bind(onNext: { $0.0.setBackgroundView(data: $0.1) })
             .disposed(by: disposeBag)
         
         reactor.state
             .map { $0.reactionMemberIds }
-            .asObservable()
-            .distinctUntilChanged()
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
-            .bind(onNext: {
-                $0.0.showReactionSheet($0.1)
-            })
+            .subscribe(onNext: { $0.0.showReactionSheet($0.1) })
             .disposed(by: disposeBag)
         
         reactor.state
@@ -162,6 +155,7 @@ extension PostViewController {
     
     private func showReactionSheet(_ memberIds: [String]) {
         if memberIds.isEmpty { return }
+        
         let reactionMembersViewController = ReactionDIContainer().makeViewController(memberIds: memberIds)
         if let sheet = reactionMembersViewController.sheetPresentationController {
             sheet.detents = [.medium()]

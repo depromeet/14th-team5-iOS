@@ -293,12 +293,8 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
 
 extension HomeViewController {
     private func setNoPostTodayView(_ isShow: Bool) {
-        if isShow {
-            noPostTodayView.isHidden = !isShow
-            postCollectionView.isHidden = isShow
-        } else {
-            noPostTodayView.isHidden = !isShow
-        }
+        noPostTodayView.isHidden = !isShow
+        postCollectionView.isHidden = isShow
     }
 
     private func hideCameraButton(_ isShow: Bool) {

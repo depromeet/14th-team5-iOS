@@ -22,7 +22,7 @@ public final class HomeViewReactor: Reactor {
         case setLoading(Bool)
         case setDidPost
         case setDescriptionText(String)
-        case showNoPostTodayView
+        case showNoPostTodayView(Bool)
         case setPostCollectionView([SectionModel<String, PostListData>])
         case setRefreshing(Bool)
     }
@@ -54,10 +54,12 @@ extension HomeViewReactor {
                 .flatMap { postList in
                     guard let postList,
                           !postList.postLists.isEmpty else {
-                        return Observable.just(Mutation.showNoPostTodayView)
+                        return Observable.just(Mutation.showNoPostTodayView(true))
                     }
                     
-                    var observables = [Observable.just(Mutation.setPostCollectionView([
+                    var observables = [
+                        Observable.just(Mutation.showNoPostTodayView(false)),
+                        Observable.just(Mutation.setPostCollectionView([
                         SectionModel<String, PostListData>(model: "section1", items: postList.postLists)]))]
                     
                     if postList.selfUploaded {
@@ -81,8 +83,8 @@ extension HomeViewReactor {
         var newState = state
         
         switch mutation {
-        case .showNoPostTodayView:
-            newState.isShowingNoPostTodayView = true
+        case let .showNoPostTodayView(isShow):
+            newState.isShowingNoPostTodayView = isShow
         case let .setPostCollectionView(data):
             newState.feedSections = data
         case .setDidPost:

@@ -61,6 +61,11 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         postImageView.image = nil
     }
     
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        selectableEmojiStackView.isHidden = true
+    }
+    
     override func bind(reactor: EmojiReactor) {
         reactionButtons.enumerated().forEach { index, button in
             button.rx.tap
@@ -89,7 +94,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         
         reactor.state
             .map { $0.isShowingSelectableEmojiStackView }
-            .distinctUntilChanged()
+            .filter { $0 }
             .withUnretained(self)
             .bind(onNext: {
                 $0.0.showSelectableEmojiStackView($0.1)
@@ -317,7 +322,7 @@ extension PostCollectionViewCell {
             
             let emojiCountButton = EmojiCountButton(reactor: reactor)
             emojiCountButton.tag = index + 1
-            emojiCountButton.isSelected = emojiData.isSelfSelected
+            emojiCountButton.selectedRelay.accept(emojiData.isSelfSelected)
             emojiCountButton.setInitEmoji(emoji: EmojiData(emoji: Emojis.emoji(forIndex: index+1), count: emojiData.count))
             emojiCountStackView.addArrangedSubview(emojiCountButton)
         }

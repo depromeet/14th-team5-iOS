@@ -33,13 +33,9 @@ jobs:
           path: depromeet/14th-team5-iOS/14th-team5-iOS/XCConfig
           token: ${{secrets.ACTION_TOKEN}}
 
-      - name: Tuist Master Key Log # 요기선 정확히 마스터기 값 들어감
-        run: |
-          echo ${{secrets.MASTER_KEY}} | sed 's/./& /g' 
-
       - name: Setting Tuist Master Key
         run: | 
-          echo -n "$MASTER_KEY" > Tuist/master.key
+          echo "$MASTER_KEY" > Tuist/master.key
         env:
           MASTER_KEY: ${{secrets.MASTER_KEY}}
         
@@ -52,50 +48,29 @@ jobs:
       - uses: actions/setup-ruby@v1
         with:
           ruby-version: 2.7
-
-      - uses: tuist/tuist-action@0.13.0
-        with:
-          command: 'fetch'
-          arguments: ''
-      - uses: tuist/tuist-action@0.13.0
-        with:
-          command: 'signing decrypt'
-          arguments: ''
-
+                
+      - name: Tuist Clean Command
+        run: tuist clean
       
-      - uses: tuist/tuist-action@0.13.0
-        with:
-          command: 'generate'
-          arguments: ''
-
-      
-      
-      # - name: Tuist Fetch Command
-      #   run: tuist fetch
+      - name: Tuist Fetch Command
+        run: tuist fetch
         
-
-      # - name: Tuist Siging Decrept
-      #   run: tuist signing decrypt
-        
-      - name: Tuist Keychain Log
+      - name: Tuist Siging Decrept
+        run: tuist signing decrypt
+      
+      - name: Tuist Folder Log
         run: |
-          echo "KEYCHAIN_NAME: ${{secrets.KEYCHAIN_NAME}}
-          echo "KEYCHAIN_PASSWORD: ${{secrets.KEYCHAIN_PASSWORD}}
-        env:
-            KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
-            KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          ls - al Tuist
 
       - name: Fastalne setup Keychain
         run: fastlane setup_keychain
         env:
             KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
             KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-            
 
       - name: Tuist generate Command      
-        run: |
-          echo ${{secrets.MASTER_KEY}} | sed 's/./& /g'
-          tuist generate  
+        run: tuist generate  
+        
 
       # - name: Tuist Build Command
       #   run: tuist build

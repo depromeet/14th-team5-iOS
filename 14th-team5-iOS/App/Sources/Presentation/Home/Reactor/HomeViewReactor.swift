@@ -38,11 +38,11 @@ public final class HomeViewReactor: Reactor {
         var showLoading: Bool = true
         var didPost: Bool = false
         var isShowingNoPostTodayView: Bool = false
+        var isHideCameraButton: Bool = true
+        var descriptionText: String = ""
         
         @Pulse var timerLabelColor: UIColor = .white
         @Pulse var timer: String = ""
-        @Pulse var isHideCameraButton: Bool = true
-        @Pulse var descriptionText: String = HomeStrings.Description.standard
         @Pulse var feedSections: [SectionModel<String, PostListData>] = []
     }
     
@@ -73,6 +73,7 @@ extension HomeViewReactor {
                             SectionModel<String, PostListData>(model: "section1", items: postList.postLists)]))]
                     
                     if postList.selfUploaded {
+                        observables.append(Observable.just(Mutation.hideCamerButton(true)))
                         observables.append(Observable.just(Mutation.setDidPost))
                     }
                     
@@ -101,16 +102,19 @@ extension HomeViewReactor {
                         ])
                     }
                     
-                    // 1시간 전
+                    var observables = [
+                        Observable.just(Mutation.setTimer(time))
+                    ]
+                    
                     if time <= 3600 && !self.currentState.didPost {
-                        return Observable.concat([
-                            Observable.just(Mutation.setTimer(time)),
-                            Observable.just(Mutation.setTimerColor(.warningRed)),
-                            Observable.just(Mutation.setDescriptionText("시간이 얼마 남지 않았어요!"))
-                        ])
+                        observables.append(Observable.just(Mutation.hideCamerButton(false)))
+                        observables.append(Observable.just(Mutation.setTimerColor(.warningRed)))
+                        observables.append(Observable.just(Mutation.setDescriptionText("시간이 얼마 남지 않았어요!")))
+                    } else {
+                        observables.append(Observable.just(Mutation.setDescriptionText(HomeStrings.Description.standard)))
                     }
-                            
-                    return Observable.just(Mutation.setTimer(time))
+                    
+                    return Observable.concat(observables)
                 }
         }
     }

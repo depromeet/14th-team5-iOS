@@ -255,9 +255,18 @@ extension HomeViewController {
             .observe(on: Schedulers.main)
             .bind(to: timerLabel.rx.textColor)
             .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$descriptionText)
-            .compactMap({$0})
+
+        reactor.state
+            .map { $0.isHideCameraButton }
+            .distinctUntilChanged()
+            .observe(on: Schedulers.main)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.hideCameraButton($0.1) })
+            .disposed(by: disposeBag)
+
+        reactor.state
+            .map { $0.descriptionText }
+            .distinctUntilChanged()
             .observe(on: Schedulers.main)
             .bind(to: descriptionLabel.rx.text)
             .disposed(by: disposeBag)

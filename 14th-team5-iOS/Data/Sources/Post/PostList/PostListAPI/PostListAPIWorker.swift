@@ -69,9 +69,9 @@ extension PostListAPIWorker: PostListRepositoryProtocol {
     }
     
     private func fetchTodayPostList(headers: [APIHeader]?, query: Domain.PostListQuery) -> RxSwift.Single<Domain.PostListPage?> {
-        let requestDTO = PostListRequestDTO(page: query.page, size: query.size, date: query.date, memberId: query.memberId, sort: query.sort)
-        let spec = PostListAPIs.fetchPostList(requestDTO).spec
-        return request(spec: spec, headers: headers)
+        let requestDTO = PostListRequestDTO(page: query.page, size: query.size, date: query.date, memberId: nil, sort: query.sort)
+        let spec = PostListAPIs.fetchPostList.spec
+        return request(spec: spec, headers: headers, parameters: requestDTO)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -81,9 +81,12 @@ extension PostListAPIWorker: PostListRepositoryProtocol {
             .map(PostListResponseDTO.self)
             .catchAndReturn(nil)
             .map {
-                let selfUploaded = $0?.results.map { $0.authorId == FamilyUserDefaults.getMyMemberId() }.isEmpty
+                let myMemberId = FamilyUserDefaults.getMyMemberId()
+                let familyCount = FamilyUserDefaults.getMemberCount()
+                
+                let selfUploaded = $0?.results.map { $0.authorId == myMemberId }.contains(true) ?? false
                 let familyUploaded = $0?.results.count == FamilyUserDefaults.getMemberCount()
-                return $0?.toDomain(!(selfUploaded ?? true), familyUploaded)
+                return $0?.toDomain(selfUploaded, familyUploaded)
             }
             .asSingle()
     }

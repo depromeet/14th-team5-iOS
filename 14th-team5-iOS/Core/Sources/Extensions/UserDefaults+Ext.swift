@@ -16,11 +16,16 @@ extension UserDefaults {
         case familyId
         case memberId
         case inviteCode
+        case dayOfBirths
         
         case profileImage
         case snsType
         
         var value: String { "\(Bundle.current.bundleIdentifier ?? "").\(self.rawValue.lowercased())" }
+    }
+    
+    private var userDefaults: UserDefaults {
+        UserDefaults.standard
     }
 }
 
@@ -61,6 +66,11 @@ extension UserDefaults {
     public var snsType: String? {
         get { UserDefaults.standard.string(forKey: Key.snsType.value) }
         set { UserDefaults.standard.set(newValue, forKey: Key.snsType.value) }
+    }
+    
+    public var dayOfBirths: [Date]? {
+        get { userDefaults.array(forKey: Key.dayOfBirths.value) as? [Date] }
+        set { userDefaults.set(newValue, forKey: Key.dayOfBirths.value) }
     }
 }
 

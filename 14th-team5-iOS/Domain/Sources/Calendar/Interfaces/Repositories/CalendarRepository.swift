@@ -12,6 +12,7 @@ import RxSwift
 public protocol CalendarRepositoryProtocol {
     var disposeBag: DisposeBag { get }
     
+    func checkDateOfBirth(_ date: Date) -> Bool
     func fetchCalendarInfo(_ yearMonth: String) -> Observable<ArrayResponseCalendarResponse?>
     func fetchFamilyStatisticsInfo() -> Observable<FamilyMonthlyStatisticsResponse?>
     func fetchFamilyCreatedAt() -> Observable<FamilyCreatedAtResponse?>

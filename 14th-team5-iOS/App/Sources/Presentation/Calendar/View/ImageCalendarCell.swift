@@ -20,10 +20,11 @@ import Then
 final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {    
     // MARK: - Views
     private let dayLabel: BibbiLabel = BibbiLabel(.body1Regular, alignment: .center)
-    private let thumbnailBackgroundView: UIView = UIView()
+    private let containerView: UIView = UIView()
     private let thumbnailView: UIImageView = UIImageView()
     private let todayStrokeView: UIView = UIView()
-    private let badgeView: UIImageView = UIImageView()
+    private let allFamilyUploadedBadge: UIImageView = UIImageView()
+    private let dateOfBirthBadge: UIImageView = UIImageView()
     
     // MARK: - Properties
     public var disposeBag: RxSwift.DisposeBag = DisposeBag()
@@ -47,16 +48,16 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         thumbnailView.image = nil
         thumbnailView.layer.borderWidth = .zero
         thumbnailView.layer.borderColor = UIColor.bibbiWhite.cgColor
-        badgeView.isHidden = true
         todayStrokeView.isHidden = true
+        allFamilyUploadedBadge.isHidden = true
     }
     
     // MARK: - Helpers
     private func setupUI() {
         contentView.insertSubview(thumbnailView, at: 0)
-        contentView.insertSubview(thumbnailBackgroundView, at: 0)
+        contentView.insertSubview(containerView, at: 0)
         contentView.addSubviews(
-            dayLabel, badgeView, todayStrokeView
+            dayLabel, allFamilyUploadedBadge, dateOfBirthBadge, todayStrokeView
         )
     }
     
@@ -65,7 +66,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             $0.center.equalTo(contentView.snp.center)
         }
         
-        thumbnailBackgroundView.snp.makeConstraints {
+        containerView.snp.makeConstraints {
             $0.center.equalTo(contentView.snp.center)
             $0.width.height.equalTo(contentView.snp.width).inset(CalendarCell.AutoLayout.thumbnailInsetValue)
         }
@@ -80,10 +81,16 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             $0.width.height.equalTo(contentView.snp.width).inset(CalendarCell.AutoLayout.thumbnailInsetValue)
         }
         
-        badgeView.snp.makeConstraints {
-            $0.top.equalTo(contentView.snp.top).offset(CalendarCell.AutoLayout.badgeOffsetValue)
-            $0.trailing.equalTo(contentView.snp.trailing).offset(-CalendarCell.AutoLayout.badgeOffsetValue)
-            $0.width.height.equalTo(15.0)
+        allFamilyUploadedBadge.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(2)
+            $0.trailing.equalToSuperview().offset(-2)
+            $0.size.equalTo(15)
+        }
+        
+        dateOfBirthBadge.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(2)
+            $0.leading.equalToSuperview().offset(2)
+            $0.size.equalTo(15)
         }
     }
     
@@ -92,10 +99,10 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             $0.isHidden = true
         }
         
-        thumbnailBackgroundView.do {
+        containerView.do {
             $0.clipsToBounds = true
             $0.layer.cornerRadius = 13.0
-            $0.backgroundColor = DesignSystemAsset.gray900.color
+            $0.backgroundColor = .gray900
         }
         
         thumbnailView.do {
@@ -114,10 +121,16 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             $0.layer.borderColor = DesignSystemAsset.mainGreen.color.cgColor
         }
         
-        badgeView.do {
+        allFamilyUploadedBadge.do {
             $0.image = DesignSystemAsset.greenSmileEmoji.image
             $0.isHidden = true
-            $0.backgroundColor = UIColor.clear
+            $0.backgroundColor = .clear
+        }
+        
+        dateOfBirthBadge.do {
+            $0.image = DesignSystemAsset.birthday.image
+            $0.isHidden = true
+            $0.backgroundColor = .clear
         }
     }
     
@@ -126,7 +139,12 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: ImageCalendarCellReactor) { }
+    private func bindInput(reactor: ImageCalendarCellReactor) { 
+        Observable<Void>.just(())
+            .map { Reactor.Action.checkDateOfBirth }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+    }
     
     private func bindOutput(reactor: ImageCalendarCellReactor) {
         reactor.state.map { "\($0.date.day)" }
@@ -147,7 +165,12 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             
         reactor.state.map { !$0.allFamilyMemebersUploaded }
             .distinctUntilChanged()
-            .bind(to: badgeView.rx.isHidden)
+            .bind(to: allFamilyUploadedBadge.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { !$0.isDateOfBirth }
+            .distinctUntilChanged()
+            .bind(to: dateOfBirthBadge.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.representativeThumbnailUrl }
@@ -174,12 +197,12 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
                         $0.0.todayStrokeView.isHidden = true
                         
                         $0.0.thumbnailView.alpha = 1.0
-                        $0.0.thumbnailBackgroundView.alpha = 1.0
+                        $0.0.containerView.alpha = 1.0
                         $0.0.thumbnailView.layer.borderWidth = 2.0
                         $0.0.thumbnailView.layer.borderColor = UIColor.bibbiWhite.cgColor
                     } else {
                         $0.0.thumbnailView.alpha = 0.3
-                        $0.0.thumbnailBackgroundView.alpha = 0.3
+                        $0.0.containerView.alpha = 0.3
                         $0.0.thumbnailView.layer.borderWidth = 0.0
                         
                         if reactor.currentState.date.isToday {

@@ -31,10 +31,12 @@ extension PaginationResponseFamilyMemberProfileDTO {
             case memberId
             case name
             case imageUrl
+            case dayOfBirth
         }
         var memberId: String
         var name: String
         var imageUrl: String?
+        var dayOfBirth: String
     }
 }
 
@@ -51,7 +53,8 @@ extension PaginationResponseFamilyMemberProfileDTO.FamilyMemberProfileResponseDT
         return .init(
             memberId: memberId,
             name: name,
-            imageUrl: imageUrl
+            imageUrl: imageUrl,
+            dateOfBirth: dayOfBirth.toDate(with: "yyyy-MM-dd")
         )
     }
 }

@@ -11,11 +11,13 @@ public struct ProfileData: Equatable, Codable {
     public let memberId: String
     public let profileImageURL: String?
     public let name: String
+    public let dayOfBirth: Date
     
-    public init(memberId: String, profileImageURL: String?, name: String) {
+    public init(memberId: String, profileImageURL: String?, name: String, dayOfBirth: Date) {
         self.memberId = memberId
         self.profileImageURL = profileImageURL
         self.name = name
+        self.dayOfBirth = dayOfBirth
     }
 }
 

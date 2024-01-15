@@ -357,16 +357,15 @@ extension CalendarPostViewController: FSCalendarDataSource {
             )
             cell.reactor = ImageCalendarCellDIContainer(
                 .week,
-                dayResponse: emptyResponse,
-                isSelected: false
+                dayResponse: emptyResponse
             ).makeReactor()
             return cell
         }
         
         cell.reactor = ImageCalendarCellDIContainer(
             .week,
-            dayResponse: dayResponse,
-            isSelected: currentState.selectedDate.isEqual(with: date)
+            isSelected: currentState.selectedDate.isEqual(with: date),
+            dayResponse: dayResponse
         ).makeReactor()
         return cell
     }

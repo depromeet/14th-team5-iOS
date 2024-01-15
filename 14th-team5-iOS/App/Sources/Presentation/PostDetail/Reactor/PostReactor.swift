@@ -31,7 +31,7 @@ final class PostReactor: Reactor {
         let originPostLists: [SectionModel<String,PostListData>]
         
         var isPop: Bool = false
-        var selectedPost: PostListData = .init(postId: "", author: .init(memberId: "", profileImageURL: "", name: ""), emojiCount: 0, imageURL: "", content: "", time: "")
+        var selectedPost: PostListData = .init(postId: "", author: .init(memberId: "", profileImageURL: "", name: "", dayOfBirth: .now), emojiCount: 0, imageURL: "", content: "", time: "")
         var fetchedPost: PostData? = nil
         var fetchedEmoji: FetchEmojiDataList = .init(emojis_memberIds: [])
         var reactionMemberIds: [String] = []

@@ -48,8 +48,7 @@ final class PostViewController: BaseViewController<PostReactor> {
             .bind(onNext: { $0.0.setBackgroundView(data: $0.1) })
             .disposed(by: disposeBag)
         
-        reactor.state
-            .map { $0.reactionMemberIds }
+        reactor.pulse(\.$reactionMemberIds)
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { $0.0.showReactionSheet($0.1) })
@@ -161,6 +160,7 @@ extension PostViewController {
             sheet.detents = [.medium()]
             sheet.prefersGrabberVisible = true
         }
+        
         present(reactionMembersViewController, animated: true)
     }
     

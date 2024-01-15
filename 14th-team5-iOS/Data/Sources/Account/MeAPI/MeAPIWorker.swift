@@ -96,7 +96,7 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             memberId: memberInfo.memberId,
             profileImageURL: memberInfo.imageUrl,
             name: memberInfo.name,
-            dayOfBirth: memberInfo.dayOfBirth
+            dayOfBirth: memberInfo.dayOfBirth.toDate()
         )
         FamilyUserDefaults.saveMyMemberId(memberId: memberInfo.memberId)
         FamilyUserDefaults.saveMemberToUserDefaults(familyMember: member)

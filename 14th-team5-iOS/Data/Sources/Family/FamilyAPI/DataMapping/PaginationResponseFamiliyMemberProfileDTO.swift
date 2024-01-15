@@ -54,7 +54,7 @@ extension PaginationResponseFamilyMemberProfileDTO.FamilyMemberProfileResponseDT
             memberId: memberId,
             name: name,
             imageUrl: imageUrl,
-            dateOfBirth: dayOfBirth.toDate(with: "yyyy-MM-dd")
+            dateOfBirth: dayOfBirth.toDate()
         )
     }
 }

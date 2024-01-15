@@ -12,5 +12,5 @@ public struct MemberInfo: Codable, Equatable {
     public var name: String
     public var imageUrl: String?
     public var familyId: String?
-    public var dayOfBirth: Date
+    public var dayOfBirth: String
 }

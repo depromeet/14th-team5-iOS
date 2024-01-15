@@ -45,6 +45,6 @@ extension FamilySearchResponseDTO {
 
 extension FamilyMemberDTO {
     func toDomain() -> ProfileData {
-        return .init(memberId: memberId, profileImageURL: imageUrl, name: name, dayOfBirth: dayOfBirth.toDate(with: "yyyy-MM-dd"))
+        return .init(memberId: memberId, profileImageURL: imageUrl, name: name, dayOfBirth: dayOfBirth.toDate())
     }
 }

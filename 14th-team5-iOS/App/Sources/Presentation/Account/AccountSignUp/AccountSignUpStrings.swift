@@ -13,7 +13,7 @@ extension String {
         enum Nickname {
             static let title: String = "닉네임을 입력해주세요"
             static let placeholder: String = "김아빠"
-            static let errorMsg: String = "10자 이내로 입력해주세요"
+            static let errorMsg: String = "9자 이내로 입력해주세요"
             static var desc: String = "가족에게 주로 불리는 호칭을 입력해주세요"
         }
         enum Date {

@@ -23,12 +23,23 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
     private let titleLabel = BibbiLabel(.head2Bold, alignment: .center, textColor: .gray300)
     private let profileButton = UIButton()
     
+    private var pickerConfiguration: PHPickerConfiguration = {
+        var configuration: PHPickerConfiguration = PHPickerConfiguration()
+        configuration.filter = .images
+        configuration.selectionLimit = 1
+        configuration.selection = .default
+        return configuration
+    }()
+    private lazy var profilePickerController: PHPickerViewController = PHPickerViewController(configuration: pickerConfiguration)
+    
     private let nextButton = UIButton()
     private let profileView = UIImageView()
     private let cameraView = UIImageView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        profilePickerController.delegate = self
     }
     
     override func bind(reactor: AccountSignUpReactor) {
@@ -44,9 +55,9 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
             .disposed(by: disposeBag)
         
         profileButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .map { Reactor.Action.profileImageTapped }
-            .bind(to: reactor.action)
+            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.createAlertController(owner: $0.0) })
             .disposed(by: disposeBag)
         
         NotificationCenter.default.rx
@@ -82,14 +93,21 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
             .observe(on: Schedulers.main)
             .bind(onNext: { $0.0.showNextPage(accessToken: $0.1) })
             .disposed(by: disposeBag)
-
+        
+        NotificationCenter.default.rx
+            .notification(.PHPickerAssetsDidFinishPickingProcessingPhotoNotification)
+            .compactMap { notification -> Data? in
+                guard let userInfo = notification.userInfo else { return nil }
+                return userInfo["selectImage"] as? Data
+            }
+            .map{ Reactor.Action.didTapPHAssetsImage($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     override func setupUI() {
         super.setupUI()
-        
-        profileView.addSubview(cameraView)
-        view.addSubviews(titleLabel, profileButton, nextButton, profileView)
+        view.addSubviews(titleLabel, profileButton, profileView, cameraView, nextButton)
     }
     
     override func setupAutoLayout() {
@@ -113,7 +131,8 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
         }
         
         cameraView.snp.makeConstraints {
-            $0.bottom.trailing.equalToSuperview()
+            $0.centerX.equalToSuperview().offset(35)
+            $0.top.equalTo(titleLabel.snp.bottom).offset(90)
             $0.width.height.equalTo(28)
         }
         
@@ -133,6 +152,12 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
             $0.tintColor = DesignSystemAsset.gray200.color
             $0.backgroundColor = DesignSystemAsset.gray800.color
             $0.layer.cornerRadius = 45
+        }
+        
+        profileView.do {
+            $0.contentMode = .scaleAspectFill
+            $0.layer.cornerRadius = 45
+            $0.clipsToBounds = true
         }
         
         cameraView.do {
@@ -159,6 +184,7 @@ extension AccountProfileViewController {
         
         if let firstName = nickname.first {
             profileButton.setTitle(String(firstName), for: .normal)
+            profileButton.titleLabel?.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 28)
         }
     }
     
@@ -176,5 +202,40 @@ extension AccountProfileViewController {
         let container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
         container.modalPresentationStyle = .fullScreen
         present(container, animated: false)
+    }
+}
+
+extension AccountProfileViewController {
+    private func createAlertController(owner: AccountProfileViewController) {
+        let alertController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        let presentCameraAction: UIAlertAction = UIAlertAction(title: "카메라", style: .default) { _ in
+            let cameraViewController = CameraDIContainer(cameraType: .profile).makeViewController()
+            owner.navigationController?.pushViewController(cameraViewController, animated: true)
+        }
+        let presentAlbumAction: UIAlertAction = UIAlertAction(title: "앨범", style: .default) { _ in
+            self.profilePickerController.modalPresentationStyle = .fullScreen
+            self.profilePickerController.overrideUserInterfaceStyle = .dark
+            self.present(self.profilePickerController, animated: true)
+        }
+        let presentCancelAction: UIAlertAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)
+        presentCancelAction.setValue(UIColor.red, forKey: "titleTextColor")
+        
+        [presentCameraAction, presentAlbumAction, presentCancelAction].forEach { alertController.addAction($0) }
+        alertController.overrideUserInterfaceStyle = .dark
+        owner.present(alertController, animated: true)
+    }
+}
+
+extension AccountProfileViewController: PHPickerViewControllerDelegate {
+    public func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        let itemProvider = results.first?.itemProvider
+        picker.dismiss(animated: true)
+        if let imageProvider = itemProvider, imageProvider.canLoadObject(ofClass: UIImage.self) {
+            imageProvider.loadObject(ofClass: UIImage.self) { image, error in
+                guard let photoImage: UIImage = image as? UIImage,
+                      let originalData: Data = photoImage.jpegData(compressionQuality: 1.0) else { return }
+                imageProvider.didSelectProfileImageWithProcessing(photo: originalData, error: error)
+            }
+        }
     }
 }

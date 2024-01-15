@@ -100,11 +100,11 @@ final class PostNavigationView: BaseView<PostReactor> {
 }
 
 extension PostNavigationView {
-    func setData(data: PostListData) {
+    private func setData(data: PostListData) {
         if let author = data.author,
            let profileImageURL = author.profileImageURL,
            let url = URL(string: profileImageURL), !profileImageURL.isEmpty {
-            profileImageView.load(url: url)
+            profileImageView.kf.setImage(with: url)
             defaultNameLabel.isHidden = true
         } else {
             if let author = data.author,
@@ -114,6 +114,8 @@ extension PostNavigationView {
                 defaultNameLabel.text = "알"
             }
             
+            profileImageView.kf.base.image = nil
+            defaultNameLabel.isHidden = false
             profileImageView.backgroundColor = .gray800
         }
 

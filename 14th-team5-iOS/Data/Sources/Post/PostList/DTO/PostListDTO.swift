@@ -12,7 +12,7 @@ public struct PostListRequestDTO: Codable {
     let page: Int
     let size: Int
     let date: String
-    let memberId: String
+    let memberId: String?
     let sort: String
 }
 

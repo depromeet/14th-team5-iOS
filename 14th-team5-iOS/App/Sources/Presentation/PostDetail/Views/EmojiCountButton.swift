@@ -16,26 +16,28 @@ import RxCocoa
 final class EmojiCountButton: BaseView<EmojiReactor> {
     typealias Layout = PostAutoLayout.CollectionView.CollectionViewCell.EmojiCountStackView.EmojiCountButton
     
+    private enum GestureType {
+        case tap
+        case longPress
+    }
+    
     private let emojiImageView = UIImageView()
     private let countLabel = BibbiLabel(.body1Regular, alignment: .right)
+    private let tapGesture = UITapGestureRecognizer()
+    private let longPressGesture = UILongPressGestureRecognizer()
     
-    var isSelected: Bool = false {
-        didSet {
-            if isSelected {
-                setSelected()
-            } else {
-                setUnSelected()
-            }
-        }
-    }
+    let selectedRelay: BehaviorRelay<Bool> = BehaviorRelay(value: false)
     
     convenience init(reactor: Reactor) {
         self.init(frame: .zero)
         self.reactor = reactor
     }
-
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
+        self.addGestureRecognizer(tapGesture)
+        self.addGestureRecognizer(longPressGesture)
     }
     
     required init?(coder: NSCoder) {
@@ -43,15 +45,28 @@ final class EmojiCountButton: BaseView<EmojiReactor> {
     }
     
     override func bind(reactor: EmojiReactor) {
-        self.rx.tap
+        tapGesture.rx.event
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
-            .map { Reactor.Action.tappedSelectedEmojiCountButton(Emojis.emoji(forIndex: self.tag)) }
+            .map { _ in Reactor.Action.tappedSelectedEmojiCountButton(Emojis.emoji(forIndex: self.tag)) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        self.rx.longPress
+        longPressGesture.rx.event
             .map { _ in Reactor.Action.longPressedEmojiCountButton(self.tag) }
             .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        longPressGesture.rx.event
+            .asObservable()
+            .map { $0.state }
+            .withUnretained(self) { ($0, $1) }
+            .bind(onNext: { $0.0.tapGesture.isEnabled = $0.1 == .ended })
+            .disposed(by: disposeBag)
+        
+        selectedRelay
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: { $0.0.setSelected($0.1) })
             .disposed(by: disposeBag)
     }
     
@@ -81,14 +96,12 @@ final class EmojiCountButton: BaseView<EmojiReactor> {
 }
 
 extension EmojiCountButton {
-    private func setUnSelected() {
-        backgroundColor =  UIColor(red: 0.141, green: 0.141, blue: 0.153, alpha: 0.5)
-        layer.borderWidth = 0
-    }
-    
-    private func setSelected() {
-        backgroundColor = UIColor(red: 0.141, green: 0.141, blue: 0.153, alpha: 1)
-        layer.borderWidth = 1
+    private func setSelected(_ isSelected: Bool) {
+        let alpha = isSelected ? 1: 0.5
+        let borderWidth: CGFloat = isSelected ? 1 : 0
+        
+        backgroundColor =  UIColor(red: 0.141, green: 0.141, blue: 0.153, alpha: alpha)
+        layer.borderWidth = borderWidth
         layer.borderColor = UIColor(red: 0.908, green: 0.908, blue: 0.908, alpha: 1).cgColor
     }
 }
@@ -97,9 +110,5 @@ extension EmojiCountButton {
     func setInitEmoji(emoji: EmojiData) {
         emojiImageView.image = emoji.emoji.emojiImage
         countLabel.text = "\(emoji.count)"
-    }
-    
-    func setCountLabel(_ count: Int) {
-        countLabel.text = "\(count)"
     }
 }

@@ -114,7 +114,7 @@ extension EmojiReactor {
         var newState = state
         switch mutation {
         case .showSelectableEmojiStackView:
-            newState.isShowingSelectableEmojiStackView.toggle()
+            newState.isShowingSelectableEmojiStackView = true
         case let .selectEmoji(emoji):
             guard let myMemberId = UserDefaults.standard.memberId,
                   let fetchedEmojiList = newState.fetchedEmojiList else {

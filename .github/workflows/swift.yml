@@ -35,7 +35,7 @@ jobs:
 
       - name: Setting Tuist Master Key
         run: | 
-          echo "$MASTER_KEY" > Tuist/master.key
+          printf "%s" "${{ secrets.MASTER_KEY }}" > Tuist/master.key
         env:
           MASTER_KEY: ${{secrets.MASTER_KEY}}
         
@@ -57,10 +57,6 @@ jobs:
         
       - name: Tuist Siging Decrept
         run: tuist signing decrypt
-      
-      - name: Tuist Folder Log
-        run: |
-          ls - al Tuist/Signing
 
       - name: Fastalne setup Keychain
         run: fastlane setup_keychain

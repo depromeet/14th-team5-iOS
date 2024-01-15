@@ -27,6 +27,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     private let invitationDescLabel: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
     private let invitationUrlLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray300)
     private let shareLineImageView: UIImageView = UIImageView()
+    private let progressView: UIProgressView = UIProgressView()
     
     private let dividerView: UIView = UIView()
     
@@ -56,6 +57,11 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     }
     
     private func bindInput(reactor: FamilyManagementViewReactor) {
+        Observable<Void>.just(())
+            .map { Reactor.Action.fetchMeInfo }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         Observable<Void>.just(())
             .map { Reactor.Action.fetchFamilyMemebers }
             .bind(to: reactor.action)

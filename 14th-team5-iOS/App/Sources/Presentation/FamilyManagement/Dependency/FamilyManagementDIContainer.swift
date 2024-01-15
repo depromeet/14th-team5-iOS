@@ -11,12 +11,8 @@ import Core
 import Data
 import Domain
 
-public final class FamilyManagementDIContainer: BaseDIContainer {
-    public typealias ViewController = FamilyManagementViewController
-    public typealias UseCase = FamilyViewUseCaseProtocol
-    public typealias Repository = FamilyRepositoryProtocol
-    public typealias Reactor = FamilyManagementViewReactor
-    
+public final class FamilyManagementDIContainer {
+    // MARK: - Properties
     private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             return GlobalStateProvider()
@@ -24,19 +20,32 @@ public final class FamilyManagementDIContainer: BaseDIContainer {
         return appDelegate.globalStateProvider
     }
     
-    public func makeViewController() -> ViewController {
+    // MARK: - Make
+    public func makeViewController() -> FamilyManagementViewController {
         return FamilyManagementViewController(reactor: makeReactor())
     }
     
-    public func makeUsecase() -> UseCase {
-        return FamilyViewUseCase(familyRepository: makeRepository())
+    public func makeMeRepository() -> MeRepositoryProtocol {
+        return MeAPIs.Worker()
     }
     
-    public func makeRepository() -> FamilyRepositoryProtocol {
+    public func makeMeUseCase() -> MeUseCaseProtocol {
+        return MeUseCase(meRepository: makeMeRepository())
+    }
+    
+    public func makeFamilyUsecase() -> FamilyViewUseCaseProtocol {
+        return FamilyViewUseCase(familyRepository: makeFamilyRepository())
+    }
+    
+    public func makeFamilyRepository() -> FamilyRepositoryProtocol {
         return FamilyRepository()
     }
     
     public func makeReactor() -> FamilyManagementViewReactor {
-        return FamilyManagementViewReactor(familyUseCase: makeUsecase(), provider: globalState)
+        return FamilyManagementViewReactor(
+            meUseCase: makeMeUseCase(),
+            familyUseCase: makeFamilyUsecase(),
+            provider: globalState
+        )
     }
 }

@@ -18,19 +18,22 @@ public final class FamilyManagementViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case didTapShareButton
+        case fetchMeInfo
         case fetchFamilyMemebers
     }
     
     // MARK: - Mutate
     public enum Mutation {
-        case setSharePanel(String)
+        case setSharePanel(String?)
         case setCopySuccessToastMessageView
         case setFetchFailureTaostMessageView
+        case injectFamilyId(String?)
         case injectFamilyMembers([FamilyMemberProfileCellReactor])
     }
     
     // MARK: - State
     public struct State {
+        var familyId: String?
         @Pulse var familyInvitationUrl: URL?
         @Pulse var shouldPresentCopySuccessToastMessageView: Bool
         @Pulse var shouldPresentFetchFailureToastMessageView: Bool
@@ -41,14 +44,20 @@ public final class FamilyManagementViewReactor: Reactor {
     // MARK: - Properties
     public let initialState: State
     
+    public let meUseCase: MeUseCaseProtocol
     public let familyUseCase: FamilyViewUseCaseProtocol
     public let provider: GlobalStateProviderProtocol
     
     private let memberId: String? = App.Repository.member.memberID.value
     
     // MARK: - Intializer
-    init(familyUseCase: FamilyViewUseCaseProtocol, provider: GlobalStateProviderProtocol) {
+    init(
+        meUseCase: MeUseCaseProtocol,
+        familyUseCase: FamilyViewUseCaseProtocol,
+        provider: GlobalStateProviderProtocol
+    ) {
         self.initialState = State(
+            familyId: nil,
             familyInvitationUrl: nil,
             shouldPresentCopySuccessToastMessageView: false,
             shouldPresentFetchFailureToastMessageView: false,
@@ -56,6 +65,7 @@ public final class FamilyManagementViewReactor: Reactor {
             displayFamilyMemberCount: 0
         )
         
+        self.meUseCase = meUseCase
         self.familyUseCase = familyUseCase
         self.provider = provider
     }
@@ -78,11 +88,24 @@ public final class FamilyManagementViewReactor: Reactor {
         switch action {
         case .didTapShareButton:
             return familyUseCase.executeFetchInvitationUrl()
-                .map {
+                .flatMap {
                     guard let invitationLink = $0?.url else {
-                        return .setFetchFailureTaostMessageView
+                        return Observable<Mutation>.concat(
+                            Observable.just(.injectFamilyId(nil)),
+                            Observable.just(.setFetchFailureTaostMessageView)
+                        )
                     }
-                    return .setSharePanel(invitationLink)
+                    return Observable<Mutation>.just(.setSharePanel(invitationLink))
+                }
+            
+        case .fetchMeInfo:
+            return meUseCase.getMemberInfo()
+                .asObservable()
+                .flatMap {
+                    guard let familyId: String = $0?.familyId else {
+                        return Observable<Mutation>.just(.injectFamilyId(nil))
+                    }
+                    return Observable<Mutation>.just(.injectFamilyId(familyId))
                 }
             
         case .fetchFamilyMemebers:
@@ -110,13 +133,16 @@ public final class FamilyManagementViewReactor: Reactor {
         var newState = state
         switch mutation {
         case let .setSharePanel(urlString):
-            newState.familyInvitationUrl = URL(string: urlString)
+            newState.familyInvitationUrl = URL(string: urlString ?? "")
             
         case .setCopySuccessToastMessageView:
             newState.shouldPresentCopySuccessToastMessageView = true
             
         case .setFetchFailureTaostMessageView:
             newState.shouldPresentFetchFailureToastMessageView = true
+            
+        case let .injectFamilyId(familyId):
+            newState.familyId = familyId
             
         case let .injectFamilyMembers(familyMembers):
             newState.displayFamilyMemberCount = familyMembers.count

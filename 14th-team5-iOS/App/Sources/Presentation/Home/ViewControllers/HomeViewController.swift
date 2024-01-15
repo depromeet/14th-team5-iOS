@@ -52,6 +52,11 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        Observable<Void>.just(())
+            .map { Reactor.Action.feetchMeInfo }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         Observable<Int>.interval(.seconds(1), scheduler: MainScheduler.instance)
             .startWith(0)
             .map { [weak self] _ in

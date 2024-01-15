@@ -33,6 +33,7 @@ public final class ProfileViewReactor: Reactor {
         case setFeedCategroySection([ProfileFeedSectionItem])
         case setProfileMemberItems(ProfileMemberResponse?)
         case setDefaultProfile(Bool)
+        case setChangNickName(Bool)
         case setProfilePostItems(ProfilePostResponse)
     }
     
@@ -40,6 +41,7 @@ public final class ProfileViewReactor: Reactor {
         var isLoading: Bool
         var memberId: String
         var isUser: Bool
+        var isChangeNickname: Bool
         var isDefaultProfile: Bool
         @Pulse var feedSection: [ProfileFeedSectionModel]
         @Pulse var profileMemberEntity: ProfileMemberResponse?
@@ -56,6 +58,7 @@ public final class ProfileViewReactor: Reactor {
             isLoading: false,
             memberId: memberId,
             isUser: isUser,
+            isChangeNickname: false,
             isDefaultProfile: false,
             feedSection: [.feedCategory([])],
             profileMemberEntity: nil,
@@ -111,8 +114,9 @@ public final class ProfileViewReactor: Reactor {
                     .asObservable()
                     .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
                             .concat(
+                                .just(.setDefaultProfile(self.currentState.isDefaultProfile)),
+                                .just(.setChangNickName(isUpdate)),
                                 .just(.setProfileMemberItems(entity)),
-                                .just(.setDefaultProfile(isUpdate)),
                                 .just(.setLoading(false))
                             
                             )
@@ -253,6 +257,8 @@ public final class ProfileViewReactor: Reactor {
             
         case let .setDefaultProfile(isDefaultProfile):
             newState.isDefaultProfile = isDefaultProfile
+        case let .setChangNickName(isChangeNickname):
+            newState.isChangeNickname = isChangeNickname
         }
         
         return newState

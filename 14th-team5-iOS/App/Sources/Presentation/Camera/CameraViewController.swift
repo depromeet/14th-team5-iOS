@@ -164,8 +164,8 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         
         reactor.state
-            .map { ($0.accountImage, $0.profileImageURLEntity)}
-            .filter { $0.1 != nil }
+            .map { ($0.accountImage, $0.profileImageURLEntity, $0.memberId)}
+            .filter { $0.1 != nil || !$0.2.isEmpty }
             .withUnretained(self)
             .subscribe(onNext: { (owner, originEntity) in
                 let userInfo: [AnyHashable: Any] = ["presignedURL": originEntity.1?.imageURL, "originImage": originEntity.0]

@@ -206,6 +206,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(onNext: { $0.0.setupProfileButton(title: $0.1)})
             .disposed(by: disposeBag)
         
+        
         NotificationCenter.default.rx
             .notification(.DidFinishProfileNickNameUpdate)
             .compactMap { notification -> Bool? in
@@ -228,9 +229,11 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .disposed(by: disposeBag)
         
         Observable.zip(
-            reactor.state.map { $0.isDefaultProfile },
-            reactor.state.compactMap { "\($0.profileMemberEntity?.memberName ?? ""))"}
+            reactor.state.map { $0.isChangeNickname },
+            reactor.state.compactMap { "\($0.profileMemberEntity?.memberName ?? "")"},
+            reactor.state.map { $0.isDefaultProfile}
         )
+        .filter { $0.2 == true}
         .compactMap { ("\($0.1)", $0.0)}
         .withUnretained(self)
         .observe(on: MainScheduler.instance)

@@ -232,9 +232,8 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         displayEditTextField.rx
             .text.orEmpty
-            .debug("8글자 이내로 입력이 가능해여 Check")
             .map { ($0.count > 8) }
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .debounce(.milliseconds(300), scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind { owner, isShow in
                 guard isShow == true else { return }

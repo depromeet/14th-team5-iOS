@@ -79,6 +79,14 @@ public class WebContentViewController: BaseViewController<WebContentViewReactor>
             .bind(to: webView.rx.loadURL)
             .disposed(by: disposeBag)
         
+        webNavigationBar.rx
+            .didTapLeftBarButton
+            .throttle(.microseconds(300), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+                owner.navigationController?.popViewController(animated: true)
+            }).disposed(by: disposeBag)
+        
         reactor.state
             .map { $0.isLoading }
             .distinctUntilChanged()

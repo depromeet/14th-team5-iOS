@@ -20,10 +20,10 @@ public final class ProfileViewReactor: Reactor {
     
     public enum Action {
         case viewDidLoad
-        case viewWillAppear
+        case viewWillAppear(Bool)
         case fetchMorePostItems(Bool)
         case didSelectPHAssetsImage(Data)
-        case didTapInitProfile
+        case didTapInitProfile(Data)
     }
     
     public enum Mutation {
@@ -32,6 +32,7 @@ public final class ProfileViewReactor: Reactor {
         case setPresignedS3Upload(Bool)
         case setFeedCategroySection([ProfileFeedSectionItem])
         case setProfileMemberItems(ProfileMemberResponse?)
+        case setDefaultProfile(Bool)
         case setProfilePostItems(ProfilePostResponse)
     }
     
@@ -39,6 +40,7 @@ public final class ProfileViewReactor: Reactor {
         var isLoading: Bool
         var memberId: String
         var isUser: Bool
+        var isDefaultProfile: Bool
         @Pulse var feedSection: [ProfileFeedSectionModel]
         @Pulse var profileMemberEntity: ProfileMemberResponse?
         @Pulse var profilePostEntity: ProfilePostResponse?
@@ -54,6 +56,7 @@ public final class ProfileViewReactor: Reactor {
             isLoading: false,
             memberId: memberId,
             isUser: isUser,
+            isDefaultProfile: false,
             feedSection: [.feedCategory([])],
             profileMemberEntity: nil,
             isProfileUpload: false,
@@ -102,13 +105,14 @@ public final class ProfileViewReactor: Reactor {
                     }
             )
             
-        case .viewWillAppear:
+        case let .viewWillAppear(isUpdate):
             return .concat(
                 profileUseCase.executeProfileMemberItems(memberId: currentState.memberId)
                     .asObservable()
                     .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
                             .concat(
                                 .just(.setProfileMemberItems(entity)),
+                                .just(.setDefaultProfile(isUpdate)),
                                 .just(.setLoading(false))
                             
                             )
@@ -142,6 +146,7 @@ public final class ProfileViewReactor: Reactor {
                                                 .just(.setProfilePresingedURL(entity)),
                                                 .just(.setPresignedS3Upload(isSuccess)),
                                                 .just(.setProfileMemberItems(memberEntity)),
+                                                .just(.setDefaultProfile(false)),
                                                 .just(.setLoading(false))
                                             
                                             )
@@ -180,10 +185,8 @@ public final class ProfileViewReactor: Reactor {
                         .just(.setLoading(false))
                     )
                 }
-        case .didTapInitProfile:
-            //TODO: 유저 디폴트 이미지
-            guard let profileImage = UserDefaults.standard.profileImage else { return .empty() }
-            let initProfileImage: String = "\(profileImage.hashValue).jpg"
+        case let .didTapInitProfile(profileData):
+            let initProfileImage: String = "\(profileData.hashValue).jpg"
             let profileImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: initProfileImage)
             return .concat(
                 .just(.setLoading(true)),
@@ -194,7 +197,7 @@ public final class ProfileViewReactor: Reactor {
                     .flatMap { owner, entity -> Observable<ProfileViewReactor.Mutation> in
                         guard let profilePresingedURL = entity?.imageURL else { return .empty() }
                         return owner.profileUseCase
-                            .executeProfileImageToPresingedUpload(to: profilePresingedURL, data: profileImage)
+                            .executeProfileImageToPresingedUpload(to: profilePresingedURL, data: profileData)
                             .subscribe(on:  ConcurrentDispatchQueueScheduler.init(qos: .background))
                             .asObservable()
                             .flatMap { isSuccess -> Observable<ProfileViewReactor.Mutation> in
@@ -210,6 +213,7 @@ public final class ProfileViewReactor: Reactor {
                                                 .just(.setProfilePresingedURL(entity)),
                                                 .just(.setPresignedS3Upload(isSuccess)),
                                                 .just(.setProfileMemberItems(memberEntity)),
+                                                .just(.setDefaultProfile(true)),
                                                 .just(.setLoading(false))
                                             )
                                             
@@ -246,6 +250,9 @@ public final class ProfileViewReactor: Reactor {
             
         case let .setPresignedS3Upload(isProfileUpload):
             newState.isProfileUpload = isProfileUpload
+            
+        case let .setDefaultProfile(isDefaultProfile):
+            newState.isDefaultProfile = isDefaultProfile
         }
         
         return newState

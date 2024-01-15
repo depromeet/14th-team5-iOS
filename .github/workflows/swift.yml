@@ -60,7 +60,7 @@ jobs:
       
       - name: Tuist Folder Log
         run: |
-          ls - al Tuist
+          ls - al Tuist/Signing
 
       - name: Fastalne setup Keychain
         run: fastlane setup_keychain

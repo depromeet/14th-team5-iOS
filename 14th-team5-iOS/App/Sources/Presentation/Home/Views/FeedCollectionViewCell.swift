@@ -24,7 +24,6 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
     
     override func setupUI() {
         addSubviews(imageView, stackView)
-        
         stackView.addArrangedSubviews(nameLabel, timeLabel)
     }
     

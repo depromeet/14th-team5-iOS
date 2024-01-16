@@ -13,10 +13,9 @@ import Domain
 import RxDataSources
 
 final class HomeFamilyViewController: BaseViewController<HomeFamilyViewReactor> {
-    private let inviteFamilyView: UIView = InviteFamilyView()
+    private let inviteFamilyView: InviteFamilyView = InviteFamilyView()
     private let familyCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     private let familyCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-    private let refreshControl: UIRefreshControl = UIRefreshControl()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,12 +52,15 @@ final class HomeFamilyViewController: BaseViewController<HomeFamilyViewReactor> 
         }
         
         familyCollectionView.do {
-            $0.refreshControl = refreshControl
             $0.showsVerticalScrollIndicator = false
             $0.showsHorizontalScrollIndicator = false
             $0.register(FamilyCollectionViewCell.self, forCellWithReuseIdentifier: FamilyCollectionViewCell.id)
             $0.backgroundColor = .clear
             $0.collectionViewLayout = familyCollectionViewLayout
+        }
+        
+        inviteFamilyView.do {
+            $0.setLabel(caption: "이런, 아직 아무도 없군요!", title: "가족 초대하기")
         }
     }
 }
@@ -87,11 +89,6 @@ extension HomeFamilyViewController {
                 let profileViewController = ProfileDIContainer(memberId: memberId).makeViewController()
                 self.navigationController?.pushViewController(profileViewController, animated: true)
             }.disposed(by: disposeBag)
-        
-        refreshControl.rx.controlEvent(.valueChanged)
-            .map { Reactor.Action.refreshCollectionview }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: HomeFamilyViewReactor) {
@@ -144,16 +141,6 @@ extension HomeFamilyViewController {
                     width: 230
                 )
             }
-            .disposed(by: disposeBag)
-        
-        reactor.state
-            .map { $0.isRefreshing }
-            .observe(on: Schedulers.main)
-            .bind(onNext: { [weak familyCollectionView] isRefreshing in
-                if let refreshControl = familyCollectionView?.refreshControl {
-                    refreshControl.endRefreshing()
-                }
-            })
             .disposed(by: disposeBag)
     }
 }

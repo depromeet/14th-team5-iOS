@@ -38,7 +38,7 @@ public final class HomeViewReactor: Reactor {
         var showLoading: Bool = true
         var didPost: Bool = false
         var isShowingNoPostTodayView: Bool = false
-        var isHideCameraButton: Bool = true
+        var isHideCameraButton: Bool = false
         var descriptionText: String = ""
         
         @Pulse var timerLabelColor: UIColor = .white
@@ -93,11 +93,10 @@ extension HomeViewReactor {
                 .flatMap {_ in
                     let time = self.calculateRemainingTime()
                     
-                    // 시간 이외
                     guard time > 0 else {
                         return Observable.concat([
                             Observable.just(Mutation.hideCamerButton(true)),
-                            Observable.just(Mutation.setDescriptionText(HomeStrings.Timer.notTime)),
+                            Observable.just(Mutation.setDescriptionText(HomeStrings.Description.standard)),
                             Observable.just(Mutation.setTimer(time))
                         ])
                     }

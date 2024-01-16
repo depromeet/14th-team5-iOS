@@ -242,6 +242,7 @@ extension HomeViewController {
             .bind(onNext: { [weak postCollectionView] isRefreshing in
                 if let refreshControl = postCollectionView?.refreshControl {
                     refreshControl.endRefreshing()
+                    postCollectionView?.reloadData()
                 }
             })
             .disposed(by: disposeBag)
@@ -282,16 +283,6 @@ extension HomeViewController {
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
             .bind(onNext: { $0.0.setNoPostTodayView($0.1) })
-            .disposed(by: disposeBag)
-        
-        reactor.state
-            .map { $0.didPost }
-            .observe(on: MainScheduler.instance)
-            .distinctUntilChanged()
-            .withUnretained(self)
-            .bind(onNext: {
-                $0.0.hideCameraButton($0.1)
-            })
             .disposed(by: disposeBag)
     }
 }

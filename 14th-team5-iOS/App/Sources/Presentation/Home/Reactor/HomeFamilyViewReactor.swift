@@ -17,7 +17,6 @@ public final class HomeFamilyViewReactor: Reactor {
     public enum Action {
         case getFamilyMembers
         case tapInviteFamily
-        case refreshCollectionview
     }
     
     public enum Mutation {
@@ -28,11 +27,9 @@ public final class HomeFamilyViewReactor: Reactor {
         case setCopySuccessToastMessageView
         case setFetchFailureToastMessageView
         case setSharePanel(String)
-        case setRefreshing(Bool)
     }
     
     public struct State {
-        var isRefreshing: Bool = false
         var showLoading: Bool = true
         var isShowingInviteFamilyView: Bool = false
         var familySections: [SectionModel<String, ProfileData>] = []
@@ -88,13 +85,8 @@ extension HomeFamilyViewReactor {
                     var observables = [Observable.just(Mutation.setFamilyCollectionView([
                         SectionModel<String, ProfileData>(model: "section1", items: familyMembers.members)]))]
         
-                    
-                    observables.append(Observable.just(Mutation.setRefreshing(false)))
                     return Observable.concat(observables)
                 }
-        case .refreshCollectionview:
-            let getFamilyMembersAction = Action.getFamilyMembers
-            return mutate(action: getFamilyMembersAction)
         }
     }
     
@@ -116,8 +108,6 @@ extension HomeFamilyViewReactor {
             newState.shouldPresentFetchFailureToastMessageView = true
         case let .setSharePanel(urlString):
             newState.familyInvitationLink = URL(string: urlString)
-        case let .setRefreshing(isRefreshing):
-            newState.isRefreshing = isRefreshing
         }
         
         return newState

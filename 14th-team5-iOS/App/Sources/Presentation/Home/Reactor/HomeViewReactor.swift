@@ -16,7 +16,7 @@ import RxDataSources
 
 public final class HomeViewReactor: Reactor {
     public enum Action {
-        case feetchMeInfo
+        case fetchMeInfo
         case getTodayPostList
         case refreshCollectionview
         case startTimer
@@ -60,7 +60,7 @@ public final class HomeViewReactor: Reactor {
 extension HomeViewReactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .feetchMeInfo:
+        case .fetchMeInfo:
             return meRepository.getMemberInfo()
                 .asObservable()
                 .flatMap { _ in

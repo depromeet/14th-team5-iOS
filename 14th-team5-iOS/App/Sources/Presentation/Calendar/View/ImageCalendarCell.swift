@@ -24,7 +24,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
     private let thumbnailView: UIImageView = UIImageView()
     private let todayStrokeView: UIView = UIView()
     private let allFamilyUploadedBadge: UIImageView = UIImageView()
-    private let dateOfBirthBadge: UIImageView = UIImageView()
+    private let dayOfBirthBadge: UIImageView = UIImageView()
     
     // MARK: - Properties
     public var disposeBag: RxSwift.DisposeBag = DisposeBag()
@@ -57,7 +57,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         contentView.insertSubview(thumbnailView, at: 0)
         contentView.insertSubview(containerView, at: 0)
         contentView.addSubviews(
-            dayLabel, todayStrokeView, allFamilyUploadedBadge, dateOfBirthBadge
+            dayLabel, todayStrokeView, allFamilyUploadedBadge, dayOfBirthBadge
         )
     }
     
@@ -87,7 +87,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             $0.size.equalTo(15)
         }
         
-        dateOfBirthBadge.snp.makeConstraints {
+        dayOfBirthBadge.snp.makeConstraints {
             $0.top.equalToSuperview().offset(2)
             $0.leading.equalToSuperview().offset(2)
             $0.size.equalTo(15)
@@ -127,7 +127,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             $0.backgroundColor = .clear
         }
         
-        dateOfBirthBadge.do {
+        dayOfBirthBadge.do {
             $0.image = DesignSystemAsset.birthday.image
             $0.isHidden = true
             $0.backgroundColor = .clear
@@ -141,7 +141,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
     
     private func bindInput(reactor: ImageCalendarCellReactor) { 
         Observable<Void>.just(())
-            .map { Reactor.Action.checkDateOfBirth }
+            .map { Reactor.Action.checkDayOfBirth }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
@@ -168,9 +168,9 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             .bind(to: allFamilyUploadedBadge.rx.isHidden)
             .disposed(by: disposeBag)
         
-        reactor.state.map { !$0.isDateOfBirth }
+        reactor.state.map { !$0.isDayOfBirth }
             .distinctUntilChanged()
-            .bind(to: dateOfBirthBadge.rx.isHidden)
+            .bind(to: dayOfBirthBadge.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.representativeThumbnailUrl }

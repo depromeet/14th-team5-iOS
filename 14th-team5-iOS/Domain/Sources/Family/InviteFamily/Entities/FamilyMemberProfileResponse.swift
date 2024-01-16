@@ -21,10 +21,10 @@ public struct FamilyMemberProfileResponse {
     public var imageUrl: String?
     public var dayOfBirth: Date
     
-    public init(memberId: String, name: String, imageUrl: String? = nil, dateOfBirth: Date) {
+    public init(memberId: String, name: String, imageUrl: String? = nil, dayOfBirth: Date = .distantFuture) {
         self.memberId = memberId
         self.name = name
         self.imageUrl = imageUrl
-        self.dayOfBirth = dateOfBirth
+        self.dayOfBirth = dayOfBirth
     }
 }

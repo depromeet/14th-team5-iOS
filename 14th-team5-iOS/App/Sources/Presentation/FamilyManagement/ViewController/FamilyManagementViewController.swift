@@ -27,7 +27,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     private let invitationDescLabel: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
     private let invitationUrlLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray300)
     private let shareLineImageView: UIImageView = UIImageView()
-    private let indicaatorView: UIActivityIndicatorView = UIActivityIndicatorView()
+    private let indicatorView: UIActivityIndicatorView = UIActivityIndicatorView()
     
     private let dividerView: UIView = UIView()
     
@@ -84,12 +84,12 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
         
         reactor.state.map { !$0.shouldShowProgressView }
             .distinctUntilChanged()
-            .bind(to: indicaatorView.rx.isHidden)
+            .bind(to: indicatorView.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.shouldShowProgressView }
             .distinctUntilChanged()
-            .bind(to: indicaatorView.rx.isAnimating)
+            .bind(to: indicatorView.rx.isAnimating)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.shouldShowProgressView }
@@ -147,7 +147,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             navigationBarView, shareContainerView
         )
         shareContainerView.addSubviews(
-            envelopeImageView, labelStack, shareLineImageView, indicaatorView
+            envelopeImageView, labelStack, shareLineImageView, indicatorView
         )
         labelStack.addArrangedSubviews(
             invitationDescLabel, invitationUrlLabel
@@ -192,7 +192,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             $0.centerY.equalTo(shareContainerView.snp.centerY)
         }
         
-        indicaatorView.snp.makeConstraints {
+        indicatorView.snp.makeConstraints {
             $0.size.equalTo(24)
             $0.trailing.equalTo(shareContainerView.snp.trailing).offset(-24)
             $0.centerY.equalTo(shareContainerView.snp.centerY)
@@ -255,7 +255,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             $0.contentMode = .scaleAspectFit
         }
         
-        indicaatorView.do {
+        indicatorView.do {
             $0.color = .bibbiWhite
             $0.isHidden = true
             $0.style = .medium

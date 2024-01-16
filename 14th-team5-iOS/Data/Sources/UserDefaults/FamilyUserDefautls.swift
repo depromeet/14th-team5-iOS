@@ -19,7 +19,7 @@ public class FamilyUserDefaults {
     private let familyIdKey = "familyId"
     private static let myMemberIdKey = "myMemberId"
     private static let memberIdsKey = "memberIds"
-    private static let dayOfBirths = "dayeOfBirths"
+    private static let dayOfBirths = "dayOfBirths"
     
     private static var userDefaults: UserDefaults {
         UserDefaults.standard

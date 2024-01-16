@@ -173,7 +173,7 @@ extension HomeViewController {
             .disposed(by: disposeBag)
         
         Observable<Void>.just(())
-            .map { Reactor.Action.feetchMeInfo }
+            .map { Reactor.Action.fetchMeInfo }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         

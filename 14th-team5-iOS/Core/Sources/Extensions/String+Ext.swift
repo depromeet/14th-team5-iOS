@@ -9,10 +9,9 @@ import Foundation
 
 extension String {
     public func toDate(with format: String = "yyyy-MM-dd") -> Date {
-        let dateFormaatter = DateFormatter()
-        dateFormaatter.dateFormat = format
+        let dateFormatter = DateFormatter.withFormat(format)
         
-        guard let date = dateFormaatter.date(from: self) else {
+        guard let date = dateFormatter.date(from: self) else {
             return Date()
         }
         

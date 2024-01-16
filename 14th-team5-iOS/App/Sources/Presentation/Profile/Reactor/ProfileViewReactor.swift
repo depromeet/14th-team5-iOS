@@ -111,7 +111,7 @@ public final class ProfileViewReactor: Reactor {
                     }
             )
         case let .updateNickNameProfile(nickNameFileData, isUpdate):
-            if isUpdate == true && currentState.isDefaultProfile == true {
+            if isUpdate == true && UserDefaults.standard.isDefaultProfile == true {
                 let nickNameProfileImage: String = "\(nickNameFileData.hashValue).jpg"
                 let nickNameImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: nickNameProfileImage)
                 return .concat(
@@ -154,8 +154,8 @@ public final class ProfileViewReactor: Reactor {
             }
             
             
-            
         case let .viewWillAppear(isUpdate):
+            if UserDefaults.standard.isDefaultProfile {
                 return .concat(
                     profileUseCase.executeProfileMemberItems(memberId: currentState.memberId)
                         .asObservable()
@@ -165,12 +165,32 @@ public final class ProfileViewReactor: Reactor {
                                     .just(.setLoading(true)),
                                     .just(.setChangNickName(isUpdate)),
                                     .just(.setProfileMemberItems(entity)),
+                                    .just(.setDefaultProfile(true)),
                                     .just(.setLoading(false))
                                 
                                 )
                         }
                 
                 )
+            } else {
+                return .concat(
+                    profileUseCase.executeProfileMemberItems(memberId: currentState.memberId)
+                        .asObservable()
+                        .withUnretained(self)
+                        .flatMap { owner ,entity -> Observable<ProfileViewReactor.Mutation> in
+                                .concat(
+                                    .just(.setLoading(true)),
+                                    .just(.setChangNickName(isUpdate)),
+                                    .just(.setProfileMemberItems(entity)),
+                                    .just(.setDefaultProfile(false)),
+                                    .just(.setLoading(false))
+                                
+                                )
+                        }
+                
+                )
+            }
+            
         
             
             
@@ -307,6 +327,7 @@ public final class ProfileViewReactor: Reactor {
             
         case let .setDefaultProfile(isDefaultProfile):
             newState.isDefaultProfile = isDefaultProfile
+            UserDefaults.standard.isDefaultProfile = isDefaultProfile
         case let .setChangNickName(isChangeNickname):
             newState.isChangeNickname = isChangeNickname
         }

@@ -19,6 +19,8 @@ extension UserDefaults {
         
         case profileImage
         case snsType
+        case isDefaultProfile
+        
         
         var value: String { "\(Bundle.current.bundleIdentifier ?? "").\(self.rawValue.lowercased())" }
     }
@@ -61,6 +63,11 @@ extension UserDefaults {
     public var snsType: String? {
         get { UserDefaults.standard.string(forKey: Key.snsType.value) }
         set { UserDefaults.standard.set(newValue, forKey: Key.snsType.value) }
+    }
+    
+    public var isDefaultProfile: Bool {
+        get { UserDefaults.standard.bool(forKey: Key.isDefaultProfile.value) }
+        set { UserDefaults.standard.set(newValue, forKey: Key.isDefaultProfile.value) }
     }
 }
 

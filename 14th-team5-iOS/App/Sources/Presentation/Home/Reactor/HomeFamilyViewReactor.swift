@@ -56,6 +56,8 @@ extension HomeFamilyViewReactor {
                 switch event {
                 case .didTapCopyInvitationUrlAction:
                     return Observable<Mutation>.just(.setCopySuccessToastMessageView)
+                default:
+                    return Observable<Mutation>.empty()
                 }
             }
         

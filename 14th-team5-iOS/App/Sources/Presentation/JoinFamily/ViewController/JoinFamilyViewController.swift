@@ -67,7 +67,7 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
         super.setupAttributes()
         
         titleLabel.do {
-            $0.text = "엄마님, 가족 중 첫 번째로\n방을 생성해보세요"
+            $0.text = "\(UserDefaults.standard.nickname ?? "삐삐")님, 가족 중 첫 번째로\n방을 생성해보세요"
             $0.numberOfLines = 2
         }
         

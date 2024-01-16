@@ -242,6 +242,7 @@ extension HomeViewController {
             .bind(onNext: { [weak postCollectionView] isRefreshing in
                 if let refreshControl = postCollectionView?.refreshControl {
                     refreshControl.endRefreshing()
+                    postCollectionView?.reloadData()
                 }
             })
             .disposed(by: disposeBag)

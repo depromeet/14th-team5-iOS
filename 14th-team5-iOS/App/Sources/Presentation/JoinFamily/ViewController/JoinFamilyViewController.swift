@@ -129,8 +129,9 @@ extension JoinFamilyViewController {
     private func showHomeViewController(_ isShow: Bool) {
         guard isShow else { return }
         
-        let homeViewController = HomeDIContainer().makeViewController()
-        self.navigationController?.pushViewController(homeViewController, animated: true)
+        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
+        sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+        sceneDelegate.window?.makeKeyAndVisible()
     }
     
     private func showInputLinkViewController(_ isShow: Bool) {

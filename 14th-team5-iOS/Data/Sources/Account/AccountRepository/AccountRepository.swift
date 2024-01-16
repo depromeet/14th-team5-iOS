@@ -80,10 +80,7 @@ public final class AccountRepository: AccountImpl {
         meApiWorekr.fetchMemberInfo()
             .asObservable()
             .withUnretained(self)
-            .bind(onNext: {
-                let memberInfo = $0.1
-                print("member Info: \(memberInfo?.memberId)")
-            })
+            .bind(onNext: { $0.0.saveMemberInfo($0.1) })
             .disposed(by: disposeBag)
     }
     
@@ -142,9 +139,28 @@ public final class AccountRepository: AccountImpl {
             .asObservable()
     }
     
+    private func saveMemberInfo(_ memberInfo: MemberInfo?) {
+        
+        guard let memberInfo = memberInfo else { return }
+        
+        App.Repository.member.memberID.accept(memberInfo.memberId)
+        App.Repository.member.familyId.accept(memberInfo.familyId)
+        App.Repository.member.nickname.accept(memberInfo.name)
+        
+        let member: ProfileData = ProfileData(memberId: memberInfo.memberId, profileImageURL: memberInfo.imageUrl, name: memberInfo.name)
+        FamilyUserDefaults.saveMyMemberId(memberId: memberInfo.memberId)
+        FamilyUserDefaults.saveMemberToUserDefaults(familyMember: member)
+    }
+    
     
     public init() {
         signInHelper.bind()
+        
+        signInHelper.snsSignInResult
+            .filter { $0.0 == .success }
+            .withUnretained(self)
+            .bind(onNext: { $0.0.fetchMemberInfo.accept(()) })
+            .disposed(by: disposeBag)
         
         fetchMemberInfo
             .withUnretained(self)

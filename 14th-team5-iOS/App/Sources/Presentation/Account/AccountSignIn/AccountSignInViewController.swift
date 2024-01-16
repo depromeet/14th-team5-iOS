@@ -139,10 +139,11 @@ extension AccountSignInViewController {
             let container = UINavigationController(rootViewController: AccountSignUpDIContainer().makeViewController())
             container.modalPresentationStyle = .fullScreen
             present(container, animated: false)
-        } else {
-            let container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
-            container.modalPresentationStyle = .fullScreen
-            present(container, animated: false)
+            return
         }
+        
+        let container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
+        container.modalPresentationStyle = .fullScreen
+        present(container, animated: false)
     }
 }

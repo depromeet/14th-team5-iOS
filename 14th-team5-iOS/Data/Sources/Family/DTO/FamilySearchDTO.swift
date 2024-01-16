@@ -18,6 +18,7 @@ struct FamilyMemberDTO: Codable {
     let memberId: String
     let name: String
     let imageUrl: String?
+    let dayOfBirth: String
 }
 
 struct FamilySearchResponseDTO: Codable {
@@ -44,6 +45,6 @@ extension FamilySearchResponseDTO {
 
 extension FamilyMemberDTO {
     func toDomain() -> ProfileData {
-        return .init(memberId: memberId, profileImageURL: imageUrl, name: name)
+        return .init(memberId: memberId, profileImageURL: imageUrl, name: name, dayOfBirth: dayOfBirth.toDate())
     }
 }

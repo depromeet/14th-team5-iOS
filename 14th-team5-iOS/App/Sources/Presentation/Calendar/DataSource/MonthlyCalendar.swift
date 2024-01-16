@@ -45,7 +45,7 @@ extension SectionOfMonthlyCalendar {
         static let date6: Date = calendar.date(from: components6)!
         
         static let months: [Date] = [
-            "2023-12".toDate(), "2024-01".toDate()
+            "2023-12".toDate(with: "yyyy-MM"), "2024-01".toDate(with: "yyyy-MM")
         ]
         static let dates: [[Date]] = [
             [date1, date2, date3],

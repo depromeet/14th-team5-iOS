@@ -16,6 +16,8 @@ public final class CalendarRepository: CalendarRepositoryProtocol {
     
     private let calendarApiWorker: CalendarAPIWorker = CalendarAPIWorker()
     
+    private let dateOfBirths: [Date] = FamilyUserDefaults.getDateOfBirths()
+    
     private var familyId: String = App.Repository.member.familyId.value ?? ""
     private var accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
     
@@ -39,6 +41,16 @@ public final class CalendarRepository: CalendarRepositoryProtocol {
 }
 
 extension CalendarRepository {
+    public func checkDateOfBirth(_ date: Date) -> Bool {
+        debugPrint("= 가족의 생일: \(dateOfBirths)")
+        return dateOfBirths.contains(where: { 
+            $0.isEqual(
+                [.month, .day],
+                with: date
+            )
+        })
+    }
+    
     public func fetchCalendarInfo(_ yearMonth: String) -> Observable<ArrayResponseCalendarResponse?> {
         return calendarApiWorker.fetchCalendarInfo(yearMonth, token: accessToken)
             .asObservable()

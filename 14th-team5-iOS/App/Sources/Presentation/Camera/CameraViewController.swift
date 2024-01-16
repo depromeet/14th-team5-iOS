@@ -138,6 +138,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .drive(cameraIndicatorView.rx.isAnimating)
             .disposed(by: disposeBag)
         
+        
         NotificationCenter.default.rx.notification(.AVCapturePhotoOutputDidFinishProcessingPhotoNotification)
             .compactMap { notification -> Data? in
                 guard let userInfo = notification.userInfo else { return nil }
@@ -159,13 +160,16 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         reactor.pulse(\.$profileMemberEntity)
             .filter { $0 != nil }
             .withUnretained(self)
-            .bind(onNext: { $0.0.dismissCameraViewController() } )
-            .disposed(by: disposeBag)
+            .bind { owner, _ in
+                owner.dismissCameraViewController()
+                let userInfo: [AnyHashable: Any] = ["isProfileUpdate": true]
+                NotificationCenter.default.post(name: .DidFinishProfileImageUpdate, object: nil, userInfo: userInfo)
+            }.disposed(by: disposeBag)
         
         
         reactor.state
             .map { ($0.accountImage, $0.profileImageURLEntity, $0.memberId)}
-            .filter { $0.1 != nil || !$0.2.isEmpty }
+            .filter { $0.0 != nil }
             .withUnretained(self)
             .subscribe(onNext: { (owner, originEntity) in
                 let userInfo: [AnyHashable: Any] = ["presignedURL": originEntity.1?.imageURL, "originImage": originEntity.0]

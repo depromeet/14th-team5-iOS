@@ -67,8 +67,10 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
             .withLatestFrom(reactor.state.map { $0.profileType})
             .filter { $0 == .profile }
-            .bind { _ in
-                let userInfo: [AnyHashable: Any] = ["isUpdate": true]
+            .withUnretained(self)
+            .bind { owner, _ in
+                guard let nickNameText = owner.inputFielView.text?.first else { return }
+                let userInfo: [AnyHashable: Any] = ["isUpdate": true, "updateNickName": "\(nickNameText)"]
                 NotificationCenter.default.post(name: .DidFinishProfileNickNameUpdate, object: nil, userInfo: userInfo)
             }.disposed(by: disposeBag)
         

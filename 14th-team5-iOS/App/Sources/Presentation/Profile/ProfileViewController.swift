@@ -148,11 +148,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        self.rx.viewWillAppear
-            .map { _ in Reactor.Action.viewWillAppear(false) }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
         profileFeedCollectionView.rx
             .setDelegate(self)
             .disposed(by: disposeBag)
@@ -207,40 +202,41 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .disposed(by: disposeBag)
         
         
-        NotificationCenter.default.rx
-            .notification(.DidFinishProfileNickNameUpdate)
-            .compactMap { notification -> Bool? in
-                guard let userInfo = notification.userInfo else { return false }
-                return userInfo["isUpdate"] as? Bool
-            }
-            .map { Reactor.Action.viewWillAppear($0) }
-            .observe(on: MainScheduler.instance)
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        
+        //카메라로 변경시 요기로 넘어옴
         Observable
             .zip(
                 reactor.state.compactMap { $0.profileMemberEntity?.memberImage },
                 reactor.state.compactMap { $0.profileMemberEntity?.memberImage.absoluteString.contains("https") ?? false}
             ).withUnretained(self)
             .observe(on: MainScheduler.instance)
+            .debug("setupDefaultImage")
             .bind(onNext: { $0.0.setupDefaultProfileImage(isShow: $0.1.1, url: $0.1.0)})
             .disposed(by: disposeBag)
         
-        Observable.zip(
-            reactor.state.map { $0.isChangeNickname },
-            reactor.state.compactMap { "\($0.profileMemberEntity?.memberName ?? "")"},
-            reactor.state.map { $0.isDefaultProfile}
-        )
-        .filter { $0.2 == true}
-        .compactMap { ("\($0.1)", $0.0)}
-        .withUnretained(self)
-        .observe(on: MainScheduler.instance)
-        .bind { owner, entity in
-            guard let originNickName = entity.0.first else { return }
-            owner.updateToProfileImage(nickName: "\(originNickName)", isShow: entity.1)
-        }.disposed(by: disposeBag)
+        
+        self.rx.viewWillAppear
+            .map { _ in Reactor.Action.viewWillAppear(false) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        Observable
+            .zip(
+                reactor.state.map { $0.isDefaultProfile } ,
+                NotificationCenter.default.rx.notification(.DidFinishProfileNickNameUpdate).compactMap { notification -> (Bool, String)? in
+                    guard let userInfo = notification.userInfo,
+                          let isUpdate = userInfo["isUpdate"] as? Bool,
+                          let originImage = userInfo["updateNickName"] as? String else { return nil
+                    }
+                    
+                    return (isUpdate, originImage)
+                }
+            )
+            .filter { !$0.1.1.isEmpty }
+            .compactMap { self.updateToNickNameImageData(nickName: $0.1.1, isUpdate: $0.1.0) }
+            .debug("DidFinshProfile NickNameUpdate")
+            .map { (data, isUpdate) in Reactor.Action.updateNickNameProfile(data, isUpdate) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
         profileView.profileNickNameButton
             .rx.tap
@@ -327,23 +323,19 @@ extension ProfileViewController: UICollectionViewDelegateFlowLayout {
 }
 
 // 기본 이미지가 true 이고 닉네임 변경 할 경우 redraw
-
 extension ProfileViewController {
-    private func updateToProfileImage(nickName: String, isShow: Bool) {
-        if isShow {
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                let defaultImage = DesignSystemAsset.defaultProfile.image.combinedTextWithBackground(
-                    target: "\(nickName)",
-                    size: self.profileView.profileImageView.frame.size,
-                    attributedString: [
-                        .font: DesignSystemFontFamily.Pretendard.semiBold.font(size: 24),
-                        .foregroundColor: DesignSystemAsset.gray200.color
-                    ]
-                )
-                self.profileView.profileImageView.image = defaultImage
-            }
-        }
+    
+    private func updateToNickNameImageData(nickName: String, isUpdate: Bool) -> (Data, Bool) {
+        let updateNickNameImage = DesignSystemAsset.defaultProfile.image.combinedTextWithBackground(
+            target: "\(nickName)",
+            size: self.profileView.profileImageView.frame.size,
+            attributedString: [
+                .font: DesignSystemFontFamily.Pretendard.semiBold.font(size: 24),
+                .foregroundColor: DesignSystemAsset.gray200.color
+            ]
+        ).jpegData(compressionQuality: 1.0) ?? Data()
+        
+        return (updateNickNameImage, isUpdate)
     }
     
     
@@ -352,19 +344,6 @@ extension ProfileViewController {
         if isShow {
             profileView.profileImageView.kf.indicatorType = .activity
             profileView.profileImageView.kf.setImage(with: url, placeholder: nil, options: [.transition(.fade(0.5))], completionHandler: nil)
-        } else {
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                let defaultImage = DesignSystemAsset.defaultProfile.image.combinedTextWithBackground(
-                    target: "\(profileName)",
-                    size: self.profileView.profileImageView.frame.size,
-                    attributedString: [
-                        .font: DesignSystemFontFamily.Pretendard.semiBold.font(size: 24),
-                        .foregroundColor: DesignSystemAsset.gray200.color
-                    ]
-                )
-                self.profileView.profileImageView.image = defaultImage
-            }
         }
     
     }

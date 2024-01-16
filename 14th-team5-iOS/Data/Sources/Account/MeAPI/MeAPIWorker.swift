@@ -88,15 +88,6 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             .asSingle()
     }
     
-    private func saveMemberInfo(_ memberInfo: MemberInfo) {
-        App.Repository.member.memberID.accept(memberInfo.memberId)
-        App.Repository.member.familyId.accept(memberInfo.familyId)
-        
-        let member: ProfileData = ProfileData(memberId: memberInfo.memberId, profileImageURL: memberInfo.imageUrl, name: memberInfo.name)
-        FamilyUserDefaults.saveMyMemberId(memberId: memberInfo.memberId)
-        FamilyUserDefaults.saveMemberToUserDefaults(familyMember: member)
-    }
-    
     private func getMemberInfo(spec: APISpec, headers: [APIHeader]?) -> Single<MemberInfo?> {
         
         return request(spec: spec, headers: headers)
@@ -108,10 +99,6 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             })
             .map(MemberInfo.self)
             .catchAndReturn(nil)
-            .do {
-                guard let memberInfo = $0 else { return }
-                self.saveMemberInfo(memberInfo)
-            }
             .asSingle()
     }
     

@@ -15,6 +15,9 @@ extension UserDefaults {
         
         case familyId
         case memberId
+        case nickname
+        
+        case inviteUrl
         case inviteCode
         
         case profileImage
@@ -48,9 +51,19 @@ extension UserDefaults {
         set { UserDefaults.standard.set(newValue, forKey: Key.memberId.value) }
     }
     
+    public var nickname: String? {
+        get { UserDefaults.standard.string(forKey: Key.nickname.value) }
+        set { UserDefaults.standard.set(newValue, forKey: Key.nickname.value) }
+    }
+    
     public var inviteCode: String? {
         get { UserDefaults.standard.string(forKey: Key.inviteCode.value) }
         set { UserDefaults.standard.set(newValue, forKey: Key.inviteCode.value) }
+    }
+    
+    public var inviteUrl: String? {
+        get { UserDefaults.standard.string(forKey: Key.inviteUrl.value) }
+        set { UserDefaults.standard.set(newValue, forKey: Key.inviteUrl.value) }
     }
     
     public var profileImage: Data? {

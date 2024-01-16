@@ -101,7 +101,7 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
         guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
         let container: UINavigationController
         
-        if let _ = member?.memberId {
+        if let _ = member?.familyId {
             var container: UINavigationController
             if UserDefaults.standard.finishTutorial {
                 container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
@@ -126,11 +126,7 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
             sceneDelegate.window?.makeKeyAndVisible()
             return
         } else {
-            if UserDefaults.standard.finishTutorial {
-                container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
-            } else {
-                container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
-            }
+            container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
         }
         
         sceneDelegate.window?.rootViewController = container

@@ -16,7 +16,6 @@ import RxDataSources
 
 public final class HomeViewReactor: Reactor {
     public enum Action {
-        case fetchMeInfo
         case getTodayPostList
         case refreshCollectionview
         case startTimer
@@ -48,11 +47,9 @@ public final class HomeViewReactor: Reactor {
     }
     
     public let initialState: State = State()
-    private let meRepository: MeUseCaseProtocol
     private let postRepository: PostListUseCaseProtocol
     
-    init(meRepository: MeUseCaseProtocol, postRepository: PostListUseCaseProtocol) {
-        self.meRepository = meRepository
+    init(postRepository: PostListUseCaseProtocol) {
         self.postRepository = postRepository
     }
 }
@@ -60,13 +57,6 @@ public final class HomeViewReactor: Reactor {
 extension HomeViewReactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .fetchMeInfo:
-            return meRepository.getMemberInfo()
-                .asObservable()
-                .flatMap { _ in
-                    return Observable<Mutation>.empty()
-                }
-                
         case .getTodayPostList:
             let query: PostListQuery = PostListQuery(page: 1, size: 20, date: Date().toFormatString(with: "YYYY-MM-DD"), memberId: "", sort: .desc)
             return postRepository.excute(query: query)

@@ -172,11 +172,6 @@ extension HomeViewController {
         postCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
-        Observable<Void>.just(())
-            .map { Reactor.Action.fetchMeInfo }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
         Observable.just(())
             .map { Reactor.Action.startTimer }
             .bind(to: reactor.action)

@@ -18,7 +18,6 @@ public final class FamilyManagementViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case didTapShareButton
-        case fetchMeInfo
         case fetchFamilyMemebers
     }
     
@@ -46,7 +45,6 @@ public final class FamilyManagementViewReactor: Reactor {
     // MARK: - Properties
     public let initialState: State
     
-    public let meUseCase: MeUseCaseProtocol
     public let familyUseCase: FamilyViewUseCaseProtocol
     public let provider: GlobalStateProviderProtocol
     
@@ -54,7 +52,6 @@ public final class FamilyManagementViewReactor: Reactor {
     
     // MARK: - Intializer
     init(
-        meUseCase: MeUseCaseProtocol,
         familyUseCase: FamilyViewUseCaseProtocol,
         provider: GlobalStateProviderProtocol
     ) {
@@ -68,7 +65,6 @@ public final class FamilyManagementViewReactor: Reactor {
             shouldShowProgressView: false
         )
         
-        self.meUseCase = meUseCase
         self.familyUseCase = familyUseCase
         self.provider = provider
     }
@@ -101,16 +97,6 @@ public final class FamilyManagementViewReactor: Reactor {
                     }),
                 Observable.just(.setProgressView(false))
             )
-            
-        case .fetchMeInfo:
-            return meUseCase.getMemberInfo()
-                .asObservable()
-                .flatMap {
-                    guard let familyId: String = $0?.familyId else {
-                        return Observable<Mutation>.just(.injectFamilyId(nil))
-                    }
-                    return Observable<Mutation>.just(.injectFamilyId(familyId))
-                }
             
         case .fetchFamilyMemebers:
             return familyUseCase.executeFetchFamilyMembers()

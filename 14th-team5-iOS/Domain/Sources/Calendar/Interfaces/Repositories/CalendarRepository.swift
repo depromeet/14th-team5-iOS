@@ -15,5 +15,4 @@ public protocol CalendarRepositoryProtocol {
     func checkDateOfBirth(_ date: Date) -> Bool
     func fetchCalendarInfo(_ yearMonth: String) -> Observable<ArrayResponseCalendarResponse?>
     func fetchFamilyStatisticsInfo() -> Observable<FamilyMonthlyStatisticsResponse?>
-    func fetchFamilyCreatedAt() -> Observable<FamilyCreatedAtResponse?>
 }

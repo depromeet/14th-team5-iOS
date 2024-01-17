@@ -42,7 +42,6 @@ public final class CalendarRepository: CalendarRepositoryProtocol {
 
 extension CalendarRepository {
     public func checkDateOfBirth(_ date: Date) -> Bool {
-        debugPrint("= 가족의 생일: \(dateOfBirths)")
         return dateOfBirths.contains(where: { 
             $0.isEqual(
                 [.month, .day],
@@ -58,11 +57,6 @@ extension CalendarRepository {
     
     public func fetchFamilyStatisticsInfo() -> Observable<FamilyMonthlyStatisticsResponse?> {
         return calendarApiWorker.fetchFamilyStatisticsInfo(token: accessToken, familyId: familyId)
-            .asObservable()
-    }
-    
-    public func fetchFamilyCreatedAt() -> Observable<FamilyCreatedAtResponse?> {
-        return calendarApiWorker.fetchFamilyCreatedAt(token: accessToken, familyId: familyId)
             .asObservable()
     }
 }

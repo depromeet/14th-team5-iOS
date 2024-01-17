@@ -53,4 +53,9 @@ extension FamilyRepository {
         return familyApiWorker.fetchFamilyMemeberPage(token: accessToken)
             .asObservable()
     }
+    
+    public func fetchFamilyCreatedAt() -> Observable<FamilyCreatedAtResponse?> {
+        return familyApiWorker.fetchFamilyCreatedAt(token: accessToken, familyId: familyId)
+            .asObservable()
+    }
 }

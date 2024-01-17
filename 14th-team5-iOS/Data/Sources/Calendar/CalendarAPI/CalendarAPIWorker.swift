@@ -67,25 +67,4 @@ extension CalendarAPIWorker {
         
         return fetchFamilyStatisticsInfo(spec: spec, headers: headers)
     }
-    
-    private func fetchFamilyCreatedAt(spec: APISpec, headers: [BibbiHeader]) -> Single<FamilyCreatedAtResponse?> {
-        return request(spec: spec, headers: headers)
-            .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("FamilyCreatedAt Fetch Result: \(str)")
-                }
-            }
-            .map(FamilyCreatedAtResponseDTO.self)
-            .catchAndReturn(nil)
-            .map { $0?.toDomain() }
-            .asSingle()
-    }
-    
-    public func fetchFamilyCreatedAt(token accessToken: String, familyId: String) -> Single<FamilyCreatedAtResponse?> {
-        let spec = CalendarAPIs.familyCreatedAt(familyId).spec
-        let headers: [BibbiHeader] = [.acceptJson, .xAppKey, .xAuthToken(accessToken)]
-        
-        return fetchFamilyCreatedAt(spec: spec, headers: headers)
-    }
 }

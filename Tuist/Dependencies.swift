@@ -30,6 +30,7 @@ let dependencies = Dependencies(
      baseSettings: .settings(
         configurations: [
             .build(.dev),
+            .build(.stg),
             .build(.prd)
         ]
      )

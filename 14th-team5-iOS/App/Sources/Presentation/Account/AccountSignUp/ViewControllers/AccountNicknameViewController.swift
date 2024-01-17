@@ -63,6 +63,17 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        nextButton.rx.tap
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .withLatestFrom(reactor.state.map { $0.profileType})
+            .filter { $0 == .profile }
+            .withUnretained(self)
+            .bind { owner, _ in
+                guard let nickNameText = owner.inputFielView.text?.first else { return }
+                let userInfo: [AnyHashable: Any] = ["isUpdate": true, "updateNickName": "\(nickNameText)"]
+                NotificationCenter.default.post(name: .DidFinishProfileNickNameUpdate, object: nil, userInfo: userInfo)
+            }.disposed(by: disposeBag)
+        
         Observable
             .zip(
                 reactor.state.map { $0.profileType }.distinctUntilChanged(),

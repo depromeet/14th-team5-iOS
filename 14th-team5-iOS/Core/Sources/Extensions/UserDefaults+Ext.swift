@@ -23,6 +23,8 @@ extension UserDefaults {
         
         case profileImage
         case snsType
+        case isDefaultProfile
+        
         
         var value: String { "\(Bundle.current.bundleIdentifier ?? "").\(self.rawValue.lowercased())" }
     }
@@ -81,9 +83,16 @@ extension UserDefaults {
         set { UserDefaults.standard.set(newValue, forKey: Key.snsType.value) }
     }
     
+
+    public var isDefaultProfile: Bool {
+        get { UserDefaults.standard.bool(forKey: Key.isDefaultProfile.value) }
+        set { UserDefaults.standard.set(newValue, forKey: Key.isDefaultProfile.value) }
+    }
+
     public var dayOfBirths: [Date]? {
         get { userDefaults.array(forKey: Key.dayOfBirths.value) as? [Date] }
         set { userDefaults.set(newValue, forKey: Key.dayOfBirths.value) }
+
     }
 }
 

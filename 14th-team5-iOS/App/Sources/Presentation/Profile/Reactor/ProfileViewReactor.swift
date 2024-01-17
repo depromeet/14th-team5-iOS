@@ -20,10 +20,11 @@ public final class ProfileViewReactor: Reactor {
     
     public enum Action {
         case viewDidLoad
-        case viewWillAppear
+        case viewWillAppear(Bool)
+        case updateNickNameProfile(Data,Bool)
         case fetchMorePostItems(Bool)
         case didSelectPHAssetsImage(Data)
-        case didTapInitProfile
+        case didTapInitProfile(Data)
     }
     
     public enum Mutation {
@@ -32,13 +33,19 @@ public final class ProfileViewReactor: Reactor {
         case setPresignedS3Upload(Bool)
         case setFeedCategroySection([ProfileFeedSectionItem])
         case setProfileMemberItems(ProfileMemberResponse?)
+        case setDefaultProfile(Bool)
+        case setChangNickName(Bool)
         case setProfilePostItems(ProfilePostResponse)
     }
+    
+    // userdefault image URL = member image url 는
     
     public struct State {
         var isLoading: Bool
         var memberId: String
         var isUser: Bool
+        @Pulse var isChangeNickname: Bool
+        @Pulse var isDefaultProfile: Bool
         @Pulse var feedSection: [ProfileFeedSectionModel]
         @Pulse var profileMemberEntity: ProfileMemberResponse?
         @Pulse var profilePostEntity: ProfilePostResponse?
@@ -54,6 +61,8 @@ public final class ProfileViewReactor: Reactor {
             isLoading: false,
             memberId: memberId,
             isUser: isUser,
+            isChangeNickname: false,
+            isDefaultProfile: false,
             feedSection: [.feedCategory([])],
             profileMemberEntity: nil,
             isProfileUpload: false,
@@ -101,19 +110,88 @@ public final class ProfileViewReactor: Reactor {
 
                     }
             )
+        case let .updateNickNameProfile(nickNameFileData, isUpdate):
+            if isUpdate == true && UserDefaults.standard.isDefaultProfile == true {
+                let nickNameProfileImage: String = "\(nickNameFileData.hashValue).jpg"
+                let nickNameImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: nickNameProfileImage)
+                return .concat(
+                    .just(.setLoading(true)),
+                    profileUseCase.executeProfileImageURLCreate(parameter: nickNameImageEditParameter)
+                        .withUnretained(self)
+                        .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
+                        .asObservable()
+                        .flatMap { owner, entity -> Observable<ProfileViewReactor.Mutation> in
+                            guard let profilePresingedURL = entity?.imageURL else { return .empty() }
+                            return owner.profileUseCase.executeProfileImageToPresingedUpload(to: profilePresingedURL, data: nickNameFileData)
+                                .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
+                                .asObservable()
+                                .flatMap { isSuccess -> Observable<ProfileViewReactor.Mutation> in
+                                    let originalPath = owner.configureProfileOriginalS3URL(url: profilePresingedURL)
+                                    let profileEditParameter: ProfileImageEditParameter = ProfileImageEditParameter(profileImageUrl: originalPath)
+                                    if isSuccess {
+                                        return owner.profileUseCase.executeReloadProfileImage(memberId: self.currentState.memberId, parameter: profileEditParameter)
+                                            .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
+                                            .asObservable()
+                                            .flatMap { memberEntity -> Observable<ProfileViewReactor.Mutation> in
+                                                return .concat(
+                                                    .just(.setProfilePresingedURL(entity)),
+                                                    .just(.setPresignedS3Upload(isSuccess)),
+                                                    .just(.setProfileMemberItems(memberEntity)),
+                                                    .just(.setDefaultProfile(isUpdate)),
+                                                    .just(.setLoading(false))
+                                                
+                                                )
+                                            }
+                                    } else {
+                                        return .just(.setDefaultProfile(false))
+                                    }
+                                    
+                                }
+                        })
+                
+            } else {
+                return .empty()
+            }
             
-        case .viewWillAppear:
-            return .concat(
-                profileUseCase.executeProfileMemberItems(memberId: currentState.memberId)
-                    .asObservable()
-                    .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
-                            .concat(
-                                .just(.setProfileMemberItems(entity)),
-                                .just(.setLoading(false))
-                            
-                            )
-                    }
-            )
+            
+        case let .viewWillAppear(isUpdate):
+            if UserDefaults.standard.isDefaultProfile {
+                return .concat(
+                    profileUseCase.executeProfileMemberItems(memberId: currentState.memberId)
+                        .asObservable()
+                        .withUnretained(self)
+                        .flatMap { owner ,entity -> Observable<ProfileViewReactor.Mutation> in
+                                .concat(
+                                    .just(.setLoading(true)),
+                                    .just(.setChangNickName(isUpdate)),
+                                    .just(.setProfileMemberItems(entity)),
+                                    .just(.setDefaultProfile(true)),
+                                    .just(.setLoading(false))
+                                
+                                )
+                        }
+                
+                )
+            } else {
+                return .concat(
+                    profileUseCase.executeProfileMemberItems(memberId: currentState.memberId)
+                        .asObservable()
+                        .withUnretained(self)
+                        .flatMap { owner ,entity -> Observable<ProfileViewReactor.Mutation> in
+                                .concat(
+                                    .just(.setLoading(true)),
+                                    .just(.setChangNickName(isUpdate)),
+                                    .just(.setProfileMemberItems(entity)),
+                                    .just(.setDefaultProfile(false)),
+                                    .just(.setLoading(false))
+                                
+                                )
+                        }
+                
+                )
+            }
+            
+        
             
             
         case let .didSelectPHAssetsImage(fileData):
@@ -142,6 +220,7 @@ public final class ProfileViewReactor: Reactor {
                                                 .just(.setProfilePresingedURL(entity)),
                                                 .just(.setPresignedS3Upload(isSuccess)),
                                                 .just(.setProfileMemberItems(memberEntity)),
+                                                .just(.setDefaultProfile(false)),
                                                 .just(.setLoading(false))
                                             
                                             )
@@ -180,10 +259,8 @@ public final class ProfileViewReactor: Reactor {
                         .just(.setLoading(false))
                     )
                 }
-        case .didTapInitProfile:
-            //TODO: 유저 디폴트 이미지
-            guard let profileImage = UserDefaults.standard.profileImage else { return .empty() }
-            let initProfileImage: String = "\(profileImage.hashValue).jpg"
+        case let .didTapInitProfile(profileData):
+            let initProfileImage: String = "\(profileData.hashValue).jpg"
             let profileImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: initProfileImage)
             return .concat(
                 .just(.setLoading(true)),
@@ -194,7 +271,7 @@ public final class ProfileViewReactor: Reactor {
                     .flatMap { owner, entity -> Observable<ProfileViewReactor.Mutation> in
                         guard let profilePresingedURL = entity?.imageURL else { return .empty() }
                         return owner.profileUseCase
-                            .executeProfileImageToPresingedUpload(to: profilePresingedURL, data: profileImage)
+                            .executeProfileImageToPresingedUpload(to: profilePresingedURL, data: profileData)
                             .subscribe(on:  ConcurrentDispatchQueueScheduler.init(qos: .background))
                             .asObservable()
                             .flatMap { isSuccess -> Observable<ProfileViewReactor.Mutation> in
@@ -210,6 +287,7 @@ public final class ProfileViewReactor: Reactor {
                                                 .just(.setProfilePresingedURL(entity)),
                                                 .just(.setPresignedS3Upload(isSuccess)),
                                                 .just(.setProfileMemberItems(memberEntity)),
+                                                .just(.setDefaultProfile(true)),
                                                 .just(.setLoading(false))
                                             )
                                             
@@ -246,6 +324,12 @@ public final class ProfileViewReactor: Reactor {
             
         case let .setPresignedS3Upload(isProfileUpload):
             newState.isProfileUpload = isProfileUpload
+            
+        case let .setDefaultProfile(isDefaultProfile):
+            newState.isDefaultProfile = isDefaultProfile
+            UserDefaults.standard.isDefaultProfile = isDefaultProfile
+        case let .setChangNickName(isChangeNickname):
+            newState.isChangeNickname = isChangeNickname
         }
         
         return newState

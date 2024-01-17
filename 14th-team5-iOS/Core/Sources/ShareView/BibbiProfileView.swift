@@ -50,6 +50,7 @@ public class BibbiProfileView: UIView {
     public func setupAttributes() {
         profileImageView.do {
             $0.clipsToBounds = true
+            $0.image = DesignSystemAsset.defaultProfile.image
             $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = cornerRadius
         }

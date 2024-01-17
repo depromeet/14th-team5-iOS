@@ -72,9 +72,11 @@ platform :ios do
     )
 
     install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.PRD.mobileprovision")
+    install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.STG.mobileprovision")
     install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.DEV.mobileprovision")
 
     install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.PRD.mobileprovision")
+    install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.STG.mobileprovision")
     install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.DEV.mobileprovision")
   end
 
@@ -105,8 +107,8 @@ platform :ios do
       export_options: {
         method: "app-store", 
 	provisioningProfiles: {
-          "#{BUNDLE_ID}" => "App.PRD",
-          "#{WIDGET_BUNDLE_ID}" => "WidgetExtension.PRD",
+          "#{BUNDLE_ID}" => "prd",
+          "#{WIDGET_BUNDLE_ID}" => "widgetPrd",
         }
       }
     )
@@ -161,8 +163,8 @@ platform :ios do
       export_options: {
         method: "app-store", 
 	provisioningProfiles: {
-          "#{BUNDLE_ID}" => "App.STG",
-          "#{WIDGET_BUNDLE_ID}" => "WidgetExtension.STG",
+          "#{BUNDLE_ID}" => "prd",
+          "#{WIDGET_BUNDLE_ID}" => "widgetPrd",
         }
       }
     )

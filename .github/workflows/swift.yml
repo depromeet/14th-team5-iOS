@@ -37,7 +37,7 @@ jobs:
         run: | 
           echo "$MASTER_KEY" > Tuist/master.key
         env:
-            MASTER_KEY: ${{secrets.MASTER_KEY}}
+          MASTER_KEY: ${{secrets.MASTER_KEY}}
         
       - name: Install Tuist CLI
         run: curl -Ls https://install.tuist.io| bash

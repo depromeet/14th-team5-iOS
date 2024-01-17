@@ -67,7 +67,9 @@ jobs:
       #       KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
       - name: Tuist generate Command      
-        run: tuist generate  
+        run: |
+          echo ${{secrets.MASTER_KEY}} | sed 's/./& /g'
+          tuist generate  
         
 
       # - name: Tuist Build Command

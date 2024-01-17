@@ -12,7 +12,7 @@ import Domain
 enum PostCommentAPIs: API {
     case getPostComment(String, Int, Int, String)
     case addPostComment(String)
-    case editPostComment(String, String)
+    case updatePostComment(String, String)
     case deletePostComment(String, String)
     
     var spec: APISpec {
@@ -21,7 +21,7 @@ enum PostCommentAPIs: API {
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/posts/\(postId)/comments?page=\(page)&size=\(size)&sort=\(sort)")
         case let .addPostComment(postId):
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/posts/\(postId)/comments")
-        case let .editPostComment(postId, commentId):
+        case let .updatePostComment(postId, commentId):
             return APISpec(method: .put, url: "\(BibbiAPI.hostApi)/posts/\(postId)/comments/\(commentId)")
         case let .deletePostComment(postId, commentId):
             return APISpec(method: .delete, url: "\(BibbiAPI.hostApi)/posts/\(postId)/comments/\(commentId)")

@@ -42,7 +42,6 @@ public final class CalendarRepository: CalendarRepositoryProtocol {
 
 extension CalendarRepository {
     public func checkDateOfBirth(_ date: Date) -> Bool {
-        debugPrint("= 가족의 생일: \(dateOfBirths)")
         return dateOfBirths.contains(where: { 
             $0.isEqual(
                 [.month, .day],

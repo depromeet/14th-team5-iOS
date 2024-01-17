@@ -9,7 +9,7 @@ import Foundation
 
 import Domain
 
-struct PostCommentDeleteResponseDTO{
+struct PostCommentDeleteResponseDTO: Decodable {
     var success: Bool
 }
 

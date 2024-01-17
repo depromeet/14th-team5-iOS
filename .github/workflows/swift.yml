@@ -33,17 +33,17 @@ jobs:
           path: depromeet/14th-team5-iOS/14th-team5-iOS/XCConfig
           token: ${{secrets.ACTION_TOKEN}}
 
-      - name: Setting Tuist Master Key
-        run: | 
-          printf "%s" "${{ secrets.MASTER_KEY }}" > Tuist/master.key
-        env:
-          MASTER_KEY: ${{secrets.MASTER_KEY}}
+      # - name: Setting Master Key
+      #   run: | 
+      #     echo "$MASTER_KEY" > Tuist/master.key
+      #   env:
+      #       MASTER_KEY: ${{secrets.MASTER_KEY}}
         
       - name: Install Tuist CLI
         run: curl -Ls https://install.tuist.io| bash
         
-      - name: Install FastLane 
-        run: brew install fastlane
+      # - name: Install FastLane 
+      #   run: brew install fastlane
         
       - uses: actions/setup-ruby@v1
         with:
@@ -55,16 +55,16 @@ jobs:
       - name: Tuist Fetch Command
         run: tuist fetch
         
-      - name: Tuist Siging Decrept
-        run: tuist signing decrypt
+      # - name: Tuist Siging Decrept
+      #   run: tuist signing decrypt
 
-      - name: Fastalne setup Keychain
-        run: fastlane setup_keychain
-        env:
-            APP_NAME: ${{secrets.APP_NAME}}
-            WIDGET_NAME: ${{secrets.WIDGET_NAME}}
-            KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
-            KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      # - name: Fastalne setup Keychain
+      #   run: fastlane setup_keychain
+      #   env:
+      #       APP_NAME: ${{secrets.APP_NAME}}
+      #       WIDGET_NAME: ${{secrets.WIDGET_NAME}}
+      #       KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
+      #       KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
       - name: Tuist generate Command      
         run: tuist generate  

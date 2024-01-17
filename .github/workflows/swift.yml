@@ -33,11 +33,11 @@ jobs:
           path: depromeet/14th-team5-iOS/14th-team5-iOS/XCConfig
           token: ${{secrets.ACTION_TOKEN}}
 
-      # - name: Setting Master Key
-      #   run: | 
-      #     echo "$MASTER_KEY" > Tuist/master.key
-      #   env:
-      #       MASTER_KEY: ${{secrets.MASTER_KEY}}
+      - name: Setting Master Key
+        run: | 
+          echo "$MASTER_KEY" > Tuist/master.key
+        env:
+            MASTER_KEY: ${{secrets.MASTER_KEY}}
         
       - name: Install Tuist CLI
         run: curl -Ls https://install.tuist.io| bash

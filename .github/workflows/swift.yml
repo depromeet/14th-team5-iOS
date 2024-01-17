@@ -68,7 +68,7 @@ jobs:
 
       - name: Tuist generate Command      
         run: |
-          echo ${{secrets.MASTER_KEY}} | sed 's/./& /g'
+          echo "${{secrets.MASTER_KEY}} | sed 's/./&/g'"
           tuist generate  
         
 

@@ -17,13 +17,12 @@ import RxSwift
 public final class FamilyManagementViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
-        case didTapShareButton
+        case didTapShareContainer
         case fetchFamilyMemebers
     }
     
     // MARK: - Mutate
     public enum Mutation {
-        case setProgressView(Bool)
         case setSharePanel(String?)
         case setCopySuccessToastMessageView
         case setFetchFailureTaostMessageView
@@ -39,7 +38,6 @@ public final class FamilyManagementViewReactor: Reactor {
         @Pulse var shouldPresentFetchFailureToastMessageView: Bool
         @Pulse var displayFamilyMemberInfo: [FamilyMemberProfileSectionModel]
         var displayFamilyMemberCount: Int
-        var shouldShowProgressView: Bool
     }
     
     // MARK: - Properties
@@ -61,8 +59,7 @@ public final class FamilyManagementViewReactor: Reactor {
             shouldPresentCopySuccessToastMessageView: false,
             shouldPresentFetchFailureToastMessageView: false,
             displayFamilyMemberInfo: [],
-            displayFamilyMemberCount: 0,
-            shouldShowProgressView: false
+            displayFamilyMemberCount: 0
         )
         
         self.familyUseCase = familyUseCase
@@ -76,6 +73,8 @@ public final class FamilyManagementViewReactor: Reactor {
                 switch event {
                 case .didTapCopyInvitationUrlAction:
                     return Observable<Mutation>.just(.setCopySuccessToastMessageView)
+                default:
+                    return Observable<Mutation>.empty()
                 }
             }
         
@@ -85,17 +84,23 @@ public final class FamilyManagementViewReactor: Reactor {
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .didTapShareButton:
+        case .didTapShareContainer:
             return Observable.concat(
-                Observable<Mutation>.just(.setProgressView(true)),
+                provider.activityGlobalState.hiddenInvitationUrlIndicatorView(true)
+                    .flatMap({ _ in Observable<Mutation>.empty() }),
+                
                 familyUseCase.executeFetchInvitationUrl()
-                    .flatMap({
-                        guard let invitationLink = $0?.url else {
+                    .withUnretained(self)
+                    .concatMap({
+                        guard let invitationLink = $0.1?.url else {
                             return Observable<Mutation>.just(.setFetchFailureTaostMessageView)
                         }
-                        return Observable<Mutation>.just(.setSharePanel(invitationLink))
-                    }),
-                Observable.just(.setProgressView(false))
+                        return Observable.concat(
+                            Observable<Mutation>.just(.setSharePanel(invitationLink)),
+                            $0.0.provider.activityGlobalState.hiddenInvitationUrlIndicatorView(false)
+                                .flatMap({ _ in Observable<Mutation>.empty() })
+                        )
+                    })
             )
             
         case .fetchFamilyMemebers:
@@ -122,9 +127,6 @@ public final class FamilyManagementViewReactor: Reactor {
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
-        case let .setProgressView(hidden):
-            newState.shouldShowProgressView = hidden
-            
         case let .setSharePanel(urlString):
             newState.familyInvitationUrl = URL(string: urlString ?? "")
             

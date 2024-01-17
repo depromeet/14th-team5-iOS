@@ -20,15 +20,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     // MARK: - Views
     private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
     
-    private let shareContainerView: UIView = UIView()
-    private let envelopeImageView: UIImageView = UIImageView()
-    
-    private let labelStack: UIStackView = UIStackView()
-    private let invitationDescLabel: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
-    private let invitationUrlLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray300)
-    private let shareLineImageView: UIImageView = UIImageView()
-    private let indicatorView: UIActivityIndicatorView = UIActivityIndicatorView()
-    
+    private let shareContainerview: InvitationUrlContainerView = InvitationUrlContainerDIContainer().makeView()
     private let dividerView: UIView = UIView()
     
     private let headerStack: UIStackView = UIStackView()
@@ -62,9 +54,9 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        shareContainerView.rx.tap
+        shareContainerview.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
-            .map { Reactor.Action.didTapShareButton }
+            .map { Reactor.Action.didTapShareContainer }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
@@ -75,21 +67,6 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .subscribe {
                 $0.0.navigationController?.popViewController(animated: true)
             }
-            .disposed(by: disposeBag)
-        
-        reactor.state.map { !$0.shouldShowProgressView }
-            .distinctUntilChanged()
-            .bind(to: indicatorView.rx.isHidden)
-            .disposed(by: disposeBag)
-        
-        reactor.state.map { $0.shouldShowProgressView }
-            .distinctUntilChanged()
-            .bind(to: indicatorView.rx.isAnimating)
-            .disposed(by: disposeBag)
-        
-        reactor.state.map { $0.shouldShowProgressView }
-            .distinctUntilChanged()
-            .bind(to: shareLineImageView.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$familyInvitationUrl)
@@ -139,15 +116,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     public override func setupUI() {
         super.setupUI()
         view.addSubviews(
-            navigationBarView, shareContainerView
-        )
-        shareContainerView.addSubviews(
-            envelopeImageView, labelStack, shareLineImageView, indicatorView
-        )
-        labelStack.addArrangedSubviews(
-            invitationDescLabel, invitationUrlLabel
-        )
-        view.addSubviews(
+            navigationBarView, shareContainerview,
             dividerView, headerStack, familyTableView
         )
         headerStack.addArrangedSubviews(
@@ -164,38 +133,15 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             $0.height.equalTo(42)
         }
         
-        shareContainerView.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview().inset(20)
+        shareContainerview.snp.makeConstraints {
             $0.top.equalTo(navigationBarView.snp.bottom).offset(24)
+            $0.horizontalEdges.equalToSuperview().inset(20)
             $0.height.equalTo(90)
-        }
-        
-        envelopeImageView.snp.makeConstraints {
-            $0.size.equalTo(50)
-            $0.leading.equalTo(shareContainerView.snp.leading).offset(16)
-            $0.centerY.equalTo(shareContainerView.snp.centerY)
-        }
-        
-        labelStack.snp.makeConstraints {
-            $0.leading.equalTo(envelopeImageView.snp.trailing).offset(16)
-            $0.centerY.equalTo(shareContainerView.snp.centerY)
-        }
-        
-        shareLineImageView.snp.makeConstraints {
-            $0.size.equalTo(24)
-            $0.trailing.equalTo(shareContainerView.snp.trailing).offset(-24)
-            $0.centerY.equalTo(shareContainerView.snp.centerY)
-        }
-        
-        indicatorView.snp.makeConstraints {
-            $0.size.equalTo(24)
-            $0.trailing.equalTo(shareContainerView.snp.trailing).offset(-24)
-            $0.centerY.equalTo(shareContainerView.snp.centerY)
         }
         
         dividerView.snp.makeConstraints {
             $0.height.equalTo(1)
-            $0.top.equalTo(shareContainerView.snp.bottom).offset(24)
+            $0.top.equalTo(shareContainerview.snp.bottom).offset(24)
             $0.horizontalEdges.equalToSuperview()
         }
         
@@ -217,44 +163,6 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             $0.navigationTitle = FamilyManagementStrings.mainTitle
             $0.leftBarButtonItem = .arrowLeft
          }
-        
-        shareContainerView.do {
-            $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = 16
-            $0.backgroundColor = .gray800
-        }
-        
-        envelopeImageView.do {
-            $0.image = DesignSystemAsset.envelopeBackground.image
-            $0.contentMode = .scaleAspectFit
-        }
-        
-        labelStack.do {
-            $0.axis = .vertical
-            $0.spacing = 3
-            $0.alignment = .leading
-            $0.distribution = .fillProportionally
-        }
-        
-        invitationDescLabel.do {
-            $0.text = FamilyManagementStrings.inviteDescText
-        }
-        
-        invitationUrlLabel.do {
-            $0.text = FamilyManagementStrings.invitationUrlText
-        }
-        
-        shareLineImageView.do {
-            $0.image = DesignSystemAsset.shareLine.image
-            $0.tintColor = .gray500
-            $0.contentMode = .scaleAspectFit
-        }
-        
-        indicatorView.do {
-            $0.color = .bibbiWhite
-            $0.isHidden = true
-            $0.style = .medium
-        }
         
         dividerView.do {
             $0.backgroundColor = .gray600

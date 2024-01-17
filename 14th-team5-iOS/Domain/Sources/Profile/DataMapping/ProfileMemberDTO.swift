@@ -7,12 +7,13 @@
 
 import Foundation
 
+import Core
 
 public struct ProfileMemberDTO: Decodable {
     public var memberId: String?
     public var name: String?
     public var imageUrl: String?
-    public var dayOfBirth: Date
+    public var dayOfBirth: String
 }
 
 extension ProfileMemberDTO {
@@ -31,7 +32,7 @@ extension ProfileMemberDTO {
             memberId: memberId ?? "",
             profileImageURL: imageUrl ?? "",
             name: name ?? "",
-            dayOfBirth: dayOfBirth
+            dayOfBirth: dayOfBirth.toDate()
         )
     }
     

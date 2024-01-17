@@ -57,6 +57,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     
     override func prepareForReuse() {
         userNameLabel.text = "알 수 없음"
+        firstNameLabel.text = "알"
         profileImageView.image = nil
         postImageView.image = nil
     }
@@ -142,20 +143,18 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
                     ]
                 )
                 
-                guard let name = $0.1.author?.name,
-                      let profileImageUrl = $0.1.author?.profileImageURL else {
-                    $0.0.userNameLabel.text = "알 수 없음"
-                    $0.0.firstNameLabel.text = "알"
-                    return
+                if let imageUrl = $0.1.author?.profileImageURL {
+                    $0.0.profileImageView.kf.setImage(
+                        with: URL(string: imageUrl),
+                        options: [
+                            .transition(.fade(0.15))
+                        ]
+                    )
                 }
                 
-                $0.0.userNameLabel.text = name
-                $0.0.profileImageView.kf.setImage(
-                    with: URL(string: profileImageUrl),
-                    options: [
-                        .transition(.fade(0.15))
-                    ]
-                )
+                if let name = $0.1.author?.name {
+                    $0.0.userNameLabel.text = name
+                }
             }
             .disposed(by: disposeBag)
         
@@ -250,6 +249,10 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         
         userNameLabel.do {
             $0.text = "알 수 없음"
+        }
+        
+        firstNameLabel.do {
+            $0.text = "알"
         }
         
         postImageView.do {

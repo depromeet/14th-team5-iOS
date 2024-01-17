@@ -67,7 +67,7 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
         super.setupAttributes()
         
         titleLabel.do {
-            $0.text = "엄마님, 가족 중 첫 번째로\n방을 생성해보세요"
+            $0.text = "\(UserDefaults.standard.nickname ?? "삐삐")님, 가족 중 첫 번째로\n방을 생성해보세요"
             $0.numberOfLines = 2
         }
         
@@ -129,8 +129,9 @@ extension JoinFamilyViewController {
     private func showHomeViewController(_ isShow: Bool) {
         guard isShow else { return }
         
-        let homeViewController = HomeDIContainer().makeViewController()
-        self.navigationController?.pushViewController(homeViewController, animated: true)
+        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
+        sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+        sceneDelegate.window?.makeKeyAndVisible()
     }
     
     private func showInputLinkViewController(_ isShow: Bool) {

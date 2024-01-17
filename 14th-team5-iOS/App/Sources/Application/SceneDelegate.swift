@@ -36,6 +36,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             return
         }
         
+        // UserDefaults.standard.inviteUrl = String("\(incomingURL)")
         guard let path = components.path else {
             return
         }

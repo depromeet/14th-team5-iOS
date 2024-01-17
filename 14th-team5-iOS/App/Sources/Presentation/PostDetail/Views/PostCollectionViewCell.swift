@@ -56,9 +56,14 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     }
     
     override func prepareForReuse() {
-        userNameLabel.text = nil
+        userNameLabel.text = "알 수 없음"
         profileImageView.image = nil
         postImageView.image = nil
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        selectableEmojiStackView.isHidden = true
     }
     
     override func bind(reactor: EmojiReactor) {
@@ -89,7 +94,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         
         reactor.state
             .map { $0.isShowingSelectableEmojiStackView }
-            .distinctUntilChanged()
+            .filter { $0 }
             .withUnretained(self)
             .bind(onNext: {
                 $0.0.showSelectableEmojiStackView($0.1)
@@ -139,6 +144,8 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
                 
                 guard let name = $0.1.author?.name,
                       let profileImageUrl = $0.1.author?.profileImageURL else {
+                    $0.0.userNameLabel.text = "알 수 없음"
+                    $0.0.firstNameLabel.text = "알"
                     return
                 }
                 
@@ -242,7 +249,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         }
         
         userNameLabel.do {
-            $0.text = "(알 수 없음)"
+            $0.text = "알 수 없음"
         }
         
         postImageView.do {
@@ -317,7 +324,7 @@ extension PostCollectionViewCell {
             
             let emojiCountButton = EmojiCountButton(reactor: reactor)
             emojiCountButton.tag = index + 1
-            emojiCountButton.isSelected = emojiData.isSelfSelected
+            emojiCountButton.selectedRelay.accept(emojiData.isSelfSelected)
             emojiCountButton.setInitEmoji(emoji: EmojiData(emoji: Emojis.emoji(forIndex: index+1), count: emojiData.count))
             emojiCountStackView.addArrangedSubview(emojiCountButton)
         }

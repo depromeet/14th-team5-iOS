@@ -12,11 +12,13 @@ import Data
 import Domain
 
 public final class ImageCalendarCellDIContainer {
+    public typealias UseCase = CalendarUseCaseProtocol
+    public typealias Repository = CalendarRepositoryProtocol
     public typealias Reactor = ImageCalendarCellReactor
     
     public let type: ImageCalendarCellReactor.CalendarType
+    public let isSelected: Bool
     public let dayResponse: CalendarResponse
-    public let selection: Bool
     
     private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
@@ -27,19 +29,28 @@ public final class ImageCalendarCellDIContainer {
     
     public init(
         _ type: ImageCalendarCellReactor.CalendarType,
-        dayResponse: CalendarResponse,
-        isSelected selection: Bool
+        isSelected: Bool = false,
+        dayResponse: CalendarResponse
     ) {
         self.type = type
+        self.isSelected = isSelected
         self.dayResponse = dayResponse
-        self.selection = selection
+    }
+    
+    public func makeUseCase() -> UseCase {
+        return CalendarUseCase(calendarRepository: makeRepository())
+    }
+    
+    public func makeRepository() -> Repository {
+        return CalendarRepository()
     }
     
     public func makeReactor() -> Reactor {
         return ImageCalendarCellReactor(
             type,
+            isSelected: isSelected,
             dayResponse: dayResponse,
-            isSelected: selection,
+            calendarUseCase: makeUseCase(),
             provider: globalState
         )
     }

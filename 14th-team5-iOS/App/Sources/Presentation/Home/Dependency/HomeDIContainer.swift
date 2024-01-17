@@ -26,7 +26,7 @@ public final class HomeDIContainer {
     public func makeFamilyRepository() -> SearchFamilyRepository {
         return FamilyAPIs.Worker()
     }
-    
+
     public func makeInviteFamilyRepository() -> FamilyRepositoryProtocol {
         return FamilyRepository()
     }

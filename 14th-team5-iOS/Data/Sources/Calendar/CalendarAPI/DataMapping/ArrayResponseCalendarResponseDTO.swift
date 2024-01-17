@@ -43,7 +43,7 @@ extension ArrayResponseCalendarResponseDTO {
 extension ArrayResponseCalendarResponseDTO.CalendarResponseDTO {
     func toDomain() -> CalendarResponse {
         return CalendarResponse(
-            date: date.toDate(with: "yyyy-MM-dd"),
+            date: date.toDate(),
             representativePostId: representativePostId,
             representativeThumbnailUrl: representativeThumbnailUrl,
             allFamilyMemebersUploaded: allFamilyMembersUploaded

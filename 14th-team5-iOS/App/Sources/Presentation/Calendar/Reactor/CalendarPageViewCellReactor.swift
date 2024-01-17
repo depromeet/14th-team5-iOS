@@ -42,7 +42,7 @@ public final class CalendarPageCellReactor: Reactor {
     
     // MARK: - Intializer
     init(_ yearMonth: String, usecase: CalendarUseCaseProtocol, provider: GlobalStateProviderProtocol) {
-        self.initialState = State(date: yearMonth.toDate())
+        self.initialState = State(date: yearMonth.toDate(with: "yyyy-MM"))
         
         self.calendarUseCase = usecase
         self.provider = provider

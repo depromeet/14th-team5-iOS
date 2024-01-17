@@ -32,9 +32,9 @@ final class PostReactor: Reactor {
         
         var isPop: Bool = false
         var selectedPost: PostListData = .init(postId: "", author: .init(memberId: "", profileImageURL: "", name: ""), emojiCount: 0, imageURL: "", content: "", time: "")
-        var fetchedPost: PostData? = nil
-        var fetchedEmoji: FetchEmojiDataList = .init(emojis_memberIds: [])
-        var reactionMemberIds: [String] = []
+        
+        @Pulse var fetchedPost: PostData? = nil
+        @Pulse var reactionMemberIds: [String] = []
     }
     
     let initialState: State

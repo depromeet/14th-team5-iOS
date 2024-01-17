@@ -11,11 +11,13 @@ import RxSwift
 
 public enum ActivityEvent {
     case didTapCopyInvitationUrlAction
+    case hiddenInvitationUrlIndicatorView(Bool)
 }
 
 public protocol ActivityGlobalStateType {
     var event: PublishSubject<ActivityEvent> { get }
     func didTapCopyInvitationUrlAction() -> Observable<Void>
+    func hiddenInvitationUrlIndicatorView(_ hidden: Bool) -> Observable<Bool>
 }
 
 final public class ActivityGlobalState: BaseGlobalState, ActivityGlobalStateType {
@@ -24,6 +26,11 @@ final public class ActivityGlobalState: BaseGlobalState, ActivityGlobalStateType
     public func didTapCopyInvitationUrlAction() -> Observable<Void> {
         event.onNext(.didTapCopyInvitationUrlAction)
         return Observable<Void>.just(())
+    }
+    
+    public func hiddenInvitationUrlIndicatorView(_ hidden: Bool) -> Observable<Bool> {
+        event.onNext(.hiddenInvitationUrlIndicatorView(hidden))
+        return Observable<Bool>.just(hidden)
     }
 }
 

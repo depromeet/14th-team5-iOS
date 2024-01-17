@@ -217,16 +217,14 @@ extension CalendarPageCell: FSCalendarDataSource {
                 )
                 cell.reactor = ImageCalendarCellDIContainer(
                     .month,
-                    dayResponse: emptyResponse,
-                    isSelected: false
+                    dayResponse: emptyResponse
                 ).makeReactor()
                 return cell
             }
             
             cell.reactor = ImageCalendarCellDIContainer(
                 .month,
-                dayResponse: dayResponse,
-                isSelected: false
+                dayResponse: dayResponse
             ).makeReactor()
             return cell
         // 셀의 날짜가 현재 월(月)과 동일하지 않다면

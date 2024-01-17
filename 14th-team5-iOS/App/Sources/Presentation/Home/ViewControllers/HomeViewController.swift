@@ -44,132 +44,8 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
     }
     
     public override func bind(reactor: HomeViewReactor) {
-        postCollectionView.rx.setDelegate(self)
-            .disposed(by: disposeBag)
-        
-        rx.viewWillAppear
-            .map { _ in Reactor.Action.getTodayPostList }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        Observable<Int>.interval(.seconds(1), scheduler: MainScheduler.instance)
-            .startWith(0)
-            .map { [weak self] _ in
-                guard let self = self else { return HomeStrings.Timer.notTime }
-                let time = self.calculateRemainingTime()
-                guard let timeString = time.setTimerFormat() else {
-                    self.hideCameraButton(true)
-                    return HomeStrings.Timer.notTime
-                }
-
-                if time <= 3600 && !reactor.currentState.didPost {
-                    self.timerLabel.textBibbiColor = .warningRed
-                    self.descriptionLabel.text = "시간이 얼마 남지 않았어요!"
-                }
-
-                return timeString
-            }
-            .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { [weak self] time in
-                guard let self = self else { return }
-
-                self.timerLabel.text = time
-            })
-            .disposed(by: disposeBag)
-        
-        navigationBarView.rx.didTapLeftBarButton
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .withUnretained(self)
-            .subscribe {
-                $0.0.navigationController?.pushViewController(
-                    FamilyManagementDIContainer().makeViewController(),
-                    animated: true
-                )
-            }
-            .disposed(by: disposeBag)
-        
-        navigationBarView.rx.didTapRightBarButton
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .withUnretained(self)
-            .subscribe {
-                $0.0.navigationController?.pushViewController(
-                    CalendarDIConatainer().makeViewController(),
-                    animated: true
-                )
-            }
-            .disposed(by: disposeBag)
-        
-        postCollectionView.rx.itemSelected
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .bind(onNext: { [weak self] indexPath in
-                guard let self else { return }
-                let sectionModel = reactor.currentState.feedSections[indexPath.section]
-                let selectedItem = sectionModel.items[indexPath.item]
-
-                self.navigationController?.pushViewController(
-                    PostListsDIContainer().makeViewController(
-                        postLists: sectionModel,
-                        selectedIndex: indexPath
-                    ),
-                    animated: true
-                )
-            })
-            .disposed(by: disposeBag)
-        
-        refreshControl.rx.controlEvent(.valueChanged)
-            .map { Reactor.Action.refreshCollectionview }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        reactor.state
-            .map { $0.isRefreshing }
-            .observe(on: MainScheduler.instance)
-            .bind(onNext: { [weak postCollectionView] isRefreshing in
-                if let refreshControl = postCollectionView?.refreshControl {
-                    refreshControl.endRefreshing()
-                }
-            })
-            .disposed(by: disposeBag)
-        
-        cameraButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind { owner, _ in
-                let cameraViewController = CameraDIContainer(cameraType: .feed).makeViewController()
-                owner.navigationController?.pushViewController(cameraViewController, animated: true)
-            }.disposed(by: disposeBag)
-        
-        reactor.state
-            .map { $0.descriptionText }
-            .distinctUntilChanged()
-            .compactMap({$0})
-            .observe(on: Schedulers.main)
-            .bind(to: descriptionLabel.rx.text)
-            .disposed(by: disposeBag)
-        
-        reactor.state
-            .map { $0.feedSections }
-            .distinctUntilChanged()
-            .bind(to: postCollectionView.rx.items(dataSource: createFeedDataSource()))
-            .disposed(by: disposeBag)
-        
-        reactor.state
-            .map { $0.isShowingNoPostTodayView }
-            .distinctUntilChanged()
-            .observe(on: MainScheduler.instance)
-            .withUnretained(self)
-            .bind(onNext: { $0.0.setNoPostTodayView($0.1) })
-            .disposed(by: disposeBag)
-        
-        reactor.state
-            .map { $0.didPost }
-            .observe(on: MainScheduler.instance)
-            .distinctUntilChanged()
-            .withUnretained(self)
-            .bind(onNext: {
-                $0.0.hideCameraButton($0.1)
-            })
-            .disposed(by: disposeBag)
+        bindInput(reactor: reactor)
+        bindOutput(reactor: reactor)
     }
     
     public override func setupUI() {
@@ -292,13 +168,129 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
 }
 
 extension HomeViewController {
+    private func bindInput(reactor: HomeViewReactor) {
+        postCollectionView.rx.setDelegate(self)
+            .disposed(by: disposeBag)
+        
+        Observable.just(())
+            .map { Reactor.Action.startTimer }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        rx.viewWillAppear
+            .map { _ in Reactor.Action.getTodayPostList }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        navigationBarView.rx.didTapLeftBarButton
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.navigationController?.pushViewController(
+                    FamilyManagementDIContainer().makeViewController(),
+                    animated: true
+                )
+            }
+            .disposed(by: disposeBag)
+        
+        navigationBarView.rx.didTapRightBarButton
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.navigationController?.pushViewController(
+                    CalendarDIConatainer().makeViewController(),
+                    animated: true
+                )
+            }
+            .disposed(by: disposeBag)
+        
+        postCollectionView.rx.itemSelected
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .bind(onNext: { [weak self] indexPath in
+                guard let self else { return }
+                let sectionModel = reactor.currentState.feedSections[indexPath.section]
+                let selectedItem = sectionModel.items[indexPath.item]
+
+                self.navigationController?.pushViewController(
+                    PostListsDIContainer().makeViewController(
+                        postLists: sectionModel,
+                        selectedIndex: indexPath
+                    ),
+                    animated: true
+                )
+            })
+            .disposed(by: disposeBag)
+        
+        refreshControl.rx.controlEvent(.valueChanged)
+            .map { Reactor.Action.refreshCollectionview }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        cameraButton.rx.tap
+            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, _ in
+                let cameraViewController = CameraDIContainer(cameraType: .feed).makeViewController()
+                owner.navigationController?.pushViewController(cameraViewController, animated: true)
+            }.disposed(by: disposeBag)
+    }
+    
+    private func bindOutput(reactor: HomeViewReactor) {
+        reactor.state
+            .map { $0.isRefreshing }
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: { [weak postCollectionView] isRefreshing in
+                if let refreshControl = postCollectionView?.refreshControl {
+                    refreshControl.endRefreshing()
+                    postCollectionView?.reloadData()
+                }
+            })
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$timer)
+            .observe(on: Schedulers.main)
+            .bind(to: timerLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$timerLabelColor)
+            .observe(on: Schedulers.main)
+            .bind(to: timerLabel.rx.textColor)
+            .disposed(by: disposeBag)
+
+        reactor.state
+            .map { $0.isHideCameraButton }
+            .distinctUntilChanged()
+            .observe(on: Schedulers.main)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.hideCameraButton($0.1) })
+            .disposed(by: disposeBag)
+
+        reactor.state
+            .map { $0.descriptionText }
+            .distinctUntilChanged()
+            .observe(on: Schedulers.main)
+            .bind(to: descriptionLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$feedSections)
+            .distinctUntilChanged()
+            .bind(to: postCollectionView.rx.items(dataSource: createFeedDataSource()))
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.isShowingNoPostTodayView }
+            .distinctUntilChanged()
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.setNoPostTodayView($0.1) })
+            .disposed(by: disposeBag)
+    }
+}
+
+extension HomeViewController {
     private func setNoPostTodayView(_ isShow: Bool) {
-        if isShow {
-            noPostTodayView.isHidden = !isShow
-            postCollectionView.isHidden = isShow
-        } else {
-            noPostTodayView.isHidden = !isShow
-        }
+        noPostTodayView.isHidden = !isShow
+        postCollectionView.isHidden = isShow
     }
 
     private func hideCameraButton(_ isShow: Bool) {

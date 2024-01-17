@@ -12,7 +12,7 @@ public struct ProfileMemberDTO: Decodable {
     public var memberId: String?
     public var name: String?
     public var imageUrl: String?
-    
+    public var dayOfBirth: Date
 }
 
 extension ProfileMemberDTO {
@@ -30,7 +30,9 @@ extension ProfileMemberDTO {
         return .init(
             memberId: memberId ?? "",
             profileImageURL: imageUrl ?? "",
-            name: name ?? "")
+            name: name ?? "",
+            dayOfBirth: dayOfBirth
+        )
     }
     
 }

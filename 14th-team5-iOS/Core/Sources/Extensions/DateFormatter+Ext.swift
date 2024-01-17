@@ -8,7 +8,7 @@
 import Foundation
 
 extension DateFormatter {
-    private static func withFormat(_ format: String) -> DateFormatter {
+    public static func withFormat(_ format: String) -> DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = format
         formatter.calendar = Calendar(identifier: .iso8601)

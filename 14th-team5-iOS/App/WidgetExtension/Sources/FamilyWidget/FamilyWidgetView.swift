@@ -133,6 +133,7 @@ private struct NetworkImageView: View {
         if let url = url, let imageData = try? Data(contentsOf: url), let uiImage = UIImage(data: imageData) {
             Image(uiImage: uiImage)
                 .resizable()
+                .rotationEffect(.degrees(90))
         } else {
             Color.white // 추후 변경해야할 사항
         }

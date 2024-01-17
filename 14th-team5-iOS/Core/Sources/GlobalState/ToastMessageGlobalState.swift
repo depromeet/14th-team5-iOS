@@ -9,20 +9,20 @@ import Foundation
 
 import RxSwift
 
-public enum ToastEvent {
+public enum ToastMessageEvent {
     case showAllFamilyUploadedToastView(Bool)
 }
 
-public protocol ToastGlobalStateType {
+public protocol ToastMessageGlobalStateType {
     var lastSelectedDate: Date { get set }
-    var event: BehaviorSubject<ToastEvent> { get }
+    var event: BehaviorSubject<ToastMessageEvent> { get }
     func showAllFamilyUploadedToastMessageView(_ bool: Bool, selection date: Date) -> Observable<Bool>
     func resetLastSelectedDate()
 }
 
-final public class ToastGlobalState: BaseGlobalState, ToastGlobalStateType {
+final public class ToastMessageGlobalState: BaseGlobalState, ToastMessageGlobalStateType {
     public var lastSelectedDate: Date = .distantFuture
-    public var event: BehaviorSubject<ToastEvent> = BehaviorSubject<ToastEvent>(value: .showAllFamilyUploadedToastView(false))
+    public var event: BehaviorSubject<ToastMessageEvent> = BehaviorSubject<ToastMessageEvent>(value: .showAllFamilyUploadedToastView(false))
     
     public func showAllFamilyUploadedToastMessageView(_ isUploaded: Bool, selection date: Date) -> Observable<Bool> {
         lastSelectedDate = date

@@ -70,7 +70,8 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
         }
         
         linkTextField.do {
-            $0.makePlaceholderAttributedString("https://no5ing.kr/", attributed: [
+            $0.makePlaceholderAttributedString(UserDefaults.standard.inviteUrl ?? "https://no5ing.kr/",
+                                               attributed: [
                 .font: UIFont(font: DesignSystemFontFamily.Pretendard.bold, size: 36)!,
                 .foregroundColor: DesignSystemAsset.gray700.color
             ])
@@ -123,9 +124,7 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
             .filter { $0 }
             .distinctUntilChanged()
             .withUnretained(self)
-            .bind(onNext: {
-                $0.0.showHomeViewController()
-            })
+            .bind(onNext: { $0.0.showHomeViewController() })
             .disposed(by: disposeBag)
         
         reactor.state
@@ -153,7 +152,8 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
 
 extension InputFamilyLinkViewController {
     private func showHomeViewController() {
-        let homeViewController = HomeDIContainer().makeViewController()
-        self.navigationController?.pushViewController(homeViewController, animated: true)
+        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
+        sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+        sceneDelegate.window?.makeKeyAndVisible()
     }
 }

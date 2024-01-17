@@ -35,7 +35,7 @@ jobs:
 
       - name: Setting Tuist Master Key
         run: | 
-          echo -n "${MASTER_KEY}" | tr -d '\r\n' > Tuist/master.key
+          printf "%s" "${{ secrets.MASTER_KEY }}" > Tuist/master.key
         env:
           MASTER_KEY: ${{secrets.MASTER_KEY}}
         
@@ -55,27 +55,20 @@ jobs:
       - name: Tuist Fetch Command
         run: tuist fetch
         
-
       - name: Tuist Siging Decrept
         run: tuist signing decrypt
-        
-      - name: Tuist Keychain Log
-        run: |
-          echo "KEYCHAIN_NAME: ${{secrets.KEYCHAIN_NAME}}
-          echo "KEYCHAIN_PASSWORD: ${{secrets.KEYCHAIN_PASSWORD}}
+
+      - name: Fastalne setup Keychain
+        run: fastlane setup_keychain
         env:
+            APP_NAME: ${{secrets.APP_NAME}}
+            WIDGET_NAME: ${{secrets.WIDGET_NAME}}
             KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
             KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
-      # - name: Fastalne setup Keychain
-      #   run: fastlane setup_keychain
-      #   env:
-      #       KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
-      #       KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-            
-
       - name: Tuist generate Command      
         run: tuist generate  
+        
 
       # - name: Tuist Build Command
       #   run: tuist build

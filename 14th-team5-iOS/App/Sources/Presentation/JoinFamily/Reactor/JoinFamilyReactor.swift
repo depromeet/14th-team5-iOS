@@ -5,6 +5,7 @@
 //  Created by 마경미 on 12.01.24.
 //
 
+import Core
 import Domain
 
 import ReactorKit
@@ -51,6 +52,7 @@ extension JoinFamilyReactor {
                         // 여기 왜 뭐지?
                         return Observable.just(Mutation.setShowHome(false))
                     }
+                    App.Repository.member.familyId.accept(familyResponse.familyId)
                     return Observable.just(Mutation.setShowHome(true))
                 }
         case .joinFamily:

@@ -142,8 +142,13 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
         guard show else { return }
         guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
         
-        sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: JoinFamilyDIContainer().makeViewController())
-        sceneDelegate.window?.makeKeyAndVisible()
+        if App.Repository.member.familyId.value == nil {
+            sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: JoinFamilyDIContainer().makeViewController())
+            sceneDelegate.window?.makeKeyAndVisible()
+        } else {
+            sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+            sceneDelegate.window?.makeKeyAndVisible()
+        }
     }
 }
 

@@ -19,6 +19,11 @@ public class FamilyUserDefaults {
     private let familyIdKey = "familyId"
     private static let myMemberIdKey = "myMemberId"
     private static let memberIdsKey = "memberIds"
+    private static let dayOfBirths = "dayOfBirths"
+    
+    private static var userDefaults: UserDefaults {
+        UserDefaults.standard
+    }
 
     public static func checkIsMyMemberId(memberId: String) -> Bool {
         return memberId == UserDefaults.standard.string(forKey: myMemberIdKey)
@@ -40,12 +45,22 @@ public class FamilyUserDefaults {
         return UserDefaults.standard.string(forKey: myMemberIdKey) ?? ""
     }
     
+    public static func getDateOfBirths() -> [Date] {
+        guard let dateOfBirths = userDefaults.array(
+            forKey: dayOfBirths
+        ) as? [Date] else {
+            return []
+        }
+        return dateOfBirths
+    }
+    
     public static func getMemberCount() -> Int {
         return UserDefaults.standard.stringArray(forKey: myMemberIdKey)?.count ?? 0
     }
     
     public static func saveFamilyMembers(_ familyMembers: [ProfileData]) {
         saveMemberIdToUserDefaults(memberIds: familyMembers.map { $0.memberId })
+        saveDayOfBirths(dateOfBirths: familyMembers.map { $0.dayOfBirth })
         familyMembers.forEach {
             saveMemberToUserDefaults(familyMember: $0)
         }
@@ -79,6 +94,10 @@ extension FamilyUserDefaults {
     
     private static func saveMemberIdToUserDefaults(memberIds: [String]) {
         UserDefaults.standard.setValue(memberIds, forKey: memberIdsKey)
+    }
+    
+    private static func saveDayOfBirths(dateOfBirths: [Date]) {
+        userDefaults.setValue(dateOfBirths, forKey: self.dayOfBirths)
     }
 
     static func loadMembersFromUserDefaults(memberIds: [String]) -> [ProfileData] {

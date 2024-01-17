@@ -14,7 +14,12 @@ struct FamilyService {
         
         let token = App.Repository.token.keychain.string(forKey: "accessToken")
         let appKey = "9c61cc7b-0fe9-40eb-976e-6a74c8cb9092"
-        let urlString = "https://api.no5ing.kr/v1/widgets/single-recent-family-post"
+#if PRD
+        var hostApi: String = "https://api.no5ing.kr/v1"
+#else
+        var hostApi: String = "https://dev.api.no5ing.kr/v1"
+#endif
+        let urlString = "\(hostApi)/widgets/single-recent-family-post"
         
         var request = URLRequest(url: URL(string: urlString)!)
         request.addValue("application/json", forHTTPHeaderField: "accept")

@@ -10,12 +10,12 @@ import Foundation
 public struct PostCommentPaginationQuery {
     public var page: Int
     public var size: Int
-    public var sort: PostCommentResponse.Sort
+    public var sort: PostCommentPaginationQuery.Sort
     
     public init(
         page: Int = 1,
         size: Int = 100,
-        sort: PostCommentResponse.Sort = .desc
+        sort: PostCommentPaginationQuery.Sort = .desc
     ) {
         self.page = page
         self.size = size
@@ -23,7 +23,7 @@ public struct PostCommentPaginationQuery {
     }
 }
 
-extension PostCommentResponse {
+extension PostCommentPaginationQuery {
     public enum Sort: String {
         case asc = "ASC"
         case desc = "DESC"

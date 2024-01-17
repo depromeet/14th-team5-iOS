@@ -10,16 +10,16 @@ import Foundation
 import Domain
 
 enum PostCommentAPIs: API {
-    case getPostComment(String, Int, Int, String)
-    case addPostComment(String)
+    case fetchPostComment(String, Int, Int, String)
+    case createPostComment(String)
     case updatePostComment(String, String)
     case deletePostComment(String, String)
     
     var spec: APISpec {
         switch self {
-        case let .getPostComment(postId, page, size, sort):
+        case let .fetchPostComment(postId, page, size, sort):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/posts/\(postId)/comments?page=\(page)&size=\(size)&sort=\(sort)")
-        case let .addPostComment(postId):
+        case let .createPostComment(postId):
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/posts/\(postId)/comments")
         case let .updatePostComment(postId, commentId):
             return APISpec(method: .put, url: "\(BibbiAPI.hostApi)/posts/\(postId)/comments/\(commentId)")

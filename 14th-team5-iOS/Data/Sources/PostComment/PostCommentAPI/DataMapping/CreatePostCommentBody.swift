@@ -1,5 +1,5 @@
 //
-//  UpdatePostCommentQuery.swift
+//  CreatePostCommentQuery.swift
 //  Domain
 //
 //  Created by 김건우 on 1/17/24.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct UpdatePostCommentQuery {
+public struct CreatePostCommentBody {
     public var content: String
     
     public init(content: String) {

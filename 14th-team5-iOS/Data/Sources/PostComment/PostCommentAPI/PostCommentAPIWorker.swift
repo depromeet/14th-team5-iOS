@@ -39,7 +39,7 @@ extension PostCommentAPIWorker {
         let page = query.page
         let size = query.size
         let sort = query.sort.rawValue
-        let spec = PostCommentAPIs.getPostComment(postId, page, size, sort).spec
+        let spec = PostCommentAPIs.fetchPostComment(postId, page, size, sort).spec
         
         return Observable<Void>.just(())
             .withLatestFrom(self._headers)
@@ -63,30 +63,33 @@ extension PostCommentAPIWorker {
             .asSingle()
     }
     
-    public func addPostComment(postId: String, body: CreatePostCommentQuery) -> Single<PostCommentResponse?> {
-        let spec = PostCommentAPIs.addPostComment(postId).spec
-        let body = CreatePostCommentReqeustDTO(content: body.content)
+    public func createPostComment(postId: String, body: CreatePostCommentReqeustDTO) -> Single<PostCommentResponse?> {
+        let spec = PostCommentAPIs.createPostComment(postId).spec
         
         return Observable<Void>.just(())
             .withLatestFrom(self._headers)
             .observe(on: Self.queue)
             .withUnretained(self)
-            .flatMap { $0.0.addPostComment(spec: spec, headers: $0.1, jsonEncodable: body) }
+            .flatMap { $0.0.createPostComment(spec: spec, headers: $0.1, jsonEncodable: body) }
             .asSingle()
     }
     
-    private func addPostComment(spec: APISpec, headers: [APIHeader]?, jsonEncodable body: Encodable) -> Single<PostCommentResponse?> {
+    private func createPostComment(spec: APISpec, headers: [APIHeader]?, jsonEncodable body: Encodable) -> Single<PostCommentResponse?> {
         return request(spec: spec, headers: headers, jsonEncodable: body)
             .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Create PostComment Result: \(str)")
+                }
+            }
             .map(PostCommentResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
             .asSingle()
     }
     
-    public func updatePostComment(postId: String, commentId: String, body: UpdatePostCommentQuery) -> Single<PostCommentResponse?> {
+    public func updatePostComment(postId: String, commentId: String, body: UpdatePostCommentReqeustDTO) -> Single<PostCommentResponse?> {
         let spec = PostCommentAPIs.updatePostComment(postId, commentId).spec
-        let body = UpdatePostCommentReqeustDTO(content: body.content)
         
         return Observable<Void>.just(())
             .withLatestFrom(self._headers)
@@ -99,6 +102,11 @@ extension PostCommentAPIWorker {
     private func updatePostComment(spec: APISpec, headers: [APIHeader]?, jsonEncodable body: Encodable) -> Single<PostCommentResponse?> {
         return request(spec: spec, headers: headers, jsonEncodable: body)
             .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Update PostComment Result: \(str)")
+                }
+            }
             .map(PostCommentResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
@@ -119,6 +127,11 @@ extension PostCommentAPIWorker {
     private func deletePostComment(spec: APISpec, headers: [APIHeader]?) -> Single<PostCommentDeleteResponse?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Delete PostComment Result: \(str)")
+                }
+            }
             .map(PostCommentDeleteResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }

@@ -111,7 +111,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             })
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.post.author?.name[0] }
+        reactor.state.map { $0.post.author?.name[0] ?? "알" }
             .distinctUntilChanged()
             .bind(to: firstNameLabel.rx.text)
             .disposed(by: disposeBag)

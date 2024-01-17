@@ -137,8 +137,8 @@ platform :ios do
     )        
   end
 
-  #✅ 테스트 플라이트에 DEV 업로드
-  lane :upload_dev_to_testflight do |options|
+  #✅ 테스트 플라이트에 STG 업로드
+  lane :upload_stg_to_testflight do |options|
     app_store_connect_api_key(
       key_id: "#{APP_STORE_CONNECT_KEY_ID}",
       issuer_id: "#{APP_STORE_CONNECT_ISSUER_ID}",
@@ -161,8 +161,8 @@ platform :ios do
       export_options: {
         method: "app-store", 
 	provisioningProfiles: {
-          "#{BUNDLE_ID}" => "App.DEV",
-          "#{WIDGET_BUNDLE_ID}" => "WidgetExtension.DEV",
+          "#{BUNDLE_ID}" => "App.STG",
+          "#{WIDGET_BUNDLE_ID}" => "WidgetExtension.STG",
         }
       }
     )
@@ -181,7 +181,7 @@ platform :ios do
         fields: [
           {
             title: "Scheme",
-            value: "#{DEV_SCHEME}-DEV",
+            value: "#{DEV_SCHEME}",
           },
           {
             title: "Build Number",

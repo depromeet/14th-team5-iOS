@@ -19,7 +19,9 @@ final public class PostCommentViewReactor: Reactor {
     public enum Mutation { }
     
     // MARK: - State
-    public struct State { }
+    public struct State {
+        var commentCount: Int
+    }
     
     // MARK: - Properties
     public var initialState: State
@@ -27,8 +29,10 @@ final public class PostCommentViewReactor: Reactor {
     public var provider: GlobalStateProviderProtocol
     
     // MARK: - Intializer
-    public init(provider: GlobalStateProviderProtocol) {
-        self.initialState = State()
+    public init(commentCount: Int, provider: GlobalStateProviderProtocol) {
+        self.initialState = State(
+            commentCount: commentCount
+        )
         
         self.provider = provider
     }

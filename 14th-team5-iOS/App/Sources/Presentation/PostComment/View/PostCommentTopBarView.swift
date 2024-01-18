@@ -9,6 +9,7 @@ import Core
 import UIKit
 
 import Then
+import SnapKit
 
 final class PostCommentTopBarView: UIView {
     // MARK: - Views

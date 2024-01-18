@@ -6,40 +6,56 @@
 //
 
 import Core
+import Domain
 import Foundation
 
+import Differentiator
 import ReactorKit
 import RxSwift
 
 final public class CommentCellReactor: Reactor {
     // MARK: - Action
-    public enum Action { }
+    public enum Action { 
+        case fetchUserName
+        case fetch
+    }
     
     // MARK: - Mutation
     public enum Mutation { }
     
     // MARK: - State
-    public struct State { }
+    public struct State { 
+        let commentId: String
+        let postId: String
+        let memberId: String
+        let comment: String
+        let createdAt: Date
+    }
     
     // MARK: - Properties
     public var initialState: State
     
-    public var provider: GlobalStateProviderProtocol
-    
     // MARK: - Intializer
-    public init(provider: GlobalStateProviderProtocol) {
-        self.initialState = State()
-        
-        self.provider = provider
+    public init(_ commentResponse: PostCommentResponse) {
+        self.initialState = State(
+            commentId: commentResponse.commentId,
+            postId: commentResponse.postId,
+            memberId: commentResponse.memberId,
+            comment: commentResponse.comment,
+            createdAt: commentResponse.createdAt
+        )
+    }
+}
+
+extension CommentCellReactor: IdentifiableType, Equatable {
+    // MARK: - IdentifiableType
+    public typealias Identity = String
+    public var identity: Identity {
+        return initialState.commentId
     }
     
-    // MARK: - Mutate
-    public func mutate(action: Action) -> Observable<Mutation> {
-        return Observable<Mutation>.empty()
-    }
-    
-    // MARK: - Reduce
-    public func reduce(state: State, mutation: Mutation) -> State {
-        return state
+    // MARK: - Equatable
+    public static func == (lhs: CommentCellReactor, rhs: CommentCellReactor) -> Bool {
+        return lhs.initialState.commentId == rhs.initialState.commentId
     }
 }

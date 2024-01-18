@@ -25,21 +25,16 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
     private let createCommentButton: UIButton = UIButton(type: .system)
     
     // MARK: - Properties
-    private lazy var dataSource: RxTableViewSectionedAnimatedDataSource<> = prepareDatasource()
+    private lazy var dataSource: RxTableViewSectionedAnimatedDataSource<PostCommentSectionModel> = prepareDatasource()
     
     // MARK: - LifeCycles
     public override func viewDidLoad() {
         super.viewDidLoad()
-        commentTextField.becomeFirstResponder()
     }
     
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.isHidden = true
-    }
-    
-    public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        commentTextField.resignFirstResponder()
     }
     
     // MARK: - Helpers
@@ -49,11 +44,36 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: PostCommentViewReactor) { }
-    private func bindOutput(reactor: PostCommentViewReactor) { }
+    private func bindInput(reactor: PostCommentViewReactor) { 
+        Observable<Void>.merge(
+            commentTableView.rx.tap.asObservable(),
+            navigationBarView.rx.tap.asObservable()
+        )
+        .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+        .withUnretained(self)
+        .subscribe {
+            $0.0.commentTextField.resignFirstResponder()
+        }
+        .disposed(by: disposeBag)
+
+    }
+    
+    private func bindOutput(reactor: PostCommentViewReactor) {
+        let testData = PostCommentSectionModel.generateTestData()
+        Observable.just(testData)
+            .distinctUntilChanged()
+            .bind(to: commentTableView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.commentCount >= 0 }
+            .distinctUntilChanged()
+            .bind(to: noCommentLabel.rx.isHidden)
+            .disposed(by: disposeBag)
+    }
     
     public override func setupUI() {
         super.setupUI()
+        
         view.addSubviews(
             navigationBarView, commentTableView,
             noCommentLabel, textFieldStroke
@@ -105,9 +125,14 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
         }
         
         commentTableView.do {
-            $0.allowsSelection = false
+            $0.estimatedRowHeight = 250
             $0.rowHeight = UITableView.automaticDimension
+            $0.allowsSelection = false
+            $0.separatorStyle = .none
             $0.backgroundColor = UIColor.bibbiBlack
+            $0.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 0)
+            
+            $0.register(CommentCell.self, forCellReuseIdentifier: CommentCell.id)
         }
         
         commentTextField.do {
@@ -126,5 +151,15 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             $0.tintColor = UIColor.mainGreen
         }
         
+    }
+}
+
+extension PostCommentViewController {
+    private func prepareDatasource() -> RxTableViewSectionedAnimatedDataSource<PostCommentSectionModel> {
+        return RxTableViewSectionedAnimatedDataSource { dataSource, tableView, indexPath, reactor in
+            let cell = tableView.dequeueReusableCell(withIdentifier: CommentCell.id) as! CommentCell
+            cell.reactor = reactor
+            return cell
+        }
     }
 }

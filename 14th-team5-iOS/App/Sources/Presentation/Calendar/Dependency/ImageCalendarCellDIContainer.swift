@@ -11,7 +11,7 @@ import Core
 import Data
 import Domain
 
-public final class ImageCalendarCellDIContainer {
+final public class ImageCalendarCellDIContainer {
     public typealias UseCase = CalendarUseCaseProtocol
     public typealias Repository = CalendarRepositoryProtocol
     public typealias Reactor = ImageCalendarCellReactor

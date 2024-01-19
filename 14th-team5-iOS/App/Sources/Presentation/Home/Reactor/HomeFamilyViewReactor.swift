@@ -16,7 +16,7 @@ import Kingfisher
 
 final class HomeFamilyViewReactor: Reactor {
     enum Action {
-        case viewDidLoad
+        case viewWillAppear
         case prefetchItems([FamilySection.Item])
         case tapInviteFamily
         case pagination(
@@ -81,7 +81,7 @@ extension HomeFamilyViewReactor {
     
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .viewDidLoad:
+        case .viewWillAppear:
           currentPage += 1
           let query = SearchFamilyQuery(page: currentPage, size: 10)
             return searchFamilyUseCase.excute(query: query)
@@ -93,7 +93,10 @@ extension HomeFamilyViewReactor {
                     }
                     
                     let familySectionItem = familyMembers.members.map(FamilySection.Item.main)
-                    return Observable.just(Mutation.initDataSource(familySectionItem))
+                    return Observable.concat([
+//                        Observable.just(Mutation.show)
+                        Observable.just(Mutation.initDataSource(familySectionItem))
+                    ])
                 }
         case .tapInviteFamily:
             return inviteFamilyUseCase.executeFetchInvitationUrl()
@@ -114,7 +117,8 @@ extension HomeFamilyViewReactor {
             var urls = [URL]()
             items.forEach {
               if case let .main(profile) = $0,
-                 let url = URL(string: profile.profileImageURL ?? "") {
+                 let imageURL = profile.profileImageURL,
+                 let url = URL(string: imageURL) {
                 urls.append(url)
               }
             }

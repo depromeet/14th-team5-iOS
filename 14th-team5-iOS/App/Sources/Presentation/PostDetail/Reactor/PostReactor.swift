@@ -28,7 +28,7 @@ final class PostReactor: Reactor {
     
     struct State {
         let selectedIndex: Int
-        let originPostLists: [SectionModel<String,PostListData>]
+        let originPostLists: PostSection.Model
         
         var isPop: Bool = false
         var selectedPost: PostListData = .init(postId: "", author: .init(memberId: "", profileImageURL: "", name: ""), emojiCount: 0, imageURL: "", content: "", time: "")
@@ -86,7 +86,9 @@ extension PostReactor {
             case let .fetchedPost(post):
                 newState.fetchedPost = post
             case let .setSelectedPostIndex(index):
-                newState.selectedPost = newState.originPostLists[0].items[index]
+                if case let .main(postData) = newState.originPostLists.items[index] {
+                    newState.selectedPost = postData
+                }
             case .setPop:
                 newState.isPop = true
             case let .showReactionSheet(memberIds):

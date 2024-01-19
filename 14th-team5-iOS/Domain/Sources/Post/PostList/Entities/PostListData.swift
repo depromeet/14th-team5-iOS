@@ -26,15 +26,13 @@ public struct PostListData: Equatable {
 }
 
 public struct PostListPage: Equatable {
-    let currentPage: Int
-    let totalPages: Int
+    public let isLast: Bool
     public let postLists: [PostListData]
     public let allFamilyMembersUploaded: Bool
     public let selfUploaded: Bool
     
-    public init(currentPage: Int, totalPages: Int, postLists: [PostListData], allFamilyMembersUploaded: Bool, selfUploaded: Bool) {
-        self.currentPage = currentPage
-        self.totalPages = totalPages
+    public init(isLast: Bool, postLists: [PostListData], allFamilyMembersUploaded: Bool, selfUploaded: Bool) {
+        self.isLast = isLast
         self.postLists = postLists
         self.allFamilyMembersUploaded = allFamilyMembersUploaded
         self.selfUploaded = selfUploaded

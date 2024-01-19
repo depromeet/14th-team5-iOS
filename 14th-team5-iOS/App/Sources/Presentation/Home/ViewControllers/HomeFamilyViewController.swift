@@ -104,7 +104,7 @@ extension HomeFamilyViewController {
             .disposed(by: disposeBag)
         
         self.rx.viewWillAppear
-            .map { _ in Reactor.Action.viewDidLoad }
+            .map { _ in Reactor.Action.viewWillAppear }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -123,14 +123,14 @@ extension HomeFamilyViewController {
             }
             .disposed(by: disposeBag)
         
-//        familyCollectionView.rx.prefetchItems
-//            .throttle(.seconds(1), scheduler: Schedulers.main)
-//            .observe(on: Schedulers.main)
-//            .asObservable()
-//            .map(dataSource.items(at:))
-//            .map(Reactor.Action.prefetchItems)
-//            .bind(to: reactor.action)
-//            .disposed(by: disposeBag)
+        familyCollectionView.rx.prefetchItems
+            .throttle(.seconds(1), scheduler: Schedulers.main)
+            .observe(on: Schedulers.main)
+            .asObservable()
+            .map(dataSource.items(at:))
+            .map(Reactor.Action.prefetchItems)
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
         familyCollectionView.rx.didScroll
             .throttle(.seconds(1), scheduler: Schedulers.main)

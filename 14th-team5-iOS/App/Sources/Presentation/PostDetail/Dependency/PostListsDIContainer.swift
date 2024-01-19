@@ -24,7 +24,7 @@ final class PostListsDIContainer {
         return appDelegate.globalStateProvider
     }
     
-    func makeViewController(postLists: SectionModel<String, PostListData>, selectedIndex: IndexPath) -> ViewContrller {
+    func makeViewController(postLists: PostSection.Model, selectedIndex: IndexPath) -> ViewContrller {
         return PostViewController(reactor: makeReactor(postLists: postLists, selectedIndex: selectedIndex.row))
     }
     
@@ -44,7 +44,7 @@ final class PostListsDIContainer {
         return EmojiUseCase(emojiRepository: makeEmojiRepository())
     }
     
-    func makeReactor(postLists: SectionModel<String, PostListData>, selectedIndex: Int) -> Reactor {
-        return PostReactor(provider: globalState, postRepository: makePostUseCase(), emojiRepository: makeEmojiUseCase(), initialState: PostReactor.State(selectedIndex: selectedIndex, originPostLists: [postLists]))
+    func makeReactor(postLists: PostSection.Model, selectedIndex: Int) -> Reactor {
+        return PostReactor(provider: globalState, postRepository: makePostUseCase(), emojiRepository: makeEmojiUseCase(), initialState: PostReactor.State(selectedIndex: selectedIndex, originPostLists: postLists))
     }
 }

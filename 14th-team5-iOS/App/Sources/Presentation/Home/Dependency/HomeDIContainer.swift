@@ -12,10 +12,7 @@ import Core
 
 
 public final class HomeDIContainer {
-    public typealias ViewContrller = HomeViewController
-    public typealias Reactor = HomeViewReactor
-    
-    public func makeViewController() -> ViewContrller {
+    func makeViewController() -> HomeViewController {
         return HomeViewController(reactor: makeReactor())
     }
     
@@ -43,7 +40,7 @@ public final class HomeDIContainer {
         return FamilyViewUseCase(familyRepository: makeInviteFamilyRepository())
     }
     
-    public func makeReactor() -> Reactor {
+    func makeReactor() -> HomeViewReactor {
         return HomeViewReactor(postRepository: makePostUseCase())
     }
     

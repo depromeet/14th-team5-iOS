@@ -109,7 +109,7 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
             .withLatestFrom(reactor.state.compactMap { $0.appInfo?.latest})
             .filter { $0 == false }
             .bind { _ in
-                UIApplication.shared.open(URLTypes.appStore("6475082088").originURL)
+                UIApplication.shared.open(URLTypes.appStore.originURL)
             }.disposed(by: disposeBag)
         
         
@@ -190,7 +190,7 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
         
         reactor.state
             .map { $0.isFamilyResign }
-            .filter { $0 == true }
+            .filter { $0 }
             .subscribe { _ in
                 App.Repository.member.familyId.accept(nil)
                 guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }

@@ -22,8 +22,8 @@ public struct ProfileData: Equatable, Codable {
 }
 
 public struct SearchFamilyPage: Equatable {
-    let page: Int
-    let totalPages: Int
+    public let page: Int
+    public let totalPages: Int
     public let members: [ProfileData]
     
     public init(page: Int, totalPages: Int, members: [ProfileData]) {

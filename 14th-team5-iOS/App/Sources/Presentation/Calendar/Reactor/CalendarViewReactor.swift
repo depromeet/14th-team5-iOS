@@ -74,7 +74,7 @@ public final class CalendarViewReactor: Reactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .fetchFamilyMembers:
-            let query: SearchFamilyQuery = SearchFamilyQuery(type: "FAMILY", page: 1, size: 20)
+            let query: SearchFamilyQuery = SearchFamilyQuery(page: 1, size: 20)
             return familyUseCase.excute(query: query)
                 .asObservable()
                 .flatMap {_ in 

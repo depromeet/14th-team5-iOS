@@ -8,12 +8,10 @@
 import Foundation
 
 public struct SearchFamilyQuery {
-    public let type: String
     public let page: Int
     public let size: Int
     
-    public init(type: String, page: Int, size: Int) {
-        self.type = type
+    public init(page: Int, size: Int) {
         self.page = page
         self.size = size
     }

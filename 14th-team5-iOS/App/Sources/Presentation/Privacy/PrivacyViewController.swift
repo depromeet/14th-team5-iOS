@@ -107,9 +107,9 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
         NotificationCenter.default
             .rx.notification(.AppVersionsCheckWithRedirectStore)
             .withLatestFrom(reactor.state.compactMap { $0.appInfo?.latest})
-            .filter { $0 == true }
+            .filter { $0 == false }
             .bind { _ in
-                UIApplication.shared.open(URLTypes.appStore("362057947").originURL)
+                UIApplication.shared.open(URLTypes.appStore("6475082088").originURL)
             }.disposed(by: disposeBag)
         
         

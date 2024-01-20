@@ -121,7 +121,7 @@ public final class CalendarPostViewReactor: Reactor {
         case let .fetchCalendarResponse(yearMonth):
             // 이전에 불러온 적이 없다면
             if !isFetchedResponse.contains(yearMonth) {
-                return calendarUseCase.executeFetchCalednarInfo(yearMonth)
+                return calendarUseCase.executeFetchCalednarResponse(yearMonth: yearMonth)
                     .withUnretained(self)
                     .map {
                         guard let arrayCalendarResponse = $0.1 else {

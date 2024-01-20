@@ -62,7 +62,7 @@ public final class CalendarPageCellReactor: Reactor {
                 .flatMap { _ in Observable<Mutation>.empty() }
             
         case .fetchCalendarResponse:
-            return calendarUseCase.executeFetchCalednarInfo(yearMonth)
+            return calendarUseCase.executeFetchCalednarResponse(yearMonth: yearMonth)
                 .map {
                     guard let arrayCalendarResponse = $0 else {
                         return .injectCalendarResponse(.init(results: []))

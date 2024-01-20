@@ -12,10 +12,10 @@ public struct PostListData: Equatable {
     public let author: ProfileData?
     public let emojiCount: Int
     public let imageURL: String
-    public let content: String
+    public let content: String?
     public let time: String
     
-    public init(postId: String, author: ProfileData?, emojiCount: Int, imageURL: String, content: String, time: String) {
+    public init(postId: String, author: ProfileData?, emojiCount: Int, imageURL: String, content: String?, time: String) {
         self.postId = postId
         self.author = author
         self.emojiCount = emojiCount

@@ -22,7 +22,7 @@ struct PostListDTO: Codable {
     let commentCount: Int
     let emojiCount: Int
     let imageUrl: String
-    let content: String
+    let content: String?
     let createdAt: String
 }
 

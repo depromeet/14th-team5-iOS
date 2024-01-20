@@ -22,13 +22,11 @@ public struct ProfileData: Equatable, Codable {
 }
 
 public struct SearchFamilyPage: Equatable {
-    public let page: Int
-    public let totalPages: Int
+    public let isLast: Bool
     public let members: [ProfileData]
     
-    public init(page: Int, totalPages: Int, members: [ProfileData]) {
-        self.page = page
-        self.totalPages = totalPages
+    public init(isLast: Bool, members: [ProfileData]) {
+        self.isLast = isLast
         self.members = members
     }
 }

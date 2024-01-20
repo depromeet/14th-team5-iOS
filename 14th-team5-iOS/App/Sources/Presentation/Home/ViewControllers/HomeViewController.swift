@@ -239,7 +239,7 @@ extension HomeViewController {
             .disposed(by: disposeBag)
         
         postCollectionView.rx.didScroll
-            .throttle(.seconds(1), scheduler: Schedulers.main)
+            .debounce(.seconds(1), scheduler: MainScheduler.instance)
             .withLatestFrom(self.postCollectionView.rx.contentOffset)
             .map { [weak self] in
               Reactor.Action.pagination(

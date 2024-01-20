@@ -23,9 +23,10 @@ final class PostViewController: BaseViewController<PostReactor> {
             configureCell: { (_, collectionView, indexPath, item) in
                 switch item {
                 case .main(let data):
-                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as? FeedCollectionViewCell else {
+                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as? PostCollectionViewCell else {
                         return UICollectionViewCell()
                     }
+                    cell.reactor = ReactionDIContainer().makeReactor(post: data)
                     cell.setCell(data: data)
                     return cell
                 }

@@ -43,8 +43,8 @@ final class HomeFamilyViewReactor: Reactor {
         var familySections = FamilySection.Model(
             model: 0,
             items: []
-          )
-
+        )
+        
         @Pulse var familyInvitationLink: URL?
         @Pulse var shouldPresentCopySuccessToastMessageView: Bool = false
         @Pulse var shouldPresentFetchFailureToastMessageView: Bool = false
@@ -82,8 +82,10 @@ extension HomeFamilyViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewWillAppear:
-          currentPage += 1
-          let query = SearchFamilyQuery(page: currentPage, size: 10)
+            currentPage = 1
+            isLast = false
+            
+            let query = SearchFamilyQuery(page: currentPage, size: 10)
             return searchFamilyUseCase.excute(query: query)
                 .asObservable()
                 .flatMap { familyMembers in
@@ -94,7 +96,7 @@ extension HomeFamilyViewReactor {
                     
                     let familySectionItem = familyMembers.members.map(FamilySection.Item.main)
                     return Observable.concat([
-//                        Observable.just(Mutation.show)
+                        //                        Observable.just(Mutation.show)
                         Observable.just(Mutation.initDataSource(familySectionItem))
                     ])
                 }
@@ -107,20 +109,20 @@ extension HomeFamilyViewReactor {
                     return .setSharePanel(invitationLink)
                 }
         case let .pagination(contentHeight, contentOffsetY, scrollViewHeight):
-          let paddingSpace = contentHeight - contentOffsetY
-          if paddingSpace < scrollViewHeight {
-              return getFamilyMembers()
-          } else {
-            return .empty()
-          }
+            let paddingSpace = contentHeight - contentOffsetY
+            if paddingSpace < scrollViewHeight {
+                return getFamilyMembers()
+            } else {
+                return .empty()
+            }
         case let .prefetchItems(items):
             var urls = [URL]()
             items.forEach {
-              if case let .main(profile) = $0,
-                 let imageURL = profile.profileImageURL,
-                 let url = URL(string: imageURL) {
-                urls.append(url)
-              }
+                if case let .main(profile) = $0,
+                   let imageURL = profile.profileImageURL,
+                   let url = URL(string: imageURL) {
+                    urls.append(url)
+                }
             }
             ImagePrefetcher(resources: urls).start()
             return .empty()
@@ -155,7 +157,7 @@ extension HomeFamilyViewReactor {
 
 extension HomeFamilyViewReactor {
     private func getFamilyMembers() -> Observable<Mutation> {
-       self.currentPage += 1
+        self.currentPage += 1
         
         guard !isLast else {
             return Observable.empty()
@@ -169,11 +171,10 @@ extension HomeFamilyViewReactor {
                     return Observable.empty()
                 }
                 
-                if familyMembers.page >= familyMembers.totalPages {
-                    self.isLast = true
-                }
+                self.isLast = true
+                
                 let familySectionItem = familyMembers.members.map(FamilySection.Item.main)
                 return Observable.just(Mutation.updateDataSource(familySectionItem))
             }
-     }
+    }
 }

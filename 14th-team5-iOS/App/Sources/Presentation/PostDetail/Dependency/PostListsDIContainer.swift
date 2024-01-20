@@ -25,6 +25,7 @@ final class PostListsDIContainer {
     }
     
     func makeViewController(postLists: PostSection.Model, selectedIndex: IndexPath) -> ViewContrller {
+        print(postLists, selectedIndex)
         return PostViewController(reactor: makeReactor(postLists: postLists, selectedIndex: selectedIndex.row))
     }
     

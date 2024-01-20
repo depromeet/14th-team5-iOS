@@ -72,8 +72,10 @@ extension HomeViewReactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewWillAppear:
-            currentPage += 1
-            let query = PostListQuery(page: 1, size: 10, date: Date().toFormatString(with: "YYYY-MM-DD"), memberId: "", sort: .desc)
+            currentPage = 1
+            isLast = false
+            
+            let query = PostListQuery(page: currentPage, size: 10, date: Date().toFormatString(with: "YYYY-MM-DD"), memberId: "", sort: .desc)
             return postRepository.excute(query: query)
                 .asObservable()
                 .flatMap { postList in

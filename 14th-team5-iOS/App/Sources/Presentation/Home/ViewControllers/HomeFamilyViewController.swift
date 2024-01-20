@@ -114,11 +114,16 @@ extension HomeFamilyViewController {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        familyCollectionView.rx.modelSelected(ProfileData.self)
-            .map { $0.memberId }
+        familyCollectionView.rx.modelSelected(FamilySection.Item.self)
+            .compactMap { item -> ProfileData? in
+                switch item {
+                case .main(let profileData):
+                    return profileData
+                }
+            }
             .withUnretained(self)
-            .bind { owner, memberId in
-                let profileViewController = ProfileDIContainer(memberId: memberId).makeViewController()
+            .bind { owner, profileData in
+                let profileViewController = ProfileDIContainer(memberId: profileData.memberId).makeViewController()
                 self.navigationController?.pushViewController(profileViewController, animated: true)
             }
             .disposed(by: disposeBag)

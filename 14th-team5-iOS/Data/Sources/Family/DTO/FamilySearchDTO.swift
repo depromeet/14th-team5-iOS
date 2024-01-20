@@ -39,7 +39,7 @@ extension FamilySearchResponseDTO {
             sortedResults.insert(element, at: 0)
         }
 
-        return .init(page: currentPage, totalPages: totalPage, members: sortedResults.map { $0.toDomain() })
+        return .init(isLast: !hasNext, members: sortedResults.map { $0.toDomain() })
     }
 }
 

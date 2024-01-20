@@ -78,26 +78,6 @@ final class HomeFamilyViewController: BaseViewController<HomeFamilyViewReactor> 
     }
 }
 
-extension Array {
-    init(with element: Element) {
-        self = [element]
-    }
-}
-
-protocol ItemIndexable {
-  associatedtype Item
-  
-  subscript(indexPath: IndexPath) -> Item { get set }
-}
-
-extension ItemIndexable {
-  func item(at index: IndexPath) throws -> Item { self[index] }
-  func items(at indexes: [IndexPath]) throws -> [Item] { try indexes.map(self.item(at:)) }
-}
-
-extension TableViewSectionedDataSource: ItemIndexable { }
-extension CollectionViewSectionedDataSource: ItemIndexable { }
-
 extension HomeFamilyViewController {
     private func bindInput(reactor: HomeFamilyViewReactor) {
         familyCollectionView.rx.setDelegate(self)

@@ -94,6 +94,7 @@ final class PostNavigationView: BaseView<PostReactor> {
         
         profileImageView.do {
             $0.clipsToBounds = true
+            $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = Layout.ProfileImageView.cornerRadius
         }
     }

@@ -11,6 +11,7 @@ import Foundation
 extension Notification.Name {
     public static let AVCapturePhotoOutputDidFinishProcessingPhotoNotification: Notification.Name = Notification.Name("AVCapturePhotoOutputDidFinishProcessingPhotoNotification")
     public static let PHPickerAssetsDidFinishPickingProcessingPhotoNotification: Notification.Name = Notification.Name("PHPickerAssetsDidFinishPickingProcessingPhotoNotification")
+    public static let AccountDefaultProfilePresignedURLNotification = Notification.Name("AccountDefaultProfilePresignedURLNotification")
     public static let AccountViewPresignURLDismissNotification = Notification.Name("AccountViewPresignURLDismissNotification")
     public static let AppVersionsCheckWithRedirectStore = Notification.Name("AppVersionsCheckWithRedirectStore")
     public static let ProfileImageInitializationUpdate = Notification.Name("ProfileImageInitializationUpdate")

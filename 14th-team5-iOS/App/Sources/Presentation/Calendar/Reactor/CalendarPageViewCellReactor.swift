@@ -29,7 +29,7 @@ public final class CalendarPageCellReactor: Reactor {
     // MARK: - State
     public struct State {
         var date: Date
-        var arrayCalendarResponse: ArrayResponseCalendarResponse?
+        var displayCalendarResponse: ArrayResponseCalendarResponse?
     }
     
     // MARK: - Properties
@@ -69,20 +69,6 @@ public final class CalendarPageCellReactor: Reactor {
                     }
                     return .injectCalendarResponse(arrayCalendarResponse)
                 }
-            
-            // NOTE: - 테스트 코드 ①
-//            return Observable<Mutation>.just(
-//                .fetchCalendarResponse(
-//                    SectionOfMonthlyCalendar.generateTestData()
-//                )
-//            )
-            
-            // NOTE: - 테스트 코드 ②
-//            return Observable<Mutation>.just(
-//                .fetchCalendarResponse(
-//                    SectionOfMonthlyCalendar.generateTestData(yearMonth)
-//                )
-//            )
         }
     }
     
@@ -91,7 +77,7 @@ public final class CalendarPageCellReactor: Reactor {
         var newState = state
         switch mutation {
         case let .injectCalendarResponse(arrayCalendarResponse):
-            newState.arrayCalendarResponse = arrayCalendarResponse
+            newState.displayCalendarResponse = arrayCalendarResponse
         }
         return newState
     }

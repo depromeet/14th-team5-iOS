@@ -31,10 +31,10 @@ public final class CalendarViewReactor: Reactor {
     
     // MARK: - State
     public struct State {
-        @Pulse var calendarPostVC: Date?
-        @Pulse var calendarPopoverVC: UIView?
-        var shouldPopCalendarVC: Bool = false
-        var calendarDatasource: [SectionOfMonthlyCalendar] = [.init(items: [])]
+        var shouldPopCalendarVC: Bool
+        @Pulse var shouldPushCalendarPostVC: Date?
+        @Pulse var shouldPresnetInfoPopover: UIView?
+        @Pulse var displayCalendar: [SectionOfMonthlyCalendar]
     }
     
     // MARK: - Properties
@@ -46,7 +46,10 @@ public final class CalendarViewReactor: Reactor {
     
     // MARK: - Intializer
     init(familyUseCase: SearchFamilyUseCase, calendarUseCase: CalendarUseCaseProtocol, provider: GlobalStateProviderProtocol) {
-        self.initialState = State()
+        self.initialState = State(
+            shouldPopCalendarVC: false,
+            displayCalendar: [.init(items: [])]
+        )
         
         self.familyUseCase = familyUseCase
         self.calendarUseCase = calendarUseCase
@@ -94,13 +97,13 @@ public final class CalendarViewReactor: Reactor {
         var newState = state
         switch mutation {
         case let .pushCalendarPostVC(date):
-            newState.calendarPostVC = date
+            newState.shouldPushCalendarPostVC = date
             
         case let .makeCalendarPopoverVC(sourceView):
-            newState.calendarPopoverVC = sourceView
+            newState.shouldPresnetInfoPopover = sourceView
             
         case let .injectYearMonthItem(yearMonth):
-            guard let datasource: SectionOfMonthlyCalendar = state.calendarDatasource.first else {
+            guard let datasource: SectionOfMonthlyCalendar = state.displayCalendar.first else {
                 return state
             }
             
@@ -110,7 +113,7 @@ public final class CalendarViewReactor: Reactor {
                 original: datasource,
                 items: oldItems + newItems.items
             )
-            newState.calendarDatasource = [newDatasource]
+            newState.displayCalendar = [newDatasource]
             
         case .popViewController:
             newState.shouldPopCalendarVC = true

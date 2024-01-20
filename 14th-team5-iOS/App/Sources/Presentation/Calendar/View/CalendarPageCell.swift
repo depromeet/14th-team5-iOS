@@ -5,11 +5,11 @@
 //  Created by 김건우 on 12/6/23.
 //
 
-import UIKit
-
 import Core
 import DesignSystem
 import Domain
+import UIKit
+
 import FSCalendar
 import ReactorKit
 import RxCocoa
@@ -19,10 +19,9 @@ import Then
 
 final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     // MARK: - Views
+    private lazy var labelStack: UIStackView = UIStackView()
     private let calendarTitleLabel: BibbiLabel = BibbiLabel(.head1, alignment: .center, textColor: .gray200)
-    
-    private lazy var labelStackView: UIStackView = UIStackView()
-    private lazy var calendarInfoButton: UIButton = UIButton(type: .system)
+    private let infoButton: UIButton = UIButton(type: .system)
     
     private let calendarView: FSCalendar = FSCalendar()
     
@@ -42,37 +41,87 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     }
     
     // MARK: - Helpers
+    override func bind(reactor: CalendarPageCellReactor) {
+        super.bind(reactor: reactor)
+        bindInput(reactor: reactor)
+        bindOutput(reactor: reactor)
+    }
+    
+    private func bindInput(reactor: CalendarPageCellReactor) {
+        Observable<Void>.just(())
+            .map { Reactor.Action.fetchCalendarResponse }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        infoButton.rx.tap
+            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .map { Reactor.Action.didTapInfoButton($0.0.infoButton) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        calendarView.rx.didSelect
+            .map { Reactor.Action.didSelectDate($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+    }
+    
+    private func bindOutput(reactor: CalendarPageCellReactor) {
+        reactor.state.map { $0.displayCalendarResponse }
+            .withUnretained(self)
+            .subscribe { $0.0.calendarView.reloadData() }
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.date }
+            .distinctUntilChanged()
+            .bind(to: calendarView.rx.currentPage)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.date }
+            .distinctUntilChanged()
+            .bind(to: calendarTitleLabel.rx.calendarTitleText)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.date }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe {
+                $0.0.setupCalendarTitle($0.1)
+            }
+            .disposed(by: disposeBag)
+    }
+    
     override func setupUI() {
         super.setupUI()
         contentView.addSubviews(
-            labelStackView, calendarView
+            labelStack, calendarView
         )
-        labelStackView.addArrangedSubviews(
-            calendarTitleLabel, calendarInfoButton
+        labelStack.addArrangedSubviews(
+            calendarTitleLabel, infoButton
         )
     }
     
     override func setupAutoLayout() {
         super.setupAutoLayout()
-        labelStackView.snp.makeConstraints {
-            $0.top.equalTo(contentView.snp.top).offset(56.0)
-            $0.leading.equalTo(contentView.snp.leading).offset(CalendarCell.AutoLayout.calendarTopOffsetValue)
+        labelStack.snp.makeConstraints {
+            $0.top.equalTo(contentView.snp.top).offset(56)
+            $0.leading.equalTo(contentView.snp.leading).offset(24)
         }
         
         calendarView.snp.makeConstraints {
-            $0.top.equalTo(labelStackView.snp.bottom).offset(32.0)
-            $0.horizontalEdges.equalToSuperview().inset(CalendarCell.AutoLayout.calendarLeadingTrailingOffsetValue)
-            $0.height.equalTo(contentView.snp.width).multipliedBy(CalendarCell.AutoLayout.calendarHeightMultiplier)
+            $0.top.equalTo(labelStack.snp.bottom).offset(32)
+            $0.horizontalEdges.equalToSuperview().inset(0.5)
+            $0.height.equalTo(contentView.snp.width).multipliedBy(0.98)
         }
         
-        calendarInfoButton.snp.makeConstraints {
-            $0.width.height.equalTo(20.0)
+        infoButton.snp.makeConstraints {
+            $0.size.equalTo(20)
         }
     }
     
     override func setupAttributes() {
         super.setupAttributes()
-        calendarInfoButton.do {
+        infoButton.do {
             $0.setImage(
                 infoCircleFill,
                 for: .normal
@@ -80,7 +129,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
             $0.tintColor = .gray300
         }
         
-        labelStackView.do {
+        labelStack.do {
             $0.axis = .horizontal
             $0.spacing = 10.0
             $0.alignment = .fill
@@ -120,56 +169,6 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
         
         setupCalendarTitle(calendarView.currentPage)
     }
-    
-    override func bind(reactor: CalendarPageCellReactor) {
-        super.bind(reactor: reactor)
-        bindInput(reactor: reactor)
-        bindOutput(reactor: reactor)
-    }
-    
-    private func bindInput(reactor: CalendarPageCellReactor) {
-        Observable<Void>.just(())
-            .map { Reactor.Action.fetchCalendarResponse }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        calendarInfoButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .map { Reactor.Action.didTapInfoButton($0.0.calendarInfoButton) }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        calendarView.rx.didSelect
-            .map { Reactor.Action.didSelectDate($0) }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-    }
-    
-    private func bindOutput(reactor: CalendarPageCellReactor) {
-        reactor.state.map { $0.arrayCalendarResponse }
-            .withUnretained(self)
-            .subscribe { $0.0.calendarView.reloadData() }
-            .disposed(by: disposeBag)
-        
-        reactor.state.map { $0.date }
-            .distinctUntilChanged()
-            .bind(to: calendarView.rx.currentPage)
-            .disposed(by: disposeBag)
-        
-        reactor.state.map { $0.date }
-            .distinctUntilChanged()
-            .bind(to: calendarTitleLabel.rx.calendarTitleText)
-            .disposed(by: disposeBag)
-        
-        reactor.state.map { $0.date }
-            .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe {
-                $0.0.setupCalendarTitle($0.1)
-            }
-            .disposed(by: disposeBag)
-    }
 }
 
 // MARK: - Extensions
@@ -208,7 +207,7 @@ extension CalendarPageCell: FSCalendarDataSource {
             ) as! ImageCalendarCell
             
             // 해당 일자에 데이터가 존재하지 않는다면
-            guard let dayResponse = reactor?.currentState.arrayCalendarResponse?.results.filter({ $0.date == date }).first else {
+            guard let dayResponse = reactor?.currentState.displayCalendarResponse?.results.filter({ $0.date == date }).first else {
                 let emptyResponse = CalendarResponse(
                     date: date,
                     representativePostId: "",

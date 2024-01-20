@@ -39,8 +39,6 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     private let collectionViewFlowLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     private lazy var contentDatasource = createContentDataSource()
     
-//    let reactor: EmojiReactor? = nil
-    
     convenience init(reacter: EmojiReactor? = nil) {
         self.init(frame: .zero)
         self.reactor = reacter
@@ -89,7 +87,7 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         
         Observable.just(())
             .take(1)
-            .map { Reactor.Action.fetchDisplayContent(reactor.currentState.post.content) }
+            .map { Reactor.Action.fetchDisplayContent(reactor.currentState.post.content ?? "") }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -351,7 +349,7 @@ extension PostCollectionViewCell {
 
 extension PostCollectionViewCell: UICollectionViewDelegateFlowLayout {
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        guard let cellCount = reactor?.currentState.post.content.count else {
+        guard let cellCount = reactor?.currentState.post.content?.count else {
             return .zero
         }
         

@@ -45,7 +45,7 @@ extension FamilyAPIWorker: SearchFamilyRepository {
     }
     
     private func fetchFamilyMember(headers: [APIHeader]?, query: Domain.SearchFamilyQuery) -> RxSwift.Single<Domain.SearchFamilyPage?> {
-        let query = FamilySearchRequestDTO(type: query.type, page: query.page, size: query.size)
+        let query = FamilySearchRequestDTO(type: "", page: query.page, size: query.size)
         let spec: APISpec = FamilyAPIs.familyMembers(query).spec
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)

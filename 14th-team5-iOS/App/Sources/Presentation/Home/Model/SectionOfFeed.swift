@@ -24,3 +24,15 @@ extension SectionOfFeed: SectionModelType {
         self.items = items
     }
 }
+
+struct PostSection {
+  typealias Model = SectionModel<Int, Item>
+  
+  enum Item {
+    case main(PostListData)
+  }
+}
+
+extension PostSection.Item: Equatable {
+  
+}

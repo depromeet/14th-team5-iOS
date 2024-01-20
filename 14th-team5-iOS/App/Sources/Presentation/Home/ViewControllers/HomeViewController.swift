@@ -17,7 +17,7 @@ import SnapKit
 import Then
 import Domain
 
-public final class HomeViewController: BaseViewController<HomeViewReactor> {
+final class HomeViewController: BaseViewController<HomeViewReactor> {
     private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
     private let familyViewController: HomeFamilyViewController = HomeFamilyDIContainer().makeViewController()
     private let dividerView: UIView = UIView()
@@ -28,6 +28,19 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
     private let balloonView: BalloonView = BalloonView()
     private let cameraButton: UIButton = UIButton()
     private let refreshControl: UIRefreshControl = UIRefreshControl()
+    private let dataSource: RxCollectionViewSectionedReloadDataSource<PostSection.Model>  = {
+        return RxCollectionViewSectionedReloadDataSource<PostSection.Model>(
+            configureCell: { (_, collectionView, indexPath, item) in
+                switch item {
+                case .main(let data):
+                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FeedCollectionViewCell.id, for: indexPath) as? FeedCollectionViewCell else {
+                        return UICollectionViewCell()
+                    }
+                    cell.setCell(data: data)
+                    return cell
+                }
+            })
+    }()
     
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,10 +50,6 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         super.viewWillAppear(animated)
     
         navigationController?.navigationBar.isHidden = true
-    }
-    
-    deinit {
-        print("deinit HomeViewController")
     }
     
     public override func bind(reactor: HomeViewReactor) {
@@ -178,7 +187,7 @@ extension HomeViewController {
             .disposed(by: disposeBag)
         
         rx.viewWillAppear
-            .map { _ in Reactor.Action.getTodayPostList }
+            .map { _ in Reactor.Action.viewWillAppear }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -208,8 +217,7 @@ extension HomeViewController {
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
             .bind(onNext: { [weak self] indexPath in
                 guard let self else { return }
-                let sectionModel = reactor.currentState.feedSections[indexPath.section]
-                let selectedItem = sectionModel.items[indexPath.item]
+                let sectionModel = reactor.currentState.postSections
 
                 self.navigationController?.pushViewController(
                     PostListsDIContainer().makeViewController(
@@ -219,6 +227,28 @@ extension HomeViewController {
                     animated: true
                 )
             })
+            .disposed(by: disposeBag)
+        
+        postCollectionView.rx.prefetchItems
+            .throttle(.seconds(1), scheduler: Schedulers.main)
+            .observe(on: Schedulers.main)
+            .asObservable()
+            .map(dataSource.items(at:))
+            .map(Reactor.Action.prefetchItems)
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        postCollectionView.rx.didScroll
+            .debounce(.seconds(1), scheduler: MainScheduler.instance)
+            .withLatestFrom(self.postCollectionView.rx.contentOffset)
+            .map { [weak self] in
+              Reactor.Action.pagination(
+                contentHeight: self?.postCollectionView.contentSize.height ?? 0,
+                contentOffsetY: $0.y,
+                scrollViewHeight: UIScreen.main.bounds.height
+              )
+            }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         refreshControl.rx.controlEvent(.valueChanged)
@@ -272,9 +302,10 @@ extension HomeViewController {
             .bind(to: descriptionLabel.rx.text)
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$feedSections)
+        reactor.state.map { $0.postSections }
+            .map(Array.init(with:))
             .distinctUntilChanged()
-            .bind(to: postCollectionView.rx.items(dataSource: createFeedDataSource()))
+            .bind(to: postCollectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
         reactor.state
@@ -296,17 +327,6 @@ extension HomeViewController {
     private func hideCameraButton(_ isShow: Bool) {
         balloonView.isHidden = isShow
         cameraButton.isHidden = isShow
-    }
-    
-    private func createFeedDataSource() -> RxCollectionViewSectionedReloadDataSource<SectionModel<String, PostListData>> {
-        return RxCollectionViewSectionedReloadDataSource<SectionModel<String, PostListData>>(
-            configureCell: { (_, collectionView, indexPath, item) in
-                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FeedCollectionViewCell.id, for: indexPath) as? FeedCollectionViewCell else {
-                    return UICollectionViewCell()
-                }
-                cell.setCell(data: item)
-                return cell
-            })
     }
 }
 

@@ -22,7 +22,7 @@ struct PostListDTO: Codable {
     let commentCount: Int
     let emojiCount: Int
     let imageUrl: String
-    let content: String
+    let content: String?
     let createdAt: String
 }
 
@@ -43,6 +43,6 @@ struct PostListResponseDTO: Codable {
 
 extension PostListResponseDTO {
     func toDomain(_ selfUploaded: Bool, _ allFamilyMembersUploaded: Bool) -> PostListPage {
-        return .init(currentPage: currentPage, totalPages: totalPage, postLists: results.map { $0.toDomain() }, allFamilyMembersUploaded: allFamilyMembersUploaded, selfUploaded: selfUploaded)
+        return .init(isLast: !hasNext, postLists: results.map { $0.toDomain() }, allFamilyMembersUploaded: allFamilyMembersUploaded, selfUploaded: selfUploaded)
     }
 }

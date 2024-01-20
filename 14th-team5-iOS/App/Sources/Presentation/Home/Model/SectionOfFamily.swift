@@ -24,3 +24,16 @@ extension SectionOfFamily: SectionModelType {
         self.items = items
     }
 }
+
+
+struct FamilySection {
+  typealias Model = SectionModel<Int, Item>
+  
+  enum Item {
+    case main(ProfileData)
+  }
+}
+
+extension FamilySection.Item: Equatable {
+  
+}

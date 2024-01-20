@@ -13,12 +13,19 @@ import Domain
 
 import ReactorKit
 import RxDataSources
+import Kingfisher
 
-public final class HomeViewReactor: Reactor {
-    public enum Action {
-        case getTodayPostList
+final class HomeViewReactor: Reactor {
+    enum Action {
+        case viewWillAppear
+        case prefetchItems([PostSection.Item])
         case refreshCollectionview
         case startTimer
+        case pagination(
+            contentHeight: CGFloat,
+            contentOffsetY: CGFloat,
+            scrollViewHeight: CGFloat
+        )
     }
     
     public enum Mutation {
@@ -26,11 +33,13 @@ public final class HomeViewReactor: Reactor {
         case setDidPost
         case setDescriptionText(String)
         case showNoPostTodayView(Bool)
-        case setPostCollectionView([SectionModel<String, PostListData>])
         case setRefreshing(Bool)
         case hideCamerButton(Bool)
         case setTimer(Int)
         case setTimerColor(UIColor)
+        
+        case initDataSource([PostSection.Item])
+        case updateDataSource([PostSection.Item])
     }
     
     public struct State {
@@ -43,11 +52,16 @@ public final class HomeViewReactor: Reactor {
         
         @Pulse var timerLabelColor: UIColor = .white
         @Pulse var timer: String = ""
-        @Pulse var feedSections: [SectionModel<String, PostListData>] = []
+        var postSections = PostSection.Model(
+            model: 0, items: []
+        )
     }
     
     public let initialState: State = State()
     private let postRepository: PostListUseCaseProtocol
+    
+    private var currentPage: Int = 0
+    private var isLast: Bool = false
     
     init(postRepository: PostListUseCaseProtocol) {
         self.postRepository = postRepository
@@ -57,8 +71,11 @@ public final class HomeViewReactor: Reactor {
 extension HomeViewReactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .getTodayPostList:
-            let query: PostListQuery = PostListQuery(page: 1, size: 20, date: Date().toFormatString(with: "YYYY-MM-DD"), memberId: "", sort: .desc)
+        case .viewWillAppear:
+            currentPage = 1
+            isLast = false
+            
+            let query = PostListQuery(page: currentPage, size: 10, date: Date().toFormatString(with: "YYYY-MM-DD"), memberId: "", sort: .desc)
             return postRepository.excute(query: query)
                 .asObservable()
                 .flatMap { postList in
@@ -67,10 +84,10 @@ extension HomeViewReactor {
                         return Observable.just(Mutation.showNoPostTodayView(true))
                     }
                     
+                    let postSectionItem = postList.postLists.map(PostSection.Item.main)
                     var observables = [
                         Observable.just(Mutation.showNoPostTodayView(false)),
-                        Observable.just(Mutation.setPostCollectionView([
-                            SectionModel<String, PostListData>(model: "section1", items: postList.postLists)]))]
+                        Observable.just(Mutation.initDataSource(postSectionItem))]
                     
                     if postList.selfUploaded {
                         observables.append(Observable.just(Mutation.hideCamerButton(true)))
@@ -84,8 +101,25 @@ extension HomeViewReactor {
                     observables.append(Observable.just(Mutation.setRefreshing(false)))
                     return Observable.concat(observables)
                 }
+        case let .prefetchItems(items):
+            var urls = [URL]()
+            items.forEach {
+                if case let .main(posts) = $0,
+                   let url = URL(string: posts.imageURL) {
+                    urls.append(url)
+                }
+            }
+            ImagePrefetcher(resources: urls).start()
+            return .empty()
+        case let .pagination(contentHeight, contentOffsetY, scrollViewHeight):
+            let paddingSpace = contentHeight - contentOffsetY
+            if paddingSpace < scrollViewHeight {
+                return getPostLists()
+            } else {
+                return .empty()
+            }
         case .refreshCollectionview:
-            let getTodayPostListAction = Action.getTodayPostList
+            let getTodayPostListAction = Action.viewWillAppear
             return mutate(action: getTodayPostListAction)
         case .startTimer:
             return Observable<Int>.interval(.seconds(1), scheduler: MainScheduler.instance)
@@ -124,8 +158,6 @@ extension HomeViewReactor {
         switch mutation {
         case let .showNoPostTodayView(isShow):
             newState.isShowingNoPostTodayView = isShow
-        case let .setPostCollectionView(data):
-            newState.feedSections = data
         case .setDidPost:
             newState.didPost = true
         case let .setDescriptionText(message):
@@ -140,6 +172,10 @@ extension HomeViewReactor {
             newState.timer = time.setTimerFormat() ?? "00:00:00"
         case let .setTimerColor(color):
             newState.timerLabelColor = color
+        case let .initDataSource(sectionItem):
+            newState.postSections.items = sectionItem
+        case let .updateDataSource(sectionItem):
+            newState.postSections.items.append(contentsOf: sectionItem)
         }
         
         return newState
@@ -161,5 +197,27 @@ extension HomeViewReactor {
         }
         
         return 0
+    }
+    
+    private func getPostLists() -> Observable<Mutation> {
+        self.currentPage += 1
+        
+        guard !isLast else {
+            return Observable.empty()
+        }
+        
+        let query = PostListQuery(page: currentPage, size: 10, date: Date().toFormatString(with: "YYYY-MM-DD"), memberId: "", sort: .desc)
+        return postRepository.excute(query: query)
+            .asObservable()
+            .flatMap { postList -> Observable<Mutation> in
+                guard let postList else {
+                    return Observable.empty()
+                }
+                
+                self.isLast = postList.isLast
+                
+                let postSectionItems = postList.postLists.map(PostSection.Item.main)
+                return Observable.just(Mutation.updateDataSource(postSectionItems))
+            }
     }
 }

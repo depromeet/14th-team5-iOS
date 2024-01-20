@@ -16,6 +16,19 @@ final class HomeFamilyViewController: BaseViewController<HomeFamilyViewReactor> 
     private let inviteFamilyView: InviteFamilyView = InviteFamilyView()
     private let familyCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     private let familyCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private let dataSource: RxCollectionViewSectionedReloadDataSource<FamilySection.Model>  = {
+        return RxCollectionViewSectionedReloadDataSource<FamilySection.Model>(
+            configureCell: { (_, collectionView, indexPath, item) in
+                switch item {
+                case .main(let data):
+                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FamilyCollectionViewCell.id, for: indexPath) as? FamilyCollectionViewCell else {
+                        return UICollectionViewCell()
+                    }
+                    cell.setCell(data: data)
+                    return cell
+                }
+            })
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -70,8 +83,8 @@ extension HomeFamilyViewController {
         familyCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
-        rx.viewWillAppear
-            .map { _ in Reactor.Action.getFamilyMembers }
+        self.rx.viewWillAppear
+            .map { _ in Reactor.Action.viewWillAppear }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -81,21 +94,49 @@ extension HomeFamilyViewController {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        familyCollectionView
-            .rx.modelSelected(ProfileData.self)
-            .map { $0.memberId }
+        familyCollectionView.rx.modelSelected(FamilySection.Item.self)
+            .compactMap { item -> ProfileData? in
+                switch item {
+                case .main(let profileData):
+                    return profileData
+                }
+            }
             .withUnretained(self)
-            .bind { owner, memberId in
-                let profileViewController = ProfileDIContainer(memberId: memberId).makeViewController()
+            .bind { owner, profileData in
+                let profileViewController = ProfileDIContainer(memberId: profileData.memberId).makeViewController()
                 self.navigationController?.pushViewController(profileViewController, animated: true)
-            }.disposed(by: disposeBag)
+            }
+            .disposed(by: disposeBag)
+        
+        familyCollectionView.rx.prefetchItems
+            .throttle(.seconds(1), scheduler: Schedulers.main)
+            .observe(on: Schedulers.main)
+            .asObservable()
+            .map(dataSource.items(at:))
+            .map(Reactor.Action.prefetchItems)
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        familyCollectionView.rx.didScroll
+            .throttle(.seconds(1), scheduler: Schedulers.main)
+            .withLatestFrom(self.familyCollectionView.rx.contentOffset)
+            .map { [weak self] in
+              Reactor.Action.pagination(
+                contentHeight: self?.familyCollectionView.contentSize.height ?? 0,
+                contentOffsetY: $0.y,
+                scrollViewHeight: UIScreen.main.bounds.height
+              )
+            }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: HomeFamilyViewReactor) {
         reactor.state
             .map { $0.familySections }
-            .asObservable()
-            .bind(to: familyCollectionView.rx.items(dataSource: createFamilyDataSource()))
+            .map(Array.init(with:))
+            .distinctUntilChanged()
+            .bind(to: familyCollectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
         reactor.state
@@ -146,17 +187,6 @@ extension HomeFamilyViewController {
 }
 
 extension HomeFamilyViewController {
-    private func createFamilyDataSource() -> RxCollectionViewSectionedReloadDataSource<SectionModel<String, ProfileData>> {
-        return RxCollectionViewSectionedReloadDataSource<SectionModel<String, ProfileData>>(
-            configureCell: { (_, collectionView, indexPath, item) in
-                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FamilyCollectionViewCell.id, for: indexPath) as? FamilyCollectionViewCell else {
-                    return UICollectionViewCell()
-                }
-                cell.setCell(data: item)
-                return cell
-            })
-    }
-    
     private func setFamilyInviteView(_ isShow: Bool) {
         if isShow {
             familyCollectionView.isHidden = isShow

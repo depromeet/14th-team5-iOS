@@ -18,6 +18,20 @@ final class PostViewController: BaseViewController<PostReactor> {
     private var navigationView: PostNavigationView = PostNavigationView()
     private let collectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let collectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
+    private let dataSource: RxCollectionViewSectionedReloadDataSource<PostSection.Model>  = {
+        return RxCollectionViewSectionedReloadDataSource<PostSection.Model>(
+            configureCell: { (_, collectionView, indexPath, item) in
+                switch item {
+                case .main(let data):
+                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as? PostCollectionViewCell else {
+                        return UICollectionViewCell()
+                    }
+                    cell.reactor = ReactionDIContainer().makeReactor(post: data)
+                    cell.setCell(data: data)
+                    return cell
+                }
+            })
+    }()
     
     convenience init(reactor: Reactor? = nil) {
         self.init()
@@ -37,8 +51,8 @@ final class PostViewController: BaseViewController<PostReactor> {
         
         reactor.state
             .map { $0.originPostLists }
-            .asObservable()
-            .bind(to: collectionView.rx.items(dataSource: createDataSource()))
+            .map(Array.init(with:))
+            .bind(to: collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
         reactor.state
@@ -133,18 +147,6 @@ final class PostViewController: BaseViewController<PostReactor> {
 }
 
 extension PostViewController {
-    private func createDataSource() -> RxCollectionViewSectionedReloadDataSource<SectionModel<String, PostListData>> {
-        return RxCollectionViewSectionedReloadDataSource<SectionModel<String, PostListData>>(
-            configureCell: { dataSource, collectionView, indexPath, post in
-                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as? PostCollectionViewCell else {
-                    return UICollectionViewCell()
-                }
-                cell.reactor = ReactionDIContainer().makeReactor(post: post)
-                cell.setCell(data: post)
-                return cell
-            })
-    }
-    
     private func setBackgroundView(data: PostListData) {
         guard let url = URL(string: data.imageURL) else {
             return

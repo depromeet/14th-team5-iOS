@@ -98,7 +98,7 @@ extension AppDelegate {
 extension AppDelegate: MixpanelDelegate {
     
     func mixpanelApp(_ app: UIApplication, didFinishLaunchingWithOptions launchOption: [UIApplication.LaunchOptionsKey: Any]?) {
-        guard let mixPanelKey = Bundle.main.object(forInfoDictionaryKey: "MIXPANE_API_KEY") as? String else {
+        guard let mixPanelKey = Bundle.main.object(forInfoDictionaryKey: "MIXPANEL_API_KEY") as? String else {
             return
         }
         let _ = Mixpanel.initialize(token: mixPanelKey, trackAutomaticEvents: true)

@@ -42,6 +42,7 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
                 .target(name: "WidgetExtension"),
                 .external(name: "FirebaseAnalytics"),
                 .external(name: "FirebaseMessaging"),
+                .external(name: "Mixpanel"),
                 .with(.Core),
                 .with(.Data),
                 .external(name: "ReactorKit")
@@ -63,7 +64,6 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
         case .Core:
             return [
                 .with(.DesignSystem),
-                .external(name: "Mixpanel"),
                 .external(name: "RxDataSources"),
                 .external(name: "SnapKit"),
                 .external(name: "Then"),

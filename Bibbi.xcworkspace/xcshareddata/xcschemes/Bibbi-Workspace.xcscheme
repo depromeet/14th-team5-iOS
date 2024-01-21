@@ -560,6 +560,20 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "0A4E95A8DF53D3C3DEDA2BCF"
+               BuildableName = "Mixpanel.framework"
+               BlueprintName = "Mixpanel"
+               ReferencedContainer = "container:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/mixpanel-swift/Mixpanel.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "EFA5CFF568260F527D0F7760"
                BuildableName = "ReactorKit.framework"
                BlueprintName = "ReactorKit"

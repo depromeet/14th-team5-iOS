@@ -63,6 +63,7 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
         case .Core:
             return [
                 .with(.DesignSystem),
+                .external(name: "Mixpanel"),
                 .external(name: "RxDataSources"),
                 .external(name: "SnapKit"),
                 .external(name: "Then"),

@@ -46,6 +46,7 @@ extension JoinFamilyReactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .makeFamily:
+            MPEvent.Account.creatGroup.track(with: nil)
             return familyUseCase.executeCreateFamily()
                 .flatMap {
                     guard let familyResponse: FamilyResponse = $0 else {
@@ -56,6 +57,7 @@ extension JoinFamilyReactor {
                     return Observable.just(Mutation.setShowHome(true))
                 }
         case .joinFamily:
+            MPEvent.Account.invitedGroup.track(with: nil)
             return Observable.just(Mutation.setShowJoineFamily(true))
         }
     }

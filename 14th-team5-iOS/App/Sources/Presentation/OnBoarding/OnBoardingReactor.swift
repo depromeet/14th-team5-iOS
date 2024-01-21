@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import Data
+import Core
 
 import ReactorKit
 
@@ -40,9 +41,11 @@ extension OnBoardingReactor {
         switch action {
         case .permissionTapped:
             return Observable.create { observer in
+                MPEvent.Account.invitedGroupFinished.track(with: nil)
                 UNUserNotificationCenter.current().requestAuthorization(
                     options: [.alert, .badge, .sound],
                     completionHandler: { granted, error in
+                        if granted { MPEvent.Account.allowNotification.track(with: nil) }
                         observer.onNext(Mutation.permissionTapped)
                         observer.onCompleted()
                     }

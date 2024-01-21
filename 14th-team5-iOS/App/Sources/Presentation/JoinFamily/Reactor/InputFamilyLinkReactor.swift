@@ -8,6 +8,7 @@
 import Foundation
 
 import Domain
+import Core
 
 import ReactorKit
 
@@ -54,8 +55,9 @@ extension InputFamilyLinkReactor {
             return Observable.just(Mutation.setLinkString(link))
         case .tapJoinFamily:
             
+            MPEvent.Account.invitedGroupFinished.track(with: nil)
+            
             let urlString = currentState.linkString
-
             guard let firstIndex = urlString.lastIndex(of: "/") else {
                 return Observable.just(Mutation.setToastMessage("링크 형식이 맞지 않습니다."))
             }

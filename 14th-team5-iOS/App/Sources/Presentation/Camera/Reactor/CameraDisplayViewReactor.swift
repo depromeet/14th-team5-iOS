@@ -10,8 +10,7 @@ import Foundation
 import Data
 import Domain
 import ReactorKit
-
-
+import Core
 
 public final class CameraDisplayViewReactor: Reactor {
 
@@ -115,6 +114,8 @@ public final class CameraDisplayViewReactor: Reactor {
             )
             
         case .didTapConfirmButton:
+            
+            MPEvent.Camera.uploadPhoto.track(with: nil)
             guard let presingedURL = self.currentState.displayEntity?.imageURL else { return .empty() }
             let originURL = configureOriginalS3URL(url: presingedURL, with: .feed)
             

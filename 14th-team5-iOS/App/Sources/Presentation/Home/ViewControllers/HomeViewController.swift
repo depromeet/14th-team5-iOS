@@ -260,6 +260,7 @@ extension HomeViewController {
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind { owner, _ in
+                MPEvent.Home.cameraTapped.track(with: nil)
                 let cameraViewController = CameraDIContainer(cameraType: .feed).makeViewController()
                 owner.navigationController?.pushViewController(cameraViewController, animated: true)
             }.disposed(by: disposeBag)

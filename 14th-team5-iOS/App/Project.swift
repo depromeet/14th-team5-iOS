@@ -43,6 +43,7 @@ private let targets: [Target] = [
                     ]),
                 ]),
                 "KAKAO_LOGIN_API_KEY": .string("$(KAKAO_LOGIN_API_KEY)"),
+                "MIXPANEL_API_KEY": .string("$(MIXPANEL_API_KEY)"),
                 "TEAM_ID": .string("$(TEAM_ID)"),
             ]),
             entitlements: .file(path: .relativeToRoot("App.entitlements"))

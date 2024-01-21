@@ -19,9 +19,9 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
     
     //TODO: 텍스트 컬러, 폰트 정해지면 수정
     private let resignNavigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
-    private let resignDesrptionLabel: BibbiLabel = BibbiLabel(.caption, textColor: .gray200)
-    private let resignReasonLabel: BibbiLabel = BibbiLabel(.body1Bold, textColor: .white)
-    private let resignExampleLabel: BibbiLabel = BibbiLabel(.caption, textColor: .gray200)
+    private let resignDesrptionLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray400)
+    private let resignReasonLabel: BibbiLabel = BibbiLabel(.head1, textColor: .gray200)
+    private let resignExampleLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray400)
     private let resignIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     private let confirmButton: UIButton = UIButton()
     private let bibbiTermsView: BibbiCheckBoxView = BibbiCheckBoxView(frame: .zero)
@@ -72,12 +72,12 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
         }
         
         confirmButton.do {
-            $0.layer.cornerRadius = 8
+            $0.layer.cornerRadius = 30
             $0.clipsToBounds = true
             $0.setTitle("탈퇴 하기", for: .normal)
             $0.titleLabel?.font = DesignSystemFontFamily.Pretendard.semiBold.font(size: 16)
             $0.setTitleColor(DesignSystemAsset.black.color, for: .normal)
-            $0.backgroundColor = DesignSystemAsset.gray600.color
+            $0.backgroundColor = DesignSystemAsset.mainGreen.color.withAlphaComponent(0.2)
             $0.isEnabled = false
         }
     }
@@ -91,9 +91,9 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
         }
         
         bibbiTermsView.snp.makeConstraints {
-            $0.top.equalTo(resignExampleLabel.snp.bottom).offset(15)
+            $0.top.equalTo(resignExampleLabel.snp.bottom).offset(30)
             $0.left.equalToSuperview()
-            $0.height.equalTo(152)
+            $0.height.equalTo(300)
             $0.centerX.equalTo(resignNavigationBarView)
         }
         
@@ -107,8 +107,8 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
         resignReasonLabel.snp.makeConstraints {
             $0.top.equalTo(resignDesrptionLabel.snp.bottom).offset(24)
             $0.left.equalToSuperview().offset(12)
-            $0.height.equalTo(72)
-            $0.centerX.equalTo(resignNavigationBarView)
+            $0.height.equalTo(99)
+            $0.width.equalTo(242)
         }
         
         resignExampleLabel.snp.makeConstraints {
@@ -199,7 +199,7 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
 extension AccountResignViewCotroller {
     
     private func setupButton(isSelected: Bool) {
-        confirmButton.backgroundColor = isSelected ? DesignSystemAsset.gray100.color : DesignSystemAsset.gray600.color
+        confirmButton.backgroundColor = isSelected ? DesignSystemAsset.mainGreen.color : DesignSystemAsset.mainGreen.color.withAlphaComponent(0.2)
         confirmButton.isEnabled = isSelected
     }
     

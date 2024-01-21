@@ -29,12 +29,15 @@ public enum Privacy: String, CaseIterable {
 
 public enum UserAuthorization: String, CaseIterable {
     case logout
+    case familyResign
     case unAuthorization
     
     public var descrption: String {
         switch self {
         case .logout:
             return "로그 아웃"
+        case .familyResign:
+            return "그룹 탈퇴"
         case .unAuthorization:
             return "회원 탈퇴"
         }

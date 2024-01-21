@@ -17,6 +17,7 @@ extension Notification.Name {
     public static let ProfileImageInitializationUpdate = Notification.Name("ProfileImageInitializationUpdate")
     public static let UserAccountDeleted = Notification.Name("UserAccountDeleted")
     public static let UserAccountLogout = Notification.Name("UserAccountLogout")
+    public static let UserFamilyResign = Notification.Name("UserFamilyResign")
     public static let DidFinishProfileImageUpdate = Notification.Name("DidFinishProfileImageUpdate")
     public static let DidFinishProfileNickNameUpdate = Notification.Name("DidFinishProfileNickNameUpdate")
 }

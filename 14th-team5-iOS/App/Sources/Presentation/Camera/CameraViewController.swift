@@ -34,6 +34,11 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     private let flashButton: UIButton = UIButton.createCircleButton(radius: 24)
     private let toggleButton: UIButton = UIButton.createCircleButton(radius: 24)
     private let cameraIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
+    private let filterView: UIImageView = UIImageView()
+    //TODO: DesignSyste Color 추가시 Label Color 변경
+    private let realEmojiDescriptionLabel = BibbiLabel(.body1Regular)
+    private let realEmojiFaceImageView = UIImageView()
+    private let realEmojiHorizontalStakView = UIStackView()
     
     private var initialScale: CGFloat = 0
     private var zoomScaleRange: ClosedRange<CGFloat> = 1...10
@@ -53,7 +58,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(cameraView, shutterButton, flashButton, toggleButton, cameraIndicatorView, cameraNavigationBar)
+        view.addSubviews(cameraView, shutterButton, flashButton, toggleButton, cameraIndicatorView, realEmojiHorizontalStakView, cameraNavigationBar)
     }
     
     public override func setupAttributes() {
@@ -65,12 +70,32 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         }
         
         cameraNavigationBar.do {
-            $0.navigationTitle = "카메라"
             $0.leftBarButtonItem = .xmark
             $0.leftBarButtonItemTintColor = .gray300
         }
         
+        realEmojiDescriptionLabel.do {
+            $0.text = "표정을 따라해보세요"
+        }
         
+        realEmojiFaceImageView.do {
+            $0.contentMode = .scaleAspectFill
+            //TODO: DesignSystem Image 추가시 변경
+            $0.image = DesignSystemAsset.emoji1.image
+        }
+        
+        realEmojiHorizontalStakView.do {
+            $0.axis = .horizontal
+            $0.spacing = 4
+            $0.alignment = .center
+            $0.distribution = .fill
+            $0.addArrangedSubviews(realEmojiFaceImageView, realEmojiDescriptionLabel)
+        }
+        
+        filterView.do {
+            $0.contentMode = .scaleAspectFill
+            $0.image = DesignSystemAsset.filter.image
+        }
 
         cameraView.do {
             $0.layer.cornerRadius = 40
@@ -100,6 +125,17 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             $0.left.right.equalToSuperview()
             $0.height.equalTo(42)
         }
+        
+        realEmojiHorizontalStakView.snp.makeConstraints {
+            $0.height.equalTo(24)
+            $0.centerX.equalTo(cameraView)
+            $0.bottom.equalTo(cameraView.snp.top).offset(-16)
+        }
+        
+        realEmojiFaceImageView.snp.makeConstraints {
+            $0.width.equalTo(24)
+        }
+
         
         cameraView.snp.makeConstraints {
             $0.width.equalToSuperview()
@@ -156,6 +192,21 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
                 owner.navigationController?.popViewController(animated: true)
             }.disposed(by: disposeBag)
         
+        reactor.state
+            .map { $0.cameraType == .realEmoji ? false : true }
+            .distinctUntilChanged()
+            .bind(to: filterView.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        
+        reactor.state
+            .map { $0.cameraType }
+            .map { $0 == .realEmoji ? "리얼 이모지" : "카메라" }
+            .distinctUntilChanged()
+            .bind(to: cameraNavigationBar.rx.navigationTitle)
+            .disposed(by: disposeBag)
+        
+        //TODO: Camera Type에 맞게 Hidden 처리 코드 추가
         
         reactor.pulse(\.$profileMemberEntity)
             .filter { $0 != nil }
@@ -297,8 +348,11 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.previewLayer.frame = self.cameraView.bounds
+            self.filterView.frame = self.previewLayer.bounds
+            
         }
         cameraView.layer.addSublayer(previewLayer)
+        cameraView.addSubview(filterView)
         DispatchQueue.global(qos: .background).async { [weak self] in
             guard let self = self else { return }
             self.captureSession.startRunning()

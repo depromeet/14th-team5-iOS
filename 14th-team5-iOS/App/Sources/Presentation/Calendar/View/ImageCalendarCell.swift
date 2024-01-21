@@ -53,93 +53,12 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
     }
     
     // MARK: - Helpers
-    private func setupUI() {
-        contentView.insertSubview(thumbnailView, at: 0)
-        contentView.insertSubview(containerView, at: 0)
-        contentView.addSubviews(
-            dayLabel, todayStrokeView, allFamilyUploadedBadge, dayOfBirthBadge
-        )
-    }
-    
-    private func setupAutoLayout() {
-        dayLabel.snp.makeConstraints {
-            $0.center.equalTo(contentView.snp.center)
-        }
-        
-        containerView.snp.makeConstraints {
-            $0.center.equalTo(contentView.snp.center)
-            $0.width.height.equalTo(contentView.snp.width).inset(CalendarCell.AutoLayout.thumbnailInsetValue)
-        }
-        
-        thumbnailView.snp.makeConstraints {
-            $0.center.equalTo(contentView.snp.center)
-            $0.width.height.equalTo(contentView.snp.width).inset(CalendarCell.AutoLayout.thumbnailInsetValue)
-        }
-        
-        todayStrokeView.snp.makeConstraints {
-            $0.center.equalTo(contentView.snp.center)
-            $0.width.height.equalTo(contentView.snp.width).inset(CalendarCell.AutoLayout.thumbnailInsetValue)
-        }
-        
-        allFamilyUploadedBadge.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(2)
-            $0.trailing.equalToSuperview().offset(-2)
-            $0.size.equalTo(15)
-        }
-        
-        dayOfBirthBadge.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(2)
-            $0.leading.equalToSuperview().offset(2)
-            $0.size.equalTo(15)
-        }
-    }
-    
-    private func setupAttribute() {
-        titleLabel.do {
-            $0.isHidden = true
-        }
-        
-        containerView.do {
-            $0.clipsToBounds = true
-            $0.layer.cornerRadius = 13.0
-            $0.backgroundColor = .gray900
-        }
-        
-        thumbnailView.do {
-            $0.clipsToBounds = true
-            $0.contentMode = .scaleAspectFill
-            $0.layer.cornerRadius = 13.0
-            $0.layer.borderWidth = .zero
-            $0.layer.borderColor = DesignSystemAsset.white.color.cgColor
-            $0.alpha = CalendarCell.Attribute.defaultAlphaValue
-        }
-        
-        todayStrokeView.do {
-            $0.isHidden = true
-            $0.layer.cornerRadius = 13.0
-            $0.layer.borderWidth = 2.0
-            $0.layer.borderColor = DesignSystemAsset.mainGreen.color.cgColor
-        }
-        
-        allFamilyUploadedBadge.do {
-            $0.image = DesignSystemAsset.greenSmileEmoji.image
-            $0.isHidden = true
-            $0.backgroundColor = .clear
-        }
-        
-        dayOfBirthBadge.do {
-            $0.image = DesignSystemAsset.birthday.image
-            $0.isHidden = true
-            $0.backgroundColor = .clear
-        }
-    }
-    
     public func bind(reactor: ImageCalendarCellReactor) {
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: ImageCalendarCellReactor) { 
+    private func bindInput(reactor: ImageCalendarCellReactor) {
         Observable<Void>.just(())
             .map { Reactor.Action.checkDayOfBirth }
             .bind(to: reactor.action)
@@ -213,6 +132,87 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
                 }
             }
             .disposed(by: disposeBag)
+    }
+    
+    private func setupUI() {
+        contentView.insertSubview(thumbnailView, at: 0)
+        contentView.insertSubview(containerView, at: 0)
+        contentView.addSubviews(
+            dayLabel, todayStrokeView, allFamilyUploadedBadge, dayOfBirthBadge
+        )
+    }
+    
+    private func setupAutoLayout() {
+        dayLabel.snp.makeConstraints {
+            $0.center.equalTo(contentView.snp.center)
+        }
+        
+        containerView.snp.makeConstraints {
+            $0.center.equalTo(contentView.snp.center)
+            $0.size.equalTo(contentView.snp.width).inset(2.25)
+        }
+        
+        thumbnailView.snp.makeConstraints {
+            $0.center.equalTo(contentView.snp.center)
+            $0.size.equalTo(contentView.snp.width).inset(2.25)
+        }
+        
+        todayStrokeView.snp.makeConstraints {
+            $0.center.equalTo(contentView.snp.center)
+            $0.size.equalTo(contentView.snp.width).inset(2.25)
+        }
+        
+        allFamilyUploadedBadge.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(2)
+            $0.trailing.equalToSuperview().offset(-2)
+            $0.size.equalTo(15)
+        }
+        
+        dayOfBirthBadge.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(2)
+            $0.leading.equalToSuperview().offset(2)
+            $0.size.equalTo(15)
+        }
+    }
+    
+    private func setupAttribute() {
+        titleLabel.do {
+            $0.isHidden = true
+        }
+        
+        containerView.do {
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = 13.0
+            $0.backgroundColor = .gray900
+        }
+        
+        thumbnailView.do {
+            $0.clipsToBounds = true
+            $0.contentMode = .scaleAspectFill
+            $0.layer.cornerRadius = 13.0
+            $0.layer.borderWidth = .zero
+            $0.layer.borderColor = UIColor.bibbiWhite.cgColor
+            $0.alpha = 0.8
+        }
+        
+        todayStrokeView.do {
+            $0.isHidden = true
+            $0.layer.cornerRadius = 13.0
+            $0.layer.borderWidth = 2.0
+            $0.layer.borderColor = UIColor.bibbiWhite.cgColor
+        }
+        
+        allFamilyUploadedBadge.do {
+            $0.image = DesignSystemAsset.greenSmileEmoji.image
+            $0.isHidden = true
+            $0.backgroundColor = .clear
+        }
+        
+        dayOfBirthBadge.do {
+            $0.image = DesignSystemAsset.birthday.image
+            $0.isHidden = true
+            $0.backgroundColor = .clear
+        }
     }
 }
 

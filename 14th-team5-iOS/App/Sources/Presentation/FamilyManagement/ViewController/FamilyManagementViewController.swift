@@ -16,6 +16,7 @@ import RxSwift
 import SnapKit
 import Then
 
+fileprivate typealias _Str = FamilyManagementStrings
 public final class FamilyManagementViewController: BaseViewController<FamilyManagementViewReactor> {
     // MARK: - Views
     private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
@@ -93,7 +94,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .withUnretained(self)
             .subscribe {
                 $0.0.makeBibbiToastView(
-                    text: FamilyManagementStrings.sucessCopyInvitationUrlText,
+                    text: _Str.sucessCopyInvitationUrlText,
                     designSystemImage: DesignSystemAsset.link.image,
                     width: 220
                 )
@@ -105,7 +106,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .withUnretained(self)
             .subscribe {
                 $0.0.makeBibbiToastView(
-                    text: FamilyManagementStrings.fetchFailInvitationUrlText,
+                    text: _Str.fetchFailInvitationUrlText,
                     designSystemImage: DesignSystemAsset.warning.image,
                     width: 240
                 )
@@ -160,12 +161,12 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     public override func setupAttributes() {
         super.setupAttributes()
         navigationBarView.do {
-            $0.navigationTitle = FamilyManagementStrings.mainTitle
+            $0.navigationTitle = _Str.mainTitle
             $0.leftBarButtonItem = .arrowLeft
          }
         
         dividerView.do {
-            $0.backgroundColor = .gray600
+            $0.backgroundColor = UIColor.gray600
         }
         
         headerStack.do {
@@ -176,11 +177,11 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
         }
         
         tableTitleLabel.do {
-            $0.text = FamilyManagementStrings.headerTitle
+            $0.text = _Str.headerTitle
         }
         
         tableCountLabel.do {
-            $0.text = FamilyManagementStrings.headerCount
+            $0.text = _Str.headerCount
         }
         
         familyTableView.do {

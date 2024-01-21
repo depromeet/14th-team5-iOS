@@ -23,7 +23,7 @@ extension PostCommentAPIs {
             self.id = "PostCommentAPIWorker"
         }
         
-        // MARK: Values
+        // MARK: - Headers
         private var _headers: Observable<[APIHeader]?> {
             return App.Repository.token.accessToken
                 .map {
@@ -34,6 +34,7 @@ extension PostCommentAPIs {
     }
 }
 
+// MARK: - Extensions
 extension PostCommentAPIWorker {
     public func fetchPostComment(postId: String, query: PostCommentPaginationQuery) -> Single<PaginationResponsePostCommentResponse?> {
         let page = query.page

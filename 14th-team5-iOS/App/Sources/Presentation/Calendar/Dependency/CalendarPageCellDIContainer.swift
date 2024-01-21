@@ -12,9 +12,8 @@ import Data
 import Domain
 
 public final class CalendarPageCellDIContainer {
-    public typealias Reactor = CalendarPageCellReactor
-    public typealias UseCase = CalendarUseCaseProtocol
-    public typealias Repository = CalendarRepositoryProtocol
+    // MARK: - Properties
+    public let yearMonth: String
     
     private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
@@ -23,21 +22,21 @@ public final class CalendarPageCellDIContainer {
         return appDelegate.globalStateProvider
     }
     
-    public let yearMonth: String
-    
+    // MARK: - Intializer
     public init(yearMonth: String) {
         self.yearMonth = yearMonth
     }
     
-    public func makeUseCase() -> UseCase {
+    // MARK: - Make
+    public func makeUseCase() -> CalendarUseCaseProtocol {
         return CalendarUseCase(calendarRepository: makeRepository())
     }
     
-    public func makeRepository() -> Repository {
+    public func makeRepository() -> CalendarRepositoryProtocol {
         return CalendarRepository()
     }
     
-    public func makeReactor() -> Reactor {
+    public func makeReactor() -> CalendarPageCellReactor {
         return CalendarPageCellReactor(yearMonth, usecase: makeUseCase(), provider: globalState)
     }
 }

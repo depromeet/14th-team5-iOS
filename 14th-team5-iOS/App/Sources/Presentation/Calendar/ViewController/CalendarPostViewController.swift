@@ -25,7 +25,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     private let blurImageView: UIImageView = UIImageView()
 
     private let calendarView: FSCalendar = FSCalendar()
-    private lazy var collectionView: UICollectionView = UICollectionView(
+    private lazy var postCollectionView: UICollectionView = UICollectionView(
         frame: .zero,
         collectionViewLayout: orthogonalCompositionalLayout
     )
@@ -45,84 +45,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     }
     
     // MARK: - Helpers
-    public override func setupUI() {
-        super.setupUI()
-        view.addSubviews(
-            navigationBarView, blurImageView
-        )
-        blurImageView.addSubviews(
-            navigationBarView, calendarView, collectionView
-        )
-    }
-    
-    public override func setupAutoLayout() {
-        super.setupAutoLayout()
-        blurImageView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
-        
-        navigationBarView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(42.0)
-        }
-        
-        calendarView.snp.makeConstraints {
-            $0.top.equalTo(navigationBarView.snp.bottom).offset(16.0)
-            $0.leading.trailing.equalTo(blurImageView)
-            $0.height.equalTo(CalendarVC.AutoLayout.calendarHeightValue)
-        }
-        
-        collectionView.snp.makeConstraints {
-            $0.top.equalTo(calendarView.snp.bottom).offset(16.0)
-            $0.leading.bottom.trailing.equalTo(blurImageView)
-        }
-    }
-    
-    public override func setupAttributes() {
-        super.setupAttributes()
-        blurImageView.do {
-            $0.clipsToBounds = true
-            $0.contentMode = .scaleAspectFill
-            $0.isUserInteractionEnabled = true
-        }
-        
-        navigationBarView.do {
-            $0.navigationTitle = ""
-            $0.leftBarButtonItem = .arrowLeft
-        }
-        
-        calendarView.do {
-            $0.headerHeight = 0.0
-            $0.weekdayHeight = 0.0
-            
-            $0.today = nil
-            $0.scope = .week
-            $0.allowsMultipleSelection = false
-            
-            $0.appearance.selectionColor = UIColor.clear
-            
-            $0.appearance.titleFont = UIFont.pretendard(.body1Regular)
-            $0.appearance.titleDefaultColor = DesignSystemAsset.white.color
-            $0.appearance.titleSelectionColor = DesignSystemAsset.white.color
-            
-            $0.backgroundColor = UIColor.clear
-            $0.register(ImageCalendarCell.self, forCellReuseIdentifier: ImageCalendarCell.id)
-            $0.register(PlaceholderCalendarCell.self, forCellReuseIdentifier: PlaceholderCalendarCell.id)
-            
-            $0.dataSource = self
-        }
-        
-        collectionView.do {
-            $0.isScrollEnabled = false
-            $0.backgroundColor = UIColor.clear
-            $0.register(PostCollectionViewCell.self, forCellWithReuseIdentifier: PostCollectionViewCell.id)
-        }
-        
-        setupBlurEffect()
-        setupNavigationTitle(calendarView.currentPage)
-    }
-
     public override func bind(reactor: CalendarPostViewReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
@@ -131,13 +53,12 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     
     private func bindInput(reactor: CalendarPostViewReactor) {
         let selectedDate: Date = reactor.currentState.selectedDate
-        let previousNextMonths: [String] = reactor.currentState.selectedDate.generatePreviousNextYearMonth()
-        
         Observable<Date>.just(selectedDate)
             .map { Reactor.Action.didSelectDate($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        let previousNextMonths: [String] = reactor.currentState.selectedDate.generatePreviousNextYearMonth()
         Observable<String>.from(previousNextMonths)
             .map { Reactor.Action.fetchCalendarResponse($0) }
             .bind(to: reactor.action)
@@ -194,8 +115,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
-                // 이미지 Transition 효과 도중 스크롤을 하게 된다면, 
-                // 불필요한 잔상 효과가 발생해 Duration을 0.15로 설정함.
                 guard let url: URL = URL(string: $0.1) else { return }
                 KingfisherManager.shared.retrieveImage(with: url) { [unowned self] result in
                     switch result {
@@ -227,8 +146,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.displayCalendar }
-            .distinctUntilChanged(\.count)
+        reactor.pulse(\.$displayCalendarResponse)
             .withUnretained(self)
             .subscribe {
                 $0.0.calendarView.reloadData()
@@ -236,7 +154,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .disposed(by: disposeBag)
 
         reactor.pulse(\.$displayPost)
-            .bind(to: collectionView.rx.items(dataSource: dataSource))
+            .bind(to: postCollectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.displayPost }
@@ -246,7 +164,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
                 guard let items = $0.1.first?.items,
                       !items.isEmpty else { return }
                 let indexPath = IndexPath(item: 0, section: 0)
-                $0.0.collectionView.scrollToItem(
+                $0.0.postCollectionView.scrollToItem(
                     at: indexPath,
                     at: .centeredHorizontally,
                     animated: false
@@ -254,7 +172,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
-        // 최초 뷰컨 생성 시, 주간 캘린더 위치 조정을 위해 실행됨
+        // 뷰 생성 시, 주간 캘린더 위치를 조정하기 위함
         reactor.state.map { $0.selectedDate }
             .distinctUntilChanged()
             .withUnretained(self)
@@ -263,6 +181,84 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
     }
+    
+    public override func setupUI() {
+        super.setupUI()
+        view.addSubviews(
+            navigationBarView, blurImageView
+        )
+        blurImageView.addSubviews(
+            navigationBarView, calendarView, postCollectionView
+        )
+    }
+    
+    public override func setupAutoLayout() {
+        super.setupAutoLayout()
+        blurImageView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        navigationBarView.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(42)
+        }
+        
+        calendarView.snp.makeConstraints {
+            $0.top.equalTo(navigationBarView.snp.bottom).offset(16)
+            $0.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(350)
+        }
+        
+        postCollectionView.snp.makeConstraints {
+            $0.top.equalTo(calendarView.snp.bottom).offset(16)
+            $0.horizontalEdges.equalToSuperview()
+            $0.bottom.equalToSuperview()
+        }
+    }
+    
+    public override func setupAttributes() {
+        super.setupAttributes()
+        blurImageView.do {
+            $0.clipsToBounds = true
+            $0.contentMode = .scaleAspectFill
+            $0.isUserInteractionEnabled = true
+        }
+        
+        navigationBarView.do {
+            $0.leftBarButtonItem = .arrowLeft
+        }
+        
+        calendarView.do {
+            $0.headerHeight = 0
+            $0.weekdayHeight = 0
+            
+            $0.today = nil
+            $0.scope = .week
+            $0.allowsMultipleSelection = false
+            
+            $0.appearance.selectionColor = UIColor.clear
+            
+            $0.appearance.titleFont = UIFont.pretendard(.body1Regular)
+            $0.appearance.titleDefaultColor = UIColor.bibbiWhite
+            $0.appearance.titleSelectionColor = UIColor.bibbiWhite
+            
+            $0.backgroundColor = UIColor.clear
+            $0.register(ImageCalendarCell.self, forCellReuseIdentifier: ImageCalendarCell.id)
+            $0.register(PlaceholderCalendarCell.self, forCellReuseIdentifier: PlaceholderCalendarCell.id)
+            
+            $0.dataSource = self
+        }
+        
+        postCollectionView.do {
+            $0.isScrollEnabled = false
+            $0.backgroundColor = UIColor.clear
+            $0.register(PostCollectionViewCell.self, forCellWithReuseIdentifier: PostCollectionViewCell.id)
+        }
+        
+        setupBlurEffect()
+        setupNavigationTitle(calendarView.currentPage)
+    }
 }
 
 // MARK: - Extensions
@@ -270,15 +266,15 @@ extension CalendarPostViewController {
     private var orthogonalCompositionalLayout: UICollectionViewCompositionalLayout {
         // item
         let itemSize: NSCollectionLayoutSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .fractionalHeight(1.0)
+            widthDimension: .fractionalWidth(1),
+            heightDimension: .fractionalHeight(1)
         )
         let item: NSCollectionLayoutItem = NSCollectionLayoutItem(layoutSize: itemSize)
         
         // group
         let groupSize: NSCollectionLayoutSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .fractionalHeight(1.0)
+            widthDimension: .fractionalWidth(1),
+            heightDimension: .fractionalHeight(1)
         )
         let group: NSCollectionLayoutGroup = NSCollectionLayoutGroup.horizontal(
             layoutSize: groupSize,
@@ -291,7 +287,7 @@ extension CalendarPostViewController {
         section.orthogonalScrollingBehavior = .groupPaging
         
         section.visibleItemsInvalidationHandler = { [unowned self] visibleItems, offset, environment in
-            let position: CGFloat =  offset.x / collectionView.frame.width
+            let position: CGFloat =  offset.x / postCollectionView.frame.width
             let floorPosition: CGFloat = floor(position)
             let fractionPart: CGFloat = position - floorPosition
             
@@ -347,7 +343,7 @@ extension CalendarPostViewController: FSCalendarDataSource {
         // 해당 일에 불러온 데이터가 없다면
         let yyyyMM: String = date.toFormatString()
         guard let currentState = reactor?.currentState,
-              let dayResponse = currentState.displayCalendar[yyyyMM]?.filter({ $0.date == date }).first
+              let dayResponse = currentState.displayCalendarResponse[yyyyMM]?.filter({ $0.date == date }).first
         else {
             let emptyResponse = CalendarResponse(
                 date: date,

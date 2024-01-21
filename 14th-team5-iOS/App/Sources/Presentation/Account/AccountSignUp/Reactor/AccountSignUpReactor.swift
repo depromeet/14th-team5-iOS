@@ -30,7 +30,7 @@ public final class AccountSignUpReactor: Reactor {
         case setDay(Int?)
         case didTapDateNextButton
         
-        case didTapCompletehButton
+        case didTapCompletehButton(Data)
         case profilePresignedURL(String, Data)
         case didTapPHAssetsImage(Data)
     }
@@ -108,8 +108,9 @@ extension AccountSignUpReactor {
             
             // MARK: Profile
         case let .profilePresignedURL(presignedURL, originImage):
+            let originProfilePath = configureAccountOriginalS3URL(url: presignedURL)
             return .concat(
-                .just(.setprofilePresignedURL(presignedURL)),
+                .just(.setprofilePresignedURL(originProfilePath)),
                 .just(.setprofileImage(originImage))
             )
         case let .didTapNickNameButton(nickName):
@@ -120,12 +121,47 @@ extension AccountSignUpReactor {
                         .just(.setEditNickName(entity))
                 }
             
-        case .didTapCompletehButton:
+        case let .didTapCompletehButton(defaultProfileImage):
             let date = getDateToString(year: currentState.year!, month: currentState.month, day: currentState.day)
-            return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: currentState.profilePresignedURL)
-                .flatMap { tokenEntity -> Observable<Mutation> in
-                    return Observable.just(Mutation.didTapCompletehButton(tokenEntity))
-                }
+            
+            if defaultProfileImage.isEmpty {
+                return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: currentState.profilePresignedURL)
+                    .flatMap { tokenEntity -> Observable<Mutation> in
+                        return Observable.just(Mutation.didTapCompletehButton(tokenEntity))
+                    }
+            } else {
+                let defaultImage: String = "\(defaultProfileImage.hashValue).jpg"
+                let defaultImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: defaultImage)
+                return .concat(
+                    accountRepository.executePresignedImageURLCreate(parameter: defaultImageEditParameter)
+                        .withUnretained(self)
+                        .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
+                        .asObservable()
+                        .flatMap { owner, entity -> Observable<AccountSignUpReactor.Mutation> in
+                            guard let defaultPresignedURL = entity?.imageURL else { return .empty() }
+                            return owner.accountRepository.executeProfileImageUpload(to: defaultPresignedURL, data: defaultProfileImage)
+                                .asObservable()
+                                .flatMap { isSuccess -> Observable<AccountSignUpReactor.Mutation> in
+                                    let originalPath = owner.configureAccountOriginalS3URL(url: defaultPresignedURL)
+                                    
+                                    if isSuccess {
+                                        return owner.accountRepository.signUp(name: owner.currentState.nickname, date: date, photoURL: originalPath)
+                                            .flatMap { tokenEntity -> Observable<AccountSignUpReactor.Mutation> in
+                                                return .just(.didTapCompletehButton(tokenEntity))
+                                                
+                                            }
+                                    } else {
+                                        return .empty()
+                                    }
+                                    
+                                }
+                            
+                        }
+                
+                
+                )
+                
+            }
         case let .didTapPHAssetsImage(profileImage):
             let originalImage: String = "\(profileImage.hashValue).jpg"
             let profileImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: originalImage)
@@ -141,10 +177,10 @@ extension AccountSignUpReactor {
                             .asObservable()
                             .flatMap { isSuccess -> Observable<AccountSignUpReactor.Mutation> in
                                 let originalPath = owner.configureAccountOriginalS3URL(url: accountPresignedURL)
-                                let accountParameter = ProfileImageEditParameter(profileImageUrl: originalPath)
+                                
                                 if isSuccess {
                                    return  .concat(
-                                    .just(.setprofilePresignedURL(accountPresignedURL)),
+                                    .just(.setprofilePresignedURL(originalPath)),
                                     .just(.setprofileImage(profileImage))
                                 )
                                 } else {

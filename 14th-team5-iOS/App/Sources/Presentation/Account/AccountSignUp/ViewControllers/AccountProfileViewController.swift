@@ -48,11 +48,32 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
     }
     
     private func bindInput(reactor: AccountSignUpReactor) {
-        nextButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .map { Reactor.Action.didTapCompletehButton }
+        
+        
+        NotificationCenter.default
+            .rx.notification(.AccountDefaultProfilePresignedURLNotification)
+            .compactMap { notification -> Data? in
+                guard let originData = notification.userInfo?["defaultProfile"] as? Data else { return nil }
+                return originData
+            }
+            .map { Reactor.Action.didTapCompletehButton($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        
+        nextButton.rx.tap
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .withLatestFrom(reactor.state.map { $0.profilePresignedURL}.distinctUntilChanged())
+            .bind { presignedURL in
+                if presignedURL.isEmpty {
+                    guard let defaultProfile = UserDefaults.standard.profileImage else { return }
+                    let userInfo: [AnyHashable: Any] = ["defaultProfile": defaultProfile]
+                    NotificationCenter.default.post(name: .AccountDefaultProfilePresignedURLNotification, object: nil, userInfo: userInfo)
+                } else {
+                    let emptyUserInfo: [AnyHashable: Any] = ["defaultProfile": Data()]
+                    NotificationCenter.default.post(name: .AccountDefaultProfilePresignedURLNotification, object: nil, userInfo: emptyUserInfo)
+                }
+            }.disposed(by: disposeBag)
         
         profileButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
@@ -141,6 +162,7 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
             $0.bottom.equalTo(view.keyboardLayoutGuide.snp.top).offset(-10)
             $0.height.equalTo(56)
         }
+
     }
     
     override func setupAttributes() {
@@ -178,14 +200,16 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
 
 extension AccountProfileViewController {
     private func setProfilewView(with nickname: String) {
-        let profileImageData = profileButton.asImage().jpegData(compressionQuality: 1.0)
-        UserDefaults.standard.profileImage = profileImageData
         titleLabel.text = String(format: _Str.title, nickname)
         
         if let firstName = nickname.first {
             profileButton.setTitle(String(firstName), for: .normal)
             profileButton.titleLabel?.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 28)
         }
+        
+        profileButton.layoutIfNeeded()
+        let profileImageData = profileButton.asImage().jpegData(compressionQuality: 1.0)
+        UserDefaults.standard.profileImage = profileImageData
     }
     
     private func showNextPage(accessToken: AccessTokenResponse?) {

@@ -16,6 +16,7 @@ import KakaoSDKAuth
 import RxKakaoSDKAuth
 import RxKakaoSDKCommon
 import AuthenticationServices
+import Mixpanel
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -28,6 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         appleApp(application, didFinishLauchingWithOptions: launchOptions)
         
         FirebaseApp.configure()
+        mixpanelApp(application, didFinishLaunchingWithOptions: launchOptions)
         setupUserNotificationCenter(application)
         removeKeychainAtFirstLaunch()
         bindRepositories()
@@ -90,6 +92,20 @@ extension AppDelegate {
         }
         
         return false
+    }
+}
+
+extension AppDelegate: MixpanelDelegate {
+    
+    func mixpanelApp(_ app: UIApplication, didFinishLaunchingWithOptions launchOption: [UIApplication.LaunchOptionsKey: Any]?) {
+        guard let mixPanelKey = Bundle.main.object(forInfoDictionaryKey: "MIXPANEL_API_KEY") as? String else {
+            return
+        }
+        let _ = Mixpanel.initialize(token: mixPanelKey, trackAutomaticEvents: true)
+    }
+    
+    func mixpanelWillFlush(_ mixpanel: MixpanelInstance) -> Bool {
+        return true
     }
 }
 

@@ -22,7 +22,8 @@ let dependencies = Dependencies(
         .kakaoSDKRx,
         .kingFisher,
         .fsCalendar,
-        .keyChainWrapper
+        .keyChainWrapper,
+        .mixPanel
     ], productTypes: [
         "FSCalendar": .framework,
         "Firebase": .framework

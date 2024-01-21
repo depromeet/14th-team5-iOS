@@ -85,6 +85,7 @@ public final class FamilyManagementViewReactor: Reactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .didTapShareContainer:
+            MPEvent.Family.shareLink.track(with: nil)
             return Observable.concat(
                 provider.activityGlobalState.hiddenInvitationUrlIndicatorView(true)
                     .flatMap({ _ in Observable<Mutation>.empty() }),

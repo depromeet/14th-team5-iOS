@@ -101,6 +101,7 @@ extension HomeFamilyViewReactor {
                     ])
                 }
         case .tapInviteFamily:
+            MPEvent.Home.shareLink.track(with: nil)
             return inviteFamilyUseCase.executeFetchInvitationUrl()
                 .map {
                     guard let invitationLink = $0?.url else {

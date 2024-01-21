@@ -8,6 +8,7 @@
 import UIKit
 
 import Core
+import Mixpanel
 import DesignSystem
 
 final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkReactor> {

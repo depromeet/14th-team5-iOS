@@ -47,6 +47,7 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
         }
         
         imageView.do {
+            $0.contentMode = .scaleAspectFill
             $0.clipsToBounds = true
             $0.layer.cornerRadius = Layout.ImageView.cornerRadius
         }

@@ -40,4 +40,12 @@ extension PostCommentRepository {
         return postCommentApiWorker.deletePostComment(postId: postId, commentId: commentId)
             .asObservable()
     }
+    
+    public func fetchUserName(memberId: String) -> String {
+        return FamilyUserDefaults.loadMemberFromUserDefaults(memberId: memberId)?.name ?? .unknown
+    }
+    
+    public func fetchProfileImageUrlString(memberId: String) -> String {
+        return FamilyUserDefaults.loadMemberFromUserDefaults(memberId: memberId)?.profileImageURL ?? .unknown
+    }
 }

@@ -17,11 +17,14 @@ final public class CommentCellReactor: Reactor {
     // MARK: - Action
     public enum Action { 
         case fetchUserName
-        case fetch
+        case fetchProfileImageUrlString
     }
     
     // MARK: - Mutation
-    public enum Mutation { }
+    public enum Mutation { 
+        case injectUserName(String)
+        case injectProfileImageUrlString(String)
+    }
     
     // MARK: - State
     public struct State { 
@@ -30,20 +33,56 @@ final public class CommentCellReactor: Reactor {
         let memberId: String
         let comment: String
         let createdAt: Date
+        
+        var userName: String
+        var profileImageUrlString: String
     }
     
     // MARK: - Properties
     public var initialState: State
     
+    public var postCommentUseCase: PostCommentUseCaseProtocol
+    
     // MARK: - Intializer
-    public init(_ commentResponse: PostCommentResponse) {
+    public init(
+        _ commentResponse: PostCommentResponse,
+        postCommentUseCase: PostCommentUseCaseProtocol
+    ) {
         self.initialState = State(
             commentId: commentResponse.commentId,
             postId: commentResponse.postId,
             memberId: commentResponse.memberId,
             comment: commentResponse.comment,
-            createdAt: commentResponse.createdAt
+            createdAt: commentResponse.createdAt,
+            userName: .none,
+            profileImageUrlString: .none
         )
+        
+        self.postCommentUseCase = postCommentUseCase
+    }
+    
+    // MARK: - Mutate
+    public func mutate(action: Action) -> Observable<Mutation> {
+        switch action {
+        case .fetchUserName:
+            let userName = postCommentUseCase.executeFetchUserName(memberId: initialState.memberId)
+            return Observable<Mutation>.just(.injectUserName(userName))
+        case .fetchProfileImageUrlString:
+            let urlString = postCommentUseCase.executeFetchProfileImageUrlString(memberId: initialState.memberId)
+            return Observable<Mutation>.just(.injectProfileImageUrlString(urlString))
+        }
+    }
+    
+    // MARK: - Reduce
+    public func reduce(state: State, mutation: Mutation) -> State {
+        var newState = state
+        switch mutation {
+        case let .injectUserName(userName):
+            newState.userName = userName
+        case let .injectProfileImageUrlString(urlString):
+            newState.profileImageUrlString = urlString
+        }
+        return newState
     }
 }
 

@@ -39,6 +39,10 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     private let collectionViewFlowLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     private lazy var contentDatasource = createContentDataSource()
     
+    // 임시 코드 --------
+    private let commentButton = UIButton(type: .system)
+    // ----------------
+    
     convenience init(reacter: EmojiReactor? = nil) {
         self.init(frame: .zero)
         self.reactor = reacter
@@ -160,6 +164,14 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             .map { $0.fetchedDisplayContent }
             .bind(to: contentCollectionView.rx.items(dataSource: contentDatasource))
             .disposed(by: disposeBag)
+        
+        // 임시 코드 --------
+        commentButton.rx.tap
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .map { Reactor.Action.tappedCommentButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        // ----------------
     }
     
     
@@ -169,6 +181,10 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         containerView.addSubviews(firstNameLabel, profileImageView)
         profileStackView.addArrangedSubviews(containerView, userNameLabel)
         postImageView.addSubview(contentCollectionView)
+        
+        // 임시 코드 --------
+        self.addSubview(commentButton)
+        // ----------------
     }
 
     override func setupAutoLayout() {
@@ -222,6 +238,13 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             $0.top.equalTo(emojiCountStackView.snp.bottom).offset(Layout.SelectableEmojiStackView.topOffset)
             $0.height.equalTo(Layout.SelectableEmojiStackView.height)
         }
+        
+        // 임시 코드 --------
+        commentButton.snp.makeConstraints {
+            $0.leading.equalToSuperview()
+            $0.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
+        }
+        // ----------------
     }
     
     override func setupAttributes() {
@@ -297,6 +320,13 @@ final class PostCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             $0.spacing = Layout.EmojiCountStackView.spacing
             $0.layer.cornerRadius = Layout.EmojiCountStackView.cornerRadius
         }
+        
+        // 임시 코드 --------
+        commentButton.do {
+            $0.setTitle("댓글", for: .normal)
+            $0.tintColor = UIColor.mainGreen
+        }
+        // ----------------
     }
 }
 

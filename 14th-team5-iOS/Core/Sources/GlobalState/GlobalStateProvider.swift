@@ -8,6 +8,7 @@
 import Foundation
 
 public protocol GlobalStateProviderProtocol: AnyObject {
+    var postGlobalState: PostGlobalStateType { get }
     var activityGlobalState: ActivityGlobalStateType { get }
     var calendarGlabalState: CalendarGlobalStateType { get }
     var toastGlobalState: ToastMessageGlobalStateType { get }
@@ -15,6 +16,7 @@ public protocol GlobalStateProviderProtocol: AnyObject {
 }
 
 final public class GlobalStateProvider: GlobalStateProviderProtocol {
+    public lazy var postGlobalState: PostGlobalStateType = PostGlobalState(provider: self)
     public lazy var activityGlobalState: ActivityGlobalStateType = ActivityGlobalState(provider: self)
     public lazy var calendarGlabalState: CalendarGlobalStateType = CalendarGlobalState(provider: self)
     public lazy var toastGlobalState: ToastMessageGlobalStateType = ToastMessageGlobalState(provider: self)

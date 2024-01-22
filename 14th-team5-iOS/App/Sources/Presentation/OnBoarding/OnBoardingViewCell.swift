@@ -12,7 +12,7 @@ import DesignSystem
 final class OnBoardingCollectionViewCell: BaseCollectionViewCell<OnBoardingReactor> {
     static let id = "onBoardingCollectionViewCell"
     
-    private let titleLabel = BibbiLabel(.head1, textColor: .gray100)
+    private let titleLabel = BibbiLabel(.head1, textColor: .bibbiBlack)
     private let imageView = UIImageView()
     
     private let screenSize = UIApplication.shared.connectedScenes
@@ -25,6 +25,7 @@ final class OnBoardingCollectionViewCell: BaseCollectionViewCell<OnBoardingReact
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        backgroundColor = DesignSystemAsset.mainYellow.color
     }
     
     required init?(coder: NSCoder) {
@@ -37,14 +38,13 @@ final class OnBoardingCollectionViewCell: BaseCollectionViewCell<OnBoardingReact
     
     override func setupAutoLayout() {
         titleLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(20)
+            $0.top.equalToSuperview().offset(44)
             $0.horizontalEdges.equalToSuperview().inset(20)
         }
         
         imageView.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(20)
-            $0.horizontalEdges.equalToSuperview()
-            $0.bottom.equalTo(self.safeAreaLayoutGuide)
+            $0.centerX.equalToSuperview()
+            $0.bottom.equalToSuperview().inset(screenSize?.height == 667.0 ? 0 : 30)
         }
     }
     
@@ -55,7 +55,7 @@ final class OnBoardingCollectionViewCell: BaseCollectionViewCell<OnBoardingReact
         
         imageView.do {
             $0.image = DesignSystemAsset.emoji.image
-            $0.contentMode = (screenSize?.height == 667.0) ? .scaleAspectFit : .scaleAspectFill
+            $0.contentMode = .scaleAspectFit
         }
     }
     

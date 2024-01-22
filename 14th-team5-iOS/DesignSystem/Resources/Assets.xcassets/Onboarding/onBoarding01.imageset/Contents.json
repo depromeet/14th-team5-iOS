@@ -1,18 +1,8 @@
 {
   "images" : [
     {
-      "idiom" : "universal",
-      "scale" : "1x"
-    },
-    {
-      "filename" : "onBoarding01@2x.png",
-      "idiom" : "universal",
-      "scale" : "2x"
-    },
-    {
-      "filename" : "onBoarding01@3x.png",
-      "idiom" : "universal",
-      "scale" : "3x"
+      "filename" : "OnboardingGraphic.svg",
+      "idiom" : "universal"
     }
   ],
   "info" : {

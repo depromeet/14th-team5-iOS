@@ -16,7 +16,7 @@ final public class PostCommentViewReactor: Reactor {
     // MARK: - Action
     public enum Action { 
         case fetchPostComment
-        case createPostComment
+        case createPostComment(String?)
         case deletePostComment
     }
     
@@ -65,16 +65,25 @@ final public class PostCommentViewReactor: Reactor {
             let query = PostCommentPaginationQuery(page: 1)
             return postCommentUseCase.executeFetchPostComment(postId: postId, query: query)
                 .map {
-                    guard let postCommentResponse = $0 else {
+                    guard let commentResponseArray = $0 else {
                         return .injectPostComment([])
                     }
-                    debugPrint("== 가져온 댓글: \(postCommentResponse)")
-                    let reactors = postCommentResponse.results.map { CommentCellReactor($0, postCommentUseCase: self.postCommentUseCase)
+                    debugPrint("== 가져온 댓글: \(commentResponseArray)")
+                    let reactors = commentResponseArray.results.map { CommentCellReactor($0, postCommentUseCase: self.postCommentUseCase)
                     }
                     return .injectPostComment(reactors)
                 }
-        case .createPostComment:
-            return Observable<Mutation>.empty()
+        case let .createPostComment(comment):
+            let postId = initialState.postId
+            let body = CreatePostCommentBody(content: comment ?? "")
+            return postCommentUseCase.executeCreatePostComment(postId: postId, body: body)
+                .flatMap {
+                    guard let commentResponse = $0 else {
+                        return Observable<Mutation>.empty()
+                    }
+                    let reactor = CommentCellReactor(commentResponse, postCommentUseCase: self.postCommentUseCase)
+                    return Observable<Mutation>.just(.appendPostComment(reactor))
+                }
         case .deletePostComment:
             return Observable<Mutation>.empty()
         }
@@ -87,7 +96,12 @@ final public class PostCommentViewReactor: Reactor {
         case let .injectPostComment(reactor):
             newState.displayComment = [.init(model: .none, items: reactor)]
         case let .appendPostComment(reactor):
-            break
+            guard var dataSource = newState.displayComment.first else {
+                break
+            }
+            debugPrint("= 댓글 업로드: \(reactor)")
+            dataSource.items.append(reactor)
+            newState.displayComment = [dataSource]
         case let .removePostComment(success):
             break
         }

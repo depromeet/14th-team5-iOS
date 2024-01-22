@@ -30,6 +30,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
     // MARK: - LifeCycles
     public override func viewDidLoad() {
         super.viewDidLoad()
+        commentTextField.becomeFirstResponder()
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -72,6 +73,13 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
                     button.isEnabled = true
                 }
             }
+            .disposed(by: disposeBag)
+        
+        createCommentButton.rx.tap
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .withUnretained(self)
+            .map { Reactor.Action.createPostComment($0.0.commentTextField.text) }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
     

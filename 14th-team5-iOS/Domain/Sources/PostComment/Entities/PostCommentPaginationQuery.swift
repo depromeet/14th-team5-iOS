@@ -15,7 +15,7 @@ public struct PostCommentPaginationQuery {
     public init(
         page: Int,
         size: Int = 100,
-        sort: PostCommentPaginationQuery.Sort = .desc
+        sort: PostCommentPaginationQuery.Sort = .asc
     ) {
         self.page = page
         self.size = size

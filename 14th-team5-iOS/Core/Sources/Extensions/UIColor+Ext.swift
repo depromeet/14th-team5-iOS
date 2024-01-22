@@ -70,6 +70,10 @@ extension UIColor {
         return DesignSystemAsset.mainGreen.color
     }
     
+    public static var mainYellow: UIColor {
+        return DesignSystemAsset.mainYellow.color
+    }
+    
     public static var mainGreenHover: UIColor {
         return DesignSystemAsset.mainGreenHover.color
     }

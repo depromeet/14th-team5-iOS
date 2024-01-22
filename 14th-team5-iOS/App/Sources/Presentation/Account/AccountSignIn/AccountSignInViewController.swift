@@ -29,8 +29,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
     }
     
     private let bibbiImageView = UIImageView()
-    private let mainTitleLabel = BibbiLabel(.head2Bold, alignment: .center, textColor: .gray100)
-    
+    private let titleLabel = BibbiLabel(.body1Bold, alignment: .center, textColor: .gray200)
     private let loginImageView = UIImageView()
     
     private let kakaoLoginButton = UIButton()
@@ -45,7 +44,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
     override public func setupUI() {
         super.setupUI()
         
-        view.addSubviews(bibbiImageView, mainTitleLabel, loginImageView)
+        view.addSubviews(bibbiImageView, titleLabel, loginImageView)
         
         loginStack.addArrangedSubviews(kakaoLoginButton, appleLoginButton)
         view.addSubviews(loginStack)
@@ -55,16 +54,16 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
         super.setupAttributes()
         
         bibbiImageView.do {
-            $0.image = DesignSystemAsset.newBibbi.image
+            $0.image = DesignSystemAsset.bibbiLogo.image
             $0.contentMode = .scaleAspectFit
         }
         
-        mainTitleLabel.do {
+        titleLabel.do {
             $0.text = AccountSignInStrings.mainTitle
         }
         
         loginImageView.do {
-            $0.image = DesignSystemAsset.palmTreeBeeper.image
+            $0.image = DesignSystemAsset.loginCharacter.image
             $0.contentMode = .scaleAspectFill
         }
         
@@ -93,7 +92,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
             $0.horizontalEdges.equalToSuperview()
         }
         
-        mainTitleLabel.snp.makeConstraints {
+        titleLabel.snp.makeConstraints {
             $0.top.equalTo(bibbiImageView.snp.bottom).offset(Metric.titleOffset)
             $0.centerX.equalToSuperview()
         }

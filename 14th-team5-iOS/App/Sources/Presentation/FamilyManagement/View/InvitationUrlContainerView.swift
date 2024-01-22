@@ -111,7 +111,7 @@ public final class InvitationUrlContainerView: BaseView<InvitationUrlContainerVi
         }
         
         envelopeImageView.do {
-            $0.image = DesignSystemAsset.envelopeBackground.image
+            $0.image = DesignSystemAsset.envelope.image
             $0.contentMode = .scaleAspectFit
         }
         

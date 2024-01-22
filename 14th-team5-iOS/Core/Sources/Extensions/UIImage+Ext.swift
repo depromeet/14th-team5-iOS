@@ -80,7 +80,7 @@ extension UIImage.NavigationBar.ImageType {
         case .bibbi:
             return DesignSystemAsset.bibbi.image
         case .newBibbi:
-            return DesignSystemAsset.newBibbi.image
+            return DesignSystemAsset.bibbiLogo.image
         }
     }
 }

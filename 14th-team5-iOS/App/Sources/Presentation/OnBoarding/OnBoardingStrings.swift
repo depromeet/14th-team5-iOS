@@ -13,7 +13,6 @@ extension String {
 }
 
 extension OnBoardingStrings {
-    
     static let normalButtonTitle: String = "알림 허용하고 그룹 생성하기"
     static let inviteButtonTitle: String = "알림 허용하고 입장하기"
     

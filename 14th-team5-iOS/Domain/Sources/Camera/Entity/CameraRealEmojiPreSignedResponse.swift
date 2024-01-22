@@ -11,4 +11,7 @@ import Foundation
 public struct CameraRealEmojiPreSignedResponse {
     public var imageURL: String
     
+    public init(imageURL: String) {
+        self.imageURL = imageURL
+    }
 }

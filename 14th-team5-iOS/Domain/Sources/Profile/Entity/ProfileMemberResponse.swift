@@ -14,4 +14,9 @@ public struct ProfileMemberResponse {
     public var memberName: String
     public var memberImage: URL
     
+    public init(memberId: String, memberName: String, memberImage: URL) {
+        self.memberId = memberId
+        self.memberName = memberName
+        self.memberImage = memberImage
+    }
 }

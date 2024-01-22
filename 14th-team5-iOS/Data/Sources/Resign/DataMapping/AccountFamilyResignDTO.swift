@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Domain
 
 public struct AccountFamilyResignDTO: Decodable {
     public var success: Bool

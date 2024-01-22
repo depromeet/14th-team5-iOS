@@ -8,6 +8,7 @@
 import Foundation
 
 import Core
+import Domain
 
 public struct ProfileMemberDTO: Decodable {
     public var memberId: String?

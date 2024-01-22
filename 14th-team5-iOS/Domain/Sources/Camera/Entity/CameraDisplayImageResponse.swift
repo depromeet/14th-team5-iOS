@@ -12,4 +12,8 @@ public struct CameraDisplayImageResponse {
     
     public var imageURL: String
     
+    public init(imageURL: String) {
+        self.imageURL = imageURL
+    }
+    
 }

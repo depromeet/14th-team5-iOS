@@ -7,6 +7,7 @@
 
 import Foundation
 
+import Domain
 
 public struct CameraRealEmojiPreSignedDTO: Decodable {
     public var imageURL: String

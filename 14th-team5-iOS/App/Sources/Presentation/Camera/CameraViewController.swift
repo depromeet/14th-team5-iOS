@@ -35,8 +35,8 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     private let toggleButton: UIButton = UIButton.createCircleButton(radius: 24)
     private let cameraIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     private let filterView: UIImageView = UIImageView()
-    //TODO: DesignSyste Color 추가시 Label Color 변경
-    private let realEmojiDescriptionLabel = BibbiLabel(.body1Regular)
+    private let zoomView: UIImageView = UIImageView()
+    private let realEmojiDescriptionLabel = BibbiLabel(.body1Regular, textColor: .mainYellow)
     private let realEmojiFaceImageView = UIImageView()
     private let realEmojiHorizontalStakView = UIStackView()
     
@@ -76,6 +76,11 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         realEmojiDescriptionLabel.do {
             $0.text = "표정을 따라해보세요"
+        }
+        
+        zoomView.do {
+            $0.image = DesignSystemAsset.zoom.image
+            $0.contentMode = .scaleAspectFill
         }
         
         realEmojiFaceImageView.do {
@@ -195,7 +200,8 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         reactor.state
             .map { $0.cameraType == .realEmoji ? false : true }
             .distinctUntilChanged()
-            .bind(to: filterView.rx.isHidden)
+            .withUnretained(self)
+            .bind(onNext: {$0.0.setupRealEmojiLayoutContent(isShow: $0.1)})
             .disposed(by: disposeBag)
         
         
@@ -205,8 +211,6 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .distinctUntilChanged()
             .bind(to: cameraNavigationBar.rx.navigationTitle)
             .disposed(by: disposeBag)
-        
-        //TODO: Camera Type에 맞게 Hidden 처리 코드 추가
         
         reactor.pulse(\.$profileMemberEntity)
             .filter { $0 != nil }
@@ -348,11 +352,10 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.previewLayer.frame = self.cameraView.bounds
-            self.filterView.frame = self.previewLayer.bounds
-            
         }
+        
         cameraView.layer.addSublayer(previewLayer)
-        cameraView.addSubview(filterView)
+        setupPreViewLayerContent()
         DispatchQueue.global(qos: .background).async { [weak self] in
             guard let self = self else { return }
             self.captureSession.startRunning()
@@ -492,6 +495,25 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         [cancelAction,settingAction].forEach(permissionAlertController.addAction(_:))
         permissionAlertController.overrideUserInterfaceStyle = .dark
         present(permissionAlertController, animated: true)
+    }
+    
+    private func setupPreViewLayerContent() {
+        cameraView.layer.addSublayer(previewLayer)
+        cameraView.addSubviews(filterView, zoomView)
+        filterView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        zoomView.snp.makeConstraints {
+            $0.width.height.equalTo(43)
+            $0.bottom.equalToSuperview().offset(-23)
+            $0.centerX.equalToSuperview()
+        }
+    }
+    
+    private func setupRealEmojiLayoutContent(isShow: Bool) {
+        filterView.isHidden = isShow
+        realEmojiHorizontalStakView.isHidden = isShow
     }
     
 }

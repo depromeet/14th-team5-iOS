@@ -86,5 +86,25 @@ extension CameraAPIWorker {
             .asSingle()
         
     }
+    
+    
+    // TODO: Real Emoji API 추가
+    public func createRealEmojiPresignedURL(accessToken: String, memberId: String, parameters: Encodable) -> Single<CameraRealEmojiPreSignedDTO?> {
+        let spec = CameraAPIs.uploadRealEmojiURL(memberId).spec
+        
+        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("upload RealEmoji Image Reuslt: \(str)")
+                }
+            }
+            .map(CameraRealEmojiPreSignedDTO.self)
+            .catchAndReturn(nil)
+            .asSingle()
+        
+    }
+    
+//    public func uploadRealEmojiImageToS3(accessToken: String, memberId: String) -> Single<>
 }
 

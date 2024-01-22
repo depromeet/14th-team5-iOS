@@ -9,6 +9,7 @@ import Foundation
 
 extension String {
     public static var none: String { "" }
+    public static var unknown: String { "알 수 없음" }
 }
 
 extension String {

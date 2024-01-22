@@ -24,6 +24,7 @@ final class PostReactor: Reactor {
         case setSelectedPostIndex(Int)
         case fetchedPost(PostData?)
         case showReactionSheet([String])
+        case presentPostCommentSheet(String, Int)
     }
     
     struct State {
@@ -35,6 +36,7 @@ final class PostReactor: Reactor {
         
         @Pulse var fetchedPost: PostData? = nil
         @Pulse var reactionMemberIds: [String] = []
+        @Pulse var shouldPresentPostCommentSheet: (String, Int) = (.none, 0)
     }
     
     let initialState: State
@@ -61,7 +63,15 @@ extension PostReactor {
                 }
             }
         
-        return Observable<Mutation>.merge(mutation, eventMutation)
+        let postMutation = provider.postGlobalState.event
+            .flatMap { event -> Observable<Mutation> in
+                switch event {
+                case let .presentPostCommentSheet(postId, commentCount):
+                    return Observable<Mutation>.just(.presentPostCommentSheet(postId, commentCount))
+                }
+            }
+        
+        return Observable<Mutation>.merge(mutation, eventMutation, postMutation)
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
@@ -93,6 +103,9 @@ extension PostReactor {
                 newState.isPop = true
             case let .showReactionSheet(memberIds):
                 newState.reactionMemberIds = memberIds
+                
+            case let .presentPostCommentSheet(postId, commentCount):
+                newState.shouldPresentPostCommentSheet = (postId, commentCount)
             }
             return newState
         }

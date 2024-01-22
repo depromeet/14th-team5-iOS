@@ -8,6 +8,7 @@
 import UIKit
 import WebKit
 
+import Kingfisher
 import RxCocoa
 import RxSwift
 
@@ -83,5 +84,18 @@ extension Reactive where Base: WKWebView {
             webView.load(request)
         }
         
+    }
+}
+
+extension Reactive where Base: UIImageView {
+    public var kingfisherImage: Binder<String> {
+        Binder(self.base) { imageView, urlString in
+            imageView.kf.setImage(
+                with: URL(string: urlString),
+                options: [
+                    .transition(.fade(0.15))
+                ]
+            )
+        }
     }
 }

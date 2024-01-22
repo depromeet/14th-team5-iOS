@@ -42,9 +42,9 @@ extension PostCommentSectionModel {
             PostCommentSectionModel(
                 model: .none,
                 items: [
-                    CommentCellReactor(comment1),
-                    CommentCellReactor(comment2),
-                    CommentCellReactor(comment3)
+//                    CommentCellReactor(comment1),
+//                    CommentCellReactor(comment2),
+//                    CommentCellReactor(comment3)
                 ]
             )
         ]

@@ -25,6 +25,7 @@ final public class PostCommentViewReactor: Reactor {
         case injectPostComment([CommentCellReactor])
         case appendPostComment(CommentCellReactor)
         case removePostComment(Bool)
+        case clearCommentTextField
     }
     
     // MARK: - State
@@ -32,6 +33,7 @@ final public class PostCommentViewReactor: Reactor {
         var postId: String
         var commentCount: Int
         @Pulse var displayComment: [PostCommentSectionModel]
+        @Pulse var shouldClearCommentTextField: Bool
     }
     
     // MARK: - Properties
@@ -50,7 +52,8 @@ final public class PostCommentViewReactor: Reactor {
         self.initialState = State(
             postId: postId,
             commentCount: commentCount,
-            displayComment: [.init(model: .none, items: [])]
+            displayComment: [.init(model: .none, items: [])],
+            shouldClearCommentTextField: false
         )
         
         self.postCommentUseCase = postCommentUseCase
@@ -82,7 +85,10 @@ final public class PostCommentViewReactor: Reactor {
                         return Observable<Mutation>.empty()
                     }
                     let reactor = CommentCellReactor(commentResponse, postCommentUseCase: self.postCommentUseCase)
-                    return Observable<Mutation>.just(.appendPostComment(reactor))
+                    return Observable.concat(
+                        Observable<Mutation>.just(.clearCommentTextField),
+                        Observable<Mutation>.just(.appendPostComment(reactor))
+                    )
                 }
         case .deletePostComment:
             return Observable<Mutation>.empty()
@@ -104,6 +110,8 @@ final public class PostCommentViewReactor: Reactor {
             newState.displayComment = [dataSource]
         case let .removePostComment(success):
             break
+        case .clearCommentTextField:
+            newState.shouldClearCommentTextField = true
         }
         return newState
     }

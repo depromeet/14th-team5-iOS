@@ -42,10 +42,10 @@ extension PostCommentRepository {
     }
     
     public func fetchUserName(memberId: String) -> String {
-        return FamilyUserDefaults.loadMemberFromUserDefaults(memberId: memberId)?.name ?? .none
+        return FamilyUserDefaults.loadMemberFromUserDefaults(memberId: memberId)?.name ?? .unknown
     }
     
     public func fetchProfileImageUrlString(memberId: String) -> String {
-        return FamilyUserDefaults.loadMemberFromUserDefaults(memberId: memberId)?.profileImageURL ?? .none
+        return FamilyUserDefaults.loadMemberFromUserDefaults(memberId: memberId)?.profileImageURL ?? .unknown
     }
 }

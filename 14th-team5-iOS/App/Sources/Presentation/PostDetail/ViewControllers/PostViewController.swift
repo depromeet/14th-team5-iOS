@@ -78,6 +78,14 @@ final class PostViewController: BaseViewController<PostReactor> {
             })
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$shouldPresentPostCommentSheet)
+            .withUnretained(self)
+            .subscribe {
+                let postCommentVC = PostCommentDIContainer(commentCount: $0.1).makeViewController()
+                $0.0.present(postCommentVC, animated: true)
+            }
+            .disposed(by: disposeBag)
+        
         collectionView.rx
             .contentOffset
             .map { [unowned self] in self.calculateCurrentPage(offset: $0) }

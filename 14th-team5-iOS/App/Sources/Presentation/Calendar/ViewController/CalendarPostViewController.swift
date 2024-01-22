@@ -172,6 +172,14 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$shouldPresentPostCommentSheet)
+            .withUnretained(self)
+            .subscribe {
+                let postCommentVC = PostCommentDIContainer(commentCount: $0.1).makeViewController()
+                $0.0.present(postCommentVC, animated: true)
+            }
+            .disposed(by: disposeBag)
+        
         // 뷰 생성 시, 주간 캘린더 위치를 조정하기 위함
         reactor.state.map { $0.selectedDate }
             .distinctUntilChanged()

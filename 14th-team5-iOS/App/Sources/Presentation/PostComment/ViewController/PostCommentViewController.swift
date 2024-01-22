@@ -94,6 +94,15 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             .bind(to: noCommentLabel.rx.isHidden)
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$shouldClearCommentTextField)
+            .withUnretained(self)
+            .subscribe {
+                if $0.1 {
+                    $0.0.commentTextField.text = ""
+                }
+            }
+            .disposed(by: disposeBag)
+        
         let keyboardWillShow = NotificationCenter.default.rx.notification(UIResponder.keyboardWillShowNotification)
             .flatMap { notification in
                 guard let value = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {

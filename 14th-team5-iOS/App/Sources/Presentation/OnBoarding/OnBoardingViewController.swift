@@ -71,7 +71,7 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
             $0.isPagingEnabled = true
             $0.contentInset = .zero
             $0.collectionViewLayout = horizontalFlowLayout
-            $0.backgroundColor = DesignSystemAsset.black.color
+            $0.backgroundColor = DesignSystemAsset.mainYellow.color
             $0.showsHorizontalScrollIndicator = false
             $0.register(OnBoardingCollectionViewCell.self,
                         forCellWithReuseIdentifier: OnBoardingCollectionViewCell.id)

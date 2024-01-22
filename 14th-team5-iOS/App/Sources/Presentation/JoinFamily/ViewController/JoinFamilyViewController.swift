@@ -17,29 +17,24 @@ import RxSwift
 import SnapKit
 import Then
 
+fileprivate typealias _Str = JoinFamilyStrings
 final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
     // MARK: - Views
     private let titleLabel: BibbiLabel = BibbiLabel(.head1, textColor: .gray100)
     private let captionLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray300)
     private let createFamilyButton: UIButton = UIButton()
-    private let joinFamilyButton: InviteFamilyView = InviteFamilyView()
-    
-    // MARK: - Lifecycles
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
+    private let joinFamilyButton: InviteFamilyView = InviteFamilyView(openType: .inviteUrl)
     
     override func setupUI() {
         super.setupUI()
-        view.addSubviews(titleLabel, captionLabel, createFamilyButton,
-                         joinFamilyButton)
+        view.addSubviews(titleLabel, captionLabel, createFamilyButton, joinFamilyButton)
     }
     
     override func setupAutoLayout() {
         super.setupAutoLayout()
         
         titleLabel.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).inset(44)
+            $0.top.equalTo(view.safeAreaLayoutGuide).inset(20)
             $0.horizontalEdges.equalToSuperview().inset(20)
             $0.height.equalTo(66)
         }
@@ -67,20 +62,16 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
         super.setupAttributes()
         
         titleLabel.do {
-            $0.text = "\(UserDefaults.standard.nickname ?? "삐삐")님, 가족 중 첫 번째로\n방을 생성해보세요"
+            $0.text = _Str.mainTitle
             $0.numberOfLines = 2
         }
         
         captionLabel.do {
-            $0.text = "하나의 그룹에만 소속될 수 있어요."
+            $0.text = _Str.caption
         }
         
         createFamilyButton.do {
             $0.setImage(DesignSystemAsset.makeGroupButton.image, for: .normal)
-        }
-        
-        joinFamilyButton.do {
-            $0.setLabel(caption: "이미 초대링크를 받았다면", title: "그룹 입장하기")
         }
     }
     
@@ -108,19 +99,14 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
             .observe(on: MainScheduler.instance)
             .distinctUntilChanged()
             .withUnretained(self)
-            .bind(onNext: {
-                $0.0.showHomeViewController($0.1)
-            })
+            .bind(onNext: { $0.0.showHomeViewController($0.1) })
             .disposed(by: disposeBag)
         
         reactor.state
             .map { $0.isShowJoinFamily }
             .observe(on: MainScheduler.instance)
-            .distinctUntilChanged()
             .withUnretained(self)
-            .bind(onNext: {
-                $0.0.showInputLinkViewController($0.1)
-            })
+            .bind(onNext: { $0.0.showInputLinkViewController($0.1) })
             .disposed(by: disposeBag)
     }
 }

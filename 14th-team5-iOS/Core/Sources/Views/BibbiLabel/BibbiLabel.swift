@@ -42,6 +42,7 @@ public class BibbiLabel: UILabel {
         self.textBibbiColor = color
         super.init(frame: .zero)
         updateAttributes()
+        numberOfLines = 0 
     }
     
     required init?(coder: NSCoder) {

@@ -29,10 +29,13 @@ public final class CameraViewReactor: Reactor {
         case setLoading(Bool)
         case setPosition(Bool)
         case setFlashMode(Bool)
-        case setProfileS3Edit(Bool)
+        case uploadImageToS3(Bool)
         case setAccountProfileData(Data)
         case setProfileImageURLResponse(CameraDisplayImageResponse?)
         case setProfileMemberResponse(ProfileMemberResponse?)
+        case setRealEmojiImageURLResponse(CameraRealEmojiPreSignedResponse?)
+        case setRealEmojiImageCreateResponse(CameraCreateRealEmojiResponse?)
+        case setErrorAlert(Bool)
     }
     
     public struct State {
@@ -40,10 +43,13 @@ public final class CameraViewReactor: Reactor {
         @Pulse var isFlashMode: Bool
         @Pulse var isSwitchPosition: Bool
         @Pulse var profileImageURLEntity: CameraDisplayImageResponse?
+        @Pulse var realEmojiURLEntity: CameraRealEmojiPreSignedResponse?
+        @Pulse var realEmojiCreateEntity: CameraCreateRealEmojiResponse?
         var cameraType: UploadLocation = .feed
         var accountImage: Data?
         var memberId: String
-        var isProfileEdit: Bool
+        var isUpload: Bool
+        var isError: Bool
         @Pulse var profileMemberEntity: ProfileMemberResponse?
     }
     
@@ -59,10 +65,13 @@ public final class CameraViewReactor: Reactor {
             isFlashMode: false,
             isSwitchPosition: false,
             profileImageURLEntity: nil,
+            realEmojiURLEntity: nil,
+            realEmojiCreateEntity: nil,
             cameraType: cameraType,
             accountImage: nil,
             memberId: memberId,
-            isProfileEdit: false,
+            isUpload: false,
+            isError: false,
             profileMemberEntity: nil
         )
         
@@ -79,54 +88,8 @@ public final class CameraViewReactor: Reactor {
             return cameraUseCase.executeToggleCameraFlash(self.currentState.isFlashMode).map { .setFlashMode($0) }
             
         case let .didTapShutterButton(fileData):
-            let profileImage = "\(fileData.hashValue).jpg"
-            let profileEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: profileImage)
-            return .concat(
-                .just(.setLoading(true)),
-                // presignedURL 요청 or 병렬 작업으로 성능 개선
-                cameraUseCase.executeProfileImageURL(parameter: profileEditParameter, type: cameraType)
-                    .withUnretained(self)
-                    .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
-                    .asObservable()
-                    .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
-                        // presignedURL에 image Upload 이것도 역시 병렬 큐 사용
-                        guard let presingedURL = entity?.imageURL else { return .empty() }
-                                                
-                        return owner.cameraUseCase.executeProfileUploadToS3(toURL: presingedURL, imageData: fileData)
-                            .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
-                            .asObservable()
-                            .flatMap { isSuccess -> Observable<CameraViewReactor.Mutation> in
-                                guard let profilePresingedURL = entity?.imageURL else { return .empty() }
-                                
-                                if owner.memberId.isEmpty {
-                                    return .concat(
-                                        .just(.setProfileImageURLResponse(entity)),
-                                        .just(.setAccountProfileData(fileData)),
-                                        .just(.setLoading(false))
-                                    )
-                                }
-                                
-                                // 최종 Member Entity API 호출 작업 병렬 큐 사용 -> 사용 안하니 로딩 속도 느림
-                                let originalURL = owner.configureProfileOriginalS3URL(url: profilePresingedURL, with: .profile)
-                                let profileImageEditParameter: ProfileImageEditParameter = ProfileImageEditParameter(profileImageUrl: originalURL)
-                                if isSuccess {
-                                    return owner.cameraUseCase.executeEditProfileImage(memberId: owner.memberId, parameter: profileImageEditParameter)
-                                        .asObservable()
-                                        .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
-                                        .flatMap { editEntity -> Observable<CameraViewReactor.Mutation> in
-                                            return .concat(
-                                                .just(.setProfileImageURLResponse(entity)),
-                                                .just(.setProfileS3Edit(isSuccess)),
-                                                .just(.setProfileMemberResponse(editEntity)),
-                                                .just(.setLoading(false))
-                                            )
-                                        }
-                                } else {
-                                    return .empty()
-                                }
-                            }
-                    }
-            )
+            return didTapShutterButtonMutation(imageData: fileData)
+            
         }
         
     }
@@ -142,12 +105,20 @@ public final class CameraViewReactor: Reactor {
             newState.isFlashMode = isFlash
         case let .setProfileImageURLResponse(entity):
             newState.profileImageURLEntity = entity
-        case let .setProfileS3Edit(isProfileEdit):
-            newState.isProfileEdit = isProfileEdit
+        case let .uploadImageToS3(isProfileEdit):
+            newState.isUpload = isProfileEdit
         case let .setProfileMemberResponse(entity):
             newState.profileMemberEntity = entity
         case let .setAccountProfileData(accountImage):
             newState.accountImage = accountImage
+        case let .setRealEmojiImageURLResponse(entity):
+            newState.realEmojiURLEntity = entity
+            print("RealEmoji URL Entity: \(newState.realEmojiURLEntity)")
+        case let .setRealEmojiImageCreateResponse(entity):
+            newState.realEmojiCreateEntity = entity
+            print("RealEmoji Create Entity: \(newState.realEmojiCreateEntity)")
+        case let .setErrorAlert(isError):
+            newState.isError = isError
         }
         
         return newState
@@ -160,6 +131,114 @@ extension CameraViewReactor {
     func configureProfileOriginalS3URL(url: String, with filePath: UploadLocation) -> String {
         guard let range = url.range(of: #"[^&?]+"#, options: .regularExpression) else { return "" }
         return String(url[range])
+    }
+    
+    
+    private func didTapShutterButtonMutation(imageData: Data) -> Observable<CameraViewReactor.Mutation> {
+      
+        switch cameraType {
+        case .feed, .profile:
+            //Profile 관련 이미지 업로드 Mutation
+            let profileImage = "\(imageData.hash).jpg"
+            let profileParameter = CameraDisplayImageParameters(imageName: profileImage)
+            
+            return .concat(
+                .just(.setLoading(true)),
+                cameraUseCase.executeProfileImageURL(parameter: profileParameter, type: cameraType)
+                    .withUnretained(self)
+                    .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
+                    .asObservable()
+                    .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
+                        guard let presingedURL = entity?.imageURL else { return .just(.setErrorAlert(true)) }
+                        
+                        return owner.cameraUseCase.executeUploadToS3(toURL: presingedURL, imageData: imageData)
+                            .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
+                            .asObservable()
+                            .flatMap { isSuccess -> Observable<CameraViewReactor.Mutation> in
+                                
+                                if owner.memberId.isEmpty {
+                                    return .concat(
+                                        .just(.setProfileImageURLResponse(entity)),
+                                        .just(.setAccountProfileData(imageData)),
+                                        .just(.setErrorAlert(false)),
+                                        .just(.setLoading(false))
+                                    )
+                                }
+                                
+                                let originalURL = owner.configureProfileOriginalS3URL(url: presingedURL, with: .profile)
+                                let profileImageEditParameter = ProfileImageEditParameter(profileImageUrl: originalURL)
+                                
+                                if isSuccess {
+                                    return owner.cameraUseCase.executeEditProfileImage(memberId: owner.memberId, parameter: profileImageEditParameter)
+                                        .asObservable()
+                                        .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
+                                        .flatMap { editEntity -> Observable<CameraViewReactor.Mutation> in
+                                            
+                                            return .concat(
+                                                .just(.setProfileImageURLResponse(entity)),
+                                                .just(.uploadImageToS3(isSuccess)),
+                                                .just(.setProfileMemberResponse(editEntity)),
+                                                .just(.setErrorAlert(false)),
+                                                .just(.setLoading(false))
+                                            )
+                                            
+                                        }
+                                } else {
+                                    return .just(.setErrorAlert(true))
+                                }
+                                
+                            }
+                    }
+            
+            )
+        case .realEmoji:
+            //TODO:  Emoji Type을 별도로 받아야함 이걸 통해서 몇번째에 Image 변경해야하는지 분기 처리
+            let realEmojiImage = "\(imageData.hashValue).jpg"
+            let realEmojiParameter = CameraRealEmojiParameters(imageName: realEmojiImage)
+            
+            return .concat(
+                .just(.setLoading(true)),
+                cameraUseCase.executeRealEmojiImageURL(memberId: memberId, parameter: realEmojiParameter)
+                    .withUnretained(self)
+                    .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
+                    .asObservable()
+                    .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
+                        guard let presingedURL = entity?.imageURL else { return .just(.setErrorAlert(true))}
+                        
+                        return owner.cameraUseCase.executeUploadToS3(toURL: presingedURL, imageData: imageData)
+                            .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
+                            .asObservable()
+                            .flatMap { isSuccess -> Observable<CameraViewReactor.Mutation> in
+                                
+                                let originalURL = owner.configureProfileOriginalS3URL(url: presingedURL, with: .realEmoji)
+                                let realEmojiCreateParameter = CameraCreateRealEmojiParameters(type: "EMOJI_1", imageUrl: originalURL)
+                                
+                                if isSuccess {
+                                    return owner.cameraUseCase.executeRealEmojiUploadToS3(memberId: owner.memberId, parameter: realEmojiCreateParameter)
+                                        .asObservable()
+                                        .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
+                                        .flatMap { realEmojiEntity -> Observable<CameraViewReactor.Mutation> in
+                                            return .concat(
+                                                .just(.setRealEmojiImageURLResponse(entity)),
+                                                .just(.uploadImageToS3(isSuccess)),
+                                                .just(.setRealEmojiImageCreateResponse(realEmojiEntity)),
+                                                .just(.setErrorAlert(false)),
+                                                .just(.setLoading(false))
+                                            )
+                                            
+                                        }
+                                } else {
+                                    return .just(.setErrorAlert(true))
+                                }
+                                
+                            }
+                        
+                    }
+            
+            )
+
+        }
+        
     }
     
 }

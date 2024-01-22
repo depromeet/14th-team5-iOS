@@ -32,6 +32,7 @@ extension CameraAPIs {
 
 
 extension CameraAPIWorker {
+    //TODO: 나중에 Prameters memberId 추가하고 type에 따라 realEmoji, feed, profile, PresignedURL 호출 API 분기 작성하면 하나로 통합 할 수 있을듯
     public func createPresignedURL(accessToken: String, parameters: Encodable, type: UploadLocation) -> Single<CameraDisplayImageDTO?> {
         let spec = type == .feed ? CameraAPIs.uploadImageURL.spec : CameraAPIs.uploadProfileImageURL.spec
         
@@ -96,7 +97,7 @@ extension CameraAPIWorker {
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("upload RealEmoji Image Reuslt: \(str)")
+                    debugPrint("RealEmoji Image Presigned URL Reuslt: \(str)")
                 }
             }
             .map(CameraRealEmojiPreSignedDTO.self)
@@ -105,6 +106,19 @@ extension CameraAPIWorker {
         
     }
     
-//    public func uploadRealEmojiImageToS3(accessToken: String, memberId: String) -> Single<>
+    public func uploadRealEmojiImageToS3(accessToken: String, memberId: String, parameters: Encodable) -> Single<CameraCreateRealEmojiDTO?> {
+        let spec = CameraAPIs.updateRealEmojiImage(memberId).spec
+        
+        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Real Image upload to S3 Result: \(str)")
+                }
+            }
+            .map(CameraCreateRealEmojiDTO.self)
+            .catchAndReturn(nil)
+            .asSingle()
+    }
 }
 

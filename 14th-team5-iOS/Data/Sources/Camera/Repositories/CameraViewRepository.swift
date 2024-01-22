@@ -56,7 +56,7 @@ extension CameraViewRepository: CameraViewInterface {
             .asObservable()
     }
         
-    public func uploadProfileImage(toURL url: String, imageData: Data) -> Observable<Bool> {
+    public func uploadImageToS3(toURL url: String, imageData: Data) -> Observable<Bool> {
         return cameraAPIWorker.uploadImageToPresignedURL(accessToken: accessToken, toURL: url, withImageData: imageData)
             .asObservable()
     }
@@ -67,6 +67,18 @@ extension CameraViewRepository: CameraViewInterface {
                 guard let userEntity = $0?.toProfileDomain() else { return }
                 FamilyUserDefaults.saveMemberToUserDefaults(familyMember: userEntity)
             }
+            .compactMap { $0?.toDomain() }
+            .asObservable()
+    }
+    
+    public func fetchRealEmojiImageURL(memberId: String, parameters: CameraRealEmojiParameters) -> Observable<CameraRealEmojiPreSignedResponse?> {
+        return cameraAPIWorker.createRealEmojiPresignedURL(accessToken: accessToken, memberId: memberId, parameters: parameters)
+            .compactMap { $0?.toDomain() }
+            .asObservable()
+    }
+    
+    public func uploadRealEmojiImageToS3(memberId: String, parameters: CameraCreateRealEmojiParameters) -> Observable<CameraCreateRealEmojiResponse?> {
+        return cameraAPIWorker.uploadRealEmojiImageToS3(accessToken: accessToken, memberId: memberId, parameters: parameters)
             .compactMap { $0?.toDomain() }
             .asObservable()
     }

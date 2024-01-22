@@ -7,6 +7,8 @@
 
 import Foundation
 
+import Domain
+
 
 public struct CameraCreateRealEmojiDTO: Decodable {
     
@@ -24,8 +26,11 @@ public struct CameraCreateRealEmojiDTO: Decodable {
 
 
 extension CameraCreateRealEmojiDTO {
-    public func toDomain() -> Void  {
-        
+    public func toDomain() -> CameraCreateRealEmojiResponse  {
+        return .init(
+            realEmojiId: realEmojiId,
+            realEmojiType: realEmojiType,
+            realEmojiImageURL: URL(string: imageURL) ?? URL(fileURLWithPath: ""))
         
         
     }

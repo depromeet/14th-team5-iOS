@@ -185,7 +185,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
                 guard let userInfo = notification.userInfo else { return nil }
                 return userInfo["photo"] as? Data
             }
-            .debug("Notification")
+            .debug("Notification didTapShutter Button")
             .map { Reactor.Action.didTapShutterButton($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -433,7 +433,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
     public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         guard let photoData = photo.fileDataRepresentation(),
         let imageData = UIImage(data: photoData)?.jpegData(compressionQuality: 1.0) else { return }
-        if self.reactor?.cameraType == .profile  {
+        if self.reactor?.cameraType == .profile || self.reactor?.cameraType == .realEmoji {
             output.photoOutputDidFinshProcessing(photo: imageData, error: error)
         } else {
             let cameraDisplayViewController = CameraDisplayDIContainer(displayData: imageData).makeViewController()

@@ -261,7 +261,7 @@ extension HomeViewController {
             .withUnretained(self)
             .bind { owner, _ in
                 MPEvent.Home.cameraTapped.track(with: nil)
-                let cameraViewController = CameraDIContainer(cameraType: .feed).makeViewController()
+                let cameraViewController = CameraDIContainer(cameraType: .realEmoji, memberId: App.Repository.member.memberID.value ?? "" ).makeViewController()
                 owner.navigationController?.pushViewController(cameraViewController, animated: true)
             }.disposed(by: disposeBag)
     }

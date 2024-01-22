@@ -31,7 +31,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
               let components = NSURLComponents(url: incomingURL, resolvingAgainstBaseURL: true) else {
             let cameraDIContainer = CameraDIContainer(cameraType: .realEmoji).makeViewController()
             window = UIWindow(windowScene: scene)
-            window?.rootViewController = UINavigationController(rootViewController: cameraDIContainer)
+            window?.rootViewController = UINavigationController(rootViewController: SplashDIContainer().makeViewController())
             window?.makeKeyAndVisible()
 
             return

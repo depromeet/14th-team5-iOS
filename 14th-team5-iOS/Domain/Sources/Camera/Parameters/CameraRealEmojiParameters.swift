@@ -11,7 +11,7 @@ import Foundation
 public struct CameraRealEmojiParameters: Encodable {
     public var imageName: String
     
-    init(imageName: String) {
+    public init(imageName: String) {
         self.imageName = imageName
     }
 }

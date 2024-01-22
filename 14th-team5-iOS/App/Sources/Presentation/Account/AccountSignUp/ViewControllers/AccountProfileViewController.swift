@@ -191,8 +191,8 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
             $0.setTitle(_Str.buttonTitle, for: .normal)
             $0.titleLabel?.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 16)
             $0.setTitleColor(DesignSystemAsset.black.color, for: .normal)
-            $0.backgroundColor = DesignSystemAsset.mainGreen.color
-            $0.layer.cornerRadius = 30
+            $0.backgroundColor = DesignSystemAsset.mainYellow.color
+            $0.layer.cornerRadius = 28
         }
         
     }

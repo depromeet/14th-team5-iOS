@@ -36,7 +36,7 @@ public final class CalendarPostViewReactor: Reactor {
         var selectedDate: Date
         var blurImageUrl: String?
         @Pulse var displayPost: [PostListSectionModel]
-        var displayCalendar: [String: [CalendarResponse]] // (월: [일자 데이터]) 형식으로 불러온 데이터를 저장
+        @Pulse var displayCalendarResponse: [String: [CalendarResponse]] // (월: [일자 데이터]) 형식으로 불러온 데이터를 저장
         @Pulse var shouldPresentToastMessageView: Bool
     }
     
@@ -61,7 +61,7 @@ public final class CalendarPostViewReactor: Reactor {
         self.initialState = State(
             selectedDate: selection,
             displayPost: [],
-            displayCalendar: [:],
+            displayCalendarResponse: [:],
             shouldPresentToastMessageView: false
         )
         
@@ -121,7 +121,7 @@ public final class CalendarPostViewReactor: Reactor {
         case let .fetchCalendarResponse(yearMonth):
             // 이전에 불러온 적이 없다면
             if !isFetchedResponse.contains(yearMonth) {
-                return calendarUseCase.executeFetchCalednarInfo(yearMonth)
+                return calendarUseCase.executeFetchCalednarResponse(yearMonth: yearMonth)
                     .withUnretained(self)
                     .map {
                         guard let arrayCalendarResponse = $0.1 else {
@@ -156,7 +156,7 @@ public final class CalendarPostViewReactor: Reactor {
             newState.shouldPresentToastMessageView = uploaded
             
         case let .injectCalendarResponse(yearMonth, arrayCalendarResponse):
-            newState.displayCalendar[yearMonth] = arrayCalendarResponse.results
+            newState.displayCalendarResponse[yearMonth] = arrayCalendarResponse.results
             
         case let .injectPostResponse(postResponse):
             newState.displayPost = [

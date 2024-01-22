@@ -11,9 +11,10 @@ import Core
 import Mixpanel
 import DesignSystem
 
+fileprivate typealias _Str = InviteFamilyStrings
 final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkReactor> {
     private let backButton: UIButton = UIButton()
-    private let titleLabel: BibbiLabel = BibbiLabel(.head2Bold, alignment: .center, textColor: .gray300)
+    private let titleLabel: UILabel = UILabel()
     private let linkTextField: UITextField = UITextField()
     private let joinFamilyButton: UIButton = UIButton()
     
@@ -25,8 +26,7 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
     
     override func setupUI() {
         super.setupUI()
-        view.addSubviews(backButton, titleLabel, linkTextField,
-                         joinFamilyButton)
+        view.addSubviews(backButton, titleLabel, linkTextField, joinFamilyButton)
     }
     
     override func setupAutoLayout() {
@@ -38,9 +38,8 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
         }
         
         titleLabel.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(124)
+            $0.top.equalTo(view.safeAreaLayoutGuide).offset(176)
             $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.height.equalTo(24)
         }
         
         linkTextField.snp.makeConstraints {
@@ -67,11 +66,15 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
         }
         
         titleLabel.do {
-            $0.text = "초대받은 링크를 입력해주세요"
+            $0.text = _Str.mainTitle
+            $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 18.0)
+            $0.numberOfLines = 0
+            $0.textAlignment = .center
+            $0.textColor = .gray300
         }
         
         linkTextField.do {
-            $0.makePlaceholderAttributedString(UserDefaults.standard.inviteUrl ?? "https://no5ing.kr/",
+            $0.makePlaceholderAttributedString(UserDefaults.standard.inviteUrl ?? _Str.placeholder,
                                                attributed: [
                 .font: UIFont(font: DesignSystemFontFamily.Pretendard.bold, size: 36)!,
                 .foregroundColor: DesignSystemAsset.gray700.color
@@ -84,10 +87,10 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
         }
         
         joinFamilyButton.do {
-            $0.setTitle("그룹 입장하기", for: .normal)
+            $0.setTitle(_Str.btnTitle, for: .normal)
             $0.titleLabel?.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 16)
             $0.setTitleColor(DesignSystemAsset.black.color, for: .normal)
-            $0.backgroundColor = DesignSystemAsset.mainGreen.color.withAlphaComponent(0.2)
+            $0.backgroundColor = DesignSystemAsset.mainYellow.color.withAlphaComponent(0.2)
             $0.isEnabled = false
             $0.layer.cornerRadius = 28
         }
@@ -135,7 +138,7 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
             .withUnretained(self)
             .bind(onNext: {
                 $0.0.joinFamilyButton.isEnabled = true
-                $0.0.joinFamilyButton.backgroundColor = .mainGreen
+                $0.0.joinFamilyButton.backgroundColor = .mainYellow
             })
             .disposed(by: disposeBag)
         
@@ -144,9 +147,7 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
             .filter { $0 }
             .distinctUntilChanged()
             .withUnretained(self)
-            .bind(onNext: {
-                $0.0.navigationController?.popViewController(animated: true)
-            })
+            .bind(onNext: { $0.0.navigationController?.popViewController(animated: true) })
             .disposed(by: disposeBag)
     }
 }

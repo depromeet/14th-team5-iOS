@@ -17,29 +17,17 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="splashBibbi.png" translatesAutoresizingMaskIntoConstraints="NO" id="Z1E-AM-aIq">
-                                <rect key="frame" x="0.0" y="139" width="393" height="70"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="70" id="ltx-3X-cO0"/>
-                                </constraints>
-                            </imageView>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="splashIcons.png" translatesAutoresizingMaskIntoConstraints="NO" id="Owc-be-Vqd">
-                                <rect key="frame" x="0.0" y="443.66666666666674" width="393" height="314.33333333333326"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" secondItem="Owc-be-Vqd" secondAttribute="height" multiplier="1:0.8" id="JCx-3R-oll"/>
-                                </constraints>
-                                <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="default"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="splash" translatesAutoresizingMaskIntoConstraints="NO" id="NY7-R5-Xo3">
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="Black"/>
                         <constraints>
-                            <constraint firstItem="Z1E-AM-aIq" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="80" id="B8r-bn-z89"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="Owc-be-Vqd" secondAttribute="bottom" constant="60" id="duY-5h-Yiy"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Z1E-AM-aIq" secondAttribute="trailing" id="hFm-Hy-h0P"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Owc-be-Vqd" secondAttribute="trailing" id="n2p-Wl-ccn"/>
-                            <constraint firstItem="Z1E-AM-aIq" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="quV-ww-X3T"/>
-                            <constraint firstItem="Owc-be-Vqd" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="ut1-ax-VxV"/>
+                            <constraint firstItem="NY7-R5-Xo3" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="027-S1-TaX"/>
+                            <constraint firstItem="NY7-R5-Xo3" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="PpP-8L-2Zt"/>
+                            <constraint firstAttribute="trailing" secondItem="NY7-R5-Xo3" secondAttribute="trailing" id="fCJ-NG-4fM"/>
+                            <constraint firstAttribute="bottom" secondItem="NY7-R5-Xo3" secondAttribute="bottom" id="jQW-U5-d3n"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -49,8 +37,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="splashBibbi.png" width="263" height="100"/>
-        <image name="splashIcons.png" width="291" height="272.33334350585938"/>
+        <image name="splash" width="128" height="128"/>
         <namedColor name="Black">
             <color red="0.14117647058823529" green="0.14117647058823529" blue="0.15294117647058825" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>

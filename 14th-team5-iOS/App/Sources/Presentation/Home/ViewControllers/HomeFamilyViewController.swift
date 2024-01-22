@@ -13,7 +13,7 @@ import Domain
 import RxDataSources
 
 final class HomeFamilyViewController: BaseViewController<HomeFamilyViewReactor> {
-    private let inviteFamilyView: InviteFamilyView = InviteFamilyView()
+    private let inviteFamilyView: InviteFamilyView = InviteFamilyView(openType: .makeUrl)
     private let familyCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     private let familyCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let dataSource: RxCollectionViewSectionedReloadDataSource<FamilySection.Model>  = {
@@ -70,10 +70,6 @@ final class HomeFamilyViewController: BaseViewController<HomeFamilyViewReactor> 
             $0.register(FamilyCollectionViewCell.self, forCellWithReuseIdentifier: FamilyCollectionViewCell.id)
             $0.backgroundColor = .clear
             $0.collectionViewLayout = familyCollectionViewLayout
-        }
-        
-        inviteFamilyView.do {
-            $0.setLabel(caption: "이런, 아직 아무도 없군요!", title: "가족 초대하기")
         }
     }
 }

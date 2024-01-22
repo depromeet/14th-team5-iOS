@@ -11,11 +11,8 @@ import Core
 import Data
 import Domain
 
-public final class ImageCalendarCellDIContainer {
-    public typealias UseCase = CalendarUseCaseProtocol
-    public typealias Repository = CalendarRepositoryProtocol
-    public typealias Reactor = ImageCalendarCellReactor
-    
+final public class ImageCalendarCellDIContainer {
+    // MARK: - Properties
     public let type: ImageCalendarCellReactor.CalendarType
     public let isSelected: Bool
     public let dayResponse: CalendarResponse
@@ -27,6 +24,7 @@ public final class ImageCalendarCellDIContainer {
         return appDelegate.globalStateProvider
     }
     
+    // MARK: - Intializer
     public init(
         _ type: ImageCalendarCellReactor.CalendarType,
         isSelected: Bool = false,
@@ -37,15 +35,16 @@ public final class ImageCalendarCellDIContainer {
         self.dayResponse = dayResponse
     }
     
-    public func makeUseCase() -> UseCase {
+    // MARK: - Make
+    public func makeUseCase() -> CalendarUseCaseProtocol {
         return CalendarUseCase(calendarRepository: makeRepository())
     }
     
-    public func makeRepository() -> Repository {
+    public func makeRepository() -> CalendarRepositoryProtocol {
         return CalendarRepository()
     }
     
-    public func makeReactor() -> Reactor {
+    public func makeReactor() -> ImageCalendarCellReactor {
         return ImageCalendarCellReactor(
             type,
             isSelected: isSelected,

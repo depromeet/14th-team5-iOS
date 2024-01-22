@@ -9,6 +9,7 @@ import Core
 import DesignSystem
 import UIKit
 
+fileprivate typealias _Str = FamilyManagementStrings
 public final class InvitationUrlContainerView: BaseView<InvitationUrlContainerViewReactor> {
     // MARK: - Views
     private let shareContainerView: UIView = UIView()
@@ -106,11 +107,11 @@ public final class InvitationUrlContainerView: BaseView<InvitationUrlContainerVi
         shareContainerView.do {
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = 16
-            $0.backgroundColor = .gray800
+            $0.backgroundColor = UIColor.gray800
         }
         
         envelopeImageView.do {
-            $0.image = DesignSystemAsset.envelopeBackground.image
+            $0.image = DesignSystemAsset.envelope.image
             $0.contentMode = .scaleAspectFit
         }
         
@@ -122,11 +123,11 @@ public final class InvitationUrlContainerView: BaseView<InvitationUrlContainerVi
         }
         
         invitationDescLabel.do {
-            $0.text = FamilyManagementStrings.inviteDescText
+            $0.text = _Str.inviteDescText
         }
         
         invitationUrlLabel.do {
-            $0.text = FamilyManagementStrings.invitationUrlText
+            $0.text = _Str.invitationUrlText
         }
         
         shareLineImageView.do {
@@ -136,7 +137,7 @@ public final class InvitationUrlContainerView: BaseView<InvitationUrlContainerVi
         }
         
         indicatorView.do {
-            $0.color = .bibbiWhite
+            $0.color = UIColor.bibbiWhite
             $0.isHidden = true
             $0.style = .medium
         }

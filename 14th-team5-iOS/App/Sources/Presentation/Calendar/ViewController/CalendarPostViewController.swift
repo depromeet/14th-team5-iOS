@@ -175,7 +175,10 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         reactor.pulse(\.$shouldPresentPostCommentSheet)
             .withUnretained(self)
             .subscribe {
-                let postCommentVC = PostCommentDIContainer(commentCount: $0.1).makeViewController()
+                let postCommentVC = PostCommentDIContainer(
+                    postId: $0.1.0,
+                    commentCount: $0.1.1
+                ).makeViewController()
                 $0.0.present(postCommentVC, animated: true)
             }
             .disposed(by: disposeBag)

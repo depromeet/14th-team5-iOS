@@ -45,21 +45,38 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
     }
     
     private func bindInput(reactor: PostCommentViewReactor) { 
-        Observable<Void>.merge(
-            commentTableView.rx.tap.asObservable(),
-            navigationBarView.rx.tap.asObservable()
-        )
-        .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-        .withUnretained(self)
-        .subscribe {
-            $0.0.commentTextField.resignFirstResponder()
-        }
-        .disposed(by: disposeBag)
+        Observable<Void>.just(())
+            .map { Reactor.Action.fetchPostComment }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        commentTableView.rx.tap
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.commentTextField.resignFirstResponder()
+            }
+            .disposed(by: disposeBag)
+        
+        commentTextField.rx.text.orEmpty
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .withUnretained(self)
+            .subscribe {
+                guard let button = $0.0.commentTextField.rightView as? UIButton else {
+                    return
+                }
+                
+                if $0.1.isEmpty {
+                    button.isEnabled = false
+                } else {
+                    button.isEnabled = true
+                }
+            }
+            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: PostCommentViewReactor) {
-        let testData = PostCommentSectionModel.generateTestData()
-        Observable.just(testData)
+        reactor.state.map { $0.displayComment }
             .distinctUntilChanged()
             .bind(to: commentTableView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
@@ -183,6 +200,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
         }
         
         createCommentButton.do {
+            $0.isEnabled = false
             $0.setTitle("등록", for: .normal)
             $0.tintColor = UIColor.mainGreen
         }

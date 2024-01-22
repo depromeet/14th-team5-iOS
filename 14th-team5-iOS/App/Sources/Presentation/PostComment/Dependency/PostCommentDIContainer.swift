@@ -6,6 +6,8 @@
 //
 
 import Core
+import Data
+import Domain
 import UIKit
 
 public final class PostCommentDIContainer {
@@ -17,10 +19,12 @@ public final class PostCommentDIContainer {
         return appDelegate.globalStateProvider
     }
     
+    private var postId: String
     private var commentCount: Int
     
     // MARK: - Intializer
-    public init(commentCount: Int) {
+    public init(postId: String, commentCount: Int) {
+        self.postId = postId
         self.commentCount = commentCount
     }
     
@@ -29,9 +33,20 @@ public final class PostCommentDIContainer {
         return PostCommentViewController(reactor: makeReactor())
     }
     
+    public func makePostCommentRespository() -> PostCommentRepositoryProtocol {
+        return PostCommentRepository()
+    }
+    
+    public func makePostCommentUseCase() -> PostCommentUseCaseProtocol {
+        return PostCommentUseCase(postCommentRepository: makePostCommentRespository())
+    }
+    
+    
     public func makeReactor() -> PostCommentViewReactor {
         return PostCommentViewReactor(
+            postId: postId,
             commentCount: commentCount,
+            postCommentUseCase: makePostCommentUseCase(),
             provider: globalState
         )
     }

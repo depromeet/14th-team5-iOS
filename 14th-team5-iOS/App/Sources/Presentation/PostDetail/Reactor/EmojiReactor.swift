@@ -109,8 +109,9 @@ extension EmojiReactor {
                 .flatMap { _ in Observable<Mutation>.empty() }
 
         case .tappedCommentButton:
+            let postId: String = currentState.post.postId
             let commentCount: Int = 3
-            provider.postGlobalState.presentPostCommentSheet(commentCount)
+            provider.postGlobalState.presentPostCommentSheet(postId, commentCount: commentCount)
             return Observable<Mutation>.empty()
         }
     }

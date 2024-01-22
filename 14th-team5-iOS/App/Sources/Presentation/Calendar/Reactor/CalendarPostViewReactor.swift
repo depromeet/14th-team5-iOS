@@ -27,7 +27,7 @@ public final class CalendarPostViewReactor: Reactor {
     public enum Mutation {
         case setupBlurImageView(Int)
         case setupToastMessageView(Bool)
-        case setupPostCommentSheet(Int)
+        case setupPostCommentSheet(String, Int)
         case injectCalendarResponse(String, ArrayResponseCalendarResponse)
         case injectPostResponse([PostListData])
     }
@@ -39,7 +39,7 @@ public final class CalendarPostViewReactor: Reactor {
         @Pulse var displayPost: [PostListSectionModel]
         @Pulse var displayCalendarResponse: [String: [CalendarResponse]] // (월: [일자 데이터]) 형식으로 불러온 데이터를 저장
         @Pulse var shouldPresentToastMessageView: Bool
-        @Pulse var shouldPresentPostCommentSheet: Int
+        @Pulse var shouldPresentPostCommentSheet: (String, Int)
     }
     
     // MARK: - Properties
@@ -65,7 +65,7 @@ public final class CalendarPostViewReactor: Reactor {
             displayPost: [],
             displayCalendarResponse: [:],
             shouldPresentToastMessageView: false,
-            shouldPresentPostCommentSheet: 0
+            shouldPresentPostCommentSheet: (.none, 0)
         )
         
         self.calendarUseCase = calendarUseCase
@@ -86,8 +86,8 @@ public final class CalendarPostViewReactor: Reactor {
         let postMutation = provider.postGlobalState.event
             .flatMap {
                 switch $0 {
-                case let .presentPostCommentSheet(commentCount):
-                    return Observable<Mutation>.just(.setupPostCommentSheet(commentCount))
+                case let .presentPostCommentSheet(postId, commentCount):
+                    return Observable<Mutation>.just(.setupPostCommentSheet(postId, commentCount))
                 }
             }
         
@@ -166,8 +166,8 @@ public final class CalendarPostViewReactor: Reactor {
         case let .setupToastMessageView(uploaded):
             newState.shouldPresentToastMessageView = uploaded
             
-        case let .setupPostCommentSheet(commentCount):
-            newState.shouldPresentPostCommentSheet = commentCount
+        case let .setupPostCommentSheet(psotId, commentCount):
+            newState.shouldPresentPostCommentSheet = (psotId, commentCount)
             
         case let .injectCalendarResponse(yearMonth, arrayCalendarResponse):
             newState.displayCalendarResponse[yearMonth] = arrayCalendarResponse.results

@@ -82,4 +82,10 @@ extension CameraViewRepository: CameraViewInterface {
             .compactMap { $0?.toDomain() }
             .asObservable()
     }
+    
+    public func fetchRealEmojiItems(memberId: String) -> Observable<CameraRealEmojiImageItemResponse?> {
+        return cameraAPIWorker.loadRealEmojiImage(accessToken: accessToken, memberId: memberId)
+            .compactMap { $0?.toDomain() }
+            .asObservable()
+    }
 }

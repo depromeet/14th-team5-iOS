@@ -35,6 +35,7 @@ public final class CameraViewReactor: Reactor {
         case setProfileMemberResponse(ProfileMemberResponse?)
         case setRealEmojiImageURLResponse(CameraRealEmojiPreSignedResponse?)
         case setRealEmojiImageCreateResponse(CameraCreateRealEmojiResponse?)
+        case setRealEmojiItems(CameraRealEmojiImageItemResponse?)
         case setErrorAlert(Bool)
     }
     
@@ -45,6 +46,7 @@ public final class CameraViewReactor: Reactor {
         @Pulse var profileImageURLEntity: CameraDisplayImageResponse?
         @Pulse var realEmojiURLEntity: CameraRealEmojiPreSignedResponse?
         @Pulse var realEmojiCreateEntity: CameraCreateRealEmojiResponse?
+        @Pulse var realEmojiEntity: CameraRealEmojiImageItemResponse?
         var cameraType: UploadLocation = .feed
         var accountImage: Data?
         var memberId: String
@@ -67,6 +69,7 @@ public final class CameraViewReactor: Reactor {
             profileImageURLEntity: nil,
             realEmojiURLEntity: nil,
             realEmojiCreateEntity: nil,
+            realEmojiEntity: nil,
             cameraType: cameraType,
             accountImage: nil,
             memberId: memberId,
@@ -74,7 +77,6 @@ public final class CameraViewReactor: Reactor {
             isError: false,
             profileMemberEntity: nil
         )
-        
         print("currentState Camera Type: \(self.currentState.cameraType) or memberID: \(self.currentState.memberId)")
     }
     
@@ -117,6 +119,8 @@ public final class CameraViewReactor: Reactor {
         case let .setRealEmojiImageCreateResponse(entity):
             newState.realEmojiCreateEntity = entity
             print("RealEmoji Create Entity: \(newState.realEmojiCreateEntity)")
+        case let .setRealEmojiItems(items):
+            newState.realEmojiEntity = items
         case let .setErrorAlert(isError):
             newState.isError = isError
         }
@@ -242,3 +246,6 @@ extension CameraViewReactor {
     }
     
 }
+
+
+//Real Emoji 촬영이 끝날때마다 조회 API호출해서 Reload 하도록 해야함

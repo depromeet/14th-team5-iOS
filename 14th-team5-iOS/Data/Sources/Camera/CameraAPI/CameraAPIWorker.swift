@@ -120,5 +120,20 @@ extension CameraAPIWorker {
             .catchAndReturn(nil)
             .asSingle()
     }
+    
+    public func loadRealEmojiImage(accessToken: String, memberId: String) -> Single<CameraRealEmojiImageItemDTO?> {
+        let spec = CameraAPIs.reloadRealEmoji(memberId).spec
+        
+        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)])
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Real Emoji Items Result: \(str)")
+                }
+            }
+            .map(CameraRealEmojiImageItemDTO.self)
+            .catchAndReturn(nil)
+            .asSingle()
+    }
 }
 

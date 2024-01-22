@@ -17,6 +17,7 @@ public enum CameraAPIs: API {
     case editProfileImage(String)
     case uploadRealEmojiURL(String)
     case updateRealEmojiImage(String)
+    case reloadRealEmoji(String)
     
     var spec: APISpec {
         switch self {
@@ -33,6 +34,8 @@ public enum CameraAPIs: API {
         case let .uploadRealEmojiURL(memberId):
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/members/\(memberId)/real-emoji/image-upload-request")
         case let .updateRealEmojiImage(memberId):
+            return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/members/\(memberId)/real-emoji")
+        case let .reloadRealEmoji(memberId):
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/members/\(memberId)/real-emoji")
         }
     }

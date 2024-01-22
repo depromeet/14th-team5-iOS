@@ -14,7 +14,7 @@ import DesignSystem
 fileprivate typealias _Str = InviteFamilyStrings
 final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkReactor> {
     private let backButton: UIButton = UIButton()
-    private let titleLabel: BibbiLabel = BibbiLabel(.head2Bold, alignment: .center, textColor: .gray300)
+    private let titleLabel: UILabel = UILabel()
     private let linkTextField: UITextField = UITextField()
     private let joinFamilyButton: UIButton = UIButton()
     
@@ -67,6 +67,10 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
         
         titleLabel.do {
             $0.text = _Str.mainTitle
+            $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 18.0)
+            $0.numberOfLines = 0
+            $0.textAlignment = .center
+            $0.textColor = .gray300
         }
         
         linkTextField.do {

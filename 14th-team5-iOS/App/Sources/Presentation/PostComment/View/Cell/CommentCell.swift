@@ -43,8 +43,27 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: CommentCellReactor) { }
+    private func bindInput(reactor: CommentCellReactor) { 
+        Observable<Void>.just(())
+            .map { Reactor.Action.fetchUserName }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        Observable<Void>.just(())
+            .map { Reactor.Action.fetchProfileImageUrlString }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+    }
     private func bindOutput(reactor: CommentCellReactor) {
+        reactor.state.map { $0.userName }
+            .distinctUntilChanged()
+            .bind(to: userNameLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.profileImageUrlString }
+            .distinctUntilChanged()
+            .bind(to: profileImageView.rx.kingfisherImage)
+            .disposed(by: disposeBag)
     }
     
     public override func setupUI() {

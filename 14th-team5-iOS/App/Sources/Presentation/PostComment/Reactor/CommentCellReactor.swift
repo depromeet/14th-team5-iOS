@@ -60,6 +60,30 @@ final public class CommentCellReactor: Reactor {
         
         self.postCommentUseCase = postCommentUseCase
     }
+    
+    // MARK: - Mutate
+    public func mutate(action: Action) -> Observable<Mutation> {
+        switch action {
+        case .fetchUserName:
+            let userName = postCommentUseCase.executeFetchUserName(memberId: initialState.memberId)
+            return Observable<Mutation>.just(.injectUserName(userName))
+        case .fetchProfileImageUrlString:
+            let urlString = postCommentUseCase.executeFetchProfileImageUrlString(memberId: initialState.memberId)
+            return Observable<Mutation>.just(.injectProfileImageUrlString(urlString))
+        }
+    }
+    
+    // MARK: - Reduce
+    public func reduce(state: State, mutation: Mutation) -> State {
+        var newState = state
+        switch mutation {
+        case let .injectUserName(userName):
+            newState.userName = userName
+        case let .injectProfileImageUrlString(urlString):
+            newState.profileImageUrlString = urlString
+        }
+        return newState
+    }
 }
 
 extension CommentCellReactor: IdentifiableType, Equatable {

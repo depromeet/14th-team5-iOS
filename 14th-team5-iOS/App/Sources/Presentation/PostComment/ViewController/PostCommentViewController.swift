@@ -84,11 +84,6 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
     }
     
     private func bindOutput(reactor: PostCommentViewReactor) {
-        reactor.state.map { $0.displayComment }
-            .distinctUntilChanged()
-            .bind(to: commentTableView.rx.items(dataSource: dataSource))
-            .disposed(by: disposeBag)
-        
         reactor.state.map { $0.commentCount >= 0 }
             .distinctUntilChanged()
             .bind(to: noCommentLabel.rx.isHidden)
@@ -142,6 +137,8 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
                 }
             }
             .disposed(by: disposeBag)
+        
+        bindingDatasource(reactor: reactor)
     }
     
     public override func setupUI() {
@@ -232,5 +229,27 @@ extension PostCommentViewController {
             cell.reactor = reactor
             return cell
         }
+    }
+    
+    private func bindingDatasource(reactor: PostCommentViewReactor) {
+        dataSource.canEditRowAtIndexPath = { dataSource, indexPath in
+            let myMemberId = App.Repository.member.memberID.value
+            let cellMemberId = dataSource[indexPath].currentState.memberId
+            return myMemberId == cellMemberId
+        }
+        
+        reactor.state.map { $0.displayComment }
+            .distinctUntilChanged()
+            .bind(to: commentTableView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        commentTableView.rx.itemDeleted
+            .withUnretained(self)
+            .map {
+                let commentId = $0.0.dataSource[$0.1].currentState.commentId
+                return Reactor.Action.deletePostComment(commentId)
+            }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
 }

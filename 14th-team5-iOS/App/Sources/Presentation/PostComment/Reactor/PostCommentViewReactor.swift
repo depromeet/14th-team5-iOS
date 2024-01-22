@@ -17,14 +17,14 @@ final public class PostCommentViewReactor: Reactor {
     public enum Action { 
         case fetchPostComment
         case createPostComment(String?)
-        case deletePostComment
+        case deletePostComment(String)
     }
     
     // MARK: - Mutation
     public enum Mutation { 
         case injectPostComment([CommentCellReactor])
         case appendPostComment(CommentCellReactor)
-        case removePostComment(Bool)
+        case removePostComment(String)
         case clearCommentTextField
     }
     
@@ -71,7 +71,6 @@ final public class PostCommentViewReactor: Reactor {
                     guard let commentResponseArray = $0 else {
                         return .injectPostComment([])
                     }
-                    debugPrint("== 가져온 댓글: \(commentResponseArray)")
                     let reactors = commentResponseArray.results.map { CommentCellReactor($0, postCommentUseCase: self.postCommentUseCase)
                     }
                     return .injectPostComment(reactors)
@@ -90,8 +89,17 @@ final public class PostCommentViewReactor: Reactor {
                         Observable<Mutation>.just(.appendPostComment(reactor))
                     )
                 }
-        case .deletePostComment:
-            return Observable<Mutation>.empty()
+        case let .deletePostComment(commentId):
+            let postId = initialState.postId
+            return postCommentUseCase.executeDeletePostComment(postId: postId, commentId: commentId)
+                .flatMap {
+                    guard let deleteSuccessResponse = $0,
+                          deleteSuccessResponse.success else {
+                        // TODO: - ToastMessage로 바꾸기
+                        return Observable<Mutation>.empty()
+                    }
+                    return Observable<Mutation>.just(.removePostComment(commentId))
+                }
         }
     }
     
@@ -105,11 +113,16 @@ final public class PostCommentViewReactor: Reactor {
             guard var dataSource = newState.displayComment.first else {
                 break
             }
-            debugPrint("= 댓글 업로드: \(reactor)")
             dataSource.items.append(reactor)
             newState.displayComment = [dataSource]
-        case let .removePostComment(success):
-            break
+        case let .removePostComment(commentId):
+            guard var dataSource = newState.displayComment.first else {
+                break
+            }
+            dataSource.items.removeAll(where: {
+                $0.currentState.commentId == commentId
+            })
+            newState.displayComment = [dataSource]
         case .clearCommentTextField:
             newState.shouldClearCommentTextField = true
         }

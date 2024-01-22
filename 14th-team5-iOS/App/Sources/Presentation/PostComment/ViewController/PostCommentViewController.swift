@@ -21,7 +21,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
     private let commentTableView: UITableView = UITableView()
     
     private let commentTextField: UITextField = UITextField()
-    private let textFieldStroke: UIView = UIView()
+    private let textFieldContainerView: UIView = UIView()
     private let createCommentButton: UIButton = UIButton(type: .system)
     
     // MARK: - Properties
@@ -55,7 +55,6 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             $0.0.commentTextField.resignFirstResponder()
         }
         .disposed(by: disposeBag)
-
     }
     
     private func bindOutput(reactor: PostCommentViewReactor) {
@@ -69,6 +68,46 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             .distinctUntilChanged()
             .bind(to: noCommentLabel.rx.isHidden)
             .disposed(by: disposeBag)
+        
+        let keyboardWillShow = NotificationCenter.default.rx.notification(UIResponder.keyboardWillShowNotification)
+            .flatMap { notification in
+                guard let value = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {
+                    return Observable<CGFloat>.just(0)
+                }
+                return Observable<CGFloat>.just(value.cgRectValue.height)
+            }
+        
+        keyboardWillShow
+            .withUnretained(self)
+            .subscribe { `self`, height in
+                let safeAreaHeight = self.view.safeAreaInsets.bottom
+                let keyboardHeight = -height + safeAreaHeight
+                UIView.animate(withDuration: 1.0) {
+                    self.textFieldContainerView.snp.updateConstraints {
+                        $0.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom).offset(keyboardHeight)
+                    }
+                    self.view.layoutIfNeeded()
+                }
+                print(keyboardHeight)
+            }
+            .disposed(by: disposeBag)
+        
+        let keyboardWillHide = NotificationCenter.default.rx.notification(UIResponder.keyboardWillHideNotification)
+            .flatMap { notification in
+                return Observable<CGFloat>.just(0)
+            }
+        
+        keyboardWillHide
+            .withUnretained(self)
+            .subscribe { `self`, height in
+                UIView.animate(withDuration: 2.25) {
+                    self.textFieldContainerView.snp.updateConstraints {
+                        $0.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom).offset(0)
+                    }
+                    self.view.layoutIfNeeded()
+                }
+            }
+            .disposed(by: disposeBag)
     }
     
     public override func setupUI() {
@@ -76,9 +115,9 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
         
         view.addSubviews(
             navigationBarView, commentTableView,
-            noCommentLabel, textFieldStroke
+            noCommentLabel, textFieldContainerView
         )
-        textFieldStroke.addSubview(commentTextField)
+        textFieldContainerView.addSubview(commentTextField)
     }
     
     public override func setupAutoLayout() {
@@ -92,7 +131,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
         
         noCommentLabel.snp.makeConstraints {
             $0.top.equalTo(navigationBarView.snp.bottom)
-            $0.bottom.equalTo(textFieldStroke.snp.top).offset(-5)
+            $0.bottom.equalTo(textFieldContainerView.snp.top).offset(-5)
             $0.horizontalEdges.equalToSuperview()
         }
         
@@ -101,11 +140,11 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             $0.horizontalEdges.equalToSuperview()
         }
         
-        textFieldStroke.snp.makeConstraints {
+        textFieldContainerView.snp.makeConstraints {
             $0.height.equalTo(46)
-            $0.top.equalTo(commentTableView.snp.bottom).offset(5)
-            $0.horizontalEdges.equalToSuperview().inset(10)
-            $0.bottom.equalTo(view.keyboardLayoutGuide.snp.top).offset(-5)
+            $0.top.equalTo(commentTableView.snp.bottom)
+            $0.horizontalEdges.equalToSuperview()
+            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(0)
         }
         
         commentTextField.snp.makeConstraints {
@@ -117,11 +156,8 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
     public override func setupAttributes() {
         super.setupAttributes()
         
-        textFieldStroke.do {
-            $0.layer.cornerRadius = 46 / 2
-            $0.layer.borderWidth = 1
-            $0.layer.borderColor = UIColor.gray500.cgColor
-            $0.backgroundColor = UIColor.clear
+        textFieldContainerView.do {
+            $0.backgroundColor = UIColor.gray900
         }
         
         commentTableView.do {
@@ -139,7 +175,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             $0.textColor = UIColor.bibbiWhite
             $0.attributedPlaceholder = NSAttributedString(
                 string: "댓글 달기...",
-                attributes: [.foregroundColor: UIColor.gray500]
+                attributes: [.foregroundColor: UIColor.gray300]
             )
             $0.backgroundColor = UIColor.clear
             $0.rightView = createCommentButton

@@ -8,8 +8,9 @@
 import Core
 import UIKit
 
-import RxSwift
+import RxCocoa
 import RxDataSources
+import RxSwift
 import Then
 import SnapKit
 
@@ -60,19 +61,9 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             .disposed(by: disposeBag)
         
         commentTextField.rx.text.orEmpty
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .withUnretained(self)
-            .subscribe {
-                guard let button = $0.0.commentTextField.rightView as? UIButton else {
-                    return
-                }
-                
-                if $0.1.isEmpty {
-                    button.isEnabled = false
-                } else {
-                    button.isEnabled = true
-                }
-            }
+            .skip(while: { $0.isEmpty })
+            .map { Reactor.Action.inputComment($0) }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         createCommentButton.rx.tap
@@ -110,6 +101,23 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
         reactor.state.map { $0.commentCount >= 0 }
             .distinctUntilChanged()
             .bind(to: noCommentLabel.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        let inputComment = reactor.state.map({ $0.inputComment }).asDriver(onErrorJustReturn: .none)
+        
+        inputComment
+            .distinctUntilChanged()
+            .drive(commentTextField.rx.text)
+            .disposed(by: disposeBag)
+        
+        inputComment
+            .distinctUntilChanged()
+            .drive(with: self) {
+                guard let button = $0.commentTextField.rightView as? UIButton else {
+                    return
+                }
+                button.isEnabled = !$1.isEmpty
+            }
             .disposed(by: disposeBag)
         
         
@@ -193,6 +201,8 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             $0.verticalEdges.equalToSuperview()
             $0.horizontalEdges.equalToSuperview().inset(15)
         }
+        
+        commentTextField.becomeFirstResponder()
     }
     
     public override func setupAttributes() {

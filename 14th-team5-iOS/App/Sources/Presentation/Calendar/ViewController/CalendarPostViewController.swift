@@ -190,7 +190,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
                     } else {
                         sheet.detents = [.medium(), .large()]
                     }
-                    sheet.prefersGrabberVisible = true
                     sheet.prefersScrollingExpandsWhenScrolledToEdge = false
                 }
                 

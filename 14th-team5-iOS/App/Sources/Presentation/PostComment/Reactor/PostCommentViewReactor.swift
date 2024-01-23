@@ -15,6 +15,7 @@ import RxSwift
 final public class PostCommentViewReactor: Reactor {
     // MARK: - Action
     public enum Action { 
+        case inputComment(String)
         case fetchPostComment
         case createPostComment(String?)
         case deletePostComment(String)
@@ -24,6 +25,7 @@ final public class PostCommentViewReactor: Reactor {
     
     // MARK: - Mutation
     public enum Mutation { 
+        case injectComment(String)
         case injectPostComment([CommentCellReactor])
         case appendPostComment(CommentCellReactor)
         case removePostComment(String)
@@ -36,6 +38,8 @@ final public class PostCommentViewReactor: Reactor {
     public struct State {
         var postId: String
         var commentCount: Int
+        
+        var inputComment: String
         @Pulse var displayComment: [PostCommentSectionModel]
         @Pulse var shouldScrollToLast: Int
         @Pulse var shouldClearCommentTextField: Bool
@@ -48,6 +52,8 @@ final public class PostCommentViewReactor: Reactor {
     public var postCommentUseCase: PostCommentUseCaseProtocol
     public var provider: GlobalStateProviderProtocol
     
+    private var isFirstEvent: Bool = true
+    
     // MARK: - Intializer
     public init(
         postId: String,
@@ -58,6 +64,7 @@ final public class PostCommentViewReactor: Reactor {
         self.initialState = State(
             postId: postId,
             commentCount: commentCount,
+            inputComment: "",
             displayComment: [.init(model: .none, items: [])],
             shouldScrollToLast: 0,
             shouldClearCommentTextField: false,
@@ -68,9 +75,34 @@ final public class PostCommentViewReactor: Reactor {
         self.provider = provider
     }
     
+    // MARK: - Transform
+    public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+        let inputMutation = provider.postGlobalState.input
+            .withUnretained(self)
+            .flatMap {
+                let postId = $0.0.currentState.postId
+                // 처음 시트가 열리고
+                if $0.0.isFirstEvent  {
+                    // Post Id가 동일하고 텍스트가 있으면
+                    if $0.1.0 == postId && !$0.1.1.isEmpty {
+                        $0.0.isFirstEvent = false // 이후 불필요한 스트림 막기
+                        return Observable<Mutation>.just(.injectComment($0.1.1))
+                    }
+                }
+                return Observable<Mutation>.empty()
+            }
+        
+        return Observable<Mutation>.merge(mutation, inputMutation)
+    }
+    
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
+        case let .inputComment(text):
+            let postId = currentState.postId
+            provider.postGlobalState.storeCommentText(postId, text: text)
+            return Observable<Mutation>.just(.injectComment(text))
+            
         case .fetchPostComment:
             let postId = currentState.postId
             let query = PostCommentPaginationQuery(page: 1)
@@ -134,6 +166,9 @@ final public class PostCommentViewReactor: Reactor {
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
+        case let .injectComment(text):
+            newState.inputComment = text
+            
         case let .injectPostComment(reactor):
             newState.displayComment = [.init(model: .none, items: reactor)]
             

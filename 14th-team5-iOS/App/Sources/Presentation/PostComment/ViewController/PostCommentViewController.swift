@@ -52,13 +52,16 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        commentTableView.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .withUnretained(self)
-            .subscribe {
-                $0.0.commentTextField.resignFirstResponder()
-            }
-            .disposed(by: disposeBag)
+        Observable.merge(
+            commentTableView.rx.tap.asObservable(),
+            noCommentLabel.rx.tap.asObservable()
+        )
+        .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+        .withUnretained(self)
+        .subscribe {
+            $0.0.commentTextField.resignFirstResponder()
+        }
+        .disposed(by: disposeBag)
         
         commentTextField.rx.text.orEmpty
             .skip(while: { $0.isEmpty })

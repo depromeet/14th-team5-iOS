@@ -171,6 +171,7 @@ final public class PostCommentViewReactor: Reactor {
             
         case let .injectPostComment(reactor):
             newState.displayComment = [.init(model: .none, items: reactor)]
+            newState.commentCount = reactor.count
             
         case let .appendPostComment(reactor):
             guard var dataSource = newState.displayComment.first else {

@@ -98,7 +98,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
     }
     
     private func bindOutput(reactor: PostCommentViewReactor) {
-        reactor.state.map { $0.commentCount >= 0 }
+        reactor.state.map { $0.commentCount != 0 }
             .distinctUntilChanged()
             .bind(to: noCommentLabel.rx.isHidden)
             .disposed(by: disposeBag)
@@ -174,8 +174,8 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
         super.setupAutoLayout()
         
         navigationBarView.snp.makeConstraints {
-            $0.height.equalTo(42)
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(18)
+            $0.height.equalTo(60)
+            $0.top.equalToSuperview()
             $0.horizontalEdges.equalToSuperview()
         }
         

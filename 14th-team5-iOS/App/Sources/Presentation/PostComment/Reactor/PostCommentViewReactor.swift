@@ -178,6 +178,7 @@ final public class PostCommentViewReactor: Reactor {
             }
             dataSource.items.append(reactor)
             newState.displayComment = [dataSource]
+            newState.commentCount = dataSource.items.count
             
         case let .removePostComment(commentId):
             guard var dataSource = newState.displayComment.first else {
@@ -187,6 +188,7 @@ final public class PostCommentViewReactor: Reactor {
                 $0.currentState.commentId == commentId
             })
             newState.displayComment = [dataSource]
+            newState.commentCount = dataSource.items.count
             
         case .scrollToLast:
             guard var dataSource = newState.displayComment.first else {

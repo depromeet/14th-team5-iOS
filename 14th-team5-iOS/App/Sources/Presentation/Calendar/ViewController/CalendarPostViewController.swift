@@ -179,6 +179,21 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
                     postId: $0.1.0,
                     commentCount: $0.1.1
                 ).makeViewController()
+                
+                if let sheet = postCommentVC.sheetPresentationController {
+                    if #available(iOS 16.0, *) {
+                        let customId = UISheetPresentationController.Detent.Identifier("customId")
+                        let customDetents = UISheetPresentationController.Detent.custom(identifier: customId) {
+                            return $0.maximumDetentValue * 0.85
+                        }
+                        sheet.detents = [customDetents, .large()]
+                    } else {
+                        sheet.detents = [.medium(), .large()]
+                    }
+                    sheet.prefersGrabberVisible = true
+                    sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+                }
+                
                 $0.0.present(postCommentVC, animated: true)
             }
             .disposed(by: disposeBag)

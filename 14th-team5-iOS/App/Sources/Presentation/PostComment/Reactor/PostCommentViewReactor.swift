@@ -18,6 +18,8 @@ final public class PostCommentViewReactor: Reactor {
         case fetchPostComment
         case createPostComment(String?)
         case deletePostComment(String)
+        case keyboardWillShow(CGFloat)
+        case keyboardWillHide
     }
     
     // MARK: - Mutation
@@ -25,7 +27,9 @@ final public class PostCommentViewReactor: Reactor {
         case injectPostComment([CommentCellReactor])
         case appendPostComment(CommentCellReactor)
         case removePostComment(String)
+        case scrollToLast
         case clearCommentTextField
+        case setupTableViewOffset(CGFloat)
     }
     
     // MARK: - State
@@ -33,7 +37,9 @@ final public class PostCommentViewReactor: Reactor {
         var postId: String
         var commentCount: Int
         @Pulse var displayComment: [PostCommentSectionModel]
+        @Pulse var shouldScrollToLast: Int
         @Pulse var shouldClearCommentTextField: Bool
+        var tableViewBottomOffset: CGFloat
     }
     
     // MARK: - Properties
@@ -53,7 +59,9 @@ final public class PostCommentViewReactor: Reactor {
             postId: postId,
             commentCount: commentCount,
             displayComment: [.init(model: .none, items: [])],
-            shouldClearCommentTextField: false
+            shouldScrollToLast: 0,
+            shouldClearCommentTextField: false,
+            tableViewBottomOffset: 0
         )
         
         self.postCommentUseCase = postCommentUseCase
@@ -67,14 +75,19 @@ final public class PostCommentViewReactor: Reactor {
             let postId = currentState.postId
             let query = PostCommentPaginationQuery(page: 1)
             return postCommentUseCase.executeFetchPostComment(postId: postId, query: query)
-                .map {
-                    guard let commentResponseArray = $0 else {
-                        return .injectPostComment([])
+                .flatMap {
+                    guard let commentResponseArray = $0,
+                          !commentResponseArray.results.isEmpty else {
+                        return Observable<Mutation>.just(.injectPostComment([]))
                     }
                     let reactors = commentResponseArray.results.map { CommentCellReactor($0, postCommentUseCase: self.postCommentUseCase)
                     }
-                    return .injectPostComment(reactors)
+                    return Observable.concat(
+                        Observable<Mutation>.just(.injectPostComment(reactors)),
+                        Observable<Mutation>.just(.scrollToLast)
+                    )
                 }
+            
         case let .createPostComment(comment):
             let postId = initialState.postId
             let body = CreatePostCommentBody(content: comment ?? "")
@@ -86,9 +99,11 @@ final public class PostCommentViewReactor: Reactor {
                     let reactor = CommentCellReactor(commentResponse, postCommentUseCase: self.postCommentUseCase)
                     return Observable.concat(
                         Observable<Mutation>.just(.clearCommentTextField),
-                        Observable<Mutation>.just(.appendPostComment(reactor))
+                        Observable<Mutation>.just(.appendPostComment(reactor)),
+                        Observable<Mutation>.just(.scrollToLast)
                     )
                 }
+            
         case let .deletePostComment(commentId):
             let postId = initialState.postId
             return postCommentUseCase.executeDeletePostComment(postId: postId, commentId: commentId)
@@ -100,6 +115,18 @@ final public class PostCommentViewReactor: Reactor {
                     }
                     return Observable<Mutation>.just(.removePostComment(commentId))
                 }
+            
+        case let .keyboardWillShow(height):
+            return Observable.concat(
+                Observable<Mutation>.just(.setupTableViewOffset(height)),
+                Observable<Mutation>.just(.scrollToLast)
+            )
+            
+        case .keyboardWillHide:
+            return Observable.concat(
+                Observable<Mutation>.just(.setupTableViewOffset(.zero)),
+                Observable<Mutation>.just(.scrollToLast)
+            )
         }
     }
     
@@ -109,12 +136,14 @@ final public class PostCommentViewReactor: Reactor {
         switch mutation {
         case let .injectPostComment(reactor):
             newState.displayComment = [.init(model: .none, items: reactor)]
+            
         case let .appendPostComment(reactor):
             guard var dataSource = newState.displayComment.first else {
                 break
             }
             dataSource.items.append(reactor)
             newState.displayComment = [dataSource]
+            
         case let .removePostComment(commentId):
             guard var dataSource = newState.displayComment.first else {
                 break
@@ -123,9 +152,20 @@ final public class PostCommentViewReactor: Reactor {
                 $0.currentState.commentId == commentId
             })
             newState.displayComment = [dataSource]
+            
+        case .scrollToLast:
+            guard var dataSource = newState.displayComment.first else {
+                break
+            }
+            newState.shouldScrollToLast = dataSource.items.count - 1
+            
         case .clearCommentTextField:
             newState.shouldClearCommentTextField = true
+            
+        case let .setupTableViewOffset(height):
+            newState.tableViewBottomOffset = height
         }
+        
         return newState
     }
 }

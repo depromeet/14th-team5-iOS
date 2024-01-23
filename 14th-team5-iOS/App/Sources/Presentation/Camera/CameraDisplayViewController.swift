@@ -90,7 +90,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         confirmButton.do {
             $0.configuration?.imagePlacement = .leading
-            $0.backgroundColor = DesignSystemAsset.mainGreen.color
+            $0.backgroundColor = DesignSystemAsset.mainYellow.color
             $0.configuration?.image = DesignSystemAsset.camera.image.withTintColor(DesignSystemAsset.black.color)
             $0.configuration?.imagePadding = 6
             $0.configuration?.attributedTitle = AttributedString(NSAttributedString(string: "사진 업로드", attributes: [

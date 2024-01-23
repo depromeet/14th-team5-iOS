@@ -14,46 +14,146 @@ struct FamilyWidgetView: View {
     @Environment(\.widgetFamily) var family: WidgetFamily
     
     let entry: FamilyWidgetEntry
-    private let defaultContent: String = "가족에게\n생존신고 할 시간"
+    private let defaultContent: String = "가족에게\n생존신고 할 시간!"
     
     var body: some View {
         if let info = entry.family {
             getPhotoView(info: info)
         } else {
-            timeToPhotoView
+            let randomNumber = arc4random_uniform(2) + 1
+            if randomNumber % 2 == 0 {
+                yellowDefaultView
+            } else {
+                greenDefaultView
+            }
         }
     }
     
     // MARK: 기본상태의 위젯
-    private var timeToPhotoView: some View {
+    private var greenDefaultView: some View {
         ZStack {
-            Color(DesignSystemAsset.black.color)
-            VStack {
-                Text(defaultContent)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, family == .systemSmall ? 16 : 22)
-                    .padding(.top, family == .systemSmall ? 16 : 22)
-                    .font(DesignSystemFontFamily.Pretendard.semiBold.swiftUIFont(size: family == .systemSmall ? 18 : 32))
-                    .lineSpacing(1.3)
-                    .foregroundColor(.white)
+            Color(DesignSystemAsset.mainGreen.color)
+            HStack {
                 Spacer()
-                HStack {
-                    Image(uiImage: DesignSystemAsset.tree.image)
+                VStack {
+                    Spacer()
+                    Image(uiImage: DesignSystemAsset.bibbiLogo.image)
                         .resizable()
-                        .frame(maxWidth: family == .systemSmall ? 55 : 137)
-                        .frame(maxHeight: family == .systemSmall ? 72 : 180)
+                        .renderingMode(.template)
+                        .foregroundColor(DesignSystemAsset.black.swiftUIColor)
+                        .frame(width: family == .systemSmall ? 47 : 52)
+                        .frame(height: family == .systemSmall ? 16 : 18)
+                        .padding(.trailing, family == .systemSmall ? 15 : 19)
+                        .padding(.bottom, family == .systemSmall ? 16 : 28)
+                }
+            }
+            
+            VStack {
+                HStack {
+                    Text(defaultContent)
+                        .font(DesignSystemFontFamily.Pretendard.semiBold.swiftUIFont(size: family == .systemSmall ? 16 : 26))
+                        .lineSpacing(1.3)
+                        .padding(.leading, family == .systemSmall ? 3: 12)
+                       
+                    Spacer()
+                    
+                    HStack(alignment: .bottom) {
+                        if family == .systemLarge {
+                            Image(uiImage: DesignSystemAsset.sun.image)
+                                .resizable()
+                                .frame(width: 58, height: 60)
+                        }
+                    }
+                }
+                
+                Spacer()
+                
+                HStack {
+                    
+                    if family == .systemSmall {
+                        Image(uiImage: DesignSystemAsset.greenCharacterS.image)
+                    } else {
+                        Image(uiImage: DesignSystemAsset.greenCharacterL.image)
+                            .frame(height: 235)
+                    }
+                    
+                    Spacer()
+                }
+            }
+            .padding(.leading, family == .systemSmall ? 13 : 10)
+            .padding(.top, family == .systemSmall ? 16 : 21)
+            .padding(.bottom, family == .systemSmall ? 12 : 20)
+            .padding(.trailing, family == .systemSmall ? 16 : 19)
+        }
+    }
+    
+    
+    
+    
+    private var yellowDefaultView: some View {
+        ZStack {
+            Color(DesignSystemAsset.mainYellow.color)
+            HStack {
+                Spacer()
+                if family == .systemSmall {
                     VStack {
                         Spacer()
-                        Image(uiImage: DesignSystemAsset.wave.image)
+                        Image(uiImage: DesignSystemAsset.bibbiLogo.image)
                             .resizable()
-                            .frame(maxWidth: family == .systemSmall ? 57 : 123)
-                            .frame(maxHeight: family == .systemSmall ? 40 : 85)
-                            .padding(.bottom, family == .systemSmall ? 20 : 37)
+                            .renderingMode(.template)
+                            .foregroundColor(DesignSystemAsset.black.swiftUIColor)
+                            .frame(width: family == .systemSmall ? 47 : 52)
+                            .frame(height: family == .systemSmall ? 16 : 18)
+                            .padding(.trailing, family == .systemSmall ? 15 : 19)
+                            .padding(.bottom, family == .systemSmall ? 16 : 28)
                     }
                 }
             }
+            
+            VStack {
+                HStack {
+                    Text(defaultContent)
+                        .font(DesignSystemFontFamily.Pretendard.semiBold.swiftUIFont(size: family == .systemSmall ? 16 : 26))
+                        .lineSpacing(1.3)
+                        .padding(.leading, family == .systemSmall ? 3: 12)
+                       
+                    Spacer()
+                    
+                    HStack(alignment: .bottom) {
+                        if family == .systemLarge {
+                            Image(uiImage: DesignSystemAsset.bibbiLogo.image)
+                                .resizable()
+                                .renderingMode(.template)
+                                .foregroundColor(DesignSystemAsset.black.swiftUIColor)
+                                .frame(width: 52, height: 18)
+                        }
+                    }
+                }
+                
+                Spacer()
+                
+                HStack {
+                    
+                    if family == .systemSmall {
+                        Image(uiImage: DesignSystemAsset.yellowCharacterS.image)
+                    } else {
+                        HStack {
+                            Spacer()
+                            Image(uiImage: DesignSystemAsset.yellowCharacterL.image)
+                            Spacer()
+                        }
+                    }
+                    
+                    Spacer()
+                }
+            }
+            .padding(.leading, family == .systemSmall ? 16 : 10)
+            .padding(.top, family == .systemSmall ? 16 : 20)
+            .padding(.bottom, 20)
+            .padding(.trailing, family == .systemSmall ? 16 : 22)
         }
     }
+    
     
     // MARK: 가족중 일부가 사진을 올렸을 때 뷰
     private func getPhotoView(info: Family) -> some View {
@@ -100,7 +200,7 @@ struct FamilyWidgetView: View {
                         .padding(.bottom, family == .systemSmall ? 16 : 22)
                 }
             } else {
-                timeToPhotoView
+                
             }
         }
     }

@@ -148,7 +148,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
         
         createCommentButton.do {
             $0.setTitle("등록", for: .normal)
-            $0.tintColor = UIColor.mainGreen
+            $0.tintColor = UIColor.mainYellow
         }
         
     }

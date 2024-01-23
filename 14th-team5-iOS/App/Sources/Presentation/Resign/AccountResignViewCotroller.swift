@@ -77,7 +77,7 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
             $0.setTitle("탈퇴 하기", for: .normal)
             $0.titleLabel?.font = DesignSystemFontFamily.Pretendard.semiBold.font(size: 16)
             $0.setTitleColor(DesignSystemAsset.black.color, for: .normal)
-            $0.backgroundColor = DesignSystemAsset.mainGreen.color.withAlphaComponent(0.2)
+            $0.backgroundColor = DesignSystemAsset.mainYellow.color.withAlphaComponent(0.2)
             $0.isEnabled = false
         }
     }
@@ -199,7 +199,7 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
 extension AccountResignViewCotroller {
     
     private func setupButton(isSelected: Bool) {
-        confirmButton.backgroundColor = isSelected ? DesignSystemAsset.mainGreen.color : DesignSystemAsset.mainGreen.color.withAlphaComponent(0.2)
+        confirmButton.backgroundColor = isSelected ? DesignSystemAsset.mainYellow.color : DesignSystemAsset.mainYellow.color.withAlphaComponent(0.2)
         confirmButton.isEnabled = isSelected
     }
     

@@ -115,14 +115,14 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
                     if $0.1 {
                         $0.0.todayStrokeView.isHidden = true
                         
-                        $0.0.thumbnailView.alpha = 1.0
-                        $0.0.containerView.alpha = 1.0
-                        $0.0.thumbnailView.layer.borderWidth = 2.0
+                        $0.0.thumbnailView.alpha = 1
+                        $0.0.containerView.alpha = 1
+                        $0.0.thumbnailView.layer.borderWidth = 1
                         $0.0.thumbnailView.layer.borderColor = UIColor.bibbiWhite.cgColor
                     } else {
                         $0.0.thumbnailView.alpha = 0.3
                         $0.0.containerView.alpha = 0.3
-                        $0.0.thumbnailView.layer.borderWidth = 0.0
+                        $0.0.thumbnailView.layer.borderWidth = 0
                         
                         if reactor.currentState.date.isToday {
                             $0.0.todayStrokeView.isHidden = false
@@ -182,14 +182,14 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         
         containerView.do {
             $0.clipsToBounds = true
-            $0.layer.cornerRadius = 13.0
+            $0.layer.cornerRadius = 13
             $0.backgroundColor = .gray900
         }
         
         thumbnailView.do {
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
-            $0.layer.cornerRadius = 13.0
+            $0.layer.cornerRadius = 13
             $0.layer.borderWidth = .zero
             $0.layer.borderColor = UIColor.bibbiWhite.cgColor
             $0.alpha = 0.8
@@ -197,21 +197,21 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         
         todayStrokeView.do {
             $0.isHidden = true
-            $0.layer.cornerRadius = 13.0
-            $0.layer.borderWidth = 2.0
-            $0.layer.borderColor = UIColor.bibbiWhite.cgColor
+            $0.layer.cornerRadius = 13
+            $0.layer.borderWidth = 1
+            $0.layer.borderColor = UIColor.mainYellow.cgColor
         }
         
         allFamilyUploadedBadge.do {
             $0.image = DesignSystemAsset.greenSmileEmoji.image
             $0.isHidden = true
-            $0.backgroundColor = .clear
+            $0.backgroundColor = UIColor.clear
         }
         
         dayOfBirthBadge.do {
             $0.image = DesignSystemAsset.birthday.image
             $0.isHidden = true
-            $0.backgroundColor = .clear
+            $0.backgroundColor = UIColor.clear
         }
     }
 }

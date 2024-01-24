@@ -37,6 +37,8 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
     }
     
     override func prepareForReuse() {
+        nameLabel.text = String.none
+        isMeLabel.text = String.none
         profileImageView.image = nil
     }
     
@@ -50,20 +52,13 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
     private func bindInput(reactor: FamilyMemberProfileCellReactor) { }
     
     private func bindOutput(reactor: FamilyMemberProfileCellReactor) {
-        reactor.state.map { $0.imageUrl }
-            .compactMap { $0 }
-            .withUnretained(self)
-            .subscribe {
-                $0.0.profileImageView.kf.setImage(
-                    with: URL(string: $0.1),
-                    options: [
-                        .transition(.fade(0.15))
-                    ]
-                )
-            }
+        reactor.state.compactMap { $0.imageUrl }
+            .distinctUntilChanged()
+            .bind(to: profileImageView.rx.kingfisherImage)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.name }
+            .distinctUntilChanged()
             .bind(to: nameLabel.rx.text)
             .disposed(by: disposeBag)
         

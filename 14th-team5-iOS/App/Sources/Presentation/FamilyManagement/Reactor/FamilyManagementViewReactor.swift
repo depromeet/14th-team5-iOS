@@ -8,7 +8,6 @@
 import Foundation
 
 import Core
-import Data
 import Domain
 import Differentiator
 import ReactorKit
@@ -17,8 +16,8 @@ import RxSwift
 public final class FamilyManagementViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
-        case didTapShareContainer
         case fetchFamilyMemebers
+        case didTapShareContainer
     }
     
     // MARK: - Mutate
@@ -43,13 +42,13 @@ public final class FamilyManagementViewReactor: Reactor {
     // MARK: - Properties
     public let initialState: State
     
+    public let memberUseCase: MemberUseCaseProtocol
     public let familyUseCase: FamilyViewUseCaseProtocol
     public let provider: GlobalStateProviderProtocol
     
-    private let memberId: String? = App.Repository.member.memberID.value
-    
     // MARK: - Intializer
     init(
+        memberUseCase: MemberUseCaseProtocol,
         familyUseCase: FamilyViewUseCaseProtocol,
         provider: GlobalStateProviderProtocol
     ) {
@@ -62,6 +61,7 @@ public final class FamilyManagementViewReactor: Reactor {
             displayFamilyMemberCount: 0
         )
         
+        self.memberUseCase = memberUseCase
         self.familyUseCase = familyUseCase
         self.provider = provider
     }
@@ -108,7 +108,6 @@ public final class FamilyManagementViewReactor: Reactor {
             return familyUseCase.executeFetchFamilyMembers()
                 .withUnretained(self)
                 .map {
-                    let myMemberId: String? = $0.0.memberId
                     guard let familyResponse = $0.1?.results else {
                         return .injectFamilyMembers([])
                     }
@@ -116,7 +115,7 @@ public final class FamilyManagementViewReactor: Reactor {
                     return .injectFamilyMembers(
                         familyResponse.map {
                             FamilyMemberProfileCellReactor(
-                                $0, isMe: myMemberId == $0.memberId
+                                $0, isMe: self.memberUseCase.executeCheckIsMe(memberId: $0.memberId)
                             )
                         }
                     )

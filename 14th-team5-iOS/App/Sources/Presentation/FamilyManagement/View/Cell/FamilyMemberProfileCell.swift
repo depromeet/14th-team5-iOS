@@ -111,8 +111,8 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
         }
         
         labelStack.snp.makeConstraints {
-            $0.leading.equalTo(profileImageView.snp.trailing).offset(16)
-            $0.centerY.equalTo(profileImageView.snp.centerY)
+            $0.leading.equalTo(containerView.snp.trailing).offset(16)
+            $0.centerY.equalTo(containerView.snp.centerY)
         }
         
         rightArrowImageView.snp.makeConstraints {

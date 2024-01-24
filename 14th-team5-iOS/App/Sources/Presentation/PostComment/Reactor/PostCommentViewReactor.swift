@@ -49,6 +49,7 @@ final public class PostCommentViewReactor: Reactor {
     // MARK: - Properties
     public var initialState: State
     
+    public var memberUseCase: MemberUseCaseProtocol
     public var postCommentUseCase: PostCommentUseCaseProtocol
     public var provider: GlobalStateProviderProtocol
     
@@ -58,6 +59,7 @@ final public class PostCommentViewReactor: Reactor {
     public init(
         postId: String,
         commentCount: Int,
+        memberUseCase: MemberUseCaseProtocol,
         postCommentUseCase: PostCommentUseCaseProtocol,
         provider: GlobalStateProviderProtocol
     ) {
@@ -71,6 +73,7 @@ final public class PostCommentViewReactor: Reactor {
             tableViewBottomOffset: 0
         )
         
+        self.memberUseCase = memberUseCase
         self.postCommentUseCase = postCommentUseCase
         self.provider = provider
     }
@@ -112,7 +115,13 @@ final public class PostCommentViewReactor: Reactor {
                           !commentResponseArray.results.isEmpty else {
                         return Observable<Mutation>.just(.injectPostComment([]))
                     }
-                    let reactors = commentResponseArray.results.map({ CommentCellReactor($0, postCommentUseCase: self.postCommentUseCase) })
+                    
+                    let reactors = commentResponseArray.results.map { CommentCellReactor(
+                            $0,
+                            memberUseCase: self.memberUseCase,
+                            postCommentUseCase: self.postCommentUseCase
+                        )
+                    }
                     
                     return Observable.concat(
                         Observable<Mutation>.just(.injectPostComment(reactors)),
@@ -134,7 +143,13 @@ final public class PostCommentViewReactor: Reactor {
                     guard let commentResponse = $0 else {
                         return Observable<Mutation>.empty()
                     }
-                    let reactor = CommentCellReactor(commentResponse, postCommentUseCase: self.postCommentUseCase)
+                    
+                    let reactor = CommentCellReactor(
+                        commentResponse,
+                        memberUseCase: self.memberUseCase,
+                        postCommentUseCase: self.postCommentUseCase
+                    )
+                    
                     return Observable.concat(
                         Observable<Mutation>.just(.clearCommentTextField),
                         Observable<Mutation>.just(.appendPostComment(reactor)),

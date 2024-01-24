@@ -18,6 +18,7 @@ public final class FamilyManagementViewReactor: Reactor {
     public enum Action {
         case fetchFamilyMemebers
         case didTapShareContainer
+        case didSelectTableCell(IndexPath)
     }
     
     // MARK: - Mutate
@@ -27,6 +28,7 @@ public final class FamilyManagementViewReactor: Reactor {
         case setFetchFailureTaostMessageView
         case injectFamilyId(String?)
         case injectFamilyMembers([FamilyMemberProfileCellReactor])
+        case pushProfileVC(String)
     }
     
     // MARK: - State
@@ -35,6 +37,7 @@ public final class FamilyManagementViewReactor: Reactor {
         @Pulse var familyInvitationUrl: URL?
         @Pulse var shouldPresentCopySuccessToastMessageView: Bool
         @Pulse var shouldPresentFetchFailureToastMessageView: Bool
+        @Pulse var shouldPushProfileVC: String
         @Pulse var displayFamilyMemberInfo: [FamilyMemberProfileSectionModel]
         var displayFamilyMemberCount: Int
     }
@@ -57,6 +60,7 @@ public final class FamilyManagementViewReactor: Reactor {
             familyInvitationUrl: nil,
             shouldPresentCopySuccessToastMessageView: false,
             shouldPresentFetchFailureToastMessageView: false,
+            shouldPushProfileVC: .none,
             displayFamilyMemberInfo: [],
             displayFamilyMemberCount: 0
         )
@@ -120,6 +124,15 @@ public final class FamilyManagementViewReactor: Reactor {
                         }
                     )
                 }
+            
+        case let .didSelectTableCell(indexPath):
+            guard let dataSource = currentState.displayFamilyMemberInfo.first else {
+                // TODO: - 예외 ToastMessage 출력하기
+                return Observable<Mutation>.empty()
+            }
+            let memberId = dataSource.items[indexPath.row].initialState.memberId
+            
+            return Observable<Mutation>.just(.pushProfileVC(memberId))
         }
     }
     
@@ -144,6 +157,9 @@ public final class FamilyManagementViewReactor: Reactor {
             newState.displayFamilyMemberInfo = [
                 .init(model: Void(), items: familyMembers.sorted { $0.currentState.isMe && !$1.currentState.isMe })
             ]
+            
+        case let .pushProfileVC(memberId):
+            newState.shouldPushProfileVC = memberId
         }
         return newState
     }

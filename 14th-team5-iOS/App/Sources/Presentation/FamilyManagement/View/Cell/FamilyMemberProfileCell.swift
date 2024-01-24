@@ -24,6 +24,8 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
     private let nameLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray200)
     private let isMeLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray500)
     
+    private let rightArrowImageView: UIImageView = UIImageView()
+    
     // MARK: - Properties
     static let id: String = "FamilyProfileCell"
     
@@ -84,7 +86,7 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
             firstNameLabel, profileImageView
         )
         contentView.addSubviews(
-            containerView, labelStack
+            containerView, labelStack, rightArrowImageView
         )
         
         labelStack.addArrangedSubviews(
@@ -112,6 +114,12 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
             $0.leading.equalTo(profileImageView.snp.trailing).offset(16)
             $0.centerY.equalTo(profileImageView.snp.centerY)
         }
+        
+        rightArrowImageView.snp.makeConstraints {
+            $0.size.equalTo(20)
+            $0.centerY.equalToSuperview()
+            $0.trailing.equalToSuperview().offset(-20)
+        }
     }
     
     override func setupAttributes() {
@@ -119,7 +127,7 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
         containerView.do {
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = 52 / 2
-            $0.backgroundColor = .gray800
+            $0.backgroundColor = UIColor.gray800
         }
         
         profileImageView.do {
@@ -135,6 +143,13 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
             $0.distribution = .fillProportionally
         }
         
-        contentView.backgroundColor = .bibbiBlack
+        rightArrowImageView.do {
+            let arrowRight = DesignSystemAsset.arrowRight.image
+            $0.image = arrowRight.withRenderingMode(.alwaysTemplate)
+            $0.tintColor = UIColor.gray500
+            $0.contentMode = .scaleAspectFill
+        }
+        
+        contentView.backgroundColor = UIColor.bibbiBlack
     }
 }

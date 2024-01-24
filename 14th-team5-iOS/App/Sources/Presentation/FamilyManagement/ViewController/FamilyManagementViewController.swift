@@ -60,6 +60,11 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .map { Reactor.Action.didTapShareContainer }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        familyTableView.rx.itemSelected
+            .map { Reactor.Action.didSelectTableCell($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: FamilyManagementViewReactor) {
@@ -87,6 +92,15 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
         
         reactor.pulse(\.$displayFamilyMemberInfo)
             .bind(to: familyTableView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPushProfileVC)
+            .skip(1)
+            .withUnretained(self)
+            .subscribe {
+                let profileVC = ProfileDIContainer(memberId: $0.1).makeViewController()
+                $0.0.navigationController?.pushViewController(profileVC, animated: true)
+            }
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentCopySuccessToastMessageView)
@@ -186,7 +200,6 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
         
         familyTableView.do {
             $0.separatorStyle = .none
-            $0.allowsSelection = false
             $0.estimatedRowHeight = UITableView.automaticDimension
             $0.backgroundColor = UIColor.clear
             $0.contentInset = UIEdgeInsets(

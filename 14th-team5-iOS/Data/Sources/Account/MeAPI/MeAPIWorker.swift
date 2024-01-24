@@ -134,20 +134,19 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
     }
     
     private func joinFamily(headers: [APIHeader]?, body: Domain.JoinFamilyRequest) -> RxSwift.Single<JoinFamilyData?> {
-
         let spec = MeAPIs.joinFamily.spec
         let requestDTO: JoinFamilyRequestDTO = JoinFamilyRequestDTO(inviteCode: body.inviteCode)
         return request(spec: spec, headers: headers, jsonEncodable: requestDTO)
-        .subscribe(on: Self.queue)
-        .do {
-            if let str = String(data: $0.1, encoding: .utf8) {
-                debugPrint("Join Family Fetch Result: \(str)")
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Join Family Fetch Result: \(str)")
+                }
             }
-        }
-        .map(JoinFamilyResponseDTO.self)
-        .catchAndReturn(nil)
-        .map { $0?.toDomain() }
-        .asSingle()
+            .map(JoinFamilyResponseDTO.self)
+            .catchAndReturn(nil)
+            .map { $0?.toDomain() }
+            .asSingle()
     }
     
     public func joinFamily(with inviteCode: String) -> Single<FamilyInfo?> {

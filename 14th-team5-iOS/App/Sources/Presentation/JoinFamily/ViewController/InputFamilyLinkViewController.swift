@@ -18,15 +18,28 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
     private let linkTextField: UITextField = UITextField()
     private let joinFamilyButton: UIButton = UIButton()
     
+    private var keyboardHeight: CGFloat = 0
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         navigationController?.navigationBar.isHidden = true
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
     }
     
     override func setupUI() {
         super.setupUI()
         view.addSubviews(backButton, titleLabel, linkTextField, joinFamilyButton)
+    }
+    
+    @objc func keyboardWillShow(_ notification: Notification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            self.keyboardHeight = keyboardSize.height
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     override func setupAutoLayout() {
@@ -74,7 +87,7 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
         }
         
         linkTextField.do {
-            $0.makePlaceholderAttributedString(UserDefaults.standard.inviteUrl ?? _Str.placeholder,
+            $0.makePlaceholderAttributedString(UserDefaults.standard.inviteCode ?? _Str.placeholder,
                                                attributed: [
                 .font: UIFont(font: DesignSystemFontFamily.Pretendard.bold, size: 36)!,
                 .foregroundColor: DesignSystemAsset.gray700.color
@@ -140,6 +153,13 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
                 $0.0.joinFamilyButton.isEnabled = true
                 $0.0.joinFamilyButton.backgroundColor = .mainYellow
             })
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$showToastMessage)
+            .observe(on: Schedulers.main)
+            .filter { $0.count > 0 }
+            .withUnretained(self)
+            .bind(onNext: { $0.0.makeBibbiToastView(text: $0.1, designSystemImage: DesignSystemAsset.warning.image, width: 240, offset: $0.0.keyboardHeight + 90) })
             .disposed(by: disposeBag)
         
         reactor.state

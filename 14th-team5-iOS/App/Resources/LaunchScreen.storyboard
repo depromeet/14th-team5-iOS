@@ -17,17 +17,15 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="splash" translatesAutoresizingMaskIntoConstraints="NO" id="NY7-R5-Xo3">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="splash" translatesAutoresizingMaskIntoConstraints="NO" id="F4l-Il-1mo">
+                                <rect key="frame" x="8.6666666666666572" y="156" width="376" height="540"/>
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
-                        <color key="backgroundColor" name="Black"/>
+                        <color key="backgroundColor" name="MainYellow"/>
                         <constraints>
-                            <constraint firstItem="NY7-R5-Xo3" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="027-S1-TaX"/>
-                            <constraint firstItem="NY7-R5-Xo3" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="PpP-8L-2Zt"/>
-                            <constraint firstAttribute="trailing" secondItem="NY7-R5-Xo3" secondAttribute="trailing" id="fCJ-NG-4fM"/>
-                            <constraint firstAttribute="bottom" secondItem="NY7-R5-Xo3" secondAttribute="bottom" id="jQW-U5-d3n"/>
+                            <constraint firstItem="F4l-Il-1mo" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="1so-3K-ZvM"/>
+                            <constraint firstItem="F4l-Il-1mo" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="SpC-e1-0ey"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -37,9 +35,9 @@
         </scene>
     </scenes>
     <resources>
-        <image name="splash" width="128" height="128"/>
-        <namedColor name="Black">
-            <color red="0.14117647058823529" green="0.14117647058823529" blue="0.15294117647058825" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        <image name="splash" width="376" height="540"/>
+        <namedColor name="MainYellow">
+            <color red="0.96100002527236938" green="0.95300000905990601" blue="0.47099998593330383" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
 </document>

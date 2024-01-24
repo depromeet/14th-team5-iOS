@@ -25,9 +25,16 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
         navigationController?.navigationBar.isHidden = true
     }
     
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        view.backgroundColor = DesignSystemAsset.mainYellow.color
+    }
+    
     // MARK: - Helpers
     override public func setupUI() {
         super.setupUI()
+        
         view.addSubviews(bibbiImageView)
     }
     
@@ -44,8 +51,8 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
         super.setupAutoLayout()
         
         bibbiImageView.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview()
-            $0.verticalEdges.equalToSuperview()
+            $0.centerX.equalToSuperview()
+            $0.bottom.equalTo(view.safeAreaLayoutGuide)
         }
     }
     
@@ -58,7 +65,7 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
         
         reactor.state.map { $0.memberInfo }
             .skip(1)
-            .delay(.seconds(2), scheduler: Schedulers.main)
+            .delay(.seconds(1), scheduler: Schedulers.main)
             .withUnretained(self)
             .observe(on: Schedulers.main)
             .bind(onNext: { $0.0.showNextPage(with: $0.1) })

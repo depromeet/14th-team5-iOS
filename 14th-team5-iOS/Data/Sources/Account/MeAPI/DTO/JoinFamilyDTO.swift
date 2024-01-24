@@ -20,6 +20,6 @@ struct JoinFamilyResponseDTO: Codable {
 
 extension JoinFamilyResponseDTO {
     func toDomain() -> JoinFamilyData {
-        return .init()
+        return .init(familyId: familyId)
     }
 }

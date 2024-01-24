@@ -32,7 +32,7 @@ public final class InputFamilyLinkReactor: Reactor {
     public struct State {
         var linkString: String = ""
         var isShowHome: Bool = false
-        var showToastMessage: String = ""
+        @Pulse var showToastMessage: String = ""
         var isPoped: Bool = false
     }
     
@@ -57,24 +57,16 @@ extension InputFamilyLinkReactor {
             
             MPEvent.Account.invitedGroupFinished.track(with: nil)
             
-            let urlString = currentState.linkString
-            guard let firstIndex = urlString.lastIndex(of: "/") else {
-                return Observable.just(Mutation.setToastMessage("링크 형식이 맞지 않습니다."))
-            }
-
-            let endIndex = urlString.endIndex
-            let afterSlashIndex = urlString.index(after: firstIndex)
-            let result = urlString[afterSlashIndex..<endIndex]
-            // result 가 invite 코드거든?
-            let request = JoinFamilyRequest(inviteCode: String(result))
+            let code = currentState.linkString
+            let request = JoinFamilyRequest(inviteCode: String(code))
             
             return familyUseCase.execute(body: request)
                 .asObservable()
                 .flatMap { joinFamilyData in
                     guard let joinFamilyData else {
-                        return Observable.just(Mutation.setToastMessage("가족에 입장할 수 없습니다."))
+                        return Observable.just(Mutation.setToastMessage("존재하지 않는 초대코드에요."))
                     }
-                    
+                    App.Repository.member.familyId.accept(joinFamilyData.familyId)
                     return Observable.just(Mutation.setShowHome(true))
                 }
         case .tapPopButton:

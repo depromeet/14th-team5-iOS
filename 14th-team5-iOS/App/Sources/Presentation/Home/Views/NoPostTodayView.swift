@@ -42,6 +42,7 @@ final class NoPostTodayView: UIView {
     private func setupAttributes() {
         imageView.do {
             $0.image = DesignSystemAsset.emptyCaseGraphicEmoji.image
+            $0.contentMode = .scaleAspectFill
         }
     }
 }

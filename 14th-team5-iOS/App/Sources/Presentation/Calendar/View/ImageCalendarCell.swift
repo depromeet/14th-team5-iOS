@@ -163,15 +163,15 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         }
         
         allFamilyUploadedBadge.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(2)
-            $0.trailing.equalToSuperview().offset(-2)
-            $0.size.equalTo(15)
+            $0.top.equalToSuperview().offset(5)
+            $0.trailing.equalToSuperview().offset(-5)
+            $0.size.equalTo(17)
         }
         
         dayOfBirthBadge.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(2)
-            $0.leading.equalToSuperview().offset(2)
-            $0.size.equalTo(15)
+            $0.top.equalToSuperview().offset(5)
+            $0.leading.equalToSuperview().offset(5)
+            $0.size.equalTo(17)
         }
     }
     
@@ -203,7 +203,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         }
         
         allFamilyUploadedBadge.do {
-            $0.image = DesignSystemAsset.greenSmileEmoji.image
+            $0.image = DesignSystemAsset.fire.image
             $0.isHidden = true
             $0.backgroundColor = UIColor.clear
         }

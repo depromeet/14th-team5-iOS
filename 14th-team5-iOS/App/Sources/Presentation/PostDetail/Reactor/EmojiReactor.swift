@@ -110,7 +110,7 @@ extension EmojiReactor {
 
         case .tappedCommentButton:
             let postId: String = currentState.post.postId
-            let commentCount: Int = 3
+            let commentCount: Int = currentState.post.commentCount
             provider.postGlobalState.presentPostCommentSheet(postId, commentCount: commentCount)
             return Observable<Mutation>.empty()
         }

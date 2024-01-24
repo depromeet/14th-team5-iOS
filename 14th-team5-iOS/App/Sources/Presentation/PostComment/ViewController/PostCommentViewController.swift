@@ -8,8 +8,9 @@
 import Core
 import UIKit
 
-import RxSwift
+import RxCocoa
 import RxDataSources
+import RxSwift
 import Then
 import SnapKit
 
@@ -30,7 +31,6 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
     // MARK: - LifeCycles
     public override func viewDidLoad() {
         super.viewDidLoad()
-        commentTextField.becomeFirstResponder()
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -43,6 +43,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
+        bindDatasource(reactor: reactor)
     }
     
     private func bindInput(reactor: PostCommentViewReactor) { 
@@ -51,28 +52,21 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        commentTableView.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .withUnretained(self)
-            .subscribe {
-                $0.0.commentTextField.resignFirstResponder()
-            }
-            .disposed(by: disposeBag)
+        Observable.merge(
+            commentTableView.rx.tap.asObservable(),
+            noCommentLabel.rx.tap.asObservable()
+        )
+        .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+        .withUnretained(self)
+        .subscribe {
+            $0.0.commentTextField.resignFirstResponder()
+        }
+        .disposed(by: disposeBag)
         
         commentTextField.rx.text.orEmpty
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .withUnretained(self)
-            .subscribe {
-                guard let button = $0.0.commentTextField.rightView as? UIButton else {
-                    return
-                }
-                
-                if $0.1.isEmpty {
-                    button.isEnabled = false
-                } else {
-                    button.isEnabled = true
-                }
-            }
+            .skip(while: { $0.isEmpty })
+            .map { Reactor.Action.inputComment($0) }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         createCommentButton.rx.tap
@@ -80,27 +74,6 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             .withUnretained(self)
             .map { Reactor.Action.createPostComment($0.0.commentTextField.text) }
             .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-    }
-    
-    private func bindOutput(reactor: PostCommentViewReactor) {
-        reactor.state.map { $0.displayComment }
-            .distinctUntilChanged()
-            .bind(to: commentTableView.rx.items(dataSource: dataSource))
-            .disposed(by: disposeBag)
-        
-        reactor.state.map { $0.commentCount >= 0 }
-            .distinctUntilChanged()
-            .bind(to: noCommentLabel.rx.isHidden)
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$shouldClearCommentTextField)
-            .withUnretained(self)
-            .subscribe {
-                if $0.1 {
-                    $0.0.commentTextField.text = ""
-                }
-            }
             .disposed(by: disposeBag)
         
         let keyboardWillShow = NotificationCenter.default.rx.notification(UIResponder.keyboardWillShowNotification)
@@ -112,18 +85,8 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             }
         
         keyboardWillShow
-            .withUnretained(self)
-            .subscribe { `self`, height in
-                let safeAreaHeight = self.view.safeAreaInsets.bottom
-                let keyboardHeight = -height + safeAreaHeight
-                UIView.animate(withDuration: 1.0) {
-                    self.textFieldContainerView.snp.updateConstraints {
-                        $0.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom).offset(keyboardHeight)
-                    }
-                    self.view.layoutIfNeeded()
-                }
-                print(keyboardHeight)
-            }
+            .map { Reactor.Action.keyboardWillShow($0) }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         let keyboardWillHide = NotificationCenter.default.rx.notification(UIResponder.keyboardWillHideNotification)
@@ -132,13 +95,69 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             }
         
         keyboardWillHide
+            .map { _ in Reactor.Action.keyboardWillHide }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+    }
+    
+    private func bindOutput(reactor: PostCommentViewReactor) {
+        reactor.state.map { $0.commentCount != 0 }
+            .distinctUntilChanged()
+            .bind(to: noCommentLabel.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        let inputComment = reactor.state.map({ $0.inputComment }).asDriver(onErrorJustReturn: .none)
+        
+        inputComment
+            .distinctUntilChanged()
+            .drive(commentTextField.rx.text)
+            .disposed(by: disposeBag)
+        
+        inputComment
+            .distinctUntilChanged()
+            .drive(with: self) {
+                guard let button = $0.commentTextField.rightView as? UIButton else {
+                    return
+                }
+                button.isEnabled = !$1.isEmpty
+            }
+            .disposed(by: disposeBag)
+        
+        
+        reactor.pulse(\.$shouldClearCommentTextField)
+            .withUnretained(self)
+            .subscribe {
+                if $0.1 {
+                    $0.0.commentTextField.text = ""
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldScrollToLast)
+            .withUnretained(self)
+            .subscribe {
+                if $0.1 > 0 {
+                    let indexPath = IndexPath(row: $0.1, section: 0)
+                    self.commentTableView.scrollToRow(
+                        at: indexPath,
+                        at: .bottom,
+                        animated: true
+                    )
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.tableViewBottomOffset }
+            .distinctUntilChanged()
             .withUnretained(self)
             .subscribe { `self`, height in
-                UIView.animate(withDuration: 2.25) {
-                    self.textFieldContainerView.snp.updateConstraints {
-                        $0.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom).offset(0)
+                let safeAreaHeight = `self`.view.safeAreaInsets.bottom
+                let keyboardHeight = height == .zero ? 0 : (-height + safeAreaHeight)
+                UIView.animate(withDuration: 1.0) {
+                    `self`.textFieldContainerView.snp.updateConstraints {
+                        $0.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom).offset(keyboardHeight)
                     }
-                    self.view.layoutIfNeeded()
+                    `self`.view.layoutIfNeeded()
                 }
             }
             .disposed(by: disposeBag)
@@ -158,8 +177,8 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
         super.setupAutoLayout()
         
         navigationBarView.snp.makeConstraints {
-            $0.height.equalTo(42)
-            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.height.equalTo(60)
+            $0.top.equalToSuperview()
             $0.horizontalEdges.equalToSuperview()
         }
         
@@ -185,6 +204,8 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             $0.verticalEdges.equalToSuperview()
             $0.horizontalEdges.equalToSuperview().inset(15)
         }
+        
+        commentTextField.becomeFirstResponder()
     }
     
     public override func setupAttributes() {
@@ -232,5 +253,27 @@ extension PostCommentViewController {
             cell.reactor = reactor
             return cell
         }
+    }
+    
+    private func bindDatasource(reactor: PostCommentViewReactor) {
+        dataSource.canEditRowAtIndexPath = { dataSource, indexPath in
+            let myMemberId = App.Repository.member.memberID.value
+            let cellMemberId = dataSource[indexPath].currentState.memberId
+            return myMemberId == cellMemberId
+        }
+        
+        reactor.state.map { $0.displayComment }
+            .distinctUntilChanged()
+            .bind(to: commentTableView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        commentTableView.rx.itemDeleted
+            .withUnretained(self)
+            .map {
+                let commentId = $0.0.dataSource[$0.1].currentState.commentId
+                return Reactor.Action.deletePostComment(commentId)
+            }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
 }

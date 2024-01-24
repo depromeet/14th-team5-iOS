@@ -12,6 +12,16 @@ import Data
 import ReactorKit
 
 
+enum EmojiItem: String, CaseIterable {
+    case emoji1 = "emoji1"
+    case emoji2 = "emoji2"
+    case emoji3 = "emoji3"
+    case emoji4 = "emoji4"
+    case emoji5 = "emoji5"
+    
+}
+
+
 public final class CameraViewReactor: Reactor {
     
     public var initialState: State
@@ -20,9 +30,11 @@ public final class CameraViewReactor: Reactor {
     public var memberId: String
     
     public enum Action {
+        case viewDidLoad
         case didTapFlashButton
         case didTapToggleButton
         case didTapShutterButton(Data)
+        case didTapRealEmojiPad(IndexPath)
     }
     
     public enum Mutation {
@@ -36,7 +48,9 @@ public final class CameraViewReactor: Reactor {
         case setRealEmojiImageURLResponse(CameraRealEmojiPreSignedResponse?)
         case setRealEmojiImageCreateResponse(CameraCreateRealEmojiResponse?)
         case setRealEmojiItems(CameraRealEmojiImageItemResponse?)
+        case setRealEmojiSection([EmojiSectionItem])
         case setErrorAlert(Bool)
+        case setRealEmojiPadItem(CameraRealEmojiInfoResponse?)
     }
     
     public struct State {
@@ -47,6 +61,8 @@ public final class CameraViewReactor: Reactor {
         @Pulse var realEmojiURLEntity: CameraRealEmojiPreSignedResponse?
         @Pulse var realEmojiCreateEntity: CameraCreateRealEmojiResponse?
         @Pulse var realEmojiEntity: CameraRealEmojiImageItemResponse?
+        @Pulse var realEmojiSection: [EmojiSectionModel]
+        @Pulse var realEmojiInfoEntity: CameraRealEmojiInfoResponse?
         var cameraType: UploadLocation = .feed
         var accountImage: Data?
         var memberId: String
@@ -70,6 +86,8 @@ public final class CameraViewReactor: Reactor {
             realEmojiURLEntity: nil,
             realEmojiCreateEntity: nil,
             realEmojiEntity: nil,
+            realEmojiSection: [.realEmoji([])],
+            realEmojiInfoEntity: nil,
             cameraType: cameraType,
             accountImage: nil,
             memberId: memberId,
@@ -84,6 +102,43 @@ public final class CameraViewReactor: Reactor {
     
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
+        case .viewDidLoad:
+            if cameraType == .realEmoji {
+                return .concat(
+                    .just(.setLoading(true)),
+                    cameraUseCase.executeRealEmojiItems(memberId: memberId)
+                        .flatMap { entity -> Observable<CameraViewReactor.Mutation> in
+                            var sectionItem: [EmojiSectionItem] = []
+                            guard let realEmojiEntity = entity?.realEmojiItems else { return .just(.setErrorAlert(true))}
+                            if realEmojiEntity.isEmpty {
+    
+                                EmojiItem.allCases.enumerated().forEach {
+                                    let isSelected: Bool = $0.offset == 0 ? true : false
+                                    sectionItem.append(.realEmojiItem(BibbiRealEmojiCellReactor(realEmojiImage: nil, defaultImage: $0.element.rawValue, isSelected: isSelected, realEmojiType: "")))
+                                }
+                            } else {
+                                
+                                EmojiItem.allCases.enumerated().forEach {
+                                    let isSelected: Bool = $0.offset == 0 ? true : false
+                                    if realEmojiEntity[safe: $0.offset] == nil {
+                                        sectionItem.append(.realEmojiItem(BibbiRealEmojiCellReactor(realEmojiImage: nil, defaultImage: $0.element.rawValue, isSelected: false, realEmojiType: "")))
+                                    } else {
+                                        sectionItem.append(.realEmojiItem(BibbiRealEmojiCellReactor(realEmojiImage: realEmojiEntity[safe: $0.offset]?.realEmojiImageURL, defaultImage: "", isSelected: isSelected, realEmojiType: realEmojiEntity[safe: $0.offset]?.realEmojiType ?? "")))
+                                    }
+                                }                                
+                            }
+                            
+                            return .concat(
+                                .just(.setRealEmojiSection(sectionItem)),
+                                .just(.setErrorAlert(false)),
+                                .just(.setLoading(false))
+                            )
+                        }
+                )
+            } else {
+                return .empty()
+            }
+            
         case .didTapToggleButton:
             return cameraUseCase.executeToggleCameraPosition(self.currentState.isSwitchPosition).map { .setPosition($0) }
         case .didTapFlashButton:
@@ -92,6 +147,8 @@ public final class CameraViewReactor: Reactor {
         case let .didTapShutterButton(fileData):
             return didTapShutterButtonMutation(imageData: fileData)
             
+        case let .didTapRealEmojiPad(indexPath):
+            return .empty()
         }
         
     }
@@ -121,8 +178,14 @@ public final class CameraViewReactor: Reactor {
             print("RealEmoji Create Entity: \(newState.realEmojiCreateEntity)")
         case let .setRealEmojiItems(items):
             newState.realEmojiEntity = items
+        case let .setRealEmojiSection(section):
+            let sectionIndex = getSection(.realEmoji([]))
+            newState.realEmojiSection[sectionIndex] = .realEmoji(section)
+            print("RealEmoji Section Item \(newState.realEmojiSection)")
         case let .setErrorAlert(isError):
             newState.isError = isError
+        case let .setRealEmojiPadItem(entity):
+            newState.realEmojiInfoEntity = entity
         }
         
         return newState
@@ -131,6 +194,16 @@ public final class CameraViewReactor: Reactor {
 }
 
 extension CameraViewReactor {
+    
+    func getSection(_ section: EmojiSectionModel) -> Int {
+        var index: Int = 0
+        
+        for i in 0 ..< self.currentState.realEmojiSection.count where self.currentState.realEmojiSection[i].getSectionType() == section.getSectionType() {
+            index = i
+        }
+        
+        return index
+    }
     
     func configureProfileOriginalS3URL(url: String, with filePath: UploadLocation) -> String {
         guard let range = url.range(of: #"[^&?]+"#, options: .regularExpression) else { return "" }

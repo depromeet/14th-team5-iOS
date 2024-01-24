@@ -36,7 +36,7 @@ public enum CameraAPIs: API {
         case let .updateRealEmojiImage(memberId):
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/members/\(memberId)/real-emoji")
         case let .reloadRealEmoji(memberId):
-            return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/members/\(memberId)/real-emoji")
+            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/members/\(memberId)/real-emoji")
         }
     }
     

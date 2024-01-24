@@ -112,8 +112,8 @@ final public class PostCommentViewReactor: Reactor {
                           !commentResponseArray.results.isEmpty else {
                         return Observable<Mutation>.just(.injectPostComment([]))
                     }
-                    let reactors = commentResponseArray.results.map { CommentCellReactor($0, postCommentUseCase: self.postCommentUseCase)
-                    }
+                    let reactors = commentResponseArray.results.map({ CommentCellReactor($0, postCommentUseCase: self.postCommentUseCase) })
+                    
                     return Observable.concat(
                         Observable<Mutation>.just(.injectPostComment(reactors)),
                         Observable<Mutation>.just(.scrollToLast)
@@ -121,8 +121,14 @@ final public class PostCommentViewReactor: Reactor {
                 }
             
         case let .createPostComment(comment):
+            guard let safeComment = comment,
+                  !safeComment.isEmpty else {
+                return Observable<Mutation>.empty()
+            }
+            
             let postId = initialState.postId
-            let body = CreatePostCommentBody(content: comment ?? "")
+            let body = CreatePostCommentBody(content: safeComment)
+            
             return postCommentUseCase.executeCreatePostComment(postId: postId, body: body)
                 .flatMap {
                     guard let commentResponse = $0 else {

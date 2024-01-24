@@ -32,14 +32,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             window = UIWindow(windowScene: scene)
             window?.rootViewController = UINavigationController(rootViewController: SplashDIContainer().makeViewController())
             window?.makeKeyAndVisible()
-
             return
         }
         
-        // UserDefaults.standard.inviteUrl = String("\(incomingURL)")
-        guard let path = components.path else {
-            return
-        }
+        guard let path = components.path else { return }
         
         let pathComponents = path.components(separatedBy: "/")
         if pathComponents.count > 2 {

@@ -72,7 +72,7 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
         }
         
         confirmButton.do {
-            $0.layer.cornerRadius = 30
+            $0.layer.cornerRadius = 28
             $0.clipsToBounds = true
             $0.setTitle("탈퇴 하기", for: .normal)
             $0.titleLabel?.font = DesignSystemFontFamily.Pretendard.semiBold.font(size: 16)
@@ -162,7 +162,7 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
             .disposed(by: disposeBag)
         
         reactor.state
-            .map { $0.isLoading}
+            .map { $0.isLoading }
             .distinctUntilChanged()
             .bind(to: resignIndicatorView.rx.isAnimating)
             .disposed(by: disposeBag)

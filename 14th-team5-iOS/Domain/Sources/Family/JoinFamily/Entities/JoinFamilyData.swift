@@ -8,7 +8,9 @@
 import Foundation
 
 public struct JoinFamilyData {
-    public init() {
-        
+    public var familyId: String
+    
+    public init(familyId: String) {
+        self.familyId = familyId
     }
 }

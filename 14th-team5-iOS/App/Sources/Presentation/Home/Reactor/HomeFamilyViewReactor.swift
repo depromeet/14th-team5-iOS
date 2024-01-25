@@ -85,7 +85,7 @@ extension HomeFamilyViewReactor {
             currentPage = 1
             isLast = false
             
-            let query = SearchFamilyQuery(page: currentPage, size: 10)
+            let query = SearchFamilyQuery(page: currentPage, size: 256)
             return searchFamilyUseCase.excute(query: query)
                 .asObservable()
                 .flatMap { familyMembers in

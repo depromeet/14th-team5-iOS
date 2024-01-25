@@ -6,6 +6,7 @@
 //
 
 import Core
+import DesignSystem
 import UIKit
 
 import RxCocoa
@@ -124,7 +125,46 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             }
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$shouldPresentDeleteCommentCompleteToastMessageView)
+            .withUnretained(self)
+            .subscribe {
+                if $0.1 {
+                    $0.0.makeBibbiToastView(
+                        text: "댓글이 삭제되었습니다",
+                        image: DesignSystemAsset.warning.image,
+                        offset: 70,
+                        direction: .down
+                    )
+                }
+            }
+            .disposed(by: disposeBag)
         
+        reactor.pulse(\.$shouldPresentDeleteCommentFamilureToastMessageView)
+            .withUnretained(self)
+            .subscribe {
+                if $0.1 {
+                    $0.0.makeErrorBibbiToastView(
+                        duration: 0.8,
+                        offset: 70,
+                        direction: .down
+                    )
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentUploadCommentFamilureTaostMessageView)
+            .withUnretained(self)
+            .subscribe {
+                if $0.1 {
+                    $0.0.makeErrorBibbiToastView(
+                        duration: 0.8,
+                        offset: 70,
+                        direction: .down
+                    )
+                }
+            }
+            .disposed(by: disposeBag)
+            
         reactor.pulse(\.$shouldClearCommentTextField)
             .withUnretained(self)
             .subscribe {

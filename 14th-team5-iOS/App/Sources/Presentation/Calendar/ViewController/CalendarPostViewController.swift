@@ -137,11 +137,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .withUnretained(self)
             .subscribe {
                 if $0.1 {
-                    $0.0.makeBibbiToastView(
-                        text: "🎉우리 가족 모두가 사진을 올린 날🎉",
-                        backgroundColor: .bibbiBlack,
-                        width: 300
-                    )
+                    $0.0.makeBibbiToastView(text: "🎉우리 가족 모두가 사진을 올린 날🎉")
                 }
             }
             .disposed(by: disposeBag)

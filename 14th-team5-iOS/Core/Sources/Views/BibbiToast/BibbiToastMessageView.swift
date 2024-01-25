@@ -8,11 +8,12 @@
 import DesignSystem
 import UIKit
 
+import SnapKit
 import Then
 
 final public class BibbiToastMessageView: UIView {
     // MARK: - Views
-    private let containerView: UIView = UIView()
+    private let capsuleView: UIView = UIView()
     
     private let stackView: UIStackView = UIStackView()
     private let textLabel: BibbiLabel = BibbiLabel(.body1Regular, alignment: .center, textColor: .bibbiWhite)
@@ -31,41 +32,13 @@ final public class BibbiToastMessageView: UIView {
         }
     }
     
-    public var width: CGFloat {
-        didSet {
-            containerView.snp.updateConstraints {
-                $0.width.equalTo(width)
-            }
-        }
-    }
-    
-    public var height: CGFloat {
-        didSet {
-            containerView.snp.updateConstraints {
-                $0.height.equalTo(height)
-            }
-        }
-    }
-    
-    public var containerColor: UIColor? {
-        didSet {
-            containerView.backgroundColor = backgroundColor
-        }
-    }
-    
     // MARK: - Intializer
     public init(
         text: String,
-        image: UIImage? = nil,
-        containerColor: UIColor = .gray900,
-        width: CGFloat = 300,
-        height: CGFloat = 56
+        image: UIImage? = nil
     ) {
         self.text = text
         self.image = image
-        self.containerColor = containerColor
-        self.width = width
-        self.height = height
         super.init(frame: .zero)
         
         setupUI()
@@ -79,25 +52,21 @@ final public class BibbiToastMessageView: UIView {
     
     // MARK: - Helpers
     private func setupUI() {
-        addSubview(containerView)
-        stackView.addArrangedSubviews(
-            imageView, textLabel
-        )
-        containerView.addSubview(stackView)
+        addSubview(capsuleView)
+        capsuleView.addSubview(stackView)
+        stackView.addArrangedSubviews(imageView, textLabel)
     }
     
     private func setupAutoLayout() {
-        containerView.snp.makeConstraints {
-            $0.width.equalTo(width)
-            $0.height.equalTo(height)
-            $0.bottom.equalToSuperview()
+        capsuleView.snp.makeConstraints {
+            $0.verticalEdges.equalToSuperview()
+            $0.leading.equalTo(stackView.snp.leading).offset(-16)
+            $0.trailing.equalTo(stackView.snp.trailing).offset(16)
             $0.centerX.equalToSuperview()
         }
         
         stackView.snp.makeConstraints {
-            $0.top.bottom.equalToSuperview()
-            $0.horizontalEdges.equalToSuperview().inset(16.0)
-            $0.centerY.equalTo(containerView.snp.centerY)
+            $0.verticalEdges.equalToSuperview()
         }
     }
     
@@ -113,15 +82,20 @@ final public class BibbiToastMessageView: UIView {
         
         stackView.do {
             $0.axis = .horizontal
-            $0.spacing = 5.0
+            $0.spacing = 5
             $0.alignment = .fill
             $0.distribution = .fillProportionally
         }
         
-        containerView.do {
-            $0.backgroundColor = containerColor
+        capsuleView.do {
+            $0.backgroundColor = UIColor.gray900
             $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = 28.0
+            $0.layer.cornerRadius = 28
         }
+        
+//        containerView.do {
+//            $0.isUserInteractionEnabled = true
+//            $0.backgroundColor = UIColor.clear
+//        }
     }
 }

@@ -19,7 +19,6 @@ extension Reactive where Base: UIViewController {
     }
 }
 
-
 extension Reactive where Base: UIView {
     public var tapGesture: UITapGestureRecognizer {
         return UITapGestureRecognizer()
@@ -44,6 +43,22 @@ extension Reactive where Base: UIView {
         self.base.addGestureRecognizer(gestureRecognizer)
         
         return ControlEvent(events: gestureRecognizer.rx.event)
+    }
+}
+
+extension Reactive where Base: UIScrollView {
+    public func reachedBottom(from space: CGFloat = 200.0) -> ControlEvent<Void> {
+        let source = contentOffset.map { contentOffset in
+            let visibleHeight = self.base.frame.height - self.base.contentInset.top - self.base.contentInset.bottom
+            let y = contentOffset.y + self.base.contentInset.top
+            let threshold = self.base.contentSize.height - visibleHeight - space
+            return y >= threshold
+        }
+        .distinctUntilChanged()
+        .filter { $0 }
+        .map { _ in () }
+        
+        return ControlEvent(events: source)
     }
 }
 

@@ -5,26 +5,29 @@
 //  Created by 김건우 on 12/20/23.
 //
 
-import Foundation
-
 import Core
+import Domain
+import Foundation
 
 public enum FamilyAPIs: API {
     case createFamily
-    case invitationUrl(String)
+    case fetchInvitationUrl(String)
+    case fetchFamilyCreatedAt(String)
+    case fetchPaginationFamilyMembers(Int, Int)
     case familyMembers(FamilySearchRequestDTO)
-    case familyCreatedAt(String)
 
     var spec: APISpec {
         switch self {
-        case let .createFamily:
+        case .createFamily:
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/me/create-family")
-        case let .invitationUrl(familyId):
+        case let .fetchInvitationUrl(familyId):
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/links/family/\(familyId)")
+        case let .fetchFamilyCreatedAt(familyId):
+            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/families/\(familyId)/created-at")
+        case let .fetchPaginationFamilyMembers(page, size):
+            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/members?type=FAMILY&page=\(page)&size=\(size)")
         case let .familyMembers(query):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/members?type=FAMILY&page=\(query.page)&size=\(query.size)")
-        case let .familyCreatedAt(familyId):
-            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/families/\(familyId)/created-at")
         }
     }
 }

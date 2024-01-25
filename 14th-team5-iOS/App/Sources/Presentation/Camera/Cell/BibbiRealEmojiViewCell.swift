@@ -19,10 +19,11 @@ final class BibbiRealEmojiViewCell: BaseCollectionViewCell<BibbiRealEmojiCellRea
     
     
     private let realEmojiImageView = UIImageView()
+    private let realEmojiPointImageView = UIImageView()
     
     
     override func setupUI() {
-        contentView.addSubview(realEmojiImageView)
+        contentView.addSubviews(realEmojiImageView, realEmojiPointImageView)
         
     }
     
@@ -32,13 +33,24 @@ final class BibbiRealEmojiViewCell: BaseCollectionViewCell<BibbiRealEmojiCellRea
             $0.clipsToBounds = true
             $0.layer.cornerRadius = 40 / 2
         }
+        
+        realEmojiPointImageView.do {
+            $0.contentMode = .scaleAspectFill
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = 20 / 2
+        }
     }
     
     override func setupAutoLayout() {
         realEmojiImageView.snp.makeConstraints {
             $0.width.height.equalTo(40)
             $0.center.equalToSuperview()
-            
+        }
+        
+        realEmojiPointImageView.snp.makeConstraints {
+            $0.width.height.equalTo(20)
+            $0.top.equalToSuperview()
+            $0.left.equalToSuperview()
         }
     }
     

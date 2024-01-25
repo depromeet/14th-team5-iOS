@@ -22,6 +22,8 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
     private let feedContentStackView: UIStackView = UIStackView()
     private let feedEmojiIconView: UIImageView = UIImageView()
     private let feedEmojiCountLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray200)
+    private let feedCommentImageView: UIImageView = UIImageView()
+    private let feedCommentCountLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray200)
     private let feedUplodeLabel: BibbiLabel = BibbiLabel(.caption, textColor: .gray400)
     
     
@@ -33,7 +35,7 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
     
     public override func setupUI() {
         super.setupUI()
-        feedContentStackView.addArrangedSubviews(feedEmojiIconView , feedEmojiCountLabel)
+        feedContentStackView.addArrangedSubviews(feedEmojiIconView , feedEmojiCountLabel, feedCommentImageView, feedCommentCountLabel)
         feedStackView.addArrangedSubviews(feedContentStackView, feedUplodeLabel)
         contentView.addSubviews(feedImageView, feedStackView)
         
@@ -51,10 +53,21 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
             $0.image = DesignSystemAsset.emoji.image.withTintColor(DesignSystemAsset.gray400.color)
         }
         
+        feedCommentImageView.do {
+            $0.image = DesignSystemAsset.chat.image.withTintColor(DesignSystemAsset.gray400.color)
+        }
+        
+        feedCommentCountLabel.do {
+            $0.text = "99"
+            $0.textAlignment = .left
+            $0.numberOfLines = 1
+        }
+        
         feedContentStackView.do {
             $0.axis = .horizontal
             $0.spacing = 2
             $0.alignment = .fill
+            $0.distribution = .equalCentering
         }
         
         feedEmojiCountLabel.do {
@@ -93,7 +106,10 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
         
         feedEmojiIconView.snp.makeConstraints {
             $0.width.height.equalTo(16)
-            
+        }
+        
+        feedCommentImageView.snp.makeConstraints {
+            $0.width.height.equalTo(16)
         }
         
         
@@ -118,6 +134,12 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
             .map { $0.emojiCount }
             .asDriver(onErrorJustReturn: "")
             .drive(feedEmojiCountLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.commentCount }
+            .asDriver(onErrorJustReturn: "")
+            .drive(feedCommentCountLabel.rx.text)
             .disposed(by: disposeBag)
     }
     

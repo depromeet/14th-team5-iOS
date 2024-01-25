@@ -24,7 +24,9 @@ extension ProfileMemberDTO {
         return .init(
             memberId: memberId ?? "" ,
             memberName: name ?? "",
-            memberImage: URL(string: imageUrl ?? "") ?? URL(fileURLWithPath: "")
+            memberImage: URL(string: imageUrl ?? "") ?? URL(fileURLWithPath: ""),
+            dayOfBirth: dayOfBirth.toDate()
+            
         )
     }
     

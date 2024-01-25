@@ -13,13 +13,13 @@ import RxSwift
 public enum RealEmojiEvent {
     case didTapRealEmojiPad(Int)
     case updateRealEmojiImage(Int, URL)
-    case createRealEmojiImage(Int, URL)
+    case createRealEmojiImage(Int, URL, String)
 }
 
 public protocol RealEmojiGlobalStateType {
     var event: PublishSubject<RealEmojiEvent> { get }
     func updateRealEmojiImage(indexPath row: Int, image: URL) -> Observable<(Int, URL)>
-    func createRealEmojiImage(indexPath row: Int, image: URL) -> Observable<(Int, URL)>
+    func createRealEmojiImage(indexPath row: Int, image: URL, emojiType: String) -> Observable<(Int, URL, String)>
     func didTapRealEmojiEvent(indexPath row: Int) -> Observable<Int>
 }
 
@@ -37,9 +37,9 @@ public final class RealEmojiGlobalState: BaseGlobalState, RealEmojiGlobalStateTy
         return Observable<(Int, URL)>.just((row, image))
     }
     
-    public func createRealEmojiImage(indexPath row: Int, image: URL) -> Observable<(Int, URL)> {
-        event.onNext(.createRealEmojiImage(row, image))
-        return Observable<(Int, URL)>.just((row, image))
+    public func createRealEmojiImage(indexPath row: Int, image: URL, emojiType: String) -> Observable<(Int, URL, String)> {
+        event.onNext(.createRealEmojiImage(row, image, emojiType))
+        return Observable<(Int, URL, String)>.just((row, image, emojiType))
     }
     
 }

@@ -118,15 +118,15 @@ public final class CameraViewReactor: Reactor {
                             if realEmojiEntity.isEmpty {
                                 CameraRealEmojiItems.allCases.enumerated().forEach {
                                     let isSelected: Bool = $0.offset == 0 ? true : false
-                                    sectionItem.append(.realEmojiItem(BibbiRealEmojiCellReactor(provider: owner.provider, realEmojiImage: nil, defaultImage: $0.element.rawValue, isSelected: isSelected, indexPath: $0.offset, realEmojiId: "")))
+                                    sectionItem.append(.realEmojiItem(BibbiRealEmojiCellReactor(provider: owner.provider, realEmojiImage: nil, defaultImage: $0.element.rawValue, isSelected: isSelected, indexPath: $0.offset, realEmojiId: "", realEmojiType: "")))
                                 }
                             } else {
                                 CameraRealEmojiItems.allCases.enumerated().forEach {
                                     let isSelected: Bool = $0.offset == 0 ? true : false
                                     if realEmojiEntity[safe: $0.offset] == nil {
-                                        sectionItem.append(.realEmojiItem(BibbiRealEmojiCellReactor(provider: owner.provider, realEmojiImage: nil, defaultImage: $0.element.rawValue, isSelected: false, indexPath: $0.offset, realEmojiId: "")))
+                                        sectionItem.append(.realEmojiItem(BibbiRealEmojiCellReactor(provider: owner.provider, realEmojiImage: nil, defaultImage: $0.element.rawValue, isSelected: false, indexPath: $0.offset, realEmojiId: "", realEmojiType: "")))
                                     } else {
-                                        sectionItem.append(.realEmojiItem(BibbiRealEmojiCellReactor(provider: owner.provider, realEmojiImage: realEmojiEntity[safe: $0.offset]?.realEmojiImageURL, defaultImage: "", isSelected: isSelected, indexPath: $0.offset, realEmojiId: realEmojiEntity[safe: $0.offset]?.realEmojiId ?? "")))
+                                        sectionItem.append(.realEmojiItem(BibbiRealEmojiCellReactor(provider: owner.provider, realEmojiImage: realEmojiEntity[safe: $0.offset]?.realEmojiImageURL, defaultImage: "", isSelected: isSelected, indexPath: $0.offset, realEmojiId: realEmojiEntity[safe: $0.offset]?.realEmojiId ?? "", realEmojiType: "")))
                                     }
                                 }                                
                             }
@@ -317,7 +317,7 @@ extension CameraViewReactor {
                                             .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                                             .flatMap { realEmojiEntity -> Observable<CameraViewReactor.Mutation> in
                                                 guard let createRealEmojiEntity = realEmojiEntity else { return .just(.setErrorAlert(true))}
-                                                owner.provider.realEmojiGlobalState.createRealEmojiImage(indexPath: owner.currentState.selectedIndexPath, image: createRealEmojiEntity.realEmojiImageURL)
+                                                owner.provider.realEmojiGlobalState.createRealEmojiImage(indexPath: owner.currentState.selectedIndexPath, image: createRealEmojiEntity.realEmojiImageURL, emojiType: createRealEmojiEntity.realEmojiType)
                                                 return owner.cameraUseCase.executeRealEmojiItems(memberId: owner.memberId)
                                                     .asObservable()
                                                     .flatMap { reloadEntity -> Observable<CameraViewReactor.Mutation> in

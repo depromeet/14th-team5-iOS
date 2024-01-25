@@ -19,6 +19,7 @@ public final class BibbiRealEmojiCellReactor: Reactor {
     public enum Mutation {
         case setSelected(Bool)
         case updateEmojiImage(URL?)
+        case createEmojiType(String)
     }
     
     
@@ -28,6 +29,7 @@ public final class BibbiRealEmojiCellReactor: Reactor {
         var isSelected: Bool
         var indexPath: Int
         var realEmojiId: String
+        var realEmojiType: String
     }
     
     public init(
@@ -36,7 +38,8 @@ public final class BibbiRealEmojiCellReactor: Reactor {
         defaultImage: String,
         isSelected: Bool,
         indexPath: Int,
-        realEmojiId: String
+        realEmojiId: String,
+        realEmojiType: String
     ) {
         print("RealEmoji IndexPath \(indexPath), RealEmoji Cell Reactor Check : \(isSelected) and Emoji Type: \(realEmojiId) or realEmoji Image: \(realEmojiImage), and DefaultImage: \(defaultImage)")
         self.initialState = State(
@@ -44,7 +47,8 @@ public final class BibbiRealEmojiCellReactor: Reactor {
             defaultImage: defaultImage,
             isSelected: isSelected,
             indexPath: indexPath,
-            realEmojiId: realEmojiId
+            realEmojiId: realEmojiId,
+            realEmojiType: realEmojiType
         )
         self.provider = provider
     }
@@ -61,10 +65,14 @@ public final class BibbiRealEmojiCellReactor: Reactor {
                     print("realEmoji update provider indexPath: \(indexPath) or image: \(image)")
                     return Observable<Mutation>.just(.updateEmojiImage($0.0.currentState.indexPath == indexPath ? image : $0.0.currentState.realEmojiImage ?? originalImage))
                     
-                case let .createRealEmojiImage(indexPath, image):
+                case let .createRealEmojiImage(indexPath, image, emojiType):
                     guard $0.0.currentState.realEmojiImage == nil else { return .empty() }
                     print("create image provider indexPath: \(indexPath) or image: \(image)")
-                    return Observable<Mutation>.just(.updateEmojiImage($0.0.currentState.indexPath == indexPath ? image : nil ))
+                    //TODO: EmojiItems 랑 비교해서 로직 추가
+                    return Observable<Mutation>.concat(
+                        .just(.updateEmojiImage($0.0.currentState.indexPath == indexPath ? image : nil )),
+                        .just(.createEmojiType($0.0.currentState.indexPath == indexPath ? emojiType : ""))
+                    )
                 }
             }
         
@@ -82,6 +90,8 @@ public final class BibbiRealEmojiCellReactor: Reactor {
         case let .updateEmojiImage(realEmojiImage):
             print("realEmoji Update Image: \(realEmojiImage)")
             newState.realEmojiImage = realEmojiImage
+        case let .createEmojiType(emojiType):
+            newState.realEmojiType = emojiType
         }
         return newState
     }

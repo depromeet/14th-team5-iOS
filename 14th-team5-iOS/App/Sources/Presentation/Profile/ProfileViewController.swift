@@ -251,7 +251,32 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .distinctUntilChanged()
             .bind(to: profileView.rx.isSetting)
             .disposed(by: disposeBag)
-                
+        
+        
+        Observable
+            .zip(
+                profileFeedCollectionView.rx.itemSelected,
+                reactor.state.compactMap { $0.profilePostEntity }
+            )
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .map { Reactor.Action.didTapProfilePost($0.0, $0.1)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+            
+        
+        Observable
+            .zip(
+                reactor.pulse(\.$profileData),
+                reactor.pulse(\.$selectedIndexPath)
+            )
+            .withUnretained(self)
+            .subscribe {
+                guard let indexPath = $0.1.1 else { return }
+                let postListViewController = PostListsDIContainer().makeViewController(postLists: $0.1.0, selectedIndex: indexPath)
+                $0.0.navigationController?.pushViewController(postListViewController, animated: true)
+            }.disposed(by: disposeBag)
+
+            
         
         reactor.state
             .compactMap { $0.profilePostEntity?.results.isEmpty }

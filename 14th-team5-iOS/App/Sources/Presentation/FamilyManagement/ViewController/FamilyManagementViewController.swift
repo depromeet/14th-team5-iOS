@@ -109,8 +109,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .subscribe {
                 $0.0.makeBibbiToastView(
                     text: _Str.sucessCopyInvitationUrlText,
-                    designSystemImage: DesignSystemAsset.link.image,
-                    width: 220
+                    image: DesignSystemAsset.link.image
                 )
             }
             .disposed(by: disposeBag)
@@ -121,8 +120,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .subscribe {
                 $0.0.makeBibbiToastView(
                     text: _Str.fetchFailInvitationUrlText,
-                    designSystemImage: DesignSystemAsset.warning.image,
-                    width: 240
+                    image: DesignSystemAsset.warning.image
                 )
             }
             .disposed(by: disposeBag)

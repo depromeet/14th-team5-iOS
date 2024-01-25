@@ -5,10 +5,10 @@
 //  Created by 마경미 on 13.01.24.
 //
 
-import UIKit
-
 import Core
 import Domain
+import DesignSystem
+import UIKit
 
 import RxDataSources
 
@@ -161,8 +161,7 @@ extension HomeFamilyViewController {
             .subscribe {
                 $0.0.makeBibbiToastView(
                     text: "링크가 복사되었어요",
-                    symbol: "link",
-                    width: 210
+                    image: DesignSystemAsset.link.image
                 )
             }
             .disposed(by: disposeBag)
@@ -173,9 +172,7 @@ extension HomeFamilyViewController {
             .subscribe {
                 $0.0.makeBibbiToastView(
                     text: "잠시 후에 다시 시도해주세요",
-                    symbol: "exclamationmark.triangle.fill",
-                    palletteColors: [UIColor.systemYellow],
-                    width: 230
+                    image: DesignSystemAsset.warning.image
                 )
             }
             .disposed(by: disposeBag)

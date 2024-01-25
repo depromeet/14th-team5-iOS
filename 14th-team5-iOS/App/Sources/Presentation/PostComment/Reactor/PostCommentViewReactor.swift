@@ -108,7 +108,7 @@ final public class PostCommentViewReactor: Reactor {
             
         case .fetchPostComment:
             let postId = currentState.postId
-            let query = PostCommentPaginationQuery(page: 1)
+            let query = PostCommentPaginationQuery()
             return postCommentUseCase.executeFetchPostComment(postId: postId, query: query)
                 .flatMap {
                     guard let commentResponseArray = $0,

@@ -109,7 +109,7 @@ public final class FamilyManagementViewReactor: Reactor {
             )
             
         case .fetchPaginationFamilyMemebers:
-            let query = FamilyPaginationQuery(size: 256)
+            let query = FamilyPaginationQuery()
             
             return familyUseCase.executeFetchPaginationFamilyMembers(query: query)
                 .withUnretained(self)
@@ -129,7 +129,6 @@ public final class FamilyManagementViewReactor: Reactor {
             
         case let .didSelectTableCell(indexPath):
             guard let dataSource = currentState.displayFamilyMember.first else {
-                // TODO: - 예외 ToastMessage 출력하기
                 return Observable<Mutation>.empty()
             }
             let memberId = dataSource.items[indexPath.row].initialState.memberId

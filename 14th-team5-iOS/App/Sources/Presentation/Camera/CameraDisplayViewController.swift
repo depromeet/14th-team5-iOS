@@ -90,7 +90,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         confirmButton.do {
             $0.configuration?.imagePlacement = .leading
-            $0.backgroundColor = DesignSystemAsset.mainGreen.color
+            $0.backgroundColor = DesignSystemAsset.mainYellow.color
             $0.configuration?.image = DesignSystemAsset.camera.image.withTintColor(DesignSystemAsset.black.color)
             $0.configuration?.imagePadding = 6
             $0.configuration?.attributedTitle = AttributedString(NSAttributedString(string: "사진 업로드", attributes: [
@@ -228,7 +228,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .withUnretained(self)
             .bind { owner, isShow in
                 guard isShow == true else { return }
-                owner.makeBibbiToastView(text: "띄어쓰기는 할 수 없어요", designSystemImage: DesignSystemAsset.warning.image, width: 230, height: 56, offset: 400)
+                owner.makeBibbiToastView(text: "띄어쓰기는 할 수 없어요", image: DesignSystemAsset.warning.image, duration: 1, delay: 1, offset: 400)
             }.disposed(by: disposeBag)
         
         displayEditTextField.rx
@@ -238,7 +238,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .withUnretained(self)
             .bind { owner, isShow in
                 guard isShow == true else { return }
-                owner.makeBibbiToastView(text: "8자까지 입력가능해요", designSystemImage: DesignSystemAsset.warning.image, width: 211, height: 56, offset: 400)
+                owner.makeBibbiToastView(text: "8자까지 입력가능해요", image: DesignSystemAsset.warning.image, offset: 400)
             }.disposed(by: disposeBag)
         
         displayEditTextField.rx
@@ -357,8 +357,7 @@ extension CameraDisplayViewController {
                 creationRequest.addResource(with: .photo, data: originalData, options: nil)
                 owner.makeBibbiToastView(
                     text: "사진이 저장되었습니다.",
-                    designSystemImage: DesignSystemAsset.camera.image.withTintColor(DesignSystemAsset.gray300.color),
-                    height: 56
+                    image: DesignSystemAsset.camera.image.withTintColor(DesignSystemAsset.gray300.color)
                 )
             }
         } else {

@@ -30,7 +30,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     private let familyTableView: UITableView = UITableView()
     
     // MARK: - Properties
-    lazy var dataSource: RxTableViewSectionedReloadDataSource<FamilyMemberProfileSectionModel> = prepareDatasource()
+    private lazy var dataSource: RxTableViewSectionedReloadDataSource<FamilyMemberProfileSectionModel> = prepareDatasource()
     
     // MARK: - Lifecycles
     public override func viewDidLoad() {
@@ -51,13 +51,18 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     
     private func bindInput(reactor: FamilyManagementViewReactor) {
         Observable<Void>.just(())
-            .map { Reactor.Action.fetchFamilyMemebers }
+            .map { Reactor.Action.fetchPaginationFamilyMemebers }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         shareContainerview.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .map { Reactor.Action.didTapShareContainer }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        familyTableView.rx.itemSelected
+            .map { Reactor.Action.didSelectTableCell($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
@@ -85,8 +90,17 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .bind(to: tableCountLabel.rx.text)
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$displayFamilyMemberInfo)
+        reactor.pulse(\.$displayFamilyMember)
             .bind(to: familyTableView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPushProfileVC)
+            .skip(1)
+            .withUnretained(self)
+            .subscribe {
+                let profileVC = ProfileDIContainer(memberId: $0.1).makeViewController()
+                $0.0.navigationController?.pushViewController(profileVC, animated: true)
+            }
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentCopySuccessToastMessageView)
@@ -95,8 +109,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .subscribe {
                 $0.0.makeBibbiToastView(
                     text: _Str.sucessCopyInvitationUrlText,
-                    designSystemImage: DesignSystemAsset.link.image,
-                    width: 220
+                    image: DesignSystemAsset.link.image
                 )
             }
             .disposed(by: disposeBag)
@@ -105,11 +118,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .skip(1)
             .withUnretained(self)
             .subscribe {
-                $0.0.makeBibbiToastView(
-                    text: _Str.fetchFailInvitationUrlText,
-                    designSystemImage: DesignSystemAsset.warning.image,
-                    width: 240
-                )
+                $0.0.makeErrorBibbiToastView()
             }
             .disposed(by: disposeBag)
     }
@@ -186,7 +195,6 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
         
         familyTableView.do {
             $0.separatorStyle = .none
-            $0.allowsSelection = false
             $0.estimatedRowHeight = UITableView.automaticDimension
             $0.backgroundColor = UIColor.clear
             $0.contentInset = UIEdgeInsets(

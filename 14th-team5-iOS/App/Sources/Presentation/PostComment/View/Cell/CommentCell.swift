@@ -16,6 +16,8 @@ import Then
 
 final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     // MARK: - Views
+    private let containerView: UIView = UIView()
+    private let firstNameLabel: UILabel = BibbiLabel(.head2Bold, alignment: .center, textColor: .bibbiWhite)
     private let profileImageView: UIImageView = UIImageView()
     
     private let userNameStack: UIStackView = UIStackView()
@@ -37,6 +39,12 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     }
     
     // MARK: - Helerps
+    public override func prepareForReuse() {
+        userNameLabel.text = String.none
+        createdAtLabel.text = String.none
+        profileImageView.image = nil
+    }
+    
     public override func bind(reactor: CommentCellReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
@@ -56,9 +64,16 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     }
     
     private func bindOutput(reactor: CommentCellReactor) {
-        reactor.state.map { $0.userName }
+        let userName = reactor.state.map({ $0.userName }).asDriver(onErrorJustReturn: .none)
+        
+        userName
             .distinctUntilChanged()
-            .bind(to: userNameLabel.rx.text)
+            .drive(userNameLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        userName
+            .distinctUntilChanged()
+            .drive(firstNameLabel.rx.firtNameText)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.profileImageUrlString }
@@ -81,22 +96,31 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     public override func setupUI() {
         super.setupUI()
         
-        contentView.addSubviews(profileImageView, userNameStack, commentLabel)
+        containerView.addSubviews(firstNameLabel, profileImageView)
+        contentView.addSubviews(containerView, userNameStack, commentLabel)
         userNameStack.addArrangedSubviews(userNameLabel, createdAtLabel)
     }
     
     public override func setupAutoLayout() {
         super.setupUI()
         
-        profileImageView.snp.makeConstraints {
+        containerView.snp.makeConstraints {
+            $0.size.equalTo(44)
             $0.top.equalTo(contentView.snp.top).offset(8)
             $0.leading.equalTo(contentView.snp.leading).offset(20)
-            $0.size.equalTo(44)
+        }
+        
+        firstNameLabel.snp.makeConstraints {
+            $0.size.equalToSuperview()
+        }
+        
+        profileImageView.snp.makeConstraints {
+            $0.size.equalToSuperview()
         }
         
         userNameStack.snp.makeConstraints {
             $0.top.equalToSuperview().offset(10)
-            $0.leading.equalTo(profileImageView.snp.trailing).offset(18)
+            $0.leading.equalTo(containerView.snp.trailing).offset(18)
         }
         
         commentLabel.snp.makeConstraints {
@@ -114,13 +138,16 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
             $0.backgroundColor = UIColor.bibbiBlack
         }
         
-        profileImageView.do {
+        containerView.do {
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = 44 / 2
+            $0.backgroundColor = UIColor.gray800
+        }
+        
+        profileImageView.do {
             $0.contentMode = .scaleAspectFill
-            
-            $0.backgroundColor = UIColor.gray100
-            $0.image = DesignSystemAsset.emoji1.image
+            $0.layer.masksToBounds = true
+            $0.layer.cornerRadius = 44 / 2
         }
         
         userNameStack.do {

@@ -10,14 +10,16 @@ import Foundation
 public struct PostListData: Equatable {
     public let postId: String
     public let author: ProfileData?
+    public let commentCount: Int
     public let emojiCount: Int
     public let imageURL: String
     public let content: String?
     public let time: String
     
-    public init(postId: String, author: ProfileData?, emojiCount: Int, imageURL: String, content: String?, time: String) {
+    public init(postId: String, author: ProfileData?, commentCount: Int, emojiCount: Int, imageURL: String, content: String?, time: String) {
         self.postId = postId
         self.author = author
+        self.commentCount = commentCount
         self.emojiCount = emojiCount
         self.imageURL = imageURL
         self.content = content

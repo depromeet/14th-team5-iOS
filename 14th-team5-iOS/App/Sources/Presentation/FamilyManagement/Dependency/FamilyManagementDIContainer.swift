@@ -25,8 +25,16 @@ public final class FamilyManagementDIContainer {
         return FamilyManagementViewController(reactor: makeReactor())
     }
     
+    public func makeMemberUseCase() -> MemberUseCaseProtocol {
+        return MemberUseCase(memberRepository: makeMemberRepository())
+    }
+    
     public func makeFamilyUseCase() -> FamilyViewUseCaseProtocol {
         return FamilyViewUseCase(familyRepository: makeFamilyRepository())
+    }
+    
+    public func makeMemberRepository() -> MemberRepositoryProtocol {
+        return MemberRepository()
     }
     
     public func makeFamilyRepository() -> FamilyRepositoryProtocol {
@@ -35,6 +43,7 @@ public final class FamilyManagementDIContainer {
     
     public func makeReactor() -> FamilyManagementViewReactor {
         return FamilyManagementViewReactor(
+            memberUseCase: makeMemberUseCase(),
             familyUseCase: makeFamilyUseCase(),
             provider: globalState
         )

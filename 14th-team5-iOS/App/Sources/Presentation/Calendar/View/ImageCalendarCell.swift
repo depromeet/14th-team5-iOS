@@ -77,7 +77,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             .subscribe {
                 if $0.1 {
                     $0.0.todayStrokeView.isHidden = false
-                    $0.0.dayLabel.textBibbiColor = UIColor.mainGreen
+                    $0.0.dayLabel.textBibbiColor = UIColor.mainYellow
                 }
             }
             .disposed(by: disposeBag)
@@ -126,7 +126,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
                         
                         if reactor.currentState.date.isToday {
                             $0.0.todayStrokeView.isHidden = false
-                            $0.0.dayLabel.textBibbiColor = UIColor.mainGreen
+                            $0.0.dayLabel.textBibbiColor = UIColor.mainYellow
                         }
                     }
                 }

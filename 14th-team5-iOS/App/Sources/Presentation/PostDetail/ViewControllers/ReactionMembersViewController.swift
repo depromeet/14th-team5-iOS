@@ -114,7 +114,7 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberReac
         
         closeButton.do {
             $0.layer.cornerRadius = 28
-            $0.backgroundColor = .mainGreen
+            $0.backgroundColor = .mainYellow
             $0.titleLabel?.font = DesignSystemFontFamily.Pretendard.semiBold.font(size: 16)
             $0.setTitle("닫기", for: .normal)
             $0.setTitleColor(.black, for: .normal)

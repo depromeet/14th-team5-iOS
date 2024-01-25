@@ -45,7 +45,8 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
                 .external(name: "Mixpanel"),
                 .with(.Core),
                 .with(.Data),
-                .external(name: "ReactorKit")
+                .external(name: "ReactorKit"),
+                .external(name: "Lottie")
             ]
         case .Data:
             return [

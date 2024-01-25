@@ -13,8 +13,8 @@ public struct PostCommentPaginationQuery {
     public var sort: PostCommentPaginationQuery.Sort
     
     public init(
-        page: Int,
-        size: Int = 100,
+        page: Int = 1,
+        size: Int = 256,
         sort: PostCommentPaginationQuery.Sort = .asc
     ) {
         self.page = page

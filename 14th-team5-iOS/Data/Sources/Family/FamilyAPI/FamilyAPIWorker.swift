@@ -35,7 +35,136 @@ extension FamilyAPIs {
     }
 }
 
-extension FamilyAPIWorker: SearchFamilyRepository {
+extension FamilyAPIWorker {
+    private func createFamily(spec: APISpec, headers: [APIHeader]?) -> Single<FamilyResponse?> {
+        return request(spec: spec, headers: headers)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Family Create Result: \(str)")
+                }
+            }
+            .map(FamilyResponseDTO.self)
+            .catchAndReturn(nil)
+            .map { $0?.toDomain() }
+            .asSingle()
+    }
+    
+    public func createFamily() -> Single<FamilyResponse?> {
+        let spec: APISpec = FamilyAPIs.createFamily.spec
+        
+        return Observable<Void>.just(())
+            .withLatestFrom(self._headers)
+            .observe(on: Self.queue)
+            .withUnretained(self)
+            .flatMap { $0.0.createFamily(spec: spec, headers: $0.1) }
+            .asSingle()
+    }
+    
+    private func fetchInvitationUrl(spec: APISpec, headers: [APIHeader]?) -> Single<FamilyInvitationLinkResponse?> {
+        return request(spec: spec, headers: headers)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("InvigationUrl Fetch Result: \(str)")
+                }
+            }
+            .map(FamilyInvitationLinkResponseDTO.self)
+            .catchAndReturn(nil)
+            .map { $0?.toDomain() }
+            .asSingle()
+    }
+    
+    public func fetchInvitationUrl(familyId: String) -> Single<FamilyInvitationLinkResponse?> {
+        let spec: APISpec = FamilyAPIs.fetchInvitationUrl(familyId).spec
+        
+        return Observable<Void>.just(())
+            .withLatestFrom(self._headers)
+            .observe(on: Self.queue)
+            .withUnretained(self)
+            .flatMap { $0.0.fetchInvitationUrl(spec: spec, headers: $0.1) }
+            .asSingle()
+    }
+    
+    private func fetchFamilyCreatedAt(spec: APISpec, headers: [APIHeader]?) -> Single<FamilyCreatedAtResponse?> {
+        return request(spec: spec, headers: headers)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("FamilyCreatedAt Fetch Result: \(str)")
+                }
+            }
+            .map(FamilyCreatedAtResponseDTO.self)
+            .catchAndReturn(nil)
+            .map { $0?.toDomain() }
+            .asSingle()
+    }
+    
+    public func fetchFamilyCreatedAt(familyId: String) -> Single<FamilyCreatedAtResponse?> {
+        let spec = FamilyAPIs.fetchFamilyCreatedAt(familyId).spec
+        
+        return Observable<Void>.just(())
+            .withLatestFrom(self._headers)
+            .observe(on: Self.queue)
+            .withUnretained(self)
+            .flatMap { $0.0.fetchFamilyCreatedAt(spec: spec, headers: $0.1) }
+            .asSingle()
+    }
+    
+    private func fetchPaginationFamilyMember(spec: APISpec, headers: [APIHeader]?) -> Single<PaginationResponseFamilyMemberProfile?> {
+        return request(spec: spec, headers: headers)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("FamilyMember Fetch Result: \(str)")
+                }
+            }
+            .map(PaginationResponseFamilyMemberProfileDTO.self)
+            .catchAndReturn(nil)
+            .map { $0?.toDomain() }
+            .asSingle()
+    }
+    
+    public func fetchPaginationFamilyMember(familyId: String, query: FamilyPaginationQuery) -> Single<PaginationResponseFamilyMemberProfile?> {
+        let page = query.page
+        let size = query.size
+        let spec = FamilyAPIs.fetchPaginationFamilyMembers(page, size).spec
+        
+        return Observable<Void>.just(())
+            .withLatestFrom(self._headers)
+            .observe(on: Self.queue)
+            .withUnretained(self)
+            .flatMap { $0.0.fetchPaginationFamilyMember(spec: spec, headers: $0.1) }
+            .asSingle()
+    }
+    
+    
+    @available(*, deprecated, renamed: "fetchPaginationFamilyMember")
+    public func fetchFamilyMemeberPage(token accessToken: String) -> Single<PaginationResponseFamilyMemberProfile?> {
+        let request: FamilySearchRequestDTO = .init(type: "FAMILY", page: 1, size: 20)
+        let spec: APISpec = FamilyAPIs.familyMembers(request).spec
+        let headers: [BibbiHeader] = [BibbiHeader.acceptJson, BibbiHeader.xAppKey, BibbiHeader.xAuthToken(accessToken)]
+        
+        return fetchFamilyMemberPage(spec: spec, headers: headers)
+    }
+    
+    @available(*, deprecated, renamed: "fetchPaginationFamilyMember")
+    private func fetchFamilyMemberPage(spec: APISpec, headers: [BibbiHeader]) -> Single<PaginationResponseFamilyMemberProfile?> {
+        return request(spec: spec, headers: headers)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("FamilyMemeber Fetch Reseult: \(str)")
+                }
+            }
+            .map(PaginationResponseFamilyMemberProfileDTO.self)
+            .catchAndReturn(nil)
+            .map { $0?.toDomain() }
+            .asSingle()
+    }
+    
+    
+    @available(*, deprecated, renamed: "fetchPaginationFamilyMember")
     public func fetchFamilyMember(query: SearchFamilyQuery) -> Single<SearchFamilyPage?> {
         return Observable.just(())
             .withLatestFrom(self._headers)
@@ -44,6 +173,7 @@ extension FamilyAPIWorker: SearchFamilyRepository {
             .asSingle()
     }
     
+    @available(*, deprecated, renamed: "fetchPaginationFamilyMember")
     private func fetchFamilyMember(headers: [APIHeader]?, query: Domain.SearchFamilyQuery) -> RxSwift.Single<Domain.SearchFamilyPage?> {
         let query = FamilySearchRequestDTO(type: "", page: query.page, size: query.size)
         let spec: APISpec = FamilyAPIs.familyMembers(query).spec
@@ -62,94 +192,9 @@ extension FamilyAPIWorker: SearchFamilyRepository {
             }
             .asSingle()
     }
-    
-    private func createFamily(spec: APISpec, headers: [BibbiHeader]) -> Single<FamilyResponse?> {
-        return request(spec: spec, headers: headers)
-            .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Family Create Result: \(str)")
-                }
-            }
-            .map(FamilyResponseDTO.self)
-            .catchAndReturn(nil)
-            .map { $0?.toDomain() }
-            .asSingle()
-    }
-    
-    public func createFamily(token accessToken: String) -> Single<FamilyResponse?> {
-        let spec: APISpec = FamilyAPIs.createFamily.spec
-        let headers: [BibbiHeader] = [.acceptJson, .xAppKey, .xAuthToken(accessToken)]
-        
-        return createFamily(spec: spec, headers: headers)
-    }
-    
-    private func fetchInvitationUrl(spec: APISpec, headers: [BibbiHeader]) -> Single<FamilyInvitationLinkResponse?> {
-        return request(spec: spec, headers: headers)
-            .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("FamilyInvigationLink Fetch Result: \(str)")
-                }
-            }
-            .map(FamilyInvitationLinkResponseDTO.self)
-            .catchAndReturn(nil)
-            .map { $0?.toDomain() }
-            .asSingle()
-    }
-    
-    public func fetchInvitationUrl(token accessToken: String, familyId: String) -> Single<FamilyInvitationLinkResponse?> {
-        let spec: APISpec = FamilyAPIs.invitationUrl(familyId).spec
-        let headers: [BibbiHeader] = [BibbiAPI.Header.acceptJson, BibbiHeader.xAppKey, BibbiHeader.xAuthToken(accessToken)]
-        
-        return fetchInvitationUrl(spec: spec, headers: headers)
-    }
-    
-    private func fetchFamilyMemberPage(spec: APISpec, headers: [BibbiHeader]) -> Single<PaginationResponseFamilyMemberProfile?> {
-        return request(spec: spec, headers: headers)
-            .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("FamilyMemeber Fetch Reseult: \(str)")
-                }
-            }
-            .map(PaginationResponseFamilyMemberProfileDTO.self)
-            .catchAndReturn(nil)
-            .map { $0?.toDomain() }
-            .asSingle()
-    }
-    
-    public func fetchFamilyMemeberPage(token accessToken: String) -> Single<PaginationResponseFamilyMemberProfile?> {
-        let request: FamilySearchRequestDTO = .init(type: "FAMILY", page: 1, size: 20)
-        let spec: APISpec = FamilyAPIs.familyMembers(request).spec
-        let headers: [BibbiHeader] = [BibbiHeader.acceptJson, BibbiHeader.xAppKey, BibbiHeader.xAuthToken(accessToken)]
-        
-        return fetchFamilyMemberPage(spec: spec, headers: headers)
-    }
-    
-    private func fetchFamilyCreatedAt(spec: APISpec, headers: [BibbiHeader]) -> Single<FamilyCreatedAtResponse?> {
-        return request(spec: spec, headers: headers)
-            .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("FamilyCreatedAt Fetch Result: \(str)")
-                }
-            }
-            .map(FamilyCreatedAtResponseDTO.self)
-            .catchAndReturn(nil)
-            .map { $0?.toDomain() }
-            .asSingle()
-    }
-    
-    public func fetchFamilyCreatedAt(token accessToken: String, familyId: String) -> Single<FamilyCreatedAtResponse?> {
-        let spec = FamilyAPIs.familyCreatedAt(familyId).spec
-        let headers: [BibbiHeader] = [.acceptJson, .xAppKey, .xAuthToken(accessToken)]
-        
-        return fetchFamilyCreatedAt(spec: spec, headers: headers)
-    }
 }
 
-extension FamilyAPIWorker {
+extension FamilyAPIWorker: SearchFamilyRepository {
     public func getSavedFamilyMember(memberIds: [String]) -> [Domain.ProfileData]? {
         return FamilyUserDefaults.loadMembersFromUserDefaults(memberIds: memberIds)
     }

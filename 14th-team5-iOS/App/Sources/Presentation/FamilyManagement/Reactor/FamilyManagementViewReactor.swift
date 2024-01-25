@@ -5,10 +5,9 @@
 //  Created by 김건우 on 12/11/23.
 //
 
-import Foundation
+import UIKit
 
 import Core
-import Data
 import Domain
 import Differentiator
 import ReactorKit
@@ -17,8 +16,9 @@ import RxSwift
 public final class FamilyManagementViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
+        case fetchPaginationFamilyMemebers
         case didTapShareContainer
-        case fetchFamilyMemebers
+        case didSelectTableCell(IndexPath)
     }
     
     // MARK: - Mutate
@@ -28,6 +28,7 @@ public final class FamilyManagementViewReactor: Reactor {
         case setFetchFailureTaostMessageView
         case injectFamilyId(String?)
         case injectFamilyMembers([FamilyMemberProfileCellReactor])
+        case pushProfileVC(String)
     }
     
     // MARK: - State
@@ -36,20 +37,21 @@ public final class FamilyManagementViewReactor: Reactor {
         @Pulse var familyInvitationUrl: URL?
         @Pulse var shouldPresentCopySuccessToastMessageView: Bool
         @Pulse var shouldPresentFetchFailureToastMessageView: Bool
-        @Pulse var displayFamilyMemberInfo: [FamilyMemberProfileSectionModel]
+        @Pulse var shouldPushProfileVC: String
+        @Pulse var displayFamilyMember: [FamilyMemberProfileSectionModel]
         var displayFamilyMemberCount: Int
     }
     
     // MARK: - Properties
     public let initialState: State
     
+    public let memberUseCase: MemberUseCaseProtocol
     public let familyUseCase: FamilyViewUseCaseProtocol
     public let provider: GlobalStateProviderProtocol
     
-    private let memberId: String? = App.Repository.member.memberID.value
-    
     // MARK: - Intializer
     init(
+        memberUseCase: MemberUseCaseProtocol,
         familyUseCase: FamilyViewUseCaseProtocol,
         provider: GlobalStateProviderProtocol
     ) {
@@ -58,10 +60,12 @@ public final class FamilyManagementViewReactor: Reactor {
             familyInvitationUrl: nil,
             shouldPresentCopySuccessToastMessageView: false,
             shouldPresentFetchFailureToastMessageView: false,
-            displayFamilyMemberInfo: [],
+            shouldPushProfileVC: .none,
+            displayFamilyMember: [.init(model: (), items: [])],
             displayFamilyMemberCount: 0
         )
         
+        self.memberUseCase = memberUseCase
         self.familyUseCase = familyUseCase
         self.provider = provider
     }
@@ -104,11 +108,12 @@ public final class FamilyManagementViewReactor: Reactor {
                     })
             )
             
-        case .fetchFamilyMemebers:
-            return familyUseCase.executeFetchFamilyMembers()
+        case .fetchPaginationFamilyMemebers:
+            let query = FamilyPaginationQuery()
+            
+            return familyUseCase.executeFetchPaginationFamilyMembers(query: query)
                 .withUnretained(self)
                 .map {
-                    let myMemberId: String? = $0.0.memberId
                     guard let familyResponse = $0.1?.results else {
                         return .injectFamilyMembers([])
                     }
@@ -116,11 +121,19 @@ public final class FamilyManagementViewReactor: Reactor {
                     return .injectFamilyMembers(
                         familyResponse.map {
                             FamilyMemberProfileCellReactor(
-                                $0, isMe: myMemberId == $0.memberId
+                                $0, isMe: self.memberUseCase.executeCheckIsMe(memberId: $0.memberId)
                             )
                         }
                     )
                 }
+            
+        case let .didSelectTableCell(indexPath):
+            guard let dataSource = currentState.displayFamilyMember.first else {
+                return Observable<Mutation>.empty()
+            }
+            let memberId = dataSource.items[indexPath.row].initialState.memberId
+            
+            return Observable<Mutation>.just(.pushProfileVC(memberId))
         }
     }
     
@@ -141,11 +154,26 @@ public final class FamilyManagementViewReactor: Reactor {
             newState.familyId = familyId
             
         case let .injectFamilyMembers(familyMembers):
+            guard var dataSource = currentState.displayFamilyMember.first else {
+                break
+            }
+            dataSource.items.append(contentsOf: familyMembers)
+            dataSource.items.sort {
+                $0.currentState.isMe && !$1.currentState.isMe
+            }
+            
+            newState.displayFamilyMember = [dataSource]
             newState.displayFamilyMemberCount = familyMembers.count
-            newState.displayFamilyMemberInfo = [
-                .init(model: Void(), items: familyMembers.sorted { $0.currentState.isMe && !$1.currentState.isMe })
-            ]
+            
+        case let .pushProfileVC(memberId):
+            newState.shouldPushProfileVC = memberId
         }
         return newState
+    }
+}
+
+extension FamilyManagementViewController {
+    private func shouldFetchNextPage(contentOffsetY: CGFloat, frameHehgit: CGFloat) -> Bool {
+        return false
     }
 }

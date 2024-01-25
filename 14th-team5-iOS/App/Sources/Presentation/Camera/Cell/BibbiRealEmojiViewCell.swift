@@ -66,12 +66,19 @@ final class BibbiRealEmojiViewCell: BaseCollectionViewCell<BibbiRealEmojiCellRea
         
         reactor.state
             .filter { !$0.isSelected && !$0.defaultImage.isEmpty }
+            .filter { $0.realEmojiImage == nil }
             .map { "un\($0.defaultImage)"}
-            .distinctUntilChanged()
             .map { DesignSystemImages.Image(named: $0, in: DesignSystemResources.bundle, with: nil)}
             .bind(to: realEmojiImageView.rx.image)
             .disposed(by: disposeBag)
         
+        reactor.state
+            .filter { $0.isSelected && !$0.defaultImage.isEmpty}
+            .filter { $0.realEmojiImage == nil }
+            .map { "\($0.defaultImage)"}
+            .map { DesignSystemImages.Image(named: $0, in: DesignSystemResources.bundle, with: nil)}
+            .bind(to: realEmojiImageView.rx.image)
+            .disposed(by: disposeBag)
     }
     
 }

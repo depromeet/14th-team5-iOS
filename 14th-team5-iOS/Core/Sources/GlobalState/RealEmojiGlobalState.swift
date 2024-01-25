@@ -1,0 +1,45 @@
+//
+//  RealEmojiGlobalState.swift
+//  Core
+//
+//  Created by Kim dohyun on 1/24/24.
+//
+
+import Foundation
+
+import RxSwift
+
+
+public enum RealEmojiEvent {
+    case didTapRealEmojiPad(Int)
+    case updateRealEmojiImage(Int, URL)
+    case createRealEmojiImage(Int, URL)
+}
+
+public protocol RealEmojiGlobalStateType {
+    var event: PublishSubject<RealEmojiEvent> { get }
+    func updateRealEmojiImage(indexPath row: Int, image: URL) -> Observable<(Int, URL)>
+    func createRealEmojiImage(indexPath row: Int, image: URL) -> Observable<(Int, URL)>
+    func didTapRealEmojiEvent(indexPath row: Int) -> Observable<Int>
+}
+
+
+public final class RealEmojiGlobalState: BaseGlobalState, RealEmojiGlobalStateType {
+    public var event: PublishSubject<RealEmojiEvent> = PublishSubject<RealEmojiEvent>()
+    
+    public func didTapRealEmojiEvent(indexPath row: Int) -> RxSwift.Observable<Int> {
+        event.onNext(.didTapRealEmojiPad(row))
+        return Observable<Int>.just(row)
+    }
+    
+    public func updateRealEmojiImage(indexPath row: Int, image: URL) -> RxSwift.Observable<(Int, URL)> {
+        event.onNext(.updateRealEmojiImage(row, image))
+        return Observable<(Int, URL)>.just((row, image))
+    }
+    
+    public func createRealEmojiImage(indexPath row: Int, image: URL) -> Observable<(Int, URL)> {
+        event.onNext(.createRealEmojiImage(row, image))
+        return Observable<(Int, URL)>.just((row, image))
+    }
+    
+}

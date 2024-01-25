@@ -116,8 +116,9 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         realEmojiFaceImageView.do {
             $0.contentMode = .scaleAspectFill
-            //TODO: DesignSystem Image 추가시 변경
             $0.image = DesignSystemAsset.emoji1.image
+            $0.layer.cornerRadius = 24 / 2
+            $0.clipsToBounds = true
         }
         
         realEmojiHorizontalStakView.do {
@@ -287,6 +288,27 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         //두가지 방법이 있음
         //selected 로 indexPath를 조회해서 EmojiType을 가져오는 방법 단 Cell Reactor에 주입할때 Emoji Type은 ImageUrl 있을때만 넣고 없으면 빈값으로 넣어서 예외 처리 해야함
         //두번째 방법은 modelSelected로 가져오는 방법
+        
+        
+        // 선택을 했음
+        // 해당 인덱스 true로 넘겨야함
+        // 그리고 해당 인덱스 default Image 가져와야함 or imageType 가져와야함
+        //
+            
+        realEmojiCollectionView
+            .rx.itemSelected
+            .debug("Tap item Select")
+            .map { Reactor.Action.didTapRealEmojiPad($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.selectedEmojiPadItem }
+            .distinctUntilChanged()
+            .map { DesignSystemImages.Image(named: $0, in: DesignSystemResources.bundle, with: nil)}
+            .bind(to: realEmojiFaceImageView.rx.image)
+            .disposed(by: disposeBag)
+        
         shutterButton
             .rx.tap
             .throttle(.seconds(1), scheduler: MainScheduler.instance)

@@ -5,7 +5,7 @@
 //  Created by 김건우 on 12/11/23.
 //
 
-import Foundation
+import UIKit
 
 import Core
 import Domain
@@ -16,7 +16,7 @@ import RxSwift
 public final class FamilyManagementViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
-        case fetchFamilyMemebers
+        case fetchPaginationFamilyMemebers
         case didTapShareContainer
         case didSelectTableCell(IndexPath)
     }
@@ -38,7 +38,7 @@ public final class FamilyManagementViewReactor: Reactor {
         @Pulse var shouldPresentCopySuccessToastMessageView: Bool
         @Pulse var shouldPresentFetchFailureToastMessageView: Bool
         @Pulse var shouldPushProfileVC: String
-        @Pulse var displayFamilyMemberInfo: [FamilyMemberProfileSectionModel]
+        @Pulse var displayFamilyMember: [FamilyMemberProfileSectionModel]
         var displayFamilyMemberCount: Int
     }
     
@@ -61,7 +61,7 @@ public final class FamilyManagementViewReactor: Reactor {
             shouldPresentCopySuccessToastMessageView: false,
             shouldPresentFetchFailureToastMessageView: false,
             shouldPushProfileVC: .none,
-            displayFamilyMemberInfo: [],
+            displayFamilyMember: [.init(model: (), items: [])],
             displayFamilyMemberCount: 0
         )
         
@@ -108,8 +108,10 @@ public final class FamilyManagementViewReactor: Reactor {
                     })
             )
             
-        case .fetchFamilyMemebers:
-            return familyUseCase.executeFetchFamilyMembers()
+        case .fetchPaginationFamilyMemebers:
+            let query = FamilyPaginationQuery(size: 256)
+            
+            return familyUseCase.executeFetchPaginationFamilyMembers(query: query)
                 .withUnretained(self)
                 .map {
                     guard let familyResponse = $0.1?.results else {
@@ -126,7 +128,7 @@ public final class FamilyManagementViewReactor: Reactor {
                 }
             
         case let .didSelectTableCell(indexPath):
-            guard let dataSource = currentState.displayFamilyMemberInfo.first else {
+            guard let dataSource = currentState.displayFamilyMember.first else {
                 // TODO: - 예외 ToastMessage 출력하기
                 return Observable<Mutation>.empty()
             }
@@ -153,14 +155,26 @@ public final class FamilyManagementViewReactor: Reactor {
             newState.familyId = familyId
             
         case let .injectFamilyMembers(familyMembers):
+            guard var dataSource = currentState.displayFamilyMember.first else {
+                break
+            }
+            dataSource.items.append(contentsOf: familyMembers)
+            dataSource.items.sort {
+                $0.currentState.isMe && !$1.currentState.isMe
+            }
+            
+            newState.displayFamilyMember = [dataSource]
             newState.displayFamilyMemberCount = familyMembers.count
-            newState.displayFamilyMemberInfo = [
-                .init(model: Void(), items: familyMembers.sorted { $0.currentState.isMe && !$1.currentState.isMe })
-            ]
             
         case let .pushProfileVC(memberId):
             newState.shouldPushProfileVC = memberId
         }
         return newState
+    }
+}
+
+extension FamilyManagementViewController {
+    private func shouldFetchNextPage(contentOffsetY: CGFloat, frameHehgit: CGFloat) -> Bool {
+        return false
     }
 }

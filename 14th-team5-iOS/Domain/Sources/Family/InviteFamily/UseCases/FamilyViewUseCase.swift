@@ -12,7 +12,7 @@ import RxSwift
 public protocol FamilyViewUseCaseProtocol {
     func executeCreateFamily() -> Observable<FamilyResponse?>
     func executeFetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?>
-    func executeFetchFamilyMembers() -> Observable<PaginationResponseFamilyMemberProfile?>
+    func executeFetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfile?>
 }
 
 public final class FamilyViewUseCase: FamilyViewUseCaseProtocol {
@@ -30,7 +30,7 @@ public final class FamilyViewUseCase: FamilyViewUseCaseProtocol {
         return familyRepository.fetchInvitationUrl()
     }
     
-    public func executeFetchFamilyMembers() -> Observable<PaginationResponseFamilyMemberProfile?> {
-        return familyRepository.fetchFamilyMembers()
-    }    
+    public func executeFetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfile?> {
+        return familyRepository.fetchPaginationFamilyMembers(query: query)
+    }
 }

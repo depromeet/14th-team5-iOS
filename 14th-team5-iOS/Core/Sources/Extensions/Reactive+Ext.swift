@@ -67,6 +67,12 @@ extension Reactive where Base: UILabel {
             label.text = text
         }
     }
+    
+    public var firtNameText: Binder<String> {
+        Binder(self.base) { label, text in
+            label.text = text[0]
+        }
+    }
 }
 
 extension Reactive where Base: UIStackView {

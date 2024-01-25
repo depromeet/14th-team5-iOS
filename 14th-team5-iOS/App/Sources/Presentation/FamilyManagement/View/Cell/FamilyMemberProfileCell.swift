@@ -24,6 +24,8 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
     private let nameLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray200)
     private let isMeLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray500)
     
+    private let rightArrowImageView: UIImageView = UIImageView()
+    
     // MARK: - Properties
     static let id: String = "FamilyProfileCell"
     
@@ -37,6 +39,8 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
     }
     
     override func prepareForReuse() {
+        nameLabel.text = String.none
+        isMeLabel.text = String.none
         profileImageView.image = nil
     }
     
@@ -50,20 +54,13 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
     private func bindInput(reactor: FamilyMemberProfileCellReactor) { }
     
     private func bindOutput(reactor: FamilyMemberProfileCellReactor) {
-        reactor.state.map { $0.imageUrl }
-            .compactMap { $0 }
-            .withUnretained(self)
-            .subscribe {
-                $0.0.profileImageView.kf.setImage(
-                    with: URL(string: $0.1),
-                    options: [
-                        .transition(.fade(0.15))
-                    ]
-                )
-            }
+        reactor.state.compactMap { $0.imageUrl }
+            .distinctUntilChanged()
+            .bind(to: profileImageView.rx.kingfisherImage)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.name }
+            .distinctUntilChanged()
             .bind(to: nameLabel.rx.text)
             .disposed(by: disposeBag)
         
@@ -89,7 +86,7 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
             firstNameLabel, profileImageView
         )
         contentView.addSubviews(
-            containerView, labelStack
+            containerView, labelStack, rightArrowImageView
         )
         
         labelStack.addArrangedSubviews(
@@ -114,8 +111,14 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
         }
         
         labelStack.snp.makeConstraints {
-            $0.leading.equalTo(profileImageView.snp.trailing).offset(16)
-            $0.centerY.equalTo(profileImageView.snp.centerY)
+            $0.leading.equalTo(containerView.snp.trailing).offset(16)
+            $0.centerY.equalTo(containerView.snp.centerY)
+        }
+        
+        rightArrowImageView.snp.makeConstraints {
+            $0.size.equalTo(20)
+            $0.centerY.equalToSuperview()
+            $0.trailing.equalToSuperview().offset(-20)
         }
     }
     
@@ -124,7 +127,7 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
         containerView.do {
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = 52 / 2
-            $0.backgroundColor = .gray800
+            $0.backgroundColor = UIColor.gray800
         }
         
         profileImageView.do {
@@ -140,6 +143,13 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
             $0.distribution = .fillProportionally
         }
         
-        contentView.backgroundColor = .bibbiBlack
+        rightArrowImageView.do {
+            let arrowRight = DesignSystemAsset.arrowRight.image
+            $0.image = arrowRight.withRenderingMode(.alwaysTemplate)
+            $0.tintColor = UIColor.gray500
+            $0.contentMode = .scaleAspectFill
+        }
+        
+        contentView.backgroundColor = UIColor.bibbiBlack
     }
 }

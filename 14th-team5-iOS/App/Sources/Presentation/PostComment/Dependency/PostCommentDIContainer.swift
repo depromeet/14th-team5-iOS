@@ -33,19 +33,27 @@ public final class PostCommentDIContainer {
         return PostCommentViewController(reactor: makeReactor())
     }
     
+    public func makeMemberRepository() -> MemberRepositoryProtocol {
+        return MemberRepository()
+    }
+    
     public func makePostCommentRespository() -> PostCommentRepositoryProtocol {
         return PostCommentRepository()
+    }
+    
+    public func makeMemberUseCase() -> MemberUseCaseProtocol {
+        return MemberUseCase(memberRepository: makeMemberRepository())
     }
     
     public func makePostCommentUseCase() -> PostCommentUseCaseProtocol {
         return PostCommentUseCase(postCommentRepository: makePostCommentRespository())
     }
     
-    
     public func makeReactor() -> PostCommentViewReactor {
         return PostCommentViewReactor(
             postId: postId,
             commentCount: commentCount,
+            memberUseCase: makeMemberUseCase(),
             postCommentUseCase: makePostCommentUseCase(),
             provider: globalState
         )

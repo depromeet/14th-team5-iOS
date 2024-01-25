@@ -16,6 +16,4 @@ public protocol PostCommentRepositoryProtocol {
     func createPostComment(postId: String, body: CreatePostCommentBody) -> Observable<PostCommentResponse?>
     func updatePostComment(postId: String, commentId: String, body: UpdatePostCommentBody) -> Observable<PostCommentResponse?>
     func deletePostComment(postId: String, commentId: String) -> Observable<PostCommentDeleteResponse?>
-    func fetchUserName(memberId: String) -> String
-    func fetchProfileImageUrlString(memberId: String) -> String
 }

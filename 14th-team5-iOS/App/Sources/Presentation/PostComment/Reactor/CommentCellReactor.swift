@@ -41,11 +41,13 @@ final public class CommentCellReactor: Reactor {
     // MARK: - Properties
     public var initialState: State
     
+    public var memberUseCase: MemberUseCaseProtocol
     public var postCommentUseCase: PostCommentUseCaseProtocol
     
     // MARK: - Intializer
     public init(
         _ commentResponse: PostCommentResponse,
+        memberUseCase: MemberUseCaseProtocol,
         postCommentUseCase: PostCommentUseCaseProtocol
     ) {
         self.initialState = State(
@@ -58,6 +60,7 @@ final public class CommentCellReactor: Reactor {
             profileImageUrlString: .none
         )
         
+        self.memberUseCase = memberUseCase
         self.postCommentUseCase = postCommentUseCase
     }
     
@@ -65,10 +68,10 @@ final public class CommentCellReactor: Reactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .fetchUserName:
-            let userName = postCommentUseCase.executeFetchUserName(memberId: initialState.memberId)
+            let userName = memberUseCase.executeFetchUserName(memberId: initialState.memberId)
             return Observable<Mutation>.just(.injectUserName(userName))
         case .fetchProfileImageUrlString:
-            let urlString = postCommentUseCase.executeFetchProfileImageUrlString(memberId: initialState.memberId)
+            let urlString = memberUseCase.executeProfileImageUrlString(memberId: initialState.memberId)
             return Observable<Mutation>.just(.injectProfileImageUrlString(urlString))
         }
     }
@@ -86,6 +89,7 @@ final public class CommentCellReactor: Reactor {
     }
 }
 
+// MARK: - Extensions
 extension CommentCellReactor: IdentifiableType, Equatable {
     // MARK: - IdentifiableType
     public typealias Identity = String

@@ -76,6 +76,13 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        commentTextField.rx.controlEvent(.editingDidEndOnExit)
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .withUnretained(self)
+            .map { Reactor.Action.createPostComment($0.0.commentTextField.text) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         let keyboardWillShow = NotificationCenter.default.rx.notification(UIResponder.keyboardWillShowNotification)
             .flatMap { notification in
                 guard let value = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {
@@ -106,20 +113,14 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             .bind(to: noCommentLabel.rx.isHidden)
             .disposed(by: disposeBag)
         
-        let inputComment = reactor.state.map({ $0.inputComment }).asDriver(onErrorJustReturn: .none)
-        
-        inputComment
+        reactor.state.map({ $0.inputComment })
             .distinctUntilChanged()
-            .drive(commentTextField.rx.text)
-            .disposed(by: disposeBag)
-        
-        inputComment
-            .distinctUntilChanged()
-            .drive(with: self) {
-                guard let button = $0.commentTextField.rightView as? UIButton else {
-                    return
+            .withUnretained(self)
+            .subscribe {
+                $0.0.commentTextField.text = $0.1
+                if let button = $0.0.commentTextField.rightView as? UIButton {
+                    button.isEnabled = !$0.1.isEmpty
                 }
-                button.isEnabled = !$1.isEmpty
             }
             .disposed(by: disposeBag)
         
@@ -235,6 +236,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             $0.backgroundColor = UIColor.clear
             $0.rightView = createCommentButton
             $0.rightViewMode = .always
+            $0.returnKeyType = .done
         }
         
         createCommentButton.do {

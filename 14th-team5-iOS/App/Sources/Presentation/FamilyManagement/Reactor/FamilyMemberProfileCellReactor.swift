@@ -19,6 +19,7 @@ final public class FamilyMemberProfileCellReactor: Reactor {
     
     // MARK: - State
     public struct State {
+        var memberId: String
         var name: String
         var imageUrl: String?
         var isMe: Bool
@@ -30,6 +31,7 @@ final public class FamilyMemberProfileCellReactor: Reactor {
     // MARK: - Intializer
     public init(_ memberResponse: FamilyMemberProfileResponse, isMe: Bool) {
         self.initialState = State(
+            memberId: memberResponse.memberId,
             name: memberResponse.name,
             imageUrl: memberResponse.imageUrl,
             isMe: isMe

@@ -29,6 +29,9 @@ final public class PostCommentViewReactor: Reactor {
         case injectPostComment([CommentCellReactor])
         case appendPostComment(CommentCellReactor)
         case removePostComment(String)
+        case setUploadCommentFamilureTaostMessageView
+        case setDeleteCommentCompleteToastMessageView
+        case setDeleteCommentFamilureToastMessageView
         case scrollToLast
         case clearCommentTextField
         case setupTableViewOffset(CGFloat)
@@ -43,6 +46,9 @@ final public class PostCommentViewReactor: Reactor {
         @Pulse var displayComment: [PostCommentSectionModel]
         @Pulse var shouldScrollToLast: Int
         @Pulse var shouldClearCommentTextField: Bool
+        @Pulse var shouldPresentUploadCommentFamilureTaostMessageView: Bool
+        @Pulse var shouldPresentDeleteCommentCompleteToastMessageView: Bool
+        @Pulse var shouldPresentDeleteCommentFamilureToastMessageView: Bool
         var tableViewBottomOffset: CGFloat
     }
     
@@ -70,6 +76,9 @@ final public class PostCommentViewReactor: Reactor {
             displayComment: [.init(model: .none, items: [])],
             shouldScrollToLast: 0,
             shouldClearCommentTextField: false,
+            shouldPresentUploadCommentFamilureTaostMessageView: false,
+            shouldPresentDeleteCommentCompleteToastMessageView: false,
+            shouldPresentDeleteCommentFamilureToastMessageView: false,
             tableViewBottomOffset: 0
         )
         
@@ -131,8 +140,8 @@ final public class PostCommentViewReactor: Reactor {
             
         case let .createPostComment(comment):
             guard let safeComment = comment,
-                  !safeComment.isEmpty else {
-                return Observable<Mutation>.empty()
+                  !safeComment.trimmingCharacters(in: .whitespaces).isEmpty else {
+                return Observable<Mutation>.just(.clearCommentTextField)
             }
             
             let postId = initialState.postId
@@ -141,7 +150,8 @@ final public class PostCommentViewReactor: Reactor {
             return postCommentUseCase.executeCreatePostComment(postId: postId, body: body)
                 .flatMap {
                     guard let commentResponse = $0 else {
-                        return Observable<Mutation>.empty()
+                        // TODO: - 업로드 실패 ToastMessage로 바꾸기
+                        return Observable<Mutation>.just(.setUploadCommentFamilureTaostMessageView)
                     }
                     
                     let reactor = CommentCellReactor(
@@ -163,10 +173,15 @@ final public class PostCommentViewReactor: Reactor {
                 .flatMap {
                     guard let deleteSuccessResponse = $0,
                           deleteSuccessResponse.success else {
-                        // TODO: - ToastMessage로 바꾸기
-                        return Observable<Mutation>.empty()
+                        // TODO: - 댓글 삭제 실패 ToastMessage로 바꾸기
+                        return Observable<Mutation>.just(.setDeleteCommentFamilureToastMessageView)
                     }
-                    return Observable<Mutation>.just(.removePostComment(commentId))
+                    // TODO: - 댓글 삭제 완료 ToastMessage로 바꾸기
+                    return Observable.concat(
+                        Observable<Mutation>.just(.removePostComment(commentId)),
+                        Observable<Mutation>.just(.setDeleteCommentCompleteToastMessageView)
+                    )
+                    
                 }
             
         case let .keyboardWillShow(height):
@@ -211,6 +226,15 @@ final public class PostCommentViewReactor: Reactor {
             })
             newState.displayComment = [dataSource]
             newState.commentCount = dataSource.items.count
+            
+        case .setDeleteCommentCompleteToastMessageView:
+            newState.shouldPresentDeleteCommentCompleteToastMessageView = true
+            
+        case .setDeleteCommentFamilureToastMessageView:
+            newState.shouldPresentDeleteCommentFamilureToastMessageView = true
+            
+        case .setUploadCommentFamilureTaostMessageView:
+            newState.shouldPresentUploadCommentFamilureTaostMessageView = true
             
         case .scrollToLast:
             guard var dataSource = newState.displayComment.first else {

@@ -118,10 +118,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .skip(1)
             .withUnretained(self)
             .subscribe {
-                $0.0.makeBibbiToastView(
-                    text: _Str.fetchFailInvitationUrlText,
-                    image: DesignSystemAsset.warning.image
-                )
+                $0.0.makeErrorBibbiToastView()
             }
             .disposed(by: disposeBag)
     }

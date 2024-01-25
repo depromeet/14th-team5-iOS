@@ -12,12 +12,32 @@ import SnapKit
 import Then
 
 extension UIViewController {
+    public enum ToastDirection {
+        case up
+        case down
+    }
+    
+    public func makeErrorBibbiToastView(
+        delay: CGFloat = 0.6,
+        duration: CGFloat = 0.6,
+        offset: CGFloat = 40,
+        direction: ToastDirection = .up
+    ) {
+        makeBibbiToastView(
+            text: "잠시 후에 다시 시도해주세요",
+            image: DesignSystemAsset.warning.image,
+            offset: offset,
+            direction: direction
+        )
+    }
+    
     public func makeBibbiToastView(
         text: String,
         image: DesignSystemImages.Image? = nil,
         duration: CGFloat = 0.6,
         delay: CGFloat = 0.6,
-        offset: CGFloat = 40
+        offset: CGFloat = 40,
+        direction: ToastDirection = .up
     ) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -25,16 +45,25 @@ extension UIViewController {
             guard let toastView = self.prepareBibbiToastView(
                 text: text,
                 image: image,
-                offset: offset
+                offset: offset,
+                animation: direction
             ) else {
                 return
             }
             
             UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.4) {
-                toastView.transform = CGAffineTransform(translationX: 0, y: -offset * 2)
+                if direction == .up {
+                    toastView.transform = CGAffineTransform(translationX: 0, y: -offset * 2)
+                } else {
+                    toastView.transform = CGAffineTransform(translationX: 0, y: offset * 2)
+                }
             } completion: { _ in
                 UIView.animate(withDuration: duration, delay: delay, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.4) {
-                    toastView.transform = CGAffineTransform(translationX: 0, y: offset * 2)
+                    if direction == .up {
+                        toastView.transform = CGAffineTransform(translationX: 0, y: offset * 2)
+                    } else {
+                        toastView.transform = CGAffineTransform(translationX: 0, y: -offset * 2)
+                    }
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + duration * 2) {
                     toastView.removeFromSuperview()
@@ -46,7 +75,8 @@ extension UIViewController {
     private func prepareBibbiToastView(
         text: String,
         image: DesignSystemImages.Image? = nil,
-        offset: CGFloat
+        offset: CGFloat,
+        animation: ToastDirection
     ) -> UIView? {
         // 하위 뷰에 이미 ToastView가 존재한다면
         guard view.findSubview(of: BibbiToastMessageView.self) == nil else {
@@ -59,7 +89,11 @@ extension UIViewController {
         toastView.snp.makeConstraints {
             $0.height.equalTo(56)
             $0.horizontalEdges.equalToSuperview()
-            $0.bottom.equalToSuperview().offset(offset)
+            if animation == .up {
+                $0.bottom.equalToSuperview().offset(offset)
+            } else {
+                $0.top.equalToSuperview().offset(-offset)
+            }
         }
         
         return toastView

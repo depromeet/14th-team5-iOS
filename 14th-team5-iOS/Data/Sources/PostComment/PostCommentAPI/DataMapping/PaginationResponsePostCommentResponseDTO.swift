@@ -9,7 +9,7 @@ import Foundation
 
 import Domain
 
-struct PaginationResponsePostCommentResponseDTO: Decodable {
+public struct PaginationResponsePostCommentResponseDTO: Decodable {
     private enum CodingKeys: String, CodingKey {
         case currentPage
         case totalPage
@@ -25,7 +25,7 @@ struct PaginationResponsePostCommentResponseDTO: Decodable {
 }
 
 extension PaginationResponsePostCommentResponseDTO {
-    struct PostCommentResponseDTO: Decodable {
+    public struct PostCommentResponseDTO: Decodable {
         private enum CodingKeys: String, CodingKey {
             case commentId
             case postId

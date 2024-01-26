@@ -9,7 +9,7 @@ import Foundation
 
 import Domain
 
-struct JoinFamilyRequestDTO: Codable {
+public struct JoinFamilyRequestDTO: Codable {
     let inviteCode: String
 }
 

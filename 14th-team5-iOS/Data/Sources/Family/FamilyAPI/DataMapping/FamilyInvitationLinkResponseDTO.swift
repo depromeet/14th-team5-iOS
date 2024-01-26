@@ -10,7 +10,7 @@ import Foundation
 import Domain
 
 // MARK: - Data Transfer Object (DTO)
-struct FamilyInvitationLinkResponseDTO: Decodable {
+public struct FamilyInvitationLinkResponseDTO: Decodable {
     private enum CodingKeys: String, CodingKey {
         case linkId
         case url

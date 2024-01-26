@@ -9,7 +9,7 @@ import DesignSystem
 import Domain
 import UIKit
 
-struct BannerResponseDTO: Decodable {
+public struct BannerResponseDTO: Decodable {
     private enum CodingKeys: String, CodingKey {
         case familyTopPercentage
         case allFamilyMembersUploadedDays

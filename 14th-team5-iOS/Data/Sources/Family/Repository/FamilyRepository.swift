@@ -32,6 +32,12 @@ public final class FamilyRepository: FamilyRepositoryProtocol {
 }
 
 extension FamilyRepository {
+    public func joinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyData?> {
+        let body = JoinFamilyRequestDTO(inviteCode: body.inviteCode)
+        return familyApiWorker.joinFamily(body: body)
+            .asObservable()
+    }
+    
     public func createFamily() -> Observable<FamilyResponse?> {
         return familyApiWorker.createFamily()
             .asObservable()
@@ -44,6 +50,7 @@ extension FamilyRepository {
     
     public func fetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfile?> {
         return familyApiWorker.fetchPaginationFamilyMember(familyId: familyId, query: query)
+            .do(onSuccess: { _ in /* FamilyUserDefaults.saveFamilyMembers($0?.results ?? []) */ }) // TODO: - 가족 구성원 정보를 UserDefaults에 저장하기
             .asObservable()
     }
     

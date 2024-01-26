@@ -10,7 +10,7 @@ import Foundation
 import Domain
 
 // MARK: - Data Transfer Object (DTO)
-struct PaginationResponseFamilyMemberProfileDTO: Decodable {
+public struct PaginationResponseFamilyMemberProfileDTO: Decodable {
     private enum CodingKeys: String, CodingKey {
         case currentPage
         case totalPage
@@ -26,7 +26,7 @@ struct PaginationResponseFamilyMemberProfileDTO: Decodable {
 }
 
 extension PaginationResponseFamilyMemberProfileDTO {
-    struct FamilyMemberProfileResponseDTO: Decodable {
+    public struct FamilyMemberProfileResponseDTO: Decodable {
         private enum CodingKeys: String, CodingKey {
             case memberId
             case name

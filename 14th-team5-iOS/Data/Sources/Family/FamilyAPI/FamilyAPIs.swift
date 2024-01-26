@@ -10,6 +10,7 @@ import Domain
 import Foundation
 
 public enum FamilyAPIs: API {
+    case joinFamily
     case createFamily
     case fetchInvitationUrl(String)
     case fetchFamilyCreatedAt(String)
@@ -18,6 +19,8 @@ public enum FamilyAPIs: API {
 
     var spec: APISpec {
         switch self {
+        case .joinFamily:
+            return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/me/join-family")
         case .createFamily:
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/me/create-family")
         case let .fetchInvitationUrl(familyId):

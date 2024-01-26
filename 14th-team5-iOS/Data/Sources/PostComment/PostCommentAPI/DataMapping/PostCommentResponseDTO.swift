@@ -9,7 +9,7 @@ import Foundation
 
 import Domain
 
-struct PostCommentResponseDTO: Decodable {
+public struct PostCommentResponseDTO: Decodable {
     private enum CodingKeys: String, CodingKey {
         case commentId
         case postId

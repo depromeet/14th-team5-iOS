@@ -10,6 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol FamilyViewUseCaseProtocol {
+    func executeJoinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyData?>
     func executeCreateFamily() -> Observable<FamilyResponse?>
     func executeFetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?>
     func executeFetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfile?>
@@ -20,6 +21,10 @@ public final class FamilyViewUseCase: FamilyViewUseCaseProtocol {
     
     public init(familyRepository: FamilyRepositoryProtocol) {
         self.familyRepository = familyRepository
+    }
+    
+    public func executeJoinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyData?> {
+        return familyRepository.joinFamily(body: body)
     }
     
     public func executeCreateFamily() -> Observable<FamilyResponse?> {

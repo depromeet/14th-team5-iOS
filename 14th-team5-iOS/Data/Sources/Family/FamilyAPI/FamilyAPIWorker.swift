@@ -36,6 +36,31 @@ extension FamilyAPIs {
 }
 
 extension FamilyAPIWorker {
+    private func joinFamily(headers: [APIHeader]?, jsonEncodable body: JoinFamilyRequestDTO) -> Single<JoinFamilyData?> {
+        let spec = MeAPIs.joinFamily.spec
+        
+        return request(spec: spec, headers: headers, jsonEncodable: body)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Join Family Result: \(str)")
+                }
+            }
+            .map(JoinFamilyResponseDTO.self)
+            .catchAndReturn(nil)
+            .map { $0?.toDomain() }
+            .asSingle()
+    }
+    
+    public func joinFamily(body: JoinFamilyRequestDTO) -> Single<JoinFamilyData?> {
+        return Observable.just(())
+            .withLatestFrom(self._headers)
+            .observe(on: Self.queue)
+            .withUnretained(self)
+            .flatMap { $0.0.joinFamily(headers: $0.1, jsonEncodable: body) }
+            .asSingle()
+    }
+    
     private func createFamily(spec: APISpec, headers: [APIHeader]?) -> Single<FamilyResponse?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
@@ -139,7 +164,7 @@ extension FamilyAPIWorker {
     }
     
     
-    @available(*, deprecated, renamed: "fetchPaginationFamilyMember")
+    
     public func fetchFamilyMemeberPage(token accessToken: String) -> Single<PaginationResponseFamilyMemberProfile?> {
         let request: FamilySearchRequestDTO = .init(type: "FAMILY", page: 1, size: 20)
         let spec: APISpec = FamilyAPIs.familyMembers(request).spec
@@ -148,7 +173,7 @@ extension FamilyAPIWorker {
         return fetchFamilyMemberPage(spec: spec, headers: headers)
     }
     
-    @available(*, deprecated, renamed: "fetchPaginationFamilyMember")
+
     private func fetchFamilyMemberPage(spec: APISpec, headers: [BibbiHeader]) -> Single<PaginationResponseFamilyMemberProfile?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
@@ -164,7 +189,7 @@ extension FamilyAPIWorker {
     }
     
     
-    @available(*, deprecated, renamed: "fetchPaginationFamilyMember")
+
     public func fetchFamilyMember(query: SearchFamilyQuery) -> Single<SearchFamilyPage?> {
         return Observable.just(())
             .withLatestFrom(self._headers)
@@ -173,7 +198,7 @@ extension FamilyAPIWorker {
             .asSingle()
     }
     
-    @available(*, deprecated, renamed: "fetchPaginationFamilyMember")
+
     private func fetchFamilyMember(headers: [APIHeader]?, query: Domain.SearchFamilyQuery) -> RxSwift.Single<Domain.SearchFamilyPage?> {
         let query = FamilySearchRequestDTO(type: "", page: query.page, size: query.size)
         let spec: APISpec = FamilyAPIs.familyMembers(query).spec

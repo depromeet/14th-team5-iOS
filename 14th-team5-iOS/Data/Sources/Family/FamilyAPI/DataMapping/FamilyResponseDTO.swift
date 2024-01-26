@@ -10,7 +10,7 @@ import Foundation
 import Domain
 
 // MARK: - Data Transfer Object (DTO)
-struct FamilyResponseDTO: Decodable {
+public struct FamilyResponseDTO: Decodable {
     private enum CodingKeys: String, CodingKey {
         case familyId
         case createdAt

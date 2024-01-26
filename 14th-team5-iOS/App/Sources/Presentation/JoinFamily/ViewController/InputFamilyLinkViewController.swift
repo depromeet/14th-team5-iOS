@@ -159,7 +159,8 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
             .observe(on: Schedulers.main)
             .filter { $0.count > 0 }
             .withUnretained(self)
-            .bind(onNext: { $0.0.makeBibbiToastView(text: $0.1, designSystemImage: DesignSystemAsset.warning.image, width: 240, offset: $0.0.keyboardHeight + 90) })
+            .bind(onNext: { $0.0.makeBibbiToastView(text: $0.1, image: DesignSystemAsset.warning.image, offset: $0.0.keyboardHeight + 90) })
+//            .bind(onNext: { $0.0.makeBibbiToastView(text: $0.1, designSystemImage: DesignSystemAsset.warning.image, width: 240, offset: $0.0.keyboardHeight + 90) })
             .disposed(by: disposeBag)
         
         reactor.state

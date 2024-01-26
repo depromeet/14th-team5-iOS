@@ -148,7 +148,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
         }
         
         calendarView.snp.makeConstraints {
-            $0.bottom.equalToSuperview().offset(-30)
+            $0.bottom.equalToSuperview().offset(UIScreen.isPhoneSE ? -8 : -30)
             $0.horizontalEdges.equalToSuperview().inset(0.5)
             $0.height.equalTo(contentView.snp.width).multipliedBy(0.98)
         }

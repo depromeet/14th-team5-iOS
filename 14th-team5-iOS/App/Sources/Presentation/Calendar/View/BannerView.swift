@@ -11,6 +11,15 @@ import DesignSystem
 import SwiftUI
 
 struct BannerView: View {
+    // MARK: - Mertic
+    private enum Metric {
+        static var topPadding: CGFloat = UIScreen.isPhoneSE ? 12 : 18
+        static var vSpacing: CGFloat = UIScreen.isPhoneSE ? 1 : 6
+        static var scaleWidth: CGFloat = UIScreen.isPhoneSE ? 0.5 : 1
+        static var scaleHeight: CGFloat = UIScreen.isPhoneSE ? 0.5 : 1
+        static var yOffset: CGFloat = UIScreen.isPhoneSE ? 9 : 0
+    }
+    
     // MARK: - Properties
     @ObservedObject var viewModel: BannerViewModel
     
@@ -20,6 +29,7 @@ struct BannerView: View {
     // MARK: - Intializer
     init(viewModel: BannerViewModel) {
         self.viewModel = viewModel
+        print("isPhoneSE: \(UIScreen.isPhoneSE)")
     }
     
     // MARK: - Body
@@ -34,6 +44,7 @@ struct BannerView: View {
                     style: .circular
                 )
             )
+            .clipped()
     }
 }
 
@@ -42,7 +53,7 @@ extension BannerView {
     var banner: some View {
         VStack {
             bannerMainStrings
-                .padding(.top, 18)
+                .padding(.top, Metric.topPadding)
                 .padding(.horizontal, 24)
             
             Spacer()
@@ -51,7 +62,7 @@ extension BannerView {
     
     var bannerMainStrings: some View {
         HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: Metric.vSpacing) {
                 familyTopPercentageText
                 allFamilyMembersUploadedDaysText
             }
@@ -85,10 +96,15 @@ extension BannerView {
     }
     
     var bannerImage: some View {
-        VStack {
+       VStack {
             Spacer()
             Image(uiImage: viewModel.state.bannerImage ?? UIImage())
+                .scaleEffect(
+                    CGSizeMake(Metric.scaleWidth, Metric.scaleHeight),
+                    anchor: .center
+                )
                 .scaledToFit()
+                .offset(y: Metric.yOffset)
         }
     }
 }

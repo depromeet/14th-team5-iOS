@@ -101,22 +101,21 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
             .subscribe { $0.0.calendarView.reloadData() }
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.date }
+        let currentCellDate = reactor.state.map({ $0.date }).asDriver(onErrorJustReturn: .now)
+        
+        currentCellDate
             .distinctUntilChanged()
-            .bind(to: calendarView.rx.currentPage)
+            .drive(calendarView.rx.currentPage)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.date }
+        currentCellDate
             .distinctUntilChanged()
-            .bind(to: calendarTitleLabel.rx.calendarTitleText)
+            .drive(calendarTitleLabel.rx.calendarTitleText)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.date }
+        currentCellDate
             .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe {
-                $0.0.setupCalendarTitle($0.1)
-            }
+            .drive(with: self) { $0.setupCalendarTitle($1) }
             .disposed(by: disposeBag)
     }
     

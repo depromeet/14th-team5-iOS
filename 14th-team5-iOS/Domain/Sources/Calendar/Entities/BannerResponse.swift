@@ -12,6 +12,7 @@ public struct BannerResponse {
     public var allFammilyMembersUploadedDays: Int
     public var familyLevel: Int
     public var bannerImage: UIImage
+    public var bannerString: String
     public var bannerColor: UIColor
     
     public init(
@@ -19,12 +20,14 @@ public struct BannerResponse {
         allFamilyMembersUploadedDays: Int,
         familyLevel: Int,
         bannerImage: UIImage,
+        bannerString: String,
         bannerColor: UIColor
     ) {
         self.familyTopPercentage = familyTopPercentage
         self.allFammilyMembersUploadedDays = allFamilyMembersUploadedDays
         self.familyLevel = familyLevel
         self.bannerImage = bannerImage
+        self.bannerString = bannerString
         self.bannerColor = bannerColor
     }
 }

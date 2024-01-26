@@ -54,6 +54,19 @@ extension BannerResponseDTO {
                 return UIColor.hotPink
             }
         }
+        
+        var string: String {
+            switch self {
+            case .skullFlag:
+                return "남보다 못한 사이"
+            case .aloneWalking:
+                return "조금 서먹한 사이"
+            case .weAreFriends:
+                return "친구만큼 가까운 사이"
+            case .jewelryTreasure:
+                return "없으면 못사는 사이"
+            }
+        }
     }
 }
 
@@ -64,6 +77,7 @@ extension BannerResponseDTO {
             allFamilyMembersUploadedDays: allFamilyMembersUploadedDays,
             familyLevel: familyLevel,
             bannerImage: bannerImageType.image,
+            bannerString: bannerImageType.string,
             bannerColor: bannerImageType.color
         )
     }

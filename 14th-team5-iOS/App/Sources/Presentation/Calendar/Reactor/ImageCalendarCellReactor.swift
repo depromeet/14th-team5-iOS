@@ -20,15 +20,12 @@ final public class ImageCalendarCellReactor: Reactor {
     }
     
     // MARK: - Action
-    public enum Action { 
-        case checkDayOfBirth
-    }
+    public enum Action { }
     
     // MARK: - Mutate
     public enum Mutation {
         case selectDate
         case deselectDate
-        case injectDateOfBirth(Bool)
     }
     
     // MARK: - State
@@ -37,7 +34,6 @@ final public class ImageCalendarCellReactor: Reactor {
         var representativePostId: String
         var representativeThumbnailUrl: String
         var allFamilyMemebersUploaded: Bool
-        var isDayOfBirth: Bool
         var isSelected: Bool
     }
     
@@ -63,7 +59,6 @@ final public class ImageCalendarCellReactor: Reactor {
             representativePostId: dayResponse.representativePostId,
             representativeThumbnailUrl: dayResponse.representativeThumbnailUrl,
             allFamilyMemebersUploaded: dayResponse.allFamilyMemebersUploaded,
-            isDayOfBirth: false,
             isSelected: isSelected
         )
         self.type = type
@@ -105,15 +100,6 @@ final public class ImageCalendarCellReactor: Reactor {
         return Observable<Mutation>.merge(mutation, eventMutation)
     }
     
-    // MARK: - Mutate
-    public func mutate(action: Action) -> Observable<Mutation> {
-        switch action {
-        case .checkDayOfBirth:
-            let isDateOfBirth: Bool = calendarUseCase.executeCheckDateOfBirth(date)
-            return Observable<Mutation>.just(.injectDateOfBirth(isDateOfBirth))
-        }
-    }
-
     // MARK: - Reduce {
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
@@ -123,11 +109,7 @@ final public class ImageCalendarCellReactor: Reactor {
             
         case .deselectDate:
             newState.isSelected = false
-            
-        case let .injectDateOfBirth(isDateOfBirth):
-            newState.isDayOfBirth = isDateOfBirth
         }
-        
         return newState
     }
 }

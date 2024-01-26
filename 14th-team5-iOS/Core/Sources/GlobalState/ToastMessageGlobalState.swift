@@ -16,6 +16,8 @@ public enum ToastMessageEvent {
 public protocol ToastMessageGlobalStateType {
     var lastSelectedDate: Date { get set }
     var event: BehaviorSubject<ToastMessageEvent> { get }
+    
+    @discardableResult
     func showAllFamilyUploadedToastMessageView(_ bool: Bool, selection date: Date) -> Observable<Bool>
     func resetLastSelectedDate()
 }

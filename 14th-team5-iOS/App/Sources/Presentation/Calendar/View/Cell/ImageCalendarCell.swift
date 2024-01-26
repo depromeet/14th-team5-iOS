@@ -5,10 +5,10 @@
 //  Created by 김건우 on 12/6/23.
 //
 
-import Foundation
-
 import Core
 import DesignSystem
+import Foundation
+
 import FSCalendar
 import Kingfisher
 import ReactorKit
@@ -24,7 +24,6 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
     private let thumbnailView: UIImageView = UIImageView()
     private let todayStrokeView: UIView = UIView()
     private let allFamilyUploadedBadge: UIImageView = UIImageView()
-    private let dayOfBirthBadge: UIImageView = UIImageView()
     
     // MARK: - Properties
     public var disposeBag: RxSwift.DisposeBag = DisposeBag()
@@ -58,12 +57,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: ImageCalendarCellReactor) {
-        Observable<Void>.just(())
-            .map { Reactor.Action.checkDayOfBirth }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-    }
+    private func bindInput(reactor: ImageCalendarCellReactor) { }
     
     private func bindOutput(reactor: ImageCalendarCellReactor) {
         reactor.state.map { "\($0.date.day)" }
@@ -85,11 +79,6 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         reactor.state.map { !$0.allFamilyMemebersUploaded }
             .distinctUntilChanged()
             .bind(to: allFamilyUploadedBadge.rx.isHidden)
-            .disposed(by: disposeBag)
-        
-        reactor.state.map { !$0.isDayOfBirth }
-            .distinctUntilChanged()
-            .bind(to: dayOfBirthBadge.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.representativeThumbnailUrl }
@@ -137,9 +126,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
     private func setupUI() {
         contentView.insertSubview(thumbnailView, at: 0)
         contentView.insertSubview(containerView, at: 0)
-        contentView.addSubviews(
-            dayLabel, todayStrokeView, allFamilyUploadedBadge, dayOfBirthBadge
-        )
+        contentView.addSubviews(dayLabel, todayStrokeView, allFamilyUploadedBadge)
     }
     
     private func setupAutoLayout() {
@@ -165,12 +152,6 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         allFamilyUploadedBadge.snp.makeConstraints {
             $0.top.equalToSuperview().offset(5)
             $0.trailing.equalToSuperview().offset(-5)
-            $0.size.equalTo(17)
-        }
-        
-        dayOfBirthBadge.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(5)
-            $0.leading.equalToSuperview().offset(5)
             $0.size.equalTo(17)
         }
     }
@@ -204,12 +185,6 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         
         allFamilyUploadedBadge.do {
             $0.image = DesignSystemAsset.fire.image
-            $0.isHidden = true
-            $0.backgroundColor = UIColor.clear
-        }
-        
-        dayOfBirthBadge.do {
-            $0.image = DesignSystemAsset.birthday.image
             $0.isHidden = true
             $0.backgroundColor = UIColor.clear
         }

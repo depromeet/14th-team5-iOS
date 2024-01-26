@@ -85,4 +85,29 @@ extension CalendarAPIWorker {
             .flatMap { $0.0.fetchStatisticsSummary(spec: spec, headers: $0.1) }
             .asSingle()
     }
+    
+    private func fetchCalendarBanner(spec: APISpec, headers: [APIHeader]?) -> Single<BannerResponse?> {
+        return request(spec: spec, headers: headers)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Banner Fetch Result: \(str)")
+                }
+            }
+            .map(BannerResponseDTO.self)
+            .catchAndReturn(nil)
+            .map { $0?.toDomain() }
+            .asSingle()
+    }
+    
+    public func fetchCalendarBanner(yearMonth: String) -> Single<BannerResponse?> {
+        let spec = CalendarAPIs.fetchCalendarBenner(yearMonth).spec
+        
+        return Observable<Void>.just(())
+            .withLatestFrom(self._headers)
+            .observe(on: Self.queue)
+            .withUnretained(self)
+            .flatMap { $0.0.fetchCalendarBanner(spec: spec, headers: $0.1) }
+            .asSingle()
+    }
 }

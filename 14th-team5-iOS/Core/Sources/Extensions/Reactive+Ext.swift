@@ -88,6 +88,12 @@ extension Reactive where Base: UILabel {
             label.text = text[0]
         }
     }
+    
+    public var memoryCountText: Binder<Int> {
+        Binder(self.base) { label, count in
+            label.text = "\(count)개의 추억"
+        }
+    }
 }
 
 extension Reactive where Base: UIStackView {

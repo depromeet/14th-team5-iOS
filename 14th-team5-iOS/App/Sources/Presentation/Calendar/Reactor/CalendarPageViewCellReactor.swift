@@ -34,7 +34,7 @@ public final class CalendarPageCellReactor: Reactor {
     public struct State {
         var date: Date
         var displayCalendarBanner: BannerViewModel.State?
-        var displayStatisticsSummary: FamilyMonthlyStatisticsResponse?
+        var displayMemoryCount: Int
         var displayCalendarResponse: ArrayResponseCalendarResponse?
     }
     
@@ -48,7 +48,10 @@ public final class CalendarPageCellReactor: Reactor {
     
     // MARK: - Intializer
     init(_ yearMonth: String, calendarUseCase: CalendarUseCaseProtocol, provider: GlobalStateProviderProtocol) {
-        self.initialState = State(date: yearMonth.toDate(with: "yyyy-MM"))
+        self.initialState = State(
+            date: yearMonth.toDate(with: "yyyy-MM"),
+            displayMemoryCount: 0
+        )
         
         self.calendarUseCase = calendarUseCase
         self.provider = provider
@@ -102,7 +105,7 @@ public final class CalendarPageCellReactor: Reactor {
         var newState = state
         switch mutation {
         case let .injectStatisticsSummary(statistics):
-            newState.displayStatisticsSummary = statistics
+            newState.displayMemoryCount = statistics.totalImageCnt
             
         case let .injectCalendarBanner(banner):
             let bannerState = BannerViewModel.State(

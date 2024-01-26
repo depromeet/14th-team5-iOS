@@ -22,6 +22,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     // MARK: - Views
     private lazy var labelStack: UIStackView = UIStackView()
     private let calendarTitleLabel: BibbiLabel = BibbiLabel(.head2Bold, alignment: .center, textColor: .gray200)
+    private let memoryCountLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray200)
     private let infoButton: UIButton = UIButton(type: .system)
     
     private lazy var bannerView: BannerView = BannerView(viewModel: bannerViewModel)
@@ -90,12 +91,9 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
             }
             .disposed(by: disposeBag)
         
-        reactor.state.compactMap { $0.displayStatisticsSummary }
-            .distinctUntilChanged(\.totalImageCnt)
-            .withUnretained(self)
-            .subscribe {
-                
-            }
+        reactor.state.map { $0.displayMemoryCount }
+            .distinctUntilChanged()
+            .bind(to: memoryCountLabel.rx.memoryCountText)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.displayCalendarResponse }
@@ -125,7 +123,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     override func setupUI() {
         super.setupUI()
         contentView.addSubviews(
-            labelStack, bannerController.view, calendarView
+            labelStack, memoryCountLabel, bannerController.view, calendarView
         )
         labelStack.addArrangedSubviews(
             calendarTitleLabel, infoButton
@@ -137,6 +135,11 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
         labelStack.snp.makeConstraints {
             $0.top.equalToSuperview().offset(24)
             $0.leading.equalToSuperview().offset(24)
+        }
+        
+        memoryCountLabel.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(24)
+            $0.trailing.equalToSuperview().offset(-24)
         }
         
         bannerController.view.snp.makeConstraints {

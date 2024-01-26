@@ -81,18 +81,9 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             .bind(to: allFamilyUploadedBadge.rx.isHidden)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.representativeThumbnailUrl }
-            .compactMap { $0 }
+        reactor.state.compactMap { $0.representativeThumbnailUrl }
             .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe {
-                $0.0.thumbnailView.kf.setImage(
-                    with: URL(string: $0.1),
-                    options: [
-                        .transition(.fade(0.25))
-                    ]
-                )
-            }
+            .bind(to: thumbnailView.rx.kingfisherImage)
             .disposed(by: disposeBag)
         
         // 최초 셀 생성 시, 클릭 이벤트 발생 시 하이라이트를 위해 실행됨

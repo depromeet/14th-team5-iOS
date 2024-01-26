@@ -82,7 +82,7 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
                     $0.0,
                     sourceView: $0.1,
                     text: _Str.infoText,
-                    popoverSize: CGSize(width: 238, height: 72),
+                    popoverSize: CGSize(width: 280, height: 72),
                     permittedArrowDrections: [.up]
                 )
             }

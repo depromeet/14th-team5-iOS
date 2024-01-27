@@ -110,70 +110,7 @@ public final class CameraViewReactor: Reactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewDidLoad:
-            var searchArray: [String:URL?] = ["0":nil,"1":nil,"2":nil,"3":nil,"4":nil]
-            var searchIdArray: [String: String] = ["0":"","1":"","2":"","3":"","4":""]
-            if cameraType == .realEmoji {
-                return .concat(
-                    .just(.setLoading(true)),
-                    cameraUseCase.executeRealEmojiItems(memberId: memberId)
-                        .withUnretained(self)
-                        .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
-                            var sectionItem: [EmojiSectionItem] = []
-                            guard let realEmojiEntity = entity?.realEmojiItems else { return .just(.setErrorAlert(true))}
-                            if realEmojiEntity.isEmpty {
-                                CameraRealEmojiItems.allCases.enumerated().forEach {
-                                    let isSelected: Bool = $0.offset == 0 ? true : false
-                                    sectionItem.append(.realEmojiItem(
-                                        BibbiRealEmojiCellReactor(
-                                            provider: owner.provider,
-                                            realEmojiImage: nil,
-                                            defaultImage: $0.element.rawValue,
-                                            isSelected: isSelected,
-                                            indexPath: $0.offset,
-                                            realEmojiId: "",
-                                            realEmojiType: CameraRealEmojiItems.allCases[$0.offset].emojiType
-                                        )
-                                    ))
-                                }
-                            } else {
-                                
-                                CameraRealEmojiItems.allCases.enumerated().forEach { item in
-                                    let index = CameraRealEmojiItems.allCases.firstIndex { emojiItem in
-                                            return emojiItem.emojiType == realEmojiEntity[safe: item.offset]?.realEmojiType
-                                    } ?? -1
-                                    searchIdArray["\(index)"] = realEmojiEntity[safe: item.offset]?.realEmojiId
-                                    searchArray["\(index)"] = realEmojiEntity[safe: item.offset]?.realEmojiImageURL
-                                }
-                                
-                                CameraRealEmojiItems.allCases.enumerated().forEach { item in
-                                    let isSelected: Bool = item.offset == 0 ? true : false
-                                    sectionItem.append(.realEmojiItem(
-                                        BibbiRealEmojiCellReactor(
-                                            provider: owner.provider,
-                                            realEmojiImage: searchArray["\(item.offset)"] as? URL,
-                                            defaultImage: item.element.rawValue,
-                                            isSelected: isSelected,
-                                            indexPath: item.offset,
-                                            realEmojiId: searchIdArray["\(item.offset)"] ?? "",
-                                            realEmojiType: realEmojiEntity[safe: item.offset]?.realEmojiType ?? ""
-                                        )
-                                    ))
-
-                                }
-                            }
-                            return .concat(
-                                .just(.setRealEmojiItems(entity)),
-                                .just(.setRealEmojiSection(sectionItem)),
-                                .just(.setRealEmojiImage(searchArray)),
-                                .just(.setRealEmojiId(searchIdArray)),
-                                .just(.setErrorAlert(false)),
-                                .just(.setLoading(false))
-                            )
-                        }
-                )
-            } else {
-                return .empty()
-            }
+            return viewDidLoadMutation()
             
         case .didTapToggleButton:
             return cameraUseCase.executeToggleCameraPosition(self.currentState.isSwitchPosition).map { .setPosition($0) }
@@ -243,7 +180,7 @@ public final class CameraViewReactor: Reactor {
 
 extension CameraViewReactor {
     
-    func getSection(_ section: EmojiSectionModel) -> Int {
+    private func getSection(_ section: EmojiSectionModel) -> Int {
         var index: Int = 0
         
         for i in 0 ..< self.currentState.realEmojiSection.count where self.currentState.realEmojiSection[i].getSectionType() == section.getSectionType() {
@@ -253,11 +190,77 @@ extension CameraViewReactor {
         return index
     }
     
-    func configureProfileOriginalS3URL(url: String, with filePath: UploadLocation) -> String {
+    private func configureProfileOriginalS3URL(url: String, with filePath: UploadLocation) -> String {
         guard let range = url.range(of: #"[^&?]+"#, options: .regularExpression) else { return "" }
         return String(url[range])
     }
     
+    private func viewDidLoadMutation() -> Observable<CameraViewReactor.Mutation> {
+        var searchImage: [String:URL?] = ["0":nil,"1":nil,"2":nil,"3":nil,"4":nil]
+        var searchId: [String: String] = ["0":"","1":"","2":"","3":"","4":""]
+        if cameraType == .realEmoji {
+            return .concat(
+                .just(.setLoading(true)),
+                cameraUseCase.executeRealEmojiItems(memberId: memberId)
+                    .withUnretained(self)
+                    .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
+                        var sectionItem: [EmojiSectionItem] = []
+                        guard let realEmojiEntity = entity?.realEmojiItems else { return .just(.setErrorAlert(true))}
+                        if realEmojiEntity.isEmpty {
+                            CameraRealEmojiItems.allCases.enumerated().forEach {
+                                let isSelected: Bool = $0.offset == 0 ? true : false
+                                sectionItem.append(.realEmojiItem(
+                                    BibbiRealEmojiCellReactor(
+                                        provider: owner.provider,
+                                        realEmojiImage: nil,
+                                        defaultImage: $0.element.rawValue,
+                                        isSelected: isSelected,
+                                        indexPath: $0.offset,
+                                        realEmojiId: "",
+                                        realEmojiType: CameraRealEmojiItems.allCases[$0.offset].emojiType
+                                    )
+                                ))
+                            }
+                        } else {
+                            
+                            CameraRealEmojiItems.allCases.enumerated().forEach { item in
+                                let index = CameraRealEmojiItems.allCases.firstIndex { emojiItem in
+                                        return emojiItem.emojiType == realEmojiEntity[safe: item.offset]?.realEmojiType
+                                } ?? -1
+                                searchId["\(index)"] = realEmojiEntity[safe: item.offset]?.realEmojiId
+                                searchImage["\(index)"] = realEmojiEntity[safe: item.offset]?.realEmojiImageURL
+                            }
+                            
+                            CameraRealEmojiItems.allCases.enumerated().forEach { item in
+                                let isSelected: Bool = item.offset == 0 ? true : false
+                                sectionItem.append(.realEmojiItem(
+                                    BibbiRealEmojiCellReactor(
+                                        provider: owner.provider,
+                                        realEmojiImage: searchImage["\(item.offset)"] as? URL,
+                                        defaultImage: item.element.rawValue,
+                                        isSelected: isSelected,
+                                        indexPath: item.offset,
+                                        realEmojiId: searchId["\(item.offset)"] ?? "",
+                                        realEmojiType: realEmojiEntity[safe: item.offset]?.realEmojiType ?? ""
+                                    )
+                                ))
+
+                            }
+                        }
+                        return .concat(
+                            .just(.setRealEmojiItems(entity)),
+                            .just(.setRealEmojiSection(sectionItem)),
+                            .just(.setRealEmojiImage(searchImage)),
+                            .just(.setRealEmojiId(searchId)),
+                            .just(.setErrorAlert(false)),
+                            .just(.setLoading(false))
+                        )
+                    }
+            )
+        } else {
+            return .empty()
+        }
+    }
     
     private func didTapShutterButtonMutation(imageData: Data) -> Observable<CameraViewReactor.Mutation> {
       
@@ -320,7 +323,6 @@ extension CameraViewReactor {
         case .realEmoji:
             let realEmojiImage = "\(imageData.hashValue).jpg"
             let realEmojiParameter = CameraRealEmojiParameters(imageName: realEmojiImage)
-            guard let realEmojiEntity = currentState.realEmojiEntity?.realEmojiItems else { return .empty() }
 
             if (currentState.reloadRealEmojiImage["\(currentState.selectedIndexPath)"] as? URL == nil) {
                 return .concat(

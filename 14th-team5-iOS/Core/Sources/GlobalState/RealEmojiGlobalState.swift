@@ -18,8 +18,11 @@ public enum RealEmojiEvent {
 
 public protocol RealEmojiGlobalStateType {
     var event: PublishSubject<RealEmojiEvent> { get }
+    @discardableResult
     func updateRealEmojiImage(indexPath row: Int, image: URL) -> Observable<(Int, URL)>
+    @discardableResult
     func createRealEmojiImage(indexPath row: Int, image: URL, emojiType: String) -> Observable<(Int, URL, String)>
+    @discardableResult
     func didTapRealEmojiEvent(indexPath row: Int) -> Observable<Int>
 }
 

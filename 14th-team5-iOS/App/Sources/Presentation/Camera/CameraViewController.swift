@@ -45,11 +45,6 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     private lazy var realEmojiCollectionView = UICollectionView(frame: .zero, collectionViewLayout: realEmojiFlowLayout)
     private lazy var realEmojiDataSources: RxCollectionViewSectionedReloadDataSource<EmojiSectionModel> = .init { dataSources, collectionView, indexPath, sectionItem in
         switch sectionItem {
-        case let .emojiItem(cellReactor):
-            guard let emojiCell = collectionView.dequeueReusableCell(withReuseIdentifier: "BibbiEmojiViewCell", for: indexPath) as? BibbiEmojiViewCell else { return UICollectionViewCell() }
-            emojiCell.reactor = cellReactor
-            return emojiCell
-            
         case let .realEmojiItem(cellReactor):
             guard let realEmojiCell = collectionView.dequeueReusableCell(withReuseIdentifier: "BibbiRealEmojiViewCell", for: indexPath) as? BibbiRealEmojiViewCell else { return UICollectionViewCell() }
             realEmojiCell.reactor = cellReactor
@@ -107,7 +102,6 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         }
         
         realEmojiCollectionView.do {
-            $0.register(BibbiEmojiViewCell.self, forCellWithReuseIdentifier: "BibbiEmojiViewCell")
             $0.register(BibbiRealEmojiViewCell.self, forCellWithReuseIdentifier: "BibbiRealEmojiViewCell")
             $0.showsVerticalScrollIndicator = false
             $0.showsHorizontalScrollIndicator = false

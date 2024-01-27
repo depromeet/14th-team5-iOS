@@ -12,6 +12,7 @@ import Domain
 enum CalendarAPIs: API {
     case fetchCalendarResponse(String)
     case fetchStatisticsSummary(String)
+    case fetchCalendarBenner(String)
     
     var spec: APISpec {
         switch self {
@@ -19,6 +20,8 @@ enum CalendarAPIs: API {
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar?type=MONTHLY&yearMonth=\(yearMonth)")
         case let .fetchStatisticsSummary(familyId):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/families/\(familyId)/summary")
+        case let .fetchCalendarBenner(yearMonth):
+            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar/banner?yearMonth=\(yearMonth)")
         }
     }
 }

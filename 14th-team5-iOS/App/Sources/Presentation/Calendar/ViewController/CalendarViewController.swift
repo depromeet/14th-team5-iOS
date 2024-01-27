@@ -46,6 +46,20 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
     }
     
     private func bindInput(reactor: CalendarViewReactor) {
+        Observable<Void>.just(())
+            .delay(.milliseconds(150), scheduler: Schedulers.main)
+            .withUnretained(self)
+            .subscribe {
+                UIView.transition(
+                    with: $0.0.calendarCollectionView,
+                    duration: 0.15,
+                    options: .transitionCrossDissolve
+                ) { [weak self] in
+                    self?.calendarCollectionView.isHidden = false
+                }
+            }
+            .disposed(by: disposeBag)
+        
         let yearMonthArray: [String] = Date.for20240101.generateYearMonthStringsToToday()
         Observable<String>.from(yearMonthArray)
             .map { Reactor.Action.addYearMonthItem($0) }
@@ -82,7 +96,7 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
                     $0.0,
                     sourceView: $0.1,
                     text: _Str.infoText,
-                    popoverSize: CGSize(width: 210, height: 70),
+                    popoverSize: CGSize(width: 280, height: 72),
                     permittedArrowDrections: [.up]
                 )
             }
@@ -129,6 +143,7 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
         }
         
         calendarCollectionView.do {
+            $0.isHidden = true
             $0.isScrollEnabled = false
             $0.backgroundColor = UIColor.clear
             $0.register(CalendarPageCell.self, forCellWithReuseIdentifier: CalendarPageCell.id)

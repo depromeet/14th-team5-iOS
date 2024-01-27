@@ -73,6 +73,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
         createCommentButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
             .withUnretained(self)
+            .do(onNext: { _ in Haptic.imapact(style: .rigid) })
             .map { Reactor.Action.createPostComment($0.0.commentTextField.text) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -148,6 +149,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
                         offset: 70,
                         direction: .down
                     )
+                    Haptic.notification(type: .error)
                 }
             }
             .disposed(by: disposeBag)
@@ -161,6 +163,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
                         offset: 70,
                         direction: .down
                     )
+                    Haptic.notification(type: .error)
                 }
             }
             .disposed(by: disposeBag)

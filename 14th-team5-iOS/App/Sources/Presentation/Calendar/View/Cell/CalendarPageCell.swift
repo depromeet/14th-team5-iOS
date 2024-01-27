@@ -8,6 +8,7 @@
 import Core
 import DesignSystem
 import Domain
+import SwiftUI
 import UIKit
 
 import FSCalendar
@@ -20,14 +21,19 @@ import Then
 final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     // MARK: - Views
     private lazy var labelStack: UIStackView = UIStackView()
-    private let calendarTitleLabel: BibbiLabel = BibbiLabel(.head1, alignment: .center, textColor: .gray200)
+    private let calendarTitleLabel: BibbiLabel = BibbiLabel(.head2Bold, alignment: .center, textColor: .gray200)
+    private let memoryCountLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray200)
     private let infoButton: UIButton = UIButton(type: .system)
+    
+    private lazy var bannerView: BannerView = BannerView(viewModel: bannerViewModel)
+    private lazy var bannerController: UIHostingController = UIHostingController(rootView: bannerView)
     
     private let calendarView: FSCalendar = FSCalendar()
     
     // MARK: - Properties
     private let infoCircleFill: UIImage = DesignSystemAsset.infoCircleFill.image
         .withRenderingMode(.alwaysTemplate)
+    private lazy var bannerViewModel: BannerViewModel = BannerViewModel(reactor: reactor, state: .init())
     
     static var id: String = "CalendarPageCell"
     
@@ -49,6 +55,16 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     
     private func bindInput(reactor: CalendarPageCellReactor) {
         Observable<Void>.just(())
+            .map { Reactor.Action.fetchCalendarBanner }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        Observable<Void>.just(())
+            .map { Reactor.Action.fetchStatisticsSummary }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        Observable<Void>.just(())
             .map { Reactor.Action.fetchCalendarResponse }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -62,39 +78,52 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
         
         calendarView.rx.didSelect
             .map { Reactor.Action.didSelectDate($0) }
+            .do(onNext: { _ in Haptic.imapact(style: .rigid) })
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: CalendarPageCellReactor) {
+        reactor.state.compactMap { $0.displayCalendarBanner }
+            .distinctUntilChanged(\.familyTopPercentage)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.bannerViewModel.updateState(state: $0.1)
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.displayMemoryCount }
+            .distinctUntilChanged()
+            .bind(to: memoryCountLabel.rx.memoryCountText)
+            .disposed(by: disposeBag)
+        
         reactor.state.map { $0.displayCalendarResponse }
             .withUnretained(self)
             .subscribe { $0.0.calendarView.reloadData() }
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.date }
+        let currentCellDate = reactor.state.map({ $0.date }).asDriver(onErrorJustReturn: .now)
+        
+        currentCellDate
             .distinctUntilChanged()
-            .bind(to: calendarView.rx.currentPage)
+            .drive(calendarView.rx.currentPage)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.date }
+        currentCellDate
             .distinctUntilChanged()
-            .bind(to: calendarTitleLabel.rx.calendarTitleText)
+            .drive(calendarTitleLabel.rx.calendarTitleText)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.date }
+        currentCellDate
             .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe {
-                $0.0.setupCalendarTitle($0.1)
-            }
+            .drive(with: self) { $0.setupCalendarTitle($1) }
             .disposed(by: disposeBag)
     }
     
     override func setupUI() {
         super.setupUI()
         contentView.addSubviews(
-            labelStack, calendarView
+            labelStack, memoryCountLabel, bannerController.view, calendarView
         )
         labelStack.addArrangedSubviews(
             calendarTitleLabel, infoButton
@@ -104,12 +133,23 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     override func setupAutoLayout() {
         super.setupAutoLayout()
         labelStack.snp.makeConstraints {
-            $0.top.equalTo(contentView.snp.top).offset(56)
-            $0.leading.equalTo(contentView.snp.leading).offset(24)
+            $0.top.equalToSuperview().offset(24)
+            $0.leading.equalToSuperview().offset(24)
+        }
+        
+        memoryCountLabel.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(24)
+            $0.trailing.equalToSuperview().offset(-24)
+        }
+        
+        bannerController.view.snp.makeConstraints {
+            $0.top.equalTo(labelStack.snp.bottom).offset(22)
+            $0.horizontalEdges.equalToSuperview().inset(20)
+            $0.bottom.equalTo(calendarView.snp.top).offset(-28)
         }
         
         calendarView.snp.makeConstraints {
-            $0.top.equalTo(labelStack.snp.bottom).offset(32)
+            $0.bottom.equalToSuperview().offset(UIScreen.isPhoneSE ? -8 : -30)
             $0.horizontalEdges.equalToSuperview().inset(0.5)
             $0.height.equalTo(contentView.snp.width).multipliedBy(0.98)
         }
@@ -165,6 +205,10 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
             
             $0.delegate = self
             $0.dataSource = self
+        }
+        
+        bannerController.view.do {
+            $0.backgroundColor = UIColor.clear
         }
         
         setupCalendarTitle(calendarView.currentPage)

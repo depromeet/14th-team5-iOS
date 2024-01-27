@@ -16,11 +16,11 @@ public struct PostListQuery {
     public let sort: String
     
     public init(
-        page: Int,
-        size: Int,
+        page: Int = 1,
+        size: Int = 256,
         date: String,
         memberId: String = "",
-        sort: PostListQuery.Sort
+        sort: PostListQuery.Sort = .desc
     ) {
         self.page = page
         self.size = size

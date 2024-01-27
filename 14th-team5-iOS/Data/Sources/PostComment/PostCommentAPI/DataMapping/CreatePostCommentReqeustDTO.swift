@@ -7,6 +7,6 @@
 
 import Foundation
 
-struct CreatePostCommentReqeustDTO: Encodable {
+public struct CreatePostCommentReqeustDTO: Encodable {
     var content: String
 }

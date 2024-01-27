@@ -145,7 +145,7 @@ final public class PostCommentViewReactor: Reactor {
             }
             
             let postId = initialState.postId
-            let body = CreatePostCommentBody(content: safeComment)
+            let body = CreatePostCommentRequest(content: safeComment)
             
             return postCommentUseCase.executeCreatePostComment(postId: postId, body: body)
                 .flatMap {

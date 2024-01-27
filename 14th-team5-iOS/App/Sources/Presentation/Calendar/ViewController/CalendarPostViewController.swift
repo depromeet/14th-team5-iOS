@@ -80,6 +80,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         calendarView.rx.didSelect
             .distinctUntilChanged()
             .map { Reactor.Action.didSelectDate($0) }
+            .do(onNext: { _ in Haptic.imapact(style: .rigid) })
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -170,36 +171,14 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         
         reactor.pulse(\.$shouldPresentPostCommentSheet)
             .withUnretained(self)
-            .subscribe {
-                let postCommentVC = PostCommentDIContainer(
-                    postId: $0.1.0,
-                    commentCount: $0.1.1
-                ).makeViewController()
-                
-                if let sheet = postCommentVC.sheetPresentationController {
-                    if #available(iOS 16.0, *) {
-                        let customId = UISheetPresentationController.Detent.Identifier("customId")
-                        let customDetents = UISheetPresentationController.Detent.custom(identifier: customId) {
-                            return $0.maximumDetentValue * 0.85
-                        }
-                        sheet.detents = [customDetents, .large()]
-                    } else {
-                        sheet.detents = [.medium(), .large()]
-                    }
-                    sheet.prefersScrollingExpandsWhenScrolledToEdge = false
-                }
-                
-                $0.0.present(postCommentVC, animated: true)
-            }
+            .subscribe { $0.0.presentPostCommentSheet(postId: $0.1.0, commentCount: $0.1.1) }
             .disposed(by: disposeBag)
         
         // 뷰 생성 시, 주간 캘린더 위치를 조정하기 위함
         reactor.state.map { $0.selectedDate }
             .distinctUntilChanged()
             .withUnretained(self)
-            .subscribe {
-                $0.0.calendarView.select($0.1, scrollToDate: true)
-            }
+            .subscribe { $0.0.calendarView.select($0.1, scrollToDate: true) }
             .disposed(by: disposeBag)
     }
     
@@ -350,6 +329,28 @@ extension CalendarPostViewController {
             $0.height.equalTo(bounds.height)
         }
         view.layoutIfNeeded()
+    }
+    
+    private func presentPostCommentSheet(postId: String, commentCount: Int) {
+        let postCommentSheet = PostCommentDIContainer(
+            postId: postId,
+            commentCount: commentCount
+        ).makeViewController()
+        
+        if let sheet = postCommentSheet.sheetPresentationController {
+            if #available(iOS 16.0, *) {
+                let customId = UISheetPresentationController.Detent.Identifier("customId")
+                let customDetents = UISheetPresentationController.Detent.custom(identifier: customId) {
+                    return $0.maximumDetentValue * 0.835
+                }
+                sheet.detents = [customDetents, .large()]
+            } else {
+                sheet.detents = [.medium(), .large()]
+            }
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+        }
+        
+        present(postCommentSheet, animated: true)
     }
 }
 

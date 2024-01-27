@@ -109,12 +109,8 @@ public final class CalendarPostViewReactor: Reactor {
             }
             
             // 가족이 게시한 포스트 가져오기
-            let postListQuery: PostListQuery = PostListQuery(
-                page: 1,
-                size: 10,
-                date: date.toFormatString(with: "yyyy-MM-dd"),
-                sort: .desc
-            )
+            let date: String = date.toFormatString(with: "yyyy-MM-dd")
+            let postListQuery: PostListQuery = PostListQuery(date: date)
             
             return postListUseCase.excute(query: postListQuery).asObservable()
                 .flatMap {

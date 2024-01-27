@@ -24,13 +24,13 @@ extension PostCommentRepository {
             .asObservable()
     }
     
-    public func createPostComment(postId: String, body: CreatePostCommentBody) -> Observable<PostCommentResponse?> {
+    public func createPostComment(postId: String, body: CreatePostCommentRequest) -> Observable<PostCommentResponse?> {
         let body = CreatePostCommentReqeustDTO(content: body.content)
         return postCommentApiWorker.createPostComment(postId: postId, body: body)
             .asObservable()
     }
     
-    public func updatePostComment(postId: String, commentId: String, body: UpdatePostCommentBody) -> Observable<PostCommentResponse?> {
+    public func updatePostComment(postId: String, commentId: String, body: UpdatePostCommentRequest) -> Observable<PostCommentResponse?> {
         let body = UpdatePostCommentReqeustDTO(content: body.content)
         return postCommentApiWorker.updatePostComment(postId: postId, commentId: commentId, body: body)
             .asObservable()

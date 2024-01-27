@@ -14,5 +14,5 @@ extension String {
 
 extension String.Calendar {
     static let mainTitle: String = "추억 캘린더"
-    static let infoText: String = "모두 참여한 날에는\n스마일 이모지가 추가돼요"
+    static let infoText: String = "모두가 참여한 날과 업로드한 사진 수로\n이 달의 친밀도를 측정합니다"
 }

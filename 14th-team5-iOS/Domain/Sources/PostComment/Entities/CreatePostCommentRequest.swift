@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct CreatePostCommentBody {
+public struct CreatePostCommentRequest {
     public var content: String
     
     public init(content: String) {

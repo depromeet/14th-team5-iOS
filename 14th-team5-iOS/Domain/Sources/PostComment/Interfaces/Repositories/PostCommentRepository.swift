@@ -13,7 +13,7 @@ public protocol PostCommentRepositoryProtocol {
     var disposeBag: DisposeBag { get }
     
     func fetchPostComment(postId: String, query: PostCommentPaginationQuery) -> Observable<PaginationResponsePostCommentResponse?>
-    func createPostComment(postId: String, body: CreatePostCommentBody) -> Observable<PostCommentResponse?>
-    func updatePostComment(postId: String, commentId: String, body: UpdatePostCommentBody) -> Observable<PostCommentResponse?>
+    func createPostComment(postId: String, body: CreatePostCommentRequest) -> Observable<PostCommentResponse?>
+    func updatePostComment(postId: String, commentId: String, body: UpdatePostCommentRequest) -> Observable<PostCommentResponse?>
     func deletePostComment(postId: String, commentId: String) -> Observable<PostCommentDeleteResponse?>
 }

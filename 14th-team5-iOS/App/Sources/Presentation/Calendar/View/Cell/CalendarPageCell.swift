@@ -78,6 +78,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
         
         calendarView.rx.didSelect
             .map { Reactor.Action.didSelectDate($0) }
+            .do(onNext: { _ in Haptic.imapact(style: .rigid) })
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }

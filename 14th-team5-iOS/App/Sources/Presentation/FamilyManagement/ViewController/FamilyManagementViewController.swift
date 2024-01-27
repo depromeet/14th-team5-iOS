@@ -104,21 +104,24 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentCopySuccessToastMessageView)
-            .skip(1)
             .withUnretained(self)
             .subscribe {
-                $0.0.makeBibbiToastView(
-                    text: _Str.sucessCopyInvitationUrlText,
-                    image: DesignSystemAsset.link.image
-                )
+                if $0.1 {
+                    $0.0.makeBibbiToastView(
+                        text: _Str.sucessCopyInvitationUrlText,
+                        image: DesignSystemAsset.link.image
+                    )
+                }
             }
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentFetchFailureToastMessageView)
-            .skip(1)
             .withUnretained(self)
             .subscribe {
-                $0.0.makeErrorBibbiToastView()
+                if $0.1 {
+                    $0.0.makeErrorBibbiToastView()
+                    Haptic.notification(type: .error)
+                }
             }
             .disposed(by: disposeBag)
     }

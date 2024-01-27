@@ -98,7 +98,11 @@ public final class FamilyManagementViewReactor: Reactor {
                     .withUnretained(self)
                     .concatMap({
                         guard let invitationLink = $0.1?.url else {
-                            return Observable<Mutation>.just(.setFetchFailureTaostMessageView)
+                            return Observable.concat(
+                                Observable<Mutation>.just(.setFetchFailureTaostMessageView),
+                                $0.0.provider.activityGlobalState.hiddenInvitationUrlIndicatorView(false)
+                                    .flatMap({ _ in Observable<Mutation>.empty() })
+                            )
                         }
                         return Observable.concat(
                             Observable<Mutation>.just(.setSharePanel(invitationLink)),

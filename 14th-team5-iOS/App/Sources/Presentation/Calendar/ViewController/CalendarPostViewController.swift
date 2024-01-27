@@ -80,6 +80,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         calendarView.rx.didSelect
             .distinctUntilChanged()
             .map { Reactor.Action.didSelectDate($0) }
+            .do(onNext: { _ in Haptic.imapact(style: .rigid) })
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -177,9 +178,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         reactor.state.map { $0.selectedDate }
             .distinctUntilChanged()
             .withUnretained(self)
-            .subscribe {
-                $0.0.calendarView.select($0.1, scrollToDate: true)
-            }
+            .subscribe { $0.0.calendarView.select($0.1, scrollToDate: true) }
             .disposed(by: disposeBag)
     }
     

@@ -80,13 +80,7 @@ final class PostViewController: BaseViewController<PostReactor> {
         
         reactor.pulse(\.$shouldPresentPostCommentSheet)
             .withUnretained(self)
-            .subscribe {
-                let postCommentVC = PostCommentDIContainer(
-                    postId: $0.1.0,
-                    commentCount: $0.1.1
-                ).makeViewController()
-                $0.0.present(postCommentVC, animated: true)
-            }
+            .subscribe { $0.0.presentPostCommentSheet(postId: $0.1.0, commentCount: $0.1.1) }
             .disposed(by: disposeBag)
         
         collectionView.rx
@@ -185,6 +179,29 @@ extension PostViewController {
         let width = collectionView.frame.width
         let currentPage = Int((offset.x + width / 2) / width)
         return currentPage
+    }
+    
+    private func presentPostCommentSheet(postId: String, commentCount: Int) {
+        let postCommentSheet = PostCommentDIContainer(
+            postId: postId,
+            commentCount: commentCount
+        ).makeViewController()
+        
+        if let sheet = postCommentSheet.sheetPresentationController {
+            if #available(iOS 16.0, *) {
+                let customId = UISheetPresentationController.Detent.Identifier("customId")
+                let customDetents = UISheetPresentationController.Detent.custom(identifier: customId) {
+                    // TODO: - PostDetail 화면에 맞게 시트 Height 값 조정하기 [참고: 캘린더 화면은 0.835]
+                    return $0.maximumDetentValue * 0.875
+                }
+                sheet.detents = [customDetents, .large()]
+            } else {
+                sheet.detents = [.medium(), .large()]
+            }
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+        }
+        
+        present(postCommentSheet, animated: true)
     }
 }
 

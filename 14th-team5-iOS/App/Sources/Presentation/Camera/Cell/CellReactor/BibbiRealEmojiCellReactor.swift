@@ -41,7 +41,6 @@ public final class BibbiRealEmojiCellReactor: Reactor {
         realEmojiId: String,
         realEmojiType: String
     ) {
-        print("RealEmoji IndexPath \(indexPath), RealEmoji Cell Reactor Check : \(isSelected) and Emoji Type: \(realEmojiId) or realEmoji Image: \(realEmojiImage), and DefaultImage: \(defaultImage)")
         self.initialState = State(
             realEmojiImage: realEmojiImage,
             defaultImage: defaultImage,
@@ -62,13 +61,10 @@ public final class BibbiRealEmojiCellReactor: Reactor {
                     return Observable<Mutation>.just(.setSelected($0.0.currentState.indexPath == indexPath ? true : false ))
                 case let .updateRealEmojiImage(indexPath, image):
                     guard let originalImage = $0.0.currentState.realEmojiImage else { return .empty() }
-                    print("realEmoji update provider indexPath: \(indexPath) or image: \(image)")
                     return Observable<Mutation>.just(.updateEmojiImage($0.0.currentState.indexPath == indexPath ? image : $0.0.currentState.realEmojiImage ?? originalImage))
                     
                 case let .createRealEmojiImage(indexPath, image, emojiType):
                     guard $0.0.currentState.realEmojiImage == nil else { return .empty() }
-                    print("create image provider indexPath: \(indexPath) or image: \(image)")
-                    //TODO: EmojiItems 랑 비교해서 로직 추가
                     return Observable<Mutation>.concat(
                         .just(.updateEmojiImage($0.0.currentState.indexPath == indexPath ? image : nil )),
                         .just(.createEmojiType($0.0.currentState.indexPath == indexPath ? emojiType : ""))
@@ -85,10 +81,8 @@ public final class BibbiRealEmojiCellReactor: Reactor {
         var newState = state
         switch mutation {
         case let .setSelected(isSelected):
-            print("RealEmoji Transform IsSeelcted: \(isSelected)")
             newState.isSelected = isSelected
         case let .updateEmojiImage(realEmojiImage):
-            print("realEmoji Update Image: \(realEmojiImage)")
             newState.realEmojiImage = realEmojiImage
         case let .createEmojiType(emojiType):
             newState.realEmojiType = emojiType

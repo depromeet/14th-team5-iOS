@@ -316,6 +316,7 @@ public final class ProfileViewReactor: Reactor {
                         PostListData(
                             postId: $0.postId,
                             author: ProfileData(memberId: memberId, profileImageURL: profleEntity.memberImage.absoluteString, name: profleEntity.memberName, dayOfBirth: profleEntity.dayOfBirth),
+                            commentCount: Int($0.commentCount) ?? 0,
                             emojiCount: Int($0.emojiCount) ?? 0,
                             imageURL: $0.imageUrl.absoluteString,
                             content: $0.content,

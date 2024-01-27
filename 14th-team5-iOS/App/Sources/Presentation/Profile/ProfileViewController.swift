@@ -270,6 +270,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
                 reactor.pulse(\.$selectedIndexPath)
             )
             .withUnretained(self)
+            .filter { !$0.1.0.items.isEmpty }
             .subscribe {
                 guard let indexPath = $0.1.1 else { return }
                 let postListViewController = PostListsDIContainer().makeViewController(postLists: $0.1.0, selectedIndex: indexPath)

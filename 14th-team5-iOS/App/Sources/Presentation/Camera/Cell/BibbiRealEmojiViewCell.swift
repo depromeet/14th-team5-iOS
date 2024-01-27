@@ -49,16 +49,14 @@ final class BibbiRealEmojiViewCell: BaseCollectionViewCell<BibbiRealEmojiCellRea
         
         realEmojiPointImageView.snp.makeConstraints {
             $0.width.height.equalTo(20)
-            $0.top.equalToSuperview()
-            $0.left.equalToSuperview()
+            $0.bottom.equalToSuperview()
+            $0.right.equalToSuperview()
         }
     }
     
     
     
     override func bind(reactor: BibbiRealEmojiCellReactor) {
-        
-        //리얼이모지가 첫번쨰이고
         
         reactor.state
             .filter { !$0.defaultImage.isEmpty }
@@ -74,6 +72,14 @@ final class BibbiRealEmojiViewCell: BaseCollectionViewCell<BibbiRealEmojiCellRea
             .distinctUntilChanged()
             .withUnretained(self)
             .bind(onNext: { $0.0.setupRealEmojiImage($0.1)})
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .filter { $0.realEmojiImage != nil }
+            .map { $0.indexPath }
+            .withUnretained(self)
+            .map { $0.0.setupPointImageView($0.1)}
+            .bind(to: realEmojiPointImageView.rx.image)
             .disposed(by: disposeBag)
         
         reactor.state
@@ -101,5 +107,23 @@ extension BibbiRealEmojiViewCell {
         realEmojiImageView.kf.indicatorType = .activity
         realEmojiImageView.kf.setImage(with: url, options: [.transition(.fade(0.5))])
     }
+
+    private func setupPointImageView(_ type: Int) -> UIImage {
+        switch type {
+        case 0:
+            return DesignSystemImages.Image(named: "emojipoint1", in: DesignSystemResources.bundle, with: nil) ?? UIImage()
+        case 1:
+            return DesignSystemImages.Image(named: "emojipoint2", in: DesignSystemResources.bundle, with: nil) ?? UIImage()
+        case 2:
+            return DesignSystemImages.Image(named: "emojipoint3", in: DesignSystemResources.bundle, with: nil) ?? UIImage()
+        case 3:
+            return DesignSystemImages.Image(named: "emojipoint4", in: DesignSystemResources.bundle, with: nil) ?? UIImage()
+        case 4:
+            return DesignSystemImages.Image(named: "emojipoint5", in: DesignSystemResources.bundle, with: nil) ?? UIImage()
+        default:
+            return UIImage()
+        }
+    }
+
     
 }

@@ -18,15 +18,15 @@ public enum CameraRealEmojiItems: String, CaseIterable {
     public var emojiType: String {
         switch self {
         case .emoji1:
-            return "EMOJI_1"
+            return "emoji_1"
         case .emoji2:
-            return "EMOJI_2"
+            return "emoji_2"
         case .emoji3:
-            return "EMOJI_3"
+            return "emoji_3"
         case .emoji4:
-            return "EMOJI_4"
+            return "emoji_4"
         case .emoji5:
-            return "EMOJI_5"
+            return "emoji_5"
         }
     }
     

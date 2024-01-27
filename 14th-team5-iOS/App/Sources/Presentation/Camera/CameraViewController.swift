@@ -38,6 +38,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     private let filterView: UIImageView = UIImageView()
     private let zoomView: UIImageView = UIImageView()
     private let realEmojiDescriptionLabel = BibbiLabel(.body1Regular, textColor: .mainYellow)
+    private let realEmojiFaceView = UIView()
     private let realEmojiFaceImageView = UIImageView()
     private let realEmojiHorizontalStakView = UIStackView()
     private let realEmojiFlowLayout = UICollectionViewFlowLayout()
@@ -74,7 +75,8 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(cameraView, shutterButton, flashButton, toggleButton, cameraIndicatorView, realEmojiHorizontalStakView, realEmojiCollectionView, cameraNavigationBar)
+        realEmojiFaceView.addSubview(realEmojiFaceImageView)
+        view.addSubviews(cameraView, shutterButton, flashButton, toggleButton, cameraIndicatorView, realEmojiFaceView, realEmojiHorizontalStakView, realEmojiCollectionView, cameraNavigationBar)
     }
     
     public override func setupAttributes() {
@@ -114,10 +116,17 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             $0.clipsToBounds = true
         }
         
+        realEmojiFaceView.do {
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = 35 / 2
+            $0.backgroundColor = DesignSystemAsset.gray600.color
+            $0.clipsToBounds = true
+        }
+        
         realEmojiFaceImageView.do {
             $0.contentMode = .scaleAspectFill
             $0.image = DesignSystemAsset.emoji1.image
-            $0.layer.cornerRadius = 24 / 2
+            $0.layer.cornerRadius = 26 / 2
             $0.clipsToBounds = true
         }
         
@@ -126,7 +135,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             $0.spacing = 4
             $0.alignment = .center
             $0.distribution = .fill
-            $0.addArrangedSubviews(realEmojiFaceImageView, realEmojiDescriptionLabel)
+            $0.addArrangedSubviews(realEmojiDescriptionLabel)
         }
         
         filterView.do {
@@ -164,13 +173,20 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         }
         
         realEmojiHorizontalStakView.snp.makeConstraints {
-            $0.height.equalTo(24)
+            $0.height.equalTo(34)
             $0.centerX.equalTo(cameraView)
             $0.bottom.equalTo(cameraView.snp.top).offset(-16)
         }
         
+        realEmojiFaceView.snp.makeConstraints {
+            $0.width.height.equalTo(35)
+            $0.right.equalTo(realEmojiHorizontalStakView.snp.left).offset(-10)
+            $0.centerY.equalTo(realEmojiHorizontalStakView)
+        }
+        
         realEmojiFaceImageView.snp.makeConstraints {
-            $0.width.equalTo(24)
+            $0.width.height.equalTo(26)
+            $0.center.equalToSuperview()
         }
 
         
@@ -285,16 +301,6 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             }).disposed(by: disposeBag)
             
         
-        //두가지 방법이 있음
-        //selected 로 indexPath를 조회해서 EmojiType을 가져오는 방법 단 Cell Reactor에 주입할때 Emoji Type은 ImageUrl 있을때만 넣고 없으면 빈값으로 넣어서 예외 처리 해야함
-        //두번째 방법은 modelSelected로 가져오는 방법
-        
-        
-        // 선택을 했음
-        // 해당 인덱스 true로 넘겨야함
-        // 그리고 해당 인덱스 default Image 가져와야함 or imageType 가져와야함
-        //
-            
         realEmojiCollectionView
             .rx.itemSelected
             .debug("Tap item Select")
@@ -590,6 +596,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         filterView.isHidden = isShow
         realEmojiHorizontalStakView.isHidden = isShow
         realEmojiCollectionView.isHidden = isShow
+        realEmojiFaceView.isHidden = isShow
     }
     
 }

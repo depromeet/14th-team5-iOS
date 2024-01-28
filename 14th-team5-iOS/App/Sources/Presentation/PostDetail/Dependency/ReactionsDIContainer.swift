@@ -11,7 +11,7 @@ import Core
 import Data
 import Domain
 
-final class SelectableEmojiDIContainer {
+final class SelectableEmojiDIContainer {<<<<<<< HEAD
     private func makeReactor(postId: String) -> SelectableEmojiReactor {
         return SelectableEmojiReactor(postId: postId, emojiRepository: makeEmojiUseCase(), realEmojiRepository: makeRealEmojiUseCase())
     }

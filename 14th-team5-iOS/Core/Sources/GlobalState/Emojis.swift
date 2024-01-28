@@ -47,6 +47,21 @@ public enum Emojis: Int {
         }
     }
     
+    public var emojiBadgeImage: UIImage {
+        switch self {
+        case .emoji1:
+            return DesignSystemAsset.emojipoint1.image
+        case .emoji2:
+            return DesignSystemAsset.emojipoint2.image
+        case .emoji3:
+            return DesignSystemAsset.emojipoint3.image
+        case .emoji4:
+            return DesignSystemAsset.emojipoint4.image
+        case .emoji5:
+            return DesignSystemAsset.emojipoint5.image
+        }
+    }
+    
     public var emojiString: String {
         switch self {
         case .emoji1:

@@ -33,7 +33,8 @@ final class SelectableEmojiCollectionViewCell: UICollectionViewCell {
     
     func setupAutoLayout() {
         imageView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.top.leading.equalToSuperview()
+            $0.size.equalTo(40)
         }
         
         badgeView.snp.makeConstraints {
@@ -58,12 +59,16 @@ extension SelectableEmojiCollectionViewCell {
     func setData(index: Int, data: MyRealEmoji?) {
         if let data {
             badgeView.isHidden = false
-            badgeView.image = data.type.emojiImage
+            badgeView.image = data.type.emojiBadgeImage
             imageView.kf.setImage(with: URL(string: data.imageUrl))
+            imageView.clipsToBounds = true
+            imageView.layer.cornerRadius = 20
         } else {
             badgeView.isHidden = true
             imageView.alpha = 0.5
             imageView.image = Emojis.getEmojiImage(index: index + 1)
+            imageView.clipsToBounds = false
+            imageView.layer.cornerRadius = 0
         }
     }
 }

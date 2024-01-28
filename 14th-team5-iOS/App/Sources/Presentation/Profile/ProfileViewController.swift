@@ -277,6 +277,13 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
                 $0.0.navigationController?.pushViewController(postListViewController, animated: true)
             }.disposed(by: disposeBag)
 
+        reactor.state
+            .compactMap { $0.profileMemberEntity?.dayOfBirth }
+            .distinctUntilChanged()
+            .map { $0.isToday }
+            .debug("profileBirtyDay")
+            .bind(to: profileView.rx.isBirthDay)
+            .disposed(by: disposeBag)
             
         
         reactor.state

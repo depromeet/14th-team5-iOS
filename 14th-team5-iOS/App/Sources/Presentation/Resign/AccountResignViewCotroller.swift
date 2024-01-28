@@ -91,9 +91,9 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
         }
         
         bibbiTermsView.snp.makeConstraints {
-            $0.top.equalTo(resignExampleLabel.snp.bottom).offset(30)
+            $0.top.equalTo(resignExampleLabel.snp.bottom).offset(16)
             $0.left.equalToSuperview()
-            $0.height.equalTo(300)
+            $0.height.equalTo(260)
             $0.centerX.equalTo(resignNavigationBarView)
         }
         

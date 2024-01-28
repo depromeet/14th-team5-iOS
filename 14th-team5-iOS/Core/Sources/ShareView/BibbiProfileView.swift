@@ -20,10 +20,17 @@ import Then
 public class BibbiProfileView: UIView {
     public let profileImageView: UIImageView = UIImageView()
     public let circleButton: UIButton = UIButton.createCircleButton(radius: 15)
+    public let birthDayView: UIImageView = UIImageView()
     public let profileNickNameButton: UIButton = UIButton(configuration: .plain())
     public var isSetting: Bool = false {
         didSet {
             setupUserProfile(isUser: isSetting)
+        }
+    }
+    
+    public var isBirthDay: Bool = false {
+        didSet {
+            setupBirtyDay(isBirtyDay: isBirthDay)
         }
     }
     
@@ -44,7 +51,7 @@ public class BibbiProfileView: UIView {
     
     
     public func setupUI() {
-        [profileImageView, profileNickNameButton, circleButton].forEach(self.addSubview(_:))
+        [profileImageView, profileNickNameButton, circleButton, birthDayView].forEach(self.addSubview(_:))
     }
     
     public func setupAttributes() {
@@ -53,6 +60,11 @@ public class BibbiProfileView: UIView {
             $0.image = DesignSystemAsset.defaultProfile.image
             $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = cornerRadius
+        }
+        
+        birthDayView.do {
+            $0.contentMode = .scaleAspectFill
+            $0.image = DesignSystemAsset.birthday.image
         }
         
         circleButton.do {
@@ -88,6 +100,12 @@ public class BibbiProfileView: UIView {
             $0.center.equalToSuperview()
         }
         
+        birthDayView.snp.makeConstraints {
+            $0.top.equalTo(profileImageView).offset(-8)
+            $0.right.equalTo(profileImageView).offset(8)
+            $0.width.height.equalTo(32)
+        }
+        
         circleButton.snp.makeConstraints {
             $0.right.equalTo(profileImageView).offset(-5)
             $0.bottom.equalTo(profileNickNameButton.snp.top).offset(-15)
@@ -106,4 +124,7 @@ public class BibbiProfileView: UIView {
         profileNickNameButton.isEnabled = isUser
     }
     
+    private func setupBirtyDay(isBirtyDay: Bool) {
+        birthDayView.isHidden = !isHidden
+    }
 }

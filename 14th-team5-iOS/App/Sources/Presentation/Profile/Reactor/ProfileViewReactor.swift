@@ -25,6 +25,7 @@ public final class ProfileViewReactor: Reactor {
         case fetchMorePostItems(Bool)
         case didSelectPHAssetsImage(Data)
         case didTapInitProfile(Data)
+        case didTapProfilePost(IndexPath, ProfilePostResponse)
     }
     
     public enum Mutation {
@@ -36,6 +37,7 @@ public final class ProfileViewReactor: Reactor {
         case setDefaultProfile(Bool)
         case setChangNickName(Bool)
         case setProfilePostItems(ProfilePostResponse)
+        case setProfileData(PostSection.Model, IndexPath)
     }
     
     // userdefault image URL = member image url 는
@@ -44,6 +46,8 @@ public final class ProfileViewReactor: Reactor {
         var isLoading: Bool
         var memberId: String
         var isUser: Bool
+        @Pulse var profileData: PostSection.Model
+        @Pulse var selectedIndexPath: IndexPath?
         @Pulse var isChangeNickname: Bool
         @Pulse var isDefaultProfile: Bool
         @Pulse var feedSection: [ProfileFeedSectionModel]
@@ -61,6 +65,10 @@ public final class ProfileViewReactor: Reactor {
             isLoading: false,
             memberId: memberId,
             isUser: isUser,
+            profileData: PostSection.Model(
+                model: 0, items: []
+            ),
+            selectedIndexPath: nil,
             isChangeNickname: false,
             isDefaultProfile: false,
             feedSection: [.feedCategory([])],
@@ -99,7 +107,7 @@ public final class ProfileViewReactor: Reactor {
                             sectionItem.append(.feedCateogryEmptyItem(ProfileFeedEmptyCellReactor(descrption: "아직 업로드한 사진이 없어요", resource: "profileEmpty")))
                         } else {
                             entity.results.forEach {
-                                sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date:  $0.createdAt.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter())))
+                                sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date:  $0.createdAt.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter(), commentCount: $0.commentCount)))
                             }
                         }
                         return .concat(
@@ -250,7 +258,7 @@ public final class ProfileViewReactor: Reactor {
                     paginationItems.append(contentsOf: entity.results)
                    
                     paginationItems.forEach {
-                        sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date: $0.createdAt.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter())))
+                        sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date: $0.createdAt.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter(), commentCount: $0.commentCount)))
                     }
                     
                     return .concat(
@@ -299,6 +307,27 @@ public final class ProfileViewReactor: Reactor {
                     }
             
             )
+        case let .didTapProfilePost(indexPath, postEntity):
+            guard let profleEntity = currentState.profileMemberEntity else { return .empty() }
+            var postSection: PostSection.Model = .init(model: 0, items: [])
+            postEntity.results.forEach {
+                postSection.items.append(
+                    .main(
+                        PostListData(
+                            postId: $0.postId,
+                            author: ProfileData(memberId: memberId, profileImageURL: profleEntity.memberImage.absoluteString, name: profleEntity.memberName, dayOfBirth: profleEntity.dayOfBirth),
+                            commentCount: Int($0.commentCount) ?? 0,
+                            emojiCount: Int($0.emojiCount) ?? 0,
+                            imageURL: $0.imageUrl.absoluteString,
+                            content: $0.content,
+                            time: $0.createdAt
+                        )
+                    )
+                )
+            }
+            
+
+            return .just(.setProfileData(postSection, indexPath))
         }
     }
     
@@ -330,6 +359,10 @@ public final class ProfileViewReactor: Reactor {
             UserDefaults.standard.isDefaultProfile = isDefaultProfile
         case let .setChangNickName(isChangeNickname):
             newState.isChangeNickname = isChangeNickname
+        case let .setProfileData(profileData, indexPath):
+            newState.profileData = profileData
+            newState.selectedIndexPath = indexPath
+            
         }
         
         return newState

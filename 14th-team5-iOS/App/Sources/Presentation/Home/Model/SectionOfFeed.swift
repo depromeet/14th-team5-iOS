@@ -8,8 +8,8 @@
 import Domain
 import RxDataSources
 
-struct SectionOfFeed {
-    var items: [PostListData]
+public struct SectionOfFeed {
+    public var items: [PostListData]
     
     init(items: [PostListData]) {
         self.items = items
@@ -17,18 +17,18 @@ struct SectionOfFeed {
 }
 
 extension SectionOfFeed: SectionModelType {
-    typealias Item = PostListData
+    public typealias Item = PostListData
     
-    init(original: SectionOfFeed, items: [PostListData]) {
+    public init(original: SectionOfFeed, items: [PostListData]) {
         self = original
         self.items = items
     }
 }
 
-struct PostSection {
-  typealias Model = SectionModel<Int, Item>
+public struct PostSection {
+  public typealias Model = SectionModel<Int, Item>
   
-  enum Item {
+  public enum Item {
     case main(PostListData)
   }
 }

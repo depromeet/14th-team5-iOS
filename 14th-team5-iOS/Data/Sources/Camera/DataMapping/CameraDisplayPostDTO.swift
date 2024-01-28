@@ -7,6 +7,7 @@
 
 import Foundation
 
+import Domain
 
 public struct CameraDisplayPostDTO: Decodable {
     

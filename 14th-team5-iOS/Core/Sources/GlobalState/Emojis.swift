@@ -50,15 +50,15 @@ public enum Emojis: Int {
     public var emojiString: String {
         switch self {
         case .emoji1:
-            return "Emoji_1"
+            return "EMOJI_1"
         case .emoji2:
-            return "Emoji_2"
+            return "EMOJI_2"
         case .emoji3:
-            return "Emoji_3"
+            return "EMOJI_3"
         case .emoji4:
-            return "Emoji_4"
+            return "EMOJI_4"
         case .emoji5:
-            return "Emoji_5"
+            return "EMOJI_5"
         }
     }
     
@@ -72,5 +72,16 @@ public enum Emojis: Int {
     
     public static func emoji(forIndex index: Int) -> Emojis {
         return Emojis(rawValue: index) ?? .emoji1
+    }
+    
+    public static func emoji(forString name: String) -> Emojis {
+        switch name {
+        case "EMOJI_1": return .emoji1
+        case "EMOJI_2": return .emoji2
+        case "EMOJI_3": return .emoji3
+        case "EMOJI_4": return .emoji4
+        case "EMOJI_5": return .emoji5
+        default: return .emoji1
+        }
     }
 }

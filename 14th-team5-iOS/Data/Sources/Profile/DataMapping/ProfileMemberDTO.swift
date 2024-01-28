@@ -8,6 +8,7 @@
 import Foundation
 
 import Core
+import Domain
 
 public struct ProfileMemberDTO: Decodable {
     public var memberId: String?
@@ -23,7 +24,9 @@ extension ProfileMemberDTO {
         return .init(
             memberId: memberId ?? "" ,
             memberName: name ?? "",
-            memberImage: URL(string: imageUrl ?? "") ?? URL(fileURLWithPath: "")
+            memberImage: URL(string: imageUrl ?? "") ?? URL(fileURLWithPath: ""),
+            dayOfBirth: dayOfBirth.toDate()
+            
         )
     }
     

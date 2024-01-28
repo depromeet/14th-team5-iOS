@@ -9,4 +9,8 @@ import Foundation
 
 public struct AccountResignResponse {
     public var isSuccess: Bool
+    
+    public init(isSuccess: Bool) {
+        self.isSuccess = isSuccess
+    }
 }

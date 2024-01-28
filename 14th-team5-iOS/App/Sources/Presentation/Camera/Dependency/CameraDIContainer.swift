@@ -31,7 +31,7 @@ public final class CameraDIContainer: BaseDIContainer {
     
     public init(cameraType: UploadLocation, memberId: String = "") {
         self.cameraType = cameraType
-        self.memberId = memberId
+        self.memberId = App.Repository.member.memberID.value ?? ""
     }
     
     public func makeViewController() -> CameraViewController {

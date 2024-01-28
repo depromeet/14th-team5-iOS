@@ -45,6 +45,8 @@ final class SelectableEmojiViewController: BaseViewController<SelectableEmojiRea
     override func setupAttributes() {
         super.setupAttributes()
         
+        view.backgroundColor = .gray700
+        
         collectionViewLayout.do {
             $0.minimumInteritemSpacing = 12
         }
@@ -77,8 +79,8 @@ extension SelectableEmojiViewController {
         selectableEmojiCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
-        Observable.just(())
-            .map { Reactor.Action.loadMyRealEmoji }
+        self.rx.viewWillAppear
+            .map { _ in Reactor.Action.loadMyRealEmoji }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -93,6 +95,15 @@ extension SelectableEmojiViewController {
                 }
             }
             .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        cameraButton.rx.tap
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: {
+                let cameraViewController = CameraDIContainer(cameraType: .realEmoji).makeViewController()
+                $0.0.present(cameraViewController, animated: true)
+            })
             .disposed(by: disposeBag)
     }
     

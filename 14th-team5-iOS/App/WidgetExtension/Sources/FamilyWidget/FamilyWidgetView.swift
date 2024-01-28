@@ -20,11 +20,10 @@ struct FamilyWidgetView: View {
         if let info = entry.family {
             getPhotoView(info: info)
         } else {
-            let randomNumber = arc4random_uniform(2) + 1
-            if randomNumber % 2 == 0 {
-                yellowDefaultView
-            } else {
+            if isCurrentTimeBetween18And24() {
                 greenDefaultView
+            } else {
+                yellowDefaultView
             }
         }
     }
@@ -223,6 +222,18 @@ struct FamilyWidgetView: View {
                     .cornerRadius(radius)
             }
         }
+    }
+    
+    func isCurrentTimeBetween18And24() -> Bool {
+        let calendar = Calendar.current
+        let currentDate = Date()
+
+        let components = calendar.dateComponents([.hour], from: currentDate)
+        if let currentHour = components.hour {
+            return currentHour >= 18 && currentHour < 24
+        }
+        
+        return false
     }
 }
 

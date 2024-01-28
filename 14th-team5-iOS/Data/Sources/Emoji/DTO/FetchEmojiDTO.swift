@@ -40,7 +40,7 @@ struct FetchEmojiResponse: Codable {
 struct FetchEmojiResponseDTO: Codable {
     let emojiMemberIdsList: FetchEmojiResponse
     
-    func toDomain() -> FetchEmojiDataList {
-        return .init(emojis_memberIds: emojiMemberIdsList.toDomain())
+    func toDomain() -> [FetchEmojiData] {
+        return emojiMemberIdsList.toDomain()
     }
 }

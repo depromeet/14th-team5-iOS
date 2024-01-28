@@ -90,7 +90,7 @@ final class PostViewController: BaseViewController<PostReactor> {
         button.rx.tap
             .withUnretained(self)
             .bind(onNext: {
-                let vc = SelectableEmojiDIContainer().makeViewController()
+                let vc = SelectableEmojiDIContainer().makeViewController(postId: reactor.currentState.selectedPost.postId)
                 
                 if let sheet = vc.sheetPresentationController {
                     if #available(iOS 16.0, *) {

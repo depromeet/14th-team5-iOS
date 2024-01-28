@@ -7,6 +7,10 @@
 
 import Foundation
 
+public struct AddRealEmojiParameters: Codable {
+    let postId: String
+}
+
 public struct AddRealEmojiRequestDTO: Codable {
     let realEmojiId: String
 }

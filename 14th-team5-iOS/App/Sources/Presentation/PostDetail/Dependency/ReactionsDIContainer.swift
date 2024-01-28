@@ -12,12 +12,12 @@ import Data
 import Domain
 
 final class SelectableEmojiDIContainer {
-    private func makeReactor() -> SelectableEmojiReactor {
-        return SelectableEmojiReactor(emojiRepository: makeEmojiUseCase(), realEmojiRepository: makeRealEmojiUseCase())
+    private func makeReactor(postId: String) -> SelectableEmojiReactor {
+        return SelectableEmojiReactor(postId: postId, emojiRepository: makeEmojiUseCase(), realEmojiRepository: makeRealEmojiUseCase())
     }
     
-    func makeViewController() -> SelectableEmojiViewController {
-        return SelectableEmojiViewController(reactor: makeReactor())
+    func makeViewController(postId: String) -> SelectableEmojiViewController {
+        return SelectableEmojiViewController(reactor: makeReactor(postId: postId))
     }
 }
 

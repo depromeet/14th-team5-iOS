@@ -97,14 +97,14 @@ extension RealEmojiAPIWorker: RealEmojiRepository {
     }
     
     private func addRealEmoji(headers: [APIHeader]?, query: AddEmojiQuery, body: AddEmojiBody) -> Single<Void?> {
-        let spec = RealEmojiAPIS.loadMyRealEmoji.spec
+        let spec = RealEmojiAPIS.addRealEmoji(.init(postId: query.postId)).spec
         let body = AddRealEmojiRequestDTO(realEmojiId: body.emojiId)
         
         return request(spec: spec, headers: headers, jsonEncodable: body)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Real Emoji Items Result: \(str)")
+                    debugPrint("Add Real Emoji Result: \(str)")
                 }
             }
             .map(AddRealEmojiResponseDTO.self)

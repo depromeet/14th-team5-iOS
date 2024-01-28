@@ -32,11 +32,13 @@ final class SelectableEmojiReactor: Reactor {
         var selectedRealEmoji: Set<MyRealEmoji> = []
     }
     
+    let postId: String
     let emojiRepository: EmojiUseCaseProtocol
     let realEmojiRepository: RealEmojiUseCaseProtocol
     var initialState: State = State()
     
-    init(emojiRepository: EmojiUseCaseProtocol, realEmojiRepository: RealEmojiUseCaseProtocol) {
+    init(postId: String, emojiRepository: EmojiUseCaseProtocol, realEmojiRepository: RealEmojiUseCaseProtocol) {
+        self.postId = postId
         self.emojiRepository = emojiRepository
         self.realEmojiRepository = realEmojiRepository
         let section1 = SelectableReactionSection.Model(model: 0, items: [])
@@ -49,7 +51,7 @@ extension SelectableEmojiReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case let .selectStandard(emoji):
-            let query = AddEmojiQuery(postId: "")
+            let query = AddEmojiQuery(postId: self.postId)
             let body = AddEmojiBody(content: emoji.emojiString)
             return emojiRepository.excute(query: query, body: body)
                 .asObservable()
@@ -58,9 +60,9 @@ extension SelectableEmojiReactor {
                 }
         case let .selectRealEmoji(emoji):
             guard let emoji else { return Observable.empty() }
-            let query = AddEmojiQuery(postId: "")
+            let query = AddEmojiQuery(postId: self.postId)
             let body = AddEmojiBody(content: emoji.realEmojiId)
-            return realEmojiRepository.execute()
+            return realEmojiRepository.execute(query: query, body: body)
                 .asObservable()
                 .flatMap {_ in 
                     return Observable.just(Mutation.setSelectedRealEmoji(emoji))

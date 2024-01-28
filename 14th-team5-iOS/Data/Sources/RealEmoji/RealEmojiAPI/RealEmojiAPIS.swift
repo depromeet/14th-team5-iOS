@@ -11,9 +11,13 @@ import Core
 public enum RealEmojiAPIS: API {
     case fetchRealEmojiList(FetchRealEmojiListParameter)
     case loadMyRealEmoji
+    case addRealEmoji(AddRealEmojiParameters)
     
     var spec: APISpec {
         switch self {
+        case .addRealEmoji(let parameter):
+            let urlString = "\(BibbiAPI.hostApi)/posts/\(parameter.postId)/real-emoji"
+            return APISpec(method: .post, url: urlString)
         case .fetchRealEmojiList(let parameter):
             let urlString = "\(BibbiAPI.hostApi)/posts/\(parameter.postId)/real-emoji"
             return APISpec(method: .get, url: urlString)

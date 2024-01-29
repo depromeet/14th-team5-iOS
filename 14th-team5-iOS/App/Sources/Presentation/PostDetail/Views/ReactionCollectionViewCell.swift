@@ -85,11 +85,6 @@ extension ReactionCollectionViewCell {
             .map { Reactor.Action.setCell }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
-//        self.rx.tap
-//            .map { Reactor.Action.toggleSelect }
-//            .bind(to: reactor.action)
-//            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: TempCellReactor) {

@@ -141,7 +141,7 @@ extension ReactionViewController {
             .withUnretained(self) { ($0, $1) }
             .bind(onNext: {
                 let vc = SelectableEmojiDIContainer().makeViewController(postId: $0.1, subject: self.selectedReactionSubject)
-                $0.0.presentCustomSheetViewController(viewController: vc, detentHeightRatio: 0.85)
+                $0.0.presentCustomSheetViewController(viewController: vc, detentHeightRatio: 0.25)
             })
             .disposed(by: disposeBag)
         
@@ -172,33 +172,13 @@ extension ReactionViewController {
                 sheet.detents = [customDetents, .large()]
                 sheet.prefersScrollingExpandsWhenScrolledToEdge = false
             } else {
-                sheet.detents = [.medium(), .large()]
+                sheet.detents = [ .medium(), .large()]
                 sheet.prefersGrabberVisible = true
             }
         }
 
         self.present(viewController, animated: true)
     }
-    
-//    private func presentCustomSheetViewController<T: UIViewController>(
-//        viewController: T,
-//        detentHeightRatio: CGFloat
-//    ) {
-//        if let sheet = viewController.sheetPresentationController {
-//            if #available(iOS 16.0, *) {
-//                let customId = UISheetPresentationController.Detent.Identifier("customId")
-//                let customDetents = UISheetPresentationController.Detent.custom(identifier: customId) {
-//                    return $0.maximumDetentValue * detentHeightRatio
-//                }
-//                sheet.detents = [customDetents, .large()]
-//            } else {
-//                sheet.detents = [.medium(), .large()]
-//            }
-//            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
-//        }
-//
-//        self.present(viewController, animated: true)
-//    }
     
     private func createDataSource() -> RxCollectionViewSectionedReloadDataSource<ReactionSection.Model> {
         return RxCollectionViewSectionedReloadDataSource<ReactionSection.Model>(

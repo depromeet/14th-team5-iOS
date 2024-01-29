@@ -14,11 +14,13 @@ public struct ProfileMemberResponse {
     public var memberName: String
     public var memberImage: URL
     public var dayOfBirth: Date
+    public var familyJoinAt: String
     
-    public init(memberId: String, memberName: String, memberImage: URL, dayOfBirth: Date) {
+    public init(memberId: String, memberName: String, memberImage: URL, dayOfBirth: Date, familyJoinAt: String) {
         self.memberId = memberId
         self.memberName = memberName
         self.memberImage = memberImage
         self.dayOfBirth = dayOfBirth
+        self.familyJoinAt = familyJoinAt
     }
 }

@@ -311,7 +311,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         shutterButton
             .rx.tap
-            .throttle(.seconds(1), scheduler: MainScheduler.instance)
+            .throttle(.seconds(4), scheduler: MainScheduler.asyncInstance)
             .debug("shutter Button Tap")
             .withUnretained(self)
             .subscribe { owner, _ in

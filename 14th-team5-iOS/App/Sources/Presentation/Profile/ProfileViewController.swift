@@ -292,6 +292,12 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(to: profileFeedCollectionView.rx.isScrollEnabled)
             .disposed(by: disposeBag)
         
+        reactor.state
+            .compactMap { $0.profileMemberEntity}
+            .map { "\($0.familyJoinAt) 가입" }
+            .bind(to: profileView.profileCreateLabel.rx.text)
+            .disposed(by: disposeBag)
+        
         profileFeedCollectionView.rx
             .didScroll
             .withLatestFrom(profileFeedCollectionView.rx.contentOffset)
@@ -382,11 +388,10 @@ extension ProfileViewController {
     }
     
     private func setupProfileButton(title: String) {
-        profileView.profileNickNameButton.configuration?.attributedTitle = AttributedString(NSAttributedString(string: title, attributes: [
+        profileView.profileNickNameButton.setAttributedTitle(NSAttributedString(string: title, attributes: [
             .foregroundColor: DesignSystemAsset.gray200.color,
             .font: DesignSystemFontFamily.Pretendard.bold.font(size: 16)
-        ]))
-        
+        ]), for: .normal)
     }
     
     private func transitionNickNameViewController(memberId: String) {

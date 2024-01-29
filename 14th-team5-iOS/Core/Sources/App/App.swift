@@ -9,6 +9,8 @@ import Foundation
 
 public enum App {
     
+    public static let indicator = BibbiLoadIndicator()
+    
     public enum Repository {
         public static let token = TokenRepository()
         public static let member = MemberRepository()

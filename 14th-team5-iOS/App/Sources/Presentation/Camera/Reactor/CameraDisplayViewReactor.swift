@@ -22,6 +22,7 @@ public final class CameraDisplayViewReactor: Reactor {
         case didTapArchiveButton
         case fetchDisplayImage(String)
         case didTapConfirmButton
+        case hideDisplayEditCell
     }
     
     public enum Mutation {
@@ -135,6 +136,13 @@ public final class CameraDisplayViewReactor: Reactor {
                     )
                     
                 }
+        case .hideDisplayEditCell:
+            return .concat(
+                .just(.setLoading(true)),
+                .just(.setDescription("")),
+                .just(.setDisplayEditSection([])),
+                .just(.setLoading(false))
+            )
         }
     }
     

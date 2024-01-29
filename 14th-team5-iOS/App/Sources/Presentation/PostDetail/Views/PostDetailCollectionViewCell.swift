@@ -174,12 +174,12 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
 
 extension PostDetailCollectionViewCell {
     private func bindInput(reactor: EmojiReactor) {
-        Observable.just(())
-            .take(1)
-            .map { Reactor.Action.fetchEmojiList }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
+//        Observable.just(())
+//            .take(1)
+//            .map { Reactor.Action.fetchEmojiList }
+//            .bind(to: reactor.action)
+//            .disposed(by: disposeBag)
+//        
         Observable.just(())
             .take(1)
             .map { Reactor.Action.fetchDisplayContent(reactor.currentState.post.content ?? "") }

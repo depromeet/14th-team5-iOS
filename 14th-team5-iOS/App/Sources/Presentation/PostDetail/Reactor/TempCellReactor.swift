@@ -1,0 +1,65 @@
+//
+//  TempCellReactor.swift
+//  App
+//
+//  Created by 마경미 on 28.01.24.
+//
+
+import Foundation
+
+import Core
+import Domain
+
+import ReactorKit
+
+final class TempCellReactor: Reactor {
+    enum Action {
+        case toggleSelect
+        case setCell
+    }
+    
+    enum Mutation {
+        case toggleSelected
+        case setCellData
+    }
+    
+    struct State {
+        var cellData: FetchedEmojiData?
+    }
+    
+    let initialState: State = State()
+    let items: FetchedEmojiData
+    
+    init(items: FetchedEmojiData) {
+        self.items = items
+    }
+}
+
+extension TempCellReactor {
+    func mutate(action: Action) -> Observable<Mutation> {
+        switch action {
+        case .setCell:
+            Observable.just(Mutation.setCellData)
+        case .toggleSelect:
+            Observable.just(Mutation.toggleSelected)
+        }
+    }
+    
+    func reduce(state: State, mutation: Mutation) -> State {
+        var newState = state
+        switch mutation {
+        case .setCellData:
+            newState.cellData = items
+        case .toggleSelected:
+            guard let cellData = state.cellData else { return newState}
+            let isAdd: Bool = !cellData.isSelfSelected
+            newState.cellData = .init(isStandard: cellData.isStandard, isSelfSelected: isAdd, postEmojiId: cellData.postEmojiId, emojiType: cellData.emojiType, count: isAdd ? cellData.count + 1 : cellData.count - 1, realEmojiId: cellData.realEmojiId, realEmojiImageURL: cellData.realEmojiId)
+        }
+        
+        return newState
+    }
+}
+
+extension TempReactor {
+    
+}

@@ -6,6 +6,8 @@
 //
 
 import Foundation
+
+import Core
 import Domain
 
 public struct FetchEmojiRequestDTO: Codable {
@@ -13,24 +15,11 @@ public struct FetchEmojiRequestDTO: Codable {
 }
 
 struct FetchEmojiResponse: Codable {
-    let emoji_1: [String]
-    let emoji_2: [String]
-    let emoji_3: [String]
-    let emoji_4: [String]
-    let emoji_5: [String]
+    let reactionId: String
+    let postId: String
+    let memberId: String
+    let emojiType: String
     
-    func toDomain() -> [FetchEmojiData] {
-        let emojis_memberIds: [FetchEmojiData] = [
-            FetchEmojiData(isSelfSelected: containsCurrentUser(memberIds: emoji_1), count: emoji_1.count, memberIds: emoji_1),
-            FetchEmojiData(isSelfSelected: containsCurrentUser(memberIds: emoji_2), count: emoji_2.count, memberIds: emoji_2),
-            FetchEmojiData(isSelfSelected: containsCurrentUser(memberIds: emoji_3), count: emoji_3.count, memberIds: emoji_3),
-            FetchEmojiData(isSelfSelected: containsCurrentUser(memberIds: emoji_4), count: emoji_4.count, memberIds: emoji_4),
-            FetchEmojiData(isSelfSelected: containsCurrentUser(memberIds: emoji_5), count: emoji_5.count, memberIds: emoji_5)
-        ]
-        
-        return emojis_memberIds
-    }
-
     private func containsCurrentUser(memberIds: [String]) -> Bool {
         let currentMemberId = FamilyUserDefaults.returnMyMemberId()
         return memberIds.contains(currentMemberId)
@@ -38,9 +27,32 @@ struct FetchEmojiResponse: Codable {
 }
 
 struct FetchEmojiResponseDTO: Codable {
-    let emojiMemberIdsList: FetchEmojiResponse
+    let results: [FetchEmojiResponse]
     
-    func toDomain() -> [FetchEmojiData] {
-        return emojiMemberIdsList.toDomain()
+    func toDomain() -> [FetchedEmojiData] {
+        let myMemberId = FamilyUserDefaults.returnMyMemberId()
+        let groupedByEmojiType = Dictionary(grouping: results, by: { $0.emojiType })
+
+        let fetchedEmojiDataArray = groupedByEmojiType.map { (emojiType, responses) in
+            guard let minReactionIdResponse = responses.min(by: { $0.reactionId < $1.reactionId }) else {
+                return FetchedEmojiData(isStandard: true, isSelfSelected: false, postEmojiId: "", emojiType: .emoji1, count: 0, realEmojiId: "", realEmojiImageURL: "")
+            }
+            
+            let selfSelected = responses.contains { $0.memberId == myMemberId }
+
+            let count = responses.count
+
+            return FetchedEmojiData(
+                isStandard: true,
+                isSelfSelected: selfSelected,
+                postEmojiId: minReactionIdResponse.reactionId,
+                emojiType: Emojis.emoji(forString: emojiType),
+                count: count,
+                realEmojiId: "",
+                realEmojiImageURL: ""
+            )
+        }
+        
+        return fetchedEmojiDataArray
     }
 }

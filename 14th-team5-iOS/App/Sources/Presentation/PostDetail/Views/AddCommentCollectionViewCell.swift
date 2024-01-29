@@ -20,6 +20,9 @@ final class AddCommentCollectionViewCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        setupUI()
+        setupAutoLayout()
+        setupAttributes()
     }
     
     required init?(coder: NSCoder) {
@@ -30,7 +33,7 @@ final class AddCommentCollectionViewCell: UICollectionViewCell {
         addSubview(imageView)
     }
     
-    private func setupLayout() {
+    private func setupAutoLayout() {
         imageView.snp.makeConstraints {
             $0.size.equalTo(24)
             $0.center.equalToSuperview()
@@ -38,6 +41,9 @@ final class AddCommentCollectionViewCell: UICollectionViewCell {
     }
     
     private func setupAttributes() {
+        backgroundColor = .gray700
+        layer.cornerRadius = 18
+        
         imageView.do {
             $0.image = DesignSystemAsset.chat.image
             $0.tintColor = .gray200

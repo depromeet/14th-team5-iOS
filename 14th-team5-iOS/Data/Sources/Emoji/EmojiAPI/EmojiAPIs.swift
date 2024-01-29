@@ -21,7 +21,7 @@ public enum EmojiAPIs: API {
             let urlString = "\(BibbiAPI.hostApi)/posts/\(postId)/reactions"
             return APISpec(method: .delete, url: urlString)
         case let .fetchReactions(postId):
-            let urlString = "\(BibbiAPI.hostApi)/posts/\(postId.postId)/reactions/member"
+            let urlString = "\(BibbiAPI.hostApi)/posts/\(postId.postId)/reactions"
             return APISpec(method: .get, url: urlString)
         }
     }

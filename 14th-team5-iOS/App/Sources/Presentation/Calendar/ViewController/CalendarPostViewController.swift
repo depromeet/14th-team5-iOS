@@ -43,8 +43,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         super.viewWillAppear(animated)
         navigationController?.navigationBar.isHidden = true
     }
-    
-    // MARK: - Helpers
+
     public override func bind(reactor: CalendarPostViewReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
@@ -253,7 +252,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         postCollectionView.do {
             $0.isScrollEnabled = false
             $0.backgroundColor = UIColor.clear
-            $0.register(PostCollectionViewCell.self, forCellWithReuseIdentifier: PostCollectionViewCell.id)
+            $0.register(PostDetailCollectionViewCell.self, forCellWithReuseIdentifier: PostDetailCollectionViewCell.id)
         }
         
         setupBlurEffect()
@@ -306,7 +305,7 @@ extension CalendarPostViewController {
 extension CalendarPostViewController {
     private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<PostListSectionModel> {
         return RxCollectionViewSectionedReloadDataSource<PostListSectionModel> { datasource, collectionView, indexPath, post in
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as! PostCollectionViewCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostDetailCollectionViewCell.id, for: indexPath) as! PostDetailCollectionViewCell
             cell.reactor = ReactionDIContainer().makeReactor(type: .calendar, post: post)
             return cell
         }

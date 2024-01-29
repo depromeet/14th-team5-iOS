@@ -85,7 +85,7 @@ extension PostListAPIWorker: PostListRepositoryProtocol {
                 let familyCount = FamilyUserDefaults.getMemberCount()
                 
                 let selfUploaded = $0?.results.map { $0.authorId == myMemberId }.contains(true) ?? false
-                let familyUploaded = $0?.results.count == FamilyUserDefaults.getMemberCount()
+                let familyUploaded = $0?.results.count == familyCount
                 return $0?.toDomain(selfUploaded, familyUploaded)
             }
             .asSingle()

@@ -303,11 +303,12 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .disposed(by: disposeBag)
         
         reactor.state
-            .map { $0.selectedEmojiPadItem }
-            .distinctUntilChanged()
-            .map { DesignSystemImages.Image(named: $0, in: DesignSystemResources.bundle, with: nil)}
-            .bind(to: realEmojiFaceImageView.rx.image)
-            .disposed(by: disposeBag)
+              .filter { !$0.selectedEmojiPadItem.isEmpty }
+              .map { $0.selectedEmojiPadItem }
+              .distinctUntilChanged()
+              .map { DesignSystemImages.Image(named: $0, in: DesignSystemResources.bundle, with: nil)}
+              .bind(to: realEmojiFaceImageView.rx.image)
+              .disposed(by: disposeBag)
         
         shutterButton
             .rx.tap

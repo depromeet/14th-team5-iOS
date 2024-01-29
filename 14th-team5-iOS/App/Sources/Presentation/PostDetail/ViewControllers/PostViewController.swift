@@ -68,11 +68,6 @@ final class PostViewController: BaseViewController<PostReactor> {
             })
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldPresentPostCommentSheet)
-            .withUnretained(self)
-            .subscribe { $0.0.presentPostCommentSheet(postId: $0.1.0, commentCount: $0.1.1) }
-            .disposed(by: disposeBag)
-        
         collectionView.rx
             .contentOffset
             .map { [unowned self] in self.calculateCurrentPage(offset: $0) }

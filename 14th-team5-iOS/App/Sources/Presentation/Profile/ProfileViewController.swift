@@ -35,7 +35,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     
     //MARK: Views
 
-    private let profileIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
+    private let profileIndicatorView: LottieView = LottieView()
     private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 50)
     private let profileNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let profileLineView: UIView = UIView()
@@ -94,10 +94,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             $0.rightBarButtonItemTintColor = .gray400
         }
         
-        profileIndicatorView.do {
-            $0.hidesWhenStopped = true
-            $0.color = .gray
-        }
         
         profileFeedCollectionView.do {
             $0.register(ProfileFeedCollectionViewCell.self, forCellWithReuseIdentifier: "ProfileFeedCollectionViewCell")
@@ -186,7 +182,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .map { $0.isLoading }
             .distinctUntilChanged()
             .asDriver(onErrorJustReturn: false)
-            .drive(profileIndicatorView.rx.isAnimating)
+            .drive(profileIndicatorView.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$feedSection)

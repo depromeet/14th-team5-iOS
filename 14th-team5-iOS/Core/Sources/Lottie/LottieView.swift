@@ -11,14 +11,14 @@ import SnapKit
 import RxSwift
 import RxCocoa
 
-final class LottieView: UIView {
+public final class LottieView: UIView {
     // MARK: SubView
     private lazy var animationView = LottieAnimationView()
     
     // MARK: Property
     let showLottieView = PublishRelay<LottieType>()
     
-    var kind: LottieType? = .loading {
+    public var kind: LottieType? = .loading {
         didSet {
             guard let kind else { return }
             let animation = LottieAnimation.named(kind.key)
@@ -67,7 +67,7 @@ final class LottieView: UIView {
         }
     }
     
-    override var isHidden: Bool {
+    public override var isHidden: Bool {
         didSet {
             if self.isHidden {
                 self.animationView.stop()

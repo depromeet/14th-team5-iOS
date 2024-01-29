@@ -21,7 +21,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     //MARK: Views
     private let displayView: UIImageView = UIImageView()
     private let confirmButton: UIButton = UIButton(configuration: .plain())
-    private let displayIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
+    private let displayIndicatorView: LottieView = LottieView()
     private let displayNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let backButton: UIButton = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 52, height: 52)))
     private let titleView: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
@@ -126,10 +126,6 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             $0.isScrollEnabled = false
         }
         
-        displayIndicatorView.do {
-            $0.hidesWhenStopped = true
-            $0.color = .gray
-        }
     }
     
     public override func setupAutoLayout() {
@@ -343,7 +339,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .map { $0.isLoading }
             .distinctUntilChanged()
             .asDriver(onErrorJustReturn: false)
-            .drive(displayIndicatorView.rx.isAnimating)
+            .drive(displayIndicatorView.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$displayData)

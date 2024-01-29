@@ -140,7 +140,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldPresentDeleteCommentFamilureToastMessageView)
+        reactor.pulse(\.$shouldPresentDeleteCommentFailureToastMessageView)
             .withUnretained(self)
             .subscribe {
                 if $0.1 {
@@ -154,7 +154,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldPresentUploadCommentFamilureTaostMessageView)
+        reactor.pulse(\.$shouldPresentUploadCommentFailureTaostMessageView)
             .withUnretained(self)
             .subscribe {
                 if $0.1 {
@@ -166,6 +166,10 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
                     Haptic.notification(type: .error)
                 }
             }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldGenerateErrorHapticNotification)
+            .subscribe { if $0 { Haptic.notification(type: .error) } }
             .disposed(by: disposeBag)
             
         reactor.pulse(\.$shouldClearCommentTextField)

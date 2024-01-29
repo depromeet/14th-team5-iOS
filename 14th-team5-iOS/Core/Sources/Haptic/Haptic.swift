@@ -21,4 +21,10 @@ public final class Haptic {
         let generator = UIImpactFeedbackGenerator(style: style)
         generator.impactOccurred()
     }
+    
+    // MARK: - Selection
+    public static func selection() {
+        let generator = UISelectionFeedbackGenerator()
+        generator.selectionChanged()
+    }
 }

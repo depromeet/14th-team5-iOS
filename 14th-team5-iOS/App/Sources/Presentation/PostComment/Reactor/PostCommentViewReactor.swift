@@ -29,12 +29,13 @@ final public class PostCommentViewReactor: Reactor {
         case injectPostComment([CommentCellReactor])
         case appendPostComment(CommentCellReactor)
         case removePostComment(String)
+        case setTableViewOffset(CGFloat)
         case setUploadCommentFamilureTaostMessageView
         case setDeleteCommentCompleteToastMessageView
         case setDeleteCommentFamilureToastMessageView
+        case generateErrorHapticNotification
         case scrollToLast
         case clearCommentTextField
-        case setupTableViewOffset(CGFloat)
     }
     
     // MARK: - State
@@ -46,9 +47,10 @@ final public class PostCommentViewReactor: Reactor {
         @Pulse var displayComment: [PostCommentSectionModel]
         @Pulse var shouldScrollToLast: Int
         @Pulse var shouldClearCommentTextField: Bool
-        @Pulse var shouldPresentUploadCommentFamilureTaostMessageView: Bool
+        @Pulse var shouldPresentUploadCommentFailureTaostMessageView: Bool
         @Pulse var shouldPresentDeleteCommentCompleteToastMessageView: Bool
-        @Pulse var shouldPresentDeleteCommentFamilureToastMessageView: Bool
+        @Pulse var shouldPresentDeleteCommentFailureToastMessageView: Bool
+        @Pulse var shouldGenerateErrorHapticNotification: Bool
         var tableViewBottomOffset: CGFloat
     }
     
@@ -76,9 +78,10 @@ final public class PostCommentViewReactor: Reactor {
             displayComment: [.init(model: .none, items: [])],
             shouldScrollToLast: 0,
             shouldClearCommentTextField: false,
-            shouldPresentUploadCommentFamilureTaostMessageView: false,
+            shouldPresentUploadCommentFailureTaostMessageView: false,
             shouldPresentDeleteCommentCompleteToastMessageView: false,
-            shouldPresentDeleteCommentFamilureToastMessageView: false,
+            shouldPresentDeleteCommentFailureToastMessageView: false,
+            shouldGenerateErrorHapticNotification: false,
             tableViewBottomOffset: 0
         )
         
@@ -150,8 +153,10 @@ final public class PostCommentViewReactor: Reactor {
             return postCommentUseCase.executeCreatePostComment(postId: postId, body: body)
                 .flatMap {
                     guard let commentResponse = $0 else {
-                        // TODO: - 업로드 실패 ToastMessage로 바꾸기
-                        return Observable<Mutation>.just(.setUploadCommentFamilureTaostMessageView)
+                        return Observable.concat(
+                            Observable<Mutation>.just(.generateErrorHapticNotification),
+                            Observable<Mutation>.just(.setUploadCommentFamilureTaostMessageView)
+                        )
                     }
                     
                     let reactor = CommentCellReactor(
@@ -173,10 +178,12 @@ final public class PostCommentViewReactor: Reactor {
                 .flatMap {
                     guard let deleteSuccessResponse = $0,
                           deleteSuccessResponse.success else {
-                        // TODO: - 댓글 삭제 실패 ToastMessage로 바꾸기
-                        return Observable<Mutation>.just(.setDeleteCommentFamilureToastMessageView)
+                        return Observable.concat(
+                            Observable<Mutation>.just(.generateErrorHapticNotification),
+                            Observable<Mutation>.just(.setUploadCommentFamilureTaostMessageView)
+                        )
                     }
-                    // TODO: - 댓글 삭제 완료 ToastMessage로 바꾸기
+                    
                     return Observable.concat(
                         Observable<Mutation>.just(.removePostComment(commentId)),
                         Observable<Mutation>.just(.setDeleteCommentCompleteToastMessageView)
@@ -186,13 +193,13 @@ final public class PostCommentViewReactor: Reactor {
             
         case let .keyboardWillShow(height):
             return Observable.concat(
-                Observable<Mutation>.just(.setupTableViewOffset(height)),
+                Observable<Mutation>.just(.setTableViewOffset(height)),
                 Observable<Mutation>.just(.scrollToLast)
             )
             
         case .keyboardWillHide:
             return Observable.concat(
-                Observable<Mutation>.just(.setupTableViewOffset(.zero)),
+                Observable<Mutation>.just(.setTableViewOffset(.zero)),
                 Observable<Mutation>.just(.scrollToLast)
             )
         }
@@ -231,13 +238,16 @@ final public class PostCommentViewReactor: Reactor {
             newState.shouldPresentDeleteCommentCompleteToastMessageView = true
             
         case .setDeleteCommentFamilureToastMessageView:
-            newState.shouldPresentDeleteCommentFamilureToastMessageView = true
+            newState.shouldPresentDeleteCommentFailureToastMessageView = true
             
         case .setUploadCommentFamilureTaostMessageView:
-            newState.shouldPresentUploadCommentFamilureTaostMessageView = true
+            newState.shouldPresentUploadCommentFailureTaostMessageView = true
+            
+        case .generateErrorHapticNotification:
+            newState.shouldGenerateErrorHapticNotification = true
             
         case .scrollToLast:
-            guard var dataSource = newState.displayComment.first else {
+            guard let dataSource = newState.displayComment.first else {
                 break
             }
             newState.shouldScrollToLast = dataSource.items.count - 1
@@ -245,7 +255,7 @@ final public class PostCommentViewReactor: Reactor {
         case .clearCommentTextField:
             newState.shouldClearCommentTextField = true
             
-        case let .setupTableViewOffset(height):
+        case let .setTableViewOffset(height):
             newState.tableViewBottomOffset = height
         }
         

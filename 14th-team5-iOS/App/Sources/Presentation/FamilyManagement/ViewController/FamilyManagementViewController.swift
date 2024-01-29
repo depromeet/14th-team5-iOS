@@ -118,11 +118,12 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
         reactor.pulse(\.$shouldPresentFetchFailureToastMessageView)
             .withUnretained(self)
             .subscribe {
-                if $0.1 {
-                    $0.0.makeErrorBibbiToastView()
-                    Haptic.notification(type: .error)
-                }
+                if $0.1 { $0.0.makeErrorBibbiToastView() }
             }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldGenerateErrorHapticNotification)
+            .subscribe { if $0 { Haptic.notification(type: .error) } }
             .disposed(by: disposeBag)
     }
     

@@ -26,18 +26,20 @@ public final class FamilyManagementViewReactor: Reactor {
         case setSharePanel(String?)
         case setCopySuccessToastMessageView
         case setFetchFailureTaostMessageView
+        case pushProfileVC(String)
         case injectFamilyId(String?)
         case injectFamilyMembers([FamilyMemberProfileCellReactor])
-        case pushProfileVC(String)
+        case generateErrorHapticNotification
     }
     
     // MARK: - State
     public struct State {
         var familyId: String?
         @Pulse var familyInvitationUrl: URL?
+        @Pulse var shouldPushProfileVC: String
         @Pulse var shouldPresentCopySuccessToastMessageView: Bool
         @Pulse var shouldPresentFetchFailureToastMessageView: Bool
-        @Pulse var shouldPushProfileVC: String
+        @Pulse var shouldGenerateErrorHapticNotification: Bool
         @Pulse var displayFamilyMember: [FamilyMemberProfileSectionModel]
         var displayFamilyMemberCount: Int
     }
@@ -58,9 +60,10 @@ public final class FamilyManagementViewReactor: Reactor {
         self.initialState = State(
             familyId: nil,
             familyInvitationUrl: nil,
+            shouldPushProfileVC: .none,
             shouldPresentCopySuccessToastMessageView: false,
             shouldPresentFetchFailureToastMessageView: false,
-            shouldPushProfileVC: .none,
+            shouldGenerateErrorHapticNotification: false,
             displayFamilyMember: [.init(model: (), items: [])],
             displayFamilyMemberCount: 0
         )
@@ -99,6 +102,7 @@ public final class FamilyManagementViewReactor: Reactor {
                     .concatMap({
                         guard let invitationLink = $0.1?.url else {
                             return Observable.concat(
+                                Observable<Mutation>.just(.generateErrorHapticNotification),
                                 Observable<Mutation>.just(.setFetchFailureTaostMessageView),
                                 $0.0.provider.activityGlobalState.hiddenInvitationUrlIndicatorView(false)
                                     .flatMap({ _ in Observable<Mutation>.empty() })
@@ -154,6 +158,9 @@ public final class FamilyManagementViewReactor: Reactor {
         case .setFetchFailureTaostMessageView:
             newState.shouldPresentFetchFailureToastMessageView = true
             
+        case let .pushProfileVC(memberId):
+            newState.shouldPushProfileVC = memberId
+            
         case let .injectFamilyId(familyId):
             newState.familyId = familyId
             
@@ -169,8 +176,8 @@ public final class FamilyManagementViewReactor: Reactor {
             newState.displayFamilyMember = [dataSource]
             newState.displayFamilyMemberCount = familyMembers.count
             
-        case let .pushProfileVC(memberId):
-            newState.shouldPushProfileVC = memberId
+        case .generateErrorHapticNotification:
+            newState.shouldGenerateErrorHapticNotification = true
         }
         return newState
     }

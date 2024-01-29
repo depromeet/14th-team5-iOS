@@ -54,7 +54,12 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     private func bindInput(reactor: CalendarPostViewReactor) {
         let selectedDate: Date = reactor.currentState.selectedDate
         Observable<Date>.just(selectedDate)
-            .map { Reactor.Action.didSelectDate($0) }
+            .flatMap {
+                Observable.merge(
+                    Observable.just(Reactor.Action.didSelectDate($0)),
+                    Observable.just(Reactor.Action.fetchPostList($0))
+                )
+            }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -71,16 +76,14 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
-        blurImageIndexRelay
-            .distinctUntilChanged()
-            .map { Reactor.Action.blurImageIndex($0) }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
         calendarView.rx.didSelect
             .distinctUntilChanged()
-            .map { Reactor.Action.didSelectDate($0) }
-            .do(onNext: { _ in Haptic.imapact(style: .rigid) })
+            .flatMap {
+                Observable.merge(
+                    Observable.just(Reactor.Action.didSelectDate($0)),
+                    Observable.just(Reactor.Action.fetchPostList($0))
+                )
+            }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -109,10 +112,51 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
+        blurImageIndexRelay
+            .distinctUntilChanged()
+            .map { Reactor.Action.setBlurImageIndex($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
     }
     
     private func bindOutput(reactor: CalendarPostViewReactor) {
-        reactor.state.compactMap { $0.blurImageUrl }
+        reactor.state.map { $0.selectedDate }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe { $0.0.calendarView.select($0.1, scrollToDate: true) }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$displayCalendarResponse)
+            .withUnretained(self)
+            .subscribe { $0.0.calendarView.reloadData() }
+            .disposed(by: disposeBag)
+
+        reactor.pulse(\.$displayPostResponse)
+            .bind(to: postCollectionView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.displayPostResponse }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe {
+                guard let items = $0.1.first?.items,
+                      !items.isEmpty else { return }
+                let indexPath = IndexPath(item: 0, section: 0)
+                $0.0.postCollectionView.scrollToItem(
+                    at: indexPath,
+                    at: .centeredHorizontally,
+                    animated: false
+                )
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentPostCommentSheet)
+            .withUnretained(self)
+            .subscribe { $0.0.presentPostCommentSheet(postId: $0.1.0, commentCount: $0.1.1) }
+            .disposed(by: disposeBag)
+        
+        reactor.state.compactMap { $0.blurImageUrlString }
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
@@ -143,42 +187,10 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$displayCalendarResponse)
-            .withUnretained(self)
+        reactor.pulse(\.$shouldGenerateSelectionHaptic)
             .subscribe {
-                $0.0.calendarView.reloadData()
+                if $0 { Haptic.selection() }
             }
-            .disposed(by: disposeBag)
-
-        reactor.pulse(\.$displayPost)
-            .bind(to: postCollectionView.rx.items(dataSource: dataSource))
-            .disposed(by: disposeBag)
-        
-        reactor.state.map { $0.displayPost }
-            .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe {
-                guard let items = $0.1.first?.items,
-                      !items.isEmpty else { return }
-                let indexPath = IndexPath(item: 0, section: 0)
-                $0.0.postCollectionView.scrollToItem(
-                    at: indexPath,
-                    at: .centeredHorizontally,
-                    animated: false
-                )
-            }
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$shouldPresentPostCommentSheet)
-            .withUnretained(self)
-            .subscribe { $0.0.presentPostCommentSheet(postId: $0.1.0, commentCount: $0.1.1) }
-            .disposed(by: disposeBag)
-        
-        // 뷰 생성 시, 주간 캘린더 위치를 조정하기 위함
-        reactor.state.map { $0.selectedDate }
-            .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe { $0.0.calendarView.select($0.1, scrollToDate: true) }
             .disposed(by: disposeBag)
     }
     
@@ -369,8 +381,8 @@ extension CalendarPostViewController: FSCalendarDataSource {
         else {
             let emptyResponse = CalendarResponse(
                 date: date,
-                representativePostId: "",
-                representativeThumbnailUrl: "",
+                representativePostId: .none,
+                representativeThumbnailUrl: .none,
                 allFamilyMemebersUploaded: false
             )
             cell.reactor = ImageCalendarCellDIContainer(

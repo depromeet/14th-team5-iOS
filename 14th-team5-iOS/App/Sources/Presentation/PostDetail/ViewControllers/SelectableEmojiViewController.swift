@@ -98,11 +98,13 @@ extension SelectableEmojiViewController {
             .disposed(by: disposeBag)
         
         cameraButton.rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
-            .bind(onNext: {
-                let cameraViewController = CameraDIContainer(cameraType: .realEmoji).makeViewController()
-                $0.0.present(cameraViewController, animated: true)
+            .bind(onNext: { owner, _ in
+                owner.dismiss(animated: true) {
+                    NotificationCenter.default.post(name: .didTapSelectableCameraButton, object: nil, userInfo: nil)
+                }
             })
             .disposed(by: disposeBag)
     }

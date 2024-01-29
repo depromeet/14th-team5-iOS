@@ -13,25 +13,15 @@ import RxDataSources
 import RxSwift
 
 final class PostViewController: BaseViewController<PostReactor> {
+    private let button: UIButton = UIButton()
+    
     private let backgroundImageView: UIImageView = UIImageView()
     private let blurEffectView: UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffect.Style.dark))
     private var navigationView: PostNavigationView = PostNavigationView()
     private let collectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let collectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
-    private let dataSource: RxCollectionViewSectionedReloadDataSource<PostSection.Model>  = {
-        return RxCollectionViewSectionedReloadDataSource<PostSection.Model>(
-            configureCell: { (_, collectionView, indexPath, item) in
-                switch item {
-                case .main(let data):
-                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.id, for: indexPath) as? PostCollectionViewCell else {
-                        return UICollectionViewCell()
-                    }
-                    cell.reactor = ReactionDIContainer().makeReactor(post: data)
-                    cell.setCell(data: data)
-                    return cell
-                }
-            })
-    }()
+    private let reactionCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private let reactionCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     
     convenience init(reactor: Reactor? = nil) {
         self.init()
@@ -41,7 +31,7 @@ final class PostViewController: BaseViewController<PostReactor> {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         self.navigationController?.navigationBar.isHidden = true
     }
     
@@ -52,7 +42,7 @@ final class PostViewController: BaseViewController<PostReactor> {
         reactor.state
             .map { $0.originPostLists }
             .map(Array.init(with:))
-            .bind(to: collectionView.rx.items(dataSource: dataSource))
+            .bind(to: collectionView.rx.items(dataSource: createDataSource()))
             .disposed(by: disposeBag)
         
         reactor.state
@@ -78,11 +68,6 @@ final class PostViewController: BaseViewController<PostReactor> {
             })
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldPresentPostCommentSheet)
-            .withUnretained(self)
-            .subscribe { $0.0.presentPostCommentSheet(postId: $0.1.0, commentCount: $0.1.1) }
-            .disposed(by: disposeBag)
-        
         collectionView.rx
             .contentOffset
             .map { [unowned self] in self.calculateCurrentPage(offset: $0) }
@@ -90,13 +75,35 @@ final class PostViewController: BaseViewController<PostReactor> {
             .map { Reactor.Action.setPost($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        button.rx.tap
+            .withUnretained(self)
+            .bind(onNext: {
+                let vc = SelectableEmojiDIContainer().makeViewController(postId: reactor.currentState.selectedPost.postId)
+                
+                if let sheet = vc.sheetPresentationController {
+                    if #available(iOS 16.0, *) {
+                        let customId = UISheetPresentationController.Detent.Identifier("customId")
+                        let customDetents = UISheetPresentationController.Detent.custom(identifier: customId) {
+                            return $0.maximumDetentValue * 0.25
+                        }
+                        sheet.detents = [customDetents]
+                    } else {
+                        sheet.detents = [.medium()]
+                    }
+                    sheet.prefersGrabberVisible = true
+                }
+                
+                $0.0.present(vc, animated: true)
+            })
+            .disposed(by: disposeBag)
     }
     
     override func setupUI() {
         super.setupUI()
         
         view.addSubviews(backgroundImageView, blurEffectView, navigationView,
-                         collectionView)
+                         collectionView, reactionCollectionView, button)
     }
     
     override func setupAutoLayout() {
@@ -119,6 +126,18 @@ final class PostViewController: BaseViewController<PostReactor> {
             $0.top.equalTo(navigationView.snp.bottom)
             $0.horizontalEdges.bottom.equalTo(view.safeAreaLayoutGuide)
         }
+        
+        reactionCollectionView.snp.makeConstraints {
+            $0.top.equalTo(navigationView.snp.bottom)
+            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            $0.height.equalTo(150)
+        }
+        
+        button.snp.makeConstraints {
+            $0.top.equalTo(navigationView.snp.bottom)
+            $0.trailing.equalToSuperview()
+            $0.size.equalTo(50)
+        }
     }
     
     override func setupAttributes() {
@@ -138,7 +157,7 @@ final class PostViewController: BaseViewController<PostReactor> {
         collectionView.do {
             $0.isPagingEnabled = true
             $0.backgroundColor = .clear
-            $0.register(PostCollectionViewCell.self, forCellWithReuseIdentifier: PostCollectionViewCell.id)
+            $0.register(PostDetailCollectionViewCell.self, forCellWithReuseIdentifier: PostDetailCollectionViewCell.id)
             $0.collectionViewLayout = collectionViewLayout
             $0.contentInsetAdjustmentBehavior = .never
             $0.scrollIndicatorInsets = PostAutoLayout.CollectionView.scrollIndicatorInsets
@@ -148,6 +167,28 @@ final class PostViewController: BaseViewController<PostReactor> {
         
         collectionView.layoutIfNeeded()
         collectionView.scrollToItem(at: IndexPath(row: reactor?.currentState.selectedIndex ?? 1, section: 0), at: .centeredHorizontally, animated: false)
+        
+        reactionCollectionViewLayout.do {
+            $0.sectionInset = .zero
+            $0.minimumLineSpacing = 12
+            $0.minimumInteritemSpacing = 4
+            // 넓이 계산하기 ~~~!!
+            $0.itemSize = .init(width: 60, height: 36)
+        }
+        
+        reactionCollectionView.do {
+            $0.backgroundColor = .clear
+            $0.collectionViewLayout = reactionCollectionViewLayout
+            $0.semanticContentAttribute = .forceRightToLeft
+            $0.isScrollEnabled = false
+            $0.register(AddReactionCollectionViewCell.self, forCellWithReuseIdentifier: AddReactionCollectionViewCell.id)
+            $0.register(ReactionCollectionViewCell.self, forCellWithReuseIdentifier: ReactionCollectionViewCell.id)
+            $0.register(AddCommentCollectionViewCell.self, forCellWithReuseIdentifier: AddCommentCollectionViewCell.id)
+        }
+        
+        button.do {
+            $0.setTitle("이모지시트", for: .normal)
+        }
     }
 }
 
@@ -173,7 +214,7 @@ extension PostViewController {
     
     private func calculateCurrentPage(offset: CGPoint) -> Int {
         guard collectionView.frame.width > 0 else {
-               return 0
+            return 0
         }
         
         let width = collectionView.frame.width
@@ -181,27 +222,38 @@ extension PostViewController {
         return currentPage
     }
     
-    private func presentPostCommentSheet(postId: String, commentCount: Int) {
-        let postCommentSheet = PostCommentDIContainer(
-            postId: postId,
-            commentCount: commentCount
-        ).makeViewController()
-        
-        if let sheet = postCommentSheet.sheetPresentationController {
-            if #available(iOS 16.0, *) {
-                let customId = UISheetPresentationController.Detent.Identifier("customId")
-                let customDetents = UISheetPresentationController.Detent.custom(identifier: customId) {
-                    // TODO: - PostDetail 화면에 맞게 시트 Height 값 조정하기 [참고: 캘린더 화면은 0.835]
-                    return $0.maximumDetentValue * 0.875
+    private func createDataSource() -> RxCollectionViewSectionedReloadDataSource<PostSection.Model> {
+        return RxCollectionViewSectionedReloadDataSource<PostSection.Model>(
+            configureCell: { (_, collectionView, indexPath, item) in
+                switch item {
+                case .main(let data):
+                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostDetailCollectionViewCell.id, for: indexPath) as? PostDetailCollectionViewCell else {
+                        return UICollectionViewCell()
+                    }
+                    cell.reactor = ReactionDIContainer().makeReactor(post: data)
+                    cell.setCell(data: data)
+                    return cell
                 }
-                sheet.detents = [customDetents, .large()]
-            } else {
-                sheet.detents = [.medium(), .large()]
-            }
-            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
-        }
-        
-        present(postCommentSheet, animated: true)
+            })
+    }
+    
+    private func createReactionDataSource() -> RxCollectionViewSectionedReloadDataSource<ReactionSection.Model> {
+        return RxCollectionViewSectionedReloadDataSource<ReactionSection.Model>(
+            configureCell: { (_, collectionView, indexPath, item) in
+                switch item {
+                case .main:
+                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ReactionCollectionViewCell.id, for: indexPath) as? ReactionCollectionViewCell else {
+                        return UICollectionViewCell()
+                    }
+                    return cell
+                case .addComment:
+                    let cell = AddCommentCollectionViewCell()
+                    return cell
+                case .addReaction:
+                    let cell = AddReactionCollectionViewCell()
+                    return cell
+                }
+            })
     }
 }
 

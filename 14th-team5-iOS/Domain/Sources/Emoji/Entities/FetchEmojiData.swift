@@ -21,7 +21,7 @@ public struct FetchEmojiData: Equatable {
 }
 
 public struct FetchEmojiDataList {
-    public var emojis_memberIds: [FetchEmojiData]
+    public let emojis_memberIds: [FetchEmojiData]
     
     public init(emojis_memberIds: [FetchEmojiData]) {
         self.emojis_memberIds = emojis_memberIds

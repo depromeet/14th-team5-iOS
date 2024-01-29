@@ -11,7 +11,7 @@ import SnapKit
 import RxSwift
 import RxCocoa
 
-final class LottieView: UIView {
+final public class LottieView: UIView {
     // MARK: SubView
     private lazy var animationView = LottieAnimationView()
     
@@ -28,7 +28,12 @@ final class LottieView: UIView {
         }
     }
     
-    override init(frame: CGRect) {
+    public convenience init(kind: LottieType) {
+        self.init(frame: .zero)
+        self.kind = kind
+    }
+    
+    public override init(frame: CGRect) {
         super.init(frame: frame)
         
         self.setupUI()
@@ -67,7 +72,7 @@ final class LottieView: UIView {
         }
     }
     
-    override var isHidden: Bool {
+    public override var isHidden: Bool {
         didSet {
             if self.isHidden {
                 self.animationView.stop()
@@ -77,7 +82,16 @@ final class LottieView: UIView {
         }
     }
     
+    public func stop() {
+        self.isHidden = true
+    }
+    
+    public func play() {
+        self.isHidden = false
+    }
+    
     private func showLottieView(_ kind: LottieType) {
+        debugPrint(#function)
         let animation = LottieAnimation.named(kind.key)
         animationView.animation = animation
         animationView.backgroundBehavior = .pause

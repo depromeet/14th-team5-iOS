@@ -47,6 +47,7 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
         feedImageView.do {
             $0.layer.cornerRadius = 24
             $0.clipsToBounds = true
+            $0.contentMode = .scaleAspectFill
         }
         
         feedEmojiIconView.do {

@@ -15,8 +15,12 @@ public protocol CameraViewUseCaseProtocol {
     func executeToggleCameraPosition(_ isState: Bool) -> Observable<Bool>
     func executeToggleCameraFlash(_ isState: Bool) -> Observable<Bool>
     func executeProfileImageURL(parameter: CameraDisplayImageParameters, type: UploadLocation) -> Observable<CameraDisplayImageResponse?>
-    func executeProfileUploadToS3(toURL url: String, imageData: Data) -> Observable<Bool>
+    func executeUploadToS3(toURL url: String, imageData: Data) -> Observable<Bool>
     func executeEditProfileImage(memberId: String, parameter: ProfileImageEditParameter) -> Observable<ProfileMemberResponse?>
+    func executeRealEmojiImageURL(memberId: String, parameter: CameraRealEmojiParameters) -> Observable<CameraRealEmojiPreSignedResponse?>
+    func executeRealEmojiUploadToS3(memberId: String, parameter: CameraCreateRealEmojiParameters) -> Observable<CameraCreateRealEmojiResponse?>
+    func executeRealEmojiItems(memberId: String) -> Observable<CameraRealEmojiImageItemResponse?>
+    func executeUpdateRealEmojiImage(memberId: String, realEmojiId: String ,parameter: CameraUpdateRealEmojiParameters) -> Observable<CameraUpdateRealEmojiResponse?>
 }
 
 
@@ -41,14 +45,29 @@ public final class CameraViewUseCase: CameraViewUseCaseProtocol {
         return cameraViewRepository.fetchProfileImageURL(parameters: parameter, type: type)
     }
 
-    public func executeProfileUploadToS3(toURL url: String, imageData: Data) -> Observable<Bool> {
-        return cameraViewRepository.uploadProfileImage(toURL: url, imageData: imageData)
+    public func executeUploadToS3(toURL url: String, imageData: Data) -> Observable<Bool> {
+        return cameraViewRepository.uploadImageToS3(toURL: url, imageData: imageData)
     }
 
     public func executeEditProfileImage(memberId: String, parameter: ProfileImageEditParameter) -> Observable<ProfileMemberResponse?> {
         return cameraViewRepository.editProfleImageToS3(memberId: memberId, parameter: parameter)
     }
     
+    public func executeRealEmojiImageURL(memberId: String, parameter: CameraRealEmojiParameters) -> Observable<CameraRealEmojiPreSignedResponse?> {
+        return cameraViewRepository.fetchRealEmojiImageURL(memberId: memberId, parameters: parameter)
+    }
+    
+    public func executeRealEmojiUploadToS3(memberId: String, parameter: CameraCreateRealEmojiParameters) -> Observable<CameraCreateRealEmojiResponse?> {
+        return cameraViewRepository.uploadRealEmojiImageToS3(memberId: memberId, parameters: parameter)
+    }
 
+    
+    public func executeRealEmojiItems(memberId: String) -> Observable<CameraRealEmojiImageItemResponse?> {
+        return cameraViewRepository.fetchRealEmojiItems(memberId: memberId)
+    }
+    
+    public func executeUpdateRealEmojiImage(memberId: String, realEmojiId: String, parameter: CameraUpdateRealEmojiParameters) -> Observable<CameraUpdateRealEmojiResponse?> {
+        return cameraViewRepository.updateRealEmojiImage(memberId: memberId, realEmojiId: realEmojiId, parameters: parameter)
+    }
     
 }

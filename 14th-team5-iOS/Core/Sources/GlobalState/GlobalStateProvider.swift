@@ -13,6 +13,7 @@ public protocol GlobalStateProviderProtocol: AnyObject {
     var calendarGlabalState: CalendarGlobalStateType { get }
     var toastGlobalState: ToastMessageGlobalStateType { get }
     var reactionSheetGloablState: ReactionMemberGlobalStateType { get }
+    var realEmojiGlobalState: RealEmojiGlobalStateType { get }
 }
 
 final public class GlobalStateProvider: GlobalStateProviderProtocol {
@@ -22,6 +23,7 @@ final public class GlobalStateProvider: GlobalStateProviderProtocol {
     public lazy var toastGlobalState: ToastMessageGlobalStateType = ToastMessageGlobalState(provider: self)
     
     public lazy var reactionSheetGloablState: ReactionMemberGlobalStateType = ReactionMemberGlobalState(provider: self)
+    public lazy var realEmojiGlobalState: RealEmojiGlobalStateType = RealEmojiGlobalState(provider: self)
     
     public init() { }
 }

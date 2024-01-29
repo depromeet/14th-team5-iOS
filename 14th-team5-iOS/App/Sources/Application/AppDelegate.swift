@@ -33,6 +33,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         setupUserNotificationCenter(application)
         removeKeychainAtFirstLaunch()
         bindRepositories()
+        App.indicator.bind()
         
         return true
     }
@@ -47,6 +48,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func applicationWillTerminate(_ application: UIApplication) {
         unbindRepositories()
+        App.indicator.unbind()
     }
 }
 

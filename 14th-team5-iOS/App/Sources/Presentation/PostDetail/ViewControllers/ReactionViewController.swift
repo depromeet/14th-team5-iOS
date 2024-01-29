@@ -15,7 +15,7 @@ import RxDataSources
 
 final class ReactionViewController: BaseViewController<TempReactor>, UICollectionViewDelegateFlowLayout {
     let postId: BehaviorRelay<String> = BehaviorRelay<String>(value: "")
-    let selectedReactionSubject: PublishSubject<Void> = PublishSubject<Void>()
+    private let selectedReactionSubject: PublishSubject<Void> = PublishSubject<Void>()
     
     private let reactionCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let reactionCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
@@ -77,14 +77,15 @@ extension ReactionViewController {
         reactionCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
-        postId.asObservable()
+        postId
             .distinctUntilChanged()
             .map { Reactor.Action.acceptPostId($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         selectedReactionSubject
-            .map { Reactor.Action.fetchReactionList(self.postId.value)}
+            .withLatestFrom(postId)
+            .map { Reactor.Action.fetchReactionList($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -113,11 +114,6 @@ extension ReactionViewController {
             .map { Reactor.Action.longPressEmoji($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
-        selectedReactionSubject
-            .map { Reactor.Action.fetchReactionList(self.postId.value)}
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: TempReactor) {
@@ -133,13 +129,7 @@ extension ReactionViewController {
             .observe(on: MainScheduler.instance)
             .bind(onNext: {
                 let vc = ReactionMemberDIContainer().makeViewController(memberIds: $0.1)
-                
-                if let sheet = vc.sheetPresentationController {
-                    sheet.detents = [.medium()]
-                    sheet.prefersGrabberVisible = true
-                }
-                
-                $0.0.present(vc, animated: true)
+                $0.0.presentCustomSheetViewController(viewController: vc, useCustomDetent: false)
             })
             .disposed(by: disposeBag)
         
@@ -147,53 +137,68 @@ extension ReactionViewController {
             .filter { $0 }
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
+            .withLatestFrom(postId)
+            .withUnretained(self) { ($0, $1) }
             .bind(onNext: {
-                let vc = SelectableEmojiDIContainer().makeViewController(postId: self.postId.value, subject: self.selectedReactionSubject)
-                
-                if let sheet = vc.sheetPresentationController {
-                    if #available(iOS 16.0, *) {
-                        let customId = UISheetPresentationController.Detent.Identifier("customId")
-                        let customDetents = UISheetPresentationController.Detent.custom(identifier: customId) {
-                            return $0.maximumDetentValue * 0.25
-                        }
-                        sheet.detents = [customDetents]
-                    } else {
-                        sheet.detents = [.medium()]
-                    }
-                    sheet.prefersGrabberVisible = true
-                }
-                
-                $0.0.present(vc, animated: true)
+                let vc = SelectableEmojiDIContainer().makeViewController(postId: $0.1, subject: self.selectedReactionSubject)
+                $0.0.presentCustomSheetViewController(viewController: vc, detentHeightRatio: 0.85)
             })
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$isShowingCommentSheet)
             .filter { $0 }
-            .withUnretained(self)
-            .observe(on: MainScheduler.instance)
-            .bind(onNext: {
-                let postCommentVC = PostCommentDIContainer(
-                    postId: self.postId.value,
-                    commentCount: 4
-                ).makeViewController()
-                
-                if let sheet = postCommentVC.sheetPresentationController {
-                    if #available(iOS 16.0, *) {
-                        let customId = UISheetPresentationController.Detent.Identifier("customId")
-                        let customDetents = UISheetPresentationController.Detent.custom(identifier: customId) {
-                            return $0.maximumDetentValue * 0.85
-                        }
-                        sheet.detents = [customDetents, .large()]
-                    } else {
-                        sheet.detents = [.medium(), .large()]
-                    }
-                    sheet.prefersScrollingExpandsWhenScrolledToEdge = false
-                }
-                
-                $0.0.present(postCommentVC, animated: true)
-            })
-            .disposed(by: disposeBag)
+           .withUnretained(self)
+           .observe(on: MainScheduler.instance)
+           .withLatestFrom(postId)
+           .withUnretained(self) { ($0, $1) }
+           .bind(onNext: {
+               let vc = PostCommentDIContainer( postId: $0.1, commentCount: 4).makeViewController()
+               $0.0.presentCustomSheetViewController(viewController: vc, detentHeightRatio: 0.85)
+           })
+           .disposed(by: disposeBag)
     }
+    
+    private func presentCustomSheetViewController<T: UIViewController>(
+        viewController: T,
+        detentHeightRatio: CGFloat = 0.0,
+        useCustomDetent: Bool = true
+    ) {
+        if let sheet = viewController.sheetPresentationController {
+            if #available(iOS 16.0, *), useCustomDetent {
+                let customId = UISheetPresentationController.Detent.Identifier("customId")
+                let customDetents = UISheetPresentationController.Detent.custom(identifier: customId) {
+                    return $0.maximumDetentValue * detentHeightRatio
+                }
+                sheet.detents = [customDetents, .large()]
+                sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+            } else {
+                sheet.detents = [.medium(), .large()]
+                sheet.prefersGrabberVisible = true
+            }
+        }
+
+        self.present(viewController, animated: true)
+    }
+    
+//    private func presentCustomSheetViewController<T: UIViewController>(
+//        viewController: T,
+//        detentHeightRatio: CGFloat
+//    ) {
+//        if let sheet = viewController.sheetPresentationController {
+//            if #available(iOS 16.0, *) {
+//                let customId = UISheetPresentationController.Detent.Identifier("customId")
+//                let customDetents = UISheetPresentationController.Detent.custom(identifier: customId) {
+//                    return $0.maximumDetentValue * detentHeightRatio
+//                }
+//                sheet.detents = [customDetents, .large()]
+//            } else {
+//                sheet.detents = [.medium(), .large()]
+//            }
+//            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+//        }
+//
+//        self.present(viewController, animated: true)
+//    }
     
     private func createDataSource() -> RxCollectionViewSectionedReloadDataSource<ReactionSection.Model> {
         return RxCollectionViewSectionedReloadDataSource<ReactionSection.Model>(

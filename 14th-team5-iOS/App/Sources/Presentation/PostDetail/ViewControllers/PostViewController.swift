@@ -11,6 +11,7 @@ import Domain
 
 import RxDataSources
 import RxSwift
+import RxCocoa
 
 final class PostViewController: BaseViewController<PostReactor> {
     private let backgroundImageView: UIImageView = UIImageView()
@@ -100,7 +101,7 @@ final class PostViewController: BaseViewController<PostReactor> {
                 }
                 return self.calculateCurrentPage(offset: $0) }
             .distinctUntilChanged()
-            .map { Reactor.Action.setPost($0)}
+            .map { Reactor.Action.setPost($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }

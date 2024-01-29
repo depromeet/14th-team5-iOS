@@ -49,6 +49,9 @@ final class PostViewController: BaseViewController<PostReactor> {
             .bind(onNext: {
                 $0.0.setBackgroundView(data: $0.1)
                 $0.0.reactionViewController.postId.accept($0.1.postId)
+                UIView.animate(withDuration: 0.3) {
+                    self.reactionViewController.view.alpha = 1.0
+                }
             })
             .disposed(by: disposeBag)
         
@@ -68,11 +71,36 @@ final class PostViewController: BaseViewController<PostReactor> {
             })
             .disposed(by: disposeBag)
         
-        collectionView.rx
-            .contentOffset
-            .map { [unowned self] in self.calculateCurrentPage(offset: $0) }
+        reactor.pulse(\.$shouldPresentPostCommentSheet)
+            .withUnretained(self)
+            .subscribe {
+                let postCommentVC = PostCommentDIContainer(
+                    postId: $0.1.0,
+                    commentCount: $0.1.1
+                ).makeViewController()
+                $0.0.present(postCommentVC, animated: true)
+            }
+            .disposed(by: disposeBag)
+        
+        collectionView.rx.willBeginDragging
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: { [weak self] _ in
+                guard let self = self else { return }
+                UIView.animate(withDuration: 0.3) {
+                    self.reactionViewController.view.alpha = 0
+                }
+            })
+            .disposed(by: disposeBag)
+        
+        collectionView.rx.contentOffset
+            .debounce(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .map { [unowned self] in 
+                UIView.animate(withDuration: 0.3) {
+                    self.reactionViewController.view.alpha = 1
+                }
+                return self.calculateCurrentPage(offset: $0) }
             .distinctUntilChanged()
-            .map { Reactor.Action.setPost($0) }
+            .map { Reactor.Action.setPost($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }

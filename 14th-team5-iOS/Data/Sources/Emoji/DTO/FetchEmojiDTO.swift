@@ -35,11 +35,10 @@ struct FetchEmojiResponseDTO: Codable {
 
         let fetchedEmojiDataArray = groupedByEmojiType.map { (emojiType, responses) in
             guard let minReactionIdResponse = responses.min(by: { $0.reactionId < $1.reactionId }) else {
-                return FetchedEmojiData(isStandard: true, isSelfSelected: false, postEmojiId: "", emojiType: .emoji1, count: 0, realEmojiId: "", realEmojiImageURL: "")
+                return FetchedEmojiData(isStandard: true, isSelfSelected: false, postEmojiId: "", emojiType: .emoji1, count: 0, realEmojiId: "", realEmojiImageURL: "", memberIds: [])
             }
             
             let selfSelected = responses.contains { $0.memberId == myMemberId }
-
             let count = responses.count
 
             return FetchedEmojiData(
@@ -49,7 +48,8 @@ struct FetchEmojiResponseDTO: Codable {
                 emojiType: Emojis.emoji(forString: emojiType),
                 count: count,
                 realEmojiId: "",
-                realEmojiImageURL: ""
+                realEmojiImageURL: "",
+                memberIds: responses.map { $0.memberId }
             )
         }
         

@@ -51,9 +51,23 @@ extension TempCellReactor {
         case .setCellData:
             newState.cellData = items
         case .toggleSelected:
-            guard let cellData = state.cellData else { return newState}
+            guard var cellData = state.cellData else { return newState }
+
             let isAdd: Bool = !cellData.isSelfSelected
-            newState.cellData = .init(isStandard: cellData.isStandard, isSelfSelected: isAdd, postEmojiId: cellData.postEmojiId, emojiType: cellData.emojiType, count: isAdd ? cellData.count + 1 : cellData.count - 1, realEmojiId: cellData.realEmojiId, realEmojiImageURL: cellData.realEmojiId)
+
+            guard let myId = App.Repository.member.memberID.value else {
+                return newState
+            }
+
+            if isAdd {
+                cellData.count += 1
+                cellData.memberIds.append(myId)
+            } else {
+                cellData.count -= 1
+                cellData.memberIds.removeAll { $0 == myId }
+            }
+            cellData.isSelfSelected = isAdd
+            newState.cellData = cellData
         }
         
         return newState

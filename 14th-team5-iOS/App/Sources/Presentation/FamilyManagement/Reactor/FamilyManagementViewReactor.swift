@@ -125,7 +125,7 @@ public final class FamilyManagementViewReactor: Reactor {
                     return .injectFamilyMembers(
                         familyResponse.map {
                             FamilyMemberProfileCellReactor(
-                                $0, isMe: self.memberUseCase.executeCheckIsMe(memberId: $0.memberId)
+                                $0, isMe: self.memberUseCase.executeCheckIsMe(memberId: $0.memberId), cellType: .arrow
                             )
                         }
                     )

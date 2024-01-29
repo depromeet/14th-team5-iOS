@@ -17,8 +17,10 @@ final class TempReactor: Reactor {
         case emptyAction
         case tapComment
         case tapAddEmoji
+        case longPressEmoji(IndexPath)
         case selectCell(IndexPath, FetchedEmojiData)
-        case fetchReactionList
+        case acceptPostId(String?)
+        case fetchReactionList(String)
     }
     
     enum Mutation {
@@ -26,10 +28,14 @@ final class TempReactor: Reactor {
         case setSelectedReactionIndices([Int])
         case setCommentSheet
         case setEmojiSheet
+        case setReactionMemberSheet([String])
         case updateDataSource([ReactionSection.Item])
+        case setPostId(String)
+        case setInitialDataSource
     }
     
     struct State {
+        var postId: String
         var deSelectedReactionIndicies: [Int] = []
         var selectedReactionIndicies: [Int] = []
         var reactionSections: ReactionSection.Model = ReactionSection.Model(model: 0, items: [
@@ -37,17 +43,17 @@ final class TempReactor: Reactor {
             .addReaction,
         ])
         
+        @Pulse var isShowingReactionMemberSheet: [String] = []
         @Pulse var isShowingCommentSheet: Bool = false
         @Pulse var isShowingEmojiSheet: Bool = false
     }
     
-    let initialState: State = State()
-    let postId: String
+    let initialState: State
     let emojiRepository: EmojiUseCaseProtocol
     let realEmojiRepository: RealEmojiUseCaseProtocol
     
-    init(postId: String, emojiRepository: EmojiUseCaseProtocol, realEmojiRepository: RealEmojiUseCaseProtocol) {
-        self.postId = postId
+    init(initialState: State, emojiRepository: EmojiUseCaseProtocol, realEmojiRepository: RealEmojiUseCaseProtocol) {
+        self.initialState = initialState
         self.emojiRepository = emojiRepository
         self.realEmojiRepository = realEmojiRepository
     }
@@ -56,9 +62,9 @@ final class TempReactor: Reactor {
 extension TempReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .fetchReactionList:
-            let repository1 = emojiRepository.execute(query: .init(postId: self.postId)).asObservable()
-            let repository2 = realEmojiRepository.execute(query: .init(postId: self.postId)).asObservable()
+        case .fetchReactionList(let postId):
+            let repository1 = emojiRepository.execute(query: .init(postId: postId)).asObservable()
+            let repository2 = realEmojiRepository.execute(query: .init(postId: postId)).asObservable()
 
             return Observable.combineLatest(repository1, repository2)
                 .flatMap { response1, response2 in
@@ -68,13 +74,28 @@ extension TempReactor {
                     return Observable.just(Mutation.updateDataSource(emojiDataSource))
                 }
         case .selectCell(let indexPath, let data):
-            return handleSelectCell(indexPath: indexPath, data: data, isAdd: !data.isSelfSelected)
+            return handleSelectCell(postId: currentState.postId, indexPath: indexPath, data: data, isAdd: !data.isSelfSelected)
         case .emptyAction:
             return Observable.empty()
         case .tapComment:
             return Observable.just(Mutation.setCommentSheet)
         case .tapAddEmoji:
             return Observable.just(Mutation.setEmojiSheet)
+        case .longPressEmoji(let indexPath):
+            switch currentState.reactionSections.items[indexPath.row] {
+            case .main(let fetchedEmojiData):
+                return Observable.just(Mutation.setReactionMemberSheet(fetchedEmojiData.memberIds))
+            default:
+                return Observable.empty()
+            }
+        case .acceptPostId(let postId):
+            guard let postId else {
+                return Observable.just(Mutation.setInitialDataSource)
+            }
+            return Observable.concat([
+                Observable.just(Mutation.setPostId(postId)),
+                self.mutate(action: Action.fetchReactionList(postId))
+            ])
         }
     }
     
@@ -98,28 +119,37 @@ extension TempReactor {
             newState.isShowingCommentSheet = true
         case .setEmojiSheet:
             newState.isShowingEmojiSheet = true
+        case .setReactionMemberSheet(let memberIds):
+            newState.isShowingReactionMemberSheet = memberIds
         case .setSpecificCell(let indexPath, let data):
             newState.reactionSections.items[indexPath.row] = .main(data)
+        case .setPostId(let postId):
+            newState.postId = postId
+        case .setInitialDataSource:
+            newState.reactionSections = ReactionSection.Model(model: 0, items: [
+                .addComment,
+                .addReaction,
+            ])
         }
         return newState
     }
 }
 
 extension TempReactor {
-    func handleSelectCell(indexPath: IndexPath, data: FetchedEmojiData, isAdd: Bool) -> Observable<Mutation> {
+    func handleSelectCell(postId: String, indexPath: IndexPath, data: FetchedEmojiData, isAdd: Bool) -> Observable<Mutation> {
         let executeObservable: Observable<Void?>
 
         if data.isStandard {
             if data.isSelfSelected {
-                executeObservable = emojiRepository.excuteRemoveEmoji(query: .init(postId: self.postId), body: .init(content: data.emojiType)).asObservable()
+                executeObservable = emojiRepository.excuteRemoveEmoji(query: .init(postId: postId), body: .init(content: data.emojiType)).asObservable()
             } else {
-                executeObservable = emojiRepository.executeAddEmoji(query: .init(postId: self.postId), body: .init(content: data.emojiType.emojiString)).asObservable()
+                executeObservable = emojiRepository.executeAddEmoji(query: .init(postId: postId), body: .init(content: data.emojiType.emojiString)).asObservable()
             }
         } else {
             if data.isSelfSelected {
-                executeObservable = realEmojiRepository.execute(query: .init(postId: self.postId, realEmojiId: data.realEmojiId)).asObservable()
+                executeObservable = realEmojiRepository.execute(query: .init(postId: postId, realEmojiId: data.realEmojiId)).asObservable()
             } else {
-                executeObservable = realEmojiRepository.execute(query: .init(postId: self.postId), body: .init(content: data.realEmojiId)).asObservable()
+                executeObservable = realEmojiRepository.execute(query: .init(postId: postId), body: .init(content: data.realEmojiId)).asObservable()
             }
         }
 
@@ -129,7 +159,7 @@ extension TempReactor {
                 updatedData.count = isAdd ? data.count + 1 : data.count - 1
                 updatedData.isSelfSelected = isAdd
                 if updatedData.count <= 0 {
-                    return self.mutate(action: Action.fetchReactionList)
+                    return self.mutate(action: Action.fetchReactionList(postId))
                 }
                 return Observable.just(Mutation.setSpecificCell(indexPath, updatedData))
             }

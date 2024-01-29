@@ -16,8 +16,9 @@ public struct FetchedEmojiData {
     public var count: Int
     public let realEmojiId: String
     public let realEmojiImageURL: String
+    public var memberIds: [String]
     
-    public init(isStandard: Bool, isSelfSelected: Bool, postEmojiId: String, emojiType: Emojis, count: Int, realEmojiId: String, realEmojiImageURL: String) {
+    public init(isStandard: Bool, isSelfSelected: Bool, postEmojiId: String, emojiType: Emojis, count: Int, realEmojiId: String, realEmojiImageURL: String, memberIds: [String]) {
         self.isStandard = isStandard
         self.isSelfSelected = isSelfSelected
         self.postEmojiId = postEmojiId
@@ -25,5 +26,6 @@ public struct FetchedEmojiData {
         self.count = count
         self.realEmojiId = realEmojiId
         self.realEmojiImageURL = realEmojiImageURL
+        self.memberIds = memberIds
     }
 }

@@ -15,14 +15,18 @@ import RxDataSources
 
 final class ReactionViewController: BaseViewController<TempReactor>, UICollectionViewDelegateFlowLayout {
     let postId: BehaviorRelay<String> = BehaviorRelay<String>(value: "")
+    let selectedReactionSubject: PublishSubject<Void> = PublishSubject<Void>()
     
     private let reactionCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let reactionCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
+    let longPressGesture = UILongPressGestureRecognizer(target: nil, action: nil)
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        reactionCollectionView.addGestureRecognizer(longPressGesture)
     }
-    
+
     override func bind(reactor: TempReactor) {
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
@@ -74,7 +78,13 @@ extension ReactionViewController {
             .disposed(by: disposeBag)
         
         postId.asObservable()
-            .map { _ in Reactor.Action.fetchReactionList }
+            .distinctUntilChanged()
+            .map { Reactor.Action.acceptPostId($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        selectedReactionSubject
+            .map { Reactor.Action.fetchReactionList(self.postId.value)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -92,6 +102,22 @@ extension ReactionViewController {
             }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        longPressGesture.rx.event
+            .map { [weak self] gestureRecognizer -> IndexPath? in
+                guard let self = self else { return nil }
+                let touchPoint = gestureRecognizer.location(in: self.reactionCollectionView)
+                return self.reactionCollectionView.indexPathForItem(at: touchPoint)
+            }
+            .compactMap { $0 }
+            .map { Reactor.Action.longPressEmoji($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        selectedReactionSubject
+            .map { Reactor.Action.fetchReactionList(self.postId.value)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: TempReactor) {
@@ -101,12 +127,28 @@ extension ReactionViewController {
             .bind(to: reactionCollectionView.rx.items(dataSource: createDataSource()))
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$isShowingReactionMemberSheet)
+            .filter { !$0.isEmpty }
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: {
+                let vc = ReactionMemberDIContainer().makeViewController(memberIds: $0.1)
+                
+                if let sheet = vc.sheetPresentationController {
+                    sheet.detents = [.medium()]
+                    sheet.prefersGrabberVisible = true
+                }
+                
+                $0.0.present(vc, animated: true)
+            })
+            .disposed(by: disposeBag)
+        
         reactor.pulse(\.$isShowingEmojiSheet)
             .filter { $0 }
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .bind(onNext: {
-                let vc = SelectableEmojiDIContainer().makeViewController(postId: self.postId.value)
+                let vc = SelectableEmojiDIContainer().makeViewController(postId: self.postId.value, subject: self.selectedReactionSubject)
                 
                 if let sheet = vc.sheetPresentationController {
                     if #available(iOS 16.0, *) {

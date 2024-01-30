@@ -30,6 +30,8 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         collectionViewLayout: orthogonalCompositionalLayout
     )
     
+    private let fireLottieView: LottieView = LottieView(with: .fire, contentMode: .scaleAspectFill)
+    
     // MARK: - Properties
     private let blurImageIndexRelay: PublishRelay<Int> = PublishRelay<Int>()
     private lazy var dataSource: RxCollectionViewSectionedReloadDataSource<PostListSectionModel> = prepareDatasource()
@@ -53,7 +55,12 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     private func bindInput(reactor: CalendarPostViewReactor) {
         let selectedDate: Date = reactor.currentState.selectedDate
         Observable<Date>.just(selectedDate)
-            .map { Reactor.Action.didSelectDate($0) }
+            .flatMap {
+                Observable.merge(
+                    Observable.just(Reactor.Action.didSelectDate($0)),
+                    Observable.just(Reactor.Action.fetchPostList($0))
+                )
+            }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -70,16 +77,14 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
-        blurImageIndexRelay
-            .distinctUntilChanged()
-            .map { Reactor.Action.blurImageIndex($0) }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
         calendarView.rx.didSelect
             .distinctUntilChanged()
-            .map { Reactor.Action.didSelectDate($0) }
-            .do(onNext: { _ in Haptic.imapact(style: .rigid) })
+            .flatMap {
+                Observable.merge(
+                    Observable.just(Reactor.Action.didSelectDate($0)),
+                    Observable.just(Reactor.Action.fetchPostList($0))
+                )
+            }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -108,52 +113,31 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
+        blurImageIndexRelay
+            .distinctUntilChanged()
+            .map { Reactor.Action.setBlurImageIndex($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
     }
     
     private func bindOutput(reactor: CalendarPostViewReactor) {
-        reactor.state.compactMap { $0.blurImageUrl }
+        reactor.state.map { $0.selectedDate }
             .distinctUntilChanged()
             .withUnretained(self)
-            .subscribe {
-                guard let url: URL = URL(string: $0.1) else { return }
-                KingfisherManager.shared.retrieveImage(with: url) { [unowned self] result in
-                    switch result {
-                    case let .success(value):
-                        UIView.transition(
-                            with: self.blurImageView,
-                            duration: 0.15,
-                            options: [.transitionCrossDissolve, .allowUserInteraction]) {
-                                self.blurImageView.image = value.image
-                            }
-                    case let .failure(_):
-                        print("Kingfisher RetrieveImage Error")
-                    }
-                }
-            }
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$shouldPresentToastMessageView)
-            .delay(.milliseconds(300), scheduler: Schedulers.main)
-            .withUnretained(self)
-            .subscribe {
-                if $0.1 {
-                    $0.0.makeBibbiToastView(text: "🎉우리 가족 모두가 사진을 올린 날🎉")
-                }
-            }
+            .subscribe { $0.0.calendarView.select($0.1, scrollToDate: true) }
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$displayCalendarResponse)
             .withUnretained(self)
-            .subscribe {
-                $0.0.calendarView.reloadData()
-            }
+            .subscribe { $0.0.calendarView.reloadData() }
             .disposed(by: disposeBag)
 
-        reactor.pulse(\.$displayPost)
+        reactor.pulse(\.$displayPostResponse)
             .bind(to: postCollectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.displayPost }
+        reactor.state.map { $0.displayPostResponse }
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
@@ -173,12 +157,59 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .subscribe { $0.0.presentPostCommentSheet(postId: $0.1.0, commentCount: $0.1.1) }
             .disposed(by: disposeBag)
         
-        // 뷰 생성 시, 주간 캘린더 위치를 조정하기 위함
-        reactor.state.map { $0.selectedDate }
+        reactor.state.compactMap { $0.blurImageUrlString }
             .distinctUntilChanged()
             .withUnretained(self)
-            .subscribe { $0.0.calendarView.select($0.1, scrollToDate: true) }
+            .subscribe {
+                guard let url: URL = URL(string: $0.1) else { return }
+                KingfisherManager.shared.retrieveImage(with: url) { [unowned self] result in
+                    switch result {
+                    case let .success(value):
+                        UIView.transition(
+                            with: self.blurImageView,
+                            duration: 0.15,
+                            options: [.transitionCrossDissolve, .allowUserInteraction]) {
+                                self.blurImageView.image = value.image
+                            }
+                    case .failure:
+                        print("Kingfisher RetrieveImage Error")
+                    }
+                }
+            }
             .disposed(by: disposeBag)
+        
+        let allUploadedToastMessageView = reactor.pulse(\.$shouldPresentAllUploadedToastMessageView)
+            .asDriver(onErrorJustReturn: false)
+        
+        allUploadedToastMessageView
+            .filter { $0 }
+            .delay(.milliseconds(300))
+            .drive(with: self, onNext: { `self`, _ in
+                `self`.makeBibbiToastView(
+                    text: "우리 가족 모두가 사진을 올린 날",
+                    image: DesignSystemAsset.fire.image
+                )
+            })
+            .disposed(by: disposeBag)
+        
+        allUploadedToastMessageView
+            .filter { $0 }
+            .do(onNext: { [unowned self] _ in
+                // 애니메이션 중이 아니라면
+                if !self.fireLottieView.isPlay {
+                    self.fireLottieView.play()
+                }
+            })
+            .delay(.seconds(2))
+            .do(onNext: { [unowned self] _ in self.fireLottieView.stop() })
+            .drive(onNext: { _ in print("Fire!!!") })
+            .disposed(by: disposeBag)
+        
+//        reactor.pulse(\.$shouldGenerateSelectionHaptic)
+//            .subscribe {
+//                if $0 { Haptic.selection() }
+//            }
+//            .disposed(by: disposeBag)
     }
     
     public override func setupUI() {
@@ -189,6 +220,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         blurImageView.addSubviews(
             navigationBarView, calendarView, postCollectionView
         )
+        view.addSubview(fireLottieView)
     }
     
     public override func setupAutoLayout() {
@@ -213,6 +245,10 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             $0.top.equalTo(calendarView.snp.bottom).offset(16)
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalToSuperview()
+        }
+        
+        fireLottieView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
         }
     }
     
@@ -253,6 +289,11 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             $0.isScrollEnabled = false
             $0.backgroundColor = UIColor.clear
             $0.register(PostDetailCollectionViewCell.self, forCellWithReuseIdentifier: PostDetailCollectionViewCell.id)
+        }
+        
+        fireLottieView.do {
+            $0.stop()
+            $0.isUserInteractionEnabled = false
         }
         
         setupBlurEffect()
@@ -368,8 +409,8 @@ extension CalendarPostViewController: FSCalendarDataSource {
         else {
             let emptyResponse = CalendarResponse(
                 date: date,
-                representativePostId: "",
-                representativeThumbnailUrl: "",
+                representativePostId: .none,
+                representativeThumbnailUrl: .none,
                 allFamilyMemebersUploaded: false
             )
             cell.reactor = ImageCalendarCellDIContainer(

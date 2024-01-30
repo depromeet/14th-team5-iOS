@@ -28,6 +28,10 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     private let tableTitleLabel: BibbiLabel = BibbiLabel(.head1, textColor: .gray200)
     private let tableCountLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray400)
     private let familyTableView: UITableView = UITableView()
+
+    private let airplaneLottieView: AirplaneLottieView = AirplaneLottieView()
+    
+    private let fetchFailureView: FetchFailureView = FetchFailureView(type: .family)
     
     // MARK: - Properties
     private lazy var dataSource: RxTableViewSectionedReloadDataSource<FamilyMemberProfileSectionModel> = prepareDatasource()
@@ -115,14 +119,33 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldPresentFetchFailureToastMessageView)
+        reactor.pulse(\.$shouldPresentUrlFetchFailureToastMessageView)
+            .withUnretained(self)
+            .subscribe {
+                if $0.1 { $0.0.makeErrorBibbiToastView() }
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentFamilyFetchFailureToastMessageView)
             .withUnretained(self)
             .subscribe {
                 if $0.1 {
-                    $0.0.makeErrorBibbiToastView()
-                    Haptic.notification(type: .error)
+                    $0.0.makeBibbiToastView(
+                        text: "가족을 불러오는데 실패했어요",
+                        image: DesignSystemAsset.warning.image
+                    )
+                    $0.0.fetchFailureView.isHidden = false
                 }
             }
+            .disposed(by: disposeBag)
+
+        reactor.state.map { $0.shouldPresentPaperAirplaneLottieView }
+            .distinctUntilChanged()
+            .bind(to: airplaneLottieView.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldGenerateErrorHapticNotification)
+            .subscribe { if $0 { Haptic.notification(type: .error) } }
             .disposed(by: disposeBag)
     }
     
@@ -135,6 +158,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
         headerStack.addArrangedSubviews(
             tableTitleLabel, tableCountLabel
         )
+        familyTableView.addSubviews(airplaneLottieView, fetchFailureView)
     }
     
     public override func setupAutoLayout() {
@@ -167,6 +191,17 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             $0.horizontalEdges.equalToSuperview()
             $0.top.equalTo(headerStack.snp.bottom).offset(8)
             $0.bottom.equalToSuperview()
+        }
+        
+        airplaneLottieView.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview()
+            $0.top.equalToSuperview().offset(90)
+        }
+        
+        fetchFailureView.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(70)
+            $0.centerX.equalToSuperview()
         }
     }
     
@@ -205,6 +240,10 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             )
             
             $0.register(FamilyMemberProfileCell.self, forCellReuseIdentifier: FamilyMemberProfileCell.id)
+        }
+        
+        fetchFailureView.do {
+            $0.isHidden = true
         }
     }
 }

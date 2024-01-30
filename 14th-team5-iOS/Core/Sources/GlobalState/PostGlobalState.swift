@@ -21,6 +21,7 @@ public protocol PostGlobalStateType {
     func presentPostCommentSheet(_ postId: String, commentCount: Int) -> Observable<Int>
     @discardableResult
     func storeCommentText(_ postId: String, text: String) -> Observable<(String, String)>
+    func clearCommentText()
 }
 
 final public class PostGlobalState: BaseGlobalState, PostGlobalStateType {
@@ -36,5 +37,9 @@ final public class PostGlobalState: BaseGlobalState, PostGlobalStateType {
         debugPrint("텍스트 저장됨 \(postId), \(text)")
         input.onNext((postId, text))
         return Observable<(String, String)>.just((postId, text))
+    }
+    
+    public func clearCommentText() {
+        input.onNext((.none, .none))
     }
 }

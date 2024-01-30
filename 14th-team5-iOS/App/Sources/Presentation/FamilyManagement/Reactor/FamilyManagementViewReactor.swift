@@ -25,19 +25,25 @@ public final class FamilyManagementViewReactor: Reactor {
     public enum Mutation {
         case setSharePanel(String?)
         case setCopySuccessToastMessageView
-        case setFetchFailureTaostMessageView
+        case setUrlFetchFailureToastMessageView
+        case setFamilyFetchFailureToastMessageView
+        case setHiddenPaperAirplaneLottieView(Bool)
+        case pushProfileVC(String)
         case injectFamilyId(String?)
         case injectFamilyMembers([FamilyMemberProfileCellReactor])
-        case pushProfileVC(String)
+        case generateErrorHapticNotification
     }
     
     // MARK: - State
     public struct State {
         var familyId: String?
         @Pulse var familyInvitationUrl: URL?
-        @Pulse var shouldPresentCopySuccessToastMessageView: Bool
-        @Pulse var shouldPresentFetchFailureToastMessageView: Bool
         @Pulse var shouldPushProfileVC: String
+        @Pulse var shouldPresentCopySuccessToastMessageView: Bool
+        @Pulse var shouldPresentUrlFetchFailureToastMessageView: Bool
+        @Pulse var shouldPresentFamilyFetchFailureToastMessageView: Bool
+        @Pulse var shouldGenerateErrorHapticNotification: Bool
+        var shouldPresentPaperAirplaneLottieView: Bool
         @Pulse var displayFamilyMember: [FamilyMemberProfileSectionModel]
         var displayFamilyMemberCount: Int
     }
@@ -58,9 +64,12 @@ public final class FamilyManagementViewReactor: Reactor {
         self.initialState = State(
             familyId: nil,
             familyInvitationUrl: nil,
-            shouldPresentCopySuccessToastMessageView: false,
-            shouldPresentFetchFailureToastMessageView: false,
             shouldPushProfileVC: .none,
+            shouldPresentCopySuccessToastMessageView: false,
+            shouldPresentUrlFetchFailureToastMessageView: false,
+            shouldPresentFamilyFetchFailureToastMessageView: false,
+            shouldGenerateErrorHapticNotification: false,
+            shouldPresentPaperAirplaneLottieView: false,
             displayFamilyMember: [.init(model: (), items: [])],
             displayFamilyMemberCount: 0
         )
@@ -99,7 +108,8 @@ public final class FamilyManagementViewReactor: Reactor {
                     .concatMap({
                         guard let invitationLink = $0.1?.url else {
                             return Observable.concat(
-                                Observable<Mutation>.just(.setFetchFailureTaostMessageView),
+                                Observable<Mutation>.just(.generateErrorHapticNotification),
+                                Observable<Mutation>.just(.setUrlFetchFailureToastMessageView),
                                 $0.0.provider.activityGlobalState.hiddenInvitationUrlIndicatorView(false)
                                     .flatMap({ _ in Observable<Mutation>.empty() })
                             )
@@ -115,21 +125,37 @@ public final class FamilyManagementViewReactor: Reactor {
         case .fetchPaginationFamilyMemebers:
             let query = FamilyPaginationQuery()
             
-            return familyUseCase.executeFetchPaginationFamilyMembers(query: query)
-                .withUnretained(self)
-                .map {
-                    guard let familyResponse = $0.1?.results else {
-                        return .injectFamilyMembers([])
-                    }
-                    
-                    return .injectFamilyMembers(
-                        familyResponse.map {
-                            FamilyMemberProfileCellReactor(
-                                $0, isMe: self.memberUseCase.executeCheckIsMe(memberId: $0.memberId)
+            return Observable.concat(
+                Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(false)),
+                
+                familyUseCase.executeFetchPaginationFamilyMembers(query: query)
+                    .withUnretained(self)
+                    .concatMap {
+                        guard let familyResponse = $0.1?.results else {
+                            // TODO: - 불러오기 실패 예외 UI 구현하기
+                            return Observable<Mutation>.concat(
+                                Observable<Mutation>.just(.injectFamilyMembers([])),
+                                Observable<Mutation>.just(.setFamilyFetchFailureToastMessageView),
+                                Observable<Mutation>.just(.generateErrorHapticNotification),
+                                Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(true))
                             )
+                            
                         }
-                    )
-                }
+                        
+                        return Observable.concat(
+                            Observable<Mutation>.just(
+                                .injectFamilyMembers(
+                                    familyResponse.map {
+                                        FamilyMemberProfileCellReactor(
+                                            $0, isMe: self.memberUseCase.executeCheckIsMe(memberId: $0.memberId)
+                                        )
+                                    }
+                                )
+                            ),
+                            Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(true))
+                        )
+                    }
+            )
             
         case let .didSelectTableCell(indexPath):
             guard let dataSource = currentState.displayFamilyMember.first else {
@@ -151,8 +177,17 @@ public final class FamilyManagementViewReactor: Reactor {
         case .setCopySuccessToastMessageView:
             newState.shouldPresentCopySuccessToastMessageView = true
             
-        case .setFetchFailureTaostMessageView:
-            newState.shouldPresentFetchFailureToastMessageView = true
+        case .setUrlFetchFailureToastMessageView:
+            newState.shouldPresentUrlFetchFailureToastMessageView = true
+            
+        case .setFamilyFetchFailureToastMessageView:
+            newState.shouldPresentFamilyFetchFailureToastMessageView = true
+            
+        case let .setHiddenPaperAirplaneLottieView(hidden):
+            newState.shouldPresentPaperAirplaneLottieView = hidden
+            
+        case let .pushProfileVC(memberId):
+            newState.shouldPushProfileVC = memberId
             
         case let .injectFamilyId(familyId):
             newState.familyId = familyId
@@ -169,8 +204,8 @@ public final class FamilyManagementViewReactor: Reactor {
             newState.displayFamilyMember = [dataSource]
             newState.displayFamilyMemberCount = familyMembers.count
             
-        case let .pushProfileVC(memberId):
-            newState.shouldPushProfileVC = memberId
+        case .generateErrorHapticNotification:
+            newState.shouldGenerateErrorHapticNotification = true
         }
         return newState
     }

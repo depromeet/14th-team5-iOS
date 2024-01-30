@@ -16,10 +16,10 @@ import RxSwift
 public final class CalendarPageCellReactor: Reactor {
     // MARK: - Action
     public enum Action {
+        case didSelectDate(Date)
         case fetchCalendarBanner
         case fetchStatisticsSummary
         case fetchCalendarResponse
-        case didSelectDate(Date)
         case didTapInfoButton(UIView)
     }
     
@@ -32,7 +32,7 @@ public final class CalendarPageCellReactor: Reactor {
     
     // MARK: - State
     public struct State {
-        var date: Date
+        var yearMonthDate: Date
         var displayCalendarBanner: BannerViewModel.State?
         var displayMemoryCount: Int
         var displayCalendarResponse: ArrayResponseCalendarResponse?
@@ -49,7 +49,7 @@ public final class CalendarPageCellReactor: Reactor {
     // MARK: - Intializer
     init(_ yearMonth: String, calendarUseCase: CalendarUseCaseProtocol, provider: GlobalStateProviderProtocol) {
         self.initialState = State(
-            date: yearMonth.toDate(with: "yyyy-MM"),
+            yearMonthDate: yearMonth.toDate(with: "yyyy-MM"),
             displayMemoryCount: 0
         )
         
@@ -62,6 +62,10 @@ public final class CalendarPageCellReactor: Reactor {
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
+        case let .didSelectDate(date):
+            return provider.calendarGlabalState.pushCalendarPostVC(date)
+                .flatMap { _ in Observable<Mutation>.empty() }
+            
         case .fetchStatisticsSummary:
             return calendarUseCase.executeFetchStatisticsSummary()
                 .flatMap {
@@ -88,10 +92,6 @@ public final class CalendarPageCellReactor: Reactor {
                     }
                     return .injectCalendarResponse(arrayCalendarResponse)
                 }
-            
-        case let .didSelectDate(date):
-            return provider.calendarGlabalState.pushCalendarPostVC(date)
-                .flatMap { _ in Observable<Mutation>.empty() }
             
         case let .didTapInfoButton(sourceView):
             return provider.calendarGlabalState.didTapCalendarInfoButton(sourceView)

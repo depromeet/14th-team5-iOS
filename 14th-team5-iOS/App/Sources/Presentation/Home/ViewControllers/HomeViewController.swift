@@ -45,13 +45,13 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
     public override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.rx.viewWillAppear
-            .do(onNext: { _ in App.indicator.show(with: .loading) })
-            .withUnretained(self)
-            .delay(.seconds(3), scheduler: MainScheduler.instance)
-            .do(onNext: { _ in App.indicator.hide(with: .loading) })
-            .bind(onNext: { _ in print("예시 코드 입니다.") })
-            .disposed(by: disposeBag)
+//        self.rx.viewWillAppear
+//            .do(onNext: { _ in App.indicator.show(with: .loading) })
+//            .withUnretained(self)
+//            .delay(.seconds(3), scheduler: MainScheduler.instance)
+//            .do(onNext: { _ in App.indicator.hide(with: .loading) })
+//            .bind(onNext: { _ in print("예시 코드 입니다.") })
+//            .disposed(by: disposeBag)
     }
     
     public override func viewWillAppear(_ animated: Bool) {

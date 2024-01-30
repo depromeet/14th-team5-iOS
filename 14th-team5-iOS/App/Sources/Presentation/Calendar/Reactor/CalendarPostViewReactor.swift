@@ -19,27 +19,30 @@ public final class CalendarPostViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case didSelectDate(Date)
-        case blurImageIndex(Int)
+        case fetchPostList(Date)
         case fetchCalendarResponse(String)
+        case setBlurImageIndex(Int)
     }
     
     // MARK: - Mutation
     public enum Mutation {
-        case setupBlurImageView(Int)
-        case setupToastMessageView(Bool)
-        case setupPostCommentSheet(String, Int)
+        case setPostCommentSheet(String, Int)
+        case setAllUploadedToastMessageView(Bool)
         case injectCalendarResponse(String, ArrayResponseCalendarResponse)
         case injectPostResponse([PostListData])
+        case injectBlurImageIndex(Int)
+        case generateSelectionHaptic
     }
     
     // MARK: - State
     public struct State {
         var selectedDate: Date
-        var blurImageUrl: String?
-        @Pulse var displayPost: [PostListSectionModel]
-        @Pulse var displayCalendarResponse: [String: [CalendarResponse]] // (월: [일자 데이터]) 형식으로 불러온 데이터를 저장
-        @Pulse var shouldPresentToastMessageView: Bool
+        var blurImageUrlString: String?
+        @Pulse var displayPostResponse: [PostListSectionModel]
+        @Pulse var displayCalendarResponse: [String: [CalendarResponse]]
+        @Pulse var shouldPresentAllUploadedToastMessageView: Bool
         @Pulse var shouldPresentPostCommentSheet: (String, Int)
+        @Pulse var shouldGenerateSelectionHaptic: Bool
     }
     
     // MARK: - Properties
@@ -49,9 +52,10 @@ public final class CalendarPostViewReactor: Reactor {
     private let calendarUseCase: CalendarUseCaseProtocol
     private let postListUseCase: PostListUseCaseProtocol
     
-    private var isFirstEvent: Bool = true // 최초 이벤트 받음 유무 저장
-    private var isFetchedResponse: [String] = [] // API 호출한 월(月)을 저장
-    private var hasThumbnailImages: [Date] = [] // 썸네일 이미지가 존재하는 일자를 저장
+    private var hasReceivedPostEvent: Bool = false
+    private var hasReceivedSelectionEvent: Bool = false
+    private var hasFetchedCalendarResponse: [String] = []
+    private var hasThumbnailImages: [Date] = []
     
     // MARK: - Intializer
     init(
@@ -62,10 +66,11 @@ public final class CalendarPostViewReactor: Reactor {
     ) {
         self.initialState = State(
             selectedDate: selection,
-            displayPost: [],
+            displayPostResponse: [],
             displayCalendarResponse: [:],
-            shouldPresentToastMessageView: false,
-            shouldPresentPostCommentSheet: (.none, 0)
+            shouldPresentAllUploadedToastMessageView: false,
+            shouldPresentPostCommentSheet: (.none, 0),
+            shouldGenerateSelectionHaptic: false
         )
         
         self.calendarUseCase = calendarUseCase
@@ -79,7 +84,7 @@ public final class CalendarPostViewReactor: Reactor {
             .flatMap {
                 switch $0 {
                 case let .showAllFamilyUploadedToastView(uploaded):
-                    return Observable<Mutation>.just(.setupToastMessageView(uploaded))
+                    return Observable<Mutation>.just(.setAllUploadedToastMessageView(uploaded))
                 }
             }
         
@@ -87,7 +92,7 @@ public final class CalendarPostViewReactor: Reactor {
             .flatMap {
                 switch $0 {
                 case let .presentPostCommentSheet(postId, commentCount):
-                    return Observable<Mutation>.just(.setupPostCommentSheet(postId, commentCount))
+                    return Observable<Mutation>.just(.setPostCommentSheet(postId, commentCount))
                 }
             }
         
@@ -97,54 +102,62 @@ public final class CalendarPostViewReactor: Reactor {
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case let .blurImageIndex(index):
-            return Observable<Mutation>.just(.setupBlurImageView(index))
-
         case let .didSelectDate(date):
-            // 최초 이벤트가 발생하거나, 썸네일 이미지가 존재하는 셀에 한하여
-            if isFirstEvent || hasThumbnailImages.contains(date) {
+            // 처음 이벤트를 받거나 썸네일 이미지가 존재하는 셀에 한하여
+            if !hasReceivedSelectionEvent || hasThumbnailImages.contains(date) {
+                hasReceivedSelectionEvent = true
                 // 셀 클릭 이벤트 방출
                 provider.calendarGlabalState.didSelectDate(date)
-                isFirstEvent = false
+                return Observable<Mutation>.just(.generateSelectionHaptic)
             }
+            return Observable<Mutation>.empty()
             
-            // 가족이 게시한 포스트 가져오기
-            let date: String = date.toFormatString(with: "yyyy-MM-dd")
-            let postListQuery: PostListQuery = PostListQuery(date: date)
-            
-            return postListUseCase.excute(query: postListQuery).asObservable()
-                .flatMap {
-                    guard let postResponse: [PostListData] = $0?.postLists,
-                          !postResponse.isEmpty else {
-                        return Observable<Mutation>.empty()
+        case let .fetchPostList(date):
+            // 처음 이벤트를 받거나 썸네일 이미지가 존재하는 셀에 한하여
+            if !hasReceivedPostEvent || hasThumbnailImages.contains(date) {
+                hasReceivedPostEvent = true
+                // 가족이 게시한 포스트 가져오기
+                let date: String = date.toFormatString(with: "yyyy-MM-dd")
+                let postListQuery: PostListQuery = PostListQuery(date: date)
+                return postListUseCase.excute(query: postListQuery).asObservable()
+                    .withUnretained(self)
+                    .flatMap {
+                        guard let postResponse: [PostListData] = $0.1?.postLists,
+                              !postResponse.isEmpty else {
+                            return Observable<Mutation>.empty()
+                        }
+                        
+                        return Observable.concat(
+                            Observable<Mutation>.just(.injectPostResponse(postResponse)),
+                            Observable<Mutation>.just(.injectBlurImageIndex(0))
+                        )
                     }
-                    
-                    return Observable.concat(
-                        Observable<Mutation>.just(.injectPostResponse(postResponse)),
-                        Observable<Mutation>.just(.setupBlurImageView(0))
-                    )
-                }
+            }
+            return Observable<Mutation>.empty()
             
         case let .fetchCalendarResponse(yearMonth):
             // 이전에 불러온 적이 없다면
-            if !isFetchedResponse.contains(yearMonth) {
+            if !hasFetchedCalendarResponse.contains(yearMonth) {
                 return calendarUseCase.executeFetchCalednarResponse(yearMonth: yearMonth)
                     .withUnretained(self)
                     .map {
                         guard let arrayCalendarResponse = $0.1 else {
                             return .injectCalendarResponse(yearMonth, .init(results: []))
                         }
-                        $0.0.isFetchedResponse.append(yearMonth)
+                        $0.0.hasFetchedCalendarResponse.append(yearMonth)
                         $0.0.hasThumbnailImages.append(
                             contentsOf: arrayCalendarResponse.results.map { $0.date }
                         )
-                        // 썸네일 이미지 등 데이터가 존재하는 일(日)자에 한하여 데이터를 불러옴
+                        // - 썸네일 이미지 등 데이터가 존재하는 일(日)자에 한하여 데이터를 불러옴
                         return .injectCalendarResponse(yearMonth, arrayCalendarResponse)
                     }
             // 이전에 불러온 적이 있다면
             } else {
                 return Observable<Mutation>.empty()
             }
+            
+        case let .setBlurImageIndex(index):
+            return Observable<Mutation>.just(.injectBlurImageIndex(index))
         }
     }
     
@@ -153,28 +166,31 @@ public final class CalendarPostViewReactor: Reactor {
         var newState = state
         
         switch mutation {
-        case let .setupBlurImageView(index):
-            guard let items = newState.displayPost.first?.items else {
+        case let .injectBlurImageIndex(index):
+            guard let items = newState.displayPostResponse.first?.items else {
                 return newState
             }
-            newState.blurImageUrl = items[index].imageURL
+            newState.blurImageUrlString = items[index].imageURL
             
-        case let .setupToastMessageView(uploaded):
-            newState.shouldPresentToastMessageView = uploaded
+        case let .setAllUploadedToastMessageView(uploaded):
+            newState.shouldPresentAllUploadedToastMessageView = uploaded
             
-        case let .setupPostCommentSheet(psotId, commentCount):
+        case let .setPostCommentSheet(psotId, commentCount):
             newState.shouldPresentPostCommentSheet = (psotId, commentCount)
             
         case let .injectCalendarResponse(yearMonth, arrayCalendarResponse):
             newState.displayCalendarResponse[yearMonth] = arrayCalendarResponse.results
             
         case let .injectPostResponse(postResponse):
-            newState.displayPost = [
+            newState.displayPostResponse = [
                 SectionModel(
-                    model: "",
+                    model: .none,
                     items: postResponse
                 )
             ]
+            
+        case .generateSelectionHaptic:
+            newState.shouldGenerateSelectionHaptic = true
         }
         
         return newState

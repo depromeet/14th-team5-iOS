@@ -129,7 +129,7 @@ public final class InvitationUrlContainerView: BaseView<InvitationUrlContainerVi
         invitationUrlLabel.do {
             $0.text = _Str.invitationUrlText
         }
-        
+
         shareLineImageView.do {
             $0.image = DesignSystemAsset.shareLine.image
             $0.tintColor = .gray500

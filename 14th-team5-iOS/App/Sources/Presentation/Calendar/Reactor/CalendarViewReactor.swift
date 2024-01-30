@@ -16,22 +16,22 @@ import RxSwift
 public final class CalendarViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
+        case popViewController
         case fetchFamilyMembers
         case addYearMonthItem(String)
-        case popViewController
     }
     
     // MARK: - Mutation
     public enum Mutation {
+        case popViewController
         case pushCalendarPostVC(Date)
         case makeCalendarPopoverVC(UIView)
         case injectYearMonthItem(String)
-        case popViewController
     }
     
     // MARK: - State
     public struct State {
-        var shouldPopCalendarVC: Bool
+        @Pulse var shouldPopCalendarVC: Bool
         @Pulse var shouldPushCalendarPostVC: Date?
         @Pulse var shouldPresnetInfoPopover: UIView?
         @Pulse var displayCalendar: [SectionOfMonthlyCalendar]
@@ -63,8 +63,10 @@ public final class CalendarViewReactor: Reactor {
                 switch event {
                 case let .pushCalendarPostVC(date):
                     return Observable<Mutation>.just(.pushCalendarPostVC(date))
+                    
                 case let .didTapInfoButton(sourceView):
                     return Observable<Mutation>.just(.makeCalendarPopoverVC(sourceView))
+                    
                 default:
                     return Observable<Mutation>.empty()
                 }
@@ -76,19 +78,20 @@ public final class CalendarViewReactor: Reactor {
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
+        case .popViewController:
+            provider.toastGlobalState.resetLastSelectedDate()
+            return Observable<Mutation>.just(.popViewController)
+            
         case .fetchFamilyMembers:
             let query: SearchFamilyQuery = SearchFamilyQuery(page: 1, size: 20)
             return familyUseCase.excute(query: query)
                 .asObservable()
-                .flatMap {_ in 
+                .flatMap {_ in
                     return Observable<Mutation>.empty()
                 }
         case let .addYearMonthItem(yearMonth):
             return Observable<Mutation>.just(.injectYearMonthItem(yearMonth))
             
-        case .popViewController:
-            provider.toastGlobalState.resetLastSelectedDate()
-            return Observable<Mutation>.just(.popViewController)
         }
     }
     
@@ -96,6 +99,9 @@ public final class CalendarViewReactor: Reactor {
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
+        case .popViewController:
+            newState.shouldPopCalendarVC = true
+            
         case let .pushCalendarPostVC(date):
             newState.shouldPushCalendarPostVC = date
             
@@ -114,10 +120,6 @@ public final class CalendarViewReactor: Reactor {
                 items: oldItems + newItems.items
             )
             newState.displayCalendar = [newDatasource]
-            
-        case .popViewController:
-            newState.shouldPopCalendarVC = true
-            
         }
         return newState
     }

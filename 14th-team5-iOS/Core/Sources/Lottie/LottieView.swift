@@ -11,29 +11,29 @@ import SnapKit
 import RxSwift
 import RxCocoa
 
-public final class LottieView: UIView {
+final public class LottieView: UIView {
+  
     // MARK: SubView
     private lazy var animationView = LottieAnimationView()
     
     // MARK: Property
     let showLottieView = PublishRelay<LottieType>()
     
-    public var kind: LottieType? = .loading {
-        didSet {
-            guard let kind else { return }
-            let animation = LottieAnimation.named(kind.key)
-            animationView.animation = animation
-            animationView.backgroundBehavior = .pause
-            animationView.loopMode = .loop
-        }
-    }
+  
+    var kind: LottieType?
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
+    public convenience init(
+        with kind: LottieType = .loading,
+        contentMode: UIView.ContentMode = .scaleAspectFit
+    ) {
+        self.init(frame: .zero)
         self.setupUI()
         self.setupAutoLayout()
-        self.setupAttributes()
+        self.setupAttributes(with: kind, contentMode: contentMode)
+    }
+    
+    public override init(frame: CGRect) {
+        super.init(frame: frame)
         
         self.showLottieView
             .observe(on: MainScheduler.instance)
@@ -57,11 +57,12 @@ public final class LottieView: UIView {
         }
     }
     
-    private func setupAttributes() {
+    private func setupAttributes(with kind: LottieType?, contentMode: UIView.ContentMode) {
         animationView.do {
-            guard let kind = kind else { return }
+            guard let kind else { return }
             let animation = LottieAnimation.named(kind.key)
-            $0.animation = animation
+            animationView.animation = animation
+            animationView.contentMode = contentMode
             $0.backgroundBehavior = .pause
             $0.loopMode = .loop
         }
@@ -75,6 +76,18 @@ public final class LottieView: UIView {
                 self.animationView.play()
             }
         }
+    }
+
+    public var isPlay: Bool {
+        return !self.isHidden
+    }
+    
+    public func stop() {
+        self.isHidden = true
+    }
+    
+    public func play() {
+        self.isHidden = false
     }
     
     private func showLottieView(_ kind: LottieType) {

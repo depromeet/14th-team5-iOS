@@ -31,15 +31,7 @@ struct FamilySearchResponseDTO: Codable {
 
 extension FamilySearchResponseDTO {
     func toDomain() -> SearchFamilyPage {
-        var sortedResults: [FamilyMemberDTO] = results
-        let myMemberId = FamilyUserDefaults.getMyMemberId()
-
-        if let index = results.firstIndex(where: { $0.memberId == myMemberId }) {
-            let element = sortedResults.remove(at: index)
-            sortedResults.insert(element, at: 0)
-        }
-
-        return .init(isLast: !hasNext, members: sortedResults.map { $0.toDomain() })
+        return .init(isLast: !hasNext, members: results.map { $0.toDomain() })
     }
 }
 

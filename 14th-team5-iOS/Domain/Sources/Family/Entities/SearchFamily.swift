@@ -7,11 +7,12 @@
 
 import Foundation
 
-public struct ProfileData: Equatable, Codable {
+public struct ProfileData: Equatable, Hashable, Codable {
     public let memberId: String
     public let profileImageURL: String?
     public let name: String
     public let dayOfBirth: Date
+    public var postRank: Int? = nil
     
     public init(memberId: String, profileImageURL: String?, name: String, dayOfBirth: Date = .distantFuture) {
         self.memberId = memberId

@@ -16,7 +16,6 @@ final class PostReactor: Reactor {
     enum Action {
         case tapBackButton
         case setPost(Int)
-        case fetchReaction
     }
     
     enum Mutation {
@@ -24,7 +23,6 @@ final class PostReactor: Reactor {
         case setSelectedPostIndex(Int)
         case showReactionSheet([String])
         case presentPostCommentSheet(String, Int)
-        case fetchedReaction([FetchEmojiData])
     }
     
     struct State {
@@ -37,7 +35,6 @@ final class PostReactor: Reactor {
         @Pulse var fetchedPost: PostData? = nil
         @Pulse var reactionMemberIds: [String] = []
         @Pulse var shouldPresentPostCommentSheet: (String, Int) = (.none, 0)
-        @Pulse var fetchedReaction: [EmojiData]? = nil
     }
     
     let initialState: State
@@ -81,18 +78,6 @@ extension PostReactor {
             return Observable.just(Mutation.setSelectedPostIndex(index))
         case .tapBackButton:
             return Observable.just(Mutation.setPop)
-        case .fetchReaction:
-            let reactionQuery: FetchEmojiQuery = FetchEmojiQuery(postId: currentState.selectedPost.postId)
-            let realEmojiQuery: FetchRealEmojiQuery = FetchRealEmojiQuery(postId: currentState.selectedPost.postId)
-
-            let observable1 = emojiRepository.execute(query: reactionQuery).asObservable()
-            let observable2 = realEmojiRepository.execute(query: realEmojiQuery).asObservable()
-
-            return Observable.combineLatest(observable1, observable2) { result1, result2 in
-                print(result1, result2)
-                return .fetchedReaction(result1 ?? [])
-            }
-            return Observable.empty()
         }
     }
         
@@ -110,8 +95,6 @@ extension PostReactor {
                 
             case let .presentPostCommentSheet(postId, commentCount):
                 newState.shouldPresentPostCommentSheet = (postId, commentCount)
-            case let .fetchedReaction(reaction):
-                break
             }
             return newState
         }

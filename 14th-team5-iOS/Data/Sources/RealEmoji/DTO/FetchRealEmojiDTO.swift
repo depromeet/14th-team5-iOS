@@ -7,6 +7,7 @@
 
 import Foundation
 
+import Core
 import Domain
 
 public struct FetchRealEmojiListParameter: Codable {
@@ -16,8 +17,31 @@ public struct FetchRealEmojiListParameter: Codable {
 public struct FetchRealEmojiListResponseDTO: Codable {
     let results: [RealEmojiDTO]
     
-    public func toDomain() -> [FetchRealEmojiData]? {
-        return results.map { $0.toDomain() }
+    func toDomain() -> [FetchedEmojiData]? {
+        let myMemberId = FamilyUserDefaults.returnMyMemberId()
+        let groupedByEmojiType = Dictionary(grouping: results, by: { $0.realEmojiId })
+
+        let fetchedEmojiDataArray = groupedByEmojiType.map { (emojiType, responses) in
+            guard let minReactionIdResponse = responses.min(by: { $0.postRealEmojiId < $1.postRealEmojiId }) else {
+                return FetchedEmojiData(isStandard: false, isSelfSelected: false, postEmojiId: "", emojiType: .emoji1, count: 0, realEmojiId: "", realEmojiImageURL: "", memberIds: [])
+            }
+            
+            let selfSelected = responses.contains { $0.memberId == myMemberId }
+            let count = responses.count
+
+            return FetchedEmojiData(
+                isStandard: false,
+                isSelfSelected: selfSelected,
+                postEmojiId: minReactionIdResponse.postRealEmojiId,
+                emojiType: Emojis.emoji(forString: minReactionIdResponse.emojiType),
+                count: count,
+                realEmojiId: emojiType,
+                realEmojiImageURL: minReactionIdResponse.emojiImageUrl,
+                memberIds: responses.map { $0.memberId }
+            )
+        }
+
+        return fetchedEmojiDataArray
     }
 }
 
@@ -27,8 +51,5 @@ public struct RealEmojiDTO: Codable {
     let memberId: String
     let realEmojiId: String
     let emojiImageUrl: String
-    
-    func toDomain() -> FetchRealEmojiData {
-        return .init(memberId: memberId, realEmojiId: realEmojiId, emojiImageUrl: emojiImageUrl)
-    }
+    let emojiType: String
 }

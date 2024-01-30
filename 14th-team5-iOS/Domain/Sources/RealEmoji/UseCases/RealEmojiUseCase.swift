@@ -14,10 +14,13 @@ public protocol RealEmojiUseCaseProtocol {
     /// add real emoji
     func execute(query: AddEmojiQuery, body: AddEmojiBody) -> Single<Void?>
     /// fetch real emoji list at post
-    func execute(query: FetchRealEmojiQuery) -> Single<[FetchRealEmojiData]?>
+    func execute(query: FetchRealEmojiQuery) -> Single<[FetchedEmojiData]?>
+    /// remove real emoji
+    func execute(query: RemoveRealEmojiQuery) -> Single<Void?>
 }
 
 public class RealEmojiUseCase: RealEmojiUseCaseProtocol {
+    
     private let realEmojiRepository: RealEmojiRepository
     
     public init(realEmojiRepository: RealEmojiRepository) {
@@ -28,11 +31,15 @@ public class RealEmojiUseCase: RealEmojiUseCaseProtocol {
         return realEmojiRepository.loadMyRealEmoji()
     }
     
-    public func execute(query: FetchRealEmojiQuery) -> Single<[FetchRealEmojiData]?> {
+    public func execute(query: FetchRealEmojiQuery) -> Single<[FetchedEmojiData]?> {
         return realEmojiRepository.fetchRealEmoji(query: query)
     }
     
     public func execute(query: AddEmojiQuery, body: AddEmojiBody) -> Single<Void?> {
         return realEmojiRepository.addRealEmoji(query: query, body: body)
+    }
+    
+    public func execute(query: RemoveRealEmojiQuery) -> Single<Void?> {
+        return realEmojiRepository.removeRealEmoji(query: query)
     }
 }

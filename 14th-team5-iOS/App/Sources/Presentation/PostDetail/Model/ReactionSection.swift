@@ -12,17 +12,33 @@ import Domain
 
 import RxDataSources
 
+//struct ReactionSection {
+//    typealias Model = SectionModel<Int, Item>
+//    
+//    enum Item {
+//        case addComment
+//        case addReaction
+//        case main(EmojiData)
+//    }
+//}
+//
+//// equatable 수정하기
+//extension ReactionSection.Item: Equatable {
+//    static func == (lhs: ReactionSection.Item, rhs: ReactionSection.Item) -> Bool {
+//        return false
+//    }
+//}
+
 struct ReactionSection {
     typealias Model = SectionModel<Int, Item>
     
     enum Item {
         case addComment
         case addReaction
-        case main(EmojiData)
+        case main(FetchedEmojiData)
     }
 }
 
-// equatable 수정하기
 extension ReactionSection.Item: Equatable {
     static func == (lhs: ReactionSection.Item, rhs: ReactionSection.Item) -> Bool {
         return false

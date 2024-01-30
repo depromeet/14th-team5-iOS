@@ -124,7 +124,7 @@ public final class FamilyManagementViewReactor: Reactor {
             
         case .fetchPaginationFamilyMemebers:
             let query = FamilyPaginationQuery()
-            
+         
             return Observable.concat(
                 Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(false)),
                 

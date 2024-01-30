@@ -18,14 +18,14 @@ final class EmojiReactor: Reactor {
     }
     
     enum Action {
-        case fetchEmojiList
+//        case fetchEmojiList
         case fetchDisplayContent(String)
-        case longPressedEmojiCountButton(Int)
-        case tappedCommentButton
+//        case longPressedEmojiCountButton(Int)
+//        case tappedCommentButton
     }
     
     enum Mutation {
-        case fetchedEmojiList([FetchEmojiData])
+        case fetchedEmojiList([FetchedEmojiData])
         case injectDisplayContent([DisplayEditItemModel])
     }
     
@@ -34,7 +34,7 @@ final class EmojiReactor: Reactor {
         let post: PostListData
         
         var isShowingSelectableEmojiStackView: Bool = false
-        var fetchedEmojiList: [FetchEmojiData] = []
+        var fetchedEmojiList: [FetchedEmojiData] = []
         var fetchedDisplayContent: [DisplayEditSectionModel] = [.displayKeyword([])]
     }
     
@@ -52,13 +52,13 @@ final class EmojiReactor: Reactor {
 extension EmojiReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .fetchEmojiList:
-            let query: FetchEmojiQuery = FetchEmojiQuery(postId: initialState.post.postId)
-            return emojiRepository.execute(query: query)
-                .asObservable()
-                .flatMap { emojiList in
-                    return Observable.just(Mutation.fetchedEmojiList(emojiList ?? []))
-                }
+//        case .fetchEmojiList:
+//            let query: FetchEmojiQuery = FetchEmojiQuery(postId: initialState.post.postId)
+//            return emojiRepository.execute(query: query)
+//                .asObservable()
+//                .flatMap { emojiList in
+//                    return Observable.just(Mutation.fetchedEmojiList(emojiList ?? []))
+//                }
             
         case let .fetchDisplayContent(content):
             var sectionItem: [DisplayEditItemModel] = []
@@ -69,16 +69,17 @@ extension EmojiReactor {
             }
             return Observable<Mutation>.just(.injectDisplayContent(sectionItem))
 
-        case let .longPressedEmojiCountButton(index):
-            let emojiList = currentState.fetchedEmojiList
-            return provider.reactionSheetGloablState.showReactionMemberSheet(emojiList[index - 1].memberIds)
-                .flatMap { _ in Observable<Mutation>.empty() }
+//        case let .longPressedEmojiCountButton(index):
+//            let emojiList = currentState.fetchedEmojiList
+//            return Observable.empty()
+//            return provider.reactionSheetGloablState.showReactionMemberSheet(emojiList[index - 1].memberIds)
+//                .flatMap { _ in Observable<Mutation>.empty() }
 
-        case .tappedCommentButton:
-            let postId: String = currentState.post.postId
-            let commentCount: Int = currentState.post.commentCount
-            provider.postGlobalState.presentPostCommentSheet(postId, commentCount: commentCount)
-            return Observable<Mutation>.empty()
+//        case .tappedCommentButton:
+//            let postId: String = currentState.post.postId
+//            let commentCount: Int = currentState.post.commentCount
+//            provider.postGlobalState.presentPostCommentSheet(postId, commentCount: commentCount)
+//            return Observable<Mutation>.empty()
         }
     }
     

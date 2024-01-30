@@ -14,7 +14,7 @@ import RxSwift
 import SnapKit
 import Then
 
-final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellReactor> {
+final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellReactor> {    
     // MARK: - Views
     private let containerView: UIView = UIView()
     private let firstNameLabel: BibbiLabel = BibbiLabel(.head2Bold, alignment: .center, textColor: .gray200)
@@ -24,13 +24,11 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
     private let labelStack: UIStackView = UIStackView()
     private let nameLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray200)
     private let isMeLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray500)
-    
     private let rightArrowImageView: UIImageView = UIImageView()
     
     // MARK: - Properties
     static let id: String = "FamilyProfileCell"
-    
-    // MARK: - Intializer
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
     }
@@ -88,6 +86,14 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
             .distinctUntilChanged()
             .map { !$0.isEqual([.month, .day], with: .now) }
             .bind(to: dayOfBirthBadgeView.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.cellType }
+            .distinctUntilChanged()
+            .map {
+                return $0 != .arrow
+            }
+            .bind(to: rightArrowImageView.rx.isHidden)
             .disposed(by: disposeBag)
     }
     

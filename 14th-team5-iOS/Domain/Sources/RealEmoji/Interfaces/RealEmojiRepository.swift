@@ -12,5 +12,6 @@ import RxSwift
 public protocol RealEmojiRepository {
     func loadMyRealEmoji() -> Single<[MyRealEmoji?]>
     func addRealEmoji(query: AddEmojiQuery, body: AddEmojiBody) -> Single<Void?>
-    func fetchRealEmoji(query: FetchRealEmojiQuery) -> Single<[FetchRealEmojiData]?>
+    func fetchRealEmoji(query: FetchRealEmojiQuery) -> Single<[FetchedEmojiData]?>
+    func removeRealEmoji(query: RemoveRealEmojiQuery) -> Single<Void?>
 }

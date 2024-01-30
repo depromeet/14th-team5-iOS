@@ -91,11 +91,11 @@ public enum Emojis: Int {
     
     public static func emoji(forString name: String) -> Emojis {
         switch name {
-        case "EMOJI_1": return .emoji1
-        case "EMOJI_2": return .emoji2
-        case "EMOJI_3": return .emoji3
-        case "EMOJI_4": return .emoji4
-        case "EMOJI_5": return .emoji5
+        case "EMOJI_1", "emoji_1": return .emoji1
+        case "EMOJI_2", "emoji_2": return .emoji2
+        case "EMOJI_3", "emoji_3": return .emoji3
+        case "EMOJI_4", "emoji_4": return .emoji4
+        case "EMOJI_5", "emoji_5": return .emoji5
         default: return .emoji1
         }
     }

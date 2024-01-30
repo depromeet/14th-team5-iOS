@@ -76,6 +76,7 @@ extension HomeViewReactor {
             isLast = false
             
             let query = PostListQuery(page: currentPage, size: 10, date: Date().toFormatString(with: "YYYY-MM-DD"), memberId: "", sort: .desc)
+//            let query = PostListQuery(page: currentPage, size: 10, date: "2024-01-28", memberId: "", sort: .desc)
             return postRepository.excute(query: query)
                 .asObservable()
                 .flatMap { postList in

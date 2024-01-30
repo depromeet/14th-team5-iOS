@@ -36,7 +36,7 @@ extension RealEmojiAPIS {
 }
 
 extension RealEmojiAPIWorker: RealEmojiRepository {
-    public func fetchRealEmoji(query: FetchRealEmojiQuery) -> Single<[FetchRealEmojiData]?> {
+    public func fetchRealEmoji(query: FetchRealEmojiQuery) -> Single<[FetchedEmojiData]?> {
         return Observable.just(())
             .withLatestFrom(self._headers)
             .withUnretained(self)
@@ -44,7 +44,7 @@ extension RealEmojiAPIWorker: RealEmojiRepository {
             .asSingle()
     }
     
-    private func fetchRealEmoji(headers: [APIHeader]?, query: FetchRealEmojiQuery) -> Single<[FetchRealEmojiData]?> {
+    private func fetchRealEmoji(headers: [APIHeader]?, query: FetchRealEmojiQuery) -> Single<[FetchedEmojiData]?> {
         let query = FetchRealEmojiListParameter(postId: query.postId)
         let spec = RealEmojiAPIS.fetchRealEmojiList(query).spec
         return request(spec: spec, headers: headers)
@@ -108,6 +108,32 @@ extension RealEmojiAPIWorker: RealEmojiRepository {
                 }
             }
             .map(AddRealEmojiResponseDTO.self)
+            .catchAndReturn(nil)
+            .map {
+                return $0?.toDomain()
+            }
+            .asSingle()
+    }
+    
+    public func removeRealEmoji(query: RemoveRealEmojiQuery) -> Single<Void?> {
+        return Observable.just(())
+            .withLatestFrom(self._headers)
+            .withUnretained(self)
+            .flatMap { $0.0.removeRealEmoji(headers: $0.1, query: query)}
+            .asSingle()
+    }
+    
+    private func removeRealEmoji(headers: [APIHeader]?, query: RemoveRealEmojiQuery) -> Single<Void?> {
+        let spec = RealEmojiAPIS.removeRealEmoji(.init(postId: query.postId, realEmojiId: query.realEmojiId)).spec
+        
+        return request(spec: spec, headers: headers)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Remove Real Emoji Result: \(str)")
+                }
+            }
+            .map(RemoveRealEmojiResponse.self)
             .catchAndReturn(nil)
             .map {
                 return $0?.toDomain()

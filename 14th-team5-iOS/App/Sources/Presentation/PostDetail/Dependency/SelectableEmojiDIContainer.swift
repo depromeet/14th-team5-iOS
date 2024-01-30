@@ -11,13 +11,15 @@ import Core
 import Data
 import Domain
 
+import RxSwift
+
 final class SelectableEmojiDIContainer {
     private func makeReactor(postId: String) -> SelectableEmojiReactor {
         return SelectableEmojiReactor(postId: postId, emojiRepository: makeEmojiUseCase(), realEmojiRepository: makeRealEmojiUseCase())
     }
     
-    func makeViewController(postId: String) -> SelectableEmojiViewController {
-        return SelectableEmojiViewController(reactor: makeReactor(postId: postId))
+    func makeViewController(postId: String, subject: PublishSubject<Void>) -> SelectableEmojiViewController {
+        return SelectableEmojiViewController(reactor: makeReactor(postId: postId), selectedReactionSubject: subject)
     }
 }
 

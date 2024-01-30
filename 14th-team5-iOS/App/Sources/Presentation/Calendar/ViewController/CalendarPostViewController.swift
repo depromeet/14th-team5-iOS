@@ -347,7 +347,7 @@ extension CalendarPostViewController {
     private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<PostListSectionModel> {
         return RxCollectionViewSectionedReloadDataSource<PostListSectionModel> { datasource, collectionView, indexPath, post in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostDetailCollectionViewCell.id, for: indexPath) as! PostDetailCollectionViewCell
-            cell.reactor = ReactionDIContainer().makeReactor(type: .calendar, post: post)
+            cell.reactor = ReactionMemberDIContainer().makeReactor(type: .calendar, post: post)
             return cell
         }
     }

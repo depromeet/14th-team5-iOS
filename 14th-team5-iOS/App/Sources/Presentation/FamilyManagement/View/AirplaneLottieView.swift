@@ -13,12 +13,26 @@ import UIKit
 import Then
 import SnapKit
 
-// TODO: - 레이블이나 사이즈 조절 가능하게 하기
 final class AirplaneLottieView: UIView {
     // MARK: - Views
     private let lottieStack: UIStackView = UIStackView()
     private let lottieView: LottieView = LottieView(with: .loading)
     private let loadingLabel: BibbiLabel = BibbiLabel(.body1Regular, alignment: .center, textColor: .gray500)
+    
+    // MARK: - Properties
+    public var lottieSize: CGFloat = 100 {
+        didSet {
+            lottieView.snp.updateConstraints {
+                $0.size.equalTo(lottieSize)
+            }
+        }
+    }
+    
+    public var text: String? = "열심히 불러오는 중" {
+        didSet {
+            loadingLabel.text = text
+        }
+    }
     
     // MARK: - Intializer
     override init(frame: CGRect) {
@@ -59,7 +73,7 @@ final class AirplaneLottieView: UIView {
         }
         
         loadingLabel.do {
-            $0.text = "열심히 불러오는 중"
+            $0.text = text
         }
     }
     

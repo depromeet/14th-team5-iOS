@@ -115,7 +115,6 @@ extension AccountSignUpViewController: UIPageViewControllerDataSource {
     public func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         guard let currentIndex = pages.firstIndex(of: viewController) else { return nil }
 
-        print("CurrentIndex111: \(currentIndex)")
         if currentIndex == 1 {
             navigationBar.isHidden = true
         } else {
@@ -129,7 +128,6 @@ extension AccountSignUpViewController: UIPageViewControllerDataSource {
     public func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         guard let currentIndex = pages.firstIndex(of: viewController) else { return nil }
         
-        print("CurrentIndex222: \(currentIndex)")
         navigationBar.isHidden = false
         
         guard currentIndex < pages.count - 1 else { return nil }

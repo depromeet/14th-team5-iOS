@@ -26,6 +26,9 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
     private let textFieldContainerView: UIView = UIView()
     private let createCommentButton: UIButton = UIButton(type: .system)
     
+    private let airplaneLottieView: AirplaneLottieView = AirplaneLottieView()
+    private let fetchFailureView: FetchFailureView = FetchFailureView(type: .comment)
+    
     // MARK: - Properties
     private lazy var dataSource: RxTableViewSectionedAnimatedDataSource<PostCommentSectionModel> = prepareDatasource()
     
@@ -126,6 +129,20 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             }
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$shouldPresentUploadCommentFailureTaostMessageView)
+            .withUnretained(self)
+            .subscribe {
+                if $0.1 {
+                    $0.0.makeErrorBibbiToastView(
+                        duration: 0.8,
+                        offset: 70,
+                        direction: .down
+                    )
+                    Haptic.notification(type: .error)
+                }
+            }
+            .disposed(by: disposeBag)
+        
         reactor.pulse(\.$shouldPresentDeleteCommentCompleteToastMessageView)
             .withUnretained(self)
             .subscribe {
@@ -154,18 +171,29 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldPresentUploadCommentFailureTaostMessageView)
+        reactor.pulse(\.$shouldPresentCommentFetchFailureTaostMessageView)
+            .filter { $0 }
             .withUnretained(self)
             .subscribe {
-                if $0.1 {
-                    $0.0.makeErrorBibbiToastView(
-                        duration: 0.8,
-                        offset: 70,
-                        direction: .down
-                    )
-                    Haptic.notification(type: .error)
-                }
+                $0.0.makeBibbiToastView(
+                    text: "댓글을 불러오는데 실패했어요",
+                    image: DesignSystemAsset.warning.image,
+                    offset: 70,
+                    direction: .down
+                )
+                $0.0.fetchFailureView.isHidden = false
             }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentEmptyCommentView)
+            .filter { $0 }
+            .withUnretained(self)
+            .subscribe { $0.0.noCommentLabel.isHidden = false }
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.shouldPresentPaperAirplaneLottieView }
+            .distinctUntilChanged()
+            .bind(to: airplaneLottieView.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldGenerateErrorHapticNotification)
@@ -176,7 +204,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             .withUnretained(self)
             .subscribe {
                 if $0.1 {
-                    $0.0.commentTextField.text = ""
+                    $0.0.commentTextField.text = String.none
                 }
             }
             .disposed(by: disposeBag)
@@ -214,11 +242,9 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
     public override func setupUI() {
         super.setupUI()
         
-        view.addSubviews(
-            navigationBarView, commentTableView,
-            noCommentLabel, textFieldContainerView
-        )
-        textFieldContainerView.addSubview(commentTextField)
+        view.addSubviews(navigationBarView, commentTableView, textFieldContainerView)
+        commentTableView.addSubviews(airplaneLottieView, noCommentLabel, fetchFailureView)
+        textFieldContainerView.addSubviews(commentTextField)
     }
     
     public override func setupAutoLayout() {
@@ -231,7 +257,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
         }
         
         noCommentLabel.snp.makeConstraints {
-            $0.top.equalTo(navigationBarView.snp.bottom)
+            $0.top.equalTo(navigationBarView.snp.bottom).offset(74)
             $0.bottom.equalTo(textFieldContainerView.snp.top).offset(-5)
             $0.horizontalEdges.equalToSuperview()
         }
@@ -246,6 +272,17 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             $0.top.equalTo(commentTableView.snp.bottom)
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(0)
+        }
+        
+        airplaneLottieView.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview()
+            $0.top.equalToSuperview().offset(90)
+        }
+        
+        fetchFailureView.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(70)
+            $0.centerX.equalToSuperview()
         }
         
         commentTextField.snp.makeConstraints {
@@ -292,6 +329,13 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             $0.tintColor = UIColor.mainYellow
         }
         
+        noCommentLabel.do {
+            $0.isHidden = true
+        }
+        
+        fetchFailureView.do {
+            $0.isHidden = true
+        }
     }
 }
 

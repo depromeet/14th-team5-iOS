@@ -210,8 +210,9 @@ final public class PostCommentViewReactor: Reactor {
         case let .deletePostComment(commentId):
             let postId = initialState.postId
             return postCommentUseCase.executeDeletePostComment(postId: postId, commentId: commentId)
+                .withUnretained(self)
                 .flatMap {
-                    guard let deleteSuccessResponse = $0,
+                    guard let deleteSuccessResponse = $0.1,
                           deleteSuccessResponse.success else {
                         return Observable.concat(
                             Observable<Mutation>.just(.generateErrorHapticNotification),

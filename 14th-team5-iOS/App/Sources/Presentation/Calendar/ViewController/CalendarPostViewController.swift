@@ -29,11 +29,12 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         frame: .zero,
         collectionViewLayout: orthogonalCompositionalLayout
     )
+    private let reactionViewController: ReactionViewController = ReactionDIContainer().makeViewController(postId: .none)
     
     private let fireLottieView: LottieView = LottieView(with: .fire, contentMode: .scaleAspectFill)
     
     // MARK: - Properties
-    private let blurImageIndexRelay: PublishRelay<Int> = PublishRelay<Int>()
+    private let cellIndexRelay: PublishRelay<Int> = PublishRelay<Int>()
     private lazy var dataSource: RxCollectionViewSectionedReloadDataSource<PostListSectionModel> = prepareDatasource()
     
     // MARK: - Lifecycles
@@ -46,6 +47,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         navigationController?.navigationBar.isHidden = true
     }
 
+    // MARK: - Helpers
     public override func bind(reactor: CalendarPostViewReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
@@ -108,14 +110,35 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         calendarView.rx.boundingRectWillChange
             .distinctUntilChanged()
             .withUnretained(self)
-            .subscribe {
-                $0.0.adjustWeeklyCalendarRect($0.1)
-            }
+            .subscribe { $0.0.adjustWeeklyCalendarRect($0.1) }
             .disposed(by: disposeBag)
         
-        blurImageIndexRelay
+//        postCollectionView.rx.willBeginDragging
+//            .observe(on: MainScheduler.instance)
+//            .bind(onNext: { [weak self] _ in
+//                guard let self = self else { return }
+//                UIView.animate(withDuration: 0.3) {
+//                    self.reactionViewController.view.alpha = 0
+//                }
+//            })
+//            .disposed(by: disposeBag)
+        
+        NotificationCenter.default
+            .rx.notification(.didTapSelectableCameraButton)
+            .withUnretained(self)
+            .bind { owner, _ in
+                let cameraViewController = CameraDIContainer(cameraType: .realEmoji).makeViewController()
+                owner.navigationController?.pushViewController(cameraViewController, animated: true)
+            }.disposed(by: disposeBag)
+        
+        cellIndexRelay
             .distinctUntilChanged()
-            .map { Reactor.Action.setBlurImageIndex($0) }
+            .flatMap {
+                Observable.merge(
+                    Observable.just(Reactor.Action.setBlurImageIndex($0)),
+                    Observable.just(Reactor.Action.sendPostIdToReaction($0))
+                )
+            }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -133,6 +156,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .subscribe { $0.0.calendarView.reloadData() }
             .disposed(by: disposeBag)
 
+        // 스트림 공유하게
         reactor.pulse(\.$displayPostResponse)
             .bind(to: postCollectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
@@ -178,6 +202,13 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
+        reactor.state.compactMap { $0.visiblePostList }
+            .map { $0.postId }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe { $0.0.reactionViewController.postId.accept($0.1) }
+            .disposed(by: disposeBag)
+        
         let allUploadedToastMessageView = reactor.pulse(\.$shouldPresentAllUploadedToastMessageView)
             .asDriver(onErrorJustReturn: false)
         
@@ -202,14 +233,13 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             })
             .delay(.seconds(2))
             .do(onNext: { [unowned self] _ in self.fireLottieView.stop() })
-            .drive(onNext: { _ in print("Fire!!!") })
+            .drive(onNext: { _ in print("빠이어!") })
             .disposed(by: disposeBag)
         
-//        reactor.pulse(\.$shouldGenerateSelectionHaptic)
-//            .subscribe {
-//                if $0 { Haptic.selection() }
-//            }
-//            .disposed(by: disposeBag)
+        reactor.pulse(\.$shouldGenerateSelectionHaptic)
+            .filter { $0 }
+            .subscribe(onNext: { _ in Haptic.selection() })
+            .disposed(by: disposeBag)
     }
     
     public override func setupUI() {
@@ -221,6 +251,10 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             navigationBarView, calendarView, postCollectionView
         )
         view.addSubview(fireLottieView)
+        
+        addChild(reactionViewController)
+        blurImageView.addSubview(reactionViewController.view)
+        reactionViewController.didMove(toParent: self)
     }
     
     public override func setupAutoLayout() {
@@ -243,12 +277,18 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         
         postCollectionView.snp.makeConstraints {
             $0.top.equalTo(calendarView.snp.bottom).offset(16)
+            $0.height.equalTo(postCollectionView.snp.width).multipliedBy(1.15)
             $0.horizontalEdges.equalToSuperview()
-            $0.bottom.equalToSuperview()
         }
         
         fireLottieView.snp.makeConstraints {
             $0.edges.equalToSuperview()
+        }
+        
+        reactionViewController.view.snp.makeConstraints {
+            $0.top.equalTo(postCollectionView.snp.bottom)
+            $0.horizontalEdges.equalToSuperview()
+            $0.bottom.equalToSuperview()
         }
     }
     
@@ -332,7 +372,7 @@ extension CalendarPostViewController {
             let fractionPart: CGFloat = position - floorPosition
             
             if fractionPart <= 0.0 {
-                blurImageIndexRelay.accept(Int(floorPosition))
+                cellIndexRelay.accept(Int(floorPosition))
             }
         }
         

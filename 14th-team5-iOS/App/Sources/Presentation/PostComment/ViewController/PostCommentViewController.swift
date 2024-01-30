@@ -193,8 +193,10 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             .bind(to: airplaneLottieView.rx.isHidden)
             .disposed(by: disposeBag)
         
+        // FIX ME: - 주간 캘린더 화면으로 넘어갈 때, 햅틱 피드백이 발생되는 문제
         reactor.pulse(\.$shouldGenerateErrorHapticNotification)
-            .subscribe { if $0 { Haptic.notification(type: .error) } }
+            .filter { $0 }
+            .subscribe(onNext: { _ in /*Haptic.notification(type: .error)*/ })
             .disposed(by: disposeBag)
             
         reactor.pulse(\.$shouldClearCommentTextField)

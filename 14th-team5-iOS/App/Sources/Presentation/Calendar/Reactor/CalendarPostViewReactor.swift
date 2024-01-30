@@ -22,6 +22,7 @@ public final class CalendarPostViewReactor: Reactor {
         case fetchPostList(Date)
         case fetchCalendarResponse(String)
         case setBlurImageIndex(Int)
+        case sendPostIdToReaction(Int)
     }
     
     // MARK: - Mutation
@@ -31,6 +32,7 @@ public final class CalendarPostViewReactor: Reactor {
         case injectCalendarResponse(String, ArrayResponseCalendarResponse)
         case injectPostResponse([PostListData])
         case injectBlurImageIndex(Int)
+        case injectVisiblePost(PostListData)
         case generateSelectionHaptic
     }
     
@@ -38,6 +40,7 @@ public final class CalendarPostViewReactor: Reactor {
     public struct State {
         var selectedDate: Date
         var blurImageUrlString: String?
+        var visiblePostList: PostListData?
         @Pulse var displayPostResponse: [PostListSectionModel]
         @Pulse var displayCalendarResponse: [String: [CalendarResponse]]
         @Pulse var shouldPresentAllUploadedToastMessageView: Bool
@@ -158,6 +161,13 @@ public final class CalendarPostViewReactor: Reactor {
             
         case let .setBlurImageIndex(index):
             return Observable<Mutation>.just(.injectBlurImageIndex(index))
+            
+        case let .sendPostIdToReaction(index):
+            guard let dataSource = currentState.displayPostResponse.first else {
+                return Observable<Mutation>.empty()
+            }
+            let postListData = dataSource.items[index]
+            return Observable<Mutation>.just(.injectVisiblePost(postListData))
         }
     }
     
@@ -188,6 +198,9 @@ public final class CalendarPostViewReactor: Reactor {
                     items: postResponse
                 )
             ]
+            
+        case let .injectVisiblePost(postListData):
+            newState.visiblePostList = postListData
             
         case .generateSelectionHaptic:
             newState.shouldGenerateSelectionHaptic = true

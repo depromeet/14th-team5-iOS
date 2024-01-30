@@ -132,7 +132,6 @@ public final class FamilyManagementViewReactor: Reactor {
                     .withUnretained(self)
                     .concatMap {
                         guard let familyResponse = $0.1?.results else {
-                            // TODO: - 불러오기 실패 예외 UI 구현하기
                             return Observable<Mutation>.concat(
                                 Observable<Mutation>.just(.injectFamilyMembers([])),
                                 Observable<Mutation>.just(.setFamilyFetchFailureToastMessageView),

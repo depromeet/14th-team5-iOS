@@ -20,8 +20,7 @@ final class EmojiReactor: Reactor {
     enum Action {
 //        case fetchEmojiList
         case fetchDisplayContent(String)
-//        case longPressedEmojiCountButton(Int)
-//        case tappedCommentButton
+        case tappedCommentButton
     }
     
     enum Mutation {
@@ -69,17 +68,11 @@ extension EmojiReactor {
             }
             return Observable<Mutation>.just(.injectDisplayContent(sectionItem))
 
-//        case let .longPressedEmojiCountButton(index):
-//            let emojiList = currentState.fetchedEmojiList
-//            return Observable.empty()
-//            return provider.reactionSheetGloablState.showReactionMemberSheet(emojiList[index - 1].memberIds)
-//                .flatMap { _ in Observable<Mutation>.empty() }
-
-//        case .tappedCommentButton:
-//            let postId: String = currentState.post.postId
-//            let commentCount: Int = currentState.post.commentCount
-//            provider.postGlobalState.presentPostCommentSheet(postId, commentCount: commentCount)
-//            return Observable<Mutation>.empty()
+        case .tappedCommentButton:
+            let postId: String = currentState.post.postId
+            let commentCount: Int = currentState.post.commentCount
+            provider.postGlobalState.presentPostCommentSheet(postId, commentCount: commentCount)
+            return Observable<Mutation>.empty()
         }
     }
     

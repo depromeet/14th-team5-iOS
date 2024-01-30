@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct PostListData: Equatable {
+public struct PostListData: Equatable, Hashable {
     public let postId: String
     public let author: ProfileData?
     public let commentCount: Int

@@ -155,8 +155,11 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
                         NotificationCenter.default.post(name: .AppVersionsCheckWithRedirectStore, object: nil, userInfo: nil)
                     } else if indexPath.item == 1 {
                         UIApplication.shared.open(URLTypes.settings.originURL)
+                    } else if indexPath.item == 2{
+                        let webContentViewController = WebContentDIContainer(webURL: URLTypes.privacy.originURL).makeViewController()
+                        owner.navigationController?.pushViewController(webContentViewController, animated: true)
                     } else {
-                        let webContentViewController = WebContentDIContainer().makeViewController()
+                        let webContentViewController = WebContentDIContainer(webURL: URLTypes.terms.originURL).makeViewController()
                         owner.navigationController?.pushViewController(webContentViewController, animated: true)
                     }
                 case .userAuthorizationItem:

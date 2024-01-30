@@ -35,7 +35,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     
     //MARK: Views
 
-    private let profileIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
+    private let profileIndicatorView: LottieView = LottieView()
     private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 50)
     private let profileNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let profileLineView: UIView = UIView()
@@ -94,10 +94,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             $0.rightBarButtonItemTintColor = .gray400
         }
         
-        profileIndicatorView.do {
-            $0.hidesWhenStopped = true
-            $0.color = .gray
-        }
         
         profileFeedCollectionView.do {
             $0.register(ProfileFeedCollectionViewCell.self, forCellWithReuseIdentifier: "ProfileFeedCollectionViewCell")
@@ -186,7 +182,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .map { $0.isLoading }
             .distinctUntilChanged()
             .asDriver(onErrorJustReturn: false)
-            .drive(profileIndicatorView.rx.isAnimating)
+            .drive(profileIndicatorView.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$feedSection)
@@ -277,12 +273,25 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
                 $0.0.navigationController?.pushViewController(postListViewController, animated: true)
             }.disposed(by: disposeBag)
 
+        reactor.state
+            .compactMap { $0.profileMemberEntity?.dayOfBirth }
+            .distinctUntilChanged()
+            .map { $0.isToday }
+            .debug("profileBirtyDay")
+            .bind(to: profileView.rx.isBirthDay)
+            .disposed(by: disposeBag)
             
         
         reactor.state
             .compactMap { $0.profilePostEntity?.results.isEmpty }
             .map { !$0 }
             .bind(to: profileFeedCollectionView.rx.isScrollEnabled)
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .compactMap { $0.profileMemberEntity}
+            .map { "\($0.familyJoinAt) 가입" }
+            .bind(to: profileView.profileCreateLabel.rx.text)
             .disposed(by: disposeBag)
         
         profileFeedCollectionView.rx
@@ -375,11 +384,10 @@ extension ProfileViewController {
     }
     
     private func setupProfileButton(title: String) {
-        profileView.profileNickNameButton.configuration?.attributedTitle = AttributedString(NSAttributedString(string: title, attributes: [
+        profileView.profileNickNameButton.setAttributedTitle(NSAttributedString(string: title, attributes: [
             .foregroundColor: DesignSystemAsset.gray200.color,
             .font: DesignSystemFontFamily.Pretendard.bold.font(size: 16)
-        ]))
-        
+        ]), for: .normal)
     }
     
     private func transitionNickNameViewController(memberId: String) {

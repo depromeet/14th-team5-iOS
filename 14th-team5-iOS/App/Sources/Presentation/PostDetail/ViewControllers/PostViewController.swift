@@ -37,6 +37,15 @@ final class PostViewController: BaseViewController<PostReactor> {
         collectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
+        
+        NotificationCenter.default
+            .rx.notification(.didTapSelectableCameraButton)
+            .withUnretained(self)
+            .bind { owner, _ in
+                let cameraViewController = CameraDIContainer(cameraType: .realEmoji).makeViewController()
+                owner.navigationController?.pushViewController(cameraViewController, animated: true)
+            }.disposed(by: disposeBag)
+        
         reactor.state
             .map { $0.originPostLists }
             .map(Array.init(with:))

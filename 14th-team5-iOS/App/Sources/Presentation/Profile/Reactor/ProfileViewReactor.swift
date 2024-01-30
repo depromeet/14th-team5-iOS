@@ -40,8 +40,6 @@ public final class ProfileViewReactor: Reactor {
         case setProfileData(PostSection.Model, IndexPath)
     }
     
-    // userdefault image URL = member image url 는
-    
     public struct State {
         var isLoading: Bool
         var memberId: String
@@ -62,7 +60,7 @@ public final class ProfileViewReactor: Reactor {
         self.memberId = memberId
         self.isUser = isUser
         self.initialState = State(
-            isLoading: false,
+            isLoading: true,
             memberId: memberId,
             isUser: isUser,
             profileData: PostSection.Model(
@@ -89,10 +87,6 @@ public final class ProfileViewReactor: Reactor {
         switch action {
         case .viewDidLoad:
             return .concat(
-                .just(.setLoading(true)),
-                // 프로필 조회에서 x
-                // 제일 쉬운방법 reactor init 에서 내 맴버 아이디 == 상대방 멤버 아이디 비겨 true false 값 state 주입
-                // reactor.state.map 해서 편집 hidden, enabled 처리 
                 profileUseCase.executeProfileMemberItems(memberId: currentState.memberId)
                     .asObservable()
                     .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
@@ -112,8 +106,7 @@ public final class ProfileViewReactor: Reactor {
                         }
                         return .concat(
                             .just(.setProfilePostItems(entity)),
-                            .just(.setFeedCategroySection(sectionItem)),
-                            .just(.setLoading(false))
+                            .just(.setFeedCategroySection(sectionItem))
                         )
 
                     }
@@ -123,7 +116,7 @@ public final class ProfileViewReactor: Reactor {
                 let nickNameProfileImage: String = "\(nickNameFileData.hashValue).jpg"
                 let nickNameImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: nickNameProfileImage)
                 return .concat(
-                    .just(.setLoading(true)),
+                    .just(.setLoading(false)),
                     profileUseCase.executeProfileImageURLCreate(parameter: nickNameImageEditParameter)
                         .withUnretained(self)
                         .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
@@ -146,7 +139,7 @@ public final class ProfileViewReactor: Reactor {
                                                     .just(.setPresignedS3Upload(isSuccess)),
                                                     .just(.setProfileMemberItems(memberEntity)),
                                                     .just(.setDefaultProfile(isUpdate)),
-                                                    .just(.setLoading(false))
+                                                    .just(.setLoading(true))
                                                 
                                                 )
                                             }
@@ -170,11 +163,11 @@ public final class ProfileViewReactor: Reactor {
                         .withUnretained(self)
                         .flatMap { owner ,entity -> Observable<ProfileViewReactor.Mutation> in
                                 .concat(
-                                    .just(.setLoading(true)),
+                                    .just(.setLoading(false)),
                                     .just(.setChangNickName(isUpdate)),
                                     .just(.setProfileMemberItems(entity)),
                                     .just(.setDefaultProfile(true)),
-                                    .just(.setLoading(false))
+                                    .just(.setLoading(true))
                                 
                                 )
                         }
@@ -187,11 +180,11 @@ public final class ProfileViewReactor: Reactor {
                         .withUnretained(self)
                         .flatMap { owner ,entity -> Observable<ProfileViewReactor.Mutation> in
                                 .concat(
-                                    .just(.setLoading(true)),
+                                    .just(.setLoading(false)),
                                     .just(.setChangNickName(isUpdate)),
                                     .just(.setProfileMemberItems(entity)),
                                     .just(.setDefaultProfile(false)),
-                                    .just(.setLoading(false))
+                                    .just(.setLoading(true))
                                 
                                 )
                         }
@@ -206,7 +199,7 @@ public final class ProfileViewReactor: Reactor {
             let profileImage: String = "\(fileData.hashValue).jpg"
             let profileImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: profileImage)
             return .concat(
-                .just(.setLoading(true)),
+                .just(.setLoading(false)),
                 profileUseCase.executeProfileImageURLCreate(parameter: profileImageEditParameter)
                     .withUnretained(self)
                     .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
@@ -229,7 +222,7 @@ public final class ProfileViewReactor: Reactor {
                                                 .just(.setPresignedS3Upload(isSuccess)),
                                                 .just(.setProfileMemberItems(memberEntity)),
                                                 .just(.setDefaultProfile(false)),
-                                                .just(.setLoading(false))
+                                                .just(.setLoading(true))
                                             
                                             )
                                         }
@@ -262,16 +255,16 @@ public final class ProfileViewReactor: Reactor {
                     }
                     
                     return .concat(
-                        .just(.setLoading(true)),
+                        .just(.setLoading(false)),
                         .just(.setFeedCategroySection(sectionItem)),
-                        .just(.setLoading(false))
+                        .just(.setLoading(true))
                     )
                 }
         case let .didTapInitProfile(profileData):
             let initProfileImage: String = "\(profileData.hashValue).jpg"
             let profileImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: initProfileImage)
             return .concat(
-                .just(.setLoading(true)),
+                .just(.setLoading(false)),
                 profileUseCase.executeProfileImageURLCreate(parameter: profileImageEditParameter)
                     .withUnretained(self)
                     .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
@@ -296,7 +289,7 @@ public final class ProfileViewReactor: Reactor {
                                                 .just(.setPresignedS3Upload(isSuccess)),
                                                 .just(.setProfileMemberItems(memberEntity)),
                                                 .just(.setDefaultProfile(true)),
-                                                .just(.setLoading(false))
+                                                .just(.setLoading(true))
                                             )
                                             
                                         }

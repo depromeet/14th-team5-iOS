@@ -12,12 +12,14 @@ import RxSwift
 import RxCocoa
 
 final public class LottieView: UIView {
+  
     // MARK: SubView
     private lazy var animationView = LottieAnimationView()
     
     // MARK: Property
     let showLottieView = PublishRelay<LottieType>()
     
+  
     var kind: LottieType?
     
     public convenience init(

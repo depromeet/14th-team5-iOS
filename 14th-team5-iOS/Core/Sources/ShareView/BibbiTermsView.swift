@@ -49,8 +49,7 @@ public final class BibbiCheckBoxView: UIView {
     func setupAttributes() {
         checkStackView.do {
             $0.axis = .vertical
-            $0.spacing = 60
-            $0.distribution = .fillEqually
+            $0.distribution = .equalSpacing
             $0.alignment = .leading
             $0.isUserInteractionEnabled = true
         }

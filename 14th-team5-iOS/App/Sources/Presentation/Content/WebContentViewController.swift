@@ -35,7 +35,6 @@ public class WebContentViewController: BaseViewController<WebContentViewReactor>
         
         
         webNavigationBar.do {
-            $0.navigationTitle = "약관 및 정책"
             $0.leftBarButtonItem = .arrowLeft
             $0.leftBarButtonItemTintColor = .gray300
         }
@@ -77,6 +76,13 @@ public class WebContentViewController: BaseViewController<WebContentViewReactor>
         reactor.state
             .compactMap { $0.url }
             .bind(to: webView.rx.loadURL)
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .compactMap { $0.url?.lastPathComponent == "privacy" ? "개인정보처리방침" : "이용 약관" }
+            .debug("navigationTitle")
+            .distinctUntilChanged()
+            .bind(to: webNavigationBar.rx.navigationTitle)
             .disposed(by: disposeBag)
         
         webNavigationBar.rx

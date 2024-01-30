@@ -87,7 +87,6 @@ public final class ProfileViewReactor: Reactor {
         switch action {
         case .viewDidLoad:
             return .concat(
-                .just(.setLoading(false)),
                 profileUseCase.executeProfileMemberItems(memberId: currentState.memberId)
                     .asObservable()
                     .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
@@ -107,8 +106,7 @@ public final class ProfileViewReactor: Reactor {
                         }
                         return .concat(
                             .just(.setProfilePostItems(entity)),
-                            .just(.setFeedCategroySection(sectionItem)),
-                            .just(.setLoading(true))
+                            .just(.setFeedCategroySection(sectionItem))
                         )
 
                     }

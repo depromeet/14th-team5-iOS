@@ -162,13 +162,6 @@ extension PostDetailCollectionViewCell {
             .map { Reactor.Action.fetchDisplayContent(reactor.currentState.post.content ?? "") }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
-        // 임시 코드 --------
-        commentButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .map { Reactor.Action.tappedCommentButton }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: EmojiReactor) {

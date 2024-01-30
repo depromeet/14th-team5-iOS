@@ -12,9 +12,7 @@ import Core
 
 struct FamilyWidgetView: View {
     @Environment(\.widgetFamily) var family: WidgetFamily
-    
     let entry: FamilyWidgetEntry
-    private let defaultContent: String = "가족에게\n생존신고 할 시간!"
     
     var body: some View {
         if let info = entry.family {
@@ -49,11 +47,12 @@ struct FamilyWidgetView: View {
             
             VStack {
                 HStack {
-                    Text(defaultContent)
+                    Text("가족들이\n기다리고 있어요")
+                        .foregroundColor(DesignSystemAsset.black.swiftUIColor)
                         .font(DesignSystemFontFamily.Pretendard.semiBold.swiftUIFont(size: family == .systemSmall ? 16 : 26))
                         .lineSpacing(1.3)
                         .padding(.leading, family == .systemSmall ? 3: 12)
-                       
+                    
                     Spacer()
                     
                     HStack(alignment: .bottom) {
@@ -86,9 +85,6 @@ struct FamilyWidgetView: View {
         }
     }
     
-    
-    
-    
     private var yellowDefaultView: some View {
         ZStack {
             Color(DesignSystemAsset.mainYellow.color)
@@ -111,11 +107,12 @@ struct FamilyWidgetView: View {
             
             VStack {
                 HStack {
-                    Text(defaultContent)
+                    Text("가족에게\n생존신고 할 시간!")
+                        .foregroundColor(DesignSystemAsset.black.swiftUIColor)
                         .font(DesignSystemFontFamily.Pretendard.semiBold.swiftUIFont(size: family == .systemSmall ? 16 : 26))
                         .lineSpacing(1.3)
                         .padding(.leading, family == .systemSmall ? 3: 12)
-                       
+                    
                     Spacer()
                     
                     HStack(alignment: .bottom) {
@@ -153,7 +150,6 @@ struct FamilyWidgetView: View {
         }
     }
     
-    
     // MARK: 가족중 일부가 사진을 올렸을 때 뷰
     private func getPhotoView(info: Family) -> some View {
         ZStack {
@@ -172,22 +168,24 @@ struct FamilyWidgetView: View {
                                 .frame(width: family == .systemSmall ? 34 : 52)
                                 .clipShape(Circle())
                                 .background(Circle().stroke(Color.white, lineWidth: 4))
-                                .padding(.leading, 14)
-                                .padding(.top, 14)
+                                .padding(.leading, family == .systemSmall ? 14 : 20)
+                                .padding(.top, family == .systemSmall ? 14 : 20)
                             
                         } else {
                             
                             if let firstName = info.authorName.first {
                                 Text(String(firstName))
-                                    .font(family == .systemSmall ? DesignSystemFontFamily.Pretendard.semiBold.swiftUIFont(size: 16) : DesignSystemFontFamily.Pretendard.semiBold.swiftUIFont(size: 18))
+                                    .font(family == .systemSmall
+                                          ? DesignSystemFontFamily.Pretendard.semiBold.swiftUIFont(size: 16)
+                                          : DesignSystemFontFamily.Pretendard.semiBold.swiftUIFont(size: 18))
                                     .frame(height: family == .systemSmall ? 34 : 52)
                                     .frame(width: family == .systemSmall ? 34 : 52)
                                     .foregroundColor(.white)
                                     .background(Circle().stroke(Color.white, lineWidth: 4))
                                     .background(DesignSystemAsset.gray700.swiftUIColor)
                                     .clipShape(Circle())
-                                    .padding(.leading, 14)
-                                    .padding(.top, 14)
+                                    .padding(.leading, family == .systemSmall ? 14 : 20)
+                                    .padding(.top, family == .systemSmall ? 14 : 20)
                             }
                         }
                         Spacer()
@@ -227,7 +225,7 @@ struct FamilyWidgetView: View {
     func isCurrentTimeBetween18And24() -> Bool {
         let calendar = Calendar.current
         let currentDate = Date()
-
+        
         let components = calendar.dateComponents([.hour], from: currentDate)
         if let currentHour = components.hour {
             return currentHour >= 18 && currentHour < 24
@@ -245,6 +243,7 @@ private struct NetworkImageView: View {
             Image(uiImage: uiImage)
                 .resizable()
                 .rotationEffect(.degrees(90))
+                .scaledToFill()
         } else {
             Color.white // 추후 변경해야할 사항
         }

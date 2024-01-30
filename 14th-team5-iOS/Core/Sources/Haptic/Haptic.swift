@@ -17,7 +17,7 @@ public final class Haptic {
     }
     
     // MARK: - Impact
-    public static func imapact(style: UIImpactFeedbackGenerator.FeedbackStyle) {
+    public static func impact(style: UIImpactFeedbackGenerator.FeedbackStyle) {
         let generator = UIImpactFeedbackGenerator(style: style)
         generator.impactOccurred()
     }

@@ -13,10 +13,11 @@ import UIKit
 import Then
 import SnapKit
 
+// TODO: - 레이블이나 사이즈 조절 가능하게 하기
 final class AirplaneLottieView: UIView {
     // MARK: - Views
     private let lottieStack: UIStackView = UIStackView()
-    private let lottieView: LottieView = LottieView(kind: .loading)
+    private let lottieView: LottieView = LottieView(with: .loading)
     private let loadingLabel: BibbiLabel = BibbiLabel(.body1Regular, alignment: .center, textColor: .gray500)
     
     // MARK: - Intializer

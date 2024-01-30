@@ -18,7 +18,7 @@ final public class LottieView: UIView {
     // MARK: Property
     let showLottieView = PublishRelay<LottieType>()
     
-    var kind: LottieType? = .loading {
+    var kind: LottieType? = .fire {
         didSet {
             guard let kind else { return }
             let animation = LottieAnimation.named(kind.key)
@@ -28,7 +28,7 @@ final public class LottieView: UIView {
         }
     }
     
-    public convenience init(kind: LottieType) {
+    public convenience init(with kind: LottieType) {
         self.init(frame: .zero)
         self.kind = kind
     }

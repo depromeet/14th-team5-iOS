@@ -26,8 +26,8 @@ public final class CalendarPostViewReactor: Reactor {
     
     // MARK: - Mutation
     public enum Mutation {
-        case setToastMessageView(Bool)
         case setPostCommentSheet(String, Int)
+        case setAllUploadedToastMessageView(Bool)
         case injectCalendarResponse(String, ArrayResponseCalendarResponse)
         case injectPostResponse([PostListData])
         case injectBlurImageIndex(Int)
@@ -39,8 +39,8 @@ public final class CalendarPostViewReactor: Reactor {
         var selectedDate: Date
         var blurImageUrlString: String?
         @Pulse var displayPostResponse: [PostListSectionModel]
-        @Pulse var displayCalendarResponse: [String: [CalendarResponse]] // (월: [일자 데이터]) 형식으로 불러온 데이터를 저장
-        @Pulse var shouldPresentToastMessageView: Bool
+        @Pulse var displayCalendarResponse: [String: [CalendarResponse]]
+        @Pulse var shouldPresentAllUploadedToastMessageView: Bool
         @Pulse var shouldPresentPostCommentSheet: (String, Int)
         @Pulse var shouldGenerateSelectionHaptic: Bool
     }
@@ -68,7 +68,7 @@ public final class CalendarPostViewReactor: Reactor {
             selectedDate: selection,
             displayPostResponse: [],
             displayCalendarResponse: [:],
-            shouldPresentToastMessageView: false,
+            shouldPresentAllUploadedToastMessageView: false,
             shouldPresentPostCommentSheet: (.none, 0),
             shouldGenerateSelectionHaptic: false
         )
@@ -84,7 +84,7 @@ public final class CalendarPostViewReactor: Reactor {
             .flatMap {
                 switch $0 {
                 case let .showAllFamilyUploadedToastView(uploaded):
-                    return Observable<Mutation>.just(.setToastMessageView(uploaded))
+                    return Observable<Mutation>.just(.setAllUploadedToastMessageView(uploaded))
                 }
             }
         
@@ -172,8 +172,8 @@ public final class CalendarPostViewReactor: Reactor {
             }
             newState.blurImageUrlString = items[index].imageURL
             
-        case let .setToastMessageView(uploaded):
-            newState.shouldPresentToastMessageView = uploaded
+        case let .setAllUploadedToastMessageView(uploaded):
+            newState.shouldPresentAllUploadedToastMessageView = uploaded
             
         case let .setPostCommentSheet(psotId, commentCount):
             newState.shouldPresentPostCommentSheet = (psotId, commentCount)
@@ -184,7 +184,7 @@ public final class CalendarPostViewReactor: Reactor {
         case let .injectPostResponse(postResponse):
             newState.displayPostResponse = [
                 SectionModel(
-                    model: "",
+                    model: .none,
                     items: postResponse
                 )
             ]

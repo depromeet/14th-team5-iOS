@@ -113,12 +113,12 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
     }
     
     private func bindOutput(reactor: PostCommentViewReactor) {
-        reactor.state.map { $0.commentCount != 0 }
-            .distinctUntilChanged()
+        reactor.pulse(\.$commentCount)
+            .map { $0 != 0 }
             .bind(to: noCommentLabel.rx.isHidden)
             .disposed(by: disposeBag)
         
-        reactor.state.map({ $0.inputComment })
+        reactor.state.map { $0.inputComment }
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
@@ -186,13 +186,10 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentEmptyCommentView)
-            .filter { $0 }
-            .withUnretained(self)
-            .subscribe { $0.0.noCommentLabel.isHidden = false }
+            .bind(to: noCommentLabel.rx.isHidden)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.shouldPresentPaperAirplaneLottieView }
-            .distinctUntilChanged()
+        reactor.pulse(\.$shouldPresentPaperAirplaneLottieView)
             .bind(to: airplaneLottieView.rx.isHidden)
             .disposed(by: disposeBag)
         
@@ -277,7 +274,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
         airplaneLottieView.snp.makeConstraints {
             $0.centerX.equalToSuperview()
             $0.horizontalEdges.equalToSuperview()
-            $0.top.equalToSuperview().offset(90)
+            $0.top.equalToSuperview().offset(UIScreen.isPhoneSE ? 70 : 90)
         }
         
         fetchFailureView.snp.makeConstraints {

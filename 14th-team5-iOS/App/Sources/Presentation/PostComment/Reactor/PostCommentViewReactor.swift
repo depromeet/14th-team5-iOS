@@ -25,7 +25,7 @@ final public class PostCommentViewReactor: Reactor {
     
     // MARK: - Mutation
     public enum Mutation { 
-        case injectComment(String)
+        case injectInputComment(String)
         case injectPostComment([CommentCellReactor])
         case appendPostComment(CommentCellReactor)
         case removePostComment(String)
@@ -34,7 +34,7 @@ final public class PostCommentViewReactor: Reactor {
         case setDeleteCommentCompleteToastMessageView
         case setDeleteCommentFamilureToastMessageView
         case setCommentFetchFailureToastMessageView
-        case setEmptyCommentView
+        case setHiddenNoCommentView(Bool)
         case setHiddenPaperAirplaneLottieView(Bool)
         case generateErrorHapticNotification
         case scrollToLast
@@ -44,7 +44,7 @@ final public class PostCommentViewReactor: Reactor {
     // MARK: - State
     public struct State {
         var postId: String
-        var commentCount: Int
+        @Pulse var commentCount: Int
         
         var inputComment: String
         @Pulse var displayComment: [PostCommentSectionModel]
@@ -55,7 +55,7 @@ final public class PostCommentViewReactor: Reactor {
         @Pulse var shouldPresentDeleteCommentFailureToastMessageView: Bool
         @Pulse var shouldPresentCommentFetchFailureTaostMessageView: Bool
         @Pulse var shouldPresentEmptyCommentView: Bool
-        var shouldPresentPaperAirplaneLottieView: Bool
+        @Pulse var shouldPresentPaperAirplaneLottieView: Bool
         @Pulse var shouldGenerateErrorHapticNotification: Bool
         var tableViewBottomOffset: CGFloat
     }
@@ -110,7 +110,7 @@ final public class PostCommentViewReactor: Reactor {
                     // Post Id가 동일하고 텍스트가 있으면
                     if $0.1.0 == postId && !$0.1.1.isEmpty {
                         $0.0.hasReceivedInputEvent = true // 이후 불필요한 스트림 막기
-                        return Observable<Mutation>.just(.injectComment($0.1.1))
+                        return Observable<Mutation>.just(.injectInputComment($0.1.1))
                     }
                 }
                 return Observable<Mutation>.empty()
@@ -125,7 +125,7 @@ final public class PostCommentViewReactor: Reactor {
         case let .inputComment(text):
             let postId = currentState.postId
             provider.postGlobalState.storeCommentText(postId, text: text)
-            return Observable<Mutation>.just(.injectComment(text))
+            return Observable<Mutation>.just(.injectInputComment(text))
             
         case .fetchPostComment:
             let postId = currentState.postId
@@ -142,7 +142,8 @@ final public class PostCommentViewReactor: Reactor {
                                 Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(true)),
                                 Observable<Mutation>.just(.setCommentFetchFailureToastMessageView),
                                 Observable<Mutation>.just(.generateErrorHapticNotification),
-                                Observable<Mutation>.just(.injectPostComment([]))
+                                Observable<Mutation>.just(.injectPostComment([])),
+                                Observable<Mutation>.just(.setHiddenNoCommentView(true))
                             )
                         }
                         
@@ -150,7 +151,6 @@ final public class PostCommentViewReactor: Reactor {
                         guard !commentResponseArray.results.isEmpty else {
                             return Observable.concat(
                                 Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(true)),
-                                Observable<Mutation>.just(.setEmptyCommentView),
                                 Observable<Mutation>.just(.injectPostComment([]))
                             )
                         }
@@ -244,7 +244,7 @@ final public class PostCommentViewReactor: Reactor {
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
-        case let .injectComment(text):
+        case let .injectInputComment(text):
             newState.inputComment = text
             
         case let .injectPostComment(reactor):
@@ -281,8 +281,8 @@ final public class PostCommentViewReactor: Reactor {
         case .setCommentFetchFailureToastMessageView:
             newState.shouldPresentCommentFetchFailureTaostMessageView = true
             
-        case .setEmptyCommentView:
-            newState.shouldPresentEmptyCommentView = true
+        case let .setHiddenNoCommentView(hidden):
+            newState.shouldPresentEmptyCommentView = hidden
             
         case let .setHiddenPaperAirplaneLottieView(hidden):
             newState.shouldPresentPaperAirplaneLottieView = hidden

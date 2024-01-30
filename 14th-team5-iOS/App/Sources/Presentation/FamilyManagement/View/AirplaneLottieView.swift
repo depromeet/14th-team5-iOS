@@ -45,7 +45,7 @@ final class AirplaneLottieView: UIView {
         }
         
         lottieView.snp.makeConstraints {
-            $0.size.equalTo(120)
+            $0.size.equalTo(100)
         }
     }
     

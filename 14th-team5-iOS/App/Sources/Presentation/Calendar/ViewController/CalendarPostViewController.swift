@@ -132,7 +132,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }.disposed(by: disposeBag)
         
         cellIndexRelay
-            .distinctUntilChanged()
             .flatMap {
                 Observable.merge(
                     Observable.just(Reactor.Action.setBlurImageIndex($0)),
@@ -373,6 +372,7 @@ extension CalendarPostViewController {
             
             if fractionPart <= 0.0 {
                 cellIndexRelay.accept(Int(floorPosition))
+                debugPrint("cellIndexRelay: \(floorPosition)")
             }
         }
         

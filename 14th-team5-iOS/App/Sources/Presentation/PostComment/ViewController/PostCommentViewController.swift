@@ -138,7 +138,6 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
                         offset: 70,
                         direction: .down
                     )
-                    Haptic.notification(type: .error)
                 }
             }
             .disposed(by: disposeBag)
@@ -166,7 +165,6 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
                         offset: 70,
                         direction: .down
                     )
-                    Haptic.notification(type: .error)
                 }
             }
             .disposed(by: disposeBag)

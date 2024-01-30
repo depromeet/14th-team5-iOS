@@ -205,11 +205,11 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .drive(onNext: { _ in print("Fire!!!") })
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldGenerateSelectionHaptic)
-            .subscribe {
-                if $0 { Haptic.selection() }
-            }
-            .disposed(by: disposeBag)
+//        reactor.pulse(\.$shouldGenerateSelectionHaptic)
+//            .subscribe {
+//                if $0 { Haptic.selection() }
+//            }
+//            .disposed(by: disposeBag)
     }
     
     public override func setupUI() {

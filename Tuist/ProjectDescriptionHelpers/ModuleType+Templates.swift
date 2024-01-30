@@ -67,6 +67,7 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
                 .external(name: "Then"),
                 .external(name: "Kingfisher"),
                 .external(name: "FSCalendar"),
+                .external(name: "RxDataSources"),
                 .external(name: "SwiftKeychainWrapper")
             ]
         case .DesignSystem:

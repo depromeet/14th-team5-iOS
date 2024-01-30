@@ -273,7 +273,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .rx.tap
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .withLatestFrom(reactor.state.map{ $0.displayDescrption })
-            .filter { $0 == "여덟자로입력해요" }
+            .filter { $0.isValidation() }
             .withUnretained(self)
             .bind(onNext: { $0.0.didTapCollectionViewTransition($0.0)})
             .disposed(by: disposeBag)

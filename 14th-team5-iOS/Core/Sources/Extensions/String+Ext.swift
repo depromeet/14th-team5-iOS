@@ -13,6 +13,14 @@ extension String {
 }
 
 extension String {
+    public func isValidation() -> Bool {
+        if self == "여덟자로입력해요" {
+            return true
+        }
+        return false
+    }
+    
+    
     public func toDate(with format: String = "yyyy-MM-dd") -> Date {
         let dateFormatter = DateFormatter.withFormat(format)
         

@@ -18,6 +18,9 @@ final class AddReactionCollectionViewCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        setupUI()
+        setupAutoLayout()
+        setupAttributes()
     }
     
     required init?(coder: NSCoder) {
@@ -28,7 +31,7 @@ final class AddReactionCollectionViewCell: UICollectionViewCell {
         addSubview(imageView)
     }
     
-    private func setupLayout() {
+    private func setupAutoLayout() {
         imageView.snp.makeConstraints {
             $0.size.equalTo(24)
             $0.center.equalToSuperview()
@@ -36,6 +39,9 @@ final class AddReactionCollectionViewCell: UICollectionViewCell {
     }
     
     private func setupAttributes() {
+        backgroundColor = .gray700
+        layer.cornerRadius = 18
+        
         imageView.do {
             $0.image = DesignSystemAsset.addEmojiFill.image
             $0.tintColor = .gray200

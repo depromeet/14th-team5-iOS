@@ -14,7 +14,11 @@ public final class WebContentDIContainer {
     public typealias ViewController = WebContentViewController
     public typealias Reactor = WebContentViewReactor
     
-    public let webURL: URL? = URL(string: "https://no5ing.kr/app/privacy")
+    public let webURL: URL?
+    
+    public init(webURL: URL?) {
+        self.webURL = webURL
+    }
     
     
     

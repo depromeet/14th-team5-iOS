@@ -29,11 +29,10 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     private let contentCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let reactionCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let collectionViewFlowLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
-    private lazy var contentDatasource = createContentDataSource()
     
-    // 임시 코드 --------
-    private let commentButton = UIButton(type: .system)
-    // ----------------
+    private let reactionViewController: ReactionViewController = ReactionDIContainer().makeViewController(postId: "01HN9SNH3NT12SCKACBYCW16EC")
+    
+    private lazy var contentDatasource = createContentDataSource()
     
     convenience init(reacter: EmojiReactor? = nil) {
         self.init(frame: .zero)
@@ -67,10 +66,6 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         containerView.addSubviews(firstNameLabel, profileImageView)
         profileStackView.addArrangedSubviews(containerView, userNameLabel)
         postImageView.addSubview(contentCollectionView)
-        
-        // 임시 코드 --------
-        self.addSubview(commentButton)
-        // ----------------
     }
 
     override func setupAutoLayout() {
@@ -104,12 +99,6 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(postImageView.snp.width)
             $0.top.equalTo(profileStackView.snp.bottom).offset(8)
-        }
-        
-        // 임시 코드 --------
-        commentButton.snp.makeConstraints {
-            $0.leading.equalToSuperview()
-            $0.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
         }
     }
     
@@ -163,23 +152,11 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
             $0.itemSize = CGSize(width: 28, height: 41)
             $0.minimumInteritemSpacing = 2
         }
-        
-        // 임시 코드 --------
-        commentButton.do {
-            $0.setTitle("댓글", for: .normal)
-            $0.tintColor = UIColor.mainGreen
-        }
     }
 }
 
 extension PostDetailCollectionViewCell {
     private func bindInput(reactor: EmojiReactor) {
-        Observable.just(())
-            .take(1)
-            .map { Reactor.Action.fetchEmojiList }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
         Observable.just(())
             .take(1)
             .map { Reactor.Action.fetchDisplayContent(reactor.currentState.post.content ?? "") }

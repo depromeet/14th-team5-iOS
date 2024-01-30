@@ -84,7 +84,7 @@ public final class CameraViewReactor: Reactor {
         self.memberId = memberId
         self.provider = provider
         self.initialState = State(
-            isLoading: false,
+            isLoading: true,
             isFlashMode: false,
             isSwitchPosition: false,
             profileImageURLEntity: nil,
@@ -200,7 +200,7 @@ extension CameraViewReactor {
         var searchId: [String: String] = ["0":"","1":"","2":"","3":"","4":""]
         if cameraType == .realEmoji {
             return .concat(
-                .just(.setLoading(true)),
+                .just(.setLoading(false)),
                 cameraUseCase.executeRealEmojiItems(memberId: memberId)
                     .withUnretained(self)
                     .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
@@ -253,7 +253,7 @@ extension CameraViewReactor {
                             .just(.setRealEmojiImage(searchImage)),
                             .just(.setRealEmojiId(searchId)),
                             .just(.setErrorAlert(false)),
-                            .just(.setLoading(false))
+                            .just(.setLoading(true))
                         )
                     }
             )
@@ -271,7 +271,7 @@ extension CameraViewReactor {
             let profileParameter = CameraDisplayImageParameters(imageName: profileImage)
             
             return .concat(
-                .just(.setLoading(true)),
+                .just(.setLoading(false)),
                 cameraUseCase.executeProfileImageURL(parameter: profileParameter, type: cameraType)
                     .withUnretained(self)
                     .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
@@ -290,7 +290,7 @@ extension CameraViewReactor {
                                         .just(.setProfileImageURLResponse(entity)),
                                         .just(.setAccountProfileData(imageData)),
                                         .just(.setErrorAlert(false)),
-                                        .just(.setLoading(false))
+                                        .just(.setLoading(true))
                                     )
                                 }
                                 
@@ -308,7 +308,7 @@ extension CameraViewReactor {
                                                 .just(.uploadImageToS3(isSuccess)),
                                                 .just(.setProfileMemberResponse(editEntity)),
                                                 .just(.setErrorAlert(false)),
-                                                .just(.setLoading(false))
+                                                .just(.setLoading(true))
                                             )
                                             
                                         }
@@ -326,7 +326,7 @@ extension CameraViewReactor {
 
             if (currentState.reloadRealEmojiImage["\(currentState.selectedIndexPath)"] as? URL == nil) {
                 return .concat(
-                    .just(.setLoading(true)),
+                    .just(.setLoading(false)),
                     cameraUseCase.executeRealEmojiImageURL(memberId: memberId, parameter: realEmojiParameter)
                         .withUnretained(self)
                         .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
@@ -371,7 +371,7 @@ extension CameraViewReactor {
                                                             .just(.setRealEmojiImage(searchArray)),
                                                             .just(.setRealEmojiImageCreateResponse(realEmojiEntity)),
                                                             .just(.setErrorAlert(false)),
-                                                            .just(.setLoading(false))
+                                                            .just(.setLoading(true))
                                                         )
                                                     }
                                                 
@@ -390,7 +390,7 @@ extension CameraViewReactor {
                 let realEmojiImage = "\(imageData.hashValue).jpg"
                 let realEmojiParameter = CameraRealEmojiParameters(imageName: realEmojiImage)
                 return .concat(
-                    .just(.setLoading(true)),
+                    .just(.setLoading(false)),
                     cameraUseCase.executeRealEmojiImageURL(memberId: memberId, parameter: realEmojiParameter)
                         .withUnretained(self)
                         .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
@@ -411,7 +411,7 @@ extension CameraViewReactor {
                                                 owner.provider.realEmojiGlobalState.updateRealEmojiImage(indexPath: owner.currentState.selectedIndexPath, image: updateEntity.realEmojiImageURL)
                                                 return .concat(
                                                     .just(.setUpdateEmojiImage(updateEntity.realEmojiImageURL)),
-                                                    .just(.setLoading(false)),
+                                                    .just(.setLoading(true)),
                                                     .just(.setErrorAlert(false))
                                                 )
                                             }

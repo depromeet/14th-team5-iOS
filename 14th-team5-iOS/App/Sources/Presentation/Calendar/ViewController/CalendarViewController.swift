@@ -82,11 +82,17 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
             .bind(to: calendarCollectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldPushCalendarPostVC).compactMap { $0 }
+        reactor.pulse(\.$shouldPopCalendarVC)
+            .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
-                $0.0.pushCalendarPostView($0.1)
+                if $0.1 { $0.0.navigationController?.popViewController(animated: true) }
             }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPushCalendarPostVC).compactMap { $0 }
+            .withUnretained(self)
+            .subscribe { $0.0.pushCalendarPostView($0.1) }
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresnetInfoPopover)
@@ -99,16 +105,6 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
                     popoverSize: CGSize(width: 280, height: 72),
                     permittedArrowDrections: [.up]
                 )
-            }
-            .disposed(by: disposeBag)
-        
-        reactor.state.map { $0.shouldPopCalendarVC }
-            .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe {
-                if $0.1 {
-                    $0.0.navigationController?.popViewController(animated: true)
-                }
             }
             .disposed(by: disposeBag)
     }

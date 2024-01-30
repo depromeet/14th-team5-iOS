@@ -26,6 +26,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
     private let noPostTodayView: UIView = NoPostTodayView()
     private let postCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let balloonView: BalloonView = BalloonView()
+    private let loadingView: LottieView = LottieView()
     private let cameraButton: UIButton = UIButton()
     private let refreshControl: UIRefreshControl = UIRefreshControl()
     private let dataSource: RxCollectionViewSectionedReloadDataSource<PostSection.Model>  = {
@@ -315,6 +316,12 @@ extension HomeViewController {
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
             .bind(onNext: { $0.0.setNoPostTodayView($0.1) })
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.showLoading }
+            .distinctUntilChanged()
+            .bind(to: loadingView.rx.isHidden)
             .disposed(by: disposeBag)
     }
 }

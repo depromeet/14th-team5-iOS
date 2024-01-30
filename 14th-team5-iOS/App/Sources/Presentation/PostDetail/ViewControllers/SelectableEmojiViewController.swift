@@ -14,9 +14,25 @@ import RxSwift
 import RxDataSources
 
 final class SelectableEmojiViewController: BaseViewController<SelectableEmojiReactor>, UICollectionViewDelegate {
+    let selectedReactionSubject: PublishSubject<Void>
+    
     private let collectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     private let selectableEmojiCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: .init())
     private let cameraButton: UIButton = UIButton()
+    
+    init(selectedReactionSubject: PublishSubject<Void>) {
+        self.selectedReactionSubject = selectedReactionSubject
+        super.init()
+    }
+    
+    convenience init(reactor: SelectableEmojiReactor, selectedReactionSubject: PublishSubject<Void>) {
+        self.init(selectedReactionSubject: selectedReactionSubject)
+        self.reactor = reactor
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -98,11 +114,13 @@ extension SelectableEmojiViewController {
             .disposed(by: disposeBag)
         
         cameraButton.rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
-            .bind(onNext: {
-                let cameraViewController = CameraDIContainer(cameraType: .realEmoji).makeViewController()
-                $0.0.present(cameraViewController, animated: true)
+            .bind(onNext: { owner, _ in
+                owner.dismiss(animated: true) {
+                    NotificationCenter.default.post(name: .didTapSelectableCameraButton, object: nil, userInfo: nil)
+                }
             })
             .disposed(by: disposeBag)
     }
@@ -112,6 +130,28 @@ extension SelectableEmojiViewController {
             .map { $0.reactionSections }
             .distinctUntilChanged()
             .bind(to: selectableEmojiCollectionView.rx.items(dataSource: createDataSource()))
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.selectedRealEmoji }
+            .filter { !$0.isEmpty }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: {
+                $0.0.selectedReactionSubject.onNext(())
+                $0.0.dismiss(animated: true)
+            })
+            .disposed(by: disposeBag)
+      
+        reactor.state.map { $0.selectedStandard }
+            .filter { !$0.isEmpty }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: {
+                $0.0.selectedReactionSubject.onNext(())
+                $0.0.dismiss(animated: true)
+            })
             .disposed(by: disposeBag)
     }
 }

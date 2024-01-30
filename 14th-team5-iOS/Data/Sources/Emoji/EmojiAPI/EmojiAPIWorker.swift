@@ -35,7 +35,7 @@ extension EmojiAPIs {
 }
 
 extension EmojiAPIWorker: EmojiRepository {
-    public func fetchEmoji(query: FetchEmojiQuery) -> Single<[FetchEmojiData]?> {
+    public func fetchEmoji(query: FetchEmojiQuery) -> Single<[FetchedEmojiData]?> {
         return Observable.just(())
             .withLatestFrom(self._headers)
             .withUnretained(self)
@@ -43,7 +43,7 @@ extension EmojiAPIWorker: EmojiRepository {
             .asSingle()
     }
     
-    private func fetchEmoji(headers: [APIHeader]?, query: Domain.FetchEmojiQuery) -> RxSwift.Single<[FetchEmojiData]?> {
+    private func fetchEmoji(headers: [APIHeader]?, query: Domain.FetchEmojiQuery) -> RxSwift.Single<[FetchedEmojiData]?> {
         let query = FetchEmojiRequestDTO(postId: query.postId)
         let spec = EmojiAPIs.fetchReactions(query).spec
         return request(spec: spec, headers: headers)

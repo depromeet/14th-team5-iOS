@@ -34,7 +34,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     private let shutterButton: UIButton = UIButton()
     private let flashButton: UIButton = UIButton.createCircleButton(radius: 24)
     private let toggleButton: UIButton = UIButton.createCircleButton(radius: 24)
-    private let cameraIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
+    private let cameraIndicatorView: LottieView = LottieView()
     private let filterView: UIImageView = UIImageView()
     private let zoomView: UIImageView = UIImageView()
     private let realEmojiDescriptionLabel = BibbiLabel(.body1Regular, textColor: .mainYellow)
@@ -76,11 +76,6 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     
     public override func setupAttributes() {
         super.setupAttributes()
-        
-        cameraIndicatorView.do {
-            $0.hidesWhenStopped = true
-            $0.color = .gray
-        }
         
         cameraNavigationBar.do {
             $0.leftBarButtonItem = .xmark
@@ -226,12 +221,13 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .map { Reactor.Action.viewDidLoad}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+    
         
         reactor.state
             .map { $0.isLoading }
             .distinctUntilChanged()
             .asDriver(onErrorJustReturn: false)
-            .drive(cameraIndicatorView.rx.isAnimating)
+            .drive(cameraIndicatorView.rx.isHidden)
             .disposed(by: disposeBag)
         
         
@@ -312,7 +308,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         shutterButton
             .rx.tap
-            .throttle(.seconds(1), scheduler: MainScheduler.instance)
+            .throttle(.seconds(4), scheduler: MainScheduler.asyncInstance)
             .debug("shutter Button Tap")
             .withUnretained(self)
             .subscribe { owner, _ in

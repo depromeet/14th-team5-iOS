@@ -38,7 +38,7 @@ struct BannerView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background { bannerImage }
             .background(
-                Color(uiColor: viewModel.state.bannerColor ?? UIColor.skyBlue),
+                Color(uiColor: viewModel.state.bannerColor ?? UIColor.graphicBlue),
                 in: RoundedRectangle(
                     cornerRadius: 24,
                     style: .circular
@@ -117,7 +117,7 @@ struct BannerView_Previews: PreviewProvider {
             allFamilyMemberUploadedDays: 20,
             bannerImage: DesignSystemAsset.aloneWalking.image,
             bannerString: "조금 서먹한 사이",
-            bannerColor: UIColor.skyBlue
+            bannerColor: UIColor.graphicBlue
         )
     )
     

@@ -15,6 +15,7 @@ public struct ProfileMemberDTO: Decodable {
     public var name: String?
     public var imageUrl: String?
     public var dayOfBirth: String
+    public var familyJoinAt: String
 }
 
 extension ProfileMemberDTO {
@@ -25,8 +26,8 @@ extension ProfileMemberDTO {
             memberId: memberId ?? "" ,
             memberName: name ?? "",
             memberImage: URL(string: imageUrl ?? "") ?? URL(fileURLWithPath: ""),
-            dayOfBirth: dayOfBirth.toDate()
-            
+            dayOfBirth: dayOfBirth.toDate(),
+            familyJoinAt: familyJoinAt.toDate(with: "yyyy-MM-dd").realativeFormatterYYMM()
         )
     }
     

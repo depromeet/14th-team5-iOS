@@ -12,6 +12,7 @@ public enum RealEmojiAPIS: API {
     case fetchRealEmojiList(FetchRealEmojiListParameter)
     case loadMyRealEmoji
     case addRealEmoji(AddRealEmojiParameters)
+    case removeRealEmoji(RemoveRealEmojiParameters)
     
     var spec: APISpec {
         switch self {
@@ -25,6 +26,9 @@ public enum RealEmojiAPIS: API {
             let memberId = App.Repository.member.memberID.value
             let urlString = "\(BibbiAPI.hostApi)/members/\(memberId ?? "")/real-emoji"
             return APISpec(method: .get, url: urlString)
+        case .removeRealEmoji(let parameter):
+            let urlString = "\(BibbiAPI.hostApi)/posts/\(parameter.postId)/real-emoji/\(parameter.realEmojiId)"
+            return APISpec(method: .delete, url: urlString)
         }
     }
 }

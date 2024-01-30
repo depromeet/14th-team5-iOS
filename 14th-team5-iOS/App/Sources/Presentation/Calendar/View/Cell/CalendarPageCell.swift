@@ -78,7 +78,6 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
         
         calendarView.rx.didSelect
             .map { Reactor.Action.didSelectDate($0) }
-            .do(onNext: { _ in Haptic.imapact(style: .rigid) })
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
@@ -102,7 +101,7 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
             .subscribe { $0.0.calendarView.reloadData() }
             .disposed(by: disposeBag)
         
-        let currentCellDate = reactor.state.map({ $0.date }).asDriver(onErrorJustReturn: .now)
+        let currentCellDate = reactor.state.map({ $0.yearMonthDate }).asDriver(onErrorJustReturn: .now)
         
         currentCellDate
             .distinctUntilChanged()
@@ -254,8 +253,8 @@ extension CalendarPageCell: FSCalendarDataSource {
             guard let dayResponse = reactor?.currentState.displayCalendarResponse?.results.filter({ $0.date == date }).first else {
                 let emptyResponse = CalendarResponse(
                     date: date,
-                    representativePostId: "",
-                    representativeThumbnailUrl: "",
+                    representativePostId: .none,
+                    representativeThumbnailUrl: .none,
                     allFamilyMemebersUploaded: false
                 )
                 cell.reactor = ImageCalendarCellDIContainer(

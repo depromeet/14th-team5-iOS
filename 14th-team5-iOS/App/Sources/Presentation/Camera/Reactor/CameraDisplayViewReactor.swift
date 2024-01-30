@@ -22,6 +22,7 @@ public final class CameraDisplayViewReactor: Reactor {
         case didTapArchiveButton
         case fetchDisplayImage(String)
         case didTapConfirmButton
+        case hideDisplayEditCell
     }
     
     public enum Mutation {
@@ -50,7 +51,7 @@ public final class CameraDisplayViewReactor: Reactor {
     init(cameraDisplayUseCase: CameraDisplayViewUseCaseProtocol, displayData: Data) {
         self.cameraDisplayUseCase = cameraDisplayUseCase
         self.initialState = State(
-            isLoading: false,
+            isLoading: true,
             displayDescrption: "",
             displayData: displayData,
             displaySection: [.displayKeyword([])],
@@ -67,7 +68,7 @@ public final class CameraDisplayViewReactor: Reactor {
             let parameters: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: "\(fileName).jpg")
             
             return .concat(
-                .just(.setLoading(true)),
+                .just(.setLoading(false)),
                 .just(.setRenderImage(self.currentState.displayData)),
                 cameraDisplayUseCase.executeDisplayImageURL(parameters: parameters, type: .feed)
                     .withUnretained(self)
@@ -81,7 +82,7 @@ public final class CameraDisplayViewReactor: Reactor {
                                 return .concat(
                                     .just(.setDisplayEntity(entity)),
                                     .just(.setDisplayOriginalEntity(isSuccess)),
-                                    .just(.setLoading(false))
+                                    .just(.setLoading(true))
                                 )
                                 
                             }
@@ -90,7 +91,6 @@ public final class CameraDisplayViewReactor: Reactor {
             )
         case let .fetchDisplayImage(description):
             return .concat(
-                .just(.setLoading(true)),
                 cameraDisplayUseCase.executeDescrptionItems(with: description)
                     .asObservable()
                     .flatMap { items -> Observable<CameraDisplayViewReactor.Mutation> in
@@ -101,16 +101,15 @@ public final class CameraDisplayViewReactor: Reactor {
                         
                         return Observable.concat(
                             .just(.setDisplayEditSection(sectionItem)),
-                            .just(.setDescription(description)),
-                            .just(.setLoading(false))
+                            .just(.setDescription(description))
                         )
                     }
             )
         case .didTapArchiveButton:
             return .concat(
-                .just(.setLoading(true)),
+                .just(.setLoading(false)),
                 .just(.saveDeviceimage(self.currentState.displayData)),
-                .just(.setLoading(false))
+                .just(.setLoading(true))
             )
             
         case .didTapConfirmButton:
@@ -129,12 +128,17 @@ public final class CameraDisplayViewReactor: Reactor {
                 .asObservable()
                 .flatMap { entity -> Observable<CameraDisplayViewReactor.Mutation> in
                     return .concat(
-                        .just(.setLoading(true)),
+                        .just(.setLoading(false)),
                         .just(.setPostEntity(entity)),
-                        .just(.setLoading(false))
+                        .just(.setLoading(true))
                     )
                     
                 }
+        case .hideDisplayEditCell:
+            return .concat(
+                .just(.setDescription("")),
+                .just(.setDisplayEditSection([]))
+            )
         }
     }
     

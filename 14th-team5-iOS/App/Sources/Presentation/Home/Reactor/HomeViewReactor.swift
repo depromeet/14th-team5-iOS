@@ -76,12 +76,16 @@ extension HomeViewReactor {
             isLast = false
             
             let query = PostListQuery(page: currentPage, size: 10, date: Date().toFormatString(with: "YYYY-MM-DD"), memberId: "", sort: .desc)
+//            let query = PostListQuery(page: currentPage, size: 10, date: "2024-01-28", memberId: "", sort: .desc)
             return postRepository.excute(query: query)
                 .asObservable()
                 .flatMap { postList in
                     guard let postList,
                           !postList.postLists.isEmpty else {
-                        return Observable.just(Mutation.showNoPostTodayView(true))
+                        return Observable.concat(
+                            .just(Mutation.setLoading(false)),
+                            .just(Mutation.showNoPostTodayView(true))
+                        )
                     }
                     
                     let postSectionItem = postList.postLists.map(PostSection.Item.main)
@@ -99,6 +103,7 @@ extension HomeViewReactor {
                     }
                     
                     observables.append(Observable.just(Mutation.setRefreshing(false)))
+                    observables.append(Observable.just(Mutation.setLoading(true)))
                     return Observable.concat(observables)
                 }
         case let .prefetchItems(items):
@@ -162,8 +167,8 @@ extension HomeViewReactor {
             newState.didPost = true
         case let .setDescriptionText(message):
             newState.descriptionText = message
-        case .setLoading:
-            newState.showLoading = false
+        case let .setLoading(showLoading):
+            newState.showLoading = showLoading
         case let .setRefreshing(isRefreshing):
             newState.isRefreshing = isRefreshing
         case let .hideCamerButton(isHide):
@@ -217,7 +222,11 @@ extension HomeViewReactor {
                 self.isLast = postList.isLast
                 
                 let postSectionItems = postList.postLists.map(PostSection.Item.main)
-                return Observable.just(Mutation.updateDataSource(postSectionItems))
+                return Observable.concat(
+                    .just(Mutation.setLoading(false)),
+                    .just(Mutation.updateDataSource(postSectionItems)),
+                    .just(Mutation.setLoading(true))
+                )
             }
     }
 }

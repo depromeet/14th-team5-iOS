@@ -68,7 +68,7 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberReac
         }
         
         reactionImageView.snp.makeConstraints {
-            $0.size.equalTo(42)
+            $0.size.equalTo(40)
             $0.leading.equalToSuperview().inset(24)
             $0.centerY.equalToSuperview()
         }
@@ -97,7 +97,10 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberReac
         super.setupAttributes()
         
         reactionImageView.do {
-            $0.image = DesignSystemAsset.emoji4.image
+            $0.image = DesignSystemAsset.emoji3.image
+            $0.layer.cornerRadius = 20
+            $0.layer.borderWidth = 3
+            $0.layer.borderColor = UIColor.gray600.cgColor
         }
 
         memberTableView.do {

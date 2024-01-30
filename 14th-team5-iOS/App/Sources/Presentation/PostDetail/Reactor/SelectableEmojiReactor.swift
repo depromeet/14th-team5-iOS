@@ -53,7 +53,7 @@ extension SelectableEmojiReactor {
         case let .selectStandard(emoji):
             let query = AddEmojiQuery(postId: self.postId)
             let body = AddEmojiBody(content: emoji.emojiString)
-            return emojiRepository.excute(query: query, body: body)
+            return emojiRepository.executeAddEmoji(query: query, body: body)
                 .asObservable()
                 .flatMap {_ in 
                     return Observable.just(Mutation.setSelectedStandard(emoji))

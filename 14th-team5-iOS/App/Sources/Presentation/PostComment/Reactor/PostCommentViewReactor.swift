@@ -25,30 +25,38 @@ final public class PostCommentViewReactor: Reactor {
     
     // MARK: - Mutation
     public enum Mutation { 
-        case injectComment(String)
+        case injectInputComment(String)
         case injectPostComment([CommentCellReactor])
         case appendPostComment(CommentCellReactor)
         case removePostComment(String)
+        case setTableViewOffset(CGFloat)
         case setUploadCommentFamilureTaostMessageView
         case setDeleteCommentCompleteToastMessageView
         case setDeleteCommentFamilureToastMessageView
+        case setCommentFetchFailureToastMessageView
+        case setHiddenNoCommentView(Bool)
+        case setHiddenPaperAirplaneLottieView(Bool)
+        case generateErrorHapticNotification
         case scrollToLast
         case clearCommentTextField
-        case setupTableViewOffset(CGFloat)
     }
     
     // MARK: - State
     public struct State {
         var postId: String
-        var commentCount: Int
+        @Pulse var commentCount: Int
         
         var inputComment: String
         @Pulse var displayComment: [PostCommentSectionModel]
         @Pulse var shouldScrollToLast: Int
         @Pulse var shouldClearCommentTextField: Bool
-        @Pulse var shouldPresentUploadCommentFamilureTaostMessageView: Bool
+        @Pulse var shouldPresentUploadCommentFailureTaostMessageView: Bool
         @Pulse var shouldPresentDeleteCommentCompleteToastMessageView: Bool
-        @Pulse var shouldPresentDeleteCommentFamilureToastMessageView: Bool
+        @Pulse var shouldPresentDeleteCommentFailureToastMessageView: Bool
+        @Pulse var shouldPresentCommentFetchFailureTaostMessageView: Bool
+        @Pulse var shouldPresentEmptyCommentView: Bool
+        @Pulse var shouldPresentPaperAirplaneLottieView: Bool
+        @Pulse var shouldGenerateErrorHapticNotification: Bool
         var tableViewBottomOffset: CGFloat
     }
     
@@ -59,7 +67,7 @@ final public class PostCommentViewReactor: Reactor {
     public var postCommentUseCase: PostCommentUseCaseProtocol
     public var provider: GlobalStateProviderProtocol
     
-    private var isFirstEvent: Bool = true
+    private var hasReceivedInputEvent: Bool = false
     
     // MARK: - Intializer
     public init(
@@ -76,9 +84,13 @@ final public class PostCommentViewReactor: Reactor {
             displayComment: [.init(model: .none, items: [])],
             shouldScrollToLast: 0,
             shouldClearCommentTextField: false,
-            shouldPresentUploadCommentFamilureTaostMessageView: false,
+            shouldPresentUploadCommentFailureTaostMessageView: false,
             shouldPresentDeleteCommentCompleteToastMessageView: false,
-            shouldPresentDeleteCommentFamilureToastMessageView: false,
+            shouldPresentDeleteCommentFailureToastMessageView: false,
+            shouldPresentCommentFetchFailureTaostMessageView: false,
+            shouldPresentEmptyCommentView: false,
+            shouldPresentPaperAirplaneLottieView: false,
+            shouldGenerateErrorHapticNotification: false,
             tableViewBottomOffset: 0
         )
         
@@ -94,11 +106,11 @@ final public class PostCommentViewReactor: Reactor {
             .flatMap {
                 let postId = $0.0.currentState.postId
                 // 처음 시트가 열리고
-                if $0.0.isFirstEvent  {
+                if !$0.0.hasReceivedInputEvent  {
                     // Post Id가 동일하고 텍스트가 있으면
                     if $0.1.0 == postId && !$0.1.1.isEmpty {
-                        $0.0.isFirstEvent = false // 이후 불필요한 스트림 막기
-                        return Observable<Mutation>.just(.injectComment($0.1.1))
+                        $0.0.hasReceivedInputEvent = true // 이후 불필요한 스트림 막기
+                        return Observable<Mutation>.just(.injectInputComment($0.1.1))
                     }
                 }
                 return Observable<Mutation>.empty()
@@ -113,30 +125,50 @@ final public class PostCommentViewReactor: Reactor {
         case let .inputComment(text):
             let postId = currentState.postId
             provider.postGlobalState.storeCommentText(postId, text: text)
-            return Observable<Mutation>.just(.injectComment(text))
+            return Observable<Mutation>.just(.injectInputComment(text))
             
         case .fetchPostComment:
             let postId = currentState.postId
             let query = PostCommentPaginationQuery()
-            return postCommentUseCase.executeFetchPostComment(postId: postId, query: query)
-                .flatMap {
-                    guard let commentResponseArray = $0,
-                          !commentResponseArray.results.isEmpty else {
-                        return Observable<Mutation>.just(.injectPostComment([]))
-                    }
-                    
-                    let reactors = commentResponseArray.results.map { CommentCellReactor(
-                            $0,
-                            memberUseCase: self.memberUseCase,
-                            postCommentUseCase: self.postCommentUseCase
+        
+            return Observable.concat(
+                Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(false)),
+                
+                postCommentUseCase.executeFetchPostComment(postId: postId, query: query)
+                    .concatMap {
+                        // 통신에 실패한다면
+                        guard let commentResponseArray = $0 else {
+                            return Observable.concat(
+                                Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(true)),
+                                Observable<Mutation>.just(.setCommentFetchFailureToastMessageView),
+                                Observable<Mutation>.just(.generateErrorHapticNotification),
+                                Observable<Mutation>.just(.injectPostComment([])),
+                                Observable<Mutation>.just(.setHiddenNoCommentView(true))
+                            )
+                        }
+                        
+                        // 댓글이 없다면
+                        guard !commentResponseArray.results.isEmpty else {
+                            return Observable.concat(
+                                Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(true)),
+                                Observable<Mutation>.just(.injectPostComment([]))
+                            )
+                        }
+                        
+                        let reactors = commentResponseArray.results.map { CommentCellReactor(
+                                $0,
+                                memberUseCase: self.memberUseCase,
+                                postCommentUseCase: self.postCommentUseCase
+                            )
+                        }
+                        
+                        return Observable.concat(
+                            Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(true)),
+                            Observable<Mutation>.just(.injectPostComment(reactors)),
+                            Observable<Mutation>.just(.scrollToLast)
                         )
                     }
-                    
-                    return Observable.concat(
-                        Observable<Mutation>.just(.injectPostComment(reactors)),
-                        Observable<Mutation>.just(.scrollToLast)
-                    )
-                }
+            )
             
         case let .createPostComment(comment):
             guard let safeComment = comment,
@@ -147,25 +179,33 @@ final public class PostCommentViewReactor: Reactor {
             let postId = initialState.postId
             let body = CreatePostCommentRequest(content: safeComment)
             
-            return postCommentUseCase.executeCreatePostComment(postId: postId, body: body)
-                .flatMap {
-                    guard let commentResponse = $0 else {
-                        // TODO: - 업로드 실패 ToastMessage로 바꾸기
-                        return Observable<Mutation>.just(.setUploadCommentFamilureTaostMessageView)
+            return Observable.concat(
+                // TODO: - Button Indicator UI 구현하기
+                
+                postCommentUseCase.executeCreatePostComment(postId: postId, body: body)
+                    .withUnretained(self)
+                    .concatMap {
+                        guard let commentResponse = $0.1 else {
+                            return Observable.concat(
+                                Observable<Mutation>.just(.generateErrorHapticNotification),
+                                Observable<Mutation>.just(.setUploadCommentFamilureTaostMessageView)
+                            )
+                        }
+                        
+                        let reactor = CommentCellReactor(
+                            commentResponse,
+                            memberUseCase: self.memberUseCase,
+                            postCommentUseCase: self.postCommentUseCase
+                        )
+                        
+                        $0.0.provider.postGlobalState.clearCommentText()
+                        return Observable.concat(
+                            Observable<Mutation>.just(.clearCommentTextField),
+                            Observable<Mutation>.just(.appendPostComment(reactor)),
+                            Observable<Mutation>.just(.scrollToLast)
+                        )
                     }
-                    
-                    let reactor = CommentCellReactor(
-                        commentResponse,
-                        memberUseCase: self.memberUseCase,
-                        postCommentUseCase: self.postCommentUseCase
-                    )
-                    
-                    return Observable.concat(
-                        Observable<Mutation>.just(.clearCommentTextField),
-                        Observable<Mutation>.just(.appendPostComment(reactor)),
-                        Observable<Mutation>.just(.scrollToLast)
-                    )
-                }
+            )
             
         case let .deletePostComment(commentId):
             let postId = initialState.postId
@@ -173,10 +213,12 @@ final public class PostCommentViewReactor: Reactor {
                 .flatMap {
                     guard let deleteSuccessResponse = $0,
                           deleteSuccessResponse.success else {
-                        // TODO: - 댓글 삭제 실패 ToastMessage로 바꾸기
-                        return Observable<Mutation>.just(.setDeleteCommentFamilureToastMessageView)
+                        return Observable.concat(
+                            Observable<Mutation>.just(.generateErrorHapticNotification),
+                            Observable<Mutation>.just(.setUploadCommentFamilureTaostMessageView)
+                        )
                     }
-                    // TODO: - 댓글 삭제 완료 ToastMessage로 바꾸기
+                    
                     return Observable.concat(
                         Observable<Mutation>.just(.removePostComment(commentId)),
                         Observable<Mutation>.just(.setDeleteCommentCompleteToastMessageView)
@@ -186,13 +228,13 @@ final public class PostCommentViewReactor: Reactor {
             
         case let .keyboardWillShow(height):
             return Observable.concat(
-                Observable<Mutation>.just(.setupTableViewOffset(height)),
+                Observable<Mutation>.just(.setTableViewOffset(height)),
                 Observable<Mutation>.just(.scrollToLast)
             )
             
         case .keyboardWillHide:
             return Observable.concat(
-                Observable<Mutation>.just(.setupTableViewOffset(.zero)),
+                Observable<Mutation>.just(.setTableViewOffset(.zero)),
                 Observable<Mutation>.just(.scrollToLast)
             )
         }
@@ -202,7 +244,7 @@ final public class PostCommentViewReactor: Reactor {
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
-        case let .injectComment(text):
+        case let .injectInputComment(text):
             newState.inputComment = text
             
         case let .injectPostComment(reactor):
@@ -231,13 +273,25 @@ final public class PostCommentViewReactor: Reactor {
             newState.shouldPresentDeleteCommentCompleteToastMessageView = true
             
         case .setDeleteCommentFamilureToastMessageView:
-            newState.shouldPresentDeleteCommentFamilureToastMessageView = true
+            newState.shouldPresentDeleteCommentFailureToastMessageView = true
             
         case .setUploadCommentFamilureTaostMessageView:
-            newState.shouldPresentUploadCommentFamilureTaostMessageView = true
+            newState.shouldPresentUploadCommentFailureTaostMessageView = true
+            
+        case .setCommentFetchFailureToastMessageView:
+            newState.shouldPresentCommentFetchFailureTaostMessageView = true
+            
+        case let .setHiddenNoCommentView(hidden):
+            newState.shouldPresentEmptyCommentView = hidden
+            
+        case let .setHiddenPaperAirplaneLottieView(hidden):
+            newState.shouldPresentPaperAirplaneLottieView = hidden
+            
+        case .generateErrorHapticNotification:
+            newState.shouldGenerateErrorHapticNotification = true
             
         case .scrollToLast:
-            guard var dataSource = newState.displayComment.first else {
+            guard let dataSource = newState.displayComment.first else {
                 break
             }
             newState.shouldScrollToLast = dataSource.items.count - 1
@@ -245,7 +299,7 @@ final public class PostCommentViewReactor: Reactor {
         case .clearCommentTextField:
             newState.shouldClearCommentTextField = true
             
-        case let .setupTableViewOffset(height):
+        case let .setTableViewOffset(height):
             newState.tableViewBottomOffset = height
         }
         

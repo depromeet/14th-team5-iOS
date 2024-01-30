@@ -45,13 +45,13 @@ extension BannerResponseDTO {
         var color: UIColor {
             switch self {
             case .skullFlag:
-                return UIColor.skyBlue
+                return DesignSystemAsset.graphicBlue.color
             case .aloneWalking:
-                return UIColor.lightOrange
+                return DesignSystemAsset.graphicOrange.color
             case .weAreFriends:
-                return UIColor.deepGreen
+                return DesignSystemAsset.graphicGreen.color
             case .jewelryTreasure:
-                return UIColor.hotPink
+                return DesignSystemAsset.graphicPink.color
             }
         }
         

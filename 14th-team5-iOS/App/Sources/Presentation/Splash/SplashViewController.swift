@@ -65,7 +65,7 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
         
         reactor.state.map { $0.memberInfo }
             .skip(1)
-            .delay(.seconds(1), scheduler: Schedulers.main)
+            .delay(.milliseconds(500), scheduler: Schedulers.main)
             .withUnretained(self)
             .observe(on: Schedulers.main)
             .bind(onNext: { $0.0.showNextPage(with: $0.1) })

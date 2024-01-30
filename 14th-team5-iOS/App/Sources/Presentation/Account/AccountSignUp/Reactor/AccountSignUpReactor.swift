@@ -55,7 +55,7 @@ public final class AccountSignUpReactor: Reactor {
         var nickname: String = ""
         var isValidNickname: Bool = false
         var isValidNicknameButton: Bool = false
-        var nicknameButtonTappedFinish: Bool = false
+        @Pulse var nicknameButtonTappedFinish: Bool = false
         
         var memberId: String
         var profileNickNameEditEntity: AccountNickNameEditResponse?
@@ -66,7 +66,7 @@ public final class AccountSignUpReactor: Reactor {
         var day: Int = 0
         var isValidDay: Bool = false
         var isValidDateButton: Bool = false
-        var dateButtonTappedFinish: Bool = false
+        @Pulse var dateButtonTappedFinish: Bool = false
         var profileType: AccountLoaction = .account
         
         var profilePresignedURL: String = ""
@@ -188,11 +188,8 @@ extension AccountSignUpReactor {
                                 }
                                 
                             }
-                        
                     }
-            
             )
-            
         }
     }
     

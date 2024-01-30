@@ -30,7 +30,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         collectionViewLayout: orthogonalCompositionalLayout
     )
     
-    private let fireLottieView: LottieView = LottieView(with: .fire)
+    private let fireLottieView: LottieView = LottieView(with: .fire, contentMode: .scaleAspectFill)
     
     // MARK: - Properties
     private let blurImageIndexRelay: PublishRelay<Int> = PublishRelay<Int>()
@@ -192,16 +192,18 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             })
             .disposed(by: disposeBag)
         
-//        allUploadedToastMessageView
-//            .filter { $0 }
-//            .do(onNext: { [weak self] _ in
-//                debugPrint("Play")
-//                self?.fireLottieView.play()
-//            })
-//            .delay(.seconds(3))
-//            .do(onNext: { [weak self] _ in self?.fireLottieView.stop() })
-//            .drive(onNext: { _ in print("Fire!!!") })
-//            .disposed(by: disposeBag)
+        allUploadedToastMessageView
+            .filter { $0 }
+            .do(onNext: { [unowned self] _ in
+                // 애니메이션 중이 아니라면
+                if !self.fireLottieView.isPlay {
+                    self.fireLottieView.play()
+                }
+            })
+            .delay(.seconds(2))
+            .do(onNext: { [unowned self] _ in self.fireLottieView.stop() })
+            .drive(onNext: { _ in print("Fire!!!") })
+            .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldGenerateSelectionHaptic)
             .subscribe {
@@ -287,6 +289,11 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             $0.isScrollEnabled = false
             $0.backgroundColor = UIColor.clear
             $0.register(PostDetailCollectionViewCell.self, forCellWithReuseIdentifier: PostDetailCollectionViewCell.id)
+        }
+        
+        fireLottieView.do {
+            $0.stop()
+            $0.isUserInteractionEnabled = false
         }
         
         setupBlurEffect()

@@ -18,27 +18,20 @@ final public class LottieView: UIView {
     // MARK: Property
     let showLottieView = PublishRelay<LottieType>()
     
-    var kind: LottieType? = .fire {
-        didSet {
-            guard let kind else { return }
-            let animation = LottieAnimation.named(kind.key)
-            animationView.animation = animation
-            animationView.backgroundBehavior = .pause
-            animationView.loopMode = .loop
-        }
-    }
+    var kind: LottieType?
     
-    public convenience init(with kind: LottieType) {
+    public convenience init(
+        with kind: LottieType = .loading,
+        contentMode: UIView.ContentMode = .scaleAspectFit
+    ) {
         self.init(frame: .zero)
-        self.kind = kind
+        self.setupUI()
+        self.setupAutoLayout()
+        self.setupAttributes(with: kind, contentMode: contentMode)
     }
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
-        
-        self.setupUI()
-        self.setupAutoLayout()
-        self.setupAttributes()
         
         self.showLottieView
             .observe(on: MainScheduler.instance)
@@ -62,11 +55,12 @@ final public class LottieView: UIView {
         }
     }
     
-    private func setupAttributes() {
+    private func setupAttributes(with kind: LottieType?, contentMode: UIView.ContentMode) {
         animationView.do {
-            guard let kind = kind else { return }
+            guard let kind else { return }
             let animation = LottieAnimation.named(kind.key)
-            $0.animation = animation
+            animationView.animation = animation
+            animationView.contentMode = contentMode
             $0.backgroundBehavior = .pause
             $0.loopMode = .loop
         }
@@ -81,6 +75,10 @@ final public class LottieView: UIView {
             }
         }
     }
+
+    public var isPlay: Bool {
+        return !self.isHidden
+    }
     
     public func stop() {
         self.isHidden = true
@@ -91,7 +89,6 @@ final public class LottieView: UIView {
     }
     
     private func showLottieView(_ kind: LottieType) {
-        debugPrint(#function)
         let animation = LottieAnimation.named(kind.key)
         animationView.animation = animation
         animationView.backgroundBehavior = .pause

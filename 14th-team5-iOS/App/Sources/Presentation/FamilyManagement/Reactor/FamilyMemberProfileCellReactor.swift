@@ -28,6 +28,7 @@ final public class FamilyMemberProfileCellReactor: Reactor {
         var memberId: String
         var name: String
         var imageUrl: String?
+        var dayOfBirth: Date
         var isMe: Bool
     }
     
@@ -41,6 +42,7 @@ final public class FamilyMemberProfileCellReactor: Reactor {
             memberId: memberResponse.memberId,
             name: memberResponse.name,
             imageUrl: memberResponse.imageUrl,
+            dayOfBirth: memberResponse.dayOfBirth,
             isMe: isMe
         )
     }

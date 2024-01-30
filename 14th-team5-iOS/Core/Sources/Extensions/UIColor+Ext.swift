@@ -22,6 +22,14 @@ extension UIColor {
         return DesignSystemAsset.graphicBlue.color
     }
     
+    public static var graphicOrange: UIColor {
+        return DesignSystemAsset.graphicOrange.color
+    }
+    
+    public static var graphicGreen: UIColor {
+        return DesignSystemAsset.graphicGreen.color
+    }
+    
     public static var graphicPink: UIColor {
         return DesignSystemAsset.graphicPink.color
     }
@@ -84,43 +92,5 @@ extension UIColor {
     
     public static var bibbiWhite: UIColor {
         return DesignSystemAsset.white.color
-    }
-}
-
-extension UIColor {
-    public static var skyBlue: UIColor {
-        return UIColor(
-            displayP3Red: 140.0 / 255.0,
-            green: 213.0 / 255.0,
-            blue: 254.0 / 255.0,
-            alpha: 1
-        )
-    }
-    
-    public static var lightOrange: UIColor {
-        return UIColor(
-            displayP3Red: 255.0 / 255.0,
-            green: 201.0 / 255.0,
-            blue: 141.0 / 255.0,
-            alpha: 1
-        )
-    }
-    
-    public static var deepGreen: UIColor {
-        return UIColor(
-            displayP3Red: 127.0 / 255.0,
-            green: 236.0 / 255.0,
-            blue: 147.0 / 255.0,
-            alpha: 1
-        )
-    }
-    
-    public static var hotPink: UIColor {
-        return UIColor(
-            displayP3Red: 255.0 / 255.0,
-            green: 153.0 / 255.0,
-            blue: 177.0 / 255.0,
-            alpha: 1
-        )
     }
 }

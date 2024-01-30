@@ -19,6 +19,7 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
     private let containerView: UIView = UIView()
     private let firstNameLabel: BibbiLabel = BibbiLabel(.head2Bold, alignment: .center, textColor: .gray200)
     private let profileImageView: UIImageView = UIImageView()
+    private let dayOfBirthBadgeView: UIImageView = UIImageView()
     
     private let labelStack: UIStackView = UIStackView()
     private let nameLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray200)
@@ -57,24 +58,34 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
             .bind(to: profileImageView.rx.kingfisherImage)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.name }
+        let name = reactor.state.map({ $0.name }).asDriver(onErrorJustReturn: .none)
+        
+        name
             .distinctUntilChanged()
-            .bind(to: nameLabel.rx.text)
+            .drive(nameLabel.rx.text)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.name[0] }
+        name
             .distinctUntilChanged()
-            .bind(to: firstNameLabel.rx.text)
+            .drive(firstNameLabel.rx.firtNameText)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.isMe }
+        let isMe = reactor.state.map({ $0.isMe }).asDriver(onErrorJustReturn: false)
+        
+        isMe
             .distinctUntilChanged()
-            .bind(to: isMeLabel.rx.isMeText)
+            .drive(isMeLabel.rx.isMeText)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.isMe }
+        isMe
             .distinctUntilChanged()
-            .bind(to: labelStack.rx.isMeSpacing)
+            .drive(labelStack.rx.isMeSpacing)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.dayOfBirth }
+            .distinctUntilChanged()
+            .map { !$0.isEqual([.month, .day], with: .now) }
+            .bind(to: dayOfBirthBadgeView.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.cellType }
@@ -92,9 +103,9 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
             firstNameLabel, profileImageView
         )
         contentView.addSubviews(
-            containerView, labelStack, rightArrowImageView
+            containerView, dayOfBirthBadgeView,
+            labelStack, rightArrowImageView
         )
-        
         labelStack.addArrangedSubviews(
             nameLabel, isMeLabel
         )
@@ -106,6 +117,12 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
             $0.size.equalTo(52)
             $0.leading.equalTo(contentView.snp.leading).offset(20)
             $0.verticalEdges.equalToSuperview().inset(12)
+        }
+        
+        dayOfBirthBadgeView.snp.makeConstraints {
+            $0.size.equalTo(20)
+            $0.top.equalTo(containerView.snp.top).offset(-5)
+            $0.trailing.equalTo(containerView.snp.trailing).offset(5)
         }
         
         firstNameLabel.snp.makeConstraints {
@@ -134,6 +151,11 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = 52 / 2
             $0.backgroundColor = UIColor.gray800
+        }
+        
+        dayOfBirthBadgeView.do {
+            $0.image = DesignSystemAsset.dayOfBirth.image
+            $0.contentMode = .scaleAspectFit
         }
         
         profileImageView.do {

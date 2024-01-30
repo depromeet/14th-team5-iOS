@@ -37,7 +37,7 @@ final class NoCommentLabel: UIView {
     
     func setupAutoLayout() {
         labelStack.snp.makeConstraints {
-            $0.top.equalTo(self.snp.top).offset(65)
+            $0.top.equalToSuperview()
             $0.centerX.equalToSuperview()
         }
     }

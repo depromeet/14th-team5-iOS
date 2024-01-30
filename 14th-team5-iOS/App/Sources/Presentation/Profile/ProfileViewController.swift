@@ -35,7 +35,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     
     //MARK: Views
 
-    private let profileIndicatorView: LottieView = LottieView()
+    private let profileIndicatorView: BibbiLoadingView = BibbiLoadingView()
     private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 50)
     private let profileNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let profileLineView: UIView = UIView()

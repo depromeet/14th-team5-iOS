@@ -34,7 +34,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     private let shutterButton: UIButton = UIButton()
     private let flashButton: UIButton = UIButton.createCircleButton(radius: 24)
     private let toggleButton: UIButton = UIButton.createCircleButton(radius: 24)
-    private let cameraIndicatorView: LottieView = LottieView()
+    private let cameraIndicatorView: BibbiLoadingView = BibbiLoadingView()
     private let filterView: UIImageView = UIImageView()
     private let zoomView: UIImageView = UIImageView()
     private let realEmojiDescriptionLabel = BibbiLabel(.body1Regular, textColor: .mainYellow)
@@ -71,7 +71,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     public override func setupUI() {
         super.setupUI()
         realEmojiFaceView.addSubview(realEmojiFaceImageView)
-        view.addSubviews(cameraView, shutterButton, flashButton, toggleButton, cameraIndicatorView, realEmojiFaceView, realEmojiHorizontalStakView, realEmojiCollectionView, cameraNavigationBar)
+        view.addSubviews(cameraView, shutterButton, flashButton, toggleButton, realEmojiFaceView, realEmojiHorizontalStakView, realEmojiCollectionView, cameraIndicatorView , cameraNavigationBar)
     }
     
     public override func setupAttributes() {

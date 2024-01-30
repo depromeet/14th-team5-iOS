@@ -26,7 +26,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
     private let noPostTodayView: UIView = NoPostTodayView()
     private let postCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let balloonView: BalloonView = BalloonView()
-    private let loadingView: LottieView = LottieView()
+    private let loadingView: BibbiLoadingView = BibbiLoadingView()
     private let cameraButton: UIButton = UIButton()
     private let refreshControl: UIRefreshControl = UIRefreshControl()
     private let dataSource: RxCollectionViewSectionedReloadDataSource<PostSection.Model>  = {
@@ -64,7 +64,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
         addChild(familyViewController)
         view.addSubviews(navigationBarView, dividerView, timerLabel,
                          descriptionLabel, postCollectionView, noPostTodayView,
-                         balloonView, cameraButton, familyViewController.view)
+                         balloonView, cameraButton, loadingView, familyViewController.view)
         
         familyViewController.didMove(toParent: self)
     }
@@ -76,6 +76,10 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
             $0.top.equalTo(view.safeAreaLayoutGuide)
             $0.height.equalTo(33)
             $0.horizontalEdges.equalToSuperview()
+        }
+        
+        loadingView.snp.makeConstraints {
+            $0.center.equalToSuperview()
         }
         
         familyViewController.view.snp.makeConstraints {
@@ -321,7 +325,8 @@ extension HomeViewController {
         reactor.state
             .map { $0.showLoading }
             .distinctUntilChanged()
-            .bind(to: loadingView.rx.isHidden)
+            .asDriver(onErrorJustReturn: false)
+            .drive(loadingView.rx.isHidden)
             .disposed(by: disposeBag)
     }
 }

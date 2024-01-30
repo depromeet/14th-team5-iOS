@@ -21,7 +21,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     //MARK: Views
     private let displayView: UIImageView = UIImageView()
     private let confirmButton: UIButton = UIButton(configuration: .plain())
-    private let displayIndicatorView: LottieView = LottieView()
+    private let displayIndicatorView: BibbiLoadingView = BibbiLoadingView()
     private let displayNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let backButton: UIButton = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 52, height: 52)))
     private let titleView: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
@@ -53,7 +53,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(displayView, confirmButton, archiveButton, displayIndicatorView, displayEditTextField, displayEditCollectionView, displayNavigationBar)
+        view.addSubviews(displayView, confirmButton, archiveButton, displayEditTextField, displayEditCollectionView, displayIndicatorView ,displayNavigationBar)
         displayView.addSubviews(displayEditButton)
     }
     

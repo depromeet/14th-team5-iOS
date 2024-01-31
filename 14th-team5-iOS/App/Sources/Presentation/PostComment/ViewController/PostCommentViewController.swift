@@ -28,7 +28,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
     private let createCommentButton: UIButton = UIButton(type: .system)
     
     private let bibbiLottieView: BibbiLoadingView = BibbiLoadingView()
-    private let fetchFailureView: FetchFailureView = FetchFailureView(type: .comment)
+    private let fetchFailureView: BibbiFetchFailureView = BibbiFetchFailureView(type: .comment)
     
     // MARK: - Properties
     private lazy var dataSource: RxTableViewSectionedAnimatedDataSource<PostCommentSectionModel> = prepareDatasource()

@@ -20,7 +20,7 @@ final public class AirplaneLottieView: UIView {
     private let loadingLabel: BibbiLabel = BibbiLabel(.body1Regular, alignment: .center, textColor: .gray500)
     
     // MARK: - Properties
-    public var lottieSize: CGFloat = 100 {
+    public var lottieSize: CGFloat = 80 {
         didSet {
             lottieView.snp.updateConstraints {
                 $0.size.equalTo(lottieSize)
@@ -60,7 +60,7 @@ final public class AirplaneLottieView: UIView {
         }
         
         lottieView.snp.makeConstraints {
-            $0.size.equalTo(100)
+            $0.size.equalTo(lottieSize)
         }
     }
     

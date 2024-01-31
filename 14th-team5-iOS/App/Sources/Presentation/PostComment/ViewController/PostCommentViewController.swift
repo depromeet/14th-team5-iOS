@@ -27,7 +27,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
     private let textFieldContainerView: UIView = UIView()
     private let createCommentButton: UIButton = UIButton(type: .system)
     
-    private let bibbiLottieView: BibbiLoadingView = BibbiLoadingView()
+    private let bibbiLottieView: AirplaneLottieView = AirplaneLottieView()
     private let fetchFailureView: BibbiFetchFailureView = BibbiFetchFailureView(type: .comment)
     
     // MARK: - Properties

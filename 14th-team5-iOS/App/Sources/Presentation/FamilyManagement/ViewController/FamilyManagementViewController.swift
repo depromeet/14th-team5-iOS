@@ -29,7 +29,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     private let tableCountLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray400)
     private let familyTableView: UITableView = UITableView()
 
-    private let bibbiLottieView: BibbiLoadingView = BibbiLoadingView()
+    private let bibbiLottieView: AirplaneLottieView = AirplaneLottieView()
     
     private let fetchFailureView: BibbiFetchFailureView = BibbiFetchFailureView(type: .family)
     
@@ -131,7 +131,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .subscribe {
                 if $0.1 {
                     $0.0.makeBibbiToastView(
-                        text: "가족을 불러오는데 실패했어요",
+                        text: _Str.fetchFailFamilyText,
                         image: DesignSystemAsset.warning.image
                     )
                     $0.0.fetchFailureView.isHidden = false

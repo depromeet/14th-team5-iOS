@@ -47,7 +47,7 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
     
     private func bindInput(reactor: CalendarViewReactor) {
         Observable<Void>.just(())
-            .delay(.milliseconds(150), scheduler: Schedulers.main)
+            .delay(RxConst.smallDelayInterval, scheduler: Schedulers.main)
             .withUnretained(self)
             .subscribe {
                 UIView.transition(
@@ -66,10 +66,10 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        Observable<Void>.just(())
-            .map { Reactor.Action.fetchFamilyMembers }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
+//        Observable<Void>.just(())
+//            .map { Reactor.Action.fetchFamilyMembers }
+//            .bind(to: reactor.action)
+//            .disposed(by: disposeBag)
 
         navigationBarView.rx.didTapLeftBarButton
             .map { _ in Reactor.Action.popViewController }

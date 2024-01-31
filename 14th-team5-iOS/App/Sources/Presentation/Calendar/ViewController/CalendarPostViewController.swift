@@ -177,11 +177,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
-//        reactor.pulse(\.$shouldPresentPostCommentSheet)
-//            .withUnretained(self)
-//            .subscribe { $0.0.presentPostCommentSheet(postId: $0.1.0, commentCount: $0.1.1) }
-//            .disposed(by: disposeBag)
-        
         reactor.state.compactMap { $0.blurImageUrlString }
             .distinctUntilChanged()
             .withUnretained(self)

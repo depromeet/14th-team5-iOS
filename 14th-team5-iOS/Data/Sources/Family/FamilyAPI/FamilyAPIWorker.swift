@@ -189,7 +189,6 @@ extension FamilyAPIWorker {
     }
     
     
-
     public func fetchFamilyMember(query: SearchFamilyQuery) -> Single<SearchFamilyPage?> {
         return Observable.just(())
             .withLatestFrom(self._headers)

@@ -31,7 +31,6 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -120,16 +119,18 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
         }
         
         familyCollectionView.do {
-            $0.backgroundColor = .clear
             $0.collectionViewLayout = createFamilyLayout()
+            $0.showsHorizontalScrollIndicator = false
+            $0.backgroundColor = .clear
             $0.register(FamilyCollectionViewCell.self, forCellWithReuseIdentifier: FamilyCollectionViewCell.id)
         }
         
         postCollectionView.do {
             $0.collectionViewLayout = createPostLayout()
+            $0.showsVerticalScrollIndicator = false
+            $0.backgroundColor = .clear
             $0.refreshControl = refreshControl
             $0.register(FeedCollectionViewCell.self, forCellWithReuseIdentifier: FeedCollectionViewCell.id)
-            $0.backgroundColor = .clear
         }
         
         balloonView.do {
@@ -153,11 +154,12 @@ extension HomeViewController {
             .disposed(by: disposeBag)
         
         self.rx.viewWillAppear
-            .do(onNext: { _ in App.indicator.show(with: .loading)})
-            .withUnretained(self)
-            .delay(.seconds(3), scheduler: MainScheduler.instance)
-            .do(onNext: { _ in App.indicator.hide(with: .loading) })
             .map { _ in Reactor.Action.viewWillAppear }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        refreshControl.rx.controlEvent(.valueChanged)
+            .map { Reactor.Action.refresh }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -226,10 +228,16 @@ extension HomeViewController {
             .bind(to: postCollectionView.rx.items(dataSource: createPostDataSource()))
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$isRefreshEnd)
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.refreshControl.endRefreshing() })
+            .disposed(by: disposeBag)
+        
         reactor.pulse(\.$postSection)
             .withUnretained(self)
-            .bind(onNext: {_ in
-                self.timerView.reactor = TimerDIContainer().makeReactor(isSelfUploaded: reactor.currentState.isSelfUploaded, isAllUploaded: reactor.currentState.isAllFamilyMembersUploaded)
+            .bind(onNext: { $0.0.timerView.reactor = TimerDIContainer().makeReactor(isSelfUploaded: reactor.currentState.isSelfUploaded, isAllUploaded: reactor.currentState.isAllFamilyMembersUploaded)
             })
             .disposed(by: disposeBag)
         
@@ -239,11 +247,11 @@ extension HomeViewController {
             .bind(to: familyCollectionView.rx.items(dataSource: createFamilyDataSource()))
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.isSelfUploaded }
+        reactor.pulse(\.$isSelfUploaded)
             .distinctUntilChanged()
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
-            .bind(onNext: { self.hideCameraButton($0.1) })
+            .bind(onNext: { $0.0.hideCameraButton($0.1) })
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.isShowingInviteFamilyView}

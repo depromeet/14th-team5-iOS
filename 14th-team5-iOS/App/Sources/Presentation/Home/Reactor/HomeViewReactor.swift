@@ -18,6 +18,7 @@ final class HomeViewReactor: Reactor {
     enum Action {
         case checkInTime
         case viewWillAppear
+        case refresh
     }
     
     enum Mutation {
@@ -33,7 +34,8 @@ final class HomeViewReactor: Reactor {
     
     struct State {
         var isInTime: Bool = true
-        var isSelfUploaded: Bool = false
+        @Pulse var isSelfUploaded: Bool = true
+        @Pulse var isRefreshEnd: Bool = true
         var isAllFamilyMembersUploaded: Bool = false
         
         @Pulse var familySection: FamilySection.Model = FamilySection.Model(model: 0, items: [])
@@ -68,8 +70,10 @@ extension HomeViewReactor {
                 .filter { $0 <= 0 }
                 .flatMap {_ in
                     return Observable.concat([Observable.just(Mutation.setInTime(false)),
-                                              self.mutate(action: .viewWillAppear)])
+                                              Observable.just(Mutation.setSelfUploaded(true))])
                 }
+        case .refresh:
+            return self.mutate(action: .viewWillAppear)
         }
     }
     
@@ -80,6 +84,7 @@ extension HomeViewReactor {
         case .updateFamilyDataSource(let familySectionItem):
             newState.familySection.items = familySectionItem
         case .updatePostDataSource(let postSectionItem):
+            newState.isRefreshEnd = true
             newState.postSection.items = postSectionItem
         case .setSelfUploaded(let isSelfUploaded):
             newState.isSelfUploaded = isSelfUploaded
@@ -198,7 +203,7 @@ extension HomeViewReactor {
         let isAfterNoon = calendar.component(.hour, from: currentTime) >= 12
         
         if isAfterNoon {
-            if let nextMidnight = calendar.date(bySettingHour: 18, minute: 10, second: 0, of: /*currentTime.addingTimeInterval(24 * 60 * 60)*/ currentTime) {
+            if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {
                 let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
                 return max(0, timeDifference.second ?? 0)
             }

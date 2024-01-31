@@ -20,7 +20,6 @@ final class EmojiReactor: Reactor {
     enum Action {
 //        case fetchEmojiList
         case fetchDisplayContent(String)
-        case tappedCommentButton
     }
     
     enum Mutation {
@@ -67,12 +66,6 @@ extension EmojiReactor {
                 )
             }
             return Observable<Mutation>.just(.injectDisplayContent(sectionItem))
-
-        case .tappedCommentButton:
-            let postId: String = currentState.post.postId
-            let commentCount: Int = currentState.post.commentCount
-            provider.postGlobalState.presentPostCommentSheet(postId, commentCount: commentCount)
-            return Observable<Mutation>.empty()
         }
     }
     

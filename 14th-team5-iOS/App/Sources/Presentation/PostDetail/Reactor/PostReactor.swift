@@ -50,18 +50,6 @@ final class PostReactor: Reactor {
 }
 
 extension PostReactor {
-    func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
-        let eventMutation = provider.reactionSheetGloablState.event
-            .flatMap { event -> Observable<Mutation> in
-                switch event {
-                case let .showReactionMemberSheet(memberIds):
-                    return Observable<Mutation>.just(.showReactionSheet(memberIds))
-                }
-            }
-        
-        return Observable<Mutation>.merge(mutation, eventMutation)
-    }
-    
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case let .setPost(index):

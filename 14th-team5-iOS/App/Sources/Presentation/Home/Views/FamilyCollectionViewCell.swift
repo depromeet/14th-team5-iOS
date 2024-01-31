@@ -36,6 +36,14 @@ final class FamilyCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
                     birthdayBadge, rankBadge)
     }
     
+    override func prepareForReuse() {
+        imageView.image = nil
+        rankBadge.image = nil
+        birthdayBadge.image = nil
+        imageView.layer.borderWidth = 0
+        imageView.layer.borderColor = nil
+    }
+
     override func setupAutoLayout() {
         imageView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview()
@@ -89,10 +97,6 @@ final class FamilyCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
         rankBadge.do {
             $0.isHidden = true
         }
-    }
-    
-    override func prepareForReuse() {
-        imageView.image = nil
     }
 }
 

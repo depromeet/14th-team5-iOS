@@ -29,7 +29,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     private let tableCountLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray400)
     private let familyTableView: UITableView = UITableView()
 
-    private let airplaneLottieView: AirplaneLottieView = AirplaneLottieView()
+    private let bibbiLottieView: BibbiLoadingView = BibbiLoadingView()
     
     private let fetchFailureView: BibbiFetchFailureView = BibbiFetchFailureView(type: .family)
     
@@ -141,7 +141,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
 
         reactor.state.map { $0.shouldPresentPaperAirplaneLottieView }
             .distinctUntilChanged()
-            .bind(to: airplaneLottieView.rx.isHidden)
+            .bind(to: bibbiLottieView.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldGenerateErrorHapticNotification)
@@ -159,7 +159,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
         headerStack.addArrangedSubviews(
             tableTitleLabel, tableCountLabel
         )
-        familyTableView.addSubviews(airplaneLottieView, fetchFailureView)
+        familyTableView.addSubviews(bibbiLottieView, fetchFailureView)
     }
     
     public override func setupAutoLayout() {
@@ -194,7 +194,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             $0.bottom.equalToSuperview()
         }
         
-        airplaneLottieView.snp.makeConstraints {
+        bibbiLottieView.snp.makeConstraints {
             $0.centerX.equalToSuperview()
             $0.horizontalEdges.equalToSuperview()
             $0.top.equalToSuperview().offset(90)

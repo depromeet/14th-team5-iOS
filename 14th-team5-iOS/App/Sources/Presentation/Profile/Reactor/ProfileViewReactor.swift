@@ -60,7 +60,7 @@ public final class ProfileViewReactor: Reactor {
         self.memberId = memberId
         self.isUser = isUser
         self.initialState = State(
-            isLoading: true,
+            isLoading: false,
             memberId: memberId,
             isUser: isUser,
             profileData: PostSection.Model(
@@ -87,6 +87,7 @@ public final class ProfileViewReactor: Reactor {
         switch action {
         case .viewDidLoad:
             return .concat(
+                .just(.setLoading(false)),
                 profileUseCase.executeProfileMemberItems(memberId: currentState.memberId)
                     .asObservable()
                     .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
@@ -106,7 +107,8 @@ public final class ProfileViewReactor: Reactor {
                         }
                         return .concat(
                             .just(.setProfilePostItems(entity)),
-                            .just(.setFeedCategroySection(sectionItem))
+                            .just(.setFeedCategroySection(sectionItem)),
+                            .just(.setLoading(true))
                         )
 
                     }
@@ -180,11 +182,9 @@ public final class ProfileViewReactor: Reactor {
                         .withUnretained(self)
                         .flatMap { owner ,entity -> Observable<ProfileViewReactor.Mutation> in
                                 .concat(
-                                    .just(.setLoading(false)),
                                     .just(.setChangNickName(isUpdate)),
                                     .just(.setProfileMemberItems(entity)),
-                                    .just(.setDefaultProfile(false)),
-                                    .just(.setLoading(true))
+                                    .just(.setDefaultProfile(false))
                                 
                                 )
                         }

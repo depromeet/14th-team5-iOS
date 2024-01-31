@@ -115,7 +115,7 @@ public final class CameraDisplayViewReactor: Reactor {
         case .didTapConfirmButton:
             
             MPEvent.Camera.uploadPhoto.track(with: nil)
-            guard let presingedURL = self.currentState.displayEntity?.imageURL else { return .empty() }
+            guard let presingedURL = self.currentState.displayEntity?.imageURL else { return .just(.setLoading(false)) }
             let originURL = configureOriginalS3URL(url: presingedURL, with: .feed)
             
             let parameters: CameraDisplayPostParameters = CameraDisplayPostParameters(

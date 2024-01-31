@@ -15,7 +15,7 @@ public enum LottieType: Equatable {
     case loading
     case fire
     
-    var key: String {
+    public var key: String {
         switch self {
         case .loading: return LottieType.keyLoading
         case .fire: return LottieType.keyfire

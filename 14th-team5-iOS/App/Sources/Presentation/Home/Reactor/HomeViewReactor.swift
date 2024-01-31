@@ -44,7 +44,7 @@ final class HomeViewReactor: Reactor {
     
     public struct State {
         var isRefreshing: Bool = false
-        var showLoading: Bool = true
+        var showLoading: Bool = false
         var didPost: Bool = false
         var isShowingNoPostTodayView: Bool = false
         var isHideCameraButton: Bool = false
@@ -84,12 +84,14 @@ extension HomeViewReactor {
                           !postList.postLists.isEmpty else {
                         return Observable.concat(
                             .just(Mutation.setLoading(false)),
-                            .just(Mutation.showNoPostTodayView(true))
+                            .just(Mutation.showNoPostTodayView(true)),
+                            .just(Mutation.setLoading(true))
                         )
                     }
                     
                     let postSectionItem = postList.postLists.map(PostSection.Item.main)
                     var observables = [
+                        Observable.just(Mutation.setLoading(false)),
                         Observable.just(Mutation.showNoPostTodayView(false)),
                         Observable.just(Mutation.initDataSource(postSectionItem))]
                     

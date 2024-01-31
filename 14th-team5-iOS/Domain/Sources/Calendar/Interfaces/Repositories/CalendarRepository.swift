@@ -13,6 +13,6 @@ public protocol CalendarRepositoryProtocol {
     var disposeBag: DisposeBag { get }
     
     func fetchCalendarResponse(yearMonth: String) -> Observable<ArrayResponseCalendarResponse?>
-    func fetchStatisticsSummary() -> Observable<FamilyMonthlyStatisticsResponse?>
+    func fetchStatisticsSummary(yearMonth: String) -> Observable<FamilyMonthlyStatisticsResponse?>
     func fetchCalendarBanner(yearMonth: String) -> Observable<BannerResponse?>
 }

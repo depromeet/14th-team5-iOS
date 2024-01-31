@@ -15,6 +15,7 @@ import RxSwift
 import Then
 import SnapKit
 
+fileprivate typealias _Str = PostCommentStrings
 final public class PostCommentViewController: BaseViewController<PostCommentViewReactor> {
     // MARK: - Views
     private let navigationBarView: PostCommentTopBarView = PostCommentTopBarView()
@@ -27,7 +28,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
     private let createCommentButton: UIButton = UIButton(type: .system)
     
     private let airplaneLottieView: AirplaneLottieView = AirplaneLottieView()
-    private let fetchFailureView: FetchFailureView = FetchFailureView(type: .comment)
+    private let fetchFailureView: BibbiFetchFailureView = BibbiFetchFailureView(type: .comment)
     
     // MARK: - Properties
     private lazy var dataSource: RxTableViewSectionedAnimatedDataSource<PostCommentSectionModel> = prepareDatasource()
@@ -62,9 +63,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
         )
         .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
         .withUnretained(self)
-        .subscribe {
-            $0.0.commentTextField.resignFirstResponder()
-        }
+        .subscribe { $0.0.commentTextField.resignFirstResponder() }
         .disposed(by: disposeBag)
         
         commentTextField.rx.text.orEmpty
@@ -130,58 +129,56 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentUploadCommentFailureTaostMessageView)
+            .filter { $0 }
             .withUnretained(self)
             .subscribe {
-                if $0.1 {
-                    $0.0.makeErrorBibbiToastView(
-                        duration: 0.8,
-                        offset: 70,
-                        direction: .down
-                    )
-                    Haptic.notification(type: .error)
-                }
+                $0.0.makeErrorBibbiToastView(
+                    duration: 0.8,
+                    offset: 70,
+                    direction: .down
+                )
             }
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentDeleteCommentCompleteToastMessageView)
+            .filter { $0 }
             .withUnretained(self)
             .subscribe {
-                if $0.1 {
-                    $0.0.makeBibbiToastView(
-                        text: "댓글이 삭제되었습니다",
-                        image: DesignSystemAsset.warning.image,
-                        offset: 70,
-                        direction: .down
-                    )
-                }
+                $0.0.makeBibbiToastView(
+                    text: _Str.commentDeleteText,
+                    image: DesignSystemAsset.warning.image,
+                    offset: 70,
+                    direction: .down
+                )
             }
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentDeleteCommentFailureToastMessageView)
+            .filter { $0 }
             .withUnretained(self)
             .subscribe {
-                if $0.1 {
-                    $0.0.makeErrorBibbiToastView(
-                        duration: 0.8,
-                        offset: 70,
-                        direction: .down
-                    )
-                    Haptic.notification(type: .error)
-                }
+                $0.0.makeErrorBibbiToastView(
+                    duration: 0.8,
+                    offset: 70,
+                    direction: .down
+                )
             }
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentCommentFetchFailureTaostMessageView)
             .filter { $0 }
+            .delay(RxConst.smallDelayInterval, scheduler: Schedulers.main)
             .withUnretained(self)
             .subscribe {
                 $0.0.makeBibbiToastView(
-                    text: "댓글을 불러오는데 실패했어요",
+                    text: _Str.commentFetchFailureText,
                     image: DesignSystemAsset.warning.image,
                     offset: 70,
                     direction: .down
                 )
                 $0.0.fetchFailureView.isHidden = false
+                $0.0.commentTextField.isUserInteractionEnabled = false
+                $0.0.commentTextField.rightView?.isUserInteractionEnabled = false
             }
             .disposed(by: disposeBag)
         
@@ -194,29 +191,42 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldGenerateErrorHapticNotification)
-            .subscribe { if $0 { Haptic.notification(type: .error) } }
+            .filter { $0 }
+            .subscribe(onNext: { _ in Haptic.notification(type: .error) })
             .disposed(by: disposeBag)
-            
-        reactor.pulse(\.$shouldClearCommentTextField)
+        
+        reactor.state.map { $0.enableCommentTextField }
+            .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
-                if $0.1 {
-                    $0.0.commentTextField.text = String.none
+                if let button = $0.0.commentTextField.rightView as? UIButton {
+                    button.isEnabled = $0.1
                 }
             }
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$becomeFirstResponder)
+            .filter { $0 }
+            .withUnretained(self)
+            .subscribe { $0.0.commentTextField.becomeFirstResponder() }
+            .disposed(by: disposeBag)
+            
+        reactor.pulse(\.$shouldClearCommentTextField)
+            .filter { $0 }
+            .withUnretained(self)
+            .subscribe { $0.0.commentTextField.text = String.none }
+            .disposed(by: disposeBag)
+        
         reactor.pulse(\.$shouldScrollToLast)
+            .filter { $0 > 0 }
             .withUnretained(self)
             .subscribe {
-                if $0.1 > 0 {
-                    let indexPath = IndexPath(row: $0.1, section: 0)
-                    self.commentTableView.scrollToRow(
-                        at: indexPath,
-                        at: .bottom,
-                        animated: true
-                    )
-                }
+                let indexPath = IndexPath(row: $0.1, section: 0)
+                $0.0.commentTableView.scrollToRow(
+                    at: indexPath,
+                    at: .bottom,
+                    animated: true
+                )
             }
             .disposed(by: disposeBag)
         
@@ -286,8 +296,6 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             $0.verticalEdges.equalToSuperview()
             $0.horizontalEdges.equalToSuperview().inset(15)
         }
-        
-        commentTextField.becomeFirstResponder()
     }
     
     public override func setupAttributes() {

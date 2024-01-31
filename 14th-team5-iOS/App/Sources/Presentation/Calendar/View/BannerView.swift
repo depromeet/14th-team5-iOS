@@ -38,7 +38,7 @@ struct BannerView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background { bannerImage }
             .background(
-                Color(uiColor: viewModel.state.bannerColor ?? UIColor.graphicBlue),
+                Color(uiColor: viewModel.state.bannerColor ?? UIColor.gray500),
                 in: RoundedRectangle(
                     cornerRadius: 24,
                     style: .circular

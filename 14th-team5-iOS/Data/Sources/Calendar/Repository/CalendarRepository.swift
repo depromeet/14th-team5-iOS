@@ -17,21 +17,8 @@ public final class CalendarRepository: CalendarRepositoryProtocol {
     
     private let calendarApiWorker: CalendarAPIWorker = CalendarAPIWorker()
     
-    private var familyId: String = App.Repository.member.familyId.value ?? ""
-    
     // MARK: - Intializer
-    public init() {
-        bind()
-    }
-    
-    // MARK: - Helpers
-    private func bind() {
-        App.Repository.member.familyId
-            .compactMap { $0 }
-            .withUnretained(self)
-            .bind(onNext: { $0.0.familyId = $0.1 })
-            .disposed(by: disposeBag)
-    }
+    public init() { }
 }
 
 // MARK: - Extensions
@@ -41,8 +28,8 @@ extension CalendarRepository {
             .asObservable()
     }
     
-    public func fetchStatisticsSummary() -> Observable<FamilyMonthlyStatisticsResponse?> {
-        return calendarApiWorker.fetchStatisticsSummary(familyId: familyId)
+    public func fetchStatisticsSummary(yearMonth: String) -> Observable<FamilyMonthlyStatisticsResponse?> {
+        return calendarApiWorker.fetchStatisticsSummary(yearMonth: yearMonth)
             .asObservable()
     }
     

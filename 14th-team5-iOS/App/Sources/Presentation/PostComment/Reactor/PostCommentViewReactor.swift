@@ -38,7 +38,9 @@ final public class PostCommentViewReactor: Reactor {
         case setHiddenPaperAirplaneLottieView(Bool)
         case generateErrorHapticNotification
         case scrollToLast
+        case becomeFirstResponseder
         case clearCommentTextField
+        case enableCommentTextField(Bool)
     }
     
     // MARK: - State
@@ -57,6 +59,8 @@ final public class PostCommentViewReactor: Reactor {
         @Pulse var shouldPresentEmptyCommentView: Bool
         @Pulse var shouldPresentPaperAirplaneLottieView: Bool
         @Pulse var shouldGenerateErrorHapticNotification: Bool
+        @Pulse var becomeFirstResponder: Bool
+        var enableCommentTextField: Bool
         var tableViewBottomOffset: CGFloat
     }
     
@@ -72,14 +76,13 @@ final public class PostCommentViewReactor: Reactor {
     // MARK: - Intializer
     public init(
         postId: String,
-        commentCount: Int,
         memberUseCase: MemberUseCaseProtocol,
         postCommentUseCase: PostCommentUseCaseProtocol,
         provider: GlobalStateProviderProtocol
     ) {
         self.initialState = State(
             postId: postId,
-            commentCount: commentCount,
+            commentCount: 0,
             inputComment: "",
             displayComment: [.init(model: .none, items: [])],
             shouldScrollToLast: 0,
@@ -91,6 +94,8 @@ final public class PostCommentViewReactor: Reactor {
             shouldPresentEmptyCommentView: false,
             shouldPresentPaperAirplaneLottieView: false,
             shouldGenerateErrorHapticNotification: false,
+            becomeFirstResponder: false,
+            enableCommentTextField: false,
             tableViewBottomOffset: 0
         )
         
@@ -133,6 +138,7 @@ final public class PostCommentViewReactor: Reactor {
         
             return Observable.concat(
                 Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(false)),
+                Observable<Mutation>.just(.enableCommentTextField(false)),
                 
                 postCommentUseCase.executeFetchPostComment(postId: postId, query: query)
                     .concatMap {
@@ -151,6 +157,8 @@ final public class PostCommentViewReactor: Reactor {
                         guard !commentResponseArray.results.isEmpty else {
                             return Observable.concat(
                                 Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(true)),
+                                Observable<Mutation>.just(.enableCommentTextField(true)),
+                                Observable<Mutation>.just(.becomeFirstResponseder),
                                 Observable<Mutation>.just(.injectPostComment([]))
                             )
                         }
@@ -165,7 +173,9 @@ final public class PostCommentViewReactor: Reactor {
                         return Observable.concat(
                             Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(true)),
                             Observable<Mutation>.just(.injectPostComment(reactors)),
-                            Observable<Mutation>.just(.scrollToLast)
+                            Observable<Mutation>.just(.scrollToLast),
+                            Observable<Mutation>.just(.enableCommentTextField(true)),
+                            Observable<Mutation>.just(.becomeFirstResponseder)
                         )
                     }
             )
@@ -181,14 +191,17 @@ final public class PostCommentViewReactor: Reactor {
             
             return Observable.concat(
                 // TODO: - Button Indicator UI 구현하기
+                Observable<Mutation>.just(.enableCommentTextField(false)),
                 
                 postCommentUseCase.executeCreatePostComment(postId: postId, body: body)
                     .withUnretained(self)
                     .concatMap {
                         guard let commentResponse = $0.1 else {
                             return Observable.concat(
+                                Observable<Mutation>.just(.enableCommentTextField(true)),
                                 Observable<Mutation>.just(.generateErrorHapticNotification),
                                 Observable<Mutation>.just(.setUploadCommentFamilureTaostMessageView)
+                                
                             )
                         }
                         
@@ -200,6 +213,7 @@ final public class PostCommentViewReactor: Reactor {
                         
                         $0.0.provider.postGlobalState.clearCommentText()
                         return Observable.concat(
+                            Observable<Mutation>.just(.enableCommentTextField(true)),
                             Observable<Mutation>.just(.clearCommentTextField),
                             Observable<Mutation>.just(.appendPostComment(reactor)),
                             Observable<Mutation>.just(.scrollToLast)
@@ -210,8 +224,9 @@ final public class PostCommentViewReactor: Reactor {
         case let .deletePostComment(commentId):
             let postId = initialState.postId
             return postCommentUseCase.executeDeletePostComment(postId: postId, commentId: commentId)
+                .withUnretained(self)
                 .flatMap {
-                    guard let deleteSuccessResponse = $0,
+                    guard let deleteSuccessResponse = $0.1,
                           deleteSuccessResponse.success else {
                         return Observable.concat(
                             Observable<Mutation>.just(.generateErrorHapticNotification),
@@ -295,6 +310,12 @@ final public class PostCommentViewReactor: Reactor {
                 break
             }
             newState.shouldScrollToLast = dataSource.items.count - 1
+            
+        case .becomeFirstResponseder:
+            newState.becomeFirstResponder = true
+            
+        case let .enableCommentTextField(enabled):
+            newState.enableCommentTextField = enabled
             
         case .clearCommentTextField:
             newState.shouldClearCommentTextField = true

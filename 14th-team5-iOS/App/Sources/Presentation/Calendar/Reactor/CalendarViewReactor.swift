@@ -83,7 +83,7 @@ public final class CalendarViewReactor: Reactor {
             return Observable<Mutation>.just(.popViewController)
             
         case .fetchFamilyMembers:
-            let query: SearchFamilyQuery = SearchFamilyQuery(page: 1, size: 20)
+            let query: SearchFamilyQuery = SearchFamilyQuery(page: 1, size: 256)
             return familyUseCase.excute(query: query)
                 .asObservable()
                 .flatMap {_ in

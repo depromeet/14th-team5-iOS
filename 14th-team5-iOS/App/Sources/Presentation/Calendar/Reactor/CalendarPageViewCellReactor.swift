@@ -44,8 +44,6 @@ public final class CalendarPageCellReactor: Reactor {
     public let provider: GlobalStateProviderProtocol
     private let calendarUseCase: CalendarUseCaseProtocol
     
-    private var yearMonth: String
-    
     // MARK: - Intializer
     init(_ yearMonth: String, calendarUseCase: CalendarUseCaseProtocol, provider: GlobalStateProviderProtocol) {
         self.initialState = State(
@@ -55,8 +53,6 @@ public final class CalendarPageCellReactor: Reactor {
         
         self.calendarUseCase = calendarUseCase
         self.provider = provider
-        
-        self.yearMonth = yearMonth
     }
     
     // MARK: - Mutate
@@ -67,7 +63,9 @@ public final class CalendarPageCellReactor: Reactor {
                 .flatMap { _ in Observable<Mutation>.empty() }
             
         case .fetchStatisticsSummary:
-            return calendarUseCase.executeFetchStatisticsSummary()
+            let yearMonthString = currentState.yearMonthDate.toFormatString()
+            
+            return calendarUseCase.executeFetchStatisticsSummary(yearMonth: yearMonthString)
                 .flatMap {
                     guard let statistics = $0 else {
                         return Observable<Mutation>.empty()
@@ -76,7 +74,9 @@ public final class CalendarPageCellReactor: Reactor {
                 }
             
         case .fetchCalendarBanner:
-            return calendarUseCase.executeFetchCalendarBenner(yearMonth: yearMonth)
+            let yearMonthString = currentState.yearMonthDate.toFormatString()
+            
+            return calendarUseCase.executeFetchCalendarBenner(yearMonth: yearMonthString)
                 .flatMap {
                     guard let banner = $0 else {
                         return Observable<Mutation>.empty()
@@ -85,7 +85,9 @@ public final class CalendarPageCellReactor: Reactor {
                 }
             
         case .fetchCalendarResponse:
-            return calendarUseCase.executeFetchCalednarResponse(yearMonth: yearMonth)
+            let yearMonthString = currentState.yearMonthDate.toFormatString()
+            
+            return calendarUseCase.executeFetchCalednarResponse(yearMonth: yearMonthString)
                 .map {
                     guard let arrayCalendarResponse = $0 else {
                         return .injectCalendarResponse(.init(results: []))

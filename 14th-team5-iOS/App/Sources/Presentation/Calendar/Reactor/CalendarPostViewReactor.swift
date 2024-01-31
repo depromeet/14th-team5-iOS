@@ -22,15 +22,16 @@ public final class CalendarPostViewReactor: Reactor {
         case fetchPostList(Date)
         case fetchCalendarResponse(String)
         case setBlurImageIndex(Int)
+        case sendPostIdToReaction(Int)
     }
     
     // MARK: - Mutation
     public enum Mutation {
-        case setPostCommentSheet(String, Int)
         case setAllUploadedToastMessageView(Bool)
         case injectCalendarResponse(String, ArrayResponseCalendarResponse)
         case injectPostResponse([PostListData])
         case injectBlurImageIndex(Int)
+        case injectVisiblePost(PostListData)
         case generateSelectionHaptic
     }
     
@@ -38,10 +39,10 @@ public final class CalendarPostViewReactor: Reactor {
     public struct State {
         var selectedDate: Date
         var blurImageUrlString: String?
+        var visiblePostList: PostListData?
         @Pulse var displayPostResponse: [PostListSectionModel]
         @Pulse var displayCalendarResponse: [String: [CalendarResponse]]
         @Pulse var shouldPresentAllUploadedToastMessageView: Bool
-        @Pulse var shouldPresentPostCommentSheet: (String, Int)
         @Pulse var shouldGenerateSelectionHaptic: Bool
     }
     
@@ -69,7 +70,6 @@ public final class CalendarPostViewReactor: Reactor {
             displayPostResponse: [],
             displayCalendarResponse: [:],
             shouldPresentAllUploadedToastMessageView: false,
-            shouldPresentPostCommentSheet: (.none, 0),
             shouldGenerateSelectionHaptic: false
         )
         
@@ -88,15 +88,7 @@ public final class CalendarPostViewReactor: Reactor {
                 }
             }
         
-        let postMutation = provider.postGlobalState.event
-            .flatMap {
-                switch $0 {
-                case let .presentPostCommentSheet(postId, commentCount):
-                    return Observable<Mutation>.just(.setPostCommentSheet(postId, commentCount))
-                }
-            }
-        
-        return Observable<Mutation>.merge(mutation, eventMutation, postMutation)
+        return Observable<Mutation>.merge(mutation, eventMutation)
     }
     
     // MARK: - Mutate
@@ -158,6 +150,13 @@ public final class CalendarPostViewReactor: Reactor {
             
         case let .setBlurImageIndex(index):
             return Observable<Mutation>.just(.injectBlurImageIndex(index))
+            
+        case let .sendPostIdToReaction(index):
+            guard let dataSource = currentState.displayPostResponse.first else {
+                return Observable<Mutation>.empty()
+            }
+            let postListData = dataSource.items[index]
+            return Observable<Mutation>.just(.injectVisiblePost(postListData))
         }
     }
     
@@ -175,19 +174,14 @@ public final class CalendarPostViewReactor: Reactor {
         case let .setAllUploadedToastMessageView(uploaded):
             newState.shouldPresentAllUploadedToastMessageView = uploaded
             
-        case let .setPostCommentSheet(psotId, commentCount):
-            newState.shouldPresentPostCommentSheet = (psotId, commentCount)
-            
         case let .injectCalendarResponse(yearMonth, arrayCalendarResponse):
             newState.displayCalendarResponse[yearMonth] = arrayCalendarResponse.results
             
         case let .injectPostResponse(postResponse):
-            newState.displayPostResponse = [
-                SectionModel(
-                    model: .none,
-                    items: postResponse
-                )
-            ]
+            newState.displayPostResponse = [PostListSectionModel(model: .none, items: postResponse)]
+            
+        case let .injectVisiblePost(postListData):
+            newState.visiblePostList = postListData
             
         case .generateSelectionHaptic:
             newState.shouldGenerateSelectionHaptic = true

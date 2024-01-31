@@ -13,7 +13,7 @@ import UIKit
 import Then
 import SnapKit
 
-final class AirplaneLottieView: UIView {
+final public class AirplaneLottieView: UIView {
     // MARK: - Views
     private let lottieStack: UIStackView = UIStackView()
     private let lottieView: LottieView = LottieView(with: .loading)
@@ -35,7 +35,7 @@ final class AirplaneLottieView: UIView {
     }
     
     // MARK: - Intializer
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         super.init(frame: .zero)
         setupUI()
         setupAutoLayout()
@@ -47,12 +47,12 @@ final class AirplaneLottieView: UIView {
     }
     
     // MARK: - Helpers
-    func setupUI() {
+    private func setupUI() {
         lottieStack.addArrangedSubviews(lottieView, loadingLabel)
         addSubviews(lottieStack)
     }
     
-    func setupAutoLayout() {
+    private func setupAutoLayout() {
         lottieStack.snp.makeConstraints {
             $0.top.equalToSuperview()
             $0.horizontalEdges.equalToSuperview()
@@ -64,7 +64,7 @@ final class AirplaneLottieView: UIView {
         }
     }
     
-    func setupAttributes() {
+    private func setupAttributes() {
         lottieStack.do {
             $0.axis = .vertical
             $0.spacing = 12

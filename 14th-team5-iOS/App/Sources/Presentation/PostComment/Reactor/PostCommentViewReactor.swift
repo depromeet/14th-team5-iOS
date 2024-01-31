@@ -38,6 +38,7 @@ final public class PostCommentViewReactor: Reactor {
         case setHiddenPaperAirplaneLottieView(Bool)
         case generateErrorHapticNotification
         case scrollToLast
+        case becomeFirstResponseder
         case clearCommentTextField
     }
     
@@ -57,6 +58,7 @@ final public class PostCommentViewReactor: Reactor {
         @Pulse var shouldPresentEmptyCommentView: Bool
         @Pulse var shouldPresentPaperAirplaneLottieView: Bool
         @Pulse var shouldGenerateErrorHapticNotification: Bool
+        @Pulse var becomeFirstResponder: Bool
         var tableViewBottomOffset: CGFloat
     }
     
@@ -90,6 +92,7 @@ final public class PostCommentViewReactor: Reactor {
             shouldPresentEmptyCommentView: false,
             shouldPresentPaperAirplaneLottieView: false,
             shouldGenerateErrorHapticNotification: false,
+            becomeFirstResponder: false,
             tableViewBottomOffset: 0
         )
         
@@ -164,7 +167,8 @@ final public class PostCommentViewReactor: Reactor {
                         return Observable.concat(
                             Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(true)),
                             Observable<Mutation>.just(.injectPostComment(reactors)),
-                            Observable<Mutation>.just(.scrollToLast)
+                            Observable<Mutation>.just(.scrollToLast),
+                            Observable<Mutation>.just(.becomeFirstResponseder)
                         )
                     }
             )
@@ -295,6 +299,9 @@ final public class PostCommentViewReactor: Reactor {
                 break
             }
             newState.shouldScrollToLast = dataSource.items.count - 1
+            
+        case .becomeFirstResponseder:
+            newState.becomeFirstResponder = true
             
         case .clearCommentTextField:
             newState.shouldClearCommentTextField = true

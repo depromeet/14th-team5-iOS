@@ -27,7 +27,8 @@ let dependencies = Dependencies(
         .lottie
     ], productTypes: [
         "FSCalendar": .framework,
-        "Firebase": .framework
+        "Firebase": .framework,
+        "Lottie": .framework
     ],
      baseSettings: .settings(
         configurations: [

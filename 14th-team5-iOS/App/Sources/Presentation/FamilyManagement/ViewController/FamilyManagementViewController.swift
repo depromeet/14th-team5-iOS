@@ -31,7 +31,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
 
     private let airplaneLottieView: AirplaneLottieView = AirplaneLottieView()
     
-    private let fetchFailureView: FetchFailureView = FetchFailureView(type: .family)
+    private let fetchFailureView: BibbiFetchFailureView = BibbiFetchFailureView(type: .family)
     
     // MARK: - Properties
     private lazy var dataSource: RxTableViewSectionedReloadDataSource<FamilyMemberProfileSectionModel> = prepareDatasource()

@@ -26,6 +26,18 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        linkTextField.becomeFirstResponder()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        linkTextField.resignFirstResponder()
+    }
+    
     override func setupUI() {
         super.setupUI()
         view.addSubviews(backButton, titleLabel, linkTextField, joinFamilyButton)
@@ -86,11 +98,12 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
         }
         
         linkTextField.do {
-            $0.makePlaceholderAttributedString(UserDefaults.standard.inviteCode ?? _Str.placeholder,
+            $0.makePlaceholderAttributedString(_Str.placeholder,
                                                attributed: [
                 .font: UIFont(font: DesignSystemFontFamily.Pretendard.bold, size: 36)!,
                 .foregroundColor: DesignSystemAsset.gray700.color
             ])
+            $0.text = UserDefaults.standard.inviteCode
             $0.textColor = DesignSystemAsset.gray200.color
             $0.font = UIFont(font: DesignSystemFontFamily.Pretendard.bold, size: 36)
             $0.autocorrectionType = .no
@@ -103,7 +116,7 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
             $0.titleLabel?.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 16)
             $0.setTitleColor(DesignSystemAsset.black.color, for: .normal)
             $0.backgroundColor = DesignSystemAsset.mainYellow.color.withAlphaComponent(0.2)
-            $0.isEnabled = false
+            $0.isEnabled = UserDefaults.standard.inviteCode?.isEmpty == false
             $0.layer.cornerRadius = 28
         }
     }

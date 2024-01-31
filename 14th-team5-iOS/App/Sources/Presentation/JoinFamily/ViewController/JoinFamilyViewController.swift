@@ -30,11 +30,16 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
         view.addSubviews(titleLabel, captionLabel, createFamilyButton, joinFamilyButton)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.isHidden = true
+    }
+    
     override func setupAutoLayout() {
         super.setupAutoLayout()
         
         titleLabel.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).inset(20)
+            $0.top.equalTo(view.safeAreaLayoutGuide).inset(44)
             $0.horizontalEdges.equalToSuperview().inset(20)
             $0.height.equalTo(66)
         }
@@ -83,7 +88,15 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
     
     private func bindInput(reactor: JoinFamilyReactor) {
         createFamilyButton.rx.tap
-            .map { Reactor.Action.makeFamily }
+            .do(onNext: { MPEvent.Account.creatGroup.track(with: nil) })
+            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.newGroupAlertController()})
+            .disposed(by: disposeBag)
+        
+        NotificationCenter.default
+            .rx.notification(.didTapCreatFamilyGroupButton)
+            .map { _ in Reactor.Action.makeFamily }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -125,5 +138,24 @@ extension JoinFamilyViewController {
         
         let inputFamilyLinkViewController = InputFamilyLinkDIContainer().makeViewController()
         self.navigationController?.pushViewController(inputFamilyLinkViewController, animated: true)
+    }
+    
+    private func newGroupAlertController() {
+        let resignAlertController = UIAlertController(
+            title: "새 그룹방으로 입장",
+            message: "초대 받은 그룹이 없어\n새 그룹방으로 입장할래요",
+            preferredStyle: .alert
+        )
+        
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)
+        let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
+            MPEvent.Account.creatGroupFinished.track(with: nil)
+            NotificationCenter.default.post(name: .didTapCreatFamilyGroupButton, object: nil, userInfo: nil)
+        }
+        
+        [cancelAction, confirmAction].forEach(resignAlertController.addAction(_:))
+        
+        resignAlertController.overrideUserInterfaceStyle = .dark
+        present(resignAlertController, animated: true)
     }
 }

@@ -21,4 +21,5 @@ extension Notification.Name {
     public static let DidFinishProfileImageUpdate = Notification.Name("DidFinishProfileImageUpdate")
     public static let DidFinishProfileNickNameUpdate = Notification.Name("DidFinishProfileNickNameUpdate")
     public static let didTapSelectableCameraButton = Notification.Name("didTapSelectableCameraButton")
+    public static let didTapCreatFamilyGroupButton = Notification.Name("didTapCreatFamilyGroupButton")
 }

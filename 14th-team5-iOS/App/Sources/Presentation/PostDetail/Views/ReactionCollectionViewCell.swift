@@ -72,7 +72,7 @@ final class ReactionCollectionViewCell: BaseCollectionViewCell<TempCellReactor> 
         layer.cornerRadius = 18
         
         emojiImageView.do {
-            $0.layer.cornerRadius = 13
+//            $0.layer.cornerRadius = 13
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
         }
@@ -107,8 +107,9 @@ extension ReactionCollectionViewCell {
         if data.isStandard {
             emojiImageView.image = data.emojiType.emojiImage
         } else {
+            emojiImageView.layer.cornerRadius = 13
             emojiImageView.kf.setImage(with: URL(string: data.realEmojiImageURL))
-            badgeView.image = data.emojiType.emojiImage
+            badgeView.image = data.emojiType.emojiBadgeImage
         }
     }
     

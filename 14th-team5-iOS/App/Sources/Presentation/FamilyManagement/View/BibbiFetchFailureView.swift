@@ -18,7 +18,6 @@ final public class BibbiFetchFailureView: UIView {
         case family = "가족"
         case comment = "댓글"
         case post = "피드"
-        case none
     }
     
     // MARK: - Views
@@ -28,10 +27,10 @@ final public class BibbiFetchFailureView: UIView {
     private let subLabel: BibbiLabel = BibbiLabel(.body2Regular, alignment: .center, textColor: .gray500)
     
     // MARK: - Properties
-    private var type: FailureType
+    private var type: FailureType?
     
     // MARK: - Intializer
-    public convenience init(type: FailureType = .none) {
+    public convenience init(type: FailureType? = nil) {
         self.init(frame: .zero)
         
         self.type = type
@@ -41,7 +40,7 @@ final public class BibbiFetchFailureView: UIView {
     }
     
     public override init(frame: CGRect) {
-        self.type = .none
+        self.type = nil
         super.init(frame: .zero)
     }
     
@@ -90,16 +89,18 @@ final public class BibbiFetchFailureView: UIView {
         setupMainLabel(type: type)
     }
     
-    private func setupMainLabel(type: FailureType) {
-        switch type {
-        case .family:
-            fallthrough
-        case .comment:
-            mainLabel.text = "\(type.rawValue)을 불러오는데 실패했어요"
-        case .post:
-            mainLabel.text = "\(type.rawValue)를 불러오는데 실패했어요"
-        case .none:
-            mainLabel.text = String.none
+    private func setupMainLabel(type: FailureType?) {
+        var labelText = String.none
+        if let type = type {
+            switch type {
+            case .family:
+                fallthrough
+            case .comment:
+                labelText = "\(type.rawValue)을 불러오는데 실패했어요"
+            case .post:
+                labelText = "\(type.rawValue)를 불러오는데 실패했어요"
+            }
         }
+        mainLabel.text = labelText        
     }
 }

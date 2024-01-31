@@ -26,7 +26,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
     private let textFieldContainerView: UIView = UIView()
     private let createCommentButton: UIButton = UIButton(type: .system)
     
-    private let airplaneLottieView: AirplaneLottieView = AirplaneLottieView()
+    private let bibbiLottieView: BibbiLoadingView = BibbiLoadingView()
     private let fetchFailureView: FetchFailureView = FetchFailureView(type: .comment)
     
     // MARK: - Properties
@@ -190,7 +190,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentPaperAirplaneLottieView)
-            .bind(to: airplaneLottieView.rx.isHidden)
+            .bind(to: bibbiLottieView.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldGenerateErrorHapticNotification)
@@ -240,7 +240,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
         super.setupUI()
         
         view.addSubviews(navigationBarView, commentTableView, textFieldContainerView)
-        commentTableView.addSubviews(airplaneLottieView, noCommentLabel, fetchFailureView)
+        commentTableView.addSubviews(bibbiLottieView, noCommentLabel, fetchFailureView)
         textFieldContainerView.addSubviews(commentTextField)
     }
     
@@ -271,7 +271,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(0)
         }
         
-        airplaneLottieView.snp.makeConstraints {
+        bibbiLottieView.snp.makeConstraints {
             $0.centerX.equalToSuperview()
             $0.horizontalEdges.equalToSuperview()
             $0.top.equalToSuperview().offset(UIScreen.isPhoneSE ? 70 : 90)

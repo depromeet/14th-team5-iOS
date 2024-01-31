@@ -44,7 +44,7 @@ final class HomeViewReactor: Reactor {
     
     public struct State {
         var isRefreshing: Bool = false
-        var showLoading: Bool = true
+        var showLoading: Bool = false
         var didPost: Bool = false
         var isShowingNoPostTodayView: Bool = false
         var isHideCameraButton: Bool = false

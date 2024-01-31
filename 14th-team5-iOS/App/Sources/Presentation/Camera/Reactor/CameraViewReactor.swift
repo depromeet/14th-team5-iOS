@@ -52,7 +52,7 @@ public final class CameraViewReactor: Reactor {
     }
     
     public struct State {
-        var isLoading: Bool
+        @Pulse var isLoading: Bool
         @Pulse var isFlashMode: Bool
         @Pulse var isSwitchPosition: Bool
         @Pulse var profileImageURLEntity: CameraDisplayImageResponse?
@@ -200,7 +200,6 @@ extension CameraViewReactor {
         var searchId: [String: String] = ["0":"","1":"","2":"","3":"","4":""]
         if cameraType == .realEmoji {
             return .concat(
-                .just(.setLoading(false)),
                 cameraUseCase.executeRealEmojiItems(memberId: memberId)
                     .withUnretained(self)
                     .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
@@ -248,6 +247,7 @@ extension CameraViewReactor {
                             }
                         }
                         return .concat(
+                            .just(.setLoading(false)),
                             .just(.setRealEmojiItems(entity)),
                             .just(.setRealEmojiSection(sectionItem)),
                             .just(.setRealEmojiImage(searchImage)),

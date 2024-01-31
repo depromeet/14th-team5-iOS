@@ -16,6 +16,7 @@ import Kingfisher
 
 final class HomeViewReactor: Reactor {
     enum Action {
+        case checkInTime
         case viewWillAppear
     }
     
@@ -24,15 +25,15 @@ final class HomeViewReactor: Reactor {
         case setAllFamilyUploaded(Bool)
         case setInviteFamilyView(Bool)
         case setNoPostTodayView(Bool)
-        case setNotTime(Bool)
+        case setInTime(Bool)
         
         case updateFamilyDataSource([FamilySection.Item])
         case updatePostDataSource([PostSection.Item])
     }
     
     struct State {
-        var isNotTime: Bool = false
-        var isSelfUploaded: Bool = true
+        var isInTime: Bool = true
+        var isSelfUploaded: Bool = false
         var isAllFamilyMembersUploaded: Bool = false
         
         @Pulse var familySection: FamilySection.Model = FamilySection.Model(model: 0, items: [])
@@ -57,26 +58,18 @@ final class HomeViewReactor: Reactor {
 }
 
 extension HomeViewReactor {
-    func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
-        return provider.timerGlobalState.event
-            .take(1)
-            .flatMap { event in
-                switch event {
-                case .notTime:
-                    return Observable.merge([
-                        mutation,
-                        Observable<Mutation>.just(Mutation.setNotTime(true))
-                        ])
-                default:
-                    return Observable.merge([mutation])
-                }
-            }
-    }
-    
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewWillAppear:
             return self.viewWillAppear()
+        case .checkInTime:
+            return Observable<Int>
+                .timer(.seconds(self.calculateRemainingTime()), scheduler: MainScheduler.instance)
+                .filter { $0 <= 0 }
+                .flatMap {_ in
+                    return Observable.concat([Observable.just(Mutation.setInTime(false)),
+                                              self.mutate(action: .viewWillAppear)])
+                }
         }
     }
     
@@ -96,12 +89,8 @@ extension HomeViewReactor {
             newState.isShowingInviteFamilyView = isShow
         case .setNoPostTodayView(let isShow):
             newState.isShowingNoPostTodayView = isShow
-        case .setNotTime(let isNotTime):
-            if isNotTime {
-                newState.isSelfUploaded = isNotTime
-                newState.isShowingNoPostTodayView = isNotTime
-            }
-            newState.isNotTime = isNotTime
+        case .setInTime(let isInTime):
+            newState.isInTime = isInTime
         }
         
         return newState
@@ -112,11 +101,11 @@ extension HomeViewReactor {
     private func viewWillAppear() -> Observable<Mutation> {
         let familyListObservable = getFamilyList()
 
-        if currentState.isNotTime {
-            return handleFamilyListWhenNotTime(familyListObservable)
-        } else {
+        if currentState.isInTime {
             let postListObservable = getPostList()
             return handleFamilyAndPostList(familyListObservable, postListObservable)
+        } else {
+            return handleFamilyListWhenNotTime(familyListObservable)
         }
     }
 
@@ -130,13 +119,14 @@ extension HomeViewReactor {
                 let familySectionItem = familyList.members.map(FamilySection.Item.main)
                 return Observable.from([
                     Mutation.setInviteFamilyView(false),
+                    Mutation.setSelfUploaded(true),
                     Mutation.updateFamilyDataSource(familySectionItem)
                 ])
             }
     }
 
     private func handleFamilyAndPostList(_ familyListObservable: Observable<SearchFamilyPage?>, _ postListObservable: Observable<PostListPage?>) -> Observable<Mutation> {
-        return Observable.zip(postListObservable, familyListObservable)
+        return Observable.combineLatest(postListObservable, familyListObservable)
             .flatMap { (postList, familyList) -> Observable<Mutation> in
                 guard let familyList = familyList, familyList.members.count >= 1 else {
                     return Observable.empty()
@@ -171,36 +161,25 @@ extension HomeViewReactor {
     }
 
     private func sortFamilyMembersByPostRank(_ familyMembers: [ProfileData], with postLists: [PostListData]) -> [ProfileData] {
-        let authorIdsInOrder = postLists.compactMap { $0.author?.memberId }
-
-        var sortedFamilyMembers = familyMembers.sorted { (familyMember1, familyMember2) -> Bool in
-               guard
-                   familyMember1.memberId != familyMembers.first?.memberId,
-                   familyMember2.memberId != familyMembers.first?.memberId,
-                   let index1 = authorIdsInOrder.firstIndex(of: familyMember1.memberId),
-                   let index2 = authorIdsInOrder.firstIndex(of: familyMember2.memberId) else {
-                   return false
-               }
-               return index1 > index2
-        }
+        let authorProfileDatas = postLists.compactMap { $0.author }.reversed()
+        let subtractMembers = Array(Set(familyMembers).subtracting(Set(authorProfileDatas)))
         
-        sortedFamilyMembers = sortedFamilyMembers.enumerated().map { (index, element) -> ProfileData in
-            var mutableFamilyMember = element
-            mutableFamilyMember.postRank = index + 1
-            return mutableFamilyMember
+        var sortedMembers = authorProfileDatas + subtractMembers
+        for index in 0..<authorProfileDatas.count {
+            sortedMembers[index].postRank = index + 1
         }
         
         let myMemberId = App.Repository.member.memberID.value
-        if let index = familyMembers.firstIndex(where: { $0.memberId == myMemberId }) {
-            let element = sortedFamilyMembers.remove(at: index)
-            sortedFamilyMembers.insert(element, at: 0)
+        if let index = sortedMembers.firstIndex(where: { $0.memberId == myMemberId }) {
+            let element = sortedMembers.remove(at: index)
+            sortedMembers.insert(element, at: 0)
         }
         
-        return sortedFamilyMembers
+        return sortedMembers
     }
 
     private func getPostList() -> Observable<PostListPage?> {
-        guard !currentState.isNotTime else {
+        guard currentState.isInTime else {
             return Observable.empty()
         }
         let query = PostListQuery(page: 1, size: 50, date: Date().toFormatString(with: "YYYY-MM-DD"), sort: .desc)
@@ -212,4 +191,19 @@ extension HomeViewReactor {
         return familyUseCase.excute(query: query).asObservable()
     }
     
+    private func calculateRemainingTime() -> Int {
+        let calendar = Calendar.current
+        let currentTime = Date()
+        
+        let isAfterNoon = calendar.component(.hour, from: currentTime) >= 12
+        
+        if isAfterNoon {
+            if let nextMidnight = calendar.date(bySettingHour: 18, minute: 10, second: 0, of: /*currentTime.addingTimeInterval(24 * 60 * 60)*/ currentTime) {
+                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
+                return max(0, timeDifference.second ?? 0)
+            }
+        }
+        
+        return 0
+    }
 }

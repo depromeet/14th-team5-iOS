@@ -147,6 +147,11 @@ extension HomeViewController {
         postCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
+        Observable.just(())
+            .map { Reactor.Action.checkInTime }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         self.rx.viewWillAppear
             .do(onNext: { _ in App.indicator.show(with: .loading)})
             .withUnretained(self)

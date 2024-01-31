@@ -8,13 +8,9 @@
 import Foundation
 
 public struct FamilyMonthlyStatisticsResponse {
-    public var totalParticiateCnt: Int
     public var totalImageCnt: Int
-    public var myImageCnt: Int
     
-    public init(totalParticiateCnt: Int, totalImageCnt: Int, myImageCnt: Int) {
-        self.totalParticiateCnt = totalParticiateCnt
+    public init(totalImageCnt: Int) {
         self.totalImageCnt = totalImageCnt
-        self.myImageCnt = myImageCnt
     }
 }

@@ -12,9 +12,9 @@ import UIKit
 import Then
 import SnapKit
 
-final class FetchFailureView: UIView {
+final public class BibbiFetchFailureView: UIView {
     // MARK: - Type
-    enum FailureType: String {
+    public enum FailureType: String {
         case family = "가족"
         case comment = "댓글"
         case post = "피드"
@@ -26,17 +26,22 @@ final class FetchFailureView: UIView {
     private let mainLabel: BibbiLabel = BibbiLabel(.body1Regular, alignment: .center, textColor: .gray300)
     private let subLabel: BibbiLabel = BibbiLabel(.body2Regular, alignment: .center, textColor: .gray500)
     
-    // MARK: - Intializer
-    convenience init(type: FailureType = .family) {
-        self.init(frame: .zero)
-        setupMainLabel(type: type)
-    }
+    // MARK: - Properties
+    private var type: FailureType?
     
-    override init(frame: CGRect) {
-        super.init(frame: .zero)
+    // MARK: - Intializer
+    public convenience init(type: FailureType? = nil) {
+        self.init(frame: .zero)
+        
+        self.type = type
         setupUI()
         setupAutoLayout()
         setupAttributes()
+    }
+    
+    public override init(frame: CGRect) {
+        self.type = nil
+        super.init(frame: .zero)
     }
     
     required init?(coder: NSCoder) {
@@ -44,12 +49,12 @@ final class FetchFailureView: UIView {
     }
     
     // MARK: - Helpers
-    func setupUI() {
+    private func setupUI() {
         labelStack.addArrangedSubviews(mainLabel, subLabel)
         addSubviews(emptyImageView, labelStack)
     }
     
-    func setupAutoLayout() {
+    private func setupAutoLayout() {
         emptyImageView.snp.makeConstraints {
             $0.top.equalToSuperview()
             $0.centerX.equalToSuperview()
@@ -64,7 +69,7 @@ final class FetchFailureView: UIView {
         
     }
     
-    func setupAttributes() {
+    private func setupAttributes() {
         labelStack.do {
             $0.axis = .vertical
             $0.spacing = 12
@@ -80,16 +85,22 @@ final class FetchFailureView: UIView {
         subLabel.do {
             $0.text = "잠시 후 다시 시도해주세요"
         }
+        
+        setupMainLabel(type: type)
     }
     
-    func setupMainLabel(type: FailureType) {
-        switch type {
-        case .family:
-            fallthrough
-        case .comment:
-            mainLabel.text = "\(type.rawValue)을 불러오는데 실패했어요"
-        case .post:
-            mainLabel.text = "\(type.rawValue)를 불러오는데 실패했어요"
+    private func setupMainLabel(type: FailureType?) {
+        var labelText = String.none
+        if let type = type {
+            switch type {
+            case .family:
+                fallthrough
+            case .comment:
+                labelText = "\(type.rawValue)을 불러오는데 실패했어요"
+            case .post:
+                labelText = "\(type.rawValue)를 불러오는데 실패했어요"
+            }
         }
+        mainLabel.text = labelText        
     }
 }

@@ -75,8 +75,8 @@ extension CalendarAPIWorker {
             .asSingle()
     }
     
-    public func fetchStatisticsSummary(familyId: String) -> Single<FamilyMonthlyStatisticsResponse?> {
-        let spec = CalendarAPIs.fetchStatisticsSummary(familyId).spec
+    public func fetchStatisticsSummary(yearMonth: String) -> Single<FamilyMonthlyStatisticsResponse?> {
+        let spec = CalendarAPIs.fetchStatisticsSummary(yearMonth).spec
         
         return Observable<Void>.just(())
             .withLatestFrom(self._headers)

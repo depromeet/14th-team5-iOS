@@ -31,7 +31,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
 
     private let bibbiLottieView: BibbiLoadingView = BibbiLoadingView()
     
-    private let fetchFailureView: FetchFailureView = FetchFailureView(type: .family)
+    private let fetchFailureView: BibbiFetchFailureView = BibbiFetchFailureView(type: .family)
     
     // MARK: - Properties
     private lazy var dataSource: RxTableViewSectionedReloadDataSource<FamilyMemberProfileSectionModel> = prepareDatasource()
@@ -145,7 +145,8 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldGenerateErrorHapticNotification)
-            .subscribe { if $0 { Haptic.notification(type: .error) } }
+            .filter { $0 }
+            .subscribe(onNext: { _ in Haptic.notification(type: .error) })
             .disposed(by: disposeBag)
     }
     

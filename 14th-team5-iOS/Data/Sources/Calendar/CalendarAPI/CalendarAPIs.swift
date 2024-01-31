@@ -18,8 +18,8 @@ enum CalendarAPIs: API {
         switch self {
         case let .fetchCalendarResponse(yearMonth):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar?type=MONTHLY&yearMonth=\(yearMonth)")
-        case let .fetchStatisticsSummary(familyId):
-            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/families/\(familyId)/summary")
+        case let .fetchStatisticsSummary(yearMonth):
+            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar/summary?yearMonth=\(yearMonth)")
         case let .fetchCalendarBenner(yearMonth):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar/banner?yearMonth=\(yearMonth)")
         }

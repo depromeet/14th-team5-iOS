@@ -20,12 +20,10 @@ public final class PostCommentDIContainer {
     }
     
     private var postId: String
-    private var commentCount: Int
     
     // MARK: - Intializer
-    public init(postId: String, commentCount: Int) {
+    public init(postId: String) {
         self.postId = postId
-        self.commentCount = commentCount
     }
     
     // MARK: - Make
@@ -52,7 +50,6 @@ public final class PostCommentDIContainer {
     public func makeReactor() -> PostCommentViewReactor {
         return PostCommentViewReactor(
             postId: postId,
-            commentCount: commentCount,
             memberUseCase: makeMemberUseCase(),
             postCommentUseCase: makePostCommentUseCase(),
             provider: globalState

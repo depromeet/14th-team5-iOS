@@ -174,8 +174,8 @@ extension ReactionViewController {
                 sheet.prefersScrollingExpandsWhenScrolledToEdge = false
             } else {
                 sheet.detents = [ .medium(), .large()]
-                sheet.prefersGrabberVisible = true
             }
+            sheet.prefersGrabberVisible = true
         }
 
         self.present(viewController, animated: true)

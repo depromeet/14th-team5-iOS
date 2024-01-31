@@ -17,101 +17,76 @@ import SnapKit
 import Then
 import Domain
 
-final class HomeViewController: BaseViewController<HomeViewReactor> {
+final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectionViewDelegateFlowLayout {
     private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
-    private let familyViewController: HomeFamilyViewController = HomeFamilyDIContainer().makeViewController()
-    private let dividerView: UIView = UIView()
-    private let timerLabel: BibbiLabel = BibbiLabel(.head1, alignment: .center)
-    private let descriptionLabel: UILabel = BibbiLabel(.body2Regular, alignment: .center, textColor: .gray300)
-    private let noPostTodayView: UIView = NoPostTodayView()
+    private let timerView: TimerView = TimerView()
+    private let familyCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let postCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private let noPostView: NoPostTodayView = NoPostTodayView()
+    private let inviteFamilyView: InviteFamilyView = InviteFamilyView(openType: .inviteUrl)
     private let balloonView: BalloonView = BalloonView()
     private let loadingView: BibbiLoadingView = BibbiLoadingView()
     private let cameraButton: UIButton = UIButton()
     private let refreshControl: UIRefreshControl = UIRefreshControl()
-    private let dataSource: RxCollectionViewSectionedReloadDataSource<PostSection.Model>  = {
-        return RxCollectionViewSectionedReloadDataSource<PostSection.Model>(
-            configureCell: { (_, collectionView, indexPath, item) in
-                switch item {
-                case .main(let data):
-                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FeedCollectionViewCell.id, for: indexPath) as? FeedCollectionViewCell else {
-                        return UICollectionViewCell()
-                    }
-                    cell.setCell(data: data)
-                    return cell
-                }
-            })
-    }()
     
-    public override func viewDidLoad() {
+    override func viewDidLoad() {
         super.viewDidLoad()
     }
     
-    public override func viewWillAppear(_ animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-    
+        
         navigationController?.navigationBar.isHidden = true
     }
     
-    public override func bind(reactor: HomeViewReactor) {
+    override func bind(reactor: HomeViewReactor) {
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
-    public override func setupUI() {
+    override func setupUI() {
         super.setupUI()
-        
-        addChild(familyViewController)
-        view.addSubviews(navigationBarView, dividerView, timerLabel,
-                         descriptionLabel, postCollectionView, noPostTodayView,
-                         balloonView, cameraButton, loadingView, familyViewController.view)
-        
-        familyViewController.didMove(toParent: self)
+
+        view.addSubviews(navigationBarView, familyCollectionView, timerView,
+                         noPostView, postCollectionView, inviteFamilyView,
+                         balloonView, cameraButton)
     }
     
-    public override func setupAutoLayout() {
+    override func setupAutoLayout() {
         super.setupAutoLayout()
         
         navigationBarView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.height.equalTo(33)
-            $0.horizontalEdges.equalToSuperview()
+            $0.top.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            $0.height.equalTo(40)
         }
         
-        loadingView.snp.makeConstraints {
-            $0.center.equalToSuperview()
+        familyCollectionView.snp.makeConstraints {
+            $0.height.equalTo(138)
+            $0.top.equalTo(navigationBarView.snp.bottom)
+            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
         }
         
-        familyViewController.view.snp.makeConstraints {
-            $0.top.equalTo(navigationBarView.snp.bottom).offset(24)
-            $0.horizontalEdges.equalToSuperview()
+        inviteFamilyView.snp.makeConstraints {
+            $0.top.equalTo(familyCollectionView).inset(24)
+            $0.horizontalEdges.equalTo(familyCollectionView).inset(20)
             $0.height.equalTo(90)
         }
         
-        dividerView.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview()
-            $0.top.equalTo(view.safeAreaLayoutGuide).inset(HomeAutoLayout.DividerView.topInset)
-            $0.height.equalTo(HomeAutoLayout.DividerView.height)
-        }
-        
-        timerLabel.snp.makeConstraints {
-            $0.top.equalTo(dividerView.snp.bottom).offset(HomeAutoLayout.TimerLabel.topOffset)
-            $0.height.equalTo(HomeAutoLayout.TimerLabel.height)
-            $0.horizontalEdges.equalToSuperview().inset(HomeAutoLayout.TimerLabel.horizontalInset)
-            $0.centerX.equalToSuperview()
-        }
-        
-        descriptionLabel.snp.makeConstraints {
-            $0.top.equalTo(timerLabel.snp.bottom).offset(HomeAutoLayout.DescriptionLabel.topOffset)
-            $0.centerX.equalToSuperview()
-            $0.horizontalEdges.equalToSuperview().inset(HomeAutoLayout.DescriptionLabel.horizontalInset)
-            $0.height.equalTo(HomeAutoLayout.DescriptionLabel.height)
+        timerView.snp.makeConstraints {
+            $0.top.equalTo(familyCollectionView.snp.bottom)
+            $0.height.equalTo(100)
+            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
         }
         
         postCollectionView.snp.makeConstraints {
-            $0.top.equalTo(descriptionLabel.snp.bottom).offset(HomeAutoLayout.FeedCollectionView.topOffset)
-            $0.horizontalEdges.equalToSuperview()
+            $0.top.equalTo(timerView.snp.bottom)
+            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
+        }
+        
+        noPostView.snp.makeConstraints {
+            $0.top.equalTo(postCollectionView).inset(100)
+            $0.horizontalEdges.bottom.equalTo(postCollectionView)
         }
         
         balloonView.snp.makeConstraints {
@@ -125,18 +100,10 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
             $0.centerX.equalToSuperview()
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
         }
-        
-        noPostTodayView.snp.makeConstraints {
-            $0.top.equalTo(descriptionLabel.snp.bottom).offset(HomeAutoLayout.NoPostTodayView.topOffset)
-            $0.horizontalEdges.equalToSuperview()
-            $0.bottom.equalTo(view.safeAreaLayoutGuide)
-        }
     }
     
-    public override func setupAttributes() {
+    override func setupAttributes() {
         super.setupAttributes()
-
-        let feedCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
         
         navigationBarView.do {
             $0.navigationImage = .newBibbi
@@ -151,24 +118,19 @@ final class HomeViewController: BaseViewController<HomeViewReactor> {
             $0.rightBarButtonItemYOffset = -10.0
         }
         
-        dividerView.do {
-            $0.backgroundColor = .gray900
-        }
-        
-        feedCollectionViewLayout.do {
-            $0.sectionInset = .zero
-            $0.minimumLineSpacing = HomeAutoLayout.FeedCollectionView.minimumLineSpacing
-            $0.minimumInteritemSpacing = HomeAutoLayout.FeedCollectionView.minimumInteritemSpacing
+        familyCollectionView.do {
+            $0.collectionViewLayout = createFamilyLayout()
+            $0.showsHorizontalScrollIndicator = false
+            $0.backgroundColor = .clear
+            $0.register(FamilyCollectionViewCell.self, forCellWithReuseIdentifier: FamilyCollectionViewCell.id)
         }
         
         postCollectionView.do {
+            $0.collectionViewLayout = createPostLayout()
+            $0.showsVerticalScrollIndicator = false
+            $0.backgroundColor = .clear
             $0.refreshControl = refreshControl
             $0.register(FeedCollectionViewCell.self, forCellWithReuseIdentifier: FeedCollectionViewCell.id)
-            $0.backgroundColor = .clear
-        }
-        
-        noPostTodayView.do {
-            $0.isHidden = true
         }
         
         balloonView.do {
@@ -187,12 +149,17 @@ extension HomeViewController {
             .disposed(by: disposeBag)
         
         Observable.just(())
-            .map { Reactor.Action.startTimer }
+            .map { Reactor.Action.checkInTime }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        rx.viewWillAppear
+        self.rx.viewWillAppear
             .map { _ in Reactor.Action.viewWillAppear }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        refreshControl.rx.controlEvent(.valueChanged)
+            .map { Reactor.Action.refresh }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -218,47 +185,30 @@ extension HomeViewController {
             }
             .disposed(by: disposeBag)
         
+        familyCollectionView.rx.modelSelected(FamilySection.Item.self)
+            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .compactMap { item -> ProfileData? in
+                switch item {
+                case .main(let profileData): return profileData
+                }
+            }
+            .withUnretained(self)
+            .bind { owner, profileData in
+                let profileViewController = ProfileDIContainer(memberId: profileData.memberId).makeViewController()
+                self.navigationController?.pushViewController(profileViewController, animated: true)
+            }
+            .disposed(by: disposeBag)
+        
         postCollectionView.rx.itemSelected
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .bind(onNext: { [weak self] indexPath in
-                guard let self else { return }
-                let sectionModel = reactor.currentState.postSections
-
-                self.navigationController?.pushViewController(
+            .withUnretained(self)
+            .bind(onNext: {
+                $0.0.navigationController?.pushViewController(
                     PostListsDIContainer().makeViewController(
-                        postLists: sectionModel,
-                        selectedIndex: indexPath
-                    ),
-                    animated: true
-                )
+                        postLists: reactor.currentState.postSection,
+                        selectedIndex: $0.1
+                    ), animated: true)
             })
-            .disposed(by: disposeBag)
-        
-        postCollectionView.rx.prefetchItems
-            .throttle(.seconds(1), scheduler: Schedulers.main)
-            .observe(on: Schedulers.main)
-            .asObservable()
-            .map(dataSource.items(at:))
-            .map(Reactor.Action.prefetchItems)
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        postCollectionView.rx.didScroll
-            .debounce(.seconds(1), scheduler: MainScheduler.instance)
-            .withLatestFrom(self.postCollectionView.rx.contentOffset)
-            .map { [weak self] in
-              Reactor.Action.pagination(
-                contentHeight: self?.postCollectionView.contentSize.height ?? 0,
-                contentOffsetY: $0.y,
-                scrollViewHeight: UIScreen.main.bounds.height
-              )
-            }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        refreshControl.rx.controlEvent(.valueChanged)
-            .map { Reactor.Action.refreshCollectionview }
-            .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         cameraButton.rx.tap
@@ -272,80 +222,113 @@ extension HomeViewController {
     }
     
     private func bindOutput(reactor: HomeViewReactor) {
-        reactor.state
-            .map { $0.isRefreshing }
+        reactor.pulse(\.$postSection)
             .observe(on: MainScheduler.instance)
-            .bind(onNext: { [weak postCollectionView] isRefreshing in
-                if let refreshControl = postCollectionView?.refreshControl {
-                    refreshControl.endRefreshing()
-                    postCollectionView?.reloadData()
-                }
+            .map(Array.init(with:))
+            .bind(to: postCollectionView.rx.items(dataSource: createPostDataSource()))
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$isRefreshEnd)
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.refreshControl.endRefreshing() })
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$postSection)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.timerView.reactor = TimerDIContainer().makeReactor(isSelfUploaded: reactor.currentState.isSelfUploaded, isAllUploaded: reactor.currentState.isAllFamilyMembersUploaded)
             })
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$timer)
-            .observe(on: Schedulers.main)
-            .bind(to: timerLabel.rx.text)
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$timerLabelColor)
-            .observe(on: Schedulers.main)
-            .bind(to: timerLabel.rx.textColor)
-            .disposed(by: disposeBag)
-
-        reactor.state
-            .map { $0.isHideCameraButton }
-            .distinctUntilChanged()
-            .observe(on: Schedulers.main)
-            .withUnretained(self)
-            .bind(onNext: { $0.0.hideCameraButton($0.1) })
-            .disposed(by: disposeBag)
-
-        reactor.state
-            .map { $0.descriptionText }
-            .distinctUntilChanged()
-            .observe(on: Schedulers.main)
-            .bind(to: descriptionLabel.rx.text)
-            .disposed(by: disposeBag)
-        
-        reactor.state.map { $0.postSections }
+        reactor.pulse(\.$familySection)
+            .observe(on: MainScheduler.instance)
             .map(Array.init(with:))
-            .distinctUntilChanged()
-            .bind(to: postCollectionView.rx.items(dataSource: dataSource))
+            .bind(to: familyCollectionView.rx.items(dataSource: createFamilyDataSource()))
             .disposed(by: disposeBag)
         
-        reactor.state
-            .map { $0.isShowingNoPostTodayView }
+        reactor.pulse(\.$isSelfUploaded)
             .distinctUntilChanged()
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
-            .bind(onNext: { $0.0.setNoPostTodayView($0.1) })
+            .bind(onNext: { $0.0.hideCameraButton($0.1) })
             .disposed(by: disposeBag)
         
-        reactor.state
-            .map { $0.showLoading }
+        reactor.state.map { $0.isShowingInviteFamilyView}
+            .observe(on: MainScheduler.instance)
             .distinctUntilChanged()
-            .asDriver(onErrorJustReturn: false)
-            .drive(loadingView.rx.isHidden)
+            .map { !$0 }
+            .bind(to: inviteFamilyView.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.isShowingNoPostTodayView }
+            .observe(on: MainScheduler.instance)
+            .distinctUntilChanged()
+            .map { !$0 }
+            .bind(to: noPostView.rx.isHidden)
             .disposed(by: disposeBag)
     }
 }
 
 extension HomeViewController {
     private func setNoPostTodayView(_ isShow: Bool) {
-        noPostTodayView.isHidden = !isShow
         postCollectionView.isHidden = isShow
     }
-
+    
     private func hideCameraButton(_ isShow: Bool) {
         balloonView.isHidden = isShow
         cameraButton.isHidden = isShow
     }
 }
 
-extension HomeViewController: UICollectionViewDelegateFlowLayout {
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-            let width = (collectionView.frame.size.width - 10) / 2
-            return CGSize(width: width, height: width + 36)
+extension HomeViewController {
+    private func createFamilyLayout() -> UICollectionViewFlowLayout {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.itemSize = .init(width: 64, height: 90)
+        layout.sectionInset = UIEdgeInsets(
+            top: HomeAutoLayout.FamilyCollectionView.edgeInsetTop,
+            left: HomeAutoLayout.FamilyCollectionView.edgeInsetLeft,
+            bottom: HomeAutoLayout.FamilyCollectionView.edgeInsetBottom,
+            right: HomeAutoLayout.FamilyCollectionView.edgeInsetRight)
+        layout.minimumLineSpacing = HomeAutoLayout.FamilyCollectionView.minimumLineSpacing
+        return layout
+    }
+    
+    private func createPostLayout() -> UICollectionViewFlowLayout {
+        let layout = UICollectionViewFlowLayout()
+        layout.sectionInset = .zero
+        layout.itemSize = .init(width: UIScreen.main.bounds.width / 2 - 3, height: UIScreen.main.bounds.width / 2 - 3 + 36)
+        layout.minimumLineSpacing = HomeAutoLayout.FeedCollectionView.minimumLineSpacing
+        layout.minimumInteritemSpacing = HomeAutoLayout.FeedCollectionView.minimumInteritemSpacing
+        return layout
+    }
+    
+    private func createPostDataSource() -> RxCollectionViewSectionedReloadDataSource<PostSection.Model> {
+        return RxCollectionViewSectionedReloadDataSource<PostSection.Model>(
+            configureCell: { (_, collectionView, indexPath, item) in
+                switch item {
+                case .main(let data):
+                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FeedCollectionViewCell.id, for: indexPath) as? FeedCollectionViewCell else {
+                        return UICollectionViewCell()
+                    }
+                    cell.setCell(data: data)
+                    return cell
+                }
+            })
+    }
+    
+    private func createFamilyDataSource() -> RxCollectionViewSectionedReloadDataSource<FamilySection.Model>  {
+        return RxCollectionViewSectionedReloadDataSource<FamilySection.Model>(
+            configureCell: { (_, collectionView, indexPath, item) in
+                switch item {
+                case .main(let data):
+                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FamilyCollectionViewCell.id, for: indexPath) as? FamilyCollectionViewCell else {
+                        return UICollectionViewCell()
+                    }
+                    cell.setCell(data: data)
+                    return cell
+                }
+            })
     }
 }

@@ -5,43 +5,53 @@
 //  Created by 마경미 on 24.12.23.
 //
 
-import Foundation
+import UIKit
+
 import Data
 import Domain
 import Core
 
 
-public final class HomeDIContainer {
+final class HomeDIContainer {
+    private var globalState: GlobalStateProviderProtocol {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return GlobalStateProvider()
+        }
+        return appDelegate.globalStateProvider
+    }
+    
+    
     func makeViewController() -> HomeViewController {
         return HomeViewController(reactor: makeReactor())
     }
     
-    public func makePostRepository() -> PostListRepositoryProtocol {
+    private func makeReactor() -> HomeViewReactor {
+        return HomeViewReactor(provider: globalState, familyUseCase: makeFamilyUseCase(), postUseCase: makePostUseCase(), inviteFamilyUseCase: makeInviteFamilyUseCase())
+    }
+}
+
+extension HomeDIContainer {
+    private func makePostRepository() -> PostListRepositoryProtocol {
         return PostListAPIs.Worker()
     }
     
-    public func makeFamilyRepository() -> SearchFamilyRepository {
+    private func makeFamilyRepository() -> SearchFamilyRepository {
         return FamilyAPIs.Worker()
     }
 
-    public func makeInviteFamilyRepository() -> FamilyRepositoryProtocol {
+    private func makeInviteFamilyRepository() -> FamilyRepositoryProtocol {
         return FamilyRepository()
     }
     
-    func makePostUseCase() -> PostListUseCaseProtocol {
+    private func makePostUseCase() -> PostListUseCaseProtocol {
         return PostListUseCase(postListRepository: makePostRepository())
     }
     
-    func makeFamilyUseCase() -> SearchFamilyMemberUseCaseProtocol {
+    private func makeFamilyUseCase() -> SearchFamilyMemberUseCaseProtocol {
         return SearchFamilyUseCase(searchFamilyRepository: makeFamilyRepository())
     }
     
-    func makeInviteFamilyUseCase() -> FamilyViewUseCaseProtocol {
+    private func makeInviteFamilyUseCase() -> FamilyViewUseCaseProtocol {
         return FamilyViewUseCase(familyRepository: makeInviteFamilyRepository())
     }
-    
-    func makeReactor() -> HomeViewReactor {
-        return HomeViewReactor(postRepository: makePostUseCase())
-    }
-    
 }

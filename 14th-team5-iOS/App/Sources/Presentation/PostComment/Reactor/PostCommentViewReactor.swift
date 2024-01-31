@@ -72,14 +72,13 @@ final public class PostCommentViewReactor: Reactor {
     // MARK: - Intializer
     public init(
         postId: String,
-        commentCount: Int,
         memberUseCase: MemberUseCaseProtocol,
         postCommentUseCase: PostCommentUseCaseProtocol,
         provider: GlobalStateProviderProtocol
     ) {
         self.initialState = State(
             postId: postId,
-            commentCount: commentCount,
+            commentCount: 0,
             inputComment: "",
             displayComment: [.init(model: .none, items: [])],
             shouldScrollToLast: 0,

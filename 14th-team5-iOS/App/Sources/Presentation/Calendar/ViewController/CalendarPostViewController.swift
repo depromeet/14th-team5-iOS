@@ -414,11 +414,8 @@ extension CalendarPostViewController {
         view.layoutIfNeeded()
     }
     
-    private func presentPostCommentSheet(postId: String, commentCount: Int) {
-        let postCommentSheet = PostCommentDIContainer(
-            postId: postId,
-            commentCount: commentCount
-        ).makeViewController()
+    private func presentPostCommentSheet(postId: String) {
+        let postCommentSheet = PostCommentDIContainer(postId: postId).makeViewController()
         
         if let sheet = postCommentSheet.sheetPresentationController {
             if #available(iOS 16.0, *) {

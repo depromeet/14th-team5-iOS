@@ -13,6 +13,38 @@ import DesignSystem
 import ReactorKit
 import RxSwift
 
+fileprivate extension TimerType {
+    var title: String {
+        switch self {
+        case .standard: return "매일 12-24시에 사진 한 장을 올려요"
+        case .warning: return "시간이 얼마 남지 않았어요!"
+        case .allUploaded: return "우리 가족 모두가 사진을 올린 날"
+        }
+    }
+    
+    var image: UIImage {
+        switch self {
+        case .standard: return DesignSystemAsset.smile.image
+        case .warning: return DesignSystemAsset.fire.image
+        case .allUploaded: return DesignSystemAsset.congratulation.image
+        }
+    }
+    
+    var timerTextColor: UIColor {
+        switch self {
+        case .warning: return .warningRed
+        default: return UIColor.white
+        }
+    }
+    
+    var descTextColor: UIColor {
+        switch self {
+        case .warning: return .warningRed
+        default: return .gray300
+        }
+    }
+}
+
 final class TimerView: BaseView<TimerReactor> {
     private let dividerView: UIView = UIView()
     private let timerLabel: BibbiLabel = BibbiLabel(.head1, alignment: .center)
@@ -87,32 +119,27 @@ extension TimerView {
             .bind(onNext: { $0.0.setCell(type: $0.1) })
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.time }
+        reactor.pulse(\.$time)
             .distinctUntilChanged()
             .observe(on: Schedulers.main)
             .map { $0.setTimerFormat() }
             .bind(to: timerLabel.rx.text)
             .disposed(by: disposeBag)
+        
+//        reactor.state.map { $0.time }
+//            .distinctUntilChanged()
+//            .observe(on: Schedulers.main)
+//            .map { $0.setTimerFormat() }
+//            .bind(to: timerLabel.rx.text)
+//            .disposed(by: disposeBag)
     }
 }
 
 extension TimerView {
     private func setCell(type: TimerType) {
-        if type == .standard {
-            descriptionLabel.text = "매일 12-24시에 사진 한 장을 올려요"
-            descriptionLabel.textBibbiColor = .gray300
-            timerLabel.textBibbiColor = .white
-            imageView.image = DesignSystemAsset.smile.image
-        } else if type == .warning {
-            descriptionLabel.text = "시간이 얼마 남지 않았어요!"
-            descriptionLabel.textBibbiColor = .warningRed
-            timerLabel.textBibbiColor = .warningRed
-            imageView.image = DesignSystemAsset.fire.image
-        } else {
-            descriptionLabel.text = "우리 가족 모두가 사진을 올린 날"
-            descriptionLabel.textBibbiColor = .gray300
-            timerLabel.textBibbiColor = .white
-            imageView.image = DesignSystemAsset.congratulation.image
-        }
+        descriptionLabel.text = type.title
+        descriptionLabel.textBibbiColor = type.descTextColor
+        timerLabel.textBibbiColor = type.timerTextColor
+        imageView.image = type.image
     }
 }

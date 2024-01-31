@@ -195,6 +195,16 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             .subscribe(onNext: { _ in Haptic.notification(type: .error) })
             .disposed(by: disposeBag)
         
+        reactor.state.map { $0.enableCommentTextField }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe {
+                if let button = $0.0.commentTextField.rightView as? UIButton {
+                    button.isEnabled = $0.1
+                }
+            }
+            .disposed(by: disposeBag)
+        
         reactor.pulse(\.$becomeFirstResponder)
             .filter { $0 }
             .withUnretained(self)

@@ -127,7 +127,9 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .rx.notification(.didTapSelectableCameraButton)
             .withUnretained(self)
             .bind { owner, _ in
-                let cameraViewController = CameraDIContainer(cameraType: .realEmoji).makeViewController()
+                let cameraViewController = CameraDIContainer(
+                    cameraType: .realEmoji
+                ).makeViewController()
                 owner.navigationController?.pushViewController(cameraViewController, animated: true)
             }.disposed(by: disposeBag)
         
@@ -175,10 +177,10 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldPresentPostCommentSheet)
-            .withUnretained(self)
-            .subscribe { $0.0.presentPostCommentSheet(postId: $0.1.0, commentCount: $0.1.1) }
-            .disposed(by: disposeBag)
+//        reactor.pulse(\.$shouldPresentPostCommentSheet)
+//            .withUnretained(self)
+//            .subscribe { $0.0.presentPostCommentSheet(postId: $0.1.0, commentCount: $0.1.1) }
+//            .disposed(by: disposeBag)
         
         reactor.state.compactMap { $0.blurImageUrlString }
             .distinctUntilChanged()
@@ -371,8 +373,9 @@ extension CalendarPostViewController {
             let fractionPart: CGFloat = position - floorPosition
             
             if fractionPart <= 0.0 {
-                cellIndexRelay.accept(Int(floorPosition))
-                debugPrint("cellIndexRelay: \(floorPosition)")
+                let index: Int = Int(floorPosition)
+                cellIndexRelay.accept(index)
+                debugPrint("cellIndexRelay: \(index)")
             }
         }
         

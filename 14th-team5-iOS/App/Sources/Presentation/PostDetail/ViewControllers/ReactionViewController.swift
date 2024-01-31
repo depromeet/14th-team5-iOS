@@ -152,8 +152,9 @@ extension ReactionViewController {
            .withLatestFrom(postId)
            .withUnretained(self) { ($0, $1) }
            .bind(onNext: {
+               let detentHeightRatio = UIScreen.isPhoneSE ? 0.835 : 0.85
                let vc = PostCommentDIContainer( postId: $0.1, commentCount: 4).makeViewController()
-               $0.0.presentCustomSheetViewController(viewController: vc, detentHeightRatio: 0.85)
+               $0.0.presentCustomSheetViewController(viewController: vc, detentHeightRatio:  detentHeightRatio)
            })
            .disposed(by: disposeBag)
     }

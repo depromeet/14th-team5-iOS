@@ -194,7 +194,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
         // FIX ME: - 주간 캘린더 화면으로 넘어갈 때, 햅틱 피드백이 발생되는 문제
         reactor.pulse(\.$shouldGenerateErrorHapticNotification)
             .filter { $0 }
-            .subscribe(onNext: { _ in /*Haptic.notification(type: .error)*/ })
+            .subscribe(onNext: { _ in Haptic.notification(type: .error) })
             .disposed(by: disposeBag)
             
         reactor.pulse(\.$shouldClearCommentTextField)

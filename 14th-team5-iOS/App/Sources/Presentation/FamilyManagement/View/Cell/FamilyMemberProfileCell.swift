@@ -90,9 +90,7 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
         
         reactor.state.map { $0.cellType }
             .distinctUntilChanged()
-            .map {
-                return $0 != .arrow
-            }
+            .map { $0 != .arrow }
             .bind(to: rightArrowImageView.rx.isHidden)
             .disposed(by: disposeBag)
     }

@@ -197,7 +197,7 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
             .subscribe { _ in
                 App.Repository.member.familyId.accept(nil)
                 guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
-                sceneDelegate.window?.rootViewController = JoinFamilyDIContainer().makeViewController()
+                sceneDelegate.window?.rootViewController =  UINavigationController(rootViewController: JoinFamilyDIContainer().makeViewController())
                 sceneDelegate.window?.makeKeyAndVisible()
             }.disposed(by: disposeBag)
         

@@ -23,7 +23,6 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationController?.navigationBar.isHidden = true
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
     }
     

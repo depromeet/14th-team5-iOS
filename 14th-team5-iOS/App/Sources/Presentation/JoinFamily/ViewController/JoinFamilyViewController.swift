@@ -30,11 +30,16 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
         view.addSubviews(titleLabel, captionLabel, createFamilyButton, joinFamilyButton)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.isHidden = true
+    }
+    
     override func setupAutoLayout() {
         super.setupAutoLayout()
         
         titleLabel.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).inset(20)
+            $0.top.equalTo(view.safeAreaLayoutGuide).inset(44)
             $0.horizontalEdges.equalToSuperview().inset(20)
             $0.height.equalTo(66)
         }

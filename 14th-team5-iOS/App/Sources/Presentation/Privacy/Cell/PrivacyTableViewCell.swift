@@ -35,8 +35,8 @@ public final class PrivacyTableViewCell: BaseTableViewCell<PrivacyCellReactor> {
         }
         
         arrowAccessView.do {
-            $0.contentMode = .scaleToFill
-            $0.image = DesignSystemAsset.arrowRight.image
+            $0.contentMode = .scaleAspectFill
+            $0.image = DesignSystemAsset.settingArrow.image
         }
         
         descrptionLabel.do {

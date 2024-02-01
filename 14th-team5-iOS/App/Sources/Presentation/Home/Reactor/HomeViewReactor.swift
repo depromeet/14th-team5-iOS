@@ -18,7 +18,9 @@ final class HomeViewReactor: Reactor {
     enum Action {
         case checkInTime
         case viewWillAppear
+        case startTimer
         case refresh
+        case tapInviteFamily
     }
     
     enum Mutation {
@@ -30,10 +32,15 @@ final class HomeViewReactor: Reactor {
         
         case updateFamilyDataSource([FamilySection.Item])
         case updatePostDataSource([PostSection.Item])
+        
+        case showShareAcitivityView(URL?)
+        case setCopySuccessToastMessageView
+        case setFetchFailureToastMessageView
+        case setSharePanel(String)
     }
     
     struct State {
-        var isInTime: Bool = true
+        var isInTime: Bool = false
         @Pulse var isSelfUploaded: Bool = true
         @Pulse var isRefreshEnd: Bool = true
         var isAllFamilyMembersUploaded: Bool = false
@@ -41,12 +48,16 @@ final class HomeViewReactor: Reactor {
         @Pulse var familySection: FamilySection.Model = FamilySection.Model(model: 0, items: [])
         @Pulse var postSection: PostSection.Model = PostSection.Model(model: 0, items: [])
         
+        @Pulse var familyInvitationLink: URL?
+        @Pulse var shouldPresentCopySuccessToastMessageView: Bool = false
+        @Pulse var shouldPresentFetchFailureToastMessageView: Bool = false
+        
         var isShowingNoPostTodayView: Bool = false
         var isShowingInviteFamilyView: Bool = false
     }
     
     let initialState: State = State()
-    private let provider: GlobalStateProviderProtocol
+    let provider: GlobalStateProviderProtocol
     private let familyUseCase: SearchFamilyMemberUseCaseProtocol
     private let postUseCase: PostListUseCaseProtocol
     private let inviteFamilyUseCase: FamilyViewUseCaseProtocol
@@ -60,21 +71,59 @@ final class HomeViewReactor: Reactor {
 }
 
 extension HomeViewReactor {
+    func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+         let eventMutation = provider.activityGlobalState.event
+             .flatMap { event -> Observable<Mutation> in
+                 switch event {
+                 case .didTapCopyInvitationUrlAction:
+                     return Observable<Mutation>.just(.setCopySuccessToastMessageView)
+                 default:
+                     return Observable<Mutation>.empty()
+                 }
+             }
+         
+         return Observable<Mutation>.merge(mutation, eventMutation)
+     }
+    
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewWillAppear:
             return self.viewWillAppear()
         case .checkInTime:
-            return Observable<Int>
-                .timer(.seconds(self.calculateRemainingTime()), scheduler: MainScheduler.instance)
-                .filter { $0 <= 0 }
-                .flatMap {_ in
-                    return Observable.concat([Observable.just(Mutation.setInTime(false)),
-                                              Observable.just(Mutation.setSelfUploaded(true))])
-                }
+            let (isInTime, _) = self.calculateRemainingTime()
+            return Observable.just(Mutation.setInTime(isInTime))
+        case .startTimer:
+            let (isInTime, time) = self.calculateRemainingTime()
+            
+            if isInTime {
+                return Observable<Int>
+                    .timer(.seconds(time), scheduler: MainScheduler.instance)
+                    .flatMap {_ in
+                        return Observable.concat([Observable.just(Mutation.setInTime(false)),
+                                                  Observable.just(Mutation.setSelfUploaded(true))])
+                    }
+            } else {
+                return Observable<Int>
+                    .timer(.seconds(time), scheduler: MainScheduler.instance)
+                    .flatMap {_ in
+                        return Observable.concat([Observable.just(Mutation.setInTime(true)),
+                                                  Observable.just(Mutation.setSelfUploaded(false))])
+                    }
+                                        
+            }
         case .refresh:
             return self.mutate(action: .viewWillAppear)
+        case .tapInviteFamily:
+                   MPEvent.Home.shareLink.track(with: nil)
+                   return inviteFamilyUseCase.executeFetchInvitationUrl()
+                       .map {
+                           guard let invitationLink = $0?.url else {
+                               return .setFetchFailureToastMessageView
+                           }
+                           return .setSharePanel(invitationLink)
+                       }
         }
+        
     }
     
     func reduce(state: State, mutation: Mutation) -> State {
@@ -89,6 +138,7 @@ extension HomeViewReactor {
         case .setSelfUploaded(let isSelfUploaded):
             newState.isSelfUploaded = isSelfUploaded
         case .setAllFamilyUploaded(let isAllUploaded):
+            newState.isRefreshEnd = true
             newState.isAllFamilyMembersUploaded = isAllUploaded
         case .setInviteFamilyView(let isShow):
             newState.isShowingInviteFamilyView = isShow
@@ -96,6 +146,14 @@ extension HomeViewReactor {
             newState.isShowingNoPostTodayView = isShow
         case .setInTime(let isInTime):
             newState.isInTime = isInTime
+        case let .showShareAcitivityView(url):
+                   newState.familyInvitationLink = url
+        case .setCopySuccessToastMessageView:
+              newState.shouldPresentCopySuccessToastMessageView = true
+          case .setFetchFailureToastMessageView:
+              newState.shouldPresentFetchFailureToastMessageView = true
+          case let .setSharePanel(urlString):
+              newState.familyInvitationLink = URL(string: urlString)
         }
         
         return newState
@@ -123,9 +181,11 @@ extension HomeViewReactor {
 
                 let familySectionItem = familyList.members.map(FamilySection.Item.main)
                 return Observable.from([
+                    Mutation.setNoPostTodayView(true),
                     Mutation.setInviteFamilyView(false),
                     Mutation.setSelfUploaded(true),
-                    Mutation.updateFamilyDataSource(familySectionItem)
+                    Mutation.updateFamilyDataSource(familySectionItem),
+                    Mutation.updatePostDataSource([])
                 ])
             }
     }
@@ -150,6 +210,7 @@ extension HomeViewReactor {
                     mutations.append(contentsOf: [
                         Mutation.updatePostDataSource(postSectionItem),
                         Mutation.setSelfUploaded(postList.selfUploaded),
+                        Mutation.setNoPostTodayView(false),
                         Mutation.setAllFamilyUploaded(postList.allFamilyMembersUploaded)
                     ])
                 } else {
@@ -187,7 +248,7 @@ extension HomeViewReactor {
         guard currentState.isInTime else {
             return Observable.empty()
         }
-//        let query = PostListQuery(page: 1, size: 50, date: Date().toFormatString(with: "YYYY-MM-DD"), sort: .desc)
+
         let query = PostListQuery(page: 1, size: 50, date: DateFormatter.dashYyyyMMdd.string(from: Date()), sort: .desc)
         return postUseCase.excute(query: query).asObservable()
     }
@@ -197,19 +258,26 @@ extension HomeViewReactor {
         return familyUseCase.excute(query: query).asObservable()
     }
     
-    private func calculateRemainingTime() -> Int {
+    private func calculateRemainingTime() -> (Bool, Int) {
         let calendar = Calendar.current
         let currentTime = Date()
         
-        let isAfterNoon = calendar.component(.hour, from: currentTime) >= 12
-        
-        if isAfterNoon {
+        // Get components of the current time
+        let currentHour = calendar.component(.hour, from: currentTime)
+
+        if currentHour >= 12 {
             if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {
                 let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
-                return max(0, timeDifference.second ?? 0)
+                return (true, max(0, timeDifference.second ?? 0))
+            }
+        } else {
+            if let nextMidnight = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: currentTime) {
+                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
+                return (false, max(0, timeDifference.second ?? 0))
             }
         }
-        
-        return 0
+
+        return (false, 0)
     }
+
 }

@@ -31,6 +31,8 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.hideCameraButton(true)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -153,6 +155,17 @@ extension HomeViewController {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        Observable.just(())
+            .map { Reactor.Action.startTimer }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        self.inviteFamilyView.rx.tap
+                  .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+                  .map { Reactor.Action.tapInviteFamily }
+                  .bind(to: reactor.action)
+                  .disposed(by: disposeBag)
+        
         self.rx.viewWillAppear
             .map { _ in Reactor.Action.viewWillAppear }
             .bind(to: reactor.action)
@@ -267,6 +280,40 @@ extension HomeViewController {
             .map { !$0 }
             .bind(to: noPostView.rx.isHidden)
             .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$familyInvitationLink)
+            .observe(on: Schedulers.main)
+            .withUnretained(self)
+            .bind(onNext: {
+                $0.0.makeInvitationUrlSharePanel(
+                    $0.1,
+                    provider: reactor.provider
+                )
+            })
+            .disposed(by: disposeBag)
+        
+               
+               reactor.pulse(\.$shouldPresentCopySuccessToastMessageView)
+                   .skip(1)
+                   .withUnretained(self)
+                   .subscribe {
+                       $0.0.makeBibbiToastView(
+                           text: "링크가 복사되었어요",
+                           image: DesignSystemAsset.link.image
+                       )
+                   }
+                   .disposed(by: disposeBag)
+               
+               reactor.pulse(\.$shouldPresentFetchFailureToastMessageView)
+                   .skip(1)
+                   .withUnretained(self)
+                   .subscribe {
+                       $0.0.makeBibbiToastView(
+                           text: "잠시 후에 다시 시도해주세요",
+                           image: DesignSystemAsset.warning.image
+                       )
+                   }
+                   .disposed(by: disposeBag)
     }
 }
 
@@ -275,9 +322,9 @@ extension HomeViewController {
         postCollectionView.isHidden = isShow
     }
     
-    private func hideCameraButton(_ isShow: Bool) {
-        balloonView.isHidden = isShow
-        cameraButton.isHidden = isShow
+    private func hideCameraButton(_ isHidden: Bool) {
+        balloonView.isHidden = isHidden
+        cameraButton.isHidden = isHidden
     }
 }
 

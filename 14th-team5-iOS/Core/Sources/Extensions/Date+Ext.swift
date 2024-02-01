@@ -112,10 +112,12 @@ extension Date {
     }
     
     public func toFormatString(with format: String = "yyyy-MM") -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = format
-        
+        let dateFormatter = DateFormatter.withFormat(format)
         return dateFormatter.string(from: self)
+    }
+    
+    public func toFormatString(with format: DateFormatter.format) -> String {
+        return toFormatString(with: format.type)
     }
 }
 
@@ -139,7 +141,8 @@ extension Date {
                 value: month,
                 to: self
             ) {
-                yearMonthStrings.append(date.toFormatString())
+                let yyyyMM = date.toFormatString(with: .dashYyyyMM)
+                yearMonthStrings.append(yyyyMM)
             }
         }
         
@@ -161,7 +164,8 @@ extension Date {
                 value: month,
                 to: self
             ) {
-                yearMonthStrings.append(date.toFormatString())
+                let yyyyMM = date.toFormatString(with: .dashYyyyMM)
+                yearMonthStrings.append(yyyyMM)
             }
         }
         

@@ -23,21 +23,17 @@ extension String {
     
     public func toDate(with format: String = "yyyy-MM-dd") -> Date {
         let dateFormatter = DateFormatter.withFormat(format)
-        
-        guard let date = dateFormatter.date(from: self) else {
-            return Date()
-        }
-        
+        guard let date = dateFormatter.date(from: self) else { return .now }
         return date
+    }
+    
+    public func toDate(with format: DateFormatter.format) -> Date {
+        return toDate(with: format.type)
     }
     
     public func iso8601ToDate() -> Date {
         let dateFormatter = ISO8601DateFormatter()
-        
-        guard let date = dateFormatter.date(from: self) else {
-            return Date()
-        }
-        
+        guard let date = dateFormatter.date(from: self) else { return .now }
         return date
     }
 }

@@ -25,7 +25,7 @@ public struct BannerResponseDTO: Decodable {
 extension BannerResponseDTO {
     enum BannerImageType: String, Decodable {
         case skullFlag = "SKULL_FLAG"
-        case aloneWalking = "ALONE_WALING"
+        case aloneWalking = "ALONE_WALKING"
         case weAreFriends = "WE_ARE_FRIENDS"
         case jewelryTreasure = "JEWELRY_TREASURE"
         

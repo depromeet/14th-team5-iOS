@@ -156,6 +156,7 @@ struct FamilyWidgetView: View {
             if let postImageUrl = info.postImageUrl {
                 
                 NetworkImageView(url: URL(string: postImageUrl))
+                    .rotationEffect(.degrees(90))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
                 VStack {

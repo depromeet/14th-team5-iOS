@@ -187,7 +187,8 @@ extension HomeViewReactor {
         guard currentState.isInTime else {
             return Observable.empty()
         }
-        let query = PostListQuery(page: 1, size: 50, date: Date().toFormatString(with: "YYYY-MM-DD"), sort: .desc)
+//        let query = PostListQuery(page: 1, size: 50, date: Date().toFormatString(with: "YYYY-MM-DD"), sort: .desc)
+        let query = PostListQuery(page: 1, size: 50, date: DateFormatter.dashYyyyMMdd.string(from: Date()), sort: .desc)
         return postUseCase.excute(query: query).asObservable()
     }
     

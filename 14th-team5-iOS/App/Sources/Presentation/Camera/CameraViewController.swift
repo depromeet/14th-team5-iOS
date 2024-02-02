@@ -36,7 +36,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     private let toggleButton: UIButton = UIButton.createCircleButton(radius: 24)
     private let cameraIndicatorView: BibbiLoadingView = BibbiLoadingView()
     private let filterView: UIImageView = UIImageView()
-    private let zoomView: UIImageView = UIImageView()
+    private let zoomView: UIButton = UIButton()
     private let realEmojiDescriptionLabel = BibbiLabel(.body1Regular, textColor: .mainYellow)
     private let realEmojiFaceView = UIView()
     private let realEmojiFaceImageView = UIImageView()
@@ -71,7 +71,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     public override func setupUI() {
         super.setupUI()
         realEmojiFaceView.addSubview(realEmojiFaceImageView)
-        view.addSubviews(cameraView, shutterButton, flashButton, toggleButton, realEmojiFaceView, realEmojiHorizontalStakView, realEmojiCollectionView, cameraIndicatorView , cameraNavigationBar)
+        view.addSubviews(cameraView, shutterButton, flashButton, toggleButton, realEmojiFaceView, realEmojiHorizontalStakView, realEmojiCollectionView ,cameraIndicatorView , cameraNavigationBar)
     }
     
     public override func setupAttributes() {
@@ -87,8 +87,8 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         }
         
         zoomView.do {
-            $0.image = DesignSystemAsset.zoom.image
-            $0.contentMode = .scaleAspectFill
+            $0.setBackgroundImage(DesignSystemAsset.zoomin.image, for: .normal)
+            $0.setTitle("", for: .normal)
         }
         
         realEmojiFlowLayout.do {
@@ -276,6 +276,41 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
                 NotificationCenter.default.post(name: .DidFinishProfileImageUpdate, object: nil, userInfo: userInfo)
             }.disposed(by: disposeBag)
         
+        zoomView
+            .rx.tap
+            .map { _ in CGFloat(1.0)}
+            .map { Reactor.Action.didTapZoomButton($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$zoomScale)
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: {
+                guard let currentCamera = $0.0.isToggle ? $0.0.frontCamera : $0.0.backCamera else { return }
+                $0.0.transitionZoomImageScale(owner: $0.0, scale: $0.1, camera: currentCamera)
+            }).disposed(by: disposeBag)
+        
+        reactor.pulse(\.$pinchZoomScale)
+            .withUnretained(self)
+            .bind(onNext: {
+                guard let currentCamera = $0.0.isToggle ? $0.0.frontCamera : $0.0.backCamera else { return }
+                $0.0.transitionPinchImageScale(owner: $0.0, scale: $0.1, camera: currentCamera)
+            }).disposed(by: disposeBag)
+        
+        reactor.pulse(\.$zoomScale)
+            .map { $0 == 2.0 ? DesignSystemAsset.zoomout.image : DesignSystemAsset.zoomin.image }
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.zoomView.setBackgroundImage($0.1, for: .normal) })
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$pinchZoomScale)
+            .map { $0 == 10.0 ? DesignSystemAsset.zoomout.image : DesignSystemAsset.zoomin.image }
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.zoomView.setBackgroundImage($0.1, for: .normal) })
+            .disposed(by: disposeBag)
         
         reactor.state
             .map { ($0.accountImage, $0.profileImageURLEntity, $0.memberId)}
@@ -322,12 +357,10 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
                 
         cameraView.rx
             .pinchGesture
-            .withUnretained(self)
-            .observe(on: MainScheduler.instance)
-            .bind(onNext: {
-                guard let currentCamera = $0.0.isToggle ? $0.0.frontCamera : $0.0.backCamera else { return }
-                $0.0.transitionImageScale(owner: $0.0, gesture: $0.1, camera: currentCamera)
-            }).disposed(by: disposeBag)
+            .map { $0.scale }
+            .map { Reactor.Action.dragPreviewLayer($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
 
         
         toggleButton
@@ -529,25 +562,22 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         self.navigationController?.popViewController(animated: true)
     }
     
-    private func transitionImageScale(owner: CameraViewController, gesture: UIPinchGestureRecognizer, camera: AVCaptureDevice) {
-        
-        switch gesture.state {
-            
-        case .began:
-            owner.initialScale = camera.videoZoomFactor
-            
-        case .changed:
-            let minAvailableZoomScale = camera.minAvailableVideoZoomFactor
-            let maxAvailableZoomScale = camera.maxAvailableVideoZoomFactor
-            let availableZoomScaleRange = minAvailableZoomScale...maxAvailableZoomScale
-            let resolvedZoomScaleRange = zoomScaleRange.clamped(to: availableZoomScaleRange)
-
-            let resolvedScale = max(resolvedZoomScaleRange.lowerBound, min(gesture.scale * initialScale, resolvedZoomScaleRange.upperBound))
-            setupImageScale(owner: owner, scale: resolvedScale, camera: camera)
-        default:
-            return
-            
-        }
+    private func transitionZoomImageScale(owner: CameraViewController, scale: CGFloat, camera: AVCaptureDevice) {
+        let minAvailableZoomScale: CGFloat = 1.0
+        let maxAvailableZoomScale: CGFloat = 2.0
+        let availableZoomScaleRange = minAvailableZoomScale...maxAvailableZoomScale
+        let resolvedZoomScaleRange = zoomScaleRange.clamped(to: availableZoomScaleRange)
+        let resolvedScale = max(resolvedZoomScaleRange.lowerBound, min(scale, resolvedZoomScaleRange.upperBound))
+        setupImageScale(owner: owner, scale: resolvedScale, camera: camera)
+    }
+    
+    private func transitionPinchImageScale(owner: CameraViewController, scale: CGFloat, camera: AVCaptureDevice) {
+        let minAvailableZoomScale: CGFloat = 1.0
+        let maxAvailableZoomScale: CGFloat = 10.0
+        let availableZoomScaleRange = minAvailableZoomScale...maxAvailableZoomScale
+        let resolvedZoomScaleRange = zoomScaleRange.clamped(to: availableZoomScaleRange)
+        let resolvedScale = max(resolvedZoomScaleRange.lowerBound, min(scale, resolvedZoomScaleRange.upperBound))
+        setupImageScale(owner: owner, scale: resolvedScale, camera: camera)
     }
     
     private func showPermissionAlertController() {

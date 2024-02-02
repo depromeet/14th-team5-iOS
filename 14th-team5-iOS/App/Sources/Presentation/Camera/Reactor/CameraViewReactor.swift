@@ -27,7 +27,9 @@ public final class CameraViewReactor: Reactor {
         case didTapFlashButton
         case didTapToggleButton
         case didTapShutterButton(Data)
+        case didTapZoomButton(CGFloat)
         case didTapRealEmojiPad(IndexPath)
+        case dragPreviewLayer(CGFloat)
     }
     
     public enum Mutation {
@@ -36,6 +38,8 @@ public final class CameraViewReactor: Reactor {
         case setFlashMode(Bool)
         case uploadImageToS3(Bool)
         case setAccountProfileData(Data)
+        case setPinchZoomScale(CGFloat)
+        case setZoomScale(CGFloat)
         case setProfileImageURLResponse(CameraDisplayImageResponse?)
         case setProfileMemberResponse(ProfileMemberResponse?)
         case setRealEmojiImageURLResponse(CameraRealEmojiPreSignedResponse?)
@@ -62,6 +66,8 @@ public final class CameraViewReactor: Reactor {
         @Pulse var realEmojiSection: [EmojiSectionModel]
         @Pulse var reloadRealEmojiImage: [String: URL?]
         @Pulse var reloadRealEmojiId: [String: String]
+        @Pulse var zoomScale: CGFloat
+        @Pulse var pinchZoomScale: CGFloat
         var updateEmojiImage: URL?
         var emojiType: String
         var selectedEmojiPadItem: String
@@ -94,6 +100,8 @@ public final class CameraViewReactor: Reactor {
             realEmojiSection: [.realEmoji([])],
             reloadRealEmojiImage: [:],
             reloadRealEmojiId: [:],
+            zoomScale: 1.0,
+            pinchZoomScale: 1.0,
             updateEmojiImage: nil,
             emojiType: "EMOJI_1",
             selectedEmojiPadItem: "",
@@ -116,6 +124,12 @@ public final class CameraViewReactor: Reactor {
             return cameraUseCase.executeToggleCameraPosition(self.currentState.isSwitchPosition).map { .setPosition($0) }
         case .didTapFlashButton:
             return cameraUseCase.executeToggleCameraFlash(self.currentState.isFlashMode).map { .setFlashMode($0) }
+        case let .didTapZoomButton(scale):
+            if self.currentState.zoomScale == 2.0 {
+                return .just(.setZoomScale(self.currentState.zoomScale - scale))
+            } else {
+                return .just(.setZoomScale(self.currentState.zoomScale + scale))
+            }
             
         case let .didTapShutterButton(fileData):
             return didTapShutterButtonMutation(imageData: fileData)
@@ -127,6 +141,14 @@ public final class CameraViewReactor: Reactor {
                 .just(.setRealEmojiPadItem(CameraRealEmojiItems.allCases[indexPath.row].rawValue)),
                 .just(.setRealEmojiType(CameraRealEmojiItems.allCases[indexPath.row].emojiType))
             )
+        case let .dragPreviewLayer(scale):
+            let minAvailableZoomScale: CGFloat = 1.0
+            let maxAvailableZoomScale: CGFloat = 10.0
+            let availableZoomScaleRange = minAvailableZoomScale...maxAvailableZoomScale
+            let zoomScaleRange: ClosedRange<CGFloat> = 1...10
+            let resolvedZoomScaleRange = zoomScaleRange.clamped(to: availableZoomScaleRange)
+            
+            return .just(.setPinchZoomScale(max(resolvedZoomScaleRange.lowerBound, min(scale  * self.currentState.pinchZoomScale, resolvedZoomScaleRange.upperBound))))
         }
         
     }
@@ -171,6 +193,10 @@ public final class CameraViewReactor: Reactor {
             newState.reloadRealEmojiImage = reloadRealEmojiImage
         case let .setRealEmojiId(reloadRealEmojiId):
             newState.reloadRealEmojiId = reloadRealEmojiId
+        case let .setZoomScale(zoomScale):
+            newState.zoomScale = zoomScale
+        case let .setPinchZoomScale(pinchZoomScale):
+            newState.pinchZoomScale = pinchZoomScale
         }
         
         return newState

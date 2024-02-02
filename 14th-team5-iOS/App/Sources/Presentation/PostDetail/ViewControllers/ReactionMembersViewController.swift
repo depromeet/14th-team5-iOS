@@ -14,6 +14,7 @@ import RxDataSources
 
 final class ReactionMembersViewController: BaseViewController<ReactionMemberReactor> {
     private let headerView: UIView = UIView()
+    private let reactionView: UIView = UIView()
     private let reactionImageView: UIImageView = UIImageView()
     private let reactionLabel: UILabel = BibbiLabel(.head2Bold)
     private let memberTableView: UITableView = UITableView()
@@ -29,6 +30,13 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberReac
         Observable.just(())
             .map { Reactor.Action.makeDataSource }
             .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.reactionMemberType.emojiImage }
+            .distinctUntilChanged()
+            .observe(on: MainScheduler.instance)
+            .bind(to: reactionImageView.rx.image)
             .disposed(by: disposeBag)
         
         reactor.state
@@ -56,7 +64,8 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberReac
         super.setupUI()
         
         view.addSubviews(headerView, memberTableView, closeButton)
-        headerView.addSubviews(reactionImageView, reactionLabel)
+        reactionView.addSubview(reactionImageView)
+        headerView.addSubviews(reactionView, reactionLabel)
     }
     
     override func setupAutoLayout() {
@@ -67,14 +76,19 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberReac
             $0.height.equalTo(90)
         }
         
-        reactionImageView.snp.makeConstraints {
-            $0.size.equalTo(40)
+        reactionView.snp.makeConstraints {
+            $0.width.height.equalTo(50)
             $0.leading.equalToSuperview().inset(24)
             $0.centerY.equalToSuperview()
         }
         
+        reactionImageView.snp.makeConstraints {
+            $0.width.height.equalTo(40)
+            $0.center.equalToSuperview()
+        }
+        
         reactionLabel.snp.makeConstraints {
-            $0.leading.equalTo(reactionImageView.snp.trailing).offset(20)
+            $0.leading.equalTo(reactionView.snp.trailing).offset(10)
             $0.trailing.equalToSuperview().inset(24)
             $0.height.equalTo(25)
             $0.centerY.equalToSuperview()
@@ -96,11 +110,16 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberReac
     override func setupAttributes() {
         super.setupAttributes()
         
+        reactionView.do {
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = 25
+            $0.backgroundColor = DesignSystemAsset.gray600.color
+        }
+        
         reactionImageView.do {
-            $0.image = DesignSystemAsset.emoji3.image
             $0.layer.cornerRadius = 20
-            $0.layer.borderWidth = 3
-            $0.layer.borderColor = UIColor.gray600.cgColor
+            $0.contentMode = .scaleAspectFill
+            $0.image = DesignSystemAsset.emoji1.image
         }
 
         memberTableView.do {

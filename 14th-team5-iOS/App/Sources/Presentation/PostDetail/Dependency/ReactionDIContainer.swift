@@ -12,7 +12,7 @@ import Domain
 
 final class ReactionDIContainer {
     private func makeReactor(postId: String) -> TempReactor {
-        return TempReactor(initialState: .init(postId: postId), emojiRepository: makeEmojiUseCase(), realEmojiRepository: makeRealEmojiUseCase())
+        return TempReactor(initialState: .init(postId: postId, isShowingReactionMemberSheetType: .emoji1), emojiRepository: makeEmojiUseCase(), realEmojiRepository: makeRealEmojiUseCase())
     }
     
     func makeViewController(postId: String) -> ReactionViewController {

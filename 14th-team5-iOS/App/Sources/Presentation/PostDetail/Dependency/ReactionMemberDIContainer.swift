@@ -30,12 +30,12 @@ final class ReactionMemberDIContainer {
         return SearchFamilyUseCase(searchFamilyRepository: makeFamilyRepository())
     }
     
-    func makeReactionMemberReactor(memberIds: [String]) -> ReactionMemberReactor {
-        return ReactionMemberReactor(initialState: .init(reactionMemberIds: memberIds), familyRepository: makeFamilyUseCase())
+    func makeReactionMemberReactor(memberIds: [String], type: Emojis) -> ReactionMemberReactor {
+        return ReactionMemberReactor(initialState: .init(reactionMemberIds: memberIds, reactionMemberType: type), familyRepository: makeFamilyUseCase())
     }
     
-    func makeViewController(memberIds: [String]) -> ReactionMembersViewController {
-        return ReactionMembersViewController(reactor: makeReactionMemberReactor(memberIds: memberIds))
+    func makeViewController(memberIds: [String], type: Emojis) -> ReactionMembersViewController {
+        return ReactionMembersViewController(reactor: makeReactionMemberReactor(memberIds: memberIds, type: type))
     }
     
     func makeEmojiRepository() -> EmojiRepository {

@@ -29,7 +29,6 @@ final class PostViewController: BaseViewController<PostReactor> {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         self.navigationController?.navigationBar.isHidden = true
     }
     
@@ -63,12 +62,6 @@ final class PostViewController: BaseViewController<PostReactor> {
                     self.reactionViewController.view.alpha = 1.0
                 }
             })
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$reactionMemberIds)
-            .withUnretained(self)
-            .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { $0.0.showReactionSheet($0.1) })
             .disposed(by: disposeBag)
         
         reactor.state
@@ -181,17 +174,6 @@ extension PostViewController {
         self.backgroundImageView.kf.setImage(with: url)
     }
     
-    private func showReactionSheet(_ memberIds: [String]) {
-        if memberIds.isEmpty { return }
-        
-        let reactionMembersViewController = ReactionMemberDIContainer().makeViewController(memberIds: memberIds)
-        if let sheet = reactionMembersViewController.sheetPresentationController {
-            sheet.detents = [.medium()]
-            sheet.prefersGrabberVisible = true
-        }
-        
-        present(reactionMembersViewController, animated: true)
-    }
     
     private func calculateCurrentPage(offset: CGPoint) -> Int {
         guard collectionView.frame.width > 0 else {

@@ -21,7 +21,6 @@ final class PostReactor: Reactor {
     enum Mutation {
         case setPop
         case setSelectedPostIndex(Int)
-        case showReactionSheet([String])
     }
     
     struct State {
@@ -68,8 +67,6 @@ extension PostReactor {
                 }
             case .setPop:
                 newState.isPop = true
-            case let .showReactionSheet(memberIds):
-                newState.reactionMemberIds = memberIds
             }
             return newState
         }

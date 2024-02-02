@@ -23,6 +23,7 @@ final class ReactionMemberReactor: Reactor {
     
     struct State {
         let reactionMemberIds: [String]
+        let reactionMemberType: Emojis
         var memberDataSource: [FamilyMemberProfileSectionModel] = []
     }
     

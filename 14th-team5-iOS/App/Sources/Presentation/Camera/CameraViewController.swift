@@ -109,7 +109,6 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             $0.clipsToBounds = true
             $0.layer.cornerRadius = 35 / 2
             $0.backgroundColor = DesignSystemAsset.gray600.color
-            $0.clipsToBounds = true
         }
         
         realEmojiFaceImageView.do {

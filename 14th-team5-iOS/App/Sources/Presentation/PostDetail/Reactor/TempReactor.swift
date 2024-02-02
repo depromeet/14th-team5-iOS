@@ -29,6 +29,7 @@ final class TempReactor: Reactor {
         case setCommentSheet
         case setEmojiSheet
         case setReactionMemberSheet([String])
+        case setReactionMemberType(Emojis)
         case updateDataSource([ReactionSection.Item])
         case setPostId(String)
         case setInitialDataSource
@@ -36,6 +37,7 @@ final class TempReactor: Reactor {
     
     struct State {
         var postId: String
+        @Pulse var isShowingReactionMemberSheetType: Emojis
         var deSelectedReactionIndicies: [Int] = []
         var selectedReactionIndicies: [Int] = []
         var reactionSections: ReactionSection.Model = ReactionSection.Model(model: 0, items: [
@@ -84,7 +86,10 @@ extension TempReactor {
         case .longPressEmoji(let indexPath):
             switch currentState.reactionSections.items[indexPath.row] {
             case .main(let fetchedEmojiData):
-                return Observable.just(Mutation.setReactionMemberSheet(fetchedEmojiData.memberIds))
+                return Observable.concat(
+                    Observable.just(Mutation.setReactionMemberSheet(fetchedEmojiData.memberIds)),
+                    Observable.just(Mutation.setReactionMemberType(fetchedEmojiData.emojiType))
+                )
             default:
                 return Observable.empty()
             }
@@ -130,6 +135,8 @@ extension TempReactor {
                 .addComment,
                 .addReaction,
             ])
+        case .setReactionMemberType(let emojiType):
+            newState.isShowingReactionMemberSheetType = emojiType
         }
         return newState
     }

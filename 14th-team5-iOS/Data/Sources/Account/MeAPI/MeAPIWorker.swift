@@ -42,7 +42,7 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
     private func saveFcmToken(headers: [APIHeader]?, jsonEncodable: Encodable) -> Single<String?> {
         let spec = MeAPIs.saveFcmToken.spec
         
-        return request(spec: spec, headers: headers)
+        return request(spec: spec, headers: headers, jsonEncodable: jsonEncodable)
             .subscribe(on: Self.queue)
             .do(onNext: {
                 if let str = String(data: $0.1, encoding: .utf8) {

@@ -62,8 +62,6 @@ public final class AccountRepository: AccountImpl {
         return Observable.create { observer in
             self.signInHelper.trySignInWith(sns: snsType, window: vc.view.window)
                 .subscribe(onNext: { result in
-                    
-                    
                     observer.onNext(result)
                     observer.onCompleted()
                 }, onError: { error in
@@ -81,6 +79,16 @@ public final class AccountRepository: AccountImpl {
             .asObservable()
             .withUnretained(self)
             .bind(onNext: { $0.0.saveMemberInfo($0.1) })
+            .disposed(by: disposeBag)
+    }
+    
+    // MARK: 회원가입 이후 FCMToken 저장
+    private func saveFCMToken() {
+        let token = App.Repository.token.fcmToken.value
+        meApiWorekr.saveFcmToken(token: token)
+            .asObservable()
+            .withUnretained(self)
+            .bind(onNext: { _ in print("성공") })
             .disposed(by: disposeBag)
     }
     
@@ -159,7 +167,10 @@ public final class AccountRepository: AccountImpl {
         signInHelper.snsSignInResult
             .filter { $0.0 == .success }
             .withUnretained(self)
-            .bind(onNext: { $0.0.fetchMemberInfo.accept(()) })
+            .bind(onNext: {
+                $0.0.fetchMemberInfo.accept(())
+                $0.0.saveFCMToken()
+            })
             .disposed(by: disposeBag)
         
         fetchMemberInfo
@@ -169,7 +180,10 @@ public final class AccountRepository: AccountImpl {
         
         signUpFinished
             .withUnretained(self)
-            .bind(onNext: { $0.0.joinFamily(inviteCode: UserDefaults.standard.inviteCode) })
+            .bind(onNext: {
+                $0.0.joinFamily(inviteCode: UserDefaults.standard.inviteCode)
+                $0.0.saveFCMToken()
+            })
             .disposed(by: disposeBag)
     }
 }

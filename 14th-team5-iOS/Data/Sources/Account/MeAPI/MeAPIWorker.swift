@@ -39,7 +39,7 @@ extension MeAPIs {
 
 // MARK: SignIn
 extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
-    private func saveFcmToken(headers: [APIHeader]?, jsonEncodable: Encodable) -> Single<String?> {
+    private func saveFcmToken(headers: [APIHeader]?, jsonEncodable: Encodable) -> Single<FCMToken?> {
         let spec = MeAPIs.saveFcmToken.spec
         
         return request(spec: spec, headers: headers, jsonEncodable: jsonEncodable)
@@ -49,12 +49,12 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
                     debugPrint("saveFcmToken result : \(str)")
                 }
             })
-            .map(String.self)
+            .map(FCMToken.self)
             .catchAndReturn(nil)
             .asSingle()
     }
     
-    public func saveFcmToken(token: String) -> Single<String?> {
+    public func saveFcmToken(token: String) -> Single<FCMToken?> {
         
         let payload = _PayLoad.FcmPayload(fcmToken: token)
         

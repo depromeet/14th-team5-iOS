@@ -123,12 +123,16 @@ extension ReactionViewController {
             .bind(to: reactionCollectionView.rx.items(dataSource: createDataSource()))
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$isShowingReactionMemberSheet)
-            .filter { !$0.isEmpty }
+        Observable
+            .zip(
+                reactor.pulse(\.$isShowingReactionMemberSheet),
+                reactor.pulse(\.$isShowingReactionMemberSheetType)
+            )
+            .filter { !$0.0.isEmpty}
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .bind(onNext: {
-                let vc = ReactionMemberDIContainer().makeViewController(memberIds: $0.1)
+                let vc = ReactionMemberDIContainer().makeViewController(memberIds: $0.1.0, type: $0.1.1)
                 $0.0.presentCustomSheetViewController(viewController: vc, useCustomDetent: false)
             })
             .disposed(by: disposeBag)

@@ -57,7 +57,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     
     private func bindInput(reactor: FamilyManagementViewReactor) {
         Observable<Void>.just(())
-            .map { Reactor.Action.fetchPaginationFamilyMemebers }
+            .map { Reactor.Action.fetchPaginationFamilyMemebers(false) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -73,7 +73,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .disposed(by: disposeBag)
         
         refreshControl.rx.controlEvent(.valueChanged)
-            .map { Reactor.Action.fetchPaginationFamilyMemebers }
+            .map { Reactor.Action.fetchPaginationFamilyMemebers(true) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
@@ -116,7 +116,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPushProfileVC)
-            .skip(1)
+            .filter { !$0.isEmpty }
             .withUnretained(self)
             .subscribe {
                 let profileVC = ProfileDIContainer(memberId: $0.1).makeViewController()
@@ -125,40 +125,39 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentCopySuccessToastMessageView)
+            .filter { $0 }
             .withUnretained(self)
             .subscribe {
-                if $0.1 {
-                    $0.0.makeBibbiToastView(
-                        text: _Str.sucessCopyInvitationUrlText,
-                        image: DesignSystemAsset.link.image
-                    )
-                }
+                $0.0.makeBibbiToastView(
+                    text: _Str.sucessCopyInvitationUrlText,
+                    image: DesignSystemAsset.link.image
+                )
             }
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentUrlFetchFailureToastMessageView)
+            .filter { $0 }
             .withUnretained(self)
-            .subscribe {
-                if $0.1 { $0.0.makeErrorBibbiToastView() }
-            }
+            .subscribe { $0.0.makeErrorBibbiToastView() }
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentFamilyFetchFailureToastMessageView)
+            .filter { $0 }
             .withUnretained(self)
             .subscribe {
-                if $0.1 {
-                    $0.0.makeBibbiToastView(
-                        text: _Str.fetchFailFamilyText,
-                        image: DesignSystemAsset.warning.image
-                    )
-                    $0.0.fetchFailureView.isHidden = false
-                }
+                $0.0.makeBibbiToastView(
+                    text: _Str.fetchFailFamilyText,
+                    image: DesignSystemAsset.warning.image
+                )
             }
             .disposed(by: disposeBag)
 
-        reactor.state.map { $0.shouldPresentPaperAirplaneLottieView }
-            .distinctUntilChanged()
+        reactor.pulse(\.$shouldPresentPaperAirplaneLottieView)
             .bind(to: bibbiLottieView.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentFamilyFetchFailureView)
+            .bind(to: fetchFailureView.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldGenerateErrorHapticNotification)

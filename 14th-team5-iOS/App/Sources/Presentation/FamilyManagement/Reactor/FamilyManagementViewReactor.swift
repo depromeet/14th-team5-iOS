@@ -16,7 +16,7 @@ import RxSwift
 public final class FamilyManagementViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
-        case fetchPaginationFamilyMemebers
+        case fetchPaginationFamilyMemebers(Bool)
         case didTapShareContainer
         case didSelectTableCell(IndexPath)
     }
@@ -28,6 +28,7 @@ public final class FamilyManagementViewReactor: Reactor {
         case setUrlFetchFailureToastMessageView
         case setFamilyFetchFailureToastMessageView
         case setHiddenPaperAirplaneLottieView(Bool)
+        case setHiddenFamilyFetchFailureView(Bool)
         case pushProfileVC(String)
         case injectFamilyId(String?)
         case injectFamilyMembers([FamilyMemberProfileCellReactor])
@@ -43,7 +44,8 @@ public final class FamilyManagementViewReactor: Reactor {
         @Pulse var shouldPresentUrlFetchFailureToastMessageView: Bool
         @Pulse var shouldPresentFamilyFetchFailureToastMessageView: Bool
         @Pulse var shouldGenerateErrorHapticNotification: Bool
-        var shouldPresentPaperAirplaneLottieView: Bool
+        @Pulse var shouldPresentPaperAirplaneLottieView: Bool
+        @Pulse var shouldPresentFamilyFetchFailureView: Bool
         @Pulse var displayFamilyMember: [FamilyMemberProfileSectionModel]
         var displayFamilyMemberCount: Int
     }
@@ -70,6 +72,7 @@ public final class FamilyManagementViewReactor: Reactor {
             shouldPresentFamilyFetchFailureToastMessageView: false,
             shouldGenerateErrorHapticNotification: false,
             shouldPresentPaperAirplaneLottieView: false,
+            shouldPresentFamilyFetchFailureView: false,
             displayFamilyMember: [.init(model: (), items: [])],
             displayFamilyMemberCount: 0
         )
@@ -122,11 +125,11 @@ public final class FamilyManagementViewReactor: Reactor {
                     })
             )
             
-        case .fetchPaginationFamilyMemebers:
+        case let .fetchPaginationFamilyMemebers(refresh):
             let query = FamilyPaginationQuery()
          
             return Observable.concat(
-                Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(false)),
+                Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(refresh ? true : false)),
                 
                 familyUseCase.executeFetchPaginationFamilyMembers(query: query)
                     .withUnretained(self)
@@ -136,6 +139,7 @@ public final class FamilyManagementViewReactor: Reactor {
                                 Observable<Mutation>.just(.injectFamilyMembers([])),
                                 Observable<Mutation>.just(.setFamilyFetchFailureToastMessageView),
                                 Observable<Mutation>.just(.generateErrorHapticNotification),
+                                Observable<Mutation>.just(.setHiddenFamilyFetchFailureView(false)),
                                 Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(true))
                             )
                             
@@ -151,6 +155,7 @@ public final class FamilyManagementViewReactor: Reactor {
                                     }
                                 )
                             ),
+                            Observable<Mutation>.just(.setHiddenFamilyFetchFailureView(true)),
                             Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(true))
                         )
                     }
@@ -184,6 +189,9 @@ public final class FamilyManagementViewReactor: Reactor {
             
         case let .setHiddenPaperAirplaneLottieView(hidden):
             newState.shouldPresentPaperAirplaneLottieView = hidden
+            
+        case let .setHiddenFamilyFetchFailureView(hidden):
+            newState.shouldPresentFamilyFetchFailureView = hidden
             
         case let .pushProfileVC(memberId):
             newState.shouldPushProfileVC = memberId

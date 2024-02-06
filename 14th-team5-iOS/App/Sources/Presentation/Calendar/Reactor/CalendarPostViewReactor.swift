@@ -32,6 +32,7 @@ public final class CalendarPostViewReactor: Reactor {
         case injectPostResponse([PostListData])
         case injectBlurImageIndex(Int)
         case injectVisiblePost(PostListData)
+        case pushProfileView(String, PostGlobalState.SourceView)
         case generateSelectionHaptic
     }
     
@@ -44,6 +45,7 @@ public final class CalendarPostViewReactor: Reactor {
         @Pulse var displayCalendarResponse: [String: [CalendarResponse]]
         @Pulse var shouldPresentAllUploadedToastMessageView: Bool
         @Pulse var shouldGenerateSelectionHaptic: Bool
+        @Pulse var shouldPushProfileView: (String, PostGlobalState.SourceView)
     }
     
     // MARK: - Properties
@@ -70,7 +72,8 @@ public final class CalendarPostViewReactor: Reactor {
             displayPostResponse: [],
             displayCalendarResponse: [:],
             shouldPresentAllUploadedToastMessageView: false,
-            shouldGenerateSelectionHaptic: false
+            shouldGenerateSelectionHaptic: false,
+            shouldPushProfileView: (.none, .postCell)
         )
         
         self.calendarUseCase = calendarUseCase
@@ -80,7 +83,7 @@ public final class CalendarPostViewReactor: Reactor {
     
     // MARK: - Transform
     public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
-        let eventMutation = provider.toastGlobalState.event
+        let toastMutation = provider.toastGlobalState.event
             .flatMap {
                 switch $0 {
                 case let .showAllFamilyUploadedToastView(uploaded):
@@ -88,7 +91,15 @@ public final class CalendarPostViewReactor: Reactor {
                 }
             }
         
-        return Observable<Mutation>.merge(mutation, eventMutation)
+        let postMutation = provider.postGlobalState.event
+            .flatMap {
+                switch $0 {
+                case let .pushProfileView(memberId, sourceView):
+                    return Observable<Mutation>.just(.pushProfileView(memberId, sourceView))
+                }
+            }
+        
+        return Observable<Mutation>.merge(mutation, toastMutation, postMutation)
     }
     
     // MARK: - Mutate
@@ -182,6 +193,9 @@ public final class CalendarPostViewReactor: Reactor {
             
         case let .injectVisiblePost(postListData):
             newState.visiblePostList = postListData
+            
+        case let .pushProfileView(memberId, sourceView):
+            newState.shouldPushProfileView = (memberId, sourceView)
             
         case .generateSelectionHaptic:
             newState.shouldGenerateSelectionHaptic = true

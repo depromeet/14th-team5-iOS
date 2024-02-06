@@ -156,20 +156,33 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .withUnretained(self)
             .subscribe { $0.0.calendarView.reloadData() }
             .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPushProfileView)
+            .filter { !$0.0.isEmpty }
+            .withUnretained(self)
+            .subscribe { _, info in
+                // PostComment에서 프로필 이미지를 클릭하는 경우, 시트가 내려가는 시간을 고려
+                let delay: DispatchTimeInterval = (info.1 == .postComment ? .milliseconds(500) : .seconds(0))
+                DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+                    let profileVC = ProfileDIContainer(memberId: info.0).makeViewController()
+                    self?.navigationController?.pushViewController(profileVC, animated: true)
+                }
+            }
+            .disposed(by: disposeBag)
 
-        // 스트림 공유하게
-        reactor.pulse(\.$displayPostResponse)
-            .bind(to: postCollectionView.rx.items(dataSource: dataSource))
+        let postResponse = reactor.pulse(\.$displayPostResponse).asDriver(onErrorJustReturn: [])
+        
+        postResponse
+            .drive(postCollectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.displayPostResponse }
+        postResponse
             .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe {
-                guard let items = $0.1.first?.items,
+            .drive(with: self) {
+                guard let items = $1.first?.items,
                       !items.isEmpty else { return }
                 let indexPath = IndexPath(item: 0, section: 0)
-                $0.0.postCollectionView.scrollToItem(
+                $0.postCollectionView.scrollToItem(
                     at: indexPath,
                     at: .centeredHorizontally,
                     animated: false

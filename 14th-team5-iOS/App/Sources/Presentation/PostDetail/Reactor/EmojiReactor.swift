@@ -20,6 +20,7 @@ final class EmojiReactor: Reactor {
     enum Action {
 //        case fetchEmojiList
         case fetchDisplayContent(String)
+        case didSelectProfileImageView
     }
     
     enum Mutation {
@@ -38,10 +39,12 @@ final class EmojiReactor: Reactor {
     
     let initialState: State
     let provider: GlobalStateProviderProtocol
+    let memberUseCase: MemberUseCaseProtocol
     let emojiRepository: EmojiUseCaseProtocol
     
-    init(provider: GlobalStateProviderProtocol, emojiRepository: EmojiUseCaseProtocol, initialState: State) {
+    init(provider: GlobalStateProviderProtocol, memberUserCase: MemberUseCaseProtocol, emojiRepository: EmojiUseCaseProtocol, initialState: State) {
         self.provider = provider
+        self.memberUseCase = memberUserCase
         self.emojiRepository = emojiRepository
         self.initialState = initialState
     }
@@ -57,6 +60,13 @@ extension EmojiReactor {
 //                .flatMap { emojiList in
 //                    return Observable.just(Mutation.fetchedEmojiList(emojiList ?? []))
 //                }
+            
+        case .didSelectProfileImageView:
+            let memberId = initialState.post.author?.memberId ?? .none
+            if memberUseCase.executeCheckIsValidMember(memberId: memberId) {
+                provider.postGlobalState.pushProfileView(memberId, from: .postCell)
+            }
+            return Observable<Mutation>.empty()
             
         case let .fetchDisplayContent(content):
             var sectionItem: [DisplayEditItemModel] = []

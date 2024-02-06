@@ -78,8 +78,13 @@ extension Reactive where Base: UILabel {
     
     public var calendarTitleText: Binder<Date> {
         Binder(self.base) { label, date in
-            let text = DateFormatter.yyyyMM.string(from: date)
-            label.text = text
+            var formatString: String = .none
+            if date.isEqual([.year], with: Date()) {
+                formatString = date.toFormatString(with: .mm)
+            } else {
+                formatString = date.toFormatString(with: .yyyyMM)
+            }
+            label.text = formatString
         }
     }
     

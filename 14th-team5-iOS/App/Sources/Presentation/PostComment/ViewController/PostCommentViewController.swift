@@ -190,6 +190,12 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             .bind(to: bibbiLottieView.rx.isHidden)
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$shouldDismissCommentSheet)
+            .filter { $0 }
+            .withUnretained(self)
+            .subscribe { $0.0.dismiss(animated: true) }
+            .disposed(by: disposeBag)
+        
         reactor.pulse(\.$shouldGenerateErrorHapticNotification)
             .filter { $0 }
             .subscribe(onNext: { _ in Haptic.notification(type: .error) })

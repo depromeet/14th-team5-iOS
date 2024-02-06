@@ -78,6 +78,10 @@ public class FamilyUserDefaults {
         }
         return nil
     }
+    
+    public static func loadMemberIds() -> [String] {
+        return userDefaults.array(forKey: memberIdsKey) as! [String]
+    }
 }
 
 extension FamilyUserDefaults {

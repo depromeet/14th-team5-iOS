@@ -24,4 +24,12 @@ extension MemberRepository {
     public func checkIsMe(memberId: String) -> Bool {
         return FamilyUserDefaults.checkIsMyMemberId(memberId: memberId)
     }
+    
+    public func checkIsValidMember(memberId: String) -> Bool {
+        let memberIds: [String] = FamilyUserDefaults.loadMemberIds()
+        for id in memberIds where id == memberId {
+            return true
+        }
+        return false
+    }
 }

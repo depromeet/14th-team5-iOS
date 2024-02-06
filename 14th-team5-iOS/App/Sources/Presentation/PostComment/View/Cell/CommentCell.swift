@@ -52,13 +52,16 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     }
     
     private func bindInput(reactor: CommentCellReactor) { 
-        Observable<Void>.just(())
-            .map { Reactor.Action.fetchUserName }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
+        Observable<Reactor.Action>.merge(
+            Observable.just(Reactor.Action.fetchUserName),
+            Observable.just(Reactor.Action.fetchProfileImageUrlString)
+        )
+        .bind(to: reactor.action)
+        .disposed(by: disposeBag)
         
-        Observable<Void>.just(())
-            .map { Reactor.Action.fetchProfileImageUrlString }
+        containerView.rx.tap
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .map { Reactor.Action.didSelectProfileImageView }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }

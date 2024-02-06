@@ -11,4 +11,5 @@ public protocol MemberRepositoryProtocol {
     func fetchUserName(memberId: String) -> String
     func fetchProfileImageUrlString(memberId: String) -> String
     func checkIsMe(memberId: String) -> Bool
+    func checkIsValidMember(memberId: String) -> Bool
 }

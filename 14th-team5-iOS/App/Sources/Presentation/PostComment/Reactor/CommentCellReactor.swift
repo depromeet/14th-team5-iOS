@@ -81,7 +81,7 @@ final public class CommentCellReactor: Reactor {
         case .didSelectProfileImageView:
             let memberId = initialState.memberId
             if memberUseCase.executeCheckIsValidMember(memberId: memberId) {
-                provider.postGlobalState.pushProfileView(memberId)
+                provider.postGlobalState.pushProfileView(memberId, from: .postComment)
             }
             return Observable<Mutation>.empty()
         }

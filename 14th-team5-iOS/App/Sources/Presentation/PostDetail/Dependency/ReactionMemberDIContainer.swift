@@ -46,9 +46,18 @@ final class ReactionMemberDIContainer {
         return EmojiUseCase(emojiRepository: makeEmojiRepository())
     }
     
+    func makeMemberRepository() -> MemberRepositoryProtocol {
+        return MemberRepository()
+    }
+    
+    func makeMemberUseCase() -> MemberUseCaseProtocol {
+        return MemberUseCase(memberRepository: makeMemberRepository())
+    }
+    
     func makeReactor(type: EmojiReactor.CellType = .home, post: PostListData) -> EmojiReactor {
         return EmojiReactor(
             provider: globalState,
+            memberUserCase: makeMemberUseCase(),
             emojiRepository: makeEmojiUseCase(),
             initialState: .init(type: type, post: post)
         )

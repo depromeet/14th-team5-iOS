@@ -39,10 +39,12 @@ final class EmojiReactor: Reactor {
     
     let initialState: State
     let provider: GlobalStateProviderProtocol
+    let memberUseCase: MemberUseCaseProtocol
     let emojiRepository: EmojiUseCaseProtocol
     
-    init(provider: GlobalStateProviderProtocol, emojiRepository: EmojiUseCaseProtocol, initialState: State) {
+    init(provider: GlobalStateProviderProtocol, memberUserCase: MemberUseCaseProtocol, emojiRepository: EmojiUseCaseProtocol, initialState: State) {
         self.provider = provider
+        self.memberUseCase = memberUserCase
         self.emojiRepository = emojiRepository
         self.initialState = initialState
     }
@@ -60,8 +62,9 @@ extension EmojiReactor {
 //                }
             
         case .didSelectProfileImageView:
-            if let memberId = currentState.post.author?.memberId {
-                provider.postGlobalState.pushProfileView(memberId)
+            let memberId = initialState.post.author?.memberId ?? .none
+            if memberUseCase.executeCheckIsValidMember(memberId: memberId) {
+                provider.postGlobalState.pushProfileView(memberId, from: .postCell)
             }
             return Observable<Mutation>.empty()
             

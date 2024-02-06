@@ -158,10 +158,15 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPushProfileView)
+            .filter { !$0.0.isEmpty }
             .withUnretained(self)
-            .subscribe {
-                let profileVC = ProfileDIContainer(memberId: $0.1).makeViewController()
-                $0.0.navigationController?.pushViewController(profileVC, animated: true)
+            .subscribe { _, info in
+                // PostComment에서 프로필 이미지를 클릭하는 경우, 시트가 내려가는 시간을 고려
+                let delay: DispatchTimeInterval = (info.1 == .postComment ? .milliseconds(500) : .seconds(0))
+                DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+                    let profileVC = ProfileDIContainer(memberId: info.0).makeViewController()
+                    self?.navigationController?.pushViewController(profileVC, animated: true)
+                }
             }
             .disposed(by: disposeBag)
 

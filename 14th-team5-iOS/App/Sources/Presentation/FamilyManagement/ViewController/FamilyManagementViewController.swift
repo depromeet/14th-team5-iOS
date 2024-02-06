@@ -27,7 +27,9 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     private let headerStack: UIStackView = UIStackView()
     private let tableTitleLabel: BibbiLabel = BibbiLabel(.head1, textColor: .gray200)
     private let tableCountLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray400)
+    
     private let familyTableView: UITableView = UITableView()
+    private let refreshControl: UIRefreshControl = UIRefreshControl()
 
     private let bibbiLottieView: AirplaneLottieView = AirplaneLottieView()
     
@@ -69,6 +71,11 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .map { Reactor.Action.didSelectTableCell($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        refreshControl.rx.controlEvent(.valueChanged)
+            .map { Reactor.Action.fetchPaginationFamilyMemebers }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: FamilyManagementViewReactor) {
@@ -94,8 +101,18 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .bind(to: tableCountLabel.rx.text)
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$displayFamilyMember)
-            .bind(to: familyTableView.rx.items(dataSource: dataSource))
+        let familyMember = reactor.pulse(\.$displayFamilyMember).asDriver(onErrorJustReturn: [])
+        
+        familyMember
+            .drive(familyTableView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        familyMember
+            .drive(with: self, onNext: { owner, _ in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    owner.refreshControl.endRefreshing()
+                }
+            })
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPushProfileVC)
@@ -236,9 +253,10 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             $0.separatorStyle = .none
             $0.estimatedRowHeight = UITableView.automaticDimension
             $0.backgroundColor = UIColor.clear
-            $0.contentInset = UIEdgeInsets(
-                top: 10, left: 0, bottom: 0, right: 0
-            )
+            $0.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 0)
+            
+            $0.refreshControl = refreshControl
+            $0.refreshControl?.tintColor = UIColor.bibbiWhite
             
             $0.register(FamilyMemberProfileCell.self, forCellReuseIdentifier: FamilyMemberProfileCell.id)
         }

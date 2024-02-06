@@ -195,10 +195,8 @@ public final class FamilyManagementViewReactor: Reactor {
             guard var dataSource = currentState.displayFamilyMember.first else {
                 break
             }
-            dataSource.items.append(contentsOf: familyMembers)
-            dataSource.items.sort {
-                $0.currentState.isMe && !$1.currentState.isMe
-            }
+            dataSource.items = familyMembers
+            dataSource.items.sort { $0.currentState.isMe && !$1.currentState.isMe}
             
             newState.displayFamilyMember = [dataSource]
             newState.displayFamilyMemberCount = familyMembers.count

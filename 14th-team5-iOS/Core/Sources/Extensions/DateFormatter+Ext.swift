@@ -17,10 +17,14 @@ extension DateFormatter {
         return formatter
     }
     
+    public static let mm: DateFormatter = {
+        DateFormatter.withFormat("MM월")
+    }()
+    
     public static let yyyyMM: DateFormatter = {
         DateFormatter.withFormat("yyyy년 MM월")
     }()
-    
+
     public static let yyyyMMdd: DateFormatter = {
         DateFormatter.withFormat("yyyy년 MM월 dd일")
     }()
@@ -48,6 +52,7 @@ extension DateFormatter {
 
 extension DateFormatter {
     public enum format {
+        case mm
         case yyyyMM
         case yyyyMMdd
         case dashYyyyMM
@@ -58,6 +63,8 @@ extension DateFormatter {
         
         public var type: String {
             switch self {
+            case .mm:
+                return "MM월"
             case .yyyyMM:
                 return "yyyy년 MM월"
             case .yyyyMMdd:

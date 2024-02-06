@@ -112,11 +112,6 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
             .distinctUntilChanged()
             .drive(calendarTitleLabel.rx.calendarTitleText)
             .disposed(by: disposeBag)
-        
-        currentCellDate
-            .distinctUntilChanged()
-            .drive(with: self) { $0.setupCalendarTitle($1) }
-            .disposed(by: disposeBag)
     }
     
     override func setupUI() {
@@ -209,18 +204,10 @@ final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
         bannerController.view.do {
             $0.backgroundColor = UIColor.clear
         }
-        
-        setupCalendarTitle(calendarView.currentPage)
     }
 }
 
 // MARK: - Extensions
-extension CalendarPageCell {
-    func setupCalendarTitle(_ date: Date) {
-        calendarTitleLabel.text = DateFormatter.yyyyMM.string(from: date)
-    }
-}
-
 extension CalendarPageCell: FSCalendarDelegate {
     func calendar(_ calendar: FSCalendar, shouldSelect date: Date, at monthPosition: FSCalendarMonthPosition) -> Bool {
         let dateMonth = date.month

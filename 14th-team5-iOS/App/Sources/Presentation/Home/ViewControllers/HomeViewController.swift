@@ -255,10 +255,18 @@ extension HomeViewController {
     }
     
     private func bindOutput(reactor: HomeViewReactor) {
-        reactor.pulse(\.$postSection)
+        let postStream =  reactor.pulse(\.$postSection)
             .observe(on: MainScheduler.instance)
+        
+        postStream
             .map(Array.init(with:))
             .bind(to: postCollectionView.rx.items(dataSource: createPostDataSource()))
+            .disposed(by: disposeBag)
+        
+        postStream
+            .debug("22222")
+            .withUnretained(self)
+            .bind(onNext: { _ in App.Repository.member.postId.accept(UserDefaults.standard.postId)  })
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$isRefreshEnd)
@@ -379,7 +387,6 @@ extension HomeViewController {
                     guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FeedCollectionViewCell.id, for: indexPath) as? FeedCollectionViewCell else {
                         return UICollectionViewCell()
                     }
-                    App.Repository.member.postId.accept(UserDefaults.standard.postId)
                     cell.setCell(data: data)
                     return cell
                 }

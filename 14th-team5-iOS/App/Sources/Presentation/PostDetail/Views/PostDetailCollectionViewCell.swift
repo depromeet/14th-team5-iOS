@@ -48,7 +48,7 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     }
     
     override func prepareForReuse() {
-        userNameLabel.text = "알 수 없음"
+        userNameLabel.text = .unknown
         firstNameLabel.text = "알"
         profileImageView.image = nil
         postImageView.image = nil
@@ -114,7 +114,8 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         containerView.do {
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = 34 / 2
-            $0.backgroundColor = .gray800
+            $0.backgroundColor = UIColor.gray800
+            $0.isUserInteractionEnabled = true
         }
         
         profileImageView.do {
@@ -124,7 +125,7 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         }
         
         userNameLabel.do {
-            $0.text = "알 수 없음"
+            $0.text = .unknown
         }
         
         firstNameLabel.do {
@@ -160,6 +161,12 @@ extension PostDetailCollectionViewCell {
         Observable.just(())
             .take(1)
             .map { Reactor.Action.fetchDisplayContent(reactor.currentState.post.content ?? "") }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        containerView.rx.tap
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .map { Reactor.Action.didSelectProfileImageView }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }

@@ -20,6 +20,7 @@ final class EmojiReactor: Reactor {
     enum Action {
 //        case fetchEmojiList
         case fetchDisplayContent(String)
+        case didSelectProfileImageView
     }
     
     enum Mutation {
@@ -57,6 +58,12 @@ extension EmojiReactor {
 //                .flatMap { emojiList in
 //                    return Observable.just(Mutation.fetchedEmojiList(emojiList ?? []))
 //                }
+            
+        case .didSelectProfileImageView:
+            if let memberId = currentState.post.author?.memberId {
+                provider.postGlobalState.PushProfileView(memberId)
+            }
+            return Observable<Mutation>.empty()
             
         case let .fetchDisplayContent(content):
             var sectionItem: [DisplayEditItemModel] = []

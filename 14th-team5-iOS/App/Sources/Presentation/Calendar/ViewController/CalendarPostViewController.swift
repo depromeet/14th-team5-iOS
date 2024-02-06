@@ -156,20 +156,28 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .withUnretained(self)
             .subscribe { $0.0.calendarView.reloadData() }
             .disposed(by: disposeBag)
-
-        // 스트림 공유하게
-        reactor.pulse(\.$displayPostResponse)
-            .bind(to: postCollectionView.rx.items(dataSource: dataSource))
-            .disposed(by: disposeBag)
         
-        reactor.state.map { $0.displayPostResponse }
-            .distinctUntilChanged()
+        reactor.pulse(\.$shouldPushProfileView)
             .withUnretained(self)
             .subscribe {
-                guard let items = $0.1.first?.items,
+                let profileVC = ProfileDIContainer(memberId: $0.1).makeViewController()
+                $0.0.navigationController?.pushViewController(profileVC, animated: true)
+            }
+            .disposed(by: disposeBag)
+
+        let postResponse = reactor.pulse(\.$displayPostResponse).asDriver(onErrorJustReturn: [])
+        
+        postResponse
+            .drive(postCollectionView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        postResponse
+            .distinctUntilChanged()
+            .drive(with: self) {
+                guard let items = $1.first?.items,
                       !items.isEmpty else { return }
                 let indexPath = IndexPath(item: 0, section: 0)
-                $0.0.postCollectionView.scrollToItem(
+                $0.postCollectionView.scrollToItem(
                     at: indexPath,
                     at: .centeredHorizontally,
                     animated: false

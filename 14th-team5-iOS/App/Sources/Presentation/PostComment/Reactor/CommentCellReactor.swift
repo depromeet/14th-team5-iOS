@@ -80,8 +80,9 @@ final public class CommentCellReactor: Reactor {
             
         case .didSelectProfileImageView:
             let memberId = initialState.memberId
-            // TODO: - 사용자를 '알 수 없는' 경우 예외 동작 구현하기
-            provider.postGlobalState.pushProfileView(memberId)
+            if memberUseCase.executeCheckIsValidMember(memberId: memberId) {
+                provider.postGlobalState.pushProfileView(memberId)
+            }
             return Observable<Mutation>.empty()
         }
     }

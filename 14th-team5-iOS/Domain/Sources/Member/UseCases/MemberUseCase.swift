@@ -12,6 +12,7 @@ public protocol MemberUseCaseProtocol {
     func executeProfileImageUrlString(memberId: String) -> String
     func executeProfileImageUrl(memberId: String) -> URL?
     func executeCheckIsMe(memberId: String) -> Bool
+    func executeCheckIsValidMember(memberId: String) -> Bool
 }
 
 public final class MemberUseCase: MemberUseCaseProtocol {
@@ -36,5 +37,9 @@ public final class MemberUseCase: MemberUseCaseProtocol {
     
     public func executeCheckIsMe(memberId: String) -> Bool {
         return memberRepository.checkIsMe(memberId: memberId)
+    }
+    
+    public func executeCheckIsValidMember(memberId: String) -> Bool {
+        return memberRepository.checkIsValidMember(memberId: memberId)
     }
 }

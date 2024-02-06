@@ -18,6 +18,7 @@ final public class CommentCellReactor: Reactor {
     public enum Action { 
         case fetchUserName
         case fetchProfileImageUrlString
+        case didSelectProfileImageView
     }
     
     // MARK: - Mutation
@@ -43,12 +44,14 @@ final public class CommentCellReactor: Reactor {
     
     public var memberUseCase: MemberUseCaseProtocol
     public var postCommentUseCase: PostCommentUseCaseProtocol
+    public var provider: GlobalStateProviderProtocol
     
     // MARK: - Intializer
     public init(
         _ commentResponse: PostCommentResponse,
         memberUseCase: MemberUseCaseProtocol,
-        postCommentUseCase: PostCommentUseCaseProtocol
+        postCommentUseCase: PostCommentUseCaseProtocol,
+        provider: GlobalStateProviderProtocol
     ) {
         self.initialState = State(
             commentId: commentResponse.commentId,
@@ -62,6 +65,7 @@ final public class CommentCellReactor: Reactor {
         
         self.memberUseCase = memberUseCase
         self.postCommentUseCase = postCommentUseCase
+        self.provider = provider
     }
     
     // MARK: - Mutate
@@ -73,6 +77,12 @@ final public class CommentCellReactor: Reactor {
         case .fetchProfileImageUrlString:
             let urlString = memberUseCase.executeProfileImageUrlString(memberId: initialState.memberId)
             return Observable<Mutation>.just(.injectProfileImageUrlString(urlString))
+            
+        case .didSelectProfileImageView:
+            let memberId = initialState.memberId
+            // TODO: - 사용자를 '알 수 없는' 경우 예외 동작 구현하기
+            provider.postGlobalState.pushProfileView(memberId)
+            return Observable<Mutation>.empty()
         }
     }
     

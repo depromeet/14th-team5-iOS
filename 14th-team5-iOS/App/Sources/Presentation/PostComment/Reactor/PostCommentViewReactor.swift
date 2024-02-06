@@ -41,6 +41,7 @@ final public class PostCommentViewReactor: Reactor {
         case becomeFirstResponseder
         case clearCommentTextField
         case enableCommentTextField(Bool)
+        case dismissCommentSheet
     }
     
     // MARK: - State
@@ -59,6 +60,7 @@ final public class PostCommentViewReactor: Reactor {
         @Pulse var shouldPresentEmptyCommentView: Bool
         @Pulse var shouldPresentPaperAirplaneLottieView: Bool
         @Pulse var shouldGenerateErrorHapticNotification: Bool
+        @Pulse var shouldDismissCommentSheet: Bool
         @Pulse var becomeFirstResponder: Bool
         var enableCommentTextField: Bool
         var tableViewBottomOffset: CGFloat
@@ -94,6 +96,7 @@ final public class PostCommentViewReactor: Reactor {
             shouldPresentEmptyCommentView: false,
             shouldPresentPaperAirplaneLottieView: false,
             shouldGenerateErrorHapticNotification: false,
+            shouldDismissCommentSheet: false,
             becomeFirstResponder: false,
             enableCommentTextField: false,
             tableViewBottomOffset: 0
@@ -121,7 +124,15 @@ final public class PostCommentViewReactor: Reactor {
                 return Observable<Mutation>.empty()
             }
         
-        return Observable<Mutation>.merge(mutation, inputMutation)
+        let postMutation = provider.postGlobalState.event
+            .flatMap {
+                switch $0 {
+                case .pushProfileView:
+                    return Observable<Mutation>.just(.dismissCommentSheet)
+                }
+            }
+        
+        return Observable<Mutation>.merge(mutation, inputMutation, postMutation)
     }
     
     // MARK: - Mutate
@@ -166,7 +177,8 @@ final public class PostCommentViewReactor: Reactor {
                         let reactors = commentResponseArray.results.map { CommentCellReactor(
                                 $0,
                                 memberUseCase: self.memberUseCase,
-                                postCommentUseCase: self.postCommentUseCase
+                                postCommentUseCase: self.postCommentUseCase,
+                                provider: self.provider
                             )
                         }
                         
@@ -208,7 +220,8 @@ final public class PostCommentViewReactor: Reactor {
                         let reactor = CommentCellReactor(
                             commentResponse,
                             memberUseCase: self.memberUseCase,
-                            postCommentUseCase: self.postCommentUseCase
+                            postCommentUseCase: self.postCommentUseCase,
+                            provider: self.provider
                         )
                         
                         $0.0.provider.postGlobalState.clearCommentText()
@@ -322,6 +335,9 @@ final public class PostCommentViewReactor: Reactor {
             
         case let .setTableViewOffset(height):
             newState.tableViewBottomOffset = height
+            
+        case .dismissCommentSheet:
+            newState.shouldDismissCommentSheet = true
         }
         
         return newState

@@ -61,7 +61,7 @@ extension EmojiReactor {
             
         case .didSelectProfileImageView:
             if let memberId = currentState.post.author?.memberId {
-                provider.postGlobalState.PushProfileView(memberId)
+                provider.postGlobalState.pushProfileView(memberId)
             }
             return Observable<Mutation>.empty()
             

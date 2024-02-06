@@ -94,7 +94,7 @@ public final class CalendarPostViewReactor: Reactor {
         let postMutation = provider.postGlobalState.event
             .flatMap {
                 switch $0 {
-                case let .pushPresentProfileView(memberId):
+                case let .pushProfileView(memberId):
                     return Observable<Mutation>.just(.pushProfileView(memberId))
                 }
             }

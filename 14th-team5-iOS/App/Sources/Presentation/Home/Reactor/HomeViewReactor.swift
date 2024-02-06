@@ -147,7 +147,7 @@ extension HomeViewReactor {
         case .setInTime(let isInTime):
             newState.isInTime = isInTime
         case let .showShareAcitivityView(url):
-                   newState.familyInvitationLink = url
+            newState.familyInvitationLink = url
         case .setCopySuccessToastMessageView:
               newState.shouldPresentCopySuccessToastMessageView = true
           case .setFetchFailureToastMessageView:

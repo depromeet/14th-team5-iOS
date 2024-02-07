@@ -61,6 +61,12 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        navigationBarView.rx.didTapRightBarButton
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .map { _ in Reactor.Action.didTapPrivacyBarButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         shareContainerview.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .map { Reactor.Action.didTapShareContainer }
@@ -81,8 +87,16 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     private func bindOutput(reactor: FamilyManagementViewReactor) {
         navigationBarView.rx.didTapLeftBarButton
             .withUnretained(self)
+            .subscribe {$0.0.navigationController?.popViewController(animated: true) }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPushPrivacyVC)
+            .filter { !$0.isEmpty }
+            .withUnretained(self)
             .subscribe {
-                $0.0.navigationController?.popViewController(animated: true)
+                debugPrint("MyMemberId: \($0.1)")
+                let privacyVC = PrivacyDIContainer(memberId: $0.1).makeViewController()
+                $0.0.navigationController?.pushViewController(privacyVC, animated: true)
             }
             .disposed(by: disposeBag)
         
@@ -226,7 +240,12 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
         super.setupAttributes()
         navigationBarView.do {
             $0.navigationTitle = _Str.mainTitle
+            
             $0.leftBarButtonItem = .arrowLeft
+            
+            $0.rightBarButtonItem = .setting
+            $0.rightBarButtonItemScale = 1.2
+            $0.hiddenRightBarButtonBackground = true
          }
         
         dividerView.do {

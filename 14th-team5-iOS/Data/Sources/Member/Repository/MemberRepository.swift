@@ -32,4 +32,8 @@ extension MemberRepository {
         }
         return false
     }
+    
+    public func fetchMyMemberId() -> String {
+        return FamilyUserDefaults.getMyMemberId()
+    }
 }

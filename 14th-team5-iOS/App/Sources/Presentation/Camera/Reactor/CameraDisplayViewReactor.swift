@@ -27,6 +27,7 @@ public final class CameraDisplayViewReactor: Reactor {
     
     public enum Mutation {
         case setLoading(Bool)
+        case setError(Bool)
         case setDisplayEditSection([DisplayEditItemModel])
         case setRenderImage(Data)
         case saveDeviceimage(Data)
@@ -39,6 +40,7 @@ public final class CameraDisplayViewReactor: Reactor {
     public struct State {
         var isLoading: Bool
         var displayDescrption: String
+        @Pulse var isError: Bool
         @Pulse var displayData: Data
         @Pulse var displaySection: [DisplayEditSectionModel]
         @Pulse var displayEntity: CameraDisplayImageResponse?
@@ -53,6 +55,7 @@ public final class CameraDisplayViewReactor: Reactor {
         self.initialState = State(
             isLoading: true,
             displayDescrption: "",
+            isError: false,
             displayData: displayData,
             displaySection: [.displayKeyword([])],
             displayEntity: nil,
@@ -69,22 +72,28 @@ public final class CameraDisplayViewReactor: Reactor {
             
             return .concat(
                 .just(.setLoading(false)),
+                .just(.setError(false)),
                 .just(.setRenderImage(self.currentState.displayData)),
                 cameraDisplayUseCase.executeDisplayImageURL(parameters: parameters, type: .feed)
                     .withUnretained(self)
                     .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                     .asObservable()
                     .flatMap { owner, entity -> Observable<CameraDisplayViewReactor.Mutation> in
-                        owner.cameraDisplayUseCase.executeUploadToS3(toURL: entity?.imageURL ?? "", imageData: owner.currentState.displayData)
+                        guard let originalURL = entity?.imageURL else { return .just(.setError(true))}
+                        return owner.cameraDisplayUseCase.executeUploadToS3(toURL: originalURL, imageData: owner.currentState.displayData)
                             .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                             .asObservable()
                             .flatMap { isSuccess -> Observable<CameraDisplayViewReactor.Mutation> in
-                                return .concat(
-                                    .just(.setDisplayEntity(entity)),
-                                    .just(.setDisplayOriginalEntity(isSuccess)),
-                                    .just(.setLoading(true))
-                                )
-                                
+                                if isSuccess {
+                                    return .concat(
+                                        .just(.setDisplayEntity(entity)),
+                                        .just(.setDisplayOriginalEntity(isSuccess)),
+                                        .just(.setLoading(true)),
+                                        .just(.setError(false))
+                                    )
+                                } else {
+                                    return .just(.setError(true))
+                                }
                             }
                         
                     }
@@ -115,7 +124,7 @@ public final class CameraDisplayViewReactor: Reactor {
         case .didTapConfirmButton:
             
             MPEvent.Camera.uploadPhoto.track(with: nil)
-            guard let presingedURL = self.currentState.displayEntity?.imageURL else { return .just(.setLoading(false)) }
+            guard let presingedURL = self.currentState.displayEntity?.imageURL else { return .just(.setError(true)) }
             let originURL = configureOriginalS3URL(url: presingedURL, with: .feed)
             
             let parameters: CameraDisplayPostParameters = CameraDisplayPostParameters(
@@ -130,7 +139,8 @@ public final class CameraDisplayViewReactor: Reactor {
                     return .concat(
                         .just(.setLoading(false)),
                         .just(.setPostEntity(entity)),
-                        .just(.setLoading(true))
+                        .just(.setLoading(true)),
+                        .just(.setError(false))
                     )
                     
                 }
@@ -163,6 +173,8 @@ public final class CameraDisplayViewReactor: Reactor {
             newState.displayOringalEntity = entity
         case let .setPostEntity(entity):
             newState.displayPostEntity = entity
+        case let .setError(isError):
+            newState.isError = isError
         }
         return newState
     }

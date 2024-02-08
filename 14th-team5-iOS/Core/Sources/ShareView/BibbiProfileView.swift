@@ -19,6 +19,7 @@ import Then
 
 public class BibbiProfileView: UIView {
     public let profileImageView: UIImageView = UIImageView()
+    public let profileDefaultLabel: BibbiLabel = BibbiLabel(.head1, alignment: .center, textColor: .gray200)
     public let circleButton: UIButton = UIButton.createCircleButton(radius: 15)
     public let birthDayView: UIImageView = UIImageView()
     public let profileNickNameButton: UIButton = UIButton()
@@ -35,6 +36,12 @@ public class BibbiProfileView: UIView {
     public var isBirthDay: Bool = false {
         didSet {
             setupBirtyDay(isBirtyDay: isBirthDay)
+        }
+    }
+    
+    public var isDefault: Bool = false {
+        didSet {
+            setupDefaultProfile(isDefault: isDefault)
         }
     }
     
@@ -55,7 +62,7 @@ public class BibbiProfileView: UIView {
     
     
     public func setupUI() {
-        addSubviews(profileImageView, profileNickNameButton, profileNickNameEditImageView, circleButton, birthDayView, profileCreateLabel)
+        addSubviews(profileImageView, profileNickNameButton, profileNickNameEditImageView, profileDefaultLabel, circleButton, birthDayView, profileCreateLabel)
     }
     
     public func setupAttributes() {
@@ -101,6 +108,10 @@ public class BibbiProfileView: UIView {
             $0.center.equalToSuperview()
         }
         
+        profileDefaultLabel.snp.makeConstraints {
+            $0.center.equalTo(profileImageView)
+        }
+        
         birthDayView.snp.makeConstraints {
             $0.top.equalTo(profileImageView).offset(-8)
             $0.right.equalTo(profileImageView).offset(8)
@@ -131,6 +142,10 @@ public class BibbiProfileView: UIView {
             $0.centerY.equalTo(profileNickNameButton).offset(2)
             $0.right.lessThanOrEqualToSuperview()
         }
+    }
+    
+    private func setupDefaultProfile(isDefault: Bool) {
+        profileDefaultLabel.isHidden = isDefault
     }
     
     private func setupUserProfile(isUser: Bool) {

@@ -19,7 +19,7 @@ extension Notification.Name {
     public static let UserAccountLogout = Notification.Name("UserAccountLogout")
     public static let UserFamilyResign = Notification.Name("UserFamilyResign")
     public static let DidFinishProfileImageUpdate = Notification.Name("DidFinishProfileImageUpdate")
-    public static let DidFinishProfileNickNameUpdate = Notification.Name("DidFinishProfileNickNameUpdate")
     public static let didTapSelectableCameraButton = Notification.Name("didTapSelectableCameraButton")
     public static let didTapCreatFamilyGroupButton = Notification.Name("didTapCreatFamilyGroupButton")
+    public static let didTapBibbiToastTranstionButton = Notification.Name("didTapTranstionButton")
 }

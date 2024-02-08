@@ -20,8 +20,8 @@ public final class ProfileViewReactor: Reactor {
     
     public enum Action {
         case viewDidLoad
-        case viewWillAppear(Bool)
-        case updateNickNameProfile(Data,Bool)
+        case viewWillAppear
+        case updateNickNameProfile(Data)
         case fetchMorePostItems(Bool)
         case didSelectPHAssetsImage(Data)
         case didTapInitProfile(Data)
@@ -31,11 +31,8 @@ public final class ProfileViewReactor: Reactor {
     public enum Mutation {
         case setLoading(Bool)
         case setProfilePresingedURL(CameraDisplayImageResponse?)
-        case setPresignedS3Upload(Bool)
         case setFeedCategroySection([ProfileFeedSectionItem])
         case setProfileMemberItems(ProfileMemberResponse?)
-        case setDefaultProfile(Bool)
-        case setChangNickName(Bool)
         case setProfilePostItems(ProfilePostResponse)
         case setProfileData(PostSection.Model, IndexPath)
     }
@@ -46,12 +43,9 @@ public final class ProfileViewReactor: Reactor {
         var isUser: Bool
         @Pulse var profileData: PostSection.Model
         @Pulse var selectedIndexPath: IndexPath?
-        @Pulse var isChangeNickname: Bool
-        @Pulse var isDefaultProfile: Bool
         @Pulse var feedSection: [ProfileFeedSectionModel]
         @Pulse var profileMemberEntity: ProfileMemberResponse?
         @Pulse var profilePostEntity: ProfilePostResponse?
-        @Pulse var isProfileUpload: Bool
         @Pulse var profilePresingedURLEntity: CameraDisplayImageResponse?
     }
     
@@ -67,11 +61,8 @@ public final class ProfileViewReactor: Reactor {
                 model: 0, items: []
             ),
             selectedIndexPath: nil,
-            isChangeNickname: false,
-            isDefaultProfile: false,
             feedSection: [.feedCategory([])],
             profileMemberEntity: nil,
-            isProfileUpload: false,
             profilePresingedURLEntity: nil
         )
         
@@ -113,100 +104,18 @@ public final class ProfileViewReactor: Reactor {
 
                     }
             )
-        case let .updateNickNameProfile(nickNameFileData, isUpdate):
-            if isUpdate == true && UserDefaults.standard.isDefaultProfile == true {
-                let nickNameProfileImage: String = "\(nickNameFileData.hashValue).jpg"
-                let nickNameImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: nickNameProfileImage)
-                return .concat(
-                    .just(.setLoading(false)),
-                    profileUseCase.executeProfileImageURLCreate(parameter: nickNameImageEditParameter)
-                        .withUnretained(self)
-                        .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
-                        .asObservable()
-                        .flatMap { owner, entity -> Observable<ProfileViewReactor.Mutation> in
-                            guard let profilePresingedURL = entity?.imageURL else { return .empty() }
-                            return owner.profileUseCase.executeProfileImageToPresingedUpload(to: profilePresingedURL, data: nickNameFileData)
-                                .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
-                                .asObservable()
-                                .flatMap { isSuccess -> Observable<ProfileViewReactor.Mutation> in
-                                    let originalPath = owner.configureProfileOriginalS3URL(url: profilePresingedURL)
-                                    let profileEditParameter: ProfileImageEditParameter = ProfileImageEditParameter(profileImageUrl: originalPath)
-                                    if isSuccess {
-                                        return owner.profileUseCase.executeReloadProfileImage(memberId: self.currentState.memberId, parameter: profileEditParameter)
-                                            .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
-                                            .asObservable()
-                                            .flatMap { memberEntity -> Observable<ProfileViewReactor.Mutation> in
-                                                return .concat(
-                                                    .just(.setProfilePresingedURL(entity)),
-                                                    .just(.setPresignedS3Upload(isSuccess)),
-                                                    .just(.setProfileMemberItems(memberEntity)),
-                                                    .just(.setDefaultProfile(isUpdate)),
-                                                    .just(.setLoading(true))
-                                                
-                                                )
-                                            }
-                                    } else {
-                                        return .just(.setDefaultProfile(false))
-                                    }
-                                    
-                                }
-                        })
-                
-            } else {
-                return .empty()
-            }
-            
-            
-        case let .viewWillAppear(isUpdate):
-            if UserDefaults.standard.isDefaultProfile {
-                return .concat(
-                    profileUseCase.executeProfileMemberItems(memberId: currentState.memberId)
-                        .asObservable()
-                        .withUnretained(self)
-                        .flatMap { owner ,entity -> Observable<ProfileViewReactor.Mutation> in
-                                .concat(
-                                    .just(.setLoading(false)),
-                                    .just(.setChangNickName(isUpdate)),
-                                    .just(.setProfileMemberItems(entity)),
-                                    .just(.setDefaultProfile(true)),
-                                    .just(.setLoading(true))
-                                
-                                )
-                        }
-                
-                )
-            } else {
-                return .concat(
-                    profileUseCase.executeProfileMemberItems(memberId: currentState.memberId)
-                        .asObservable()
-                        .withUnretained(self)
-                        .flatMap { owner ,entity -> Observable<ProfileViewReactor.Mutation> in
-                                .concat(
-                                    .just(.setChangNickName(isUpdate)),
-                                    .just(.setProfileMemberItems(entity)),
-                                    .just(.setDefaultProfile(false))
-                                
-                                )
-                        }
-                
-                )
-            }
-            
-        
-            
-            
-        case let .didSelectPHAssetsImage(fileData):
-            let profileImage: String = "\(fileData.hashValue).jpg"
-            let profileImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: profileImage)
+        case let .updateNickNameProfile(nickNameFileData):
+            let nickNameProfileImage: String = "\(nickNameFileData.hashValue).jpg"
+            let nickNameImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: nickNameProfileImage)
             return .concat(
                 .just(.setLoading(false)),
-                profileUseCase.executeProfileImageURLCreate(parameter: profileImageEditParameter)
+                profileUseCase.executeProfileImageURLCreate(parameter: nickNameImageEditParameter)
                     .withUnretained(self)
                     .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                     .asObservable()
                     .flatMap { owner, entity -> Observable<ProfileViewReactor.Mutation> in
                         guard let profilePresingedURL = entity?.imageURL else { return .empty() }
-                        return owner.profileUseCase.executeProfileImageToPresingedUpload(to: profilePresingedURL, data: fileData)
+                        return owner.profileUseCase.executeProfileImageToPresingedUpload(to: profilePresingedURL, data: nickNameFileData)
                             .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                             .asObservable()
                             .flatMap { isSuccess -> Observable<ProfileViewReactor.Mutation> in
@@ -219,22 +128,77 @@ public final class ProfileViewReactor: Reactor {
                                         .flatMap { memberEntity -> Observable<ProfileViewReactor.Mutation> in
                                             return .concat(
                                                 .just(.setProfilePresingedURL(entity)),
-                                                .just(.setPresignedS3Upload(isSuccess)),
                                                 .just(.setProfileMemberItems(memberEntity)),
-                                                .just(.setDefaultProfile(false)),
                                                 .just(.setLoading(true))
                                             
                                             )
                                         }
-                                    
                                 } else {
                                     return .empty()
                                 }
                                 
                             }
-                        
-                        
+                    })
+            
+        case .viewWillAppear:
+            return .concat(
+                profileUseCase.executeProfileMemberItems(memberId: currentState.memberId)
+                    .asObservable()
+                    .withUnretained(self)
+                    .flatMap { owner ,entity -> Observable<ProfileViewReactor.Mutation> in
+                            .concat(
+                                .just(.setLoading(false)),
+                                .just(.setProfileMemberItems(entity)),
+                                .just(.setLoading(true))
+                            )
                     }
+            
+            )
+            
+        
+            
+            
+        case let .didSelectPHAssetsImage(fileData):
+            let profileImage: String = "\(fileData.hashValue).jpg"
+            let profileImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: profileImage)
+            let originalPath = self.configureProfileOriginalS3URL(url: "null")
+            let profileEditParameter: ProfileImageEditParameter = ProfileImageEditParameter(profileImageUrl: originalPath)
+            return .concat(
+                .just(.setLoading(false)),
+                 self.profileUseCase.executeReloadProfileImage(memberId: self.currentState.memberId, parameter: profileEditParameter)
+                    .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
+                    .asObservable()
+                    .flatMap { memberEntity -> Observable<ProfileViewReactor.Mutation> in
+                        return .concat(
+                            .just(.setProfileMemberItems(memberEntity)),
+                            .just(.setLoading(true))
+                        
+                        )
+                    }
+                
+//                profileUseCase.executeProfileImageURLCreate(parameter: profileImageEditParameter)
+//                    .withUnretained(self)
+//                    .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
+//                    .asObservable()
+//                    .flatMap { owner, entity -> Observable<ProfileViewReactor.Mutation> in
+//                        guard let profilePresingedURL = entity?.imageURL else { return .empty() }
+//                        return owner.profileUseCase.executeProfileImageToPresingedUpload(to: profilePresingedURL, data: fileData)
+//                            .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
+//                            .asObservable()
+//                            .flatMap { isSuccess -> Observable<ProfileViewReactor.Mutation> in
+//                                let originalPath = owner.configureProfileOriginalS3URL(url: profilePresingedURL)
+//                                let profileEditParameter: ProfileImageEditParameter = ProfileImageEditParameter(profileImageUrl: originalPath)
+//                                if isSuccess {
+//                                    
+//                                    
+//                                } else {
+//                                    return .empty()
+//                                }
+//                                
+//                            }
+//                        
+//                        
+//                    }
             )
             
         case let .fetchMorePostItems(isPagination):
@@ -272,12 +236,13 @@ public final class ProfileViewReactor: Reactor {
                     .flatMap { owner, entity -> Observable<ProfileViewReactor.Mutation> in
                         guard let profilePresingedURL = entity?.imageURL else { return .empty() }
                         return owner.profileUseCase
-                            .executeProfileImageToPresingedUpload(to: profilePresingedURL, data: profileData)
+                            .executeProfileImageToPresingedUpload(to: profilePresingedURL, data: Data())
                             .subscribe(on:  ConcurrentDispatchQueueScheduler.init(qos: .background))
                             .asObservable()
                             .flatMap { isSuccess -> Observable<ProfileViewReactor.Mutation> in
+                                //TODO: 요기에
                                 let originalPath = owner.configureProfileOriginalS3URL(url: profilePresingedURL)
-                                let profileEditParmater: ProfileImageEditParameter = ProfileImageEditParameter(profileImageUrl: originalPath)
+                                let profileEditParmater: ProfileImageEditParameter = ProfileImageEditParameter(profileImageUrl: "null")
                                 if isSuccess {
                                     return owner.profileUseCase
                                         .executeReloadProfileImage(memberId: owner.currentState.memberId, parameter: profileEditParmater)
@@ -286,9 +251,7 @@ public final class ProfileViewReactor: Reactor {
                                         .flatMap { memberEntity -> Observable<ProfileViewReactor.Mutation> in
                                             return .concat(
                                                 .just(.setProfilePresingedURL(entity)),
-                                                .just(.setPresignedS3Upload(isSuccess)),
                                                 .just(.setProfileMemberItems(memberEntity)),
-                                                .just(.setDefaultProfile(true)),
                                                 .just(.setLoading(true))
                                             )
                                             
@@ -344,14 +307,6 @@ public final class ProfileViewReactor: Reactor {
         case let .setProfilePresingedURL(entity):
             newState.profilePresingedURLEntity = entity
             
-        case let .setPresignedS3Upload(isProfileUpload):
-            newState.isProfileUpload = isProfileUpload
-            
-        case let .setDefaultProfile(isDefaultProfile):
-            newState.isDefaultProfile = isDefaultProfile
-            UserDefaults.standard.isDefaultProfile = isDefaultProfile
-        case let .setChangNickName(isChangeNickname):
-            newState.isChangeNickname = isChangeNickname
         case let .setProfileData(profileData, indexPath):
             newState.profileData = profileData
             newState.selectedIndexPath = indexPath

@@ -264,7 +264,6 @@ extension HomeViewController {
             .disposed(by: disposeBag)
         
         postStream
-            .debug("22222")
             .withUnretained(self)
             .bind(onNext: { _ in App.Repository.member.postId.accept(UserDefaults.standard.postId)  })
             .disposed(by: disposeBag)

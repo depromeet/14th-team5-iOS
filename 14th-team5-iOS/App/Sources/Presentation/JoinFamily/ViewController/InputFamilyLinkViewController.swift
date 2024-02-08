@@ -186,6 +186,9 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
 
 extension InputFamilyLinkViewController {
     private func showHomeViewController() {
+        
+        UserDefaults.standard.clearInviteCode()
+        
         guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
         sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
         sceneDelegate.window?.makeKeyAndVisible()

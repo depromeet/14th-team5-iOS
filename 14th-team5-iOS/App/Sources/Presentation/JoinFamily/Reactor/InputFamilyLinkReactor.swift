@@ -60,15 +60,35 @@ extension InputFamilyLinkReactor {
             let code = currentState.linkString
             let request = JoinFamilyRequest(inviteCode: String(code))
             
-            return familyUseCase.execute(body: request)
-                .asObservable()
-                .flatMap { joinFamilyData in
-                    guard let joinFamilyData else {
-                        return Observable.just(Mutation.setToastMessage("존재하지 않는 초대코드에요."))
+            let commonLogic: (JoinFamilyData) -> Observable<InputFamilyLinkReactor.Mutation> = { joinFamilyData in
+                App.Repository.member.familyId.accept(joinFamilyData.familyId)
+                return Observable.just(Mutation.setShowHome(true))
+            }
+
+            if App.Repository.member.familyId.value != nil {
+                return familyUseCase.resignFamily()
+                    .asObservable()
+                    .withUnretained(self)
+                    .flatMap { owner, useCase -> Observable<InputFamilyLinkReactor.Mutation> in
+                        return owner.familyUseCase.execute(body: request)
+                            .asObservable()
+                            .flatMap { joinFamilyData in
+                                guard let joinFamilyData = joinFamilyData else {
+                                    return Observable.just(Mutation.setToastMessage("존재하지 않는 초대코드에요."))
+                                }
+                                return commonLogic(joinFamilyData)
+                            }
                     }
-                    App.Repository.member.familyId.accept(joinFamilyData.familyId)
-                    return Observable.just(Mutation.setShowHome(true))
-                }
+            } else {
+                return familyUseCase.execute(body: request)
+                    .asObservable()
+                    .flatMap { joinFamilyData in
+                        guard let joinFamilyData = joinFamilyData else {
+                            return Observable.just(Mutation.setToastMessage("존재하지 않는 초대코드에요."))
+                        }
+                        return commonLogic(joinFamilyData)
+                    }
+            }
         case .tapPopButton:
             return Observable.just(Mutation.setPoped(true))
         }

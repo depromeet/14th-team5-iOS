@@ -80,7 +80,11 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
         if let _ = member?.familyId {
             var container: UINavigationController
             if UserDefaults.standard.finishTutorial {
-                container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+                if let _ = UserDefaults.standard.inviteCode {
+                    container = UINavigationController(rootViewController: JoinedFamilyDIContainer().makeViewController())
+                } else {
+                    container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+                }
             } else {
                 container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
             }

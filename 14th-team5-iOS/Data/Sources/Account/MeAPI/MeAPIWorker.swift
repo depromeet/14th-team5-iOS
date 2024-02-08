@@ -160,4 +160,26 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             .flatMap { $0.0.joinFamily(spec: spec, headers: $0.1, jsonEncodable: payload) }
             .asSingle()
     }
+    
+    private func resignFamily(spec: APISpec, headers: [APIHeader]?) -> Single<AccountFamilyResignResponse?> {
+        return request(spec: spec, headers: headers)
+            .subscribe(on: Self.queue)
+            .do(onNext: {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Resign Family result: \(str)")
+                }
+            })
+            .map(AccountFamilyResignResponse.self)
+            .catchAndReturn(nil)
+            .asSingle()
+    }
+    
+    public func resignFamily() -> Single<AccountFamilyResignResponse?> {
+        let spec = PrivacyAPIs.accountFamilyResign.spec
+        return Observable.just(())
+            .withLatestFrom(self._headers)
+            .withUnretained(self)
+            .flatMap { $0.0.resignFamily(spec: spec, headers: $0.1) }
+            .asSingle()
+    }
 }

@@ -10,4 +10,5 @@ import RxSwift
 
 public protocol JoinFamilyRepository {
     func joinFamily(body: JoinFamilyRequest) -> Single<JoinFamilyData?>
+    func resignFamily() -> Single<AccountFamilyResignResponse?>
 }

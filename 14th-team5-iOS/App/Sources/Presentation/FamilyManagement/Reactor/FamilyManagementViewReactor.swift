@@ -18,6 +18,7 @@ public final class FamilyManagementViewReactor: Reactor {
     public enum Action {
         case fetchPaginationFamilyMemebers(Bool)
         case didTapShareContainer
+        case didTapPrivacyBarButton
         case didSelectTableCell(IndexPath)
     }
     
@@ -30,6 +31,7 @@ public final class FamilyManagementViewReactor: Reactor {
         case setHiddenPaperAirplaneLottieView(Bool)
         case setHiddenFamilyFetchFailureView(Bool)
         case pushProfileVC(String)
+        case pushPrivacyVC(String)
         case injectFamilyId(String?)
         case injectFamilyMembers([FamilyMemberProfileCellReactor])
         case generateErrorHapticNotification
@@ -40,6 +42,7 @@ public final class FamilyManagementViewReactor: Reactor {
         var familyId: String?
         @Pulse var familyInvitationUrl: URL?
         @Pulse var shouldPushProfileVC: String
+        @Pulse var shouldPushPrivacyVC: String
         @Pulse var shouldPresentCopySuccessToastMessageView: Bool
         @Pulse var shouldPresentUrlFetchFailureToastMessageView: Bool
         @Pulse var shouldPresentFamilyFetchFailureToastMessageView: Bool
@@ -67,6 +70,7 @@ public final class FamilyManagementViewReactor: Reactor {
             familyId: nil,
             familyInvitationUrl: nil,
             shouldPushProfileVC: .none,
+            shouldPushPrivacyVC: .none,
             shouldPresentCopySuccessToastMessageView: false,
             shouldPresentUrlFetchFailureToastMessageView: false,
             shouldPresentFamilyFetchFailureToastMessageView: false,
@@ -124,6 +128,10 @@ public final class FamilyManagementViewReactor: Reactor {
                         )
                     })
             )
+            
+        case .didTapPrivacyBarButton:
+            let memberId = memberUseCase.executeFetchMyMemberId()
+            return Observable<Mutation>.just(.pushPrivacyVC(memberId))
             
         case let .fetchPaginationFamilyMemebers(refresh):
             let query = FamilyPaginationQuery()
@@ -195,6 +203,9 @@ public final class FamilyManagementViewReactor: Reactor {
             
         case let .pushProfileVC(memberId):
             newState.shouldPushProfileVC = memberId
+            
+        case let .pushPrivacyVC(memberId):
+            newState.shouldPushPrivacyVC = memberId
             
         case let .injectFamilyId(familyId):
             newState.familyId = familyId

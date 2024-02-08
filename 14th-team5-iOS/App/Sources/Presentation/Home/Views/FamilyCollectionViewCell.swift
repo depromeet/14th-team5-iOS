@@ -90,7 +90,7 @@ final class FamilyCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
         }
         
         birthdayBadge.do {
-            $0.image = DesignSystemAsset.dayOfBirth.image
+            $0.image = DesignSystemAsset.birthday.image
             $0.isHidden = true
         }
         

@@ -152,7 +152,7 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
         }
         
         dayOfBirthBadgeView.do {
-            $0.image = DesignSystemAsset.dayOfBirth.image
+            $0.image = DesignSystemAsset.birthday.image
             $0.contentMode = .scaleAspectFit
         }
         

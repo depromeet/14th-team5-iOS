@@ -141,7 +141,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
         }
         
         cameraButton.do {
-            $0.setImage(DesignSystemAsset.camerButton.image, for: .normal)
+            $0.setImage(DesignSystemAsset.shutter.image, for: .normal)
         }
     }
 }

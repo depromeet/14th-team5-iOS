@@ -20,7 +20,7 @@ public final class JoinFamilyReactor: Reactor {
     // MARK: - Mutate
     public enum Mutation {
         case setShowHome(Bool)
-        case setShowJoineFamily(Bool)
+        case setShowJoinFamily(Bool)
     }
     
     // MARK: - State
@@ -56,7 +56,7 @@ extension JoinFamilyReactor {
                 }
         case .joinFamily:
             MPEvent.Account.invitedGroup.track(with: nil)
-            return Observable.just(Mutation.setShowJoineFamily(true))
+            return Observable.just(Mutation.setShowJoinFamily(true))
         }
     }
     
@@ -66,7 +66,7 @@ extension JoinFamilyReactor {
         switch mutation {
         case let .setShowHome(isShow):
             newState.isShowHome = isShow
-        case let .setShowJoineFamily(isShow):
+        case let .setShowJoinFamily(isShow):
             newState.isShowJoinFamily = isShow
         }
         return newState

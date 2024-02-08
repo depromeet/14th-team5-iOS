@@ -10,8 +10,8 @@ import Foundation
 import RxSwift
 
 public protocol JoinFamilyUseCaseProtocol {
-    /// joinFamily
     func execute(body: JoinFamilyRequest) -> Single<JoinFamilyData?>
+    func resignFamily() -> Single<AccountFamilyResignResponse?>
 }
 
 public class JoinFamilyUseCase: JoinFamilyUseCaseProtocol {
@@ -23,5 +23,9 @@ public class JoinFamilyUseCase: JoinFamilyUseCaseProtocol {
     
     public func execute(body: JoinFamilyRequest) -> Single<JoinFamilyData?> {
         return joinFamilyRepository.joinFamily(body: body)
+    }
+    
+    public func resignFamily() -> Single<AccountFamilyResignResponse?> {
+        return joinFamilyRepository.resignFamily()
     }
 }

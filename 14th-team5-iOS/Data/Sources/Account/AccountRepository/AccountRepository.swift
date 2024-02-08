@@ -96,8 +96,6 @@ public final class AccountRepository: AccountImpl {
     private func joinFamily(inviteCode: String?) {
         guard let inviteCode else { return }
         
-        print("inviteCode: \(inviteCode)")
-        
         meApiWorekr.joinFamily(with: inviteCode)
             .asObservable()
             .withUnretained(self)

@@ -14,6 +14,6 @@ extension String {
 
 extension InviteFamilyStrings {
     static let mainTitle: String = "초대받은 링크에서\n초대 코드를 확인할 수 있어요."
-    static let placeholder: String = "초대코드를 입력해 주세요."
+    static let placeholder: String = "n3d0wavq"
     static let btnTitle: String = "그룹 입장하기"
 }

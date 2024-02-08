@@ -21,13 +21,12 @@ fileprivate typealias _Str = JoinFamilyStrings
 final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
     // MARK: - Views
     private let titleLabel: BibbiLabel = BibbiLabel(.head1, textColor: .gray100)
-    private let captionLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray300)
-    private let createFamilyButton: UIButton = UIButton()
     private let joinFamilyButton: InviteFamilyView = InviteFamilyView(openType: .inviteUrl)
+    private let makeFamilyButton: MakeNewFamilyView = MakeNewFamilyView()
     
     override func setupUI() {
         super.setupUI()
-        view.addSubviews(titleLabel, captionLabel, createFamilyButton, joinFamilyButton)
+        view.addSubviews(titleLabel, makeFamilyButton, joinFamilyButton)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -44,20 +43,14 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
             $0.height.equalTo(66)
         }
         
-        captionLabel.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(8)
-            $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.height.equalTo(24)
-        }
-        
-        createFamilyButton.snp.makeConstraints {
-            $0.top.equalTo(captionLabel.snp.bottom).offset(24)
-            $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.height.equalTo(createFamilyButton.snp.width)
-        }
-        
         joinFamilyButton.snp.makeConstraints {
-            $0.top.equalTo(createFamilyButton.snp.bottom).offset(24)
+            $0.top.equalTo(titleLabel.snp.bottom).offset(24)
+            $0.horizontalEdges.equalToSuperview().inset(20)
+            $0.height.equalTo(90)
+        }
+        
+        makeFamilyButton.snp.makeConstraints {
+            $0.top.equalTo(joinFamilyButton.snp.bottom).offset(24)
             $0.horizontalEdges.equalToSuperview().inset(20)
             $0.height.equalTo(90)
         }
@@ -71,12 +64,8 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
             $0.numberOfLines = 2
         }
         
-        captionLabel.do {
-            $0.text = _Str.caption
-        }
-        
-        createFamilyButton.do {
-            $0.setImage(DesignSystemAsset.makeGroupButton.image, for: .normal)
+        makeFamilyButton.do {
+            $0.layer.cornerRadius = 16
         }
     }
     
@@ -87,7 +76,7 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
     }
     
     private func bindInput(reactor: JoinFamilyReactor) {
-        createFamilyButton.rx.tap
+        makeFamilyButton.rx.tap
             .do(onNext: { MPEvent.Account.creatGroup.track(with: nil) })
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .withUnretained(self)
@@ -127,6 +116,8 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
 extension JoinFamilyViewController {
     private func showHomeViewController(_ isShow: Bool) {
         guard isShow else { return }
+        
+        UserDefaults.standard.clearInviteCode()
         
         guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
         sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: HomeDIContainer().makeViewController())

@@ -116,4 +116,8 @@ extension UserDefaults {
             .map { $0.value }
             .forEach(UserDefaults.standard.removeObject)
     }
+    
+    public func clearInviteCode() {
+        UserDefaults.standard.removeObject(forKey: Key.inviteCode.value)
+    }
 }

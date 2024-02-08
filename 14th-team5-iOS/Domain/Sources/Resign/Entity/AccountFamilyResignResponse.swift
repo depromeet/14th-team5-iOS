@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AccountFamilyResignResponse {
+public struct AccountFamilyResignResponse: Codable {
     public var isSuccess: Bool
     
     public init(isSuccess: Bool) {

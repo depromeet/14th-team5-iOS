@@ -17,6 +17,7 @@ struct FamilyWidgetView: View {
     var body: some View {
         if let info = entry.family {
             getPhotoView(info: info)
+                .widgetURL(URL(string: "\(info.postId ?? "")"))
         } else {
             if isCurrentTimeBetween18And24() {
                 greenDefaultView

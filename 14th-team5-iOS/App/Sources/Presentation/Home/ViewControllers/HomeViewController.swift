@@ -48,7 +48,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
     
     override func setupUI() {
         super.setupUI()
-
+        
         view.addSubviews(navigationBarView, familyCollectionView, timerView,
                          noPostView, postCollectionView, inviteFamilyView,
                          balloonView, cameraButton)
@@ -67,6 +67,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
             $0.top.equalTo(navigationBarView.snp.bottom)
             $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
         }
+        
         
         inviteFamilyView.snp.makeConstraints {
             $0.top.equalTo(familyCollectionView).inset(24)
@@ -150,6 +151,25 @@ extension HomeViewController {
         postCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
+        App.Repository.member.postId
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: {
+                var postIds: [String] = []
+                reactor.currentState.postSection.items.forEach { item in
+                    switch item {
+                    case .main(let postListData):
+                        postIds.append(postListData.postId)
+                    }
+                }
+                
+                if let index = $0.0.findIndex(postIds, $0.1) {
+                    let indexPath = IndexPath(row: index, section: 0)
+                    $0.0.navigationController?.pushViewController(PostListsDIContainer().makeViewController(postLists: reactor.currentState.postSection, selectedIndex: indexPath), animated: false)
+                }
+            })
+            .disposed(by: disposeBag)
+        
         Observable.just(())
             .map { Reactor.Action.checkInTime }
             .bind(to: reactor.action)
@@ -161,10 +181,10 @@ extension HomeViewController {
             .disposed(by: disposeBag)
         
         self.inviteFamilyView.rx.tap
-                  .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-                  .map { Reactor.Action.tapInviteFamily }
-                  .bind(to: reactor.action)
-                  .disposed(by: disposeBag)
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .map { Reactor.Action.tapInviteFamily }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
         self.rx.viewWillAppear
             .map { _ in Reactor.Action.viewWillAppear }
@@ -235,10 +255,17 @@ extension HomeViewController {
     }
     
     private func bindOutput(reactor: HomeViewReactor) {
-        reactor.pulse(\.$postSection)
+        let postStream =  reactor.pulse(\.$postSection)
             .observe(on: MainScheduler.instance)
+        
+        postStream
             .map(Array.init(with:))
             .bind(to: postCollectionView.rx.items(dataSource: createPostDataSource()))
+            .disposed(by: disposeBag)
+        
+        postStream
+            .withUnretained(self)
+            .bind(onNext: { _ in App.Repository.member.postId.accept(UserDefaults.standard.postId)  })
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$isRefreshEnd)
@@ -292,28 +319,28 @@ extension HomeViewController {
             })
             .disposed(by: disposeBag)
         
-               
-               reactor.pulse(\.$shouldPresentCopySuccessToastMessageView)
-                   .skip(1)
-                   .withUnretained(self)
-                   .subscribe {
-                       $0.0.makeBibbiToastView(
-                           text: "링크가 복사되었어요",
-                           image: DesignSystemAsset.link.image
-                       )
-                   }
-                   .disposed(by: disposeBag)
-               
-               reactor.pulse(\.$shouldPresentFetchFailureToastMessageView)
-                   .skip(1)
-                   .withUnretained(self)
-                   .subscribe {
-                       $0.0.makeBibbiToastView(
-                           text: "잠시 후에 다시 시도해주세요",
-                           image: DesignSystemAsset.warning.image
-                       )
-                   }
-                   .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentCopySuccessToastMessageView)
+            .skip(1)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.makeBibbiToastView(
+                    text: "링크가 복사되었어요",
+                    image: DesignSystemAsset.link.image
+                )
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentFetchFailureToastMessageView)
+            .skip(1)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.makeBibbiToastView(
+                    text: "잠시 후에 다시 시도해주세요",
+                    image: DesignSystemAsset.warning.image
+                )
+            }
+            .disposed(by: disposeBag)
     }
 }
 
@@ -363,6 +390,7 @@ extension HomeViewController {
                     return cell
                 }
             })
+        
     }
     
     private func createFamilyDataSource() -> RxCollectionViewSectionedReloadDataSource<FamilySection.Model>  {
@@ -377,5 +405,14 @@ extension HomeViewController {
                     return cell
                 }
             })
+    }
+    
+    private func findIndex<T: Equatable>(_ array: [T], _ element: T) -> Int? {
+        for (index, value) in array.enumerated() {
+            if value == element {
+                return index
+            }
+        }
+        return nil
     }
 }

@@ -30,6 +30,8 @@ final class PostViewController: BaseViewController<PostReactor> {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.navigationBar.isHidden = true
+        
+        App.Repository.member.postId.accept(nil)
     }
     
     override func bind(reactor: PostReactor) {

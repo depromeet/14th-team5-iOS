@@ -78,7 +78,7 @@ extension UIImage.NavigationBar.ImageType {
     public var barImage: UIImage? {
         switch self {
         case .bibbi:
-            return DesignSystemAsset.bibbi.image
+            return DesignSystemAsset.bibbiLogo.image
         case .newBibbi:
             return DesignSystemAsset.bibbiLogo.image
         }

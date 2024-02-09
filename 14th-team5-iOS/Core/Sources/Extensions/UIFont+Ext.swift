@@ -129,15 +129,15 @@ extension UIFont {
         }
         
         public enum Family {
-            case black
-            case extraBold
+//            case black
+//            case extraBold
             case bold
             case semiBold
-            case medium
+//            case medium
             case regular
-            case thin
-            case light
-            case extraLight
+//            case thin
+//            case light
+//            case extraLight
         }
     }
     
@@ -155,24 +155,24 @@ extension UIFont {
 extension UIFont.FontAttributes {
     public var font: DesignSystemFontConvertible {
         switch weight {
-        case .black:
-            return DesignSystemFontFamily.Pretendard.black
-        case .extraBold:
-            return DesignSystemFontFamily.Pretendard.extraBold
+//        case .black:
+//            return DesignSystemFontFamily.Pretendard.black
+//        case .extraBold:
+//            return DesignSystemFontFamily.Pretendard.extraBold
         case .bold:
             return DesignSystemFontFamily.Pretendard.bold
         case .semiBold:
             return DesignSystemFontFamily.Pretendard.semiBold
-        case .medium:
-            return DesignSystemFontFamily.Pretendard.medium
+//        case .medium:
+//            return DesignSystemFontFamily.Pretendard.medium
         case .regular:
             return DesignSystemFontFamily.Pretendard.regular
-        case .thin:
-            return DesignSystemFontFamily.Pretendard.thin
-        case .light:
-            return DesignSystemFontFamily.Pretendard.light
-        case .extraLight:
-            return DesignSystemFontFamily.Pretendard.extraLight
+//        case .thin:
+//            return DesignSystemFontFamily.Pretendard.thin
+//        case .light:
+//            return DesignSystemFontFamily.Pretendard.light
+//        case .extraLight:
+//            return DesignSystemFontFamily.Pretendard.extraLight
         }
     }
 }

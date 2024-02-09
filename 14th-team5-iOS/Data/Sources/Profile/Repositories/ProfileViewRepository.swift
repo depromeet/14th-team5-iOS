@@ -74,4 +74,14 @@ extension ProfileViewRepository: ProfileViewInterface {
             .asObservable()
     }
     
+    public func deleteProfileImageToS3(memberId: String) -> Observable<ProfileMemberResponse?> {
+        return profileAPIWorker.deleteProfileImageToS3(accessToken: accessToken, memberId: memberId)
+            .do {
+                guard let userEntity = $0?.toProfileDomain() else { return }
+                FamilyUserDefaults.saveMemberToUserDefaults(familyMember: userEntity)
+            }
+            .compactMap { $0?.toDomain() }
+            .asObservable()
+    }
+    
 }

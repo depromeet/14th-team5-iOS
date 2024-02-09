@@ -71,6 +71,7 @@ public class BibbiProfileView: UIView {
             $0.image = DesignSystemAsset.defaultProfile.image
             $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = cornerRadius
+            $0.backgroundColor = DesignSystemAsset.gray800.color
         }
         
         birthDayView.do {
@@ -145,7 +146,9 @@ public class BibbiProfileView: UIView {
     }
     
     private func setupDefaultProfile(isDefault: Bool) {
-        profileDefaultLabel.isHidden = isDefault
+        profileDefaultLabel.isHidden = !isDefault
+        guard isDefault else { return }
+        profileImageView.image = nil
     }
     
     private func setupUserProfile(isUser: Bool) {
@@ -157,6 +160,6 @@ public class BibbiProfileView: UIView {
     }
     
     private func setupBirtyDay(isBirtyDay: Bool) {
-        birthDayView.isHidden = !isHidden
+        birthDayView.isHidden = !isBirtyDay
     }
 }

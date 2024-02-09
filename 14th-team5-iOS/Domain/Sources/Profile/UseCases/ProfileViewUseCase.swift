@@ -16,7 +16,7 @@ public protocol ProfileViewUsecaseProtocol {
     func executeProfileImageURLCreate(parameter: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?>
     func executeProfileImageToPresingedUpload(to url: String, data: Data) -> Observable<Bool>
     func executeReloadProfileImage(memberId: String, parameter: ProfileImageEditParameter) -> Observable<ProfileMemberResponse?>
-    
+    func executeDeleteProfileImage(memberId: String) -> Observable<ProfileMemberResponse?>
 }
 
 
@@ -46,6 +46,10 @@ public final class ProfileViewUseCase: ProfileViewUsecaseProtocol {
     
     public func executeReloadProfileImage(memberId: String, parameter: ProfileImageEditParameter) -> Observable<ProfileMemberResponse?> {
         return profileViewRepository.updataProfileImageToS3(memberId: memberId, parameter: parameter)
+    }
+    
+    public func executeDeleteProfileImage(memberId: String) -> Observable<ProfileMemberResponse?> {
+        return profileViewRepository.deleteProfileImageToS3(memberId: memberId)
     }
     
     

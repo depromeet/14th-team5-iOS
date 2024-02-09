@@ -31,7 +31,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        print("Token 줘봐 : \(App.Repository.token.accessToken.value?.accessToken)")
         self.hideCameraButton(true)
     }
     

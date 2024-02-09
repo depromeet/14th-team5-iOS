@@ -177,12 +177,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         //프로필 이미지 초기화 할 경우 요기 Action에 이동
         NotificationCenter.default.rx
             .notification(.ProfileImageInitializationUpdate)
-            .compactMap { notification -> Data? in
-                guard let userInfo = notification.userInfo else { return nil }
-                return userInfo["profileImageData"] as? Data
-            }
-            .map { Reactor.Action.didTapInitProfile($0) }
-            .observe(on: MainScheduler.instance)
+            .map { _ in Reactor.Action.didTapInitProfile }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -233,14 +228,27 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        reactor.state
-            .compactMap { $0.profileMemberEntity?.memberImage }
+        reactor.pulse(\.$profileMemberEntity)
+            .filter { $0?.memberImage.isFileURL == false }
+            .compactMap { $0?.memberImage }
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
             .bind(onNext: { $0.0.setupProfileImage(url: $0.1)})
             .disposed(by: disposeBag)
         
-            
+        
+        reactor.pulse(\.$profileMemberEntity)
+            .compactMap { $0?.memberImage.isFileURL }
+            .observe(on: MainScheduler.instance)
+            .bind(to: profileView.rx.isDefault)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$profileMemberEntity)
+            .filter { $0?.memberImage.isFileURL ?? false }
+            .compactMap { $0?.memberName.first }
+            .compactMap { "\($0)"}
+            .bind(to: profileView.profileDefaultLabel.rx.text)
+            .disposed(by: disposeBag)
         
         Observable
             .zip(
@@ -258,8 +266,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         reactor.state
             .compactMap { $0.profileMemberEntity?.dayOfBirth }
             .distinctUntilChanged()
-            .map { $0.isToday }
-            .debug("profileBirtyDay")
+            .map { $0.isBirthDay }
             .bind(to: profileView.rx.isBirthDay)
             .disposed(by: disposeBag)
             
@@ -376,9 +383,8 @@ extension ProfileViewController {
         
         let presentDefaultAction: UIAlertAction = UIAlertAction(title: "초기화", style: .destructive) {  _ in
             
-            let userInfo: [AnyHashable: Any] = ["profileImageData": Data()]
             
-            NotificationCenter.default.post(name: .ProfileImageInitializationUpdate, object: nil, userInfo: userInfo)
+            NotificationCenter.default.post(name: .ProfileImageInitializationUpdate, object: nil, userInfo: nil)
         }
         
         let presentCancelAction: UIAlertAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)

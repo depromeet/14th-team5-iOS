@@ -17,6 +17,7 @@ import Then
 final class ProfileDetailViewController: BaseViewController<ProfileDetailViewReactor> {
     private let navigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let profileImageView: UIImageView = UIImageView()
+    private let nickNameLabel: BibbiLabel = BibbiLabel(.head1, alignment: .center, textColor: .gray200)
     private let blurView: UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .systemChromeMaterialDark))
     
     override func viewDidLoad() {
@@ -30,7 +31,7 @@ final class ProfileDetailViewController: BaseViewController<ProfileDetailViewRea
     
     override func setupUI() {
         super.setupUI()
-        view.addSubviews(blurView, profileImageView, navigationBar)
+        view.addSubviews(blurView, profileImageView, nickNameLabel, navigationBar)
     }
     
     override func setupAttributes() {
@@ -67,15 +68,35 @@ final class ProfileDetailViewController: BaseViewController<ProfileDetailViewRea
             $0.height.equalTo(375)
             $0.center.equalToSuperview()
         }
+        
+        nickNameLabel.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
     }
     
     override func bind(reactor: ProfileDetailViewReactor) {
         reactor.pulse(\.$profileURL)
+            .filter { $0.isFileURL }
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.profileImageView.image = nil
+                owner.nickNameLabel.isHidden = false
+            }.disposed(by: disposeBag)
+        
+        reactor.pulse(\.$profileURL)
+            .filter { $0.isFileURL == false }
             .withUnretained(self)
             .bind {
                 $0.0.profileImageView.kf.indicatorType = .activity
                 $0.0.profileImageView.kf.setImage(with: $0.1, options: [.transition(.fade(0.5))])
+                $0.0.nickNameLabel.isHidden = true
             }.disposed(by: disposeBag)
+        
+        reactor.pulse(\.$userNickname)
+            .compactMap { $0.first }
+            .map { "\($0)" }
+            .bind(to: nickNameLabel.rx.text)
+            .disposed(by: disposeBag)
         
         navigationBar
             .rx.didTapLeftBarButton

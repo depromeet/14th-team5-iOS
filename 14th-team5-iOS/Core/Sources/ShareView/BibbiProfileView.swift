@@ -63,7 +63,7 @@ public class BibbiProfileView: UIView {
     
     
     public func setupUI() {
-        addSubviews(profileImageView, profileNickNameButton, circleButton, birthDayView, profileCreateLabel)
+        addSubviews(profileImageView, profileNickNameButton, profileDefaultLabel, circleButton, birthDayView, profileCreateLabel)
     }
     
     public func setupAttributes() {

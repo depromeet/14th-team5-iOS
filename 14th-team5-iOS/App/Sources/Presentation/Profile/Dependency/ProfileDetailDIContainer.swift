@@ -15,14 +15,16 @@ final class ProfileDetailDIContainer {
     public typealias Reactor = ProfileDetailViewReactor
     
     private let profileURL: URL
+    private let userNickname: String
     
-    init(profileURL: URL) {
+    init(profileURL: URL, userNickname: String) {
         self.profileURL = profileURL
+        self.userNickname = userNickname
     }
     
     
     public func makeReactor() -> Reactor {
-        return ProfileDetailViewReactor(profileURL: profileURL)
+        return ProfileDetailViewReactor(profileURL: profileURL, userNickname: userNickname)
     }
     
     public func makeViewController() -> ViewContrller {

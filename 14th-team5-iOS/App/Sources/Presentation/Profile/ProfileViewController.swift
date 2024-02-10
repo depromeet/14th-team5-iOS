@@ -285,10 +285,10 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         profileView.profileImageView
             .rx.tap
             .throttle(.microseconds(300), scheduler: MainScheduler.instance)
-            .withLatestFrom(reactor.state.compactMap { $0.profileMemberEntity?.memberImage } )
+            .withLatestFrom(reactor.state.compactMap { $0.profileMemberEntity } )
             .withUnretained(self)
-            .bind { owner, url in
-                let profileDetailViewController = ProfileDetailDIContainer(profileURL: url).makeViewController()
+            .bind { owner, entity in
+                let profileDetailViewController = ProfileDetailDIContainer(profileURL: entity.memberImage, userNickname: entity.memberName).makeViewController()
                 owner.navigationController?.pushViewController(profileDetailViewController, animated: false)
             }.disposed(by: disposeBag)
         

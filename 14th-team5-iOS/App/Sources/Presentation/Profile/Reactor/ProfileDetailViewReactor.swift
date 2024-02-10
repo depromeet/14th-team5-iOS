@@ -19,10 +19,11 @@ final class ProfileDetailViewReactor: Reactor {
     
     struct State {
         @Pulse var profileURL: URL
+        @Pulse var userNickname: String
     }
     
-    init(profileURL: URL) {
-        self.initialState = State(profileURL: profileURL)
+    init(profileURL: URL, userNickname: String) {
+        self.initialState = State(profileURL: profileURL, userNickname: userNickname)
     }
     
 }

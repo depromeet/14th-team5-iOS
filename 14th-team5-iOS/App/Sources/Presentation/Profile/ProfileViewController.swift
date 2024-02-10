@@ -8,7 +8,6 @@
 import UIKit
 
 import Core
-import Data
 import DesignSystem
 import Kingfisher
 import PhotosUI
@@ -293,6 +292,16 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .map { "\($0.familyJoinAt) 가입" }
             .bind(to: profileView.profileCreateLabel.rx.text)
             .disposed(by: disposeBag)
+        
+        profileView.profileImageView
+            .rx.tap
+            .throttle(.microseconds(300), scheduler: MainScheduler.instance)
+            .withLatestFrom(reactor.state.compactMap { $0.profileMemberEntity?.memberImage } )
+            .withUnretained(self)
+            .bind { owner, url in
+                let profileDetailViewController = ProfileDetailDIContainer(profileURL: url).makeViewController()
+                owner.navigationController?.pushViewController(profileDetailViewController, animated: false)
+            }.disposed(by: disposeBag)
         
         profileFeedCollectionView.rx
             .didScroll

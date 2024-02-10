@@ -40,7 +40,7 @@ public enum UserAuthorization: String, CaseIterable {
         case .logout:
             return "로그 아웃"
         case .familyResign:
-            return "그룹 탈퇴"
+            return "가족 탈퇴"
         case .unAuthorization:
             return "회원 탈퇴"
         }

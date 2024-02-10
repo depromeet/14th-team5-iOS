@@ -23,7 +23,6 @@ public class BibbiProfileView: UIView {
     public let circleButton: UIButton = UIButton.createCircleButton(radius: 15)
     public let birthDayView: UIImageView = UIImageView()
     public let profileNickNameButton: UIButton = UIButton()
-    public let profileNickNameEditImageView: UIImageView = UIImageView()
     public let profileCreateLabel: UILabel = BibbiLabel(.caption, alignment: .center ,textColor: .gray400)
     
     
@@ -46,6 +45,8 @@ public class BibbiProfileView: UIView {
     }
     
     private var cornerRadius: CGFloat
+    
+    
     public init(cornerRadius: CGFloat) {
         self.cornerRadius = cornerRadius
         super.init(frame: .zero)
@@ -62,12 +63,13 @@ public class BibbiProfileView: UIView {
     
     
     public func setupUI() {
-        addSubviews(profileImageView, profileNickNameButton, profileNickNameEditImageView, profileDefaultLabel, circleButton, birthDayView, profileCreateLabel)
+        addSubviews(profileImageView, profileNickNameButton, profileDefaultLabel, circleButton, birthDayView, profileCreateLabel)
     }
     
     public func setupAttributes() {
         profileImageView.do {
             $0.clipsToBounds = true
+            $0.isUserInteractionEnabled = true
             $0.image = DesignSystemAsset.defaultProfile.image
             $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = cornerRadius
@@ -75,6 +77,7 @@ public class BibbiProfileView: UIView {
         }
         
         birthDayView.do {
+            $0.isHidden = false
             $0.contentMode = .scaleAspectFill
             $0.image = DesignSystemAsset.birthday.image
         }
@@ -84,18 +87,21 @@ public class BibbiProfileView: UIView {
             $0.setImage(DesignSystemAsset.camera.image.withTintColor(DesignSystemAsset.gray700.color), for: .normal)
         }
         
-        profileNickNameEditImageView.do {
-            $0.contentMode = .scaleAspectFill
-            $0.image = DesignSystemAsset.edit.image
-        }
-        
         profileNickNameButton.do {
-            $0.titleLabel?.sizeToFit()
-            $0.setAttributedTitle(NSAttributedString(string: "하나밖에없는 혈육", attributes: [
+            $0.configuration = .plain()
+            $0.configuration?.attributedTitle = AttributedString(NSAttributedString(string: "하나밖에없는 혈육", attributes: [
                 .foregroundColor: DesignSystemAsset.gray200.color,
                 .font: DesignSystemFontFamily.Pretendard.semiBold.font(size: 16),
                 .kern: -0.3
-            ]), for: .normal)
+            ]))
+            let imageSize = CGSize(width: 16, height: 16)
+            $0.configuration?.imagePlacement = .trailing
+            $0.changesSelectionAsPrimaryAction = true
+            $0.configurationUpdateHandler = { button in
+                button.configuration?.image = button.isEnabled ? DesignSystemAsset.edit.image.resized(to: imageSize) : nil
+            }
+            $0.configuration?.imagePadding = 5
+            $0.configuration?.baseBackgroundColor = .clear
         }
         
         
@@ -127,7 +133,7 @@ public class BibbiProfileView: UIView {
         
         circleButton.snp.makeConstraints {
             $0.right.equalTo(profileImageView).offset(-5)
-            $0.bottom.equalTo(profileNickNameButton.snp.top).offset(-15)
+            $0.bottom.equalTo(profileImageView)
         }
         
         profileNickNameButton.snp.makeConstraints {
@@ -135,13 +141,6 @@ public class BibbiProfileView: UIView {
             $0.width.lessThanOrEqualToSuperview()
             $0.top.equalTo(profileImageView.snp.bottom).offset(12)
             $0.centerX.equalTo(profileImageView)
-        }
-
-        profileNickNameEditImageView.snp.makeConstraints {
-            $0.height.width.equalTo(16)
-            $0.left.equalTo(profileNickNameButton.snp.right).offset(4)
-            $0.centerY.equalTo(profileNickNameButton).offset(2)
-            $0.right.lessThanOrEqualToSuperview()
         }
     }
     
@@ -155,7 +154,6 @@ public class BibbiProfileView: UIView {
         circleButton.isHidden = !isUser
         profileCreateLabel.isHidden = !isUser
         circleButton.isEnabled = isUser
-        profileNickNameEditImageView.isHidden = !isUser
         profileNickNameButton.isEnabled = isUser
     }
     

@@ -31,7 +31,6 @@ public final class ProfileViewReactor: Reactor {
     public enum Mutation {
         case setLoading(Bool)
         case setProfilePresingedURL(CameraDisplayImageResponse?)
-        case setProfileDeleteMemberItem(ProfileDeleteMemberResponse?)
         case setFeedCategroySection([ProfileFeedSectionItem])
         case setProfileMemberItems(ProfileMemberResponse?)
         case setProfilePostItems(ProfilePostResponse)
@@ -46,7 +45,6 @@ public final class ProfileViewReactor: Reactor {
         @Pulse var selectedIndexPath: IndexPath?
         @Pulse var feedSection: [ProfileFeedSectionModel]
         @Pulse var profileMemberEntity: ProfileMemberResponse?
-        @Pulse var profileDeleteMemberEntity: ProfileDeleteMemberResponse?
         @Pulse var profilePostEntity: ProfilePostResponse?
         @Pulse var profilePresingedURLEntity: CameraDisplayImageResponse?
     }
@@ -278,9 +276,6 @@ public final class ProfileViewReactor: Reactor {
         case let .setProfileMemberItems(entity):
             print("profileMember Items DidTap init \(entity)")
             newState.profileMemberEntity = entity
-            
-        case let .setProfileDeleteMemberItem(entity):
-            newState.profileDeleteMemberEntity = entity
             
         case let .setProfilePresingedURL(entity):
             newState.profilePresingedURLEntity = entity

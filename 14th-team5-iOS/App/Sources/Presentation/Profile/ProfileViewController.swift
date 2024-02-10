@@ -8,7 +8,6 @@
 import UIKit
 
 import Core
-import Data
 import DesignSystem
 import Kingfisher
 import PhotosUI
@@ -283,6 +282,16 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(to: profileView.profileCreateLabel.rx.text)
             .disposed(by: disposeBag)
         
+        profileView.profileImageView
+            .rx.tap
+            .throttle(.microseconds(300), scheduler: MainScheduler.instance)
+            .withLatestFrom(reactor.state.compactMap { $0.profileMemberEntity } )
+            .withUnretained(self)
+            .bind { owner, entity in
+                let profileDetailViewController = ProfileDetailDIContainer(profileURL: entity.memberImage, userNickname: entity.memberName).makeViewController()
+                owner.navigationController?.pushViewController(profileDetailViewController, animated: false)
+            }.disposed(by: disposeBag)
+        
         profileFeedCollectionView.rx
             .didScroll
             .withLatestFrom(profileFeedCollectionView.rx.contentOffset)
@@ -356,7 +365,8 @@ extension ProfileViewController {
     private func setupProfileButton(title: String) {
         profileView.profileNickNameButton.setAttributedTitle(NSAttributedString(string: title, attributes: [
             .foregroundColor: DesignSystemAsset.gray200.color,
-            .font: DesignSystemFontFamily.Pretendard.bold.font(size: 16)
+            .font: DesignSystemFontFamily.Pretendard.semiBold.font(size: 16),
+            .kern: -0.3,
         ]), for: .normal)
     }
     

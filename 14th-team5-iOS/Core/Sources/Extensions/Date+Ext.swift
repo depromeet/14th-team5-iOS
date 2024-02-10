@@ -16,6 +16,10 @@ extension Date {
         return self.isEqual(with: Date.now)
     }
     
+    public var isBirthDay: Bool {
+        return self.isEqual([.month, .day], with: Date.now)
+    }
+    
     public var year: Int {
         return calendar.component(.year, from: self)
     }

@@ -31,9 +31,50 @@ extension UIViewController {
         )
     }
     
+    public func makeActionBibbiToastView(
+        text: String = "",
+        transtionText: String = "",
+        duration: CGFloat = 0.6,
+        offset: CGFloat = 40,
+        direction: ToastDirection = .up
+    ) {
+        makeTranstionToastView(
+            text: text,
+            transtionText: transtionText,
+            image: DesignSystemAsset.warning.image,
+            duration: duration,
+            offset: offset,
+            direction: direction
+        )
+    }
+    
+    public func makeTranstionToastView(
+        text: String = "",
+        transtionText: String = "",
+        image: DesignSystemImages.Image? = nil,
+        duration: CGFloat = 0.6,
+        offset: CGFloat = 40,
+        direction: ToastDirection = .up
+    ) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            guard let toastView = self.prepareBibbiToastView(text: text, transtionText: transtionText, image: image, offset: offset, animation: direction) else { return }
+            
+            UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.4) {
+                if direction == .up {
+                    toastView.transform = CGAffineTransform(translationX: 0, y: -offset * 2)
+                } else {
+                    toastView.transform = CGAffineTransform(translationX: 0, y: offset * 2)
+                }
+            }
+        }
+    }
+    
     public func makeBibbiToastView(
         text: String,
         image: DesignSystemImages.Image? = nil,
+        transtionText: String = "",
         duration: CGFloat = 0.6,
         delay: CGFloat = 0.6,
         offset: CGFloat = 40,
@@ -44,6 +85,7 @@ extension UIViewController {
             
             guard let toastView = self.prepareBibbiToastView(
                 text: text,
+                transtionText: transtionText,
                 image: image,
                 offset: offset,
                 animation: direction
@@ -74,6 +116,7 @@ extension UIViewController {
     
     private func prepareBibbiToastView(
         text: String,
+        transtionText: String,
         image: DesignSystemImages.Image? = nil,
         offset: CGFloat,
         animation: ToastDirection
@@ -83,7 +126,7 @@ extension UIViewController {
             return nil
         }
         
-        let toastView = BibbiToastMessageView(text: text, image: image)
+        let toastView = BibbiToastMessageView(transtionText: transtionText, text: text, image: image)
         
         self.view.addSubview(toastView)
         toastView.snp.makeConstraints {

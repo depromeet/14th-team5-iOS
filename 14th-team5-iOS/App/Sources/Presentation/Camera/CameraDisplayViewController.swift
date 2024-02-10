@@ -249,6 +249,12 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
                 owner.makeBibbiToastView(text: "띄어쓰기는 할 수 없어요", image: DesignSystemAsset.warning.image, duration: 1, delay: 1, offset: 400)
             }.disposed(by: disposeBag)
         
+        reactor.pulse(\.$isError)
+            .filter { $0 }
+            .withUnretained(self)
+            .bind(onNext: { $0.0.makeActionBibbiToastView(text: "사진 업로드 실패", transtionText: "홈으로 이동", duration: 1, offset: 50, direction: .up)})
+            .disposed(by: disposeBag)
+        
         displayEditTextField.rx
             .text.orEmpty
             .map { ($0.count > 8) }
@@ -277,7 +283,6 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .map { Reactor.Action.didTapConfirmButton}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
         
         reactor.state
             .map { $0.displayDescrption.count >= 1}
@@ -337,6 +342,13 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .withUnretained(self)
             .bind(onNext: {$0.0.keyboardWillHideGenerateUI($0.0)})
             .disposed(by: disposeBag)
+        
+        NotificationCenter.default
+            .rx.notification(.didTapBibbiToastTranstionButton)
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.navigationController?.popToRootViewController(animated: true)
+            }.disposed(by: disposeBag)
         
         Observable
             .just(())

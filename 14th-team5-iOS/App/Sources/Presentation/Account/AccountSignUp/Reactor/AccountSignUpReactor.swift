@@ -30,7 +30,7 @@ public final class AccountSignUpReactor: Reactor {
         case setDay(Int?)
         case didTapDateNextButton
         
-        case didTapCompletehButton(Data)
+        case didTapCompletehButton
         case profilePresignedURL(String, Data)
         case didTapPHAssetsImage(Data)
     }
@@ -121,46 +121,17 @@ extension AccountSignUpReactor {
                         .just(.setEditNickName(entity))
                 }
             
-        case let .didTapCompletehButton(defaultProfileImage):
+        case let .didTapCompletehButton:
             let date = getDateToString(year: currentState.year!, month: currentState.month, day: currentState.day)
             
-            if defaultProfileImage.isEmpty {
-                return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: currentState.profilePresignedURL)
-                    .flatMap { tokenEntity -> Observable<Mutation> in
-                        return Observable.just(Mutation.didTapCompletehButton(tokenEntity))
-                    }
+            if self.currentState.profilePresignedURL.isEmpty {
+                return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: nil).flatMap { tokenEntity -> Observable<Mutation> in
+                    return Observable.just(Mutation.didTapCompletehButton(tokenEntity))
+                }
             } else {
-                let defaultImage: String = "\(defaultProfileImage.hashValue).jpg"
-                let defaultImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: defaultImage)
-                return .concat(
-                    accountRepository.executePresignedImageURLCreate(parameter: defaultImageEditParameter)
-                        .withUnretained(self)
-                        .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
-                        .asObservable()
-                        .flatMap { owner, entity -> Observable<AccountSignUpReactor.Mutation> in
-                            guard let defaultPresignedURL = entity?.imageURL else { return .empty() }
-                            return owner.accountRepository.executeProfileImageUpload(to: defaultPresignedURL, data: defaultProfileImage)
-                                .asObservable()
-                                .flatMap { isSuccess -> Observable<AccountSignUpReactor.Mutation> in
-                                    let originalPath = owner.configureAccountOriginalS3URL(url: defaultPresignedURL)
-                                    
-                                    if isSuccess {
-                                        return owner.accountRepository.signUp(name: owner.currentState.nickname, date: date, photoURL: originalPath)
-                                            .flatMap { tokenEntity -> Observable<AccountSignUpReactor.Mutation> in
-                                                return .just(.didTapCompletehButton(tokenEntity))
-                                                
-                                            }
-                                    } else {
-                                        return .empty()
-                                    }
-                                    
-                                }
-                            
-                        }
-                
-                
-                )
-                
+                return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: currentState.profilePresignedURL).flatMap { tokenEntity -> Observable<Mutation> in
+                    return Observable.just(Mutation.didTapCompletehButton(tokenEntity))
+                }
             }
         case let .didTapPHAssetsImage(profileImage):
             let originalImage: String = "\(profileImage.hashValue).jpg"

@@ -31,7 +31,6 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         self.hideCameraButton(true)
     }
     

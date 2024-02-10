@@ -19,6 +19,7 @@ import Then
 
 public class BibbiProfileView: UIView {
     public let profileImageView: UIImageView = UIImageView()
+    public let profileDefaultLabel: BibbiLabel = BibbiLabel(.head1, alignment: .center, textColor: .gray200)
     public let circleButton: UIButton = UIButton.createCircleButton(radius: 15)
     public let birthDayView: UIImageView = UIImageView()
     public let profileNickNameButton: UIButton = UIButton()
@@ -34,6 +35,12 @@ public class BibbiProfileView: UIView {
     public var isBirthDay: Bool = false {
         didSet {
             setupBirtyDay(isBirtyDay: isBirthDay)
+        }
+    }
+    
+    public var isDefault: Bool = false {
+        didSet {
+            setupDefaultProfile(isDefault: isDefault)
         }
     }
     
@@ -66,6 +73,7 @@ public class BibbiProfileView: UIView {
             $0.image = DesignSystemAsset.defaultProfile.image
             $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = cornerRadius
+            $0.backgroundColor = DesignSystemAsset.gray800.color
         }
         
         birthDayView.do {
@@ -106,6 +114,10 @@ public class BibbiProfileView: UIView {
             $0.center.equalToSuperview()
         }
         
+        profileDefaultLabel.snp.makeConstraints {
+            $0.center.equalTo(profileImageView)
+        }
+        
         birthDayView.snp.makeConstraints {
             $0.top.equalTo(profileImageView).offset(-8)
             $0.right.equalTo(profileImageView).offset(8)
@@ -131,6 +143,12 @@ public class BibbiProfileView: UIView {
         }
     }
     
+    private func setupDefaultProfile(isDefault: Bool) {
+        profileDefaultLabel.isHidden = !isDefault
+        guard isDefault else { return }
+        profileImageView.image = nil
+    }
+    
     private func setupUserProfile(isUser: Bool) {
         circleButton.isHidden = !isUser
         profileCreateLabel.isHidden = !isUser
@@ -139,6 +157,6 @@ public class BibbiProfileView: UIView {
     }
     
     private func setupBirtyDay(isBirtyDay: Bool) {
-        birthDayView.isHidden = !isHidden
+        birthDayView.isHidden = !isBirtyDay
     }
 }

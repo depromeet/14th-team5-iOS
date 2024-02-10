@@ -50,30 +50,12 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
     private func bindInput(reactor: AccountSignUpReactor) {
         
         
-        NotificationCenter.default
-            .rx.notification(.AccountDefaultProfilePresignedURLNotification)
-            .compactMap { notification -> Data? in
-                guard let originData = notification.userInfo?["defaultProfile"] as? Data else { return nil }
-                return originData
-            }
-            .map { Reactor.Action.didTapCompletehButton($0)}
+        nextButton.rx.tap
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .map { _ in Reactor.Action.didTapCompletehButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        
-        nextButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .withLatestFrom(reactor.state.map { $0.profilePresignedURL}.distinctUntilChanged())
-            .bind { presignedURL in
-                if presignedURL.isEmpty {
-                    guard let defaultProfile = UserDefaults.standard.profileImage else { return }
-                    let userInfo: [AnyHashable: Any] = ["defaultProfile": defaultProfile]
-                    NotificationCenter.default.post(name: .AccountDefaultProfilePresignedURLNotification, object: nil, userInfo: userInfo)
-                } else {
-                    let emptyUserInfo: [AnyHashable: Any] = ["defaultProfile": Data()]
-                    NotificationCenter.default.post(name: .AccountDefaultProfilePresignedURLNotification, object: nil, userInfo: emptyUserInfo)
-                }
-            }.disposed(by: disposeBag)
         
         profileButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
@@ -206,10 +188,6 @@ extension AccountProfileViewController {
             profileButton.setTitle(String(firstName), for: .normal)
             profileButton.titleLabel?.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 28)
         }
-        
-        profileButton.layoutIfNeeded()
-        let profileImageData = profileButton.asImage().jpegData(compressionQuality: 1.0)
-        UserDefaults.standard.profileImage = profileImageData
     }
     
     private func showNextPage(accessToken: AccessTokenResponse?) {

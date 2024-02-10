@@ -386,7 +386,8 @@ extension ProfileViewController {
     private func setupProfileButton(title: String) {
         profileView.profileNickNameButton.setAttributedTitle(NSAttributedString(string: title, attributes: [
             .foregroundColor: DesignSystemAsset.gray200.color,
-            .font: DesignSystemFontFamily.Pretendard.bold.font(size: 16)
+            .font: DesignSystemFontFamily.Pretendard.semiBold.font(size: 16),
+            .kern: -0.3,
         ]), for: .normal)
     }
     

@@ -247,8 +247,8 @@ extension PrivacyViewController {
     
     private func showFamilyResignAlertController() {
         let resignAlertController = UIAlertController(
-            title: "그룹 탈퇴",
-            message: "그룹을 탈퇴해도 나의 활동 내역은\n유지되니 참고해주세요.",
+            title: "가족 탈퇴",
+            message: "가족을 탈퇴해도 나의 활동 내역은\n유지되니 참고해주세요.",
             preferredStyle: .alert
         )
         

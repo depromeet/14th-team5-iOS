@@ -25,7 +25,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     private let displayNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let backButton: UIButton = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 52, height: 52)))
     private let titleView: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
-    private let displayEditButton: UIButton = UIButton.createCircleButton(radius: 21.5)
+    private let displayEditButton: UIButton = UIButton()
     private let displayEditTextField: UITextField = UITextField()
     private let displayDimView: UIView = UIView()
     private let archiveButton: UIButton = UIButton.createCircleButton(radius: 24)
@@ -84,8 +84,22 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         }
         
         displayEditButton.do {
-            $0.setImage(DesignSystemAsset.blurTextFill.image, for: .normal)
-            $0.setTitleColor(.white, for: .normal)
+            let blurEffectView = UIVisualEffectView.makeBlurView(style: .systemUltraThinMaterialDark)
+            blurEffectView.frame = $0.bounds
+            blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            $0.insertSubview(blurEffectView, at: 0)
+            $0.configuration = .filled()
+            $0.configuration?.attributedTitle = AttributedString(NSAttributedString(string: "텍스트 입력하기", attributes: [
+                .foregroundColor: DesignSystemAsset.white.color,
+                .font: DesignSystemFontFamily.Pretendard.semiBold.font(size: 18),
+                .kern: -0.3,
+
+            ]))
+            $0.configuration?.imagePlacement = .leading
+            $0.configuration?.imagePadding = 5
+            $0.configuration?.image = DesignSystemAsset.edit.image
+            $0.layer.cornerRadius = 10
+            $0.clipsToBounds = true
         }
         
         confirmButton.do {
@@ -168,6 +182,8 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         displayEditButton.snp.makeConstraints {
             $0.bottom.equalToSuperview().offset(-15)
             $0.centerX.equalToSuperview()
+            $0.width.equalTo(166)
+            $0.height.equalTo(41)
         }
         
         displayEditCollectionView.snp.makeConstraints {

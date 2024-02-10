@@ -77,6 +77,7 @@ public class BibbiProfileView: UIView {
         }
         
         birthDayView.do {
+            $0.isHidden = false
             $0.contentMode = .scaleAspectFill
             $0.image = DesignSystemAsset.birthday.image
         }
@@ -132,7 +133,7 @@ public class BibbiProfileView: UIView {
         
         circleButton.snp.makeConstraints {
             $0.right.equalTo(profileImageView).offset(-5)
-            $0.bottom.equalTo(profileNickNameButton.snp.top).offset(-15)
+            $0.bottom.equalTo(profileImageView)
         }
         
         profileNickNameButton.snp.makeConstraints {

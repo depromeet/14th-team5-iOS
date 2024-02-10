@@ -64,11 +64,15 @@ final class AccountResignViewReactor: Reactor {
                         return owner.resignUseCase.executeAccountFcmResign(fcmToken: App.Repository.token.fcmToken.value)
                             .flatMap { fcmEntity ->
                                 Observable<AccountResignViewReactor.Mutation> in
-                                return .concat(
-                                    .just(.setLoading(true)),
-                                    .just(.setResignEntity(entity.isSuccess)),
-                                    .just(.setLoading(false))
-                                )
+                                if fcmEntity.isSuccess {
+                                    return .concat(
+                                        .just(.setLoading(true)),
+                                        .just(.setResignEntity(entity.isSuccess)),
+                                        .just(.setLoading(false))
+                                    )
+                                } else {
+                                    return .empty()
+                                }
                             }
                     } else {
                         return .empty()

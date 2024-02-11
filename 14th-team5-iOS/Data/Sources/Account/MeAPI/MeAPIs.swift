@@ -13,6 +13,7 @@ public enum MeAPIs: API {
     case deleteFcmToken(String)
     case memberInfo
     case joinFamily
+    case appVersion
     
     var spec: APISpec {
         switch self {
@@ -24,6 +25,8 @@ public enum MeAPIs: API {
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/me/member-info")
         case .joinFamily:
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/me/join-family")
+        case .appVersion:
+            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/me/app-version")
         }
     }
     

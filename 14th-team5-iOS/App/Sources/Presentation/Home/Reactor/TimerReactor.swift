@@ -14,6 +14,7 @@ enum TimerType {
     case standard
     case warning
     case allUploaded
+    case widget
 }
 
 final class TimerReactor: Reactor {
@@ -47,30 +48,41 @@ final class TimerReactor: Reactor {
 extension TimerReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-            
         case .startTimer:
-            return Observable<Int>.interval(.seconds(1), scheduler: MainScheduler.instance)
+            let timerObservable = Observable<Int>.interval(.seconds(1), scheduler: MainScheduler.instance)
                 .startWith(0)
                 .map { _ in self.calculateRemainingTime() }
                 .filter { $0 >= 0 }
-                .flatMap { time in
-                    var observables = [
-                        Mutation.setTimer(time)
-                    ]
-        
+                .map { time in
+                    return Mutation.setTimer(time)
+                }
+
+            let timerTypeObservable = Observable<Int>.interval(.seconds(60), scheduler: MainScheduler.instance)
+                .startWith(0)
+                .map { _ in self.calculateRemainingTime() }
+                .filter { $0 >= 0 }
+                .flatMap { time -> Observable<Mutation> in
+                    var observables: [Mutation] = []
                     if time <= 3600 && !self.isSelfUploaded {
                         observables.append(Mutation.setTimerType(.warning))
                     } else if self.isAllUploaded {
                         observables.append(Mutation.setTimerType(.allUploaded))
-                    }  else {
-                        observables.append(Mutation.setTimerType(.standard))
+                    } else {
+                        observables.append(Mutation.setTimerType(self.randomMutation()))
                     }
-                    
+
                     return Observable.from(observables)
                 }
+
+            return Observable.combineLatest(timerObservable, timerTypeObservable) { timer, timerType in
+                return [timer, timerType]
+            }
+            .flatMap { mutations in
+                return Observable.from(mutations)
+            }
         }
     }
-    
+
     func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         
@@ -100,5 +112,10 @@ extension TimerReactor {
         }
         
         return 0
+    }
+    
+    private func randomMutation() -> TimerType {
+        let randomIndex = Int.random(in: 0..<2)
+        return randomIndex == 0 ? .standard : .widget
     }
 }

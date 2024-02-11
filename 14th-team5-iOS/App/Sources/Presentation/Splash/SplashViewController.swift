@@ -63,13 +63,33 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.memberInfo }
-            .skip(1)
+        NotificationCenter.default
+            .rx.notification(.didTapUpdateButton)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.openAppStore() })
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { ($0.memberInfo, $0.updatedNeeded) }
             .delay(.seconds(1), scheduler: Schedulers.main)
             .withUnretained(self)
             .observe(on: Schedulers.main)
-            .bind(onNext: { $0.0.showNextPage(with: $0.1) })
+            .filter { $0.1.1?.inService == true }
+            .bind(onNext: { $0.0.showNextPage(with: $0.1.0)})
             .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.updatedNeeded }
+            .compactMap { $0?.inService }
+            .withUnretained(self)
+            .observe(on: Schedulers.main)
+            .bind(onNext: { $0.0.showUpdateAlert($0.1) })
+            .disposed(by: disposeBag)
+    }
+    
+    private func openAppStore() {
+        let appStoreURL = URLTypes.appStore.originURL
+        if UIApplication.shared.canOpenURL(appStoreURL) {
+            UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)
+        }
     }
     
     private func showNextPage(with member: MemberInfo?) {
@@ -111,5 +131,23 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
         
         sceneDelegate.window?.rootViewController = container
         sceneDelegate.window?.makeKeyAndVisible()
+    }
+    
+    private func showUpdateAlert(_ inService: Bool) {
+        guard !inService else { return }
+        let updateAlertController = UIAlertController(
+            title: "업데이트가 필요해요",
+            message: "더 나은 삐삐를 위해\n업데이트를 부탁드려요.",
+            preferredStyle: .alert
+        )
+        
+        let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
+            NotificationCenter.default.post(name: .didTapUpdateButton, object: nil, userInfo: nil)
+        }
+        
+        [confirmAction].forEach(updateAlertController.addAction(_:))
+        
+        updateAlertController.overrideUserInterfaceStyle = .dark
+        present(updateAlertController, animated: true)
     }
 }

@@ -88,9 +88,9 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             .asSingle()
     }
     
-    private func getMemberInfo(spec: APISpec, headers: [APIHeader]?) -> Single<MemberInfo?> {
+    private func getMemberInfo(spec: APISpec) -> Single<MemberInfo?> {
         
-        return request(spec: spec, headers: headers)
+        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey])
             .subscribe(on: Self.queue)
             .do(onNext: {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -105,9 +105,8 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
     public func fetchMemberInfo() -> Single<MemberInfo?> {
         let spec = MeAPIs.memberInfo.spec
         return Observable.just(())
-            .withLatestFrom(self._headers)
             .withUnretained(self)
-            .flatMap { $0.0.getMemberInfo(spec: spec, headers: $0.1)}
+            .flatMap { $0.0.getMemberInfo(spec: spec)}
             .asSingle()
     }
     
@@ -182,4 +181,26 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             .flatMap { $0.0.resignFamily(spec: spec, headers: $0.1) }
             .asSingle()
     }
+    
+    public func fetchAppVersion() -> Single<AppVersionInfo?> {
+        let spec = MeAPIs.appVersion.spec
+        return Observable.just(())
+            .withUnretained(self)
+            .flatMap { $0.0.fetchAppVersion(spec: spec) }
+            .asSingle()
+    }
+    
+    private func fetchAppVersion(spec: APISpec) -> Single<AppVersionInfo?> {
+        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey])
+            .subscribe(on: Self.queue)
+            .do(onNext: {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Fetch AppVersion result: \(str)")
+                }
+            })
+            .map(AppVersionInfo.self)
+            .catchAndReturn(nil)
+            .asSingle()
+    }
 }
+

@@ -14,18 +14,20 @@ import RxSwift
 
 public final class SplashViewReactor: Reactor {
     // MARK: - Action
-    public enum Action { 
+    public enum Action {
         case viewDidLoad
     }
     
     // MARK: - Mutation
     public enum Mutation {
         case setMemberInfo(MemberInfo?)
+        case setUpdateNeeded(AppVersionInfo?)
     }
     
     // MARK: - State
     public struct State {
         var memberInfo: MemberInfo?
+        var updatedNeeded: AppVersionInfo?
     }
     
     // MARK: - Properties
@@ -42,13 +44,17 @@ public final class SplashViewReactor: Reactor {
         
         switch action {
         case .viewDidLoad:
-            meRepository.getMemberInfo()
+            return meRepository.getAppVersion()
                 .asObservable()
-                .flatMap { info in
-                    guard let info else {
-                        return Observable.just(Mutation.setMemberInfo(nil))
-                    }
-                    return Observable.just(Mutation.setMemberInfo(info))
+                .flatMap { appVersionInfo in
+                    Observable.concat([
+                        Observable.just(Mutation.setUpdateNeeded(appVersionInfo)),
+                        self.meRepository.getMemberInfo()
+                            .asObservable()
+                            .flatMap { memberInfo in
+                                Observable.just(Mutation.setMemberInfo(memberInfo))
+                            }
+                    ])
                 }
         }
     }
@@ -62,6 +68,8 @@ public final class SplashViewReactor: Reactor {
             App.Repository.member.familyId.accept(memberInfo?.familyId)
             
             newState.memberInfo = memberInfo
+        case .setUpdateNeeded(let appVersion):
+            newState.updatedNeeded = appVersion
         }
         
         return newState

@@ -67,7 +67,7 @@ public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInter
             completion(.doNotRetryWithError(error))
             return
         }
-        
+      
         let parameter = AccountRefreshParameter(refreshToken: App.Repository.token.accessToken.value?.refreshToken ?? "")
         
         accountAPIWorker.accountRefreshToken(parameter: parameter)

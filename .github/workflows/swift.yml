@@ -17,6 +17,8 @@ jobs:
         xcodebuild-scheme: ['App']
         
     steps:
+      - uses: actions/checkout@v3
+      - uses: jdx/mise-action@v2
     
       - name: Setup Xcode version
         uses: maxim-lobanov/setup-xcode@v1
@@ -39,15 +41,12 @@ jobs:
         env:
           MASTER_KEY: ${{secrets.MASTER_KEY}}
         
-      - name: Install Tuist CLI
-        run: curl -Ls https://install.tuist.io| bash
+      - name: Install dependencies
+        run: tuist install
         
       # - name: Install FastLane 
       #   run: brew install fastlane
-        
-      - uses: actions/setup-ruby@v1
-        with:
-          ruby-version: 2.7
+
                 
       - name: Tuist Clean Command
         run: tuist clean

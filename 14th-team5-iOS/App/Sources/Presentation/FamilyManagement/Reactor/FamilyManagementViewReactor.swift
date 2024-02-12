@@ -87,6 +87,18 @@ public final class FamilyManagementViewReactor: Reactor {
     }
     
     // MARK: - Transform
+    public func transform(action: Observable<Action>) -> Observable<Action> {
+        let eventAction = provider.profileGlobalState.event
+            .flatMap { event -> Observable<Action> in
+                switch event {
+                case .refreshFamilyMembers:
+                    return Observable<Action>.just(.fetchPaginationFamilyMemebers(false))
+                }
+            }
+        
+        return Observable<Action>.merge(action, eventAction)
+    }
+    
     public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
         let eventMutation = provider.activityGlobalState.event
             .flatMap { event -> Observable<Mutation> in

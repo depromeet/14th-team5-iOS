@@ -49,7 +49,7 @@ public final class ProfileViewReactor: Reactor {
         @Pulse var profilePresingedURLEntity: CameraDisplayImageResponse?
     }
     
-    init(profileUseCase: ProfileViewUsecaseProtocol, memberId: String, isUser: Bool) {
+    init(profileUseCase: ProfileViewUsecaseProtocol, provider: GlobalStateProviderProtocol, memberId: String, isUser: Bool) {
         self.profileUseCase = profileUseCase
         self.memberId = memberId
         self.isUser = isUser
@@ -66,8 +66,10 @@ public final class ProfileViewReactor: Reactor {
             profilePresingedURLEntity: nil
         )
         
+        self.provider = provider
     }
     
+    private var provider: GlobalStateProviderProtocol
     
     public func mutate(action: Action) -> Observable<Mutation> {
         //TODO: Keychain, UserDefaults 추가
@@ -274,6 +276,7 @@ public final class ProfileViewReactor: Reactor {
             newState.profilePostEntity = entity
             
         case let .setProfileMemberItems(entity):
+            provider.profileGlobalState.refreshFamilyMembers()
             print("profileMember Items DidTap init \(entity)")
             newState.profileMemberEntity = entity
             

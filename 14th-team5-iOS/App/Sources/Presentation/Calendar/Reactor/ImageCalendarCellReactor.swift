@@ -40,6 +40,7 @@ final public class ImageCalendarCellReactor: Reactor {
     // MARK: - Properties
     public var initialState: State
     
+    private let calendarUseCase: CalendarUseCaseProtocol
     private let provider: GlobalStateProviderProtocol
     
     public var type: CalendarType
@@ -48,8 +49,9 @@ final public class ImageCalendarCellReactor: Reactor {
     // MARK: - Intializer
     init(
         _ type: CalendarType,
+        isSelected: Bool,
         dayResponse: CalendarResponse,
-        isSelected selection: Bool,
+        calendarUseCase: CalendarUseCaseProtocol,
         provider: GlobalStateProviderProtocol
     ) {
         self.initialState = State(
@@ -57,11 +59,12 @@ final public class ImageCalendarCellReactor: Reactor {
             representativePostId: dayResponse.representativePostId,
             representativeThumbnailUrl: dayResponse.representativeThumbnailUrl,
             allFamilyMemebersUploaded: dayResponse.allFamilyMemebersUploaded,
-            isSelected: selection
+            isSelected: isSelected
         )
         self.type = type
         self.date = dayResponse.date
         
+        self.calendarUseCase = calendarUseCase
         self.provider = provider
     }
     
@@ -77,8 +80,11 @@ final public class ImageCalendarCellReactor: Reactor {
                         // 이전에 선택된 날짜와 같지 않다면 (셀이 재사용되더라도 ToastView가 다시 뜨게 하지 않기 위함)
                         if !lastSelectedDate.isEqual(with: date) {
                             let uploaded = $0.0.currentState.allFamilyMemebersUploaded
-                            // 전체 가족 업로드 유무에 따른 토스트 뷰 출력 이벤트 방출함.
-                            $0.0.provider.toastGlobalState.showAllFamilyUploadedToastMessageView(uploaded, selection: date)
+                            // 전체 가족 업로드 유무에 따른 토스트 뷰 출력 이벤트 방출함
+                            $0.0.provider.toastGlobalState.showAllFamilyUploadedToastMessageView(
+                                uploaded,
+                                selection: date
+                            )
                         }
                         
                         return Observable<Mutation>.just(.selectDate)
@@ -93,7 +99,7 @@ final public class ImageCalendarCellReactor: Reactor {
 
         return Observable<Mutation>.merge(mutation, eventMutation)
     }
-
+    
     // MARK: - Reduce {
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
@@ -104,7 +110,6 @@ final public class ImageCalendarCellReactor: Reactor {
         case .deselectDate:
             newState.isSelected = false
         }
-        
         return newState
     }
 }

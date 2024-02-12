@@ -11,12 +11,8 @@ import Core
 import Data
 import Domain
 
-public final class CalendarDIConatainer: BaseDIContainer {
-    public typealias ViewController = CalendarViewController
-    public typealias UseCase = CalendarUseCaseProtocol
-    public typealias Repository = CalendarRepositoryProtocol
-    public typealias Reactor = CalendarViewReactor
-    
+public final class CalendarDIConatainer {
+    // MARK: - Properties
     private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             return GlobalStateProvider()
@@ -24,19 +20,32 @@ public final class CalendarDIConatainer: BaseDIContainer {
         return appDelegate.globalStateProvider
     }
     
-    public func makeViewController() -> ViewController {
+    // MARK: - Make
+    public func makeViewController() -> CalendarViewController {
         return CalendarViewController(reactor: makeReactor())
     }
     
-    public func makeUseCase() -> UseCase {
-        return CalendarUseCase(calendarRepository: makeRepository())
+    public func makeFamilyUseCase() -> SearchFamilyUseCase {
+        return SearchFamilyUseCase(searchFamilyRepository: makeFamilyRepository())
     }
     
-    public func makeRepository() -> Repository {
+    public func makeCalendarUseCase() -> CalendarUseCaseProtocol {
+        return CalendarUseCase(calendarRepository: makeCalendarRepository())
+    }
+    
+    public func makeCalendarRepository() -> CalendarRepositoryProtocol {
         return CalendarRepository()
     }
     
-    public func makeReactor() -> Reactor {
-        return CalendarViewReactor(usecase: makeUseCase(), provider: globalState)
+    public func makeFamilyRepository() -> SearchFamilyRepository {
+        return FamilyAPIs.Worker()
+    }
+    
+    public func makeReactor() -> CalendarViewReactor {
+        return CalendarViewReactor(
+            familyUseCase: makeFamilyUseCase(),
+            calendarUseCase: makeCalendarUseCase(),
+            provider: globalState
+        )
     }
 }

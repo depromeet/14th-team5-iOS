@@ -99,7 +99,8 @@ In the precious time spent with family, everything feels more special with Pippy
 <br />
 
 #### 📱 Widget
-![image](https://github.com/depromeet/14th-team5-iOS/assets/62610032/b2f9e72e-5392-4863-82b4-7ecb29c14c28)
+![image](https://github.com/depromeet/14th-team5-iOS/assets/62610032/031e0bf9-7a6d-4e7f-9893-71d0def1d2d9)
+
 
 <br />
 

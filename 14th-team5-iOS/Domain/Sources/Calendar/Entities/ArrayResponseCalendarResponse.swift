@@ -21,7 +21,12 @@ public struct CalendarResponse {
     public var representativeThumbnailUrl: String
     public var allFamilyMemebersUploaded: Bool
     
-    public init(date: Date, representativePostId: String, representativeThumbnailUrl: String, allFamilyMemebersUploaded: Bool) {
+    public init(
+        date: Date,
+        representativePostId: String,
+        representativeThumbnailUrl: String,
+        allFamilyMemebersUploaded: Bool
+    ) {
         self.date = date
         self.representativePostId = representativePostId
         self.representativeThumbnailUrl = representativeThumbnailUrl

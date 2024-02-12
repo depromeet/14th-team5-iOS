@@ -26,6 +26,8 @@ public protocol AccountImpl: AnyObject {
     func appleLogin(with snsType: SNS, vc: UIViewController) -> Observable<APIResult>
     func executeNicknameUpdate(memberId: String, parameter: AccountNickNameEditParameter) -> Observable<AccountNickNameEditResponse>
     func signUp(name: String, date: String, photoURL: String?) -> Observable<AccessTokenResponse?>
+    func executePresignedImageURLCreate(parameter: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?>
+    func executeProfileImageUpload(to url: String, data: Data) -> Observable<Bool>
 }
 
 public final class AccountRepository: AccountImpl {
@@ -35,9 +37,11 @@ public final class AccountRepository: AccountImpl {
     
     let signInHelper = AccountSignInHelper()
     private let apiWorker = AccountAPIWorker()
+    private let profileWorker = ProfileAPIWorker()
     private let meApiWorekr = MeAPIWorker()
     
-    private let signInResult = PublishRelay<APIResult>()
+    private let fetchMemberInfo = PublishRelay<Void>()
+    private let signUpFinished = PublishRelay<Void>()
     
     public func kakaoLogin(with snsType: SNS, vc: UIViewController) -> Observable<APIResult> {
         return Observable.create { observer in
@@ -58,8 +62,6 @@ public final class AccountRepository: AccountImpl {
         return Observable.create { observer in
             self.signInHelper.trySignInWith(sns: snsType, window: vc.view.window)
                 .subscribe(onNext: { result in
-                    
-                    
                     observer.onNext(result)
                     observer.onCompleted()
                 }, onError: { error in
@@ -76,13 +78,24 @@ public final class AccountRepository: AccountImpl {
         meApiWorekr.fetchMemberInfo()
             .asObservable()
             .withUnretained(self)
-            .bind(onNext: { $0.0.joinFamily(inviteCode: UserDefaults.standard.inviteCode) })
+            .bind(onNext: { $0.0.saveMemberInfo($0.1) })
+            .disposed(by: disposeBag)
+    }
+    
+    // MARK: 회원가입 이후 FCMToken 저장
+    private func saveFCMToken() {
+        let token = App.Repository.token.fcmToken.value
+        meApiWorekr.saveFcmToken(token: token)
+            .asObservable()
+            .withUnretained(self)
+            .bind(onNext: { _ in print("성공") })
             .disposed(by: disposeBag)
     }
     
     // MARK: 링크가입 사용자 -> 가입 이후 가족가입
     private func joinFamily(inviteCode: String?) {
         guard let inviteCode else { return }
+        
         meApiWorekr.joinFamily(with: inviteCode)
             .asObservable()
             .withUnretained(self)
@@ -99,7 +112,8 @@ public final class AccountRepository: AccountImpl {
                         let tk = AccessToken(accessToken: token.accessToken, refreshToken: token.refreshToken, isTemporaryToken: token.isTemporaryToken)
                         App.Repository.token.accessToken.accept(tk)
                         
-                        self.fetchMember()
+                        self.fetchMemberInfo.accept(())
+                        self.signUpFinished.accept(())
                         
                         observer.onNext(token)
                         observer.onCompleted()
@@ -120,7 +134,54 @@ public final class AccountRepository: AccountImpl {
             .asObservable()
     }
     
+    public func executePresignedImageURLCreate(parameter: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?> {
+        return profileWorker.createProfileImagePresingedURL(accessToken: accessToken, parameters: parameter)
+            .compactMap { $0?.toDomain() }
+            .asObservable()
+    }
+    
+    public func executeProfileImageUpload(to url: String, data: Data) -> Observable<Bool> {
+        return profileWorker.uploadToProfilePresingedURL(accessToken: accessToken, toURL: url, with: data)
+            .asObservable()
+    }
+    
+    private func saveMemberInfo(_ memberInfo: MemberInfo?) {
+        
+        guard let memberInfo = memberInfo else { return }
+        
+        App.Repository.member.memberID.accept(memberInfo.memberId)
+        App.Repository.member.familyId.accept(memberInfo.familyId)
+        App.Repository.member.nickname.accept(memberInfo.name)
+        
+        let member: ProfileData = ProfileData(memberId: memberInfo.memberId, profileImageURL: memberInfo.imageUrl, name: memberInfo.name)
+        FamilyUserDefaults.saveMyMemberId(memberId: memberInfo.memberId)
+        FamilyUserDefaults.saveMemberToUserDefaults(familyMember: member)
+    }
+    
+    
     public init() {
         signInHelper.bind()
+        
+        signInHelper.snsSignInResult
+            .filter { $0.0 == .success }
+            .withUnretained(self)
+            .bind(onNext: {
+                $0.0.fetchMemberInfo.accept(())
+                $0.0.saveFCMToken()
+            })
+            .disposed(by: disposeBag)
+        
+        fetchMemberInfo
+            .withUnretained(self)
+            .bind(onNext: { $0.0.fetchMember() })
+            .disposed(by: disposeBag)
+        
+        signUpFinished
+            .withUnretained(self)
+            .bind(onNext: {
+                $0.0.joinFamily(inviteCode: UserDefaults.standard.inviteCode)
+                $0.0.saveFCMToken()
+            })
+            .disposed(by: disposeBag)
     }
 }

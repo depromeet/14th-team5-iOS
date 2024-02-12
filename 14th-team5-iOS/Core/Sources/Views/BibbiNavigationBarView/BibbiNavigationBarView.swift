@@ -118,6 +118,30 @@ public final class BibbiNavigationBarView: UIView {
         }
     }
     
+    public var hiddenLeftBarButtonBackground: Bool? {
+        didSet {
+            if let hidden = hiddenLeftBarButtonBackground {
+                if hidden {
+                    leftBarButton.backgroundColor = UIColor.clear
+                } else {
+                    leftBarButton.backgroundColor = UIColor.gray900
+                }
+            }
+        }
+    }
+    
+    public var hiddenRightBarButtonBackground: Bool? {
+        didSet {
+            if let hidden = hiddenRightBarButtonBackground {
+                if hidden {
+                    rightBarButton.backgroundColor = UIColor.clear
+                } else {
+                    rightBarButton.backgroundColor = UIColor.gray900
+                }
+            }
+        }
+    }
+    
     // MARK: - Intializer
     public override init(frame: CGRect) {
         super.init(frame: .zero)

@@ -16,37 +16,43 @@ import RxSwift
 public final class CalendarViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
-        case addYearMonthItem(String)
         case popViewController
+        case fetchFamilyMembers
+        case addYearMonthItem(String)
     }
     
     // MARK: - Mutation
     public enum Mutation {
+        case popViewController
         case pushCalendarPostVC(Date)
         case makeCalendarPopoverVC(UIView)
         case injectYearMonthItem(String)
-        case popViewController
     }
     
     // MARK: - State
     public struct State {
-        @Pulse var calendarPostVC: Date?
-        @Pulse var calendarPopoverVC: UIView?
-        var shouldPopCalendarVC: Bool = false
-        var calendarDatasource: [SectionOfMonthlyCalendar] = [.init(items: [])]
+        @Pulse var shouldPopCalendarVC: Bool
+        @Pulse var shouldPushCalendarPostVC: Date?
+        @Pulse var shouldPresnetInfoPopover: UIView?
+        @Pulse var displayCalendar: [SectionOfMonthlyCalendar]
     }
     
     // MARK: - Properties
     public var initialState: State
     
     public let provider: GlobalStateProviderProtocol
+    private let familyUseCase: SearchFamilyMemberUseCaseProtocol
     private let calendarUseCase: CalendarUseCaseProtocol
     
     // MARK: - Intializer
-    init(usecase: CalendarUseCaseProtocol, provider: GlobalStateProviderProtocol) {
-        self.initialState = State()
+    init(familyUseCase: SearchFamilyUseCase, calendarUseCase: CalendarUseCaseProtocol, provider: GlobalStateProviderProtocol) {
+        self.initialState = State(
+            shouldPopCalendarVC: false,
+            displayCalendar: [.init(items: [])]
+        )
         
-        self.calendarUseCase = usecase
+        self.familyUseCase = familyUseCase
+        self.calendarUseCase = calendarUseCase
         self.provider = provider
     }
     
@@ -57,8 +63,10 @@ public final class CalendarViewReactor: Reactor {
                 switch event {
                 case let .pushCalendarPostVC(date):
                     return Observable<Mutation>.just(.pushCalendarPostVC(date))
+                    
                 case let .didTapInfoButton(sourceView):
                     return Observable<Mutation>.just(.makeCalendarPopoverVC(sourceView))
+                    
                 default:
                     return Observable<Mutation>.empty()
                 }
@@ -70,12 +78,20 @@ public final class CalendarViewReactor: Reactor {
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case let .addYearMonthItem(yearMonth):
-            return Observable<Mutation>.just(.injectYearMonthItem(yearMonth))
-            
         case .popViewController:
             provider.toastGlobalState.resetLastSelectedDate()
             return Observable<Mutation>.just(.popViewController)
+            
+        case .fetchFamilyMembers:
+            let query: SearchFamilyQuery = SearchFamilyQuery(page: 1, size: 256)
+            return familyUseCase.excute(query: query)
+                .asObservable()
+                .flatMap {_ in
+                    return Observable<Mutation>.empty()
+                }
+        case let .addYearMonthItem(yearMonth):
+            return Observable<Mutation>.just(.injectYearMonthItem(yearMonth))
+            
         }
     }
     
@@ -83,14 +99,17 @@ public final class CalendarViewReactor: Reactor {
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
+        case .popViewController:
+            newState.shouldPopCalendarVC = true
+            
         case let .pushCalendarPostVC(date):
-            newState.calendarPostVC = date
+            newState.shouldPushCalendarPostVC = date
             
         case let .makeCalendarPopoverVC(sourceView):
-            newState.calendarPopoverVC = sourceView
+            newState.shouldPresnetInfoPopover = sourceView
             
         case let .injectYearMonthItem(yearMonth):
-            guard let datasource: SectionOfMonthlyCalendar = state.calendarDatasource.first else {
+            guard let datasource: SectionOfMonthlyCalendar = state.displayCalendar.first else {
                 return state
             }
             
@@ -100,11 +119,7 @@ public final class CalendarViewReactor: Reactor {
                 original: datasource,
                 items: oldItems + newItems.items
             )
-            newState.calendarDatasource = [newDatasource]
-            
-        case .popViewController:
-            newState.shouldPopCalendarVC = true
-            
+            newState.displayCalendar = [newDatasource]
         }
         return newState
     }

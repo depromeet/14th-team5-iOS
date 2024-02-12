@@ -17,6 +17,11 @@ open class BaseView<R>: UIView, ReactorKit.View where R: Reactor {
     public var disposeBag: RxSwift.DisposeBag = DisposeBag()
     
     // MARK: - Intializer
+    public convenience init(reactor: Reactor? = nil) {
+        self.init(frame: .zero)
+        self.reactor = reactor
+    }
+    
     public override init(frame: CGRect) {
         super.init(frame: .zero)
         setupUI()

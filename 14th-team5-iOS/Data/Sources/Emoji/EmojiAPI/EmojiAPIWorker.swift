@@ -12,7 +12,7 @@ import Domain
 
 import RxSwift
 
-typealias EmojiAPIWorker = EmojiAPIs.Worker
+public typealias EmojiAPIWorker = EmojiAPIs.Worker
 extension EmojiAPIs {
     public final class Worker: APIWorker {
         static let queue = {
@@ -35,7 +35,7 @@ extension EmojiAPIs {
 }
 
 extension EmojiAPIWorker: EmojiRepository {
-    public func fetchEmoji(query: FetchEmojiQuery) -> Single<FetchEmojiDataList?> {
+    public func fetchEmoji(query: FetchEmojiQuery) -> Single<[FetchedEmojiData]?> {
         return Observable.just(())
             .withLatestFrom(self._headers)
             .withUnretained(self)
@@ -43,7 +43,7 @@ extension EmojiAPIWorker: EmojiRepository {
             .asSingle()
     }
     
-    private func fetchEmoji(headers: [APIHeader]?, query: Domain.FetchEmojiQuery) -> RxSwift.Single<Domain.FetchEmojiDataList?> {
+    private func fetchEmoji(headers: [APIHeader]?, query: Domain.FetchEmojiQuery) -> RxSwift.Single<[FetchedEmojiData]?> {
         let query = FetchEmojiRequestDTO(postId: query.postId)
         let spec = EmojiAPIs.fetchReactions(query).spec
         return request(spec: spec, headers: headers)
@@ -70,7 +70,7 @@ extension EmojiAPIWorker: EmojiRepository {
     }
     
     private func addEmoji(headers: [APIHeader]?, query: Domain.AddEmojiQuery, body: Domain.AddEmojiBody) -> RxSwift.Single<Void?> {
-        let requestDTO = AddEmojiRequestDTO(content: body.content.emojiString)
+        let requestDTO = AddEmojiRequestDTO(content: body.emojiId)
         let spec = EmojiAPIs.addReactions(query.postId).spec
         return request(spec: spec, headers: headers, jsonEncodable: requestDTO)
             .subscribe(on: Self.queue)

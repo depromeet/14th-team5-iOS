@@ -10,6 +10,7 @@ import RxSwift
 
 public protocol MeUseCaseProtocol {
     func getMemberInfo() -> Single<MemberInfo?>
+    func getAppVersion() -> Single<AppVersionInfo?>
 }
 
 public class MeUseCase: MeUseCaseProtocol {
@@ -21,5 +22,9 @@ public class MeUseCase: MeUseCaseProtocol {
     
     public func getMemberInfo() -> Single<MemberInfo?> {
         return meRepository.fetchMemberInfo()
+    }
+    
+    public func getAppVersion() -> Single<AppVersionInfo?> {
+        return meRepository.fetchAppVersion()
     }
 }

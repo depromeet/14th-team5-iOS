@@ -35,17 +35,33 @@ extension PrivacyAPIs {
 
 extension PrivacyAPIWorker {
         
-    public func requestStoreInfo(parameter: Encodable) -> Single<BibbiStoreInfoDTO?> {
-        let spec = PrivacyAPIs.storeDetail.spec
+    public func requestBibbiAppInfo(accessToken: String, parameter: Encodable) -> Single<BibbiAppInfoDTO?> {
+        let spec = PrivacyAPIs.bibbiAppInfo.spec
         
-        return request(spec: spec, headers: [BibbiAPI.Header.acceptJson], parameters: parameter)
+        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], parameters: parameter)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("fetch Store Detail Result: \(str)")
+                    debugPrint("fetch BibbiApp Info Result: \(str)")
                 }
             }
-            .map(BibbiStoreInfoDTO.self)
+            .map(BibbiAppInfoDTO.self)
+            .catchAndReturn(nil)
+            .asSingle()
+        
+    }
+    
+    public func resignFamily(accessToken: String) -> Single<AccountFamilyResignDTO?> {
+        let spec = PrivacyAPIs.accountFamilyResign.spec
+        
+        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)])
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("fetch family resign Reuslt: \(str)")
+                }
+            }
+            .map(AccountFamilyResignDTO.self)
             .catchAndReturn(nil)
             .asSingle()
     }

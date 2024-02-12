@@ -106,4 +106,19 @@ extension ProfileAPIWorker {
             .asSingle()
     }
     
+    public func deleteProfileImageToS3(accessToken: String, memberId: String) -> Single<ProfileMemberDTO?> {
+        let spec = ProfileAPIs.profileDeleteImage(memberId).spec
+        
+        return request(spec: spec,headers: [BibbiAPI.Header.xAppVersion, BibbiAPI.Header.xUserPlatform, BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson])
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("delete Profile Image Result: \(str)")
+                }
+            }
+            .map(ProfileMemberDTO.self)
+            .catchAndReturn(nil)
+            .asSingle()
+    }
+    
 }

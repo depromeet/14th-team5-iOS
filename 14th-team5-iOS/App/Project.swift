@@ -15,11 +15,12 @@ private let targets: [Target] = [
             products: .app,
             dependencies: ModuleLayer.App.dependencies,
             bundleId: "com.5ing.bibbi",
-            infoPlist: .extendingDefault(with: [
-                "CFBundleVersion": .string("1"),
+            infoPlist: .extendingDefault(with: [                
                 "CFBundleDisplayName": .string("Bibbi"),
+                "CFBundleVersion": .string("1"),
                 "CFBuildVersion": .string("0"),
-                "UILaunchStoryboardName": .string("Launch Screen"),
+                "CFBundleShortVersionString": .string("1.1.2"),
+                "UILaunchStoryboardName": .string("LaunchScreen.storyboard"),
                 "UISupportedInterfaceOrientations": .array([.string("UIInterfaceOrientationPortrait")]),
                 "UIUserInterfaceStyle": .string("Light"),
                 "NSPhotoLibraryAddUsageDescription" : .string("프로필 사진, 피드 업로드를 위한 사진 촬영을 위해 Bibbi가 앨범에 접근할 수 있도록 허용해 주세요"),
@@ -42,6 +43,7 @@ private let targets: [Target] = [
                     ]),
                 ]),
                 "KAKAO_LOGIN_API_KEY": .string("$(KAKAO_LOGIN_API_KEY)"),
+                "MIXPANEL_API_KEY": .string("$(MIXPANEL_API_KEY)"),
                 "TEAM_ID": .string("$(TEAM_ID)"),
             ]),
             entitlements: .file(path: .relativeToRoot("App.entitlements"))

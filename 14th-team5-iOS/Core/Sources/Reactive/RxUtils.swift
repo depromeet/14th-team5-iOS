@@ -13,6 +13,10 @@ public enum RxConst {
     static public var throttleInterval: RxTimeInterval {
         return .milliseconds(300)
     }
+    
+    static public var smallDelayInterval: RxTimeInterval {
+        return .milliseconds(100)
+    }
 }
 
 public enum Schedulers {

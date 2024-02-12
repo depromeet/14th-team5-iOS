@@ -10,6 +10,7 @@ import Foundation
 import Core
 import Data
 import Domain
+import UIKit
 
 public final class CameraDIContainer: BaseDIContainer {
         
@@ -18,12 +19,19 @@ public final class CameraDIContainer: BaseDIContainer {
     public typealias Reactor = CameraViewReactor
     public typealias UseCase = CameraViewUseCaseProtocol
     
+    
     private let cameraType: UploadLocation
     private let memberId: String
+    private var globalState: GlobalStateProviderProtocol {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return GlobalStateProvider()
+        }
+        return appDelegate.globalStateProvider
+    }
     
     public init(cameraType: UploadLocation, memberId: String = "") {
         self.cameraType = cameraType
-        self.memberId = memberId
+        self.memberId = App.Repository.member.memberID.value ?? ""
     }
     
     public func makeViewController() -> CameraViewController {
@@ -40,7 +48,7 @@ public final class CameraDIContainer: BaseDIContainer {
     }
     
     public func makeReactor() -> Reactor {
-        return CameraViewReactor(cameraUseCase: makeUseCase(), cameraType: cameraType, memberId: memberId)
+        return CameraViewReactor(cameraUseCase: makeUseCase(), provider: globalState, cameraType: cameraType, memberId: memberId)
     }
     
 

@@ -35,6 +35,14 @@ extension UIImage {
         
         return originalImage
     }
+    
+    public func resized(to size: CGSize) -> UIImage? {
+        let renderImage: UIGraphicsImageRenderer = UIGraphicsImageRenderer(size: size)
+        let originalImage: UIImage = renderImage.image { _ in
+            draw(in: CGRect(origin: .zero, size: size))
+        }
+        return originalImage
+    }
 }
 
 extension UIImage {
@@ -78,9 +86,9 @@ extension UIImage.NavigationBar.ImageType {
     public var barImage: UIImage? {
         switch self {
         case .bibbi:
-            return DesignSystemAsset.bibbi.image
+            return DesignSystemAsset.bibbiLogo.image
         case .newBibbi:
-            return DesignSystemAsset.newBibbi.image
+            return DesignSystemAsset.bibbiLogo.image
         }
     }
 }

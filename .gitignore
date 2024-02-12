@@ -4,6 +4,8 @@
 
 ## User settings
 xcuserdata/
+master.key
+.env
 
 ## compatibility with Xcode 8 and earlier (ignoring not required starting Xcode 9)
 *.xcscmblueprint
@@ -89,7 +91,6 @@ fastlane/test_output
 
 iOSInjectionProject/
 
-14th-team5-iOS/XCConfig/hidden.xcconfig
 
 ### Xcode Patch ###
 *.xcodeproj/*

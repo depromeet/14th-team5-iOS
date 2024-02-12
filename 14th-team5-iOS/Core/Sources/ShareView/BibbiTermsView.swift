@@ -49,8 +49,7 @@ public final class BibbiCheckBoxView: UIView {
     func setupAttributes() {
         checkStackView.do {
             $0.axis = .vertical
-            $0.spacing = 20
-            $0.distribution = .fillEqually
+            $0.distribution = .equalSpacing
             $0.alignment = .leading
             $0.isUserInteractionEnabled = true
         }
@@ -74,7 +73,7 @@ public final class BibbiCheckBoxView: UIView {
                 button.configuration?.imagePlacement = .leading
                 button.configuration?.attributedTitle = AttributedString(NSAttributedString(string: reason.rawValue, attributes: [
                     .foregroundColor: DesignSystemAsset.gray200.color,
-                    .font: DesignSystemFontFamily.Pretendard.semiBold.font(size: 16),
+                    .font: DesignSystemFontFamily.Pretendard.regular.font(size: 16),
                     .kern: -0.3
                 ]))
                 button.configurationUpdateHandler = { button in

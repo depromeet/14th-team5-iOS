@@ -34,7 +34,7 @@ final class ProfileFeedEmptyCollectionViewCell: BaseCollectionViewCell<ProfileFe
     override func setupAttributes() {
         super.setupAttributes()
         emptyImageView.do {
-            $0.contentMode = .scaleToFill
+            $0.contentMode = .scaleAspectFill
         }
         
         emptyDescrptionLabel.do {

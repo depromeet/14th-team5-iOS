@@ -18,8 +18,13 @@ public enum CalendarEvent {
 
 public protocol CalendarGlobalStateType {
     var event: BehaviorSubject<CalendarEvent> { get }
+    
+    @discardableResult
     func pushCalendarPostVC(_ date: Date) -> Observable<Date>
+    
+    @discardableResult
     func didSelectDate(_ date: Date) -> Observable<Date>
+    
     func didTapCalendarInfoButton(_ sourceView: UIView) -> Observable<Void>
 }
 

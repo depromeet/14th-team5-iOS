@@ -10,4 +10,8 @@ import Foundation
 
 public struct AccountFcmResignResponse {
     public var isSuccess: Bool
+    
+    public init(isSuccess: Bool) {
+        self.isSuccess = isSuccess
+    }
 }

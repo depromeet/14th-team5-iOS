@@ -10,14 +10,20 @@ import UIKit
 
 public enum URLTypes {
     case settings
-    case appStore(String)
+    case appStore
+    case privacy
+    case terms
     
     public var originURL: URL {
         switch self {
         case .settings:
             return URL(string: UIApplication.openSettingsURLString) ?? URL(fileURLWithPath: "")
-        case let .appStore(appId):
-            return URL(string: "itms-apps://itunes.apple.com/app/\(appId)") ?? URL(fileURLWithPath: "")
+        case .appStore:
+            return URL(string: "itms-apps://itunes.apple.com/app/6475082088") ?? URL(fileURLWithPath: "")
+        case .privacy:
+            return URL(string: "https://no5ing.kr/app/privacy") ?? URL(fileURLWithPath: "")
+        case .terms:
+            return URL(string: "https://no5ing.kr/app/terms") ?? URL(fileURLWithPath: "")
         }
     }
 }

@@ -16,6 +16,14 @@ public struct ProfilePostResponse {
     public var hasNext: Bool
     public var results: [ProfilePostResultResponse]
     
+    public init(currentPage: Int, totalPage: Int, itemPerPage: Int, hasNext: Bool, results: [ProfilePostResultResponse]) {
+        self.currentPage = currentPage
+        self.totalPage = totalPage
+        self.itemPerPage = itemPerPage
+        self.hasNext = hasNext
+        self.results = results
+    }
+    
 }
 
 public struct ProfilePostResultResponse {
@@ -26,4 +34,14 @@ public struct ProfilePostResultResponse {
     public var imageUrl: URL
     public var content: String
     public var createdAt: String
+    
+    public init(postId: String, authorId: String, commentCount: String, emojiCount: String, imageUrl: URL, content: String, createdAt: String) {
+        self.postId = postId
+        self.authorId = authorId
+        self.commentCount = commentCount
+        self.emojiCount = emojiCount
+        self.imageUrl = imageUrl
+        self.content = content
+        self.createdAt = createdAt
+    }
 }

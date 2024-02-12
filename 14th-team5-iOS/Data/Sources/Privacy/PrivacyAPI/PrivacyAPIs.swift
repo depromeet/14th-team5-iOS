@@ -10,12 +10,15 @@ import Foundation
 
 
 public enum PrivacyAPIs: API {
-    case storeDetail
+    case bibbiAppInfo
+    case accountFamilyResign
     
     var spec: APISpec {
         switch self {
-        case .storeDetail:
-            return APISpec(method: .get, url: "https://itunes.apple.com/lookup")
+        case .bibbiAppInfo:
+            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/me/app-version")
+        case .accountFamilyResign:
+            return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/me/quit-family")
         }
     }
 }

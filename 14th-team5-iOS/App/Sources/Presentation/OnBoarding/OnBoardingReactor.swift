@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import Data
+import Core
 
 import ReactorKit
 
@@ -22,11 +23,11 @@ public final class OnBoardingReactor: Reactor {
     }
     
     public enum Mutation {
-        case setPermissionStatus(Bool)
+        case permissionTapped
     }
     
     public struct State {
-        var isPermissionGranted: Bool = false
+        var permissionTappedFinish: Bool = false
     }
     
     init(accountRepository: AccountRepository) {
@@ -40,14 +41,15 @@ extension OnBoardingReactor {
         switch action {
         case .permissionTapped:
             return Observable.create { observer in
-                UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) {
-                    if let error = $1 {
-                        observer.onError(error)
-                    } else {
-                        observer.onNext(.setPermissionStatus($0))
+                MPEvent.Account.invitedGroupFinished.track(with: nil)
+                UNUserNotificationCenter.current().requestAuthorization(
+                    options: [.alert, .badge, .sound],
+                    completionHandler: { granted, error in
+                        if granted { MPEvent.Account.allowNotification.track(with: nil) }
+                        observer.onNext(Mutation.permissionTapped)
                         observer.onCompleted()
                     }
-                }
+                )
                 return Disposables.create()
             }
         }
@@ -56,8 +58,8 @@ extension OnBoardingReactor {
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
-        case .setPermissionStatus(let isPermissionGranted):
-            newState.isPermissionGranted = isPermissionGranted
+        case .permissionTapped:
+            newState.permissionTappedFinish = true
         }
         return newState
     }

@@ -15,12 +15,23 @@ extension UserDefaults {
         
         case familyId
         case memberId
+        case nickname
+        
+        case inviteUrl
         case inviteCode
+        case dayOfBirths
         
         case profileImage
         case snsType
+        case isDefaultProfile
+        
+        case postId
         
         var value: String { "\(Bundle.current.bundleIdentifier ?? "").\(self.rawValue.lowercased())" }
+    }
+    
+    private var userDefaults: UserDefaults {
+        UserDefaults.standard
     }
 }
 
@@ -48,9 +59,19 @@ extension UserDefaults {
         set { UserDefaults.standard.set(newValue, forKey: Key.memberId.value) }
     }
     
+    public var nickname: String? {
+        get { UserDefaults.standard.string(forKey: Key.nickname.value) }
+        set { UserDefaults.standard.set(newValue, forKey: Key.nickname.value) }
+    }
+    
     public var inviteCode: String? {
         get { UserDefaults.standard.string(forKey: Key.inviteCode.value) }
         set { UserDefaults.standard.set(newValue, forKey: Key.inviteCode.value) }
+    }
+    
+    public var inviteUrl: String? {
+        get { UserDefaults.standard.string(forKey: Key.inviteUrl.value) }
+        set { UserDefaults.standard.set(newValue, forKey: Key.inviteUrl.value) }
     }
     
     public var profileImage: Data? {
@@ -61,6 +82,21 @@ extension UserDefaults {
     public var snsType: String? {
         get { UserDefaults.standard.string(forKey: Key.snsType.value) }
         set { UserDefaults.standard.set(newValue, forKey: Key.snsType.value) }
+    }
+    
+    public var isDefaultProfile: Bool {
+        get { UserDefaults.standard.bool(forKey: Key.isDefaultProfile.value) }
+        set { UserDefaults.standard.set(newValue, forKey: Key.isDefaultProfile.value) }
+    }
+
+    public var dayOfBirths: [Date]? {
+        get { userDefaults.array(forKey: Key.dayOfBirths.value) as? [Date] }
+        set { userDefaults.set(newValue, forKey: Key.dayOfBirths.value) }
+    }
+    
+    public var postId: String? {
+        get { UserDefaults.standard.string(forKey: Key.postId.value) }
+        set { UserDefaults.standard.set(newValue, forKey: Key.postId.value) }
     }
 }
 
@@ -79,5 +115,9 @@ extension UserDefaults {
         Key.allCases
             .map { $0.value }
             .forEach(UserDefaults.standard.removeObject)
+    }
+    
+    public func clearInviteCode() {
+        UserDefaults.standard.removeObject(forKey: Key.inviteCode.value)
     }
 }

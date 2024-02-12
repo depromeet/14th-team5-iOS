@@ -25,6 +25,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     ) {
         guard let scene = (scene as? UIWindowScene) else { return }
         
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            if let item = connectionOptions.urlContexts.first {
+                App.Repository.member.postId.accept("\(item.url)")
+                
+                self.window = UIWindow(windowScene: scene)
+                self.window?.rootViewController = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+                self.window?.makeKeyAndVisible()
+            }
+        }
+        
+        App.Repository.member.postId.accept(nil)
         guard let userActivity = connectionOptions.userActivities.first,
               userActivity.activityType == NSUserActivityTypeBrowsingWeb,
               let incomingURL = userActivity.webpageURL,
@@ -33,13 +44,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             window = UIWindow(windowScene: scene)
             window?.rootViewController = UINavigationController(rootViewController: SplashDIContainer().makeViewController())
             window?.makeKeyAndVisible()
-            
             return
         }
         
-        guard let path = components.path else {
-            return
-        }
+        guard let path = components.path else { return }
         
         let pathComponents = path.components(separatedBy: "/")
         if pathComponents.count > 2 {

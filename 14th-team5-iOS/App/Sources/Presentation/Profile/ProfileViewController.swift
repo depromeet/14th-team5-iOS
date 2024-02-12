@@ -8,7 +8,6 @@
 import UIKit
 
 import Core
-import Data
 import DesignSystem
 import Kingfisher
 import PhotosUI
@@ -35,7 +34,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     
     //MARK: Views
 
-    private let profileIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
+    private let profileIndicatorView: BibbiLoadingView = BibbiLoadingView()
     private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 50)
     private let profileNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let profileLineView: UIView = UIView()
@@ -94,10 +93,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             $0.rightBarButtonItemTintColor = .gray400
         }
         
-        profileIndicatorView.do {
-            $0.hidesWhenStopped = true
-            $0.color = .gray
-        }
         
         profileFeedCollectionView.do {
             $0.register(ProfileFeedCollectionViewCell.self, forCellWithReuseIdentifier: "ProfileFeedCollectionViewCell")
@@ -148,10 +143,12 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        
         self.rx.viewWillAppear
             .map { _ in Reactor.Action.viewWillAppear }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
         
         profileFeedCollectionView.rx
             .setDelegate(self)
@@ -165,7 +162,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(onNext: {$0.0.createAlertController(owner: $0.0)})
             .disposed(by: disposeBag)
         
-            
+        
         NotificationCenter.default.rx.notification(.PHPickerAssetsDidFinishPickingProcessingPhotoNotification)
             .compactMap { notification -> Data? in
                 guard let userInfo = notification.userInfo else { return nil }
@@ -175,18 +172,20 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        
+        //프로필 이미지 초기화 할 경우 요기 Action에 이동
         NotificationCenter.default.rx
             .notification(.ProfileImageInitializationUpdate)
             .map { _ in Reactor.Action.didTapInitProfile }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-            
+        
         
         reactor.state
             .map { $0.isLoading }
             .distinctUntilChanged()
             .asDriver(onErrorJustReturn: false)
-            .drive(profileIndicatorView.rx.isAnimating)
+            .drive(profileIndicatorView.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$feedSection)
@@ -201,23 +200,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(onNext: { $0.0.setupProfileButton(title: $0.1)})
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$profileMemberEntity)
-            .compactMap { $0 }
-            .map { $0.memberImage }
-            .withUnretained(self)
-            .observe(on: MainScheduler.asyncInstance)
-            .bind(onNext: { $0.0.setupProfileImage($0.1)})
-            .disposed(by: disposeBag)
         
-        
-        reactor.pulse(\.$profileMemberEntity)
-            .map { $0 }
-            .filter { $0?.memberImage == nil }
-            .map { _ in Void.self }
-            .withUnretained(self)
-            .bind(onNext: {$0.0.setupDefaultProfileImage()})
-            .disposed(by: disposeBag)
-
         
         profileView.profileNickNameButton
             .rx.tap
@@ -234,11 +217,80 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .disposed(by: disposeBag)
         
         
+        Observable
+            .zip(
+                profileFeedCollectionView.rx.itemSelected,
+                reactor.state.compactMap { $0.profilePostEntity }
+            )
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .map { Reactor.Action.didTapProfilePost($0.0, $0.1)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$profileMemberEntity)
+            .filter { $0?.memberImage.isFileURL == false }
+            .compactMap { $0?.memberImage }
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.setupProfileImage(url: $0.1)})
+            .disposed(by: disposeBag)
+        
+        
+        reactor.pulse(\.$profileMemberEntity)
+            .compactMap { $0?.memberImage.isFileURL }
+            .observe(on: MainScheduler.instance)
+            .bind(to: profileView.rx.isDefault)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$profileMemberEntity)
+            .filter { $0?.memberImage.isFileURL ?? false }
+            .compactMap { $0?.memberName.first }
+            .compactMap { "\($0)"}
+            .bind(to: profileView.profileDefaultLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        Observable
+            .zip(
+                reactor.pulse(\.$profileData),
+                reactor.pulse(\.$selectedIndexPath)
+            )
+            .withUnretained(self)
+            .filter { !$0.1.0.items.isEmpty }
+            .subscribe {
+                guard let indexPath = $0.1.1 else { return }
+                let postListViewController = PostListsDIContainer().makeViewController(postLists: $0.1.0, selectedIndex: indexPath)
+                $0.0.navigationController?.pushViewController(postListViewController, animated: true)
+            }.disposed(by: disposeBag)
+
+        reactor.state
+            .compactMap { $0.profileMemberEntity?.dayOfBirth }
+            .distinctUntilChanged()
+            .map { $0.isBirthDay }
+            .bind(to: profileView.rx.isBirthDay)
+            .disposed(by: disposeBag)
+            
+        
         reactor.state
             .compactMap { $0.profilePostEntity?.results.isEmpty }
             .map { !$0 }
             .bind(to: profileFeedCollectionView.rx.isScrollEnabled)
             .disposed(by: disposeBag)
+        
+        reactor.state
+            .compactMap { $0.profileMemberEntity}
+            .map { "\($0.familyJoinAt) 가입" }
+            .bind(to: profileView.profileCreateLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        profileView.profileImageView
+            .rx.tap
+            .throttle(.microseconds(300), scheduler: MainScheduler.instance)
+            .withLatestFrom(reactor.state.compactMap { $0.profileMemberEntity } )
+            .withUnretained(self)
+            .bind { owner, entity in
+                let profileDetailViewController = ProfileDetailDIContainer(profileURL: entity.memberImage, userNickname: entity.memberName).makeViewController()
+                owner.navigationController?.pushViewController(profileDetailViewController, animated: false)
+            }.disposed(by: disposeBag)
         
         profileFeedCollectionView.rx
             .didScroll
@@ -303,23 +355,19 @@ extension ProfileViewController: UICollectionViewDelegateFlowLayout {
     
 }
 
-
-extension ProfileViewController {
-    private func setupDefaultProfileImage() {
-        profileView.profileImageView.backgroundColor = DesignSystemAsset.gray800.color
+// 기본 이미지가 true 이고 닉네임 변경 할 경우 redraw
+extension ProfileViewController {    
+    private func setupProfileImage(url: URL) {
+        profileView.profileImageView.kf.setImage(with: url, options: [.transition(.fade(0.5))])
     }
     
-    private func setupProfileImage(_ url: URL) {
-        profileView.profileImageView.kf.indicatorType = .activity
-        profileView.profileImageView.kf.setImage(with: url, placeholder: nil, options: [.transition(.fade(0.5))], completionHandler: nil)
-    }
     
     private func setupProfileButton(title: String) {
-        profileView.profileNickNameButton.configuration?.attributedTitle = AttributedString(NSAttributedString(string: title, attributes: [
+        profileView.profileNickNameButton.setAttributedTitle(NSAttributedString(string: title, attributes: [
             .foregroundColor: DesignSystemAsset.gray200.color,
-            .font: DesignSystemFontFamily.Pretendard.bold.font(size: 16)
-        ]))
-        
+            .font: DesignSystemFontFamily.Pretendard.semiBold.font(size: 16),
+            .kern: -0.3,
+        ]), for: .normal)
     }
     
     private func transitionNickNameViewController(memberId: String) {
@@ -344,6 +392,8 @@ extension ProfileViewController {
         }
         
         let presentDefaultAction: UIAlertAction = UIAlertAction(title: "초기화", style: .destructive) {  _ in
+            
+            
             NotificationCenter.default.post(name: .ProfileImageInitializationUpdate, object: nil, userInfo: nil)
         }
         

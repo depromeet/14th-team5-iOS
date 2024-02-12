@@ -94,25 +94,29 @@ final class PostNavigationView: BaseView<PostReactor> {
         
         profileImageView.do {
             $0.clipsToBounds = true
+            $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = Layout.ProfileImageView.cornerRadius
         }
     }
 }
 
 extension PostNavigationView {
-    func setData(data: PostListData) {
+    private func setData(data: PostListData) {
         if let author = data.author,
            let profileImageURL = author.profileImageURL,
            let url = URL(string: profileImageURL), !profileImageURL.isEmpty {
             profileImageView.kf.setImage(with: url)
             defaultNameLabel.isHidden = true
         } else {
-            if let author = data.author {
-                defaultNameLabel.text = "\(author.name.first)"
+            if let author = data.author,
+               let first = author.name.first {
+                defaultNameLabel.text = "\(first)"
             } else {
                 defaultNameLabel.text = "알"
             }
             
+            profileImageView.kf.base.image = nil
+            defaultNameLabel.isHidden = false
             profileImageView.backgroundColor = .gray800
         }
 

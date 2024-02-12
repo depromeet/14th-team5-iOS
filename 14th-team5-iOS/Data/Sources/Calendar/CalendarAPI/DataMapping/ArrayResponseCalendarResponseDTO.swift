@@ -10,7 +10,7 @@ import Foundation
 import Domain
 
 // MARK: - Data Transfer Object (DTO)
-struct ArrayResponseCalendarResponseDTO: Decodable {
+public struct ArrayResponseCalendarResponseDTO: Decodable {
     private enum CodingKeys: String, CodingKey {
         case results
     }
@@ -18,7 +18,7 @@ struct ArrayResponseCalendarResponseDTO: Decodable {
 }
 
 extension ArrayResponseCalendarResponseDTO {
-    struct CalendarResponseDTO: Decodable {
+    public struct CalendarResponseDTO: Decodable {
         private enum CodingKeys: String, CodingKey {
             case date
             case representativePostId
@@ -43,7 +43,7 @@ extension ArrayResponseCalendarResponseDTO {
 extension ArrayResponseCalendarResponseDTO.CalendarResponseDTO {
     func toDomain() -> CalendarResponse {
         return CalendarResponse(
-            date: date.toDate(with: "yyyy-MM-dd"),
+            date: date.toDate(),
             representativePostId: representativePostId,
             representativeThumbnailUrl: representativeThumbnailUrl,
             allFamilyMemebersUploaded: allFamilyMembersUploaded

@@ -22,13 +22,22 @@ public class UrlActivityItemSource: NSObject, UIActivityItemSource {
     }
     
     public func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
-        return url
+        guard let code = extractCodeFromURL("\(url)") else {
+            return url
+        }
+        let title = """
+        링크로 입장한 뒤 초대코드를 입력하세요.
+        
+        \(url)
+        초대코드 : \(code)
+        """
+        return title
     }
     
     public func activityViewController(_ activityViewController: UIActivityViewController, subjectForActivityType activityType: UIActivity.ActivityType?) -> String {
         return title
     }
-
+    
     public func activityViewControllerLinkMetadata(_ activityViewController: UIActivityViewController) -> LPLinkMetadata? {
         let metadata = LPLinkMetadata()
         metadata.title = title
@@ -36,5 +45,13 @@ public class UrlActivityItemSource: NSObject, UIActivityItemSource {
         metadata.originalURL = url
         return metadata
     }
-
+    
+    private func extractCodeFromURL(_ url: String) -> String? {
+        guard let codeRange = url.range(of: "o/")?.upperBound else {
+            return nil
+        }
+        
+        let code = url[codeRange...]
+        return String(code)
+    }
 }

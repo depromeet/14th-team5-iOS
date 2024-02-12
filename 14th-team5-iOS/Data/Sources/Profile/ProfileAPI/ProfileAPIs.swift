@@ -16,6 +16,7 @@ enum ProfileAPIs: API {
     case profileAlbumUploadImageURL
     case profileUploadToPreSignedURL(String)
     case profileEditImage(String)
+    case profileDeleteImage(String)
     
     var spec: APISpec {
         switch self {
@@ -29,6 +30,8 @@ enum ProfileAPIs: API {
             return APISpec(method: .put, url: url)
         case let .profileEditImage(memberId):
             return APISpec(method: .put, url: "\(BibbiAPI.hostApi)/members/profile-image-url/\(memberId)")
+        case let .profileDeleteImage(memberId):
+            return APISpec(method: .delete, url: "\(BibbiAPI.hostApi)/members/profile-image-url/\(memberId)")
         
         }
     }

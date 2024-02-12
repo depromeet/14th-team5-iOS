@@ -19,9 +19,9 @@ extension Int {
 
 extension Int {
     /// 현재 Int값을 00:00:00 시간으로 formatting하여 return 한다.
-    public func setTimerFormat() -> String? {
+    public func setTimerFormat() -> String {
         if self <= 0 {
-            return nil
+            return "00:00:00"
         }
         
         let hours = self / 3600

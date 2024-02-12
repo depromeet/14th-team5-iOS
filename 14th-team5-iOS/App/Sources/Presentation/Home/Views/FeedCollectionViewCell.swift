@@ -24,7 +24,6 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
     
     override func setupUI() {
         addSubviews(imageView, stackView)
-        
         stackView.addArrangedSubviews(nameLabel, timeLabel)
     }
     
@@ -48,6 +47,7 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
         }
         
         imageView.do {
+            $0.contentMode = .scaleAspectFill
             $0.clipsToBounds = true
             $0.layer.cornerRadius = Layout.ImageView.cornerRadius
         }

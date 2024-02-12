@@ -21,11 +21,11 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     //MARK: Views
     private let displayView: UIImageView = UIImageView()
     private let confirmButton: UIButton = UIButton(configuration: .plain())
-    private let displayIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
+    private let displayIndicatorView: BibbiLoadingView = BibbiLoadingView()
     private let displayNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let backButton: UIButton = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 52, height: 52)))
     private let titleView: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
-    private let displayEditButton: UIButton = UIButton.createCircleButton(radius: 21.5)
+    private let displayEditButton: UIButton = UIButton()
     private let displayEditTextField: UITextField = UITextField()
     private let displayDimView: UIView = UIView()
     private let archiveButton: UIButton = UIButton.createCircleButton(radius: 24)
@@ -53,7 +53,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(displayView, confirmButton, archiveButton, displayIndicatorView, displayEditTextField, displayEditCollectionView, displayNavigationBar)
+        view.addSubviews(displayView, confirmButton, archiveButton, displayEditTextField, displayEditCollectionView, displayIndicatorView ,displayNavigationBar)
         displayView.addSubviews(displayEditButton)
     }
     
@@ -79,19 +79,31 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         displayView.do {
             $0.layer.cornerRadius = 40
             $0.clipsToBounds = true
+            $0.contentMode = .scaleAspectFill
             $0.isUserInteractionEnabled = true
         }
         
         displayEditButton.do {
-            $0.setImage(DesignSystemAsset.blurTextFill.image, for: .normal)
-            $0.setTitleColor(.white, for: .normal)
+            let blurEffectView = UIVisualEffectView.makeBlurView(style: .systemUltraThinMaterialDark)
+            blurEffectView.frame = $0.bounds
+            blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            $0.insertSubview(blurEffectView, at: 0)
+            $0.configuration = .filled()
+            $0.configuration?.attributedTitle = AttributedString(NSAttributedString(string: "텍스트 입력하기", attributes: [
+                .foregroundColor: DesignSystemAsset.white.color,
+                .font: DesignSystemFontFamily.Pretendard.semiBold.font(size: 18),
+                .kern: -0.3,
+
+            ]))
+            $0.configuration?.imagePlacement = .leading
+            $0.configuration?.imagePadding = 5
+            $0.configuration?.image = DesignSystemAsset.edit.image
+            $0.layer.cornerRadius = 10
+            $0.clipsToBounds = true
         }
         
         confirmButton.do {
-            $0.configuration?.imagePlacement = .leading
-            $0.backgroundColor = DesignSystemAsset.mainGreen.color
-            $0.configuration?.image = DesignSystemAsset.camera.image.withTintColor(DesignSystemAsset.black.color)
-            $0.configuration?.imagePadding = 6
+            $0.backgroundColor = DesignSystemAsset.mainYellow.color
             $0.configuration?.attributedTitle = AttributedString(NSAttributedString(string: "사진 업로드", attributes: [
                 .foregroundColor: DesignSystemAsset.black.color,
                 .font: DesignSystemFontFamily.Pretendard.bold.font(size: 16)
@@ -108,7 +120,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             $0.font = DesignSystemFontFamily.Pretendard.regular.font(size: 17)
             $0.makeLeftPadding(16)
             $0.makeClearButton(DesignSystemAsset.clear.image)
-            $0.makePlaceholderAttributedString("최대 8글자 이내로 입력해주세요.", attributed: [
+            $0.makePlaceholderAttributedString("여덟자로입력해요", attributed: [
                 .font: DesignSystemFontFamily.Pretendard.regular.font(size: 17),
                 .foregroundColor: DesignSystemAsset.gray500.color
             ])
@@ -128,10 +140,6 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             $0.isScrollEnabled = false
         }
         
-        displayIndicatorView.do {
-            $0.hidesWhenStopped = true
-            $0.color = .gray
-        }
     }
     
     public override func setupAutoLayout() {
@@ -174,6 +182,8 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         displayEditButton.snp.makeConstraints {
             $0.bottom.equalToSuperview().offset(-15)
             $0.centerX.equalToSuperview()
+            $0.width.equalTo(166)
+            $0.height.equalTo(41)
         }
         
         displayEditCollectionView.snp.makeConstraints {
@@ -198,6 +208,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .rx.tap
             .withUnretained(self)
             .subscribe { owner, _ in
+                MPEvent.Camera.photoText.track(with: nil)
                 owner.displayEditTextField.becomeFirstResponder()
             }.disposed(by: disposeBag)
         
@@ -209,9 +220,18 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
                 owner.navigationController?.popViewController(animated: true)
             }.disposed(by: disposeBag)
         
+        displayEditTextField
+            .rx.text.changed
+            .filter { $0?.isEmpty ?? false }
+            .map { _ in Reactor.Action.fetchDisplayImage("여덟자로입력해요")}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        
         displayEditTextField.rx
             .text.orEmpty
             .distinctUntilChanged()
+            .filter { !$0.isEmpty }
             .filter { $0.count <= 8 && !$0.contains(" ") }
             .observe(on: MainScheduler.instance)
             .map { Reactor.Action.fetchDisplayImage($0) }
@@ -226,18 +246,23 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .withUnretained(self)
             .bind { owner, isShow in
                 guard isShow == true else { return }
-                owner.makeBibbiToastView(text: "띄어쓰기는 할 수 없어요", designSystemImage: DesignSystemAsset.warning.image, width: 230, height: 56, offset: 400)
+                owner.makeBibbiToastView(text: "띄어쓰기는 할 수 없어요", image: DesignSystemAsset.warning.image, duration: 1, delay: 1, offset: 400)
             }.disposed(by: disposeBag)
+        
+        reactor.pulse(\.$isError)
+            .filter { $0 }
+            .withUnretained(self)
+            .bind(onNext: { $0.0.makeActionBibbiToastView(text: "사진 업로드 실패", transtionText: "홈으로 이동", duration: 1, offset: 50, direction: .up)})
+            .disposed(by: disposeBag)
         
         displayEditTextField.rx
             .text.orEmpty
-            .distinctUntilChanged()
             .map { ($0.count > 8) }
-            .debounce(.seconds(1), scheduler: MainScheduler.instance)
+            .debounce(.milliseconds(300), scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind { owner, isShow in
                 guard isShow == true else { return }
-                owner.makeBibbiToastView(text: "8자까지 입력가능해요", designSystemImage: DesignSystemAsset.warning.image, width: 211, height: 56, offset: 400)
+                owner.makeBibbiToastView(text: "8자까지 입력가능해요", image: DesignSystemAsset.warning.image, offset: 400)
             }.disposed(by: disposeBag)
         
         displayEditTextField.rx
@@ -259,11 +284,19 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        
         reactor.state
             .map { $0.displayDescrption.count >= 1}
             .observe(on: MainScheduler.instance)
             .bind(to: displayEditButton.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        displayEditButton
+            .rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .withLatestFrom(reactor.state.map{ $0.displayDescrption })
+            .filter { $0.isValidation() }
+            .withUnretained(self)
+            .bind(onNext: { $0.0.didTapCollectionViewTransition($0.0)})
             .disposed(by: disposeBag)
             
         
@@ -285,6 +318,16 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             }.disposed(by: disposeBag)
         
         
+        displayEditTextField
+            .rx.controlEvent(.editingDidEnd)
+            .withLatestFrom(reactor.state.map { $0.displayDescrption })
+            .filter { $0 == "여덟자로입력해요" }
+            .observe(on: MainScheduler.instance)
+            .map { _ in Reactor.Action.hideDisplayEditCell}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        
         NotificationCenter.default
             .rx.notification(UIResponder.keyboardWillShowNotification)
             .observe(on: MainScheduler.instance)
@@ -299,6 +342,13 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .withUnretained(self)
             .bind(onNext: {$0.0.keyboardWillHideGenerateUI($0.0)})
             .disposed(by: disposeBag)
+        
+        NotificationCenter.default
+            .rx.notification(.didTapBibbiToastTranstionButton)
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.navigationController?.popToRootViewController(animated: true)
+            }.disposed(by: disposeBag)
         
         Observable
             .just(())
@@ -317,7 +367,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .map { $0.isLoading }
             .distinctUntilChanged()
             .asDriver(onErrorJustReturn: false)
-            .drive(displayIndicatorView.rx.isAnimating)
+            .drive(displayIndicatorView.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$displayData)
@@ -356,8 +406,7 @@ extension CameraDisplayViewController {
                 creationRequest.addResource(with: .photo, data: originalData, options: nil)
                 owner.makeBibbiToastView(
                     text: "사진이 저장되었습니다.",
-                    designSystemImage: DesignSystemAsset.camera.image.withTintColor(DesignSystemAsset.gray300.color),
-                    height: 56
+                    image: DesignSystemAsset.camera.image.withTintColor(DesignSystemAsset.gray300.color)
                 )
             }
         } else {
@@ -440,5 +489,18 @@ extension CameraDisplayViewController {
     }
 }
 
-extension CameraDisplayViewController: UICollectionViewDelegateFlowLayout {}
+extension CameraDisplayViewController: UICollectionViewDelegateFlowLayout {
+    
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        guard let displayCellCount = self.reactor?.currentState.displayDescrption.count, displayCellCount != 8 else {
+            return .zero
+        }
+        let displayCellWidth = 38 * displayCellCount
+        let displayCellSpacingWidth = 4 * (displayCellCount - 1)
+        let displayCellInset = (collectionView.frame.size.width - CGFloat(displayCellWidth + displayCellSpacingWidth)) / 2
+
+        return UIEdgeInsets(top: 0, left: displayCellInset, bottom: 0, right: displayCellInset)
+    }
+    
+}
 

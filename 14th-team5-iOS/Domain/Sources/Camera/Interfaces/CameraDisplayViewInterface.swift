@@ -13,7 +13,8 @@ import RxSwift
 public enum UploadLocation {
     case feed
     case profile
-    case account
+    case realEmoji
+    
     
     public var location: String {
         switch self {
@@ -21,8 +22,8 @@ public enum UploadLocation {
             return "images/feed/"
         case .profile:
             return "images/profile/"
-        case .account:
-            return ""
+        case .realEmoji:
+            return "images/real-emoji/"
         }
     }
 }

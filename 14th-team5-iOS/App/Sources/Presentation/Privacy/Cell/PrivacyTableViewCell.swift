@@ -35,8 +35,8 @@ public final class PrivacyTableViewCell: BaseTableViewCell<PrivacyCellReactor> {
         }
         
         arrowAccessView.do {
-            $0.contentMode = .scaleToFill
-            $0.image = DesignSystemAsset.arrow.image
+            $0.contentMode = .scaleAspectFill
+            $0.image = DesignSystemAsset.settingArrow.image
         }
         
         descrptionLabel.do {
@@ -68,20 +68,21 @@ public final class PrivacyTableViewCell: BaseTableViewCell<PrivacyCellReactor> {
             .drive(descrptionLabel.rx.text)
             .disposed(by: disposeBag)
     
-        // hidden 일 경우 버전이 아님 그렇지 안을경우 버전 cell임
-        
         reactor.state
             .map { !$0.descrption.contains("버전") }
+            .distinctUntilChanged()
             .bind(to: versionLabel.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.state
-            .map { $0.isCheck ? "최신 버전으로 업데이트해주세요" : "최신 버전입니다" }
+            .map { $0.isCheck ? "최신 버전입니다" : "최신 버전으로 업데이트해주세요" }
+            .distinctUntilChanged()
             .bind(to: versionLabel.rx.text)
             .disposed(by: disposeBag)
         
         reactor.state
             .map { $0.isCheck }
+            .distinctUntilChanged()
             .withUnretained(self)
             .bind(onNext: { $0.0.setupVersionLabel(isCheck: $0.1)})
             .disposed(by: disposeBag)
@@ -96,6 +97,14 @@ extension PrivacyTableViewCell {
     
     private func setupVersionLabel(isCheck: Bool) {
         if isCheck {
+            versionLabel.snp.makeConstraints {
+                $0.height.equalTo(22)
+                $0.right.equalToSuperview().offset(-16)
+                $0.centerY.equalTo(descrptionLabel)
+            }
+            
+            arrowAccessView.snp.removeConstraints()
+        } else {
             arrowAccessView.snp.makeConstraints {
                 $0.right.equalToSuperview().offset(-16)
                 $0.width.equalTo(7)
@@ -108,15 +117,6 @@ extension PrivacyTableViewCell {
                 $0.right.equalTo(arrowAccessView.snp.left).offset(-12)
                 $0.centerY.equalTo(descrptionLabel)
             }
-            
-        } else {
-            versionLabel.snp.makeConstraints {
-                $0.height.equalTo(22)
-                $0.right.equalToSuperview().offset(-16)
-                $0.centerY.equalTo(descrptionLabel)
-            }
-            
-            arrowAccessView.snp.removeConstraints()
         }
         
     }

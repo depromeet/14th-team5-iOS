@@ -18,8 +18,7 @@ public enum ExtensionsLayer: String, ModuleType {
         switch self {
         case .Widget:
             return [
-                .with(.Core),
-                .with(.Domain)
+                .with(.Core)
             ]
         }
     }
@@ -42,18 +41,19 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
                 .target(name: "WidgetExtension"),
                 .external(name: "FirebaseAnalytics"),
                 .external(name: "FirebaseMessaging"),
+                .external(name: "Mixpanel"),
+                .external(name: "RxDataSources"),
                 .with(.Core),
                 .with(.Data),
-                .external(name: "ReactorKit")
+                .external(name: "ReactorKit"),
+                .external(name: "Lottie")
             ]
         case .Data:
             return [
-                .with(.Core),
                 .with(.Domain),
                 .external(name: "Alamofire"),
-                .external(name: "RxSwift"),
                 .external(name: "KakaoSDK"),
-                .external(name: "RxKakaoSDK"),
+                .external(name: "RxKakaoSDK")
             ]
         case .Domain:
             return [
@@ -63,14 +63,13 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
         case .Core:
             return [
                 .with(.DesignSystem),
-                .external(name: "RxDataSources"),
                 .external(name: "SnapKit"),
                 .external(name: "Then"),
-                .external(name: "KakaoSDK"),
-                .external(name: "RxKakaoSDK"),
                 .external(name: "Kingfisher"),
                 .external(name: "FSCalendar"),
-                .external(name: "SwiftKeychainWrapper")
+                .external(name: "RxDataSources"),
+                .external(name: "SwiftKeychainWrapper"),
+                .external(name: "Lottie")
             ]
         case .DesignSystem:
             return [] 

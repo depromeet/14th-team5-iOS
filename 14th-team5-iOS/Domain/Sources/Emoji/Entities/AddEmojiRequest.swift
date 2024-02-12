@@ -17,9 +17,9 @@ public struct AddEmojiQuery {
 }
 
 public struct AddEmojiBody {
-    public let content: Emojis
+    public let emojiId: String
     
-    public init(content: Emojis) {
-        self.content = content
+    public init(content: String) {
+        self.emojiId = content
     }
 }

@@ -20,10 +20,20 @@ public final class ProfileFeedCellReactor: Reactor {
         var imageURL: URL
         var emojiCount: String
         var date: String
+        var commentCount: String
     }
     
-    init(imageURL: URL, emojiCount: String, date: String) {
-        self.initialState = State(imageURL: imageURL, emojiCount: emojiCount, date: date)
+    init(
+        imageURL: URL,
+        emojiCount: String,
+        date: String,
+        commentCount: String) {
+        self.initialState = State(
+            imageURL: imageURL,
+            emojiCount: emojiCount,
+            date: date,
+            commentCount: commentCount
+        )
     }
     
     

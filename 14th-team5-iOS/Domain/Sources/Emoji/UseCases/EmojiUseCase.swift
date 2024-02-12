@@ -8,13 +8,18 @@
 import Foundation
 import RxSwift
 
+protocol EmojiProtocol {
+    
+}
+
+
 public protocol EmojiUseCaseProtocol {
     /// Add Reactions
-    func excute(query: AddEmojiQuery, body: AddEmojiBody) -> Single<Void?>
+    func executeAddEmoji(query: AddEmojiQuery, body: AddEmojiBody) -> Single<Void?>
     /// Remove Reactions
-    func excute(query: RemoveEmojiQuery, body: RemoveEmojiBody) -> Single<Void?>
+    func excuteRemoveEmoji(query: RemoveEmojiQuery, body: RemoveEmojiBody) -> Single<Void?>
     /// fetch Reaction List
-    func excute(query: FetchEmojiQuery) -> Single<FetchEmojiDataList?>
+    func execute(query: FetchEmojiQuery) -> Single<[FetchedEmojiData]?>
 }
 
 public class EmojiUseCase: EmojiUseCaseProtocol {
@@ -24,15 +29,15 @@ public class EmojiUseCase: EmojiUseCaseProtocol {
         self.emojiRepository = emojiRepository
     }
     
-    public func excute(query: AddEmojiQuery, body: AddEmojiBody) -> Single<Void?> {
+    public func executeAddEmoji(query: AddEmojiQuery, body: AddEmojiBody) -> Single<Void?> {
         return emojiRepository.addEmoji(query: query, body: body)
     }
     
-    public func excute(query: RemoveEmojiQuery, body: RemoveEmojiBody) -> Single<Void?> {
+    public func excuteRemoveEmoji(query: RemoveEmojiQuery, body: RemoveEmojiBody) -> Single<Void?> {
         return emojiRepository.removeEmoji(query: query, body: body)
     }
     
-    public func excute(query: FetchEmojiQuery) -> Single<FetchEmojiDataList?> {
+    public func execute(query: FetchEmojiQuery) -> Single<[FetchedEmojiData]?> {
         return emojiRepository.fetchEmoji(query: query)
     }
 }

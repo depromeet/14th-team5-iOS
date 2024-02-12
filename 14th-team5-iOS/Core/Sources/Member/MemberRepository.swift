@@ -13,7 +13,9 @@ import RxCocoa
 public class MemberRepository: RxObject {
     public let familyId = BehaviorRelay<String?>(value: nil)
     public let memberID = BehaviorRelay<String?>(value: nil)
+    public let nickname = BehaviorRelay<String?>(value: nil)
     public let inviteCode = BehaviorRelay<String?>(value: nil)
+    public let postId = BehaviorRelay<String?>(value: nil)
     
     override public func bind() {
         memberID
@@ -25,10 +27,20 @@ public class MemberRepository: RxObject {
             .withUnretained(self)
             .bind(onNext: { $0.0.saveFamilyId(with: $0.1) })
             .disposed(by: disposeBag)
+    
+        nickname
+            .withUnretained(self)
+            .bind(onNext: { $0.0.saveNicknmae(with: $0.1) })
+            .disposed(by: disposeBag)
         
         inviteCode
             .withUnretained(self)
             .bind(onNext: { $0.0.saveInviteCode(with: $0.1) })
+            .disposed(by: disposeBag)
+        
+        postId
+            .withUnretained(self)
+            .bind(onNext: { $0.0.savePostId(with: $0.1) })
             .disposed(by: disposeBag)
     }
     
@@ -45,6 +57,19 @@ public class MemberRepository: RxObject {
     private func saveInviteCode(with code: String?) {
         guard let code = code else { return }
         UserDefaults.standard.inviteCode = code
+    }
+    
+    private func saveNicknmae(with nickname: String?) {
+        guard let nickname = nickname else { return }
+        UserDefaults.standard.nickname = nickname
+    }
+    
+    private func savePostId(with postId: String?) {
+        guard let postId = postId else {
+            UserDefaults.standard.postId = nil
+            return
+        }
+        UserDefaults.standard.postId = postId
     }
     
     override public func unbind() {

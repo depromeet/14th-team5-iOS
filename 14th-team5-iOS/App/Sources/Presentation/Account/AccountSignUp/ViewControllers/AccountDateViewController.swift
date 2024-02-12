@@ -277,9 +277,9 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
             $0.setTitle("계속", for: .normal)
             $0.titleLabel?.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 16)
             $0.setTitleColor(DesignSystemAsset.black.color, for: .normal)
-            $0.backgroundColor = DesignSystemAsset.mainGreen.color.withAlphaComponent(0.2)
+            $0.backgroundColor = DesignSystemAsset.mainYellow.color.withAlphaComponent(0.2)
             $0.isEnabled = false
-            $0.layer.cornerRadius = 30
+            $0.layer.cornerRadius = 28
         }
     }
 }
@@ -304,7 +304,7 @@ fileprivate extension AccountDateViewController {
     }
     
     func validationButton(_ isValid: Bool) {
-        let defaultColor = DesignSystemAsset.mainGreen.color
+        let defaultColor = DesignSystemAsset.mainYellow.color
         nextButton.backgroundColor = isValid ? defaultColor : defaultColor.withAlphaComponent(0.2)
         nextButton.isEnabled = isValid
     }

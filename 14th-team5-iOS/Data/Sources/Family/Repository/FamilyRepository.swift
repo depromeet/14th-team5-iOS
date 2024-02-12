@@ -17,7 +17,6 @@ public final class FamilyRepository: FamilyRepositoryProtocol {
     private let familyApiWorker: FamilyAPIWorker = FamilyAPIWorker()
     
     private var familyId: String = App.Repository.member.familyId.value ?? ""
-    private var accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
     
     public init() { 
         bind()
@@ -29,28 +28,34 @@ public final class FamilyRepository: FamilyRepositoryProtocol {
             .withUnretained(self)
             .bind(onNext: { $0.0.familyId = $0.1 })
             .disposed(by: disposeBag)
-        
-        App.Repository.token.accessToken
-            .compactMap { $0?.accessToken }
-            .withUnretained(self)
-            .bind(onNext: { $0.0.accessToken = $0.1 })
-            .disposed(by: disposeBag)
     }
 }
 
 extension FamilyRepository {
+    public func joinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyData?> {
+        let body = JoinFamilyRequestDTO(inviteCode: body.inviteCode)
+        return familyApiWorker.joinFamily(body: body)
+            .asObservable()
+    }
+    
     public func createFamily() -> Observable<FamilyResponse?> {
-        return familyApiWorker.createFamily(token: accessToken)
+        return familyApiWorker.createFamily()
             .asObservable()
     }
     
     public func fetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?> {
-        return familyApiWorker.fetchInvitationUrl(token: accessToken, familyId: familyId)
+        return familyApiWorker.fetchInvitationUrl(familyId: familyId)
             .asObservable()
     }
     
-    public func fetchFamilyMembers() -> Observable<PaginationResponseFamilyMemberProfile?> {
-        return familyApiWorker.fetchFamilyMemeberPage(token: accessToken)
+    public func fetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfile?> {
+        return familyApiWorker.fetchPaginationFamilyMember(familyId: familyId, query: query)
+            .do(onSuccess: { _ in /* FamilyUserDefaults.saveFamilyMembers($0?.results ?? []) */ }) // TODO: - 가족 구성원 정보를 UserDefaults에 저장하기
+            .asObservable()
+    }
+    
+    public func fetchFamilyCreatedAt() -> Observable<FamilyCreatedAtResponse?> {
+        return familyApiWorker.fetchFamilyCreatedAt(familyId: familyId)
             .asObservable()
     }
 }

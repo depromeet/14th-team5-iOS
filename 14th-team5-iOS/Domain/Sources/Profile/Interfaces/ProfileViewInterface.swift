@@ -32,5 +32,5 @@ public protocol ProfileViewInterface: AnyObject {
     func fetchProfileAlbumImageURL(parameter: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?>
     func uploadProfileImageToPresingedURL(to url: String, imageData: Data) -> Observable<Bool>
     func updataProfileImageToS3(memberId: String, parameter: ProfileImageEditParameter) -> Observable<ProfileMemberResponse?>
-    
+    func deleteProfileImageToS3(memberId: String) -> Observable<ProfileMemberResponse?>
 }

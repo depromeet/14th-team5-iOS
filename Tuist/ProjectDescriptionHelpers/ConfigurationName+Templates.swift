@@ -11,6 +11,7 @@ import ProjectDescription
 public enum BuildTarget: String {
     case dev = "DEV"
     case prd = "PRD"
+    case stg = "STG"
     
     public var configurationName: ConfigurationName {
         return ConfigurationName.configuration(self.rawValue)
@@ -27,11 +28,15 @@ extension Configuration {
                 name: BuildTarget.dev.configurationName,
                 xcconfig: .relativeToXCConfig(type: .dev)
             )
+        case .stg:
+            return .release(
+                name: BuildTarget.stg.configurationName,
+                xcconfig: .relativeToXCConfig(type: .stg)
+            )
         case .prd:
             return .release(
                 name: BuildTarget.prd.configurationName,
                 xcconfig: .relativeToXCConfig(type: .prd)
-            
             )
         }
     }

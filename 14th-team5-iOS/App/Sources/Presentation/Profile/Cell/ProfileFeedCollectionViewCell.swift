@@ -12,6 +12,7 @@ import DesignSystem
 import Kingfisher
 import RxSwift
 import RxCocoa
+import RxDataSources
 import ReactorKit
 import SnapKit
 import Then
@@ -25,6 +26,18 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
     private let feedCommentImageView: UIImageView = UIImageView()
     private let feedCommentCountLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray200)
     private let feedUplodeLabel: BibbiLabel = BibbiLabel(.caption, textColor: .gray400)
+    private let descrptionCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
+    private lazy var descrptionCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: descrptionCollectionViewLayout)
+    private let descrptionDataSources: RxCollectionViewSectionedReloadDataSource<ProfileFeedDescrptionSectionModel> = .init { dataSources, collectionView, indexPath, sectionItem in
+        switch sectionItem {
+        case let .feedDescrptionItem(cellReactor):
+            guard let descrptionCell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProfileFeedDescrptionCell", for: indexPath) as? ProfileFeedDescrptionCell else { return UICollectionViewCell () }
+            descrptionCell.reactor = cellReactor
+            return descrptionCell
+        }
+    }
+    
+    
     
     
     public override func prepareForReuse() {
@@ -37,6 +50,7 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
         super.setupUI()
         feedContentStackView.addArrangedSubviews(feedEmojiIconView , feedEmojiCountLabel, feedCommentImageView, feedCommentCountLabel)
         feedStackView.addArrangedSubviews(feedContentStackView, feedUplodeLabel)
+        feedImageView.addSubviews(descrptionCollectionView)
         contentView.addSubviews(feedImageView, feedStackView)
         
         
@@ -90,6 +104,20 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
             $0.alignment = .leading
         }
         
+        descrptionCollectionViewLayout.do {
+            $0.itemSize = CGSize(width: 17, height: 27)
+            $0.minimumInteritemSpacing = 2
+        }
+        
+        descrptionCollectionView.do {
+            $0.register(ProfileFeedDescrptionCell.self, forCellWithReuseIdentifier: "ProfileFeedDescrptionCell")
+            $0.showsVerticalScrollIndicator = false
+            $0.showsHorizontalScrollIndicator = false
+            $0.backgroundColor = .clear
+            $0.isScrollEnabled = false
+            $0.delegate = self
+        }
+        
     }
     
     public override func setupAutoLayout() {
@@ -98,7 +126,14 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
             $0.top.horizontalEdges.equalToSuperview()
             $0.height.equalTo(self.snp.width)
         }
-                
+        
+        descrptionCollectionView.snp.makeConstraints {
+            $0.bottom.equalToSuperview().offset(-10)
+            $0.centerX.equalToSuperview()
+            $0.height.equalTo(27)
+            $0.left.right.equalToSuperview().inset(18)
+        }
+        
         feedStackView.snp.makeConstraints {
             $0.top.equalTo(feedImageView.snp.bottom).offset(8)
             $0.horizontalEdges.equalToSuperview().inset(20)
@@ -118,6 +153,13 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
     
     
     public override func bind(reactor: ProfileFeedCellReactor) {
+        
+        Observable
+            .just(())
+            .map { Reactor.Action.setFeedCellUpdateLayout }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         reactor.state
             .map { $0.imageURL }
             .withUnretained(self)
@@ -142,6 +184,11 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
             .asDriver(onErrorJustReturn: "")
             .drive(feedCommentCountLabel.rx.text)
             .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$descrptionSection)
+            .asDriver(onErrorJustReturn: [])
+            .drive(descrptionCollectionView.rx.items(dataSource: descrptionDataSources))
+            .disposed(by: disposeBag)
     }
     
     
@@ -155,4 +202,20 @@ extension ProfileFeedCollectionViewCell {
         feedImageView.kf.indicatorType = .activity
         feedImageView.kf.setImage(with: url, placeholder: nil, options: [.transition(.fade(0.5))], completionHandler: nil)
     }
+}
+
+
+extension ProfileFeedCollectionViewCell: UICollectionViewDelegateFlowLayout {
+    
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        guard let descrptionCellCount = self.reactor?.currentState.content.count else {
+            return .zero
+        }
+        
+        let cellWidth = 17 * descrptionCellCount
+        let spacingWidth = 2 * (descrptionCellCount - 1)
+        let cellInset = (collectionView.frame.width - CGFloat(cellWidth + spacingWidth)) / 2
+        return UIEdgeInsets(top: 0, left: cellInset, bottom: 0, right: cellInset)
+    }
+    
 }

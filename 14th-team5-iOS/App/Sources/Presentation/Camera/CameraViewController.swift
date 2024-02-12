@@ -271,9 +271,6 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .withUnretained(self)
             .bind { owner, _ in
                 owner.dismissCameraViewController()
-                let userInfo: [AnyHashable: Any] = ["isProfileUpdate": true]
-                UserDefaults.standard.isDefaultProfile = false
-                NotificationCenter.default.post(name: .DidFinishProfileImageUpdate, object: nil, userInfo: userInfo)
             }.disposed(by: disposeBag)
         
         zoomView

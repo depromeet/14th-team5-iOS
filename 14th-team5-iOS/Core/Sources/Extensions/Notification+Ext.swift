@@ -21,4 +21,5 @@ extension Notification.Name {
     public static let didTapSelectableCameraButton = Notification.Name("didTapSelectableCameraButton")
     public static let didTapCreatFamilyGroupButton = Notification.Name("didTapCreatFamilyGroupButton")
     public static let didTapBibbiToastTranstionButton = Notification.Name("didTapTranstionButton")
+    public static let didTapUpdateButton = Notification.Name("didTapUpdateButton")
 }

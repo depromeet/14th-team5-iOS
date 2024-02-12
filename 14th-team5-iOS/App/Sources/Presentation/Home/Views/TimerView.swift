@@ -17,6 +17,7 @@ fileprivate extension TimerType {
     var title: String {
         switch self {
         case .standard: return "매일 12-24시에 사진 한 장을 올려요"
+        case .widget: return "위젯을 추가하면 더 빠르게 사진을 볼 수 있어요"
         case .warning: return "시간이 얼마 남지 않았어요!"
         case .allUploaded: return "우리 가족 모두가 사진을 올린 날"
         }
@@ -25,6 +26,7 @@ fileprivate extension TimerType {
     var image: UIImage {
         switch self {
         case .standard: return DesignSystemAsset.smile.image
+        case .widget: return DesignSystemAsset.widget.image
         case .warning: return DesignSystemAsset.fire.image
         case .allUploaded: return DesignSystemAsset.congratulation.image
         }
@@ -125,13 +127,6 @@ extension TimerView {
             .map { $0.setTimerFormat() }
             .bind(to: timerLabel.rx.text)
             .disposed(by: disposeBag)
-        
-//        reactor.state.map { $0.time }
-//            .distinctUntilChanged()
-//            .observe(on: Schedulers.main)
-//            .map { $0.setTimerFormat() }
-//            .bind(to: timerLabel.rx.text)
-//            .disposed(by: disposeBag)
     }
 }
 

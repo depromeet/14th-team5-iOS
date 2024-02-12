@@ -41,8 +41,8 @@ jobs:
         env:
           MASTER_KEY: ${{secrets.MASTER_KEY}}
         
-      - name: Install dependencies
-        run: tuist install
+      - name: Install Tuist CLI
+        run: mise install tuist@3
         
       # - name: Install FastLane 
       #   run: brew install fastlane

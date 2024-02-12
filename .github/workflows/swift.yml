@@ -42,7 +42,7 @@ jobs:
           MASTER_KEY: ${{secrets.MASTER_KEY}}
         
       - name: Install Tuist CLI
-        run: mise install tuist@3
+        run: brew install tuist
         
       # - name: Install FastLane 
       #   run: brew install fastlane

@@ -67,8 +67,11 @@ jobs:
 
       - name: Tuist generate Command      
         run: |
-          echo ${{secrets.MASTER_KEY}} | sed 's/./&/g'
-          tuist generate  
+          MASTER_KEY="${{secrets.MASTER_KEY}}"
+          MASTER_KEY_NO_NEWLINE=$(echo -n "$MASTER_KEY" | tr -d '\n')
+          tuist generate
+        env:
+          MASTER_KEY: ${{secrets.MASTER_KEY}}  
         
 
       # - name: Tuist Build Command

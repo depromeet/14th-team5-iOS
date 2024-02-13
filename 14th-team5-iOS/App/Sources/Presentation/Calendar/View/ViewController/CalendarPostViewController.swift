@@ -29,7 +29,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         frame: .zero,
         collectionViewLayout: orthogonalCompositionalLayout
     )
-    private let reactionViewController: ReactionViewController = ReactionDIContainer().makeViewController(postId: .none)
+    private let reactionViewController: ReactionViewController = ReactionDIContainer().makeViewController(post: .init(postId: "", author: nil, commentCount: 0, emojiCount: 0, imageURL: "", content: nil, time: ""))
     
     private let fireLottieView: LottieView = LottieView(with: .fire, contentMode: .scaleAspectFill)
     
@@ -212,10 +212,10 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .disposed(by: disposeBag)
         
         reactor.state.compactMap { $0.visiblePostList }
-            .map { $0.postId }
+            .map { $0 }
             .distinctUntilChanged()
             .withUnretained(self)
-            .subscribe { $0.0.reactionViewController.postId.accept($0.1) }
+            .subscribe { $0.0.reactionViewController.postListData.accept($0.1) }
             .disposed(by: disposeBag)
         
         let allUploadedToastMessageView = reactor.pulse(\.$shouldPresentAllUploadedToastMessageView)
@@ -398,7 +398,7 @@ extension CalendarPostViewController {
     private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<PostListSectionModel> {
         return RxCollectionViewSectionedReloadDataSource<PostListSectionModel> { datasource, collectionView, indexPath, post in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostDetailCollectionViewCell.id, for: indexPath) as! PostDetailCollectionViewCell
-            cell.reactor = ReactionMemberDIContainer().makeReactor(type: .calendar, post: post)
+            cell.reactor = PostDetailCellDIContainer().makeReactor(type: .calendar, post: post)
             return cell
         }
     }

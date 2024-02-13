@@ -153,6 +153,17 @@ extension SelectableEmojiViewController {
                 $0.0.dismiss(animated: true)
             })
             .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$isShowingCamera)
+            .filter { $0 }
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: { owner, _ in
+                owner.dismiss(animated: true) {
+                    NotificationCenter.default.post(name: .didTapSelectableCameraButton, object: nil, userInfo: ["emoji": "emoji_2"])
+                }
+            })
+            .disposed(by: disposeBag)
     }
 }
 

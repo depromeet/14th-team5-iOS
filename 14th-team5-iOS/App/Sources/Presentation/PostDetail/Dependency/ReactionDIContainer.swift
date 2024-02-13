@@ -11,12 +11,12 @@ import Data
 import Domain
 
 final class ReactionDIContainer {
-    private func makeReactor(postId: String) -> TempReactor {
-        return TempReactor(initialState: .init(postId: postId, isShowingReactionMemberSheetType: .emoji1), emojiRepository: makeEmojiUseCase(), realEmojiRepository: makeRealEmojiUseCase())
+    private func makeReactor(post: PostListData) -> ReactionViewReactor {
+        return ReactionViewReactor(initialState: .init(postListData: post), emojiRepository: makeEmojiUseCase(), realEmojiRepository: makeRealEmojiUseCase())
     }
     
-    func makeViewController(postId: String) -> ReactionViewController {
-        return ReactionViewController(reactor: makeReactor(postId: postId))
+    func makeViewController(post: PostListData) -> ReactionViewController {
+        return ReactionViewController(reactor: makeReactor(post: post))
     }
 }
 

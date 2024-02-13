@@ -24,12 +24,15 @@ final class SelectableEmojiReactor: Reactor {
         case setSelectedRealEmoji(MyRealEmoji)
         case setStandardSection([Emojis])
         case setRealEmojiSection([MyRealEmoji?])
+        case showCamera
     }
     
     struct State {
         var reactionSections: [SelectableReactionSection.Model] = []
         var selectedStandard: Set<Emojis> = []
         var selectedRealEmoji: Set<MyRealEmoji> = []
+        
+        @Pulse var isShowingCamera: Bool = false
     }
     
     let postId: String
@@ -59,7 +62,7 @@ extension SelectableEmojiReactor {
                     return Observable.just(Mutation.setSelectedStandard(emoji))
                 }
         case let .selectRealEmoji(emoji):
-            guard let emoji else { return Observable.empty() }
+            guard let emoji else { return Observable.just(Mutation.showCamera) }
             let query = AddEmojiQuery(postId: self.postId)
             let body = AddEmojiBody(content: emoji.realEmojiId)
             return realEmojiRepository.execute(query: query, body: body)
@@ -92,6 +95,8 @@ extension SelectableEmojiReactor {
             newState.selectedStandard.insert(emoji)
         case .setSelectedRealEmoji(let emoji):
             newState.selectedRealEmoji.insert(emoji)
+        case .showCamera:
+            newState.isShowingCamera = true
         }
         return newState
     }

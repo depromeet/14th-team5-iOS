@@ -19,7 +19,7 @@ final class PostViewController: BaseViewController<PostReactor> {
     private var navigationView: PostNavigationView = PostNavigationView()
     private let collectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let collectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
-    private let reactionViewController: ReactionViewController = ReactionDIContainer().makeViewController(postId: "01HN9SNH3NT12SCKACBYCW16EC")
+    private let reactionViewController: ReactionViewController = ReactionDIContainer().makeViewController(post: .init(postId: "", author: nil, commentCount: 0, emojiCount: 0, imageURL: "", content: nil, time: ""))
     
     convenience init(reactor: Reactor? = nil) {
         self.init()
@@ -30,7 +30,7 @@ final class PostViewController: BaseViewController<PostReactor> {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.navigationBar.isHidden = true
-        
+//        
         App.Repository.member.postId.accept(nil)
     }
     
@@ -38,42 +38,40 @@ final class PostViewController: BaseViewController<PostReactor> {
         collectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
-        
         NotificationCenter.default
             .rx.notification(.didTapSelectableCameraButton)
+            .compactMap { notification -> String in
+                guard let data =  notification.userInfo else { return "" }
+                return data["emoji"] as? String ?? ""
+            }
             .withUnretained(self)
-            .bind { owner, _ in
-                let cameraViewController = CameraDIContainer(cameraType: .realEmoji).makeViewController()
+            .bind { owner, emoji in
+                let cameraViewController = CameraDIContainer(cameraType: .realEmoji, realEmojiType: emoji).makeViewController()
                 owner.navigationController?.pushViewController(cameraViewController, animated: true)
             }.disposed(by: disposeBag)
         
-        reactor.state
-            .map { $0.originPostLists }
+        reactor.state.map { $0.originPostLists }
             .map(Array.init(with:))
             .bind(to: collectionView.rx.items(dataSource: createDataSource()))
             .disposed(by: disposeBag)
         
-        reactor.state
-            .map { $0.selectedPost }
+        reactor.state.map { $0.selectedPost }
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .bind(onNext: {
                 $0.0.setBackgroundView(data: $0.1)
-                $0.0.reactionViewController.postId.accept($0.1.postId)
+                $0.0.reactionViewController.postListData.accept($0.1)
                 UIView.animate(withDuration: 0.3) {
                     self.reactionViewController.view.alpha = 1.0
                 }
             })
             .disposed(by: disposeBag)
         
-        reactor.state
-            .map { $0.isPop }
-            .asObservable()
+        reactor.state.map { $0.isPop }
             .distinctUntilChanged()
+            .observe(on: MainScheduler.instance)
             .withUnretained(self)
-            .bind(onNext: { _ in
-                self.navigationController?.popViewController(animated: true)
-            })
+            .bind(onNext: { $0.0.navigationController?.popViewController(animated: true) })
             .disposed(by: disposeBag)
         
         collectionView.rx.willBeginDragging
@@ -153,6 +151,7 @@ final class PostViewController: BaseViewController<PostReactor> {
         }
         
         collectionView.do {
+//            $0.delegate = self
             $0.isPagingEnabled = true
             $0.backgroundColor = .clear
             $0.register(PostDetailCollectionViewCell.self, forCellWithReuseIdentifier: PostDetailCollectionViewCell.id)
@@ -195,7 +194,7 @@ extension PostViewController {
                     guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostDetailCollectionViewCell.id, for: indexPath) as? PostDetailCollectionViewCell else {
                         return UICollectionViewCell()
                     }
-                    cell.reactor = ReactionMemberDIContainer().makeReactor(post: data)
+                    cell.reactor = PostDetailCellDIContainer().makeReactor(post: data)
                     cell.setCell(data: data)
                     return cell
                 }

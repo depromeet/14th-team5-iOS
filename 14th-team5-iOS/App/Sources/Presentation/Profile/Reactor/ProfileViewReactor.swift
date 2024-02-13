@@ -95,7 +95,7 @@ public final class ProfileViewReactor: Reactor {
                             sectionItem.append(.feedCateogryEmptyItem(ProfileFeedEmptyCellReactor(descrption: "아직 업로드한 사진이 없어요", resource: "profileEmpty")))
                         } else {
                             entity.results.forEach {
-                                sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date:  $0.createdAt.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter(), commentCount: $0.commentCount)))
+                                sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date:  $0.createdAt.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter(), commentCount: $0.commentCount, content: $0.content.map { "\($0)"})))
                             }
                         }
                         return .concat(
@@ -214,7 +214,7 @@ public final class ProfileViewReactor: Reactor {
                     paginationItems.append(contentsOf: entity.results)
                    
                     paginationItems.forEach {
-                        sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date: $0.createdAt.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter(), commentCount: $0.commentCount)))
+                        sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date: $0.createdAt.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter(), commentCount: $0.commentCount, content: $0.content.map { "\($0)"})))
                     }
                     
                     return .concat(
@@ -224,7 +224,6 @@ public final class ProfileViewReactor: Reactor {
                     )
                 }
         case .didTapInitProfile:
-            print("ProfileInit Profile Action Check")
             return profileUseCase.executeDeleteProfileImage(memberId: memberId)
                 .asObservable()
                 .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
@@ -274,10 +273,8 @@ public final class ProfileViewReactor: Reactor {
             
         case let .setProfilePostItems(entity):
             newState.profilePostEntity = entity
-            
         case let .setProfileMemberItems(entity):
             provider.profileGlobalState.refreshFamilyMembers()
-            print("profileMember Items DidTap init \(entity)")
             newState.profileMemberEntity = entity
             
         case let .setProfilePresingedURL(entity):

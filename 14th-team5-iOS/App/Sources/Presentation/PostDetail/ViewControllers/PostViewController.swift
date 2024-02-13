@@ -32,6 +32,7 @@ final class PostViewController: BaseViewController<PostReactor> {
         self.navigationController?.navigationBar.isHidden = true
         
         App.Repository.member.postId.accept(nil)
+        App.Repository.member.openComment.accept(nil)
     }
     
     override func bind(reactor: PostReactor) {

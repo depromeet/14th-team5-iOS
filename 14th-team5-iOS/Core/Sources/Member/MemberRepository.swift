@@ -16,6 +16,7 @@ public class MemberRepository: RxObject {
     public let nickname = BehaviorRelay<String?>(value: nil)
     public let inviteCode = BehaviorRelay<String?>(value: nil)
     public let postId = BehaviorRelay<String?>(value: nil)
+    public let openComment = BehaviorRelay<Bool?>(value: nil)
     
     override public func bind() {
         memberID

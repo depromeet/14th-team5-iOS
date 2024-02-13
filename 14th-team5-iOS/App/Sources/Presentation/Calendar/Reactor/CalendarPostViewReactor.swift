@@ -23,10 +23,12 @@ public final class CalendarPostViewReactor: Reactor {
         case fetchCalendarResponse(String)
         case setBlurImageIndex(Int)
         case sendPostIdToReaction(Int)
+        case popViewController
     }
     
     // MARK: - Mutation
     public enum Mutation {
+        case popViewController
         case setAllUploadedToastMessageView(Bool)
         case injectCalendarResponse(String, ArrayResponseCalendarResponse)
         case injectPostResponse([PostListData])
@@ -45,7 +47,12 @@ public final class CalendarPostViewReactor: Reactor {
         @Pulse var displayCalendarResponse: [String: [CalendarResponse]]
         @Pulse var shouldPresentAllUploadedToastMessageView: Bool
         @Pulse var shouldGenerateSelectionHaptic: Bool
+<<<<<<< HEAD
         @Pulse var shouldPushProfileViewController: String?
+=======
+        @Pulse var shouldPushProfileView: (String, PostGlobalState.SourceView)
+        @Pulse var shouldPopViewController: Bool
+>>>>>>> upstream/develop
     }
     
     // MARK: - Properties
@@ -73,7 +80,12 @@ public final class CalendarPostViewReactor: Reactor {
             displayCalendarResponse: [:],
             shouldPresentAllUploadedToastMessageView: false,
             shouldGenerateSelectionHaptic: false,
+<<<<<<< HEAD
             shouldPushProfileViewController: nil
+=======
+            shouldPushProfileView: (.none, .postCell),
+            shouldPopViewController: false
+>>>>>>> upstream/develop
         )
         
         self.calendarUseCase = calendarUseCase
@@ -105,6 +117,10 @@ public final class CalendarPostViewReactor: Reactor {
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
+        case .popViewController:
+            provider.toastGlobalState.clearToastMessageEvent()
+            return Observable<Mutation>.just(.popViewController)
+            
         case let .didSelectDate(date):
             // 처음 이벤트를 받거나 썸네일 이미지가 존재하는 셀에 한하여
             if !hasReceivedSelectionEvent || hasThumbnailImages.contains(date) {
@@ -176,6 +192,9 @@ public final class CalendarPostViewReactor: Reactor {
         var newState = state
         
         switch mutation {
+        case .popViewController:
+            newState.shouldPopViewController = true
+            
         case let .injectBlurImageIndex(index):
             guard let items = newState.displayPostResponse.first?.items else {
                 return newState

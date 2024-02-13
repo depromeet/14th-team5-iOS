@@ -74,10 +74,8 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .disposed(by: disposeBag)
         
         navigationBarView.rx.didTapLeftBarButton
-            .withUnretained(self)
-            .subscribe {
-                $0.0.navigationController?.popViewController(animated: true)
-            }
+            .map { _ in Reactor.Action.popViewController }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         calendarView.rx.didSelect
@@ -250,6 +248,12 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         reactor.pulse(\.$shouldGenerateSelectionHaptic)
             .filter { $0 }
             .subscribe(onNext: { _ in Haptic.selection() })
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPopViewController)
+            .filter { $0 }
+            .withUnretained(self)
+            .subscribe { $0.0.navigationController?.popViewController(animated: true) }
             .disposed(by: disposeBag)
     }
     

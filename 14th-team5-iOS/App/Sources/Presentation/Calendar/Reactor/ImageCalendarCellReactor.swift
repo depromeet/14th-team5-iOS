@@ -77,13 +77,12 @@ final public class ImageCalendarCellReactor: Reactor {
                     if $0.0.initialState.date.isEqual(with: date) {
                         let lastSelectedDate: Date = $0.0.provider.toastGlobalState.lastSelectedDate
                         // 이전에 선택된 날짜와 같지 않다면 (셀이 재사용되더라도 ToastView가 다시 뜨게 하지 않기 위함)
-                        if !lastSelectedDate.isEqual(with: date) {
-                            let uploaded = $0.0.initialState.allFamilyMemebersUploaded
+                        debugPrint("============ \($0.0.initialState.allFamilyMemebersUploaded) \(date)")
+                        debugPrint("======= \(!lastSelectedDate.isEqual(with: date)),, \($0.0.initialState.allFamilyMemebersUploaded)")
+                        if !lastSelectedDate.isEqual(with: date) && $0.0.initialState.allFamilyMemebersUploaded {
+                            debugPrint("============ 토스트됨! \(date)")
                             // 전체 가족 업로드 유무에 따른 토스트 뷰 출력 이벤트 방출함
-                            $0.0.provider.toastGlobalState.showAllFamilyUploadedToastMessageView(
-                                uploaded,
-                                selection: date
-                            )
+                            $0.0.provider.toastGlobalState.showAllFamilyUploadedToastMessageView(selection: date)
                         }
                         
                         return Observable<Mutation>.just(.selectDate)

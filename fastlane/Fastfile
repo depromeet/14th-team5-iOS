@@ -153,7 +153,7 @@ platform :ios do
 
     increment_build_number(
       xcodeproj: "#{PROJECT_PATH}",
-      app_identifier: "#{BUNDLE_ID}"
+      app_identifier: "#{BUNDLE_ID}",
       build_number: new_build_number
     )
 

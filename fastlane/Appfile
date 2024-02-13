@@ -7,4 +7,4 @@
 
 gem "dotenv"
 
-app_identifier(ENV["BUNDLE_ID"]) 
+app_identifier("com.5ing.bibbi") 

@@ -16,7 +16,7 @@ final class SelectableEmojiReactor: Reactor {
     enum Action {
         case loadMyRealEmoji
         case selectStandard(Emojis)
-        case selectRealEmoji(MyRealEmoji?)
+        case selectRealEmoji(IndexPath, MyRealEmoji?)
     }
     
     enum Mutation {
@@ -24,7 +24,7 @@ final class SelectableEmojiReactor: Reactor {
         case setSelectedRealEmoji(MyRealEmoji)
         case setStandardSection([Emojis])
         case setRealEmojiSection([MyRealEmoji?])
-        case showCamera
+        case showCamera(Int)
     }
     
     struct State {
@@ -32,7 +32,7 @@ final class SelectableEmojiReactor: Reactor {
         var selectedStandard: Set<Emojis> = []
         var selectedRealEmoji: Set<MyRealEmoji> = []
         
-        @Pulse var isShowingCamera: Bool = false
+        @Pulse var isShowingCamera: Int = 0
     }
     
     let postId: String
@@ -61,8 +61,8 @@ extension SelectableEmojiReactor {
                 .flatMap {_ in 
                     return Observable.just(Mutation.setSelectedStandard(emoji))
                 }
-        case let .selectRealEmoji(emoji):
-            guard let emoji else { return Observable.just(Mutation.showCamera) }
+        case let .selectRealEmoji(indexPath, emoji):
+            guard let emoji else { return Observable.just(Mutation.showCamera(indexPath.row)) }
             let query = AddEmojiQuery(postId: self.postId)
             let body = AddEmojiBody(content: emoji.realEmojiId)
             return realEmojiRepository.execute(query: query, body: body)
@@ -95,8 +95,8 @@ extension SelectableEmojiReactor {
             newState.selectedStandard.insert(emoji)
         case .setSelectedRealEmoji(let emoji):
             newState.selectedRealEmoji.insert(emoji)
-        case .showCamera:
-            newState.isShowingCamera = true
+        case .showCamera(let emojiType):
+            newState.isShowingCamera = emojiType
         }
         return newState
     }

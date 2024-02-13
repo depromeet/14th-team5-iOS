@@ -100,18 +100,19 @@ extension SelectableEmojiViewController {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        selectableEmojiCollectionView.rx.modelSelected(SelectableReactionSection.Item.self)
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
-            .map { selectedItem in
-                switch selectedItem {
-                case .standard(let emojiData):
-                    return Reactor.Action.selectStandard(emojiData)
-                case .realEmoji(let realEmojiData):
-                    return Reactor.Action.selectRealEmoji(realEmojiData)
-                }
+        Observable.zip(selectableEmojiCollectionView.rx.itemSelected,
+                       selectableEmojiCollectionView.rx.modelSelected(SelectableReactionSection.Item.self))
+        .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+        .map { (indexPath, selectedItem) in
+            switch selectedItem {
+            case .standard(let emojiData):
+                return Reactor.Action.selectStandard(emojiData)
+            case .realEmoji(let realEmojiData):
+                return Reactor.Action.selectRealEmoji(indexPath, realEmojiData)
             }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
+        }
+        .bind(to: reactor.action)
+        .disposed(by: disposeBag)
         
         cameraButton.rx.tap
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
@@ -119,6 +120,7 @@ extension SelectableEmojiViewController {
             .observe(on: MainScheduler.instance)
             .bind(onNext: { owner, _ in
                 owner.dismiss(animated: true) {
+                    
                     NotificationCenter.default.post(name: .didTapSelectableCameraButton, object: nil, userInfo: nil)
                 }
             })
@@ -155,12 +157,12 @@ extension SelectableEmojiViewController {
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$isShowingCamera)
-            .filter { $0 }
+            .skip(1)
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
-            .bind(onNext: { owner, _ in
+            .bind(onNext: { owner, index in
                 owner.dismiss(animated: true) {
-                    NotificationCenter.default.post(name: .didTapSelectableCameraButton, object: nil, userInfo: ["emoji": "emoji_2"])
+                    NotificationCenter.default.post(name: .didTapSelectableCameraButton, object: nil, userInfo: ["emoji": "emoji\(index + 1)"])
                 }
             })
             .disposed(by: disposeBag)

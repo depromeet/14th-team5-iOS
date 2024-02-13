@@ -17,15 +17,15 @@ import Then
 
 
 public final class DisplayEditCollectionViewCell: BaseCollectionViewCell<DisplayEditCellReactor> {
-    
+    static let id = "DisplayEditCollectionViewCell"
 
-    private let descrptionLabel: BibbiLabel = BibbiLabel(.head1, alignment: .center)
+    private var descriptionLabel: BibbiLabel = BibbiLabel(.head1, alignment: .center)
     private let blurContainerView: UIVisualEffectView = UIVisualEffectView.makeBlurView(style: .dark)
     
     
     public override func setupUI() {
         super.setupUI()
-        self.contentView.addSubviews(blurContainerView, descrptionLabel)
+        self.contentView.addSubviews(blurContainerView, descriptionLabel)
     }
     
     public override func setupAttributes() {
@@ -47,7 +47,7 @@ public final class DisplayEditCollectionViewCell: BaseCollectionViewCell<Display
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         
-        descrptionLabel.snp.makeConstraints {
+        descriptionLabel.snp.makeConstraints {
             $0.width.equalTo(21)
             $0.height.equalTo(30)
             $0.center.equalToSuperview()
@@ -60,10 +60,9 @@ public final class DisplayEditCollectionViewCell: BaseCollectionViewCell<Display
     
     
     public override func bind(reactor: DisplayEditCellReactor) {
-        
         reactor.state
             .map { $0.title }
-            .bind(to: descrptionLabel.rx.text)
+            .bind(to: descriptionLabel.rx.text)
             .disposed(by: disposeBag)
         
         reactor.state
@@ -75,9 +74,7 @@ public final class DisplayEditCollectionViewCell: BaseCollectionViewCell<Display
         reactor.state
             .map { $0.font }
             .distinctUntilChanged()
-            .bind(to: descrptionLabel.rx.textStyle)
+            .bind(to: descriptionLabel.rx.textStyle)
             .disposed(by: disposeBag)
     }
-    
-    
 }

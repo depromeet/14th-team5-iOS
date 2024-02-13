@@ -14,7 +14,7 @@ import Kingfisher
 import RxSwift
 import RxDataSources
 
-final class PostDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
+final class PostDetailCollectionViewCell: BaseCollectionViewCell<PostDetailViewReactor> {
     typealias Layout = PostAutoLayout.CollectionView.CollectionViewCell
     static let id = "postCollectionViewCell"
     
@@ -23,18 +23,13 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     private let profileImageView = UIImageView()
     private let firstNameLabel = BibbiLabel(.caption, textColor: .bibbiWhite)
     private let userNameLabel = BibbiLabel(.caption, textColor: .gray200)
-    
-    private let postImageView = UIImageView()
-    
+    private let postImageView = UIImageView(image: DesignSystemAsset.emptyCaseGraphicEmoji.image)
     private let contentCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-    private let reactionCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let collectionViewFlowLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
-    
-    private let reactionViewController: ReactionViewController = ReactionDIContainer().makeViewController(postId: "01HN9SNH3NT12SCKACBYCW16EC")
     
     private lazy var contentDatasource = createContentDataSource()
     
-    convenience init(reacter: EmojiReactor? = nil) {
+    convenience init(reacter: PostDetailViewReactor? = nil) {
         self.init(frame: .zero)
         self.reactor = reacter
     }
@@ -54,7 +49,7 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         postImageView.image = nil
     }
 
-    override func bind(reactor: EmojiReactor) {
+    override func bind(reactor: PostDetailViewReactor) {
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
@@ -157,7 +152,7 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
 }
 
 extension PostDetailCollectionViewCell {
-    private func bindInput(reactor: EmojiReactor) {
+    private func bindInput(reactor: PostDetailViewReactor) {
         Observable.just(())
             .take(1)
             .map { Reactor.Action.fetchDisplayContent(reactor.currentState.post.content ?? "") }
@@ -171,9 +166,8 @@ extension PostDetailCollectionViewCell {
             .disposed(by: disposeBag)
     }
     
-    private func bindOutput(reactor: EmojiReactor) {
-        reactor.state
-            .map { $0.post }
+    private func bindOutput(reactor: PostDetailViewReactor) {
+        reactor.state.map { $0.post }
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
@@ -199,8 +193,7 @@ extension PostDetailCollectionViewCell {
             }
             .disposed(by: disposeBag)
         
-        reactor.state
-            .map { $0.fetchedDisplayContent }
+        reactor.state.map { $0.fetchedDisplayContent }
             .bind(to: contentCollectionView.rx.items(dataSource: contentDatasource))
             .disposed(by: disposeBag)
         
@@ -209,8 +202,7 @@ extension PostDetailCollectionViewCell {
             .bind(to: firstNameLabel.rx.text)
             .disposed(by: disposeBag)
         
-        reactor.state
-            .map { $0.type }
+        reactor.state.map { $0.type }
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {

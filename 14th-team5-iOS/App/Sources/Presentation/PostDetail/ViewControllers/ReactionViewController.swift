@@ -21,6 +21,8 @@ final class ReactionViewController: BaseViewController<TempReactor>, UICollectio
     private let reactionCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     let longPressGesture = UILongPressGestureRecognizer(target: nil, action: nil)
     
+    let detentHeightRatio = UIScreen.isPhoneSE ? 0.835 : 0.85
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -114,6 +116,26 @@ extension ReactionViewController {
             .map { Reactor.Action.longPressEmoji($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        Observable.combineLatest(
+            App.Repository.member.postId,
+            App.Repository.member.openComment
+        )
+        .map { ($0 ?? "", $1 ?? false) }
+        .filter { $1 }
+        .withUnretained(self)
+        .bind { owner, postInfo in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                let postCommentVC = PostCommentDIContainer(
+                    postId: postInfo.0
+                ).makeViewController()
+                owner.presentCustomSheetViewController(
+                    viewController: postCommentVC,
+                    detentHeightRatio: owner.detentHeightRatio
+                )
+            }
+        }
+        .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: TempReactor) {
@@ -156,9 +178,8 @@ extension ReactionViewController {
            .withLatestFrom(postId)
            .withUnretained(self) { ($0, $1) }
            .bind(onNext: {
-               let detentHeightRatio = UIScreen.isPhoneSE ? 0.835 : 0.85
                let vc = PostCommentDIContainer( postId: $0.1).makeViewController()
-               $0.0.presentCustomSheetViewController(viewController: vc, detentHeightRatio:  detentHeightRatio)
+               $0.0.presentCustomSheetViewController(viewController: vc, detentHeightRatio: $0.0.detentHeightRatio)
            })
            .disposed(by: disposeBag)
     }

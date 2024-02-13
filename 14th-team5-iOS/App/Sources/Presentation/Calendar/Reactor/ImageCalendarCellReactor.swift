@@ -44,7 +44,6 @@ final public class ImageCalendarCellReactor: Reactor {
     private let provider: GlobalStateProviderProtocol
     
     public var type: CalendarType
-    private let date: Date
     
     // MARK: - Intializer
     init(
@@ -61,8 +60,8 @@ final public class ImageCalendarCellReactor: Reactor {
             allFamilyMemebersUploaded: dayResponse.allFamilyMemebersUploaded,
             isSelected: isSelected
         )
+
         self.type = type
-        self.date = dayResponse.date
         
         self.calendarUseCase = calendarUseCase
         self.provider = provider
@@ -75,11 +74,11 @@ final public class ImageCalendarCellReactor: Reactor {
             .flatMap {
                 switch $0.1 {
                 case let .didSelectDate(date):
-                    if $0.0.date.isEqual(with: date) {
+                    if $0.0.initialState.date.isEqual(with: date) {
                         let lastSelectedDate: Date = $0.0.provider.toastGlobalState.lastSelectedDate
                         // 이전에 선택된 날짜와 같지 않다면 (셀이 재사용되더라도 ToastView가 다시 뜨게 하지 않기 위함)
                         if !lastSelectedDate.isEqual(with: date) {
-                            let uploaded = $0.0.currentState.allFamilyMemebersUploaded
+                            let uploaded = $0.0.initialState.allFamilyMemebersUploaded
                             // 전체 가족 업로드 유무에 따른 토스트 뷰 출력 이벤트 방출함
                             $0.0.provider.toastGlobalState.showAllFamilyUploadedToastMessageView(
                                 uploaded,

@@ -158,8 +158,6 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        print(#function)
-        
         guard let (postId, openComment) = self.decodeRemoteNotificationDeepLink(response) else {
             completionHandler()
             return

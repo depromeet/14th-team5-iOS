@@ -19,6 +19,7 @@ import RxDataSources
 import SnapKit
 import Then
 
+fileprivate typealias _Str = CalendarStrings
 public final class CalendarPostViewController: BaseViewController<CalendarPostViewReactor> {
     // MARK: - Views
     private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
@@ -223,10 +224,10 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         
         allUploadedToastMessageView
             .filter { $0 }
-            .delay(.milliseconds(300))
-            .drive(with: self, onNext: { `self`, _ in
-                `self`.makeBibbiToastView(
-                    text: "우리 가족 모두가 사진을 올린 날",
+            .delay(RxConst.smallDelayInterval)
+            .drive(with: self, onNext: { owner, _ in
+                owner.makeBibbiToastView(
+                    text: _Str.allFamilyUploadedText,
                     image: DesignSystemAsset.fire.image
                 )
             })
@@ -234,15 +235,16 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         
         allUploadedToastMessageView
             .filter { $0 }
-            .do(onNext: { [unowned self] _ in
+            .delay(RxConst.smallDelayInterval)
+            .drive(with: self, onNext: { owner, _ in
                 // 애니메이션 중이 아니라면
-                if !self.fireLottieView.isPlay {
-                    self.fireLottieView.play()
+                if !owner.fireLottieView.isPlay {
+                    owner.fireLottieView.play()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.9) {
+                        owner.fireLottieView.stop()
+                    }
                 }
             })
-            .delay(.seconds(2))
-            .do(onNext: { [unowned self] _ in self.fireLottieView.stop() })
-            .drive(onNext: { _ in print("빠이어!") })
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldGenerateSelectionHaptic)
@@ -453,7 +455,7 @@ extension CalendarPostViewController: FSCalendarDataSource {
         // 해당 일에 불러온 데이터가 없다면
         let yyyyMM: String = date.toFormatString()
         guard let currentState = reactor?.currentState,
-              let dayResponse = currentState.displayCalendarResponse[yyyyMM]?.filter({ $0.date == date }).first
+              let dayResponse = currentState.displayCalendarResponse[yyyyMM]?.filter({ $0.date.isEqual(with: date) }).first
         else {
             let emptyResponse = CalendarResponse(
                 date: date,

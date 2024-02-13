@@ -154,14 +154,14 @@ platform :ios do
     )
 
     build_app(
-      workspace: "#{APP_NAME}.xcworkspace",
-      scheme: "#{DEV_SCHEME}",
+      workspace: "Bibbi.xcworkspace",
+      scheme: "App",
       export_method: "app-store",
       export_options: {
         method: "app-store", 
 	provisioningProfiles: {
-          "#{BUNDLE_ID}" => "prd",
-          "#{WIDGET_BUNDLE_ID}" => "widgetPrd",
+          "com.5ing.bibbi" => "prd",
+          "com.5ing.bibbi.widget" => "widgetPrd",
         }
       }
     )

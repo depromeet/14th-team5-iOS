@@ -115,7 +115,6 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             $0.contentMode = .scaleAspectFill
             $0.image = DesignSystemAsset.emoji1.image
             $0.layer.cornerRadius = 26 / 2
-            $0.clipsToBounds = true
         }
         
         realEmojiHorizontalStakView.do {

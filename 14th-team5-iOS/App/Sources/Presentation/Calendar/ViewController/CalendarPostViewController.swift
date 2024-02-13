@@ -227,7 +227,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .subscribe(onNext: { _ in Haptic.selection() })
             .disposed(by: disposeBag)
         
-<<<<<<< HEAD:14th-team5-iOS/App/Sources/Presentation/Calendar/View/ViewController/CalendarPostViewController.swift
         NotificationCenter.default
             .rx.notification(.didTapSelectableCameraButton)
             .withUnretained(self)
@@ -258,12 +257,11 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
                     animated: true
                 )
             }
-=======
+
         reactor.pulse(\.$shouldPopViewController)
             .filter { $0 }
             .withUnretained(self)
             .subscribe { $0.0.navigationController?.popViewController(animated: true) }
->>>>>>> upstream/develop:14th-team5-iOS/App/Sources/Presentation/Calendar/ViewController/CalendarPostViewController.swift
             .disposed(by: disposeBag)
     }
     

@@ -47,12 +47,8 @@ public final class CalendarPostViewReactor: Reactor {
         @Pulse var displayCalendarResponse: [String: [CalendarResponse]]
         @Pulse var shouldPresentAllUploadedToastMessageView: Bool
         @Pulse var shouldGenerateSelectionHaptic: Bool
-<<<<<<< HEAD
         @Pulse var shouldPushProfileViewController: String?
-=======
-        @Pulse var shouldPushProfileView: (String, PostGlobalState.SourceView)
         @Pulse var shouldPopViewController: Bool
->>>>>>> upstream/develop
     }
     
     // MARK: - Properties
@@ -80,12 +76,8 @@ public final class CalendarPostViewReactor: Reactor {
             displayCalendarResponse: [:],
             shouldPresentAllUploadedToastMessageView: false,
             shouldGenerateSelectionHaptic: false,
-<<<<<<< HEAD
-            shouldPushProfileViewController: nil
-=======
-            shouldPushProfileView: (.none, .postCell),
+            shouldPushProfileViewController: nil,
             shouldPopViewController: false
->>>>>>> upstream/develop
         )
         
         self.calendarUseCase = calendarUseCase

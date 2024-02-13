@@ -150,7 +150,7 @@ platform :ios do
 
     increment_build_number(
       build_number: new_build_number,
-      xcodeproj: "#{PROJECT_PATH}"
+      xcodeproj: "./14th-team5-iOS/App/App.xcodeproj"
     )
 
     build_app(

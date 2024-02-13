@@ -123,16 +123,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
 //            })
 //            .disposed(by: disposeBag)
         
-        NotificationCenter.default
-            .rx.notification(.didTapSelectableCameraButton)
-            .withUnretained(self)
-            .bind { owner, _ in
-                let cameraViewController = CameraDIContainer(
-                    cameraType: .realEmoji
-                ).makeViewController()
-                owner.navigationController?.pushViewController(cameraViewController, animated: true)
-            }.disposed(by: disposeBag)
-        
         cellIndexRelay
             .flatMap {
                 Observable.merge(
@@ -155,19 +145,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         reactor.pulse(\.$displayCalendarResponse)
             .withUnretained(self)
             .subscribe { $0.0.calendarView.reloadData() }
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$shouldPushProfileView)
-            .filter { !$0.0.isEmpty }
-            .withUnretained(self)
-            .subscribe { _, info in
-                // PostComment에서 프로필 이미지를 클릭하는 경우, 시트가 내려가는 시간을 고려
-                let delay: DispatchTimeInterval = (info.1 == .postComment ? .milliseconds(500) : .seconds(0))
-                DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
-                    let profileVC = ProfileDIContainer(memberId: info.0).makeViewController()
-                    self?.navigationController?.pushViewController(profileVC, animated: true)
-                }
-            }
             .disposed(by: disposeBag)
 
         let postResponse = reactor.pulse(\.$displayPostResponse).asDriver(onErrorJustReturn: [])
@@ -248,6 +225,38 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         reactor.pulse(\.$shouldGenerateSelectionHaptic)
             .filter { $0 }
             .subscribe(onNext: { _ in Haptic.selection() })
+            .disposed(by: disposeBag)
+        
+        NotificationCenter.default
+            .rx.notification(.didTapSelectableCameraButton)
+            .withUnretained(self)
+            .bind { owner, _ in
+                let cameraViewController = CameraDIContainer(
+                    cameraType: .realEmoji
+                ).makeViewController()
+                owner.navigationController?.pushViewController(
+                    cameraViewController,
+                    animated: true
+                )
+            }.disposed(by: disposeBag)
+        
+        NotificationCenter.default
+            .rx.notification(.didTapProfilImage)
+            .withUnretained(self)
+            .bind { owner, notification in
+                guard let userInfo = notification.userInfo,
+                      let memberId = userInfo["memberId"] as? String else {
+                    return
+                }
+                
+                let profileController = ProfileDIContainer(
+                    memberId: memberId
+                ).makeViewController()
+                owner.navigationController?.pushViewController(
+                    profileController,
+                    animated: true
+                )
+            }
             .disposed(by: disposeBag)
     }
     

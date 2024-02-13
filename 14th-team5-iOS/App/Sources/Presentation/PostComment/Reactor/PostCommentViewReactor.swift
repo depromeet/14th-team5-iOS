@@ -41,7 +41,7 @@ final public class PostCommentViewReactor: Reactor {
         case becomeFirstResponseder
         case clearCommentTextField
         case enableCommentTextField(Bool)
-        case dismissCommentSheet
+        case setProfileViewController(String)
     }
     
     // MARK: - State
@@ -60,7 +60,7 @@ final public class PostCommentViewReactor: Reactor {
         @Pulse var shouldPresentEmptyCommentView: Bool
         @Pulse var shouldPresentPaperAirplaneLottieView: Bool
         @Pulse var shouldGenerateErrorHapticNotification: Bool
-        @Pulse var shouldDismissCommentSheet: Bool
+        @Pulse var shouldPushProfileViewController: String?
         @Pulse var becomeFirstResponder: Bool
         var enableCommentTextField: Bool
         var tableViewBottomOffset: CGFloat
@@ -96,7 +96,7 @@ final public class PostCommentViewReactor: Reactor {
             shouldPresentEmptyCommentView: false,
             shouldPresentPaperAirplaneLottieView: false,
             shouldGenerateErrorHapticNotification: false,
-            shouldDismissCommentSheet: false,
+            shouldPushProfileViewController: nil,
             becomeFirstResponder: false,
             enableCommentTextField: false,
             tableViewBottomOffset: 0
@@ -127,8 +127,8 @@ final public class PostCommentViewReactor: Reactor {
         let postMutation = provider.postGlobalState.event
             .flatMap {
                 switch $0 {
-                case .pushProfileView:
-                    return Observable<Mutation>.just(.dismissCommentSheet)
+                case let .pushProfileViewController(memberId):
+                    return Observable<Mutation>.just(.setProfileViewController(memberId))
                 }
             }
         
@@ -236,6 +236,7 @@ final public class PostCommentViewReactor: Reactor {
             
         case let .deletePostComment(commentId):
             let postId = initialState.postId
+            
             return postCommentUseCase.executeDeletePostComment(postId: postId, commentId: commentId)
                 .withUnretained(self)
                 .flatMap {
@@ -336,8 +337,9 @@ final public class PostCommentViewReactor: Reactor {
         case let .setTableViewOffset(height):
             newState.tableViewBottomOffset = height
             
-        case .dismissCommentSheet:
-            newState.shouldDismissCommentSheet = true
+        case let .setProfileViewController(memberId):
+            debugPrint("============= 프로파일 뷰컨 보여주기!!!")
+            newState.shouldPushProfileViewController = memberId
         }
         
         return newState

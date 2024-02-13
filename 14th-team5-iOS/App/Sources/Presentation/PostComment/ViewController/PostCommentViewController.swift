@@ -190,10 +190,17 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             .bind(to: bibbiLottieView.rx.isHidden)
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldDismissCommentSheet)
-            .filter { $0 }
-            .withUnretained(self)
-            .subscribe { $0.0.dismiss(animated: true) }
+        reactor.pulse(\.$shouldPushProfileViewController)
+            .compactMap { $0 }
+            .bind(with: self, onNext: { owner, memberId in
+                owner.dismiss(animated: true) {
+                    NotificationCenter.default.post(
+                        name: .didTapProfilImage,
+                        object: nil,
+                        userInfo: ["memberId": memberId]
+                    )
+                }
+            })
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldGenerateErrorHapticNotification)

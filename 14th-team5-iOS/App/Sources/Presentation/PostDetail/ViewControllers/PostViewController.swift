@@ -38,7 +38,6 @@ final class PostViewController: BaseViewController<PostReactor> {
         collectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
-        
         NotificationCenter.default
             .rx.notification(.didTapSelectableCameraButton)
             .withUnretained(self)
@@ -46,6 +45,25 @@ final class PostViewController: BaseViewController<PostReactor> {
                 let cameraViewController = CameraDIContainer(cameraType: .realEmoji).makeViewController()
                 owner.navigationController?.pushViewController(cameraViewController, animated: true)
             }.disposed(by: disposeBag)
+        
+        NotificationCenter.default
+            .rx.notification(.didTapProfilImage)
+            .withUnretained(self)
+            .bind { owner, notification in
+                guard let userInfo = notification.userInfo,
+                      let memberId = userInfo["memberId"] as? String else {
+                    return
+                }
+                
+                let profileController = ProfileDIContainer(
+                    memberId: memberId
+                ).makeViewController()
+                owner.navigationController?.pushViewController(
+                    profileController,
+                    animated: true
+                )
+            }
+            .disposed(by: disposeBag)
         
         reactor.state
             .map { $0.originPostLists }

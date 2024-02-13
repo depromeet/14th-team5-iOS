@@ -26,6 +26,7 @@ final class EmojiReactor: Reactor {
     enum Mutation {
         case fetchedEmojiList([FetchedEmojiData])
         case injectDisplayContent([DisplayEditItemModel])
+        case setProfileViewController(String)
     }
     
     struct State {
@@ -35,6 +36,7 @@ final class EmojiReactor: Reactor {
         var isShowingSelectableEmojiStackView: Bool = false
         var fetchedEmojiList: [FetchedEmojiData] = []
         var fetchedDisplayContent: [DisplayEditSectionModel] = [.displayKeyword([])]
+        @Pulse var shouldPushProfileViewController: String?
     }
     
     let initialState: State
@@ -64,7 +66,7 @@ extension EmojiReactor {
         case .didSelectProfileImageView:
             let memberId = initialState.post.author?.memberId ?? .none
             if memberUseCase.executeCheckIsValidMember(memberId: memberId) {
-                provider.postGlobalState.pushProfileView(memberId, from: .postCell)
+                return Observable<Mutation>.just(.setProfileViewController(memberId))
             }
             return Observable<Mutation>.empty()
             
@@ -86,6 +88,8 @@ extension EmojiReactor {
             newState.fetchedEmojiList = emojiList
         case let .injectDisplayContent(section):
             newState.fetchedDisplayContent = [.displayKeyword(section)]
+        case let .setProfileViewController(memberId):
+            newState.shouldPushProfileViewController = memberId
         }
         return newState
     }

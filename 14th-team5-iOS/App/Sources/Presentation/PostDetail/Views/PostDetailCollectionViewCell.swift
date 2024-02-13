@@ -223,6 +223,17 @@ extension PostDetailCollectionViewCell {
                 }
             }
             .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPushProfileViewController)
+            .compactMap { $0 }
+            .bind(with: self) { owner, memberId in
+                NotificationCenter.default.post(
+                    name: .didTapProfilImage,
+                    object: nil,
+                    userInfo: ["memberId": memberId]
+                )
+            }
+            .disposed(by: disposeBag)
     }
 }
 

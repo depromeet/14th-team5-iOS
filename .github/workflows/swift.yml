@@ -54,8 +54,8 @@ jobs:
       - name: Tuist Fetch Command
         run: tuist fetch
         
-      - name: Tuist Siging Decrept
-        run: tuist signing decrypt
+      # - name: Tuist Siging Decrept
+      #   run: tuist signing decrypt
 
       # - name: Fastalne setup Keychain
       #   run: fastlane setup_keychain

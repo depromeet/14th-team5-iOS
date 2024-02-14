@@ -43,11 +43,3 @@ final public class PostGlobalState: BaseGlobalState, PostGlobalStateType {
         input.onNext((.none, .none))
     }
 }
-
-extension PostGlobalState {
-    public enum SourceView {
-        case postCell
-        case postComment
-        case homePost
-    }
-}

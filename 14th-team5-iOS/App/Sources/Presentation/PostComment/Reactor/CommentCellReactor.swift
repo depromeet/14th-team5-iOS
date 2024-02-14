@@ -74,6 +74,7 @@ final public class CommentCellReactor: Reactor {
         case .fetchUserName:
             let userName = memberUseCase.executeFetchUserName(memberId: initialState.memberId)
             return Observable<Mutation>.just(.injectUserName(userName))
+            
         case .fetchProfileImageUrlString:
             let urlString = memberUseCase.executeProfileImageUrlString(memberId: initialState.memberId)
             return Observable<Mutation>.just(.injectProfileImageUrlString(urlString))
@@ -93,6 +94,7 @@ final public class CommentCellReactor: Reactor {
         switch mutation {
         case let .injectUserName(userName):
             newState.userName = userName
+            
         case let .injectProfileImageUrlString(urlString):
             newState.profileImageUrlString = urlString
         }

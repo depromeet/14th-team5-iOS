@@ -194,11 +194,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             .compactMap { $0 }
             .bind(with: self, onNext: { owner, memberId in
                 owner.dismiss(animated: true) {
-                    NotificationCenter.default.post(
-                        name: .didTapProfilImage,
-                        object: nil,
-                        userInfo: ["memberId": memberId]
-                    )
+                    owner.postDidTapProfileImageNotification(memberId: memberId)
                 }
             })
             .disposed(by: disposeBag)
@@ -354,6 +350,16 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
         fetchFailureView.do {
             $0.isHidden = true
         }
+    }
+}
+
+extension PostCommentViewController {
+    private func postDidTapProfileImageNotification(memberId: String) {
+        NotificationCenter.default.post(
+            name: .didTapProfilImage,
+            object: nil,
+            userInfo: ["memberId": memberId]
+        )
     }
 }
 

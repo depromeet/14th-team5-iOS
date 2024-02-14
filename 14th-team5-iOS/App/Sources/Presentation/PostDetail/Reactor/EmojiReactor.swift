@@ -20,7 +20,7 @@ final class EmojiReactor: Reactor {
     enum Action {
 //        case fetchEmojiList
         case fetchDisplayContent(String)
-        case didSelectProfileImageView
+        case didTapProfileImageView
     }
     
     enum Mutation {
@@ -63,7 +63,7 @@ extension EmojiReactor {
 //                    return Observable.just(Mutation.fetchedEmojiList(emojiList ?? []))
 //                }
             
-        case .didSelectProfileImageView:
+        case .didTapProfileImageView:
             let memberId = initialState.post.author?.memberId ?? .none
             if memberUseCase.executeCheckIsValidMember(memberId: memberId) {
                 return Observable<Mutation>.just(.setProfileViewController(memberId))

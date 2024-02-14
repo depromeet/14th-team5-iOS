@@ -338,7 +338,6 @@ final public class PostCommentViewReactor: Reactor {
             newState.tableViewBottomOffset = height
             
         case let .setProfileViewController(memberId):
-            debugPrint("============= 프로파일 뷰컨 보여주기!!!")
             newState.shouldPushProfileViewController = memberId
         }
         

@@ -227,42 +227,14 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .subscribe(onNext: { _ in Haptic.selection() })
             .disposed(by: disposeBag)
         
-        NotificationCenter.default
-            .rx.notification(.didTapSelectableCameraButton)
-            .withUnretained(self)
-            .bind { owner, _ in
-                let cameraViewController = CameraDIContainer(
-                    cameraType: .realEmoji
-                ).makeViewController()
-                owner.navigationController?.pushViewController(
-                    cameraViewController,
-                    animated: true
-                )
-            }.disposed(by: disposeBag)
-        
-        NotificationCenter.default
-            .rx.notification(.didTapProfilImage)
-            .withUnretained(self)
-            .bind { owner, notification in
-                guard let userInfo = notification.userInfo,
-                      let memberId = userInfo["memberId"] as? String else {
-                    return
-                }
-                
-                let profileController = ProfileDIContainer(
-                    memberId: memberId
-                ).makeViewController()
-                owner.navigationController?.pushViewController(
-                    profileController,
-                    animated: true
-                )
-            }
-
         reactor.pulse(\.$shouldPopViewController)
             .filter { $0 }
             .withUnretained(self)
             .subscribe { $0.0.navigationController?.popViewController(animated: true) }
             .disposed(by: disposeBag)
+        
+        didTapProfileImageNotificationHandler()
+        didTapSelectableCameraButtonNotifcationHandler()
     }
     
     public override func setupUI() {
@@ -453,6 +425,53 @@ extension CalendarPostViewController {
         }
         
         present(postCommentSheet, animated: true)
+    }
+    
+    private func pushCameraViewController(cameraType type: UploadLocation) {
+        let cameraViewController = CameraDIContainer(
+            cameraType: type
+        ).makeViewController()
+        
+        navigationController?.pushViewController(
+            cameraViewController,
+            animated: true
+        )
+    }
+    
+    private func pushProfileViewController(memberId: String) {
+        let profileController = ProfileDIContainer(
+            memberId: memberId
+        ).makeViewController()
+        
+        navigationController?.pushViewController(
+            profileController,
+            animated: true
+        )
+    }
+}
+
+extension CalendarPostViewController {
+    private func didTapSelectableCameraButtonNotifcationHandler() {
+        NotificationCenter.default
+            .rx.notification(.didTapSelectableCameraButton)
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.pushCameraViewController(cameraType: .realEmoji)
+            }.disposed(by: disposeBag)
+    }
+    
+    private func didTapProfileImageNotificationHandler() {
+        NotificationCenter.default
+            .rx.notification(.didTapProfilImage)
+            .withUnretained(self)
+            .bind { owner, notification in
+                guard let userInfo = notification.userInfo,
+                      let memberId = userInfo["memberId"] as? String else {
+                    return
+                }
+                owner.pushProfileViewController(memberId: memberId)
+            }
+            .disposed(by: disposeBag)
     }
 }
 

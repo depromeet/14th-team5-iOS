@@ -13,6 +13,8 @@ import RxSwift
 import RxDataSources
 
 final class ReactionMembersViewController: BaseViewController<ReactionMemberViewReactor> {
+    private let grabber: UIView = UIView()
+    
     private let reactionImageView: UIImageView = UIImageView()
     private let reactionBadgeView: UIImageView = UIImageView()
     private let reactionLabel: UILabel = BibbiLabel(.body1Bold)
@@ -61,12 +63,19 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberView
     override func setupUI() {
         super.setupUI()
         
-        view.addSubviews(reactionImageView, reactionBadgeView, reactionLabel,
+        view.addSubviews(grabber, reactionImageView, reactionBadgeView, reactionLabel,
             memberTableView, closeButton)
     }
     
     override func setupAutoLayout() {
         super.setupAutoLayout()
+        
+        grabber.snp.makeConstraints {
+            $0.width.equalTo(36)
+            $0.height.equalTo(5.08)
+            $0.centerX.equalToSuperview()
+            $0.top.equalToSuperview().offset(6)
+        }
         
         reactionImageView.snp.makeConstraints {
             $0.size.equalTo(66)
@@ -100,6 +109,12 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberView
     
     override func setupAttributes() {
         super.setupAttributes()
+        
+        grabber.do {
+            $0.layer.masksToBounds = true
+            $0.layer.cornerRadius = 5.08 / 2.0
+            $0.backgroundColor = UIColor.gray500
+        }
         
         reactionImageView.do {
             $0.clipsToBounds = true

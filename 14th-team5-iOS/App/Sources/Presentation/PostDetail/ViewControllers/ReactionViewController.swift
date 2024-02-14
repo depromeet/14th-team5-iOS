@@ -196,7 +196,7 @@ extension ReactionViewController {
             } else {
                 sheet.detents = [ .medium(), .large()]
             }
-            sheet.prefersGrabberVisible = true
+            sheet.prefersGrabberVisible = false
         }
 
         self.present(viewController, animated: true)

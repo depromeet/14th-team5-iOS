@@ -161,7 +161,7 @@ extension PostDetailCollectionViewCell {
         
         containerView.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .map { Reactor.Action.didSelectProfileImageView }
+            .map { Reactor.Action.didTapProfileImageView }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
@@ -170,27 +170,7 @@ extension PostDetailCollectionViewCell {
         reactor.state.map { $0.post }
             .distinctUntilChanged()
             .withUnretained(self)
-            .subscribe {
-                $0.0.postImageView.kf.setImage(
-                    with: URL(string: $0.1.imageURL),
-                    options: [
-                        .transition(.fade(0.15))
-                    ]
-                )
-                
-                if let imageUrl = $0.1.author?.profileImageURL {
-                    $0.0.profileImageView.kf.setImage(
-                        with: URL(string: imageUrl),
-                        options: [
-                            .transition(.fade(0.15))
-                        ]
-                    )
-                }
-                
-                if let name = $0.1.author?.name {
-                    $0.0.userNameLabel.text = name
-                }
-            }
+            .subscribe { $0.0.setupProfileNameAndImage(post: $0.1) }
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.fetchedDisplayContent }
@@ -215,6 +195,45 @@ extension PostDetailCollectionViewCell {
                 }
             }
             .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPushProfileViewController)
+            .compactMap { $0 }
+            .bind(with: self) { owner, memberId in
+                owner.postDidTapProfileImageNotification(memberId: memberId)
+            }
+            .disposed(by: disposeBag)
+    }
+}
+
+extension PostDetailCollectionViewCell {
+    private func setupProfileNameAndImage(post: PostListData) {
+        postImageView.kf.setImage(
+            with: URL(string: post.imageURL),
+            options: [
+                .transition(.fade(0.15))
+            ]
+        )
+        
+        if let imageUrl = post.author?.profileImageURL {
+            profileImageView.kf.setImage(
+                with: URL(string: imageUrl),
+                options: [
+                    .transition(.fade(0.15))
+                ]
+            )
+        }
+        
+        if let name = post.author?.name {
+            userNameLabel.text = name
+        }
+    }
+    
+    private func postDidTapProfileImageNotification(memberId: String) {
+        NotificationCenter.default.post(
+            name: .didTapProfilImage,
+            object: nil,
+            userInfo: ["memberId": memberId]
+        )
     }
 }
 
@@ -248,6 +267,8 @@ extension PostDetailCollectionViewCell: UICollectionViewDelegateFlowLayout {
         return UIEdgeInsets(top: 0, left: leftInset, bottom: 0, right: rightInset)
     }
 }
+
+
 
 extension PostDetailCollectionViewCell {
     func setCell(data: PostListData) {

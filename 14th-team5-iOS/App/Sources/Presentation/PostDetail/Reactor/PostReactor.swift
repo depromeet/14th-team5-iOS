@@ -57,17 +57,17 @@ extension PostReactor {
             return Observable.just(Mutation.setPop)
         }
     }
-        
-        func reduce(state: State, mutation: Mutation) -> State {
-            var newState = state
-            switch mutation {
-            case let .setSelectedPostIndex(index):
-                if case let .main(postData) = newState.originPostLists.items[index] {
-                    newState.selectedPost = postData
-                }
-            case .setPop:
-                newState.isPop = true
+    
+    func reduce(state: State, mutation: Mutation) -> State {
+        var newState = state
+        switch mutation {
+        case let .setSelectedPostIndex(index):
+            if case let .main(postData) = newState.originPostLists.items[index] {
+                newState.selectedPost = postData
             }
-            return newState
+        case .setPop:
+            newState.isPop = true
         }
+        return newState
+    }
 }

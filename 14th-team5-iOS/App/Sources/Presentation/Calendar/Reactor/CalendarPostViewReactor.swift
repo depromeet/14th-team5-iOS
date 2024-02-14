@@ -34,7 +34,7 @@ public final class CalendarPostViewReactor: Reactor {
         case injectPostResponse([PostListData])
         case injectBlurImageIndex(Int)
         case injectVisiblePost(PostListData)
-        case pushProfileView(String, PostGlobalState.SourceView)
+        case pushProfileViewController(String)
         case generateSelectionHaptic
     }
     
@@ -47,7 +47,7 @@ public final class CalendarPostViewReactor: Reactor {
         @Pulse var displayCalendarResponse: [String: [CalendarResponse]]
         @Pulse var shouldPresentAllUploadedToastMessageView: Bool
         @Pulse var shouldGenerateSelectionHaptic: Bool
-        @Pulse var shouldPushProfileView: (String, PostGlobalState.SourceView)
+        @Pulse var shouldPushProfileViewController: String?
         @Pulse var shouldPopViewController: Bool
     }
     
@@ -76,7 +76,7 @@ public final class CalendarPostViewReactor: Reactor {
             displayCalendarResponse: [:],
             shouldPresentAllUploadedToastMessageView: false,
             shouldGenerateSelectionHaptic: false,
-            shouldPushProfileView: (.none, .postCell),
+            shouldPushProfileViewController: nil,
             shouldPopViewController: false
         )
         
@@ -98,8 +98,8 @@ public final class CalendarPostViewReactor: Reactor {
         let postMutation = provider.postGlobalState.event
             .flatMap {
                 switch $0 {
-                case let .pushProfileView(memberId, sourceView):
-                    return Observable<Mutation>.just(.pushProfileView(memberId, sourceView))
+                case let .pushProfileViewController(memberId):
+                    return Observable<Mutation>.just(.pushProfileViewController(memberId))
                 }
             }
         
@@ -205,8 +205,8 @@ public final class CalendarPostViewReactor: Reactor {
         case let .injectVisiblePost(postListData):
             newState.visiblePostList = postListData
             
-        case let .pushProfileView(memberId, sourceView):
-            newState.shouldPushProfileView = (memberId, sourceView)
+        case let .pushProfileViewController(memberId):
+            newState.shouldPushProfileViewController = memberId
             
         case .generateSelectionHaptic:
             newState.shouldGenerateSelectionHaptic = true

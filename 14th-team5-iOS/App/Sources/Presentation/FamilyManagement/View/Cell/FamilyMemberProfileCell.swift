@@ -26,8 +26,14 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
     private let isMeLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray500)
     private let rightArrowImageView: UIImageView = UIImageView()
     
+    
     // MARK: - Properties
     static let id: String = "FamilyProfileCell"
+    
+    private var containerSize: CGFloat {
+        guard let reactor = reactor else { return 52 }
+        return reactor.currentState.cellType == .family ? 52 : 44
+    }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -89,21 +95,20 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.cellType }
+            .map { $0 != .family }
             .distinctUntilChanged()
-            .map { $0 != .arrow }
             .bind(to: rightArrowImageView.rx.isHidden)
             .disposed(by: disposeBag)
     }
     
     override func setupUI() {
         super.setupUI()
-        
-        addSubviews(
-            containerView, dayOfBirthBadgeView,
-            labelStack, rightArrowImageView
-        )
         containerView.addSubviews(
             firstNameLabel, profileImageView
+        )
+        contentView.addSubviews(
+            containerView, dayOfBirthBadgeView,
+            labelStack, rightArrowImageView
         )
         labelStack.addArrangedSubviews(
             nameLabel, isMeLabel
@@ -112,11 +117,12 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
     
     override func setupAutoLayout() {
         super.setupAutoLayout()
+
         containerView.snp.makeConstraints {
-            $0.size.equalTo(44)
-            $0.leading.equalToSuperview().inset(20)
-            $0.centerY.equalToSuperview()
-        }
+             $0.size.equalTo(containerSize)
+             $0.leading.equalTo(contentView.snp.leading).offset(20)
+             $0.verticalEdges.equalToSuperview().inset(12)
+         }
         
         dayOfBirthBadgeView.snp.makeConstraints {
             $0.size.equalTo(20)
@@ -151,7 +157,7 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
         
         containerView.do {
             $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = 44 / 2
+            $0.layer.cornerRadius = containerSize / 2
             $0.backgroundColor = UIColor.gray800
         }
         
@@ -163,7 +169,7 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
         profileImageView.do {
             $0.contentMode = .scaleAspectFill
             $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = 44 / 2
+            $0.layer.cornerRadius = containerSize / 2
         }
         
         labelStack.do {

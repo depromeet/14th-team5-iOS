@@ -1,10 +1,9 @@
 //
-//  AirplaneLottieView.swift
+//  BlueAiraplaneLottieView.swift
 //  App
 //
-//  Created by 김건우 on 1/30/24.
+//  Created by 김건우 on 2/14/24.
 //
-
 
 import Core
 import DesignSystem
@@ -13,14 +12,30 @@ import UIKit
 import Then
 import SnapKit
 
-public class AirplaneLottieView: UIView {
+final public class BlurAiraplaneLottieView: UIView {
     // MARK: - Views
+    private let blurContainerView: UIView = UIView()
+
     private let lottieStack: UIStackView = UIStackView()
     private let lottieView: LottieView = LottieView(with: .loading)
     private let loadingLabel: BibbiLabel = BibbiLabel(.body1Regular, alignment: .center, textColor: .gray500)
     
     // MARK: - Properties
-    public var lottieSize: CGFloat = 80 {
+    public var containerSize: CGFloat = 125 {
+        didSet {
+            blurContainerView.snp.updateConstraints {
+                $0.size.equalTo(containerSize)
+            }
+        }
+    }
+    
+    public var blurColor: UIColor = UIColor.gray500 {
+        didSet {
+            blurContainerView.backgroundColor = blurColor
+        }
+    }
+    
+    public var lottieSize: CGFloat = 60 {
         didSet {
             lottieView.snp.updateConstraints {
                 $0.size.equalTo(lottieSize)
@@ -28,7 +43,7 @@ public class AirplaneLottieView: UIView {
         }
     }
     
-    public var loadingText: String? = "열심히 불러오는 중" {
+    public var loadingText: String? = "불러오는 중" {
         didSet {
             loadingLabel.text = loadingText
         }
@@ -49,10 +64,16 @@ public class AirplaneLottieView: UIView {
     // MARK: - Helpers
     private func setupUI() {
         lottieStack.addArrangedSubviews(lottieView, loadingLabel)
-        addSubviews(lottieStack)
+        blurContainerView.addSubview(lottieStack)
+        addSubview(blurContainerView)
     }
     
     private func setupAutoLayout() {
+        blurContainerView.snp.makeConstraints {
+            $0.horizontalEdges.equalToSuperview()
+            $0.size.equalTo(containerSize)
+        }
+        
         lottieStack.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview()
             $0.center.equalToSuperview()
@@ -64,6 +85,12 @@ public class AirplaneLottieView: UIView {
     }
     
     private func setupAttributes() {
+        blurContainerView.do {
+            $0.layer.masksToBounds = true
+            $0.layer.cornerRadius = 22.5
+            $0.backgroundColor = UIColor.gray800
+        }
+        
         lottieStack.do {
             $0.axis = .vertical
             $0.spacing = 12
@@ -86,4 +113,3 @@ public class AirplaneLottieView: UIView {
         }
     }
 }
-

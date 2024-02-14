@@ -19,11 +19,12 @@ final class PostDetailViewReactor: Reactor {
     
     enum Action {
         case fetchDisplayContent(String)
-        case didSelectProfileImageView
+        case didTapProfileImageView
     }
     
     enum Mutation {
         case injectDisplayContent([DisplayEditItemModel])
+        case setProfileViewController(String)
     }
     
     struct State {
@@ -32,6 +33,7 @@ final class PostDetailViewReactor: Reactor {
         
         var isShowingSelectableEmojiStackView: Bool = false
         var fetchedDisplayContent: [DisplayEditSectionModel] = [.displayKeyword([])]
+        @Pulse var shouldPushProfileViewController: String?
     }
     
     let initialState: State
@@ -48,10 +50,10 @@ final class PostDetailViewReactor: Reactor {
 extension PostDetailViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .didSelectProfileImageView:
+        case .didTapProfileImageView:
             let memberId = initialState.post.author?.memberId ?? .none
             if memberUseCase.executeCheckIsValidMember(memberId: memberId) {
-                provider.postGlobalState.pushProfileView(memberId, from: .postCell)
+                return Observable<Mutation>.just(.setProfileViewController(memberId))
             }
             return Observable<Mutation>.empty()
             
@@ -71,6 +73,8 @@ extension PostDetailViewReactor {
         switch mutation {
         case let .injectDisplayContent(section):
             newState.fetchedDisplayContent = [.displayKeyword(section)]
+        case let .setProfileViewController(memberId):
+            newState.shouldPushProfileViewController = memberId
         }
         return newState
     }

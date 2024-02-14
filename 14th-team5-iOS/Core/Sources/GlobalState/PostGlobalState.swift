@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public enum PostEvent {
-    case pushProfileView(String, PostGlobalState.SourceView)
+    case pushProfileViewController(String)
 }
 
 public protocol PostGlobalStateType {
@@ -18,7 +18,7 @@ public protocol PostGlobalStateType {
     var event: PublishSubject<PostEvent> { get }
     
     @discardableResult
-    func pushProfileView(_ memberId: String, from source: PostGlobalState.SourceView) -> Observable<String>
+    func pushProfileViewController(_ memberId: String) -> Observable<String>
     
     @discardableResult
     func storeCommentText(_ postId: String, text: String) -> Observable<(String, String)>
@@ -29,8 +29,8 @@ final public class PostGlobalState: BaseGlobalState, PostGlobalStateType {
     public var input: BehaviorSubject<(String, String)> = BehaviorSubject<(String, String)>(value: ("", ""))
     public var event: PublishSubject<PostEvent> = PublishSubject<PostEvent>()
     
-    public func pushProfileView(_ memberId: String, from sourceView: PostGlobalState.SourceView) -> Observable<String> {
-        event.onNext(.pushProfileView(memberId, sourceView))
+    public func pushProfileViewController(_ memberId: String) -> Observable<String> {
+        event.onNext(.pushProfileViewController(memberId))
         return Observable<String>.just(memberId)
     }
     
@@ -41,13 +41,5 @@ final public class PostGlobalState: BaseGlobalState, PostGlobalStateType {
     
     public func clearCommentText() {
         input.onNext((.none, .none))
-    }
-}
-
-extension PostGlobalState {
-    public enum SourceView {
-        case postCell
-        case postComment
-        case homePost
     }
 }

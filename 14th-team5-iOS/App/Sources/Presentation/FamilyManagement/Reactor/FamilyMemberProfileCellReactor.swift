@@ -15,8 +15,8 @@ import RxSwift
 
 final public class FamilyMemberProfileCellReactor: Reactor {
     public enum CellType {
-        case arrow
-        case notArrow
+        case family
+        case emoji
     }
     
     // MARK: - Action

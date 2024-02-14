@@ -38,7 +38,7 @@ final class PostViewController: BaseViewController<PostReactor> {
     override func bind(reactor: PostReactor) {
         collectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
-        
+
         NotificationCenter.default
             .rx.notification(.didTapSelectableCameraButton)
             .compactMap { notification -> String in
@@ -50,7 +50,7 @@ final class PostViewController: BaseViewController<PostReactor> {
                 let cameraViewController = CameraDIContainer(cameraType: .realEmoji, realEmojiType: emoji).makeViewController()
                 owner.navigationController?.pushViewController(cameraViewController, animated: true)
             }.disposed(by: disposeBag)
-        
+
         reactor.state.map { $0.originPostLists }
             .map(Array.init(with:))
             .bind(to: collectionView.rx.items(dataSource: createDataSource()))
@@ -96,6 +96,9 @@ final class PostViewController: BaseViewController<PostReactor> {
             .map { Reactor.Action.setPost($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        didTapProfileImageNotificationHandler()
+        didTapSelectableCameraButtonNotifcationHandler()
     }
     
     override func setupUI() {
@@ -187,6 +190,28 @@ extension PostViewController {
         return currentPage
     }
     
+    private func pushCameraViewController(cameraType type: UploadLocation) {
+        let cameraViewController = CameraDIContainer(
+            cameraType: type
+        ).makeViewController()
+        
+        navigationController?.pushViewController(
+            cameraViewController,
+            animated: true
+        )
+    }
+    
+    private func pushProfileViewController(memberId: String) {
+        let profileController = ProfileDIContainer(
+            memberId: memberId
+        ).makeViewController()
+        
+        navigationController?.pushViewController(
+            profileController,
+            animated: true
+        )
+    }
+    
     private func createDataSource() -> RxCollectionViewSectionedReloadDataSource<PostSection.Model> {
         return RxCollectionViewSectionedReloadDataSource<PostSection.Model>(
             configureCell: { (_, collectionView, indexPath, item) in
@@ -200,6 +225,31 @@ extension PostViewController {
                     return cell
                 }
             })
+    }
+}
+
+extension PostViewController {
+    private func didTapSelectableCameraButtonNotifcationHandler() {
+        NotificationCenter.default
+            .rx.notification(.didTapSelectableCameraButton)
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.pushCameraViewController(cameraType: .realEmoji)
+            }.disposed(by: disposeBag)
+    }
+    
+    private func didTapProfileImageNotificationHandler() {
+        NotificationCenter.default
+            .rx.notification(.didTapProfilImage)
+            .withUnretained(self)
+            .bind { owner, notification in
+                guard let userInfo = notification.userInfo,
+                      let memberId = userInfo["memberId"] as? String else {
+                    return
+                }
+                owner.pushProfileViewController(memberId: memberId)
+            }
+            .disposed(by: disposeBag)
     }
 }
 

@@ -83,7 +83,8 @@ public final class CameraViewReactor: Reactor {
     init(cameraUseCase: CameraViewUseCaseProtocol,
          provider: GlobalStateProviderProtocol,
          cameraType: UploadLocation,
-         memberId: String
+         memberId: String,
+         emojiType: String = "EMOJI_1"
     ) {
         self.cameraType = cameraType
         self.cameraUseCase = cameraUseCase
@@ -104,7 +105,7 @@ public final class CameraViewReactor: Reactor {
             pinchZoomScale: 1.0,
             updateEmojiImage: nil,
             emojiType: "EMOJI_1",
-            selectedEmojiPadItem: "",
+            selectedEmojiPadItem: emojiType,
             selectedIndexPath: 0,
             cameraType: cameraType,
             accountImage: nil,

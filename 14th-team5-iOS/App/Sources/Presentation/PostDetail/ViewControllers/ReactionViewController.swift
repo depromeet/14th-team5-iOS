@@ -8,13 +8,15 @@
 import UIKit
 
 import Core
+import Domain
 
 import RxSwift
 import RxCocoa
 import RxDataSources
 
-final class ReactionViewController: BaseViewController<TempReactor>, UICollectionViewDelegateFlowLayout {
-    let postId: BehaviorRelay<String> = BehaviorRelay<String>(value: "")
+final class ReactionViewController: BaseViewController<ReactionViewReactor>, UICollectionViewDelegateFlowLayout {
+    let postListData: BehaviorRelay<PostListData> = BehaviorRelay<PostListData>(value: .init(postId: "", author: nil, commentCount: 0, emojiCount: 0, imageURL: "", content: nil, time: ""))
+    
     private let selectedReactionSubject: PublishSubject<Void> = PublishSubject<Void>()
     
     private let reactionCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
@@ -29,7 +31,7 @@ final class ReactionViewController: BaseViewController<TempReactor>, UICollectio
         reactionCollectionView.addGestureRecognizer(longPressGesture)
     }
 
-    override func bind(reactor: TempReactor) {
+    override func bind(reactor: ReactionViewReactor) {
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
@@ -75,19 +77,16 @@ final class ReactionViewController: BaseViewController<TempReactor>, UICollectio
 }
 
 extension ReactionViewController {
-    private func bindInput(reactor: TempReactor) {
+    private func bindInput(reactor: ReactionViewReactor) {
         reactionCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
-        postId
-            .distinctUntilChanged()
-            .map { Reactor.Action.acceptPostId($0) }
+        postListData.map { Reactor.Action.acceptPostListData($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        selectedReactionSubject
-            .withLatestFrom(postId)
-            .map { Reactor.Action.fetchReactionList($0) }
+        selectedReactionSubject.withLatestFrom(postListData)
+            .map { Reactor.Action.fetchReactionList($0.postId) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -138,24 +137,20 @@ extension ReactionViewController {
         .disposed(by: disposeBag)
     }
     
-    private func bindOutput(reactor: TempReactor) {
+    private func bindOutput(reactor: ReactionViewReactor) {
         reactor.state.map { $0.reactionSections }
             .map(Array.init(with:))
             .distinctUntilChanged()
             .bind(to: reactionCollectionView.rx.items(dataSource: createDataSource()))
             .disposed(by: disposeBag)
         
-        Observable
-            .zip(
-                reactor.pulse(\.$isShowingReactionMemberSheet),
-                reactor.pulse(\.$isShowingReactionMemberSheetType)
-            )
-            .filter { !$0.0.isEmpty}
+        reactor.pulse(\.$reactionMemberSheetEmoji)
+            .compactMap { $0 }
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .bind(onNext: {
-                let vc = ReactionMemberDIContainer().makeViewController(memberIds: $0.1.0, type: $0.1.1)
-                $0.0.presentCustomSheetViewController(viewController: vc, useCustomDetent: false)
+                let vc = ReactionMemberDIContainer().makeViewController(emojiData: $0.1)
+                $0.0.presentCustomSheetViewController(viewController: vc, detentHeightRatio: 0.58)
             })
             .disposed(by: disposeBag)
         
@@ -163,10 +158,10 @@ extension ReactionViewController {
             .filter { $0 }
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
-            .withLatestFrom(postId)
+            .withLatestFrom(postListData)
             .withUnretained(self) { ($0, $1) }
             .bind(onNext: {
-                let vc = SelectableEmojiDIContainer().makeViewController(postId: $0.1, subject: self.selectedReactionSubject)
+                let vc = SelectableEmojiDIContainer().makeViewController(postId: $0.1.postId, subject: self.selectedReactionSubject)
                 $0.0.presentCustomSheetViewController(viewController: vc, detentHeightRatio: 0.25)
             })
             .disposed(by: disposeBag)
@@ -175,11 +170,12 @@ extension ReactionViewController {
             .filter { $0 }
            .withUnretained(self)
            .observe(on: MainScheduler.instance)
-           .withLatestFrom(postId)
+           .withLatestFrom(postListData)
            .withUnretained(self) { ($0, $1) }
            .bind(onNext: {
-               let vc = PostCommentDIContainer( postId: $0.1).makeViewController()
-               $0.0.presentCustomSheetViewController(viewController: vc, detentHeightRatio: $0.0.detentHeightRatio)
+               let detentHeightRatio = UIScreen.isPhoneSE ? 0.835 : 0.85
+               let vc = PostCommentDIContainer( postId: $0.1.postId).makeViewController()
+               $0.0.presentCustomSheetViewController(viewController: vc, detentHeightRatio:  detentHeightRatio)
            })
            .disposed(by: disposeBag)
     }
@@ -195,12 +191,12 @@ extension ReactionViewController {
                 let customDetents = UISheetPresentationController.Detent.custom(identifier: customId) {
                     return $0.maximumDetentValue * detentHeightRatio
                 }
-                sheet.detents = [customDetents, .large()]
+                sheet.detents = [customDetents]
                 sheet.prefersScrollingExpandsWhenScrolledToEdge = false
             } else {
                 sheet.detents = [ .medium(), .large()]
             }
-            sheet.prefersGrabberVisible = false
+            sheet.prefersGrabberVisible = true
         }
 
         self.present(viewController, animated: true)
@@ -216,10 +212,11 @@ extension ReactionViewController {
                     }
                     cell.reactor = TempCellReactor(items: data)
                     return cell
-                case .addComment:
+                case .addComment(let count):
                     guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AddCommentCollectionViewCell.id, for: indexPath) as? AddCommentCollectionViewCell else {
                         return UICollectionViewCell()
                     }
+                    cell.setCount(count: count)
                     return cell
                 case .addReaction:
                     guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AddReactionCollectionViewCell.id, for: indexPath) as? AddReactionCollectionViewCell else {

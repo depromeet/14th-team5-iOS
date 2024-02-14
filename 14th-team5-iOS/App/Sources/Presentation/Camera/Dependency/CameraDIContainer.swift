@@ -21,6 +21,7 @@ public final class CameraDIContainer: BaseDIContainer {
     
     
     private let cameraType: UploadLocation
+    private let realEmojiType: String
     private let memberId: String
     private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
@@ -29,8 +30,9 @@ public final class CameraDIContainer: BaseDIContainer {
         return appDelegate.globalStateProvider
     }
     
-    public init(cameraType: UploadLocation, memberId: String = "") {
+    public init(cameraType: UploadLocation, memberId: String = "", realEmojiType: String = "EMOJI_1") {
         self.cameraType = cameraType
+        self.realEmojiType = realEmojiType
         self.memberId = App.Repository.member.memberID.value ?? ""
     }
     
@@ -48,7 +50,7 @@ public final class CameraDIContainer: BaseDIContainer {
     }
     
     public func makeReactor() -> Reactor {
-        return CameraViewReactor(cameraUseCase: makeUseCase(), provider: globalState, cameraType: cameraType, memberId: memberId)
+        return CameraViewReactor(cameraUseCase: makeUseCase(), provider: globalState, cameraType: cameraType, memberId: memberId, emojiType: realEmojiType)
     }
     
 

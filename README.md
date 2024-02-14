@@ -31,7 +31,7 @@ In the precious time spent with family, everything feels more special with Pippy
 
 ## 1️⃣ Project Member(iOS)
 
-| Member1 | Member2 | Member3 | Member4 |
+| Member | Member | Member | Member |
 |--|--|--|--|
 | <img src = "https://github.com/depromeet/14th-team5-iOS/assets/62610032/e8fae9e3-7d10-4f18-9886-b2573533372b" width = "150" /> | <img src = "https://github.com/depromeet/14th-team5-iOS/assets/62610032/120e9379-0eab-40cf-8500-ff220bcaeaad" width = "150" />  | <img src = "https://github.com/depromeet/14th-team5-iOS/assets/62610032/a522e0de-8cc8-4be3-92bf-66c7fe33c582" width = "150" /> |  <img src = "https://github.com/depromeet/14th-team5-iOS/assets/62610032/74e3b648-9c33-4457-8b5e-55320114925e" width = "150" /> |
 | 유건희 | 김도현 | 김건우 | MiMi |

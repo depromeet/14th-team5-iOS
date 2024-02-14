@@ -94,7 +94,6 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .filter { !$0.isEmpty }
             .withUnretained(self)
             .subscribe {
-                debugPrint("MyMemberId: \($0.1)")
                 let privacyVC = PrivacyDIContainer(memberId: $0.1).makeViewController()
                 $0.0.navigationController?.pushViewController(privacyVC, animated: true)
             }
@@ -123,7 +122,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
         
         familyMember
             .drive(with: self, onNext: { owner, _ in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     owner.refreshControl.endRefreshing()
                 }
             })

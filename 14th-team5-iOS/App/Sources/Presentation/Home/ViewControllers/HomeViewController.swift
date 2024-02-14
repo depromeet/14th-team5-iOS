@@ -132,6 +132,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
             $0.showsVerticalScrollIndicator = false
             $0.backgroundColor = .clear
             $0.refreshControl = refreshControl
+            $0.refreshControl?.tintColor = UIColor.bibbiWhite
             $0.register(FeedCollectionViewCell.self, forCellWithReuseIdentifier: FeedCollectionViewCell.id)
         }
         
@@ -259,7 +260,11 @@ extension HomeViewController {
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
-            .bind(onNext: { $0.0.refreshControl.endRefreshing() })
+            .bind(onNext: { owner, _ in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    owner.refreshControl.endRefreshing()
+                }
+            })
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$postSection)

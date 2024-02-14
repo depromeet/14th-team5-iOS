@@ -153,6 +153,7 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
     override func setupAttributes() {
         super.setupAttributes()
         
+        self.selectionStyle = .none
         self.backgroundColor = .clear
         
         containerView.do {

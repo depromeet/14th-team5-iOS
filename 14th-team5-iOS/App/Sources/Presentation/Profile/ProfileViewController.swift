@@ -34,7 +34,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     
     //MARK: Views
 
-    private let profileIndicatorView: BibbiLoadingView = BibbiLoadingView()
+    private let profileIndicatorView: BlurAiraplaneLottieView = BlurAiraplaneLottieView()
     private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 50)
     private let profileNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let profileLineView: UIView = UIView()
@@ -59,6 +59,11 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.navigationBar.isHidden = true
+    }
+    
+    public override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.profileIndicatorView.isHidden = true
     }
     
     public override func viewDidLoad() {

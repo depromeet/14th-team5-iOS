@@ -227,7 +227,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
         bibbiLottieView.snp.makeConstraints {
             $0.centerX.equalToSuperview()
             $0.horizontalEdges.equalToSuperview()
-            $0.top.equalToSuperview().offset(90)
+            $0.top.equalToSuperview().offset(140)
         }
         
         fetchFailureView.snp.makeConstraints {

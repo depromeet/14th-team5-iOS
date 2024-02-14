@@ -293,7 +293,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
         bibbiLottieView.snp.makeConstraints {
             $0.centerX.equalToSuperview()
             $0.horizontalEdges.equalToSuperview()
-            $0.top.equalToSuperview().offset(UIScreen.isPhoneSE ? 70 : 90)
+            $0.top.equalToSuperview().offset(UIScreen.isPhoneSE ? 100 : 140)
         }
         
         fetchFailureView.snp.makeConstraints {

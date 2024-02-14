@@ -254,7 +254,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         reactor.state
             .map { $0.cameraType }
-            .map { $0 == .realEmoji ? "리얼 이모지" : "카메라" }
+            .map { $0 == .realEmoji ? "셀피 이미지" : "카메라" }
             .distinctUntilChanged()
             .bind(to: cameraNavigationBar.rx.navigationTitle)
             .disposed(by: disposeBag)

@@ -87,8 +87,8 @@ final public class BlurAiraplaneLottieView: UIView {
     private func setupAttributes() {
         blurContainerView.do {
             $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = 25
-            $0.backgroundColor = UIColor.gray500.withAlphaComponent(0.4)
+            $0.layer.cornerRadius = 22.5
+            $0.backgroundColor = UIColor.gray800
         }
         
         lottieStack.do {
@@ -101,8 +101,6 @@ final public class BlurAiraplaneLottieView: UIView {
         loadingLabel.do {
             $0.text = loadingText
         }
-        
-        setupBlurEffect()
     }
     
     public override var isHidden: Bool {
@@ -113,14 +111,5 @@ final public class BlurAiraplaneLottieView: UIView {
                 lottieView.play()
             }
         }
-    }
-}
-
-extension BlurAiraplaneLottieView {
-    func setupBlurEffect() {
-        let blurEffect = UIBlurEffect(style: .dark)
-        let visualEffectView = UIVisualEffectView(effect: blurEffect)
-        visualEffectView.frame = blurContainerView.frame
-        blurContainerView.addSubview(visualEffectView)
     }
 }

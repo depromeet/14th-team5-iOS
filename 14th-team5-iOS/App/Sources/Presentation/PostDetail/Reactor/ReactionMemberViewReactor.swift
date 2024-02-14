@@ -12,7 +12,7 @@ import Domain
 import ReactorKit
 import RxDataSources
 
-final class ReactionMemberReactor: Reactor {
+final class ReactionMemberViewReactor: Reactor {
     enum Action {
         case makeDataSource
     }
@@ -22,8 +22,7 @@ final class ReactionMemberReactor: Reactor {
     }
     
     struct State {
-        let reactionMemberIds: [String]
-        let reactionMemberType: Emojis
+        let emojiData: FetchedEmojiData
         var memberDataSource: [FamilyMemberProfileSectionModel] = []
     }
     
@@ -36,11 +35,11 @@ final class ReactionMemberReactor: Reactor {
     }
 }
 
-extension ReactionMemberReactor {
+extension ReactionMemberViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .makeDataSource:
-            let profiles: [ProfileData] = familyRepository.execute(memberIds: currentState.reactionMemberIds) ?? []
+            let profiles: [ProfileData] = familyRepository.execute(memberIds: currentState.emojiData.memberIds) ?? []
             
             var items: [FamilyMemberProfileCellReactor] = []
             profiles.forEach {
@@ -48,8 +47,8 @@ extension ReactionMemberReactor {
                 items.append(FamilyMemberProfileCellReactor(member, isMe: false, cellType: .notArrow))
             }
             
-            if  profiles.count != currentState.reactionMemberIds.count {
-                let len = currentState.reactionMemberIds.count - profiles.count
+            if  profiles.count != currentState.emojiData.memberIds.count {
+                let len = currentState.emojiData.memberIds.count - profiles.count
                 for _ in 0...(len - 1) {
                     let member = FamilyMemberProfileResponse(memberId: "", name: "알 수 없음")
                     items.append(FamilyMemberProfileCellReactor(member, isMe: false, cellType: .notArrow))

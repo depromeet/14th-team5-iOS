@@ -97,12 +97,13 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
     
     override func setupUI() {
         super.setupUI()
-        containerView.addSubviews(
-            firstNameLabel, profileImageView
-        )
-        contentView.addSubviews(
+        
+        addSubviews(
             containerView, dayOfBirthBadgeView,
             labelStack, rightArrowImageView
+        )
+        containerView.addSubviews(
+            firstNameLabel, profileImageView
         )
         labelStack.addArrangedSubviews(
             nameLabel, isMeLabel
@@ -112,9 +113,9 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
     override func setupAutoLayout() {
         super.setupAutoLayout()
         containerView.snp.makeConstraints {
-            $0.size.equalTo(52)
-            $0.leading.equalTo(contentView.snp.leading).offset(20)
-            $0.verticalEdges.equalToSuperview().inset(12)
+            $0.size.equalTo(44)
+            $0.leading.equalToSuperview().inset(20)
+            $0.centerY.equalToSuperview()
         }
         
         dayOfBirthBadgeView.snp.makeConstraints {
@@ -145,9 +146,12 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
     
     override func setupAttributes() {
         super.setupAttributes()
+        
+        self.backgroundColor = .clear
+        
         containerView.do {
             $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = 52 / 2
+            $0.layer.cornerRadius = 44 / 2
             $0.backgroundColor = UIColor.gray800
         }
         
@@ -159,7 +163,7 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
         profileImageView.do {
             $0.contentMode = .scaleAspectFill
             $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = 52 / 2
+            $0.layer.cornerRadius = 44 / 2
         }
         
         labelStack.do {
@@ -175,7 +179,5 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
             $0.tintColor = UIColor.gray500
             $0.contentMode = .scaleAspectFill
         }
-        
-        contentView.backgroundColor = UIColor.bibbiBlack
     }
 }

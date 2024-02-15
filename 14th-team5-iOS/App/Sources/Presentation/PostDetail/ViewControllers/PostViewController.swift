@@ -69,6 +69,7 @@ final class PostViewController: BaseViewController<PostReactor> {
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.isPop }
+            .filter { $0 }
             .distinctUntilChanged()
             .observe(on: MainScheduler.instance)
             .withUnretained(self)

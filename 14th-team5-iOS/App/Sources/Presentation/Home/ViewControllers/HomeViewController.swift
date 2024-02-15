@@ -31,7 +31,9 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         self.hideCameraButton(true)
+        UserDefaults.standard.inviteCode = nil
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -251,10 +253,10 @@ extension HomeViewController {
             .bind(to: postCollectionView.rx.items(dataSource: createPostDataSource()))
             .disposed(by: disposeBag)
         
-        postStream
-            .withUnretained(self)
-            .bind(onNext: { _ in App.Repository.member.postId.accept(UserDefaults.standard.postId)  })
-            .disposed(by: disposeBag)
+//        postStream
+//            .withUnretained(self)
+//            .bind(onNext: { _ in App.Repository.member.postId.accept(UserDefaults.standard.postId)  })
+//            .disposed(by: disposeBag)
         
         reactor.pulse(\.$isRefreshEnd)
             .withUnretained(self)
@@ -269,7 +271,9 @@ extension HomeViewController {
         
         reactor.pulse(\.$postSection)
             .withUnretained(self)
-            .bind(onNext: { $0.0.timerView.reactor = TimerDIContainer().makeReactor(isSelfUploaded: reactor.currentState.isSelfUploaded, isAllUploaded: reactor.currentState.isAllFamilyMembersUploaded)
+            .bind(onNext: { 
+                $0.0.timerView.reactor = TimerDIContainer().makeReactor(isSelfUploaded: reactor.currentState.isSelfUploaded, isAllUploaded: reactor.currentState.isAllFamilyMembersUploaded)
+                App.Repository.member.postId.accept(UserDefaults.standard.postId)
             })
             .disposed(by: disposeBag)
         
@@ -352,7 +356,7 @@ extension HomeViewController {
             case .main(let postListData):
                 if postListData.postId == postId {
                     let indexPath = IndexPath(row: index, section: 0)
-                    self.navigationController?.pushViewController(PostListsDIContainer().makeViewController(postLists: reactor.currentState.postSection, selectedIndex: indexPath), animated: false)
+                    self.navigationController?.pushViewController(PostListsDIContainer().makeViewController(postLists: reactor.currentState.postSection, selectedIndex: indexPath), animated: true)
                 }
             }
         }

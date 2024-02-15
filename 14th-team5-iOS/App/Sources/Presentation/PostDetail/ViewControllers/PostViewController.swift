@@ -47,6 +47,9 @@ final class PostViewController: BaseViewController<PostReactor> {
             }
             .withUnretained(self)
             .bind { owner, emoji in
+                
+                print("emoji: \(emoji)")
+                
                 let cameraViewController = CameraDIContainer(cameraType: .realEmoji, realEmojiType: emoji).makeViewController()
                 owner.navigationController?.pushViewController(cameraViewController, animated: true)
             }.disposed(by: disposeBag)
@@ -69,6 +72,7 @@ final class PostViewController: BaseViewController<PostReactor> {
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.isPop }
+            .filter { $0 }
             .distinctUntilChanged()
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
@@ -98,7 +102,7 @@ final class PostViewController: BaseViewController<PostReactor> {
             .disposed(by: disposeBag)
         
         didTapProfileImageNotificationHandler()
-        didTapSelectableCameraButtonNotifcationHandler()
+//        didTapSelectableCameraButtonNotifcationHandler()
     }
     
     override func setupUI() {
@@ -229,14 +233,14 @@ extension PostViewController {
 }
 
 extension PostViewController {
-    private func didTapSelectableCameraButtonNotifcationHandler() {
-        NotificationCenter.default
-            .rx.notification(.didTapSelectableCameraButton)
-            .withUnretained(self)
-            .bind { owner, _ in
-                owner.pushCameraViewController(cameraType: .realEmoji)
-            }.disposed(by: disposeBag)
-    }
+//    private func didTapSelectableCameraButtonNotifcationHandler() {
+//        NotificationCenter.default
+//            .rx.notification(.didTapSelectableCameraButton)
+//            .withUnretained(self)
+//            .bind { owner, _ in
+//                owner.pushCameraViewController(cameraType: .realEmoji)
+//            }.disposed(by: disposeBag)
+//    }
     
     private func didTapProfileImageNotificationHandler() {
         NotificationCenter.default

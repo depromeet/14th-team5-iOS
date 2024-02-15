@@ -27,7 +27,7 @@ public final class SplashViewReactor: Reactor {
     // MARK: - State
     public struct State {
         var memberInfo: MemberInfo?
-        var updatedNeeded: AppVersionInfo?
+        @Pulse var updatedNeeded: AppVersionInfo?
     }
     
     // MARK: - Properties
@@ -47,7 +47,12 @@ public final class SplashViewReactor: Reactor {
             return meRepository.getAppVersion()
                 .asObservable()
                 .flatMap { appVersionInfo in
-                    Observable.concat([
+                    
+                    guard let appVersionInfo = appVersionInfo else {
+                        return Observable.just(Mutation.setUpdateNeeded(nil))
+                    }
+                    
+                    return Observable.concat([
                         Observable.just(Mutation.setUpdateNeeded(appVersionInfo)),
                         self.meRepository.getMemberInfo()
                             .asObservable()

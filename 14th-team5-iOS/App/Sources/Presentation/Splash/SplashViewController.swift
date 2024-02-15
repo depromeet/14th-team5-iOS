@@ -77,8 +77,9 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
             .bind(onNext: { $0.0.showNextPage(with: $0.1.0)})
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.updatedNeeded }
-            .compactMap { $0?.inService }
+        reactor.pulse(\.$updatedNeeded)
+            .skip(1)
+            .filter { $0 == nil }
             .withUnretained(self)
             .observe(on: Schedulers.main)
             .bind(onNext: { $0.0.showUpdateAlert($0.1) })
@@ -133,8 +134,7 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
         sceneDelegate.window?.makeKeyAndVisible()
     }
     
-    private func showUpdateAlert(_ inService: Bool) {
-        guard !inService else { return }
+    private func showUpdateAlert(_ appVersionInfo: AppVersionInfo?) {
         let updateAlertController = UIAlertController(
             title: "업데이트가 필요해요",
             message: "더 나은 삐삐를 위해\n업데이트를 부탁드려요.",

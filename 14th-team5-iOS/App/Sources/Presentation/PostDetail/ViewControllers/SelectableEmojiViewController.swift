@@ -120,8 +120,8 @@ extension SelectableEmojiViewController {
             .observe(on: MainScheduler.instance)
             .bind(onNext: { owner, _ in
                 owner.dismiss(animated: true) {
-                    
-                    NotificationCenter.default.post(name: .didTapSelectableCameraButton, object: nil, userInfo: nil)
+                    let userInfo: [AnyHashable: Any] = ["type": "EMOJI_1", "index": 0]
+                    NotificationCenter.default.post(name: .didTapSelectableCameraButton, object: nil, userInfo: userInfo)
                 }
             })
             .disposed(by: disposeBag)
@@ -162,7 +162,8 @@ extension SelectableEmojiViewController {
             .observe(on: MainScheduler.instance)
             .bind(onNext: { owner, index in
                 owner.dismiss(animated: true) {
-                    NotificationCenter.default.post(name: .didTapSelectableCameraButton, object: nil, userInfo: ["emoji": "emoji\(index + 1)"])
+                    let userInfo: [AnyHashable: Any] = ["type": "EMOJI_\(index + 1)", "index": index]
+                    NotificationCenter.default.post(name: .didTapSelectableCameraButton, object: nil, userInfo: userInfo)
                 }
             })
             .disposed(by: disposeBag)

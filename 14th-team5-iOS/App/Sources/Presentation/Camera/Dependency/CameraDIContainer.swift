@@ -22,7 +22,10 @@ public final class CameraDIContainer: BaseDIContainer {
     
     private let cameraType: UploadLocation
     private let realEmojiType: String
+    private let realEmojiIndex: Int
     private let memberId: String
+    
+    
     private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             return GlobalStateProvider()
@@ -30,9 +33,10 @@ public final class CameraDIContainer: BaseDIContainer {
         return appDelegate.globalStateProvider
     }
     
-    public init(cameraType: UploadLocation, memberId: String = "", realEmojiType: String = "EMOJI_1") {
+    public init(cameraType: UploadLocation, memberId: String = "", realEmojiType: String = "EMOJI_1", realEmojiIndex: Int = 0) {
         self.cameraType = cameraType
         self.realEmojiType = realEmojiType
+        self.realEmojiIndex = realEmojiIndex
         self.memberId = App.Repository.member.memberID.value ?? ""
     }
     
@@ -50,7 +54,14 @@ public final class CameraDIContainer: BaseDIContainer {
     }
     
     public func makeReactor() -> Reactor {
-        return CameraViewReactor(cameraUseCase: makeUseCase(), provider: globalState, cameraType: cameraType, memberId: memberId, emojiType: realEmojiType)
+        return CameraViewReactor(
+            cameraUseCase: makeUseCase(),
+            provider: globalState,
+            cameraType: cameraType,
+            memberId: memberId,
+            emojiType: realEmojiType,
+            emojiIndex: realEmojiIndex
+        )
     }
     
 

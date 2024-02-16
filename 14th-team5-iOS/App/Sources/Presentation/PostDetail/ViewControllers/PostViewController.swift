@@ -30,7 +30,6 @@ final class PostViewController: BaseViewController<PostReactor> {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.navigationBar.isHidden = true
-//        
         App.Repository.member.postId.accept(nil)
         App.Repository.member.openComment.accept(nil)
     }
@@ -41,16 +40,14 @@ final class PostViewController: BaseViewController<PostReactor> {
 
         NotificationCenter.default
             .rx.notification(.didTapSelectableCameraButton)
-            .compactMap { notification -> String in
-                guard let data =  notification.userInfo else { return "" }
-                return data["emoji"] as? String ?? ""
+            .compactMap { notification -> (String, Int)? in
+                guard let type =  notification.userInfo?["type"] as? String,
+                      let index = notification.userInfo?["index"] as? Int else { return nil }
+                return (type, index)
             }
             .withUnretained(self)
-            .bind { owner, emoji in
-                
-                print("emoji: \(emoji)")
-                
-                let cameraViewController = CameraDIContainer(cameraType: .realEmoji, realEmojiType: emoji).makeViewController()
+            .bind { owner, entity in
+                let cameraViewController = CameraDIContainer(cameraType: .realEmoji, realEmojiType: entity.0, realEmojiIndex: entity.1).makeViewController()
                 owner.navigationController?.pushViewController(cameraViewController, animated: true)
             }.disposed(by: disposeBag)
 
@@ -102,7 +99,6 @@ final class PostViewController: BaseViewController<PostReactor> {
             .disposed(by: disposeBag)
         
         didTapProfileImageNotificationHandler()
-//        didTapSelectableCameraButtonNotifcationHandler()
     }
     
     override func setupUI() {
@@ -233,15 +229,6 @@ extension PostViewController {
 }
 
 extension PostViewController {
-//    private func didTapSelectableCameraButtonNotifcationHandler() {
-//        NotificationCenter.default
-//            .rx.notification(.didTapSelectableCameraButton)
-//            .withUnretained(self)
-//            .bind { owner, _ in
-//                owner.pushCameraViewController(cameraType: .realEmoji)
-//            }.disposed(by: disposeBag)
-//    }
-    
     private func didTapProfileImageNotificationHandler() {
         NotificationCenter.default
             .rx.notification(.didTapProfilImage)

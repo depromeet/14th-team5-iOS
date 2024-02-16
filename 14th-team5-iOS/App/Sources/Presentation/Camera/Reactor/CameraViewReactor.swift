@@ -49,7 +49,6 @@ public final class CameraViewReactor: Reactor {
         case setErrorAlert(Bool)
         case setRealEmojiType(String)
         case setSelectedIndexPath(Int)
-        case setRealEmojiPadItem(String)
         case setRealEmojiImage([String: URL?])
         case setRealEmojiId([String: String])
         case setUpdateEmojiImage(URL)
@@ -70,7 +69,6 @@ public final class CameraViewReactor: Reactor {
         @Pulse var pinchZoomScale: CGFloat
         var updateEmojiImage: URL?
         var emojiType: String
-        var selectedEmojiPadItem: String
         var selectedIndexPath: Int
         var cameraType: UploadLocation = .feed
         var accountImage: Data?
@@ -84,7 +82,8 @@ public final class CameraViewReactor: Reactor {
          provider: GlobalStateProviderProtocol,
          cameraType: UploadLocation,
          memberId: String,
-         emojiType: String = "EMOJI_1"
+         emojiType: String = "EMOJI_1",
+         emojiIndex: Int = 0
     ) {
         self.cameraType = cameraType
         self.cameraUseCase = cameraUseCase
@@ -104,9 +103,8 @@ public final class CameraViewReactor: Reactor {
             zoomScale: 1.0,
             pinchZoomScale: 1.0,
             updateEmojiImage: nil,
-            emojiType: "EMOJI_1",
-            selectedEmojiPadItem: emojiType,
-            selectedIndexPath: 0,
+            emojiType: emojiType,
+            selectedIndexPath: emojiIndex,
             cameraType: cameraType,
             accountImage: nil,
             memberId: memberId,
@@ -139,8 +137,7 @@ public final class CameraViewReactor: Reactor {
             provider.realEmojiGlobalState.didTapRealEmojiEvent(indexPath: indexPath.row)
             return .concat(
                 .just(.setSelectedIndexPath(indexPath.row)),
-                .just(.setRealEmojiPadItem(CameraRealEmojiItems.allCases[indexPath.row].rawValue)),
-                .just(.setRealEmojiType(CameraRealEmojiItems.allCases[indexPath.row].emojiType))
+                .just(.setRealEmojiType(Emojis.allEmojis[indexPath.row].emojiString))
             )
         case let .dragPreviewLayer(scale):
             let minAvailableZoomScale: CGFloat = 1.0
@@ -182,8 +179,6 @@ public final class CameraViewReactor: Reactor {
             newState.realEmojiSection[sectionIndex] = .realEmoji(section)
         case let .setErrorAlert(isError):
             newState.isError = isError
-        case let .setRealEmojiPadItem(selectedEmojiItem):
-            newState.selectedEmojiPadItem = selectedEmojiItem
         case let .setSelectedIndexPath(indexPath):
             newState.selectedIndexPath = indexPath
         case let .setRealEmojiType(emojiType):
@@ -225,6 +220,7 @@ extension CameraViewReactor {
     private func viewDidLoadMutation() -> Observable<CameraViewReactor.Mutation> {
         var searchImage: [String:URL?] = ["0":nil,"1":nil,"2":nil,"3":nil,"4":nil]
         var searchId: [String: String] = ["0":"","1":"","2":"","3":"","4":""]
+
         if cameraType == .realEmoji {
             return .concat(
                 cameraUseCase.executeRealEmojiItems(memberId: memberId)
@@ -234,7 +230,7 @@ extension CameraViewReactor {
                         guard let realEmojiEntity = entity?.realEmojiItems else { return .just(.setErrorAlert(true))}
                         if realEmojiEntity.isEmpty {
                             CameraRealEmojiItems.allCases.enumerated().forEach {
-                                let isSelected: Bool = $0.offset == 0 ? true : false
+                                let isSelected: Bool = $0.offset == owner.currentState.selectedIndexPath ? true : false
                                 sectionItem.append(.realEmojiItem(
                                     BibbiRealEmojiCellReactor(
                                         provider: owner.provider,
@@ -258,7 +254,7 @@ extension CameraViewReactor {
                             }
                             
                             CameraRealEmojiItems.allCases.enumerated().forEach { item in
-                                let isSelected: Bool = item.offset == 0 ? true : false
+                                let isSelected: Bool = item.offset == owner.currentState.selectedIndexPath ? true : false
                                 sectionItem.append(.realEmojiItem(
                                     BibbiRealEmojiCellReactor(
                                         provider: owner.provider,
@@ -282,6 +278,7 @@ extension CameraViewReactor {
                             .just(.setErrorAlert(false)),
                             .just(.setLoading(true))
                         )
+                        
                     }
             )
         } else {

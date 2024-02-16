@@ -236,6 +236,15 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$feedImageData)
+            .distinctUntilChanged()
+            .compactMap { $0 }
+            .withUnretained(self)
+            .bind {
+                let cameraDisplayViewController = CameraDisplayDIContainer(displayData: $0.1).makeViewController()
+                $0.0.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
+            }.disposed(by: disposeBag)
+        
         cameraNavigationBar.rx.didTapLeftBarButton
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .withUnretained(self)
@@ -530,12 +539,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
     public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         guard let photoData = photo.fileDataRepresentation(),
         let imageData = UIImage(data: photoData)?.jpegData(compressionQuality: 1.0) else { return }
-        if self.reactor?.cameraType == .profile || self.reactor?.cameraType == .realEmoji {
-            output.photoOutputDidFinshProcessing(photo: imageData, error: error)
-        } else {
-            let cameraDisplayViewController = CameraDisplayDIContainer(displayData: imageData).makeViewController()
-            self.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
-        }
+        output.photoOutputDidFinshProcessing(photo: imageData, error: error)
     }
     
     

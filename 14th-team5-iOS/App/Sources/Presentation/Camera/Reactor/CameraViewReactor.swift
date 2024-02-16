@@ -48,6 +48,7 @@ public final class CameraViewReactor: Reactor {
         case setRealEmojiSection([EmojiSectionItem])
         case setErrorAlert(Bool)
         case setRealEmojiType(String)
+        case setFeedImageData(Data)
         case setSelectedIndexPath(Int)
         case setRealEmojiImage([String: URL?])
         case setRealEmojiId([String: String])
@@ -67,6 +68,7 @@ public final class CameraViewReactor: Reactor {
         @Pulse var reloadRealEmojiId: [String: String]
         @Pulse var zoomScale: CGFloat
         @Pulse var pinchZoomScale: CGFloat
+        @Pulse var feedImageData: Data?
         var updateEmojiImage: URL?
         var emojiType: String
         var selectedIndexPath: Int
@@ -102,6 +104,7 @@ public final class CameraViewReactor: Reactor {
             reloadRealEmojiId: [:],
             zoomScale: 1.0,
             pinchZoomScale: 1.0,
+            feedImageData: nil,
             updateEmojiImage: nil,
             emojiType: emojiType,
             selectedIndexPath: emojiIndex,
@@ -193,6 +196,8 @@ public final class CameraViewReactor: Reactor {
             newState.zoomScale = zoomScale
         case let .setPinchZoomScale(pinchZoomScale):
             newState.pinchZoomScale = pinchZoomScale
+        case let .setFeedImageData(feedImage):
+            newState.feedImageData = feedImage
         }
         
         return newState
@@ -289,7 +294,14 @@ extension CameraViewReactor {
     private func didTapShutterButtonMutation(imageData: Data) -> Observable<CameraViewReactor.Mutation> {
       
         switch cameraType {
-        case .feed, .profile:
+        case .feed:
+            return .concat(
+                .just(.setLoading(false)),
+                .just(.setFeedImageData(imageData)),
+                .just(.setLoading(true))
+            )
+            
+        case  .profile:
             //Profile 관련 이미지 업로드 Mutation
             let profileImage = "\(imageData.hash).jpg"
             let profileParameter = CameraDisplayImageParameters(imageName: profileImage)

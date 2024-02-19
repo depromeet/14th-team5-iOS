@@ -66,13 +66,28 @@
          location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/WeakMapTable/WeakMapTable.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/app-check/AppCheck.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/firebase-ios-sdk/Firebase.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/grpc-binary/gRPC.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/gtm-session-fetcher/GTMSessionFetcher.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/interop-ios-for-google-sdks/InteropForGoogle.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/kakao-ios-sdk-rx/RxKakaoOpenSDK.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/kakao-ios-sdk/KakaoOpenSDK.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/leveldb/leveldb.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/lottie-ios/Lottie.xcodeproj">
@@ -85,6 +100,9 @@
       </FileRef>
       <FileRef
          location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/promises/Promises.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/swift-protobuf/SwiftProtobuf.xcodeproj">
       </FileRef>
    </Group>
 </Workspace>

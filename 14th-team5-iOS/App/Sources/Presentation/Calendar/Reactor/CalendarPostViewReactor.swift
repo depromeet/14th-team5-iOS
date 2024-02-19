@@ -23,16 +23,18 @@ public final class CalendarPostViewReactor: Reactor {
         case fetchCalendarResponse(String)
         case setBlurImageIndex(Int)
         case sendPostIdToReaction(Int)
+        case popViewController
     }
     
     // MARK: - Mutation
     public enum Mutation {
+        case popViewController
         case setAllUploadedToastMessageView(Bool)
         case injectCalendarResponse(String, ArrayResponseCalendarResponse)
         case injectPostResponse([PostListData])
         case injectBlurImageIndex(Int)
         case injectVisiblePost(PostListData)
-        case pushProfileView(String, PostGlobalState.SourceView)
+        case pushProfileViewController(String)
         case generateSelectionHaptic
     }
     
@@ -45,7 +47,8 @@ public final class CalendarPostViewReactor: Reactor {
         @Pulse var displayCalendarResponse: [String: [CalendarResponse]]
         @Pulse var shouldPresentAllUploadedToastMessageView: Bool
         @Pulse var shouldGenerateSelectionHaptic: Bool
-        @Pulse var shouldPushProfileView: (String, PostGlobalState.SourceView)
+        @Pulse var shouldPushProfileViewController: String?
+        @Pulse var shouldPopViewController: Bool
     }
     
     // MARK: - Properties
@@ -73,7 +76,8 @@ public final class CalendarPostViewReactor: Reactor {
             displayCalendarResponse: [:],
             shouldPresentAllUploadedToastMessageView: false,
             shouldGenerateSelectionHaptic: false,
-            shouldPushProfileView: (.none, .postCell)
+            shouldPushProfileViewController: nil,
+            shouldPopViewController: false
         )
         
         self.calendarUseCase = calendarUseCase
@@ -94,8 +98,8 @@ public final class CalendarPostViewReactor: Reactor {
         let postMutation = provider.postGlobalState.event
             .flatMap {
                 switch $0 {
-                case let .pushProfileView(memberId, sourceView):
-                    return Observable<Mutation>.just(.pushProfileView(memberId, sourceView))
+                case let .pushProfileViewController(memberId):
+                    return Observable<Mutation>.just(.pushProfileViewController(memberId))
                 }
             }
         
@@ -105,6 +109,10 @@ public final class CalendarPostViewReactor: Reactor {
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
+        case .popViewController:
+            provider.toastGlobalState.clearToastMessageEvent()
+            return Observable<Mutation>.just(.popViewController)
+            
         case let .didSelectDate(date):
             // 처음 이벤트를 받거나 썸네일 이미지가 존재하는 셀에 한하여
             if !hasReceivedSelectionEvent || hasThumbnailImages.contains(date) {
@@ -176,6 +184,9 @@ public final class CalendarPostViewReactor: Reactor {
         var newState = state
         
         switch mutation {
+        case .popViewController:
+            newState.shouldPopViewController = true
+            
         case let .injectBlurImageIndex(index):
             guard let items = newState.displayPostResponse.first?.items else {
                 return newState
@@ -194,8 +205,8 @@ public final class CalendarPostViewReactor: Reactor {
         case let .injectVisiblePost(postListData):
             newState.visiblePostList = postListData
             
-        case let .pushProfileView(memberId, sourceView):
-            newState.shouldPushProfileView = (memberId, sourceView)
+        case let .pushProfileViewController(memberId):
+            newState.shouldPushProfileViewController = memberId
             
         case .generateSelectionHaptic:
             newState.shouldGenerateSelectionHaptic = true

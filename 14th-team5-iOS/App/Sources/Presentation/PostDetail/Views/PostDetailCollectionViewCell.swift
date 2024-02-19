@@ -14,7 +14,7 @@ import Kingfisher
 import RxSwift
 import RxDataSources
 
-final class PostDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
+final class PostDetailCollectionViewCell: BaseCollectionViewCell<PostDetailViewReactor> {
     typealias Layout = PostAutoLayout.CollectionView.CollectionViewCell
     static let id = "postCollectionViewCell"
     
@@ -23,18 +23,13 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
     private let profileImageView = UIImageView()
     private let firstNameLabel = BibbiLabel(.caption, textColor: .bibbiWhite)
     private let userNameLabel = BibbiLabel(.caption, textColor: .gray200)
-    
-    private let postImageView = UIImageView()
-    
+    private let postImageView = UIImageView(image: DesignSystemAsset.emptyCaseGraphicEmoji.image)
     private let contentCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-    private let reactionCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let collectionViewFlowLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
-    
-    private let reactionViewController: ReactionViewController = ReactionDIContainer().makeViewController(postId: "01HN9SNH3NT12SCKACBYCW16EC")
     
     private lazy var contentDatasource = createContentDataSource()
     
-    convenience init(reacter: EmojiReactor? = nil) {
+    convenience init(reacter: PostDetailViewReactor? = nil) {
         self.init(frame: .zero)
         self.reactor = reacter
     }
@@ -54,7 +49,7 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
         postImageView.image = nil
     }
 
-    override func bind(reactor: EmojiReactor) {
+    override func bind(reactor: PostDetailViewReactor) {
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
@@ -157,7 +152,7 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<EmojiReactor> {
 }
 
 extension PostDetailCollectionViewCell {
-    private func bindInput(reactor: EmojiReactor) {
+    private func bindInput(reactor: PostDetailViewReactor) {
         Observable.just(())
             .take(1)
             .map { Reactor.Action.fetchDisplayContent(reactor.currentState.post.content ?? "") }
@@ -166,41 +161,19 @@ extension PostDetailCollectionViewCell {
         
         containerView.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .map { Reactor.Action.didSelectProfileImageView }
+            .map { Reactor.Action.didTapProfileImageView }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
     
-    private func bindOutput(reactor: EmojiReactor) {
-        reactor.state
-            .map { $0.post }
+    private func bindOutput(reactor: PostDetailViewReactor) {
+        reactor.state.map { $0.post }
             .distinctUntilChanged()
             .withUnretained(self)
-            .subscribe {
-                $0.0.postImageView.kf.setImage(
-                    with: URL(string: $0.1.imageURL),
-                    options: [
-                        .transition(.fade(0.15))
-                    ]
-                )
-                
-                if let imageUrl = $0.1.author?.profileImageURL {
-                    $0.0.profileImageView.kf.setImage(
-                        with: URL(string: imageUrl),
-                        options: [
-                            .transition(.fade(0.15))
-                        ]
-                    )
-                }
-                
-                if let name = $0.1.author?.name {
-                    $0.0.userNameLabel.text = name
-                }
-            }
+            .subscribe { $0.0.setupProfileNameAndImage(post: $0.1) }
             .disposed(by: disposeBag)
         
-        reactor.state
-            .map { $0.fetchedDisplayContent }
+        reactor.state.map { $0.fetchedDisplayContent }
             .bind(to: contentCollectionView.rx.items(dataSource: contentDatasource))
             .disposed(by: disposeBag)
         
@@ -209,8 +182,7 @@ extension PostDetailCollectionViewCell {
             .bind(to: firstNameLabel.rx.text)
             .disposed(by: disposeBag)
         
-        reactor.state
-            .map { $0.type }
+        reactor.state.map { $0.type }
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
@@ -223,6 +195,45 @@ extension PostDetailCollectionViewCell {
                 }
             }
             .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPushProfileViewController)
+            .compactMap { $0 }
+            .bind(with: self) { owner, memberId in
+                owner.postDidTapProfileImageNotification(memberId: memberId)
+            }
+            .disposed(by: disposeBag)
+    }
+}
+
+extension PostDetailCollectionViewCell {
+    private func setupProfileNameAndImage(post: PostListData) {
+        postImageView.kf.setImage(
+            with: URL(string: post.imageURL),
+            options: [
+                .transition(.fade(0.15))
+            ]
+        )
+        
+        if let imageUrl = post.author?.profileImageURL {
+            profileImageView.kf.setImage(
+                with: URL(string: imageUrl),
+                options: [
+                    .transition(.fade(0.15))
+                ]
+            )
+        }
+        
+        if let name = post.author?.name {
+            userNameLabel.text = name
+        }
+    }
+    
+    private func postDidTapProfileImageNotification(memberId: String) {
+        NotificationCenter.default.post(
+            name: .didTapProfilImage,
+            object: nil,
+            userInfo: ["memberId": memberId]
+        )
     }
 }
 
@@ -256,6 +267,8 @@ extension PostDetailCollectionViewCell: UICollectionViewDelegateFlowLayout {
         return UIEdgeInsets(top: 0, left: leftInset, bottom: 0, right: rightInset)
     }
 }
+
+
 
 extension PostDetailCollectionViewCell {
     func setCell(data: PostListData) {

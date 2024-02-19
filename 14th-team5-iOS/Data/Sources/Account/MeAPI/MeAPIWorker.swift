@@ -89,8 +89,7 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
     }
     
     private func getMemberInfo(spec: APISpec) -> Single<MemberInfo?> {
-        
-        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey])
+        return request(spec: spec)
             .subscribe(on: Self.queue)
             .do(onNext: {
                 if let str = String(data: $0.1, encoding: .utf8) {

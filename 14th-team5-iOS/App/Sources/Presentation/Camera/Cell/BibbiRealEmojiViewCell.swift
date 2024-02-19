@@ -30,7 +30,6 @@ final class BibbiRealEmojiViewCell: BaseCollectionViewCell<BibbiRealEmojiCellRea
     override func setupAttributes() {
         realEmojiImageView.do {
             $0.contentMode = .scaleAspectFill
-            $0.clipsToBounds = true
             $0.layer.cornerRadius = 40 / 2
         }
         
@@ -105,6 +104,7 @@ final class BibbiRealEmojiViewCell: BaseCollectionViewCell<BibbiRealEmojiCellRea
 extension BibbiRealEmojiViewCell {
     private func setupRealEmojiImage(_ url: URL) {
         realEmojiImageView.kf.indicatorType = .activity
+        realEmojiImageView.clipsToBounds = true
         realEmojiImageView.kf.setImage(with: url, options: [.transition(.fade(0.5))])
     }
 

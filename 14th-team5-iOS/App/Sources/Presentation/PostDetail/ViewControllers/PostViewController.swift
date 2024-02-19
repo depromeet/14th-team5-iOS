@@ -19,7 +19,7 @@ final class PostViewController: BaseViewController<PostReactor> {
     private var navigationView: PostNavigationView = PostNavigationView()
     private let collectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let collectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
-    private let reactionViewController: ReactionViewController = ReactionDIContainer().makeViewController(postId: "01HN9SNH3NT12SCKACBYCW16EC")
+    private let reactionViewController: ReactionViewController = ReactionDIContainer().makeViewController(post: .init(postId: "", author: nil, commentCount: 0, emojiCount: 0, imageURL: "", content: nil, time: ""))
     
     convenience init(reactor: Reactor? = nil) {
         self.init()
@@ -30,50 +30,50 @@ final class PostViewController: BaseViewController<PostReactor> {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.navigationBar.isHidden = true
-        
         App.Repository.member.postId.accept(nil)
+        App.Repository.member.openComment.accept(nil)
     }
     
     override func bind(reactor: PostReactor) {
         collectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
-        
-        
+
         NotificationCenter.default
             .rx.notification(.didTapSelectableCameraButton)
+            .compactMap { notification -> (String, Int)? in
+                guard let type =  notification.userInfo?["type"] as? String,
+                      let index = notification.userInfo?["index"] as? Int else { return nil }
+                return (type, index)
+            }
             .withUnretained(self)
-            .bind { owner, _ in
-                let cameraViewController = CameraDIContainer(cameraType: .realEmoji).makeViewController()
+            .bind { owner, entity in
+                let cameraViewController = CameraDIContainer(cameraType: .realEmoji, realEmojiType: entity.0, realEmojiIndex: entity.1).makeViewController()
                 owner.navigationController?.pushViewController(cameraViewController, animated: true)
             }.disposed(by: disposeBag)
-        
-        reactor.state
-            .map { $0.originPostLists }
+
+        reactor.state.map { $0.originPostLists }
             .map(Array.init(with:))
             .bind(to: collectionView.rx.items(dataSource: createDataSource()))
             .disposed(by: disposeBag)
         
-        reactor.state
-            .map { $0.selectedPost }
+        reactor.state.map { $0.selectedPost }
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .bind(onNext: {
                 $0.0.setBackgroundView(data: $0.1)
-                $0.0.reactionViewController.postId.accept($0.1.postId)
+                $0.0.reactionViewController.postListData.accept($0.1)
                 UIView.animate(withDuration: 0.3) {
                     self.reactionViewController.view.alpha = 1.0
                 }
             })
             .disposed(by: disposeBag)
         
-        reactor.state
-            .map { $0.isPop }
-            .asObservable()
+        reactor.state.map { $0.isPop }
+            .filter { $0 }
             .distinctUntilChanged()
+            .observe(on: MainScheduler.instance)
             .withUnretained(self)
-            .bind(onNext: { _ in
-                self.navigationController?.popViewController(animated: true)
-            })
+            .bind(onNext: { $0.0.navigationController?.popViewController(animated: true) })
             .disposed(by: disposeBag)
         
         collectionView.rx.willBeginDragging
@@ -97,6 +97,8 @@ final class PostViewController: BaseViewController<PostReactor> {
             .map { Reactor.Action.setPost($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        didTapProfileImageNotificationHandler()
     }
     
     override func setupUI() {
@@ -153,6 +155,7 @@ final class PostViewController: BaseViewController<PostReactor> {
         }
         
         collectionView.do {
+//            $0.delegate = self
             $0.isPagingEnabled = true
             $0.backgroundColor = .clear
             $0.register(PostDetailCollectionViewCell.self, forCellWithReuseIdentifier: PostDetailCollectionViewCell.id)
@@ -187,6 +190,28 @@ extension PostViewController {
         return currentPage
     }
     
+    private func pushCameraViewController(cameraType type: UploadLocation) {
+        let cameraViewController = CameraDIContainer(
+            cameraType: type
+        ).makeViewController()
+        
+        navigationController?.pushViewController(
+            cameraViewController,
+            animated: true
+        )
+    }
+    
+    private func pushProfileViewController(memberId: String) {
+        let profileController = ProfileDIContainer(
+            memberId: memberId
+        ).makeViewController()
+        
+        navigationController?.pushViewController(
+            profileController,
+            animated: true
+        )
+    }
+    
     private func createDataSource() -> RxCollectionViewSectionedReloadDataSource<PostSection.Model> {
         return RxCollectionViewSectionedReloadDataSource<PostSection.Model>(
             configureCell: { (_, collectionView, indexPath, item) in
@@ -195,11 +220,27 @@ extension PostViewController {
                     guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostDetailCollectionViewCell.id, for: indexPath) as? PostDetailCollectionViewCell else {
                         return UICollectionViewCell()
                     }
-                    cell.reactor = ReactionMemberDIContainer().makeReactor(post: data)
+                    cell.reactor = PostDetailCellDIContainer().makeReactor(post: data)
                     cell.setCell(data: data)
                     return cell
                 }
             })
+    }
+}
+
+extension PostViewController {
+    private func didTapProfileImageNotificationHandler() {
+        NotificationCenter.default
+            .rx.notification(.didTapProfilImage)
+            .withUnretained(self)
+            .bind { owner, notification in
+                guard let userInfo = notification.userInfo,
+                      let memberId = userInfo["memberId"] as? String else {
+                    return
+                }
+                owner.pushProfileViewController(memberId: memberId)
+            }
+            .disposed(by: disposeBag)
     }
 }
 

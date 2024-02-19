@@ -34,7 +34,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     
     //MARK: Views
 
-    private let profileIndicatorView: BibbiLoadingView = BibbiLoadingView()
+    private let profileIndicatorView: BlurAiraplaneLottieView = BlurAiraplaneLottieView()
     private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 50)
     private let profileNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let profileLineView: UIView = UIView()
@@ -59,6 +59,17 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.navigationBar.isHidden = true
+        self.profileIndicatorView.isHidden = false
+        // NOTE:
+        // - 뷰 컨틀로러의 라이프 사이클 동안 로티를 isHidden 처리하는 이유는
+        // 로딩 중에 다른 화면에 진입하고, 다시 되돌아오더라도 로티 애니메이션을 계속 출력하기 위함입니다.
+        // - 뷰가 나타날 때 로티가 보이게 처리하더라도
+        // fetch Profile Member 통신을 완료하면 곧바로 사라집니다.
+    }
+    
+    public override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        self.profileIndicatorView.isHidden = true
     }
     
     public override func viewDidLoad() {

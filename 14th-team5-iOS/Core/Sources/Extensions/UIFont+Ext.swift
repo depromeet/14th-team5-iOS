@@ -26,6 +26,15 @@ extension UIFont {
         textAlignment: NSTextAlignment = .left
     ) -> FontAttributes {
         switch textStyle {
+        case .homeFeed:
+            return FontAttributes(
+                size: 12,
+                weight: .bold,
+                color: color,
+                letterSpacing: -0.3,
+                lineHeight: 1.38,
+                alignment: textAlignment
+            )
         case .title:
             return FontAttributes(
                 size: 36.0, // 폰트 크기
@@ -118,6 +127,7 @@ extension UIFont {
     public enum Pretendard {
         public enum Style {
             case title
+            case homeFeed
             case head1
             case head2Bold
             case head2Regular

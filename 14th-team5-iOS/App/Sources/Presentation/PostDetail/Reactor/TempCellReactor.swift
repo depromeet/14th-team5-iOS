@@ -73,7 +73,3 @@ extension TempCellReactor {
         return newState
     }
 }
-
-extension TempReactor {
-    
-}

@@ -100,18 +100,19 @@ extension SelectableEmojiViewController {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        selectableEmojiCollectionView.rx.modelSelected(SelectableReactionSection.Item.self)
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
-            .map { selectedItem in
-                switch selectedItem {
-                case .standard(let emojiData):
-                    return Reactor.Action.selectStandard(emojiData)
-                case .realEmoji(let realEmojiData):
-                    return Reactor.Action.selectRealEmoji(realEmojiData)
-                }
+        Observable.zip(selectableEmojiCollectionView.rx.itemSelected,
+                       selectableEmojiCollectionView.rx.modelSelected(SelectableReactionSection.Item.self))
+        .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+        .map { (indexPath, selectedItem) in
+            switch selectedItem {
+            case .standard(let emojiData):
+                return Reactor.Action.selectStandard(emojiData)
+            case .realEmoji(let realEmojiData):
+                return Reactor.Action.selectRealEmoji(indexPath, realEmojiData)
             }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
+        }
+        .bind(to: reactor.action)
+        .disposed(by: disposeBag)
         
         cameraButton.rx.tap
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
@@ -119,7 +120,8 @@ extension SelectableEmojiViewController {
             .observe(on: MainScheduler.instance)
             .bind(onNext: { owner, _ in
                 owner.dismiss(animated: true) {
-                    NotificationCenter.default.post(name: .didTapSelectableCameraButton, object: nil, userInfo: nil)
+                    let userInfo: [AnyHashable: Any] = ["type": "EMOJI_1", "index": 0]
+                    NotificationCenter.default.post(name: .didTapSelectableCameraButton, object: nil, userInfo: userInfo)
                 }
             })
             .disposed(by: disposeBag)
@@ -151,6 +153,18 @@ extension SelectableEmojiViewController {
             .bind(onNext: {
                 $0.0.selectedReactionSubject.onNext(())
                 $0.0.dismiss(animated: true)
+            })
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$isShowingCamera)
+            .skip(1)
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: { owner, index in
+                owner.dismiss(animated: true) {
+                    let userInfo: [AnyHashable: Any] = ["type": "EMOJI_\(index + 1)", "index": index]
+                    NotificationCenter.default.post(name: .didTapSelectableCameraButton, object: nil, userInfo: userInfo)
+                }
             })
             .disposed(by: disposeBag)
     }

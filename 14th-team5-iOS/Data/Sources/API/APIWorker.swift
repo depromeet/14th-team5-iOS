@@ -61,7 +61,7 @@ public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInter
         completion(.success(urlRequest))
     }
     
-    public func retry(_ request: Request, for session: Session, dueTo error: Error, retryCount: Int = 0, completion: @escaping (RetryResult) -> Void) {
+    public func retry(_ request: Request, for session: Session, dueTo error: Error, completion: @escaping (RetryResult) -> Void) {
         
         guard let response = request.task?.response as? HTTPURLResponse, response.statusCode == 401 else {
             completion(.doNotRetryWithError(error))

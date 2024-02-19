@@ -5,7 +5,7 @@
 //  Created by Kim dohyun on 12/17/23.
 //
 
-import Foundation
+import UIKit
 
 import Core
 import Data
@@ -17,6 +17,13 @@ public final class ProfileDIContainer: BaseDIContainer {
     public typealias Repository = ProfileViewInterface
     public typealias Reactor = ProfileViewReactor
     public typealias UseCase = ProfileViewUsecaseProtocol
+    
+    private var globalState: GlobalStateProviderProtocol {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return GlobalStateProvider()
+        }
+        return appDelegate.globalStateProvider
+    }
     
     private let memberId: String
     private let isUser: Bool
@@ -39,7 +46,7 @@ public final class ProfileDIContainer: BaseDIContainer {
     }
     
     public func makeReactor() -> ProfileViewReactor {
-        return ProfileViewReactor(profileUseCase: makeUseCase(), memberId: memberId, isUser: isUser)
+        return ProfileViewReactor(profileUseCase: makeUseCase(), provider: globalState, memberId: memberId, isUser: isUser)
     }
     
     

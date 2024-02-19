@@ -14,7 +14,6 @@ import ReactorKit
 
 
 public final class DisplayEditCellReactor: Reactor {
-    
     public typealias Action = NoAction
     
     public var initialState: State

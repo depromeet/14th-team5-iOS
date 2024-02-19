@@ -4,10 +4,9 @@
 간편하고 사용하기 쉬운 기능으로
 일상을 공유하게 유도한다 `
 
-
-<img src = "https://github.com/depromeet/14th-team5-iOS/assets/62610032/ef7d1e84-93b8-4def-b12a-85dd95c22bce" width = "800" />
-
 <br />
+<img src = "https://github.com/depromeet/14th-team5-iOS/assets/96224311/2a1c0d30-0792-4240-88ce-122174b4874c" width = "800" />
+
 
 
 #### "하루 한 번, 가족과의 소중한 연락!"
@@ -31,7 +30,7 @@ In the precious time spent with family, everything feels more special with Pippy
 
 ## 1️⃣ Project Member(iOS)
 
-| Member1 | Member2 | Member3 | Member4 |
+| Member | Member | Member | Member |
 |--|--|--|--|
 | <img src = "https://github.com/depromeet/14th-team5-iOS/assets/62610032/e8fae9e3-7d10-4f18-9886-b2573533372b" width = "150" /> | <img src = "https://github.com/depromeet/14th-team5-iOS/assets/62610032/120e9379-0eab-40cf-8500-ff220bcaeaad" width = "150" />  | <img src = "https://github.com/depromeet/14th-team5-iOS/assets/62610032/a522e0de-8cc8-4be3-92bf-66c7fe33c582" width = "150" /> |  <img src = "https://github.com/depromeet/14th-team5-iOS/assets/62610032/74e3b648-9c33-4457-8b5e-55320114925e" width = "150" /> |
 | 유건희 | 김도현 | 김건우 | MiMi |
@@ -93,20 +92,48 @@ In the precious time spent with family, everything feels more special with Pippy
 
 ## 3️⃣ Project Outline
 
+#### 💌 초대하기
+![4_초대하기](https://github.com/depromeet/14th-team5-iOS/assets/96224311/970a168b-4d11-491d-a138-14401977af23)
+
+<br />
+
+#### 🏠 홈
+![5_홈](https://github.com/depromeet/14th-team5-iOS/assets/96224311/02ef7001-dc33-43c0-9f86-f971aab73d8a)
+
+<br />
+
 #### ⏰ Notification
-![image](https://github.com/depromeet/14th-team5-iOS/assets/62610032/4a2e0659-5fef-4383-8070-92430a7cf9f4)
+![6_알림](https://github.com/depromeet/14th-team5-iOS/assets/96224311/7615aed8-0c9c-4396-b8ee-5435749da5cf)
+
+<br />
+
+#### 📸 사진업로드
+![7_사진업로드](https://github.com/depromeet/14th-team5-iOS/assets/96224311/3f05de44-7680-4928-b78b-471b079ef508)
 
 <br />
 
 #### 📱 Widget
-![image](https://github.com/depromeet/14th-team5-iOS/assets/62610032/031e0bf9-7a6d-4e7f-9893-71d0def1d2d9)
+![8_위젯](https://github.com/depromeet/14th-team5-iOS/assets/96224311/fbb20552-bec7-47b1-8fa5-d770c2c6ca3a)
 
+<br />
+
+#### 🖼️ 피드
+![9_피드](https://github.com/depromeet/14th-team5-iOS/assets/96224311/e2b01c22-e19f-42e4-9d23-4e2713956b7c)
+
+<br />
+
+#### 🤳 셀피이모지 
+![10_셀피이모지](https://github.com/depromeet/14th-team5-iOS/assets/96224311/c6bf8467-a9c0-4e3c-8030-ae423fcdf687)
 
 <br />
 
 #### 🗓️ Calendar
-![image](https://github.com/depromeet/14th-team5-iOS/assets/62610032/d255500a-4289-43aa-aabc-79e8cdfc5cc4)
+![11_캘린더01](https://github.com/depromeet/14th-team5-iOS/assets/96224311/36c149f9-61c7-4bae-8144-d75ee8f592e3)
+![12_캘린더02](https://github.com/depromeet/14th-team5-iOS/assets/96224311/52b6c47d-5b80-41fb-9bf4-4f9778aa97f6)
 
 <br />
 
+#### 🏬 스토어 
+![13_스토어링크](https://github.com/depromeet/14th-team5-iOS/assets/96224311/73b6f3fe-ebb3-48be-97b6-f832ab3436bc)
 
+<br />

@@ -87,8 +87,9 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             let blurEffectView = UIVisualEffectView.makeBlurView(style: .systemUltraThinMaterialDark)
             blurEffectView.frame = $0.bounds
             blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            blurEffectView.isUserInteractionEnabled = false
             $0.insertSubview(blurEffectView, at: 0)
-            $0.configuration = .filled()
+            $0.configuration = .plain()
             $0.configuration?.attributedTitle = AttributedString(NSAttributedString(string: "텍스트 입력하기", attributes: [
                 .foregroundColor: DesignSystemAsset.white.color,
                 .font: DesignSystemFontFamily.Pretendard.semiBold.font(size: 18),

@@ -61,7 +61,7 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         
         containerView.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .map { Reactor.Action.didSelectProfileImageView }
+            .map { Reactor.Action.didTapProfileImageView }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }

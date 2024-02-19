@@ -57,7 +57,7 @@ final class KakaoSignInHelper: AccountSignInHelperType {
         UserApi.shared.rx.logout()
             .subscribe(onCompleted: {
                 // Token 제거시 확인 
-                App.Repository.token.clearAccessToken()
+               
                 debugPrint("Kakao logout completed!")
             }, onError: { error in
                 debugPrint("Kakao logout error!")

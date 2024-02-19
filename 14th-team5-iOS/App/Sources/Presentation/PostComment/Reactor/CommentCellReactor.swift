@@ -18,7 +18,7 @@ final public class CommentCellReactor: Reactor {
     public enum Action { 
         case fetchUserName
         case fetchProfileImageUrlString
-        case didSelectProfileImageView
+        case didTapProfileImageView
     }
     
     // MARK: - Mutation
@@ -74,14 +74,15 @@ final public class CommentCellReactor: Reactor {
         case .fetchUserName:
             let userName = memberUseCase.executeFetchUserName(memberId: initialState.memberId)
             return Observable<Mutation>.just(.injectUserName(userName))
+            
         case .fetchProfileImageUrlString:
             let urlString = memberUseCase.executeProfileImageUrlString(memberId: initialState.memberId)
             return Observable<Mutation>.just(.injectProfileImageUrlString(urlString))
             
-        case .didSelectProfileImageView:
+        case .didTapProfileImageView:
             let memberId = initialState.memberId
             if memberUseCase.executeCheckIsValidMember(memberId: memberId) {
-                provider.postGlobalState.pushProfileView(memberId, from: .postComment)
+                provider.postGlobalState.pushProfileViewController(memberId)
             }
             return Observable<Mutation>.empty()
         }
@@ -93,6 +94,7 @@ final public class CommentCellReactor: Reactor {
         switch mutation {
         case let .injectUserName(userName):
             newState.userName = userName
+            
         case let .injectProfileImageUrlString(urlString):
             newState.profileImageUrlString = urlString
         }

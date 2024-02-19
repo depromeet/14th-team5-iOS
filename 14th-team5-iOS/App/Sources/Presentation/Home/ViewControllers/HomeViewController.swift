@@ -31,7 +31,9 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         self.hideCameraButton(true)
+        UserDefaults.standard.inviteCode = nil
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -132,6 +134,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
             $0.showsVerticalScrollIndicator = false
             $0.backgroundColor = .clear
             $0.refreshControl = refreshControl
+            $0.refreshControl?.tintColor = UIColor.bibbiWhite
             $0.register(FeedCollectionViewCell.self, forCellWithReuseIdentifier: FeedCollectionViewCell.id)
         }
         
@@ -152,21 +155,9 @@ extension HomeViewController {
         
         App.Repository.member.postId
             .observe(on: MainScheduler.instance)
+            .compactMap { $0 }
             .withUnretained(self)
-            .bind(onNext: {
-                var postIds: [String] = []
-                reactor.currentState.postSection.items.forEach { item in
-                    switch item {
-                    case .main(let postListData):
-                        postIds.append(postListData.postId)
-                    }
-                }
-                
-                if let index = $0.0.findIndex(postIds, $0.1) {
-                    let indexPath = IndexPath(row: index, section: 0)
-                    $0.0.navigationController?.pushViewController(PostListsDIContainer().makeViewController(postLists: reactor.currentState.postSection, selectedIndex: indexPath), animated: false)
-                }
-            })
+            .bind(onNext: { $0.0.pushPostViewController($0.1)})
             .disposed(by: disposeBag)
         
         Observable.just(())
@@ -262,21 +253,27 @@ extension HomeViewController {
             .bind(to: postCollectionView.rx.items(dataSource: createPostDataSource()))
             .disposed(by: disposeBag)
         
-        postStream
-            .withUnretained(self)
-            .bind(onNext: { _ in App.Repository.member.postId.accept(UserDefaults.standard.postId)  })
-            .disposed(by: disposeBag)
+//        postStream
+//            .withUnretained(self)
+//            .bind(onNext: { _ in App.Repository.member.postId.accept(UserDefaults.standard.postId)  })
+//            .disposed(by: disposeBag)
         
         reactor.pulse(\.$isRefreshEnd)
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
-            .bind(onNext: { $0.0.refreshControl.endRefreshing() })
+            .bind(onNext: { owner, _ in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    owner.refreshControl.endRefreshing()
+                }
+            })
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$postSection)
             .withUnretained(self)
-            .bind(onNext: { $0.0.timerView.reactor = TimerDIContainer().makeReactor(isSelfUploaded: reactor.currentState.isSelfUploaded, isAllUploaded: reactor.currentState.isAllFamilyMembersUploaded)
+            .bind(onNext: { 
+                $0.0.timerView.reactor = TimerDIContainer().makeReactor(isSelfUploaded: reactor.currentState.isSelfUploaded, isAllUploaded: reactor.currentState.isAllFamilyMembersUploaded)
+                App.Repository.member.postId.accept(UserDefaults.standard.postId)
             })
             .disposed(by: disposeBag)
         
@@ -318,7 +315,6 @@ extension HomeViewController {
             })
             .disposed(by: disposeBag)
         
-        
         reactor.pulse(\.$shouldPresentCopySuccessToastMessageView)
             .skip(1)
             .withUnretained(self)
@@ -351,6 +347,19 @@ extension HomeViewController {
     private func hideCameraButton(_ isHidden: Bool) {
         balloonView.isHidden = isHidden
         cameraButton.isHidden = isHidden
+    }
+    
+    private func pushPostViewController(_ postId: String) {
+        guard let reactor = reactor else { return }
+        reactor.currentState.postSection.items.enumerated().forEach { (index, item) in
+            switch item {
+            case .main(let postListData):
+                if postListData.postId == postId {
+                    let indexPath = IndexPath(row: index, section: 0)
+                    self.navigationController?.pushViewController(PostListsDIContainer().makeViewController(postLists: reactor.currentState.postSection, selectedIndex: indexPath), animated: true)
+                }
+            }
+        }
     }
 }
 
@@ -385,7 +394,7 @@ extension HomeViewController {
                     guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FeedCollectionViewCell.id, for: indexPath) as? FeedCollectionViewCell else {
                         return UICollectionViewCell()
                     }
-                    cell.setCell(data: data)
+                    cell.reactor = FeedViewReactor(initialState: .init(postListData: data))
                     return cell
                 }
             })
@@ -404,14 +413,5 @@ extension HomeViewController {
                     return cell
                 }
             })
-    }
-    
-    private func findIndex<T: Equatable>(_ array: [T], _ element: T) -> Int? {
-        for (index, value) in array.enumerated() {
-            if value == element {
-                return index
-            }
-        }
-        return nil
     }
 }

@@ -16,7 +16,7 @@ final class AddCommentCollectionViewCell: UICollectionViewCell {
     static let id = "addCommentCollectionViewCell"
     
     private let imageView: UIImageView = UIImageView()
-    private let countLabel: BibbiLabel = BibbiLabel(.body2Regular)
+    private let countLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray200)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -30,13 +30,20 @@ final class AddCommentCollectionViewCell: UICollectionViewCell {
     }
     
     private func setupUI() {
-        addSubview(imageView)
+        addSubviews(imageView, countLabel)
     }
     
     private func setupAutoLayout() {
         imageView.snp.makeConstraints {
-            $0.size.equalTo(24)
-            $0.center.equalToSuperview()
+            $0.size.equalTo(22)
+            $0.trailing.equalToSuperview().inset(6)
+            $0.centerY.equalToSuperview()
+        }
+        
+        countLabel.snp.makeConstraints {
+            $0.trailing.equalTo(imageView.snp.leading).offset(-2)
+            $0.height.equalTo(20)
+            $0.centerY.equalToSuperview()
         }
     }
     
@@ -48,9 +55,11 @@ final class AddCommentCollectionViewCell: UICollectionViewCell {
             $0.image = DesignSystemAsset.chat.image
             $0.tintColor = .gray200
         }
-        
-        countLabel.do {
-            $0.textBibbiColor = .gray200
-        }
+    }
+}
+
+extension AddCommentCollectionViewCell {
+    func setCount(count: Int) {
+        countLabel.text = "\(count)"
     }
 }

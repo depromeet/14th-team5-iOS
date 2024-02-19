@@ -79,7 +79,7 @@ public final class CalendarViewReactor: Reactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .popViewController:
-            provider.toastGlobalState.resetLastSelectedDate()
+            provider.toastGlobalState.clearLastSelectedDate()
             return Observable<Mutation>.just(.popViewController)
             
         case .fetchFamilyMembers:

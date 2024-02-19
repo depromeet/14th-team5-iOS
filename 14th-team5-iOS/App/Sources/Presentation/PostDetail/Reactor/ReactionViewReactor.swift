@@ -12,14 +12,14 @@ import Domain
 
 import ReactorKit
 
-final class TempReactor: Reactor {
+final class ReactionViewReactor: Reactor {
     enum Action {
         case emptyAction
         case tapComment
         case tapAddEmoji
         case longPressEmoji(IndexPath)
         case selectCell(IndexPath, FetchedEmojiData)
-        case acceptPostId(String?)
+        case acceptPostListData(PostListData)
         case fetchReactionList(String)
     }
     
@@ -28,24 +28,24 @@ final class TempReactor: Reactor {
         case setSelectedReactionIndices([Int])
         case setCommentSheet
         case setEmojiSheet
-        case setReactionMemberSheet([String])
-        case setReactionMemberType(Emojis)
+        case setReactionMemberSheetEmoji(FetchedEmojiData)
         case updateDataSource([ReactionSection.Item])
-        case setPostId(String)
+        case setPost(PostListData)
+        case setPostCommentCount(Int)
         case setInitialDataSource
     }
     
     struct State {
-        var postId: String
-        @Pulse var isShowingReactionMemberSheetType: Emojis
+        var postListData: PostListData
+        
         var deSelectedReactionIndicies: [Int] = []
         var selectedReactionIndicies: [Int] = []
         var reactionSections: ReactionSection.Model = ReactionSection.Model(model: 0, items: [
-            .addComment,
+            .addComment(0),
             .addReaction,
         ])
         
-        @Pulse var isShowingReactionMemberSheet: [String] = []
+        @Pulse var reactionMemberSheetEmoji: FetchedEmojiData? = nil
         @Pulse var isShowingCommentSheet: Bool = false
         @Pulse var isShowingEmojiSheet: Bool = false
     }
@@ -61,7 +61,7 @@ final class TempReactor: Reactor {
     }
 }
 
-extension TempReactor {
+extension ReactionViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .fetchReactionList(let postId):
@@ -76,7 +76,7 @@ extension TempReactor {
                     return Observable.just(Mutation.updateDataSource(emojiDataSource))
                 }
         case .selectCell(let indexPath, let data):
-            return handleSelectCell(postId: currentState.postId, indexPath: indexPath, data: data, isAdd: !data.isSelfSelected)
+            return handleSelectCell(postId: currentState.postListData.postId, indexPath: indexPath, data: data, isAdd: !data.isSelfSelected)
         case .emptyAction:
             return Observable.empty()
         case .tapComment:
@@ -86,20 +86,15 @@ extension TempReactor {
         case .longPressEmoji(let indexPath):
             switch currentState.reactionSections.items[indexPath.row] {
             case .main(let fetchedEmojiData):
-                return Observable.concat(
-                    Observable.just(Mutation.setReactionMemberSheet(fetchedEmojiData.memberIds)),
-                    Observable.just(Mutation.setReactionMemberType(fetchedEmojiData.emojiType))
-                )
+                return Observable.just(Mutation.setReactionMemberSheetEmoji(fetchedEmojiData))
             default:
                 return Observable.empty()
             }
-        case .acceptPostId(let postId):
-            guard let postId else {
-                return Observable.just(Mutation.setInitialDataSource)
-            }
+        case .acceptPostListData(let postListData):
             return Observable.concat([
-                Observable.just(Mutation.setPostId(postId)),
-                self.mutate(action: Action.fetchReactionList(postId))
+                Observable.just(Mutation.setPost(postListData)),
+                Observable.just(Mutation.setPostCommentCount(postListData.commentCount)),
+                self.mutate(action: Action.fetchReactionList(postListData.postId))
             ])
         }
     }
@@ -124,25 +119,40 @@ extension TempReactor {
             newState.isShowingCommentSheet = true
         case .setEmojiSheet:
             newState.isShowingEmojiSheet = true
-        case .setReactionMemberSheet(let memberIds):
-            newState.isShowingReactionMemberSheet = memberIds
         case .setSpecificCell(let indexPath, let data):
             newState.reactionSections.items[indexPath.row] = .main(data)
-        case .setPostId(let postId):
-            newState.postId = postId
         case .setInitialDataSource:
             newState.reactionSections = ReactionSection.Model(model: 0, items: [
-                .addComment,
+                .addComment(0),
                 .addReaction,
             ])
-        case .setReactionMemberType(let emojiType):
-            newState.isShowingReactionMemberSheetType = emojiType
+        case .setReactionMemberSheetEmoji(let emojiData):
+            newState.reactionMemberSheetEmoji = emojiData
+        case .setPost(let post):
+            newState.postListData = post
+        case .setPostCommentCount(let count):
+            newState.reactionSections.items.forEach { item in
+                switch item {
+                case .addComment(var currentCount):
+                    currentCount = count
+                    newState.reactionSections = ReactionSection.Model(model: newState.reactionSections.model, items: [.addComment(currentCount)] + newState.reactionSections.items.filter { item in
+                        if case .addReaction = item {
+                            return true
+                        } else {
+                            return false
+                        }
+                    })
+                default:
+                    break
+                }
+            }
+
         }
         return newState
     }
 }
 
-extension TempReactor {
+extension ReactionViewReactor {
     func handleSelectCell(postId: String, indexPath: IndexPath, data: FetchedEmojiData, isAdd: Bool) -> Observable<Mutation> {
         let executeObservable: Observable<Void?>
 
@@ -163,8 +173,18 @@ extension TempReactor {
         return executeObservable
             .flatMap { response in
                 var updatedData = data
+                guard let myMemberId = App.Repository.member.memberID.value else { return self.mutate(action: .emptyAction)}
+                
+                if isAdd {
+                    updatedData.count = data.count + 1
+                    updatedData.memberIds.append(myMemberId)
+                } else {
+                    updatedData.count = data.count - 1
+                    updatedData.memberIds.removeAll(where: { $0 == myMemberId })
+                }
                 updatedData.count = isAdd ? data.count + 1 : data.count - 1
                 updatedData.isSelfSelected = isAdd
+                
                 if updatedData.count <= 0 {
                     return self.mutate(action: Action.fetchReactionList(postId))
                 }

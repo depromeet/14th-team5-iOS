@@ -93,7 +93,7 @@ extension AccountSignInHelper {
             guard let signOut = self?.signInHelper[sns]?.signOut() else { return Disposables.create() }
             observer.onNext(signOut)
             
-            
+            App.Repository.token.clearAccessToken()
             
             return Disposables.create()
         }

@@ -113,9 +113,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         realEmojiFaceImageView.do {
             $0.contentMode = .scaleAspectFill
-            $0.image = DesignSystemAsset.emoji1.image
             $0.layer.cornerRadius = 26 / 2
-            $0.clipsToBounds = true
         }
         
         realEmojiHorizontalStakView.do {
@@ -238,6 +236,15 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$feedImageData)
+            .distinctUntilChanged()
+            .compactMap { $0 }
+            .withUnretained(self)
+            .bind {
+                let cameraDisplayViewController = CameraDisplayDIContainer(displayData: $0.1).makeViewController()
+                $0.0.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
+            }.disposed(by: disposeBag)
+        
         cameraNavigationBar.rx.didTapLeftBarButton
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .withUnretained(self)
@@ -255,7 +262,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         reactor.state
             .map { $0.cameraType }
-            .map { $0 == .realEmoji ? "리얼 이모지" : "카메라" }
+            .map { $0 == .realEmoji ? "셀피 이미지" : "카메라" }
             .distinctUntilChanged()
             .bind(to: cameraNavigationBar.rx.navigationTitle)
             .disposed(by: disposeBag)
@@ -271,9 +278,6 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .withUnretained(self)
             .bind { owner, _ in
                 owner.dismissCameraViewController()
-                let userInfo: [AnyHashable: Any] = ["isProfileUpdate": true]
-                UserDefaults.standard.isDefaultProfile = false
-                NotificationCenter.default.post(name: .DidFinishProfileImageUpdate, object: nil, userInfo: userInfo)
             }.disposed(by: disposeBag)
         
         zoomView
@@ -331,8 +335,8 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .disposed(by: disposeBag)
         
         reactor.state
-              .filter { !$0.selectedEmojiPadItem.isEmpty }
-              .map { $0.selectedEmojiPadItem }
+              .filter { !$0.emojiType.isEmpty }
+              .map { $0.emojiType.replacingOccurrences(of: "EMOJI_", with: "emoji") }
               .distinctUntilChanged()
               .map { DesignSystemImages.Image(named: $0, in: DesignSystemResources.bundle, with: nil)}
               .bind(to: realEmojiFaceImageView.rx.image)
@@ -535,12 +539,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
     public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         guard let photoData = photo.fileDataRepresentation(),
         let imageData = UIImage(data: photoData)?.jpegData(compressionQuality: 1.0) else { return }
-        if self.reactor?.cameraType == .profile || self.reactor?.cameraType == .realEmoji {
-            output.photoOutputDidFinshProcessing(photo: imageData, error: error)
-        } else {
-            let cameraDisplayViewController = CameraDisplayDIContainer(displayData: imageData).makeViewController()
-            self.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
-        }
+        output.photoOutputDidFinshProcessing(photo: imageData, error: error)
     }
     
     

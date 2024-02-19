@@ -58,7 +58,6 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
     
     override public func bind(reactor: SplashViewReactor) {
         Observable.just(())
-            .take(1)
             .map { Reactor.Action.viewDidLoad }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -69,16 +68,16 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
             .bind(onNext: { $0.0.openAppStore() })
             .disposed(by: disposeBag)
         
-        reactor.state.map { ($0.memberInfo, $0.updatedNeeded) }
-            .delay(.seconds(1), scheduler: Schedulers.main)
+        reactor.pulse(\.$memberInfo)
+            .skip(1)
             .withUnretained(self)
             .observe(on: Schedulers.main)
-            .filter { $0.1.1?.inService == true }
-            .bind(onNext: { $0.0.showNextPage(with: $0.1.0)})
+            .bind(onNext: { $0.0.showNextPage(with: $0.1)})
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.updatedNeeded }
-            .compactMap { $0?.inService }
+        reactor.pulse(\.$updatedNeeded)
+            .skip(1)
+            .filter { $0 == nil }
             .withUnretained(self)
             .observe(on: Schedulers.main)
             .bind(onNext: { $0.0.showUpdateAlert($0.1) })
@@ -93,48 +92,42 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
     }
     
     private func showNextPage(with member: MemberInfo?) {
-        
         guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
-        let container: UINavigationController
+        var container: UINavigationController
         
-        if let _ = member?.familyId {
-            var container: UINavigationController
-            if UserDefaults.standard.finishTutorial {
-                if let _ = UserDefaults.standard.inviteCode {
-                    container = UINavigationController(rootViewController: JoinedFamilyDIContainer().makeViewController())
-                } else {
-                    container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
-                }
-            } else {
-                container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
-            }
-            sceneDelegate.window?.rootViewController = container
-            sceneDelegate.window?.makeKeyAndVisible()
-            return
-        }
-        
-        guard let isTemporary = App.Repository.token.accessToken.value?.isTemporaryToken else {
+        guard let member = member else {
             container = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
             sceneDelegate.window?.rootViewController = container
             sceneDelegate.window?.makeKeyAndVisible()
             return
         }
         
-        if isTemporary {
+        let isTemporary = App.Repository.token.accessToken.value?.isTemporaryToken
+        if isTemporary == true {
             container = UINavigationController(rootViewController: AccountSignUpDIContainer().makeViewController())
             sceneDelegate.window?.rootViewController = container
             sceneDelegate.window?.makeKeyAndVisible()
             return
         } else {
-            container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
+            if let _ = member.familyId {
+                if UserDefaults.standard.inviteCode != nil {
+                    container = UINavigationController(rootViewController: JoinedFamilyDIContainer().makeViewController())
+                } else {
+                    container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+                }
+                sceneDelegate.window?.rootViewController = container
+                sceneDelegate.window?.makeKeyAndVisible()
+                return
+            } else {
+                container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
+                sceneDelegate.window?.rootViewController = container
+                sceneDelegate.window?.makeKeyAndVisible()
+                return
+            }
         }
-        
-        sceneDelegate.window?.rootViewController = container
-        sceneDelegate.window?.makeKeyAndVisible()
     }
     
-    private func showUpdateAlert(_ inService: Bool) {
-        guard !inService else { return }
+    private func showUpdateAlert(_ appVersionInfo: AppVersionInfo?) {
         let updateAlertController = UIAlertController(
             title: "업데이트가 필요해요",
             message: "더 나은 삐삐를 위해\n업데이트를 부탁드려요.",

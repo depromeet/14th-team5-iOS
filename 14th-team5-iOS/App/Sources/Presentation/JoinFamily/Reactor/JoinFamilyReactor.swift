@@ -48,7 +48,7 @@ extension JoinFamilyReactor {
         case .makeFamily:
             return familyUseCase.executeCreateFamily()
                 .flatMap {
-                    guard let familyResponse: FamilyCreatedAtResponse = $0 else {
+                    guard let familyResponse: CreateFamilyResponse = $0 else {
                         return Observable.just(Mutation.setShowHome(false))
                     }
                     App.Repository.member.familyId.accept(familyResponse.familyId)

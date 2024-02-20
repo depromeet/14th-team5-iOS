@@ -109,6 +109,7 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             .asSingle()
     }
     
+    @available(*, deprecated, renamed: "joinFamily")
     private func joinFamily(spec: APISpec, headers: [APIHeader]?, jsonEncodable: Encodable) -> Single<FamilyInfo?> {
         
         return request(spec: spec, headers: headers, jsonEncodable: jsonEncodable)
@@ -123,6 +124,7 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             .asSingle()
     }
     
+    @available(*, deprecated, renamed: "joinFamily")
     public func joinFamily(body: JoinFamilyRequest) -> Single<JoinFamilyResponse?> {
         return Observable.just(())
             .withLatestFrom(self._headers)

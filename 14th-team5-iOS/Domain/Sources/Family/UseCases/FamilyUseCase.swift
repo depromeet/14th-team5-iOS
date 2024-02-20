@@ -12,7 +12,8 @@ import RxSwift
 public protocol FamilyUseCaseProtocol {
     func executeJoinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyResponse?>
     func executeResignFamily() -> Observable<AccountFamilyResignResponse?>
-    func executeCreateFamily() -> Observable<FamilyCreatedAtResponse?>
+    func executeCreateFamily() -> Observable<CreateFamilyResponse?>
+    func executeFetchCreatedAtFamily() -> Observable<FamilyCreatedAtResponse?>
     func executeFetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?>
     func executeFetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfile?>
     func executeFetchPaginationFamilyMembers(memberIds: [String]) -> [ProfileData]
@@ -33,8 +34,12 @@ public final class FamilyUseCase: FamilyUseCaseProtocol {
         return familyRepository.resignFamily()
     }
     
-    public func executeCreateFamily() -> Observable<FamilyCreatedAtResponse?> {
+    public func executeCreateFamily() -> Observable<CreateFamilyResponse?> {
         return familyRepository.createFamily()
+    }
+    
+    public func executeFetchCreatedAtFamily() -> Observable<FamilyCreatedAtResponse?> {
+        return familyRepository.fetchFamilyCreatedAt()
     }
     
     public func executeFetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?> {

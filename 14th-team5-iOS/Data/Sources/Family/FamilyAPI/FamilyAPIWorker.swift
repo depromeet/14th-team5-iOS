@@ -84,7 +84,7 @@ extension FamilyAPIWorker {
             .asSingle()
     }
     
-    private func createFamily(spec: APISpec, headers: [APIHeader]?) -> Single<FamilyCreatedAtResponse?> {
+    private func createFamily(spec: APISpec, headers: [APIHeader]?) -> Single<CreateFamilyResponse?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do {
@@ -92,13 +92,13 @@ extension FamilyAPIWorker {
                     debugPrint("Family Create Result: \(str)")
                 }
             }
-            .map(FamilyCreatedAtResponseDTO.self)
+            .map(CreateFamilyResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
             .asSingle()
     }
     
-    public func createFamily() -> Single<FamilyCreatedAtResponse?> {
+    public func createFamily() -> Single<CreateFamilyResponse?> {
         let spec: APISpec = FamilyAPIs.createFamily.spec
         
         return Observable<Void>.just(())

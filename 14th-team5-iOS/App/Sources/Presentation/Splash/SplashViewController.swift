@@ -95,6 +95,9 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
         guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
         var container: UINavigationController
         
+        print("AccessToken: \(App.Repository.token.accessToken.value?.accessToken)")
+        print("RefreshAccessToken: \(App.Repository.token.accessToken.value?.refreshToken)")
+        
         guard let member = member else {
             container = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
             sceneDelegate.window?.rootViewController = container

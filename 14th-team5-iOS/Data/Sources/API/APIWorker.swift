@@ -30,15 +30,6 @@ extension BibbiRouterInterface {
     }
 }
 
-
-extension NSMutableData {
-    func appendString(_ string: String) {
-        if let data = string.data(using: .utf8) {
-            self.append(data)
-        }
-    }
-}
-
 public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInterface {
     
     //TODO: Test용 KeychainWrapper 코드 다 제거하기
@@ -130,6 +121,24 @@ public class APIWorker: NSObject, BibbiRouterInterface {
             .debug("API Worker has received data from \"\(spec.url)\"")
     }
     
+    private func refreshRequest(spec: APISpec, headers: [APIHeader]? = nil, jsonData: Data) -> Observable<(HTTPURLResponse, Data)> {
+        let hds = self.httpHeaders(self.appendCommonHeaders(to: headers))
+        guard let url = URL(string: spec.url) else {
+            return Observable.error(AFError.explicitlyCancelled)
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = spec.method.rawValue
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = jsonData
+        request.headers = hds
+        print("interCepter call with name \(url)")
+        return AF.rx.request(urlRequest: request)
+            .validate(statusCode: 200..<300)
+            .responseData()
+            .debug("API Worker has received data from \"\(spec.url)\"")
+    }
+    
     private func request(spec: APISpec, headers: [APIHeader]? = nil, jsonData: Data) -> Observable<(HTTPURLResponse, Data)> {
         let hds = self.httpHeaders(self.appendCommonHeaders(to: headers))
         guard let url = URL(string: spec.url) else {
@@ -153,7 +162,7 @@ public class APIWorker: NSObject, BibbiRouterInterface {
             return Observable.error(AFError.explicitlyCancelled)
         }
         
-        return self.request(spec: spec, headers: headers, jsonData: jsonData)
+        return self.refreshRequest(spec: spec, headers: headers, jsonData: jsonData)
     }
     
     func upload(spec: APISpec, headers: [APIHeader]? = nil, image: Data) -> Single<Bool> {

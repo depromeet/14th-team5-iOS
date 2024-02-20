@@ -344,7 +344,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         shutterButton
             .rx.tap
             .throttle(.seconds(4), scheduler: MainScheduler.asyncInstance)
-            .debug("shutter Button Tap")
+            .do { _ in Haptic.selection() }
             .withUnretained(self)
             .subscribe { owner, _ in
                 let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])

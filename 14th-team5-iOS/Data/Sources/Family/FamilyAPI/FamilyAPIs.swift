@@ -16,9 +16,6 @@ public enum FamilyAPIs: API {
     case fetchInvitationUrl(String)
     case fetchFamilyCreatedAt(String)
     case fetchPaginationFamilyMembers(Int, Int)
-    
-    @available(*, deprecated, renamed: "fetchPaginationFamilyMembers")
-    case familyMembers(FamilySearchRequestDTO)
 
     var spec: APISpec {
         switch self {
@@ -34,9 +31,6 @@ public enum FamilyAPIs: API {
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/families/\(familyId)/created-at")
         case let .fetchPaginationFamilyMembers(page, size):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/members?type=FAMILY&page=\(page)&size=\(size)")
-            
-        case let .familyMembers(query):
-            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/members?type=FAMILY&page=\(query.page)&size=\(query.size)")
         }
     }
 }

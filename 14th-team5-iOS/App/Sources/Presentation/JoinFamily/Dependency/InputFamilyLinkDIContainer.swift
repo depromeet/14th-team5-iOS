@@ -24,8 +24,17 @@ final class InputFamilyLinkDIContainer {
         return MeAPIs.Worker()
     }
     
+    
+    public func makeFamilyUseCase() -> FamilyUseCaseProtocol {
+        return FamilyUseCase(familyRepository: makeFamilyRepository())
+    }
+    
+    public func makeFamilyRepository() -> FamilyRepositoryProtocol {
+        return FamilyRepository()
+    }
+    
     public func makeReactor() -> InputFamilyLinkReactor {
-        return InputFamilyLinkReactor(initialState: .init(), familyUseCase: makeUsecase())
+        return InputFamilyLinkReactor(initialState: .init(), familyUseCase: makeFamilyUseCase())
     }
 }
 

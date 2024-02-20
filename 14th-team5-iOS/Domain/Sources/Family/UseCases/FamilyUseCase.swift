@@ -9,25 +9,30 @@ import Foundation
 
 import RxSwift
 
-public protocol FamilyViewUseCaseProtocol {
-    func executeJoinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyData?>
-    func executeCreateFamily() -> Observable<FamilyResponse?>
+public protocol FamilyUseCaseProtocol {
+    func executeJoinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyResponse?>
+    func executeResignFamily() -> Observable<AccountFamilyResignResponse?>
+    func executeCreateFamily() -> Observable<FamilyCreatedAtResponse?>
     func executeFetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?>
     func executeFetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfile?>
 }
 
-public final class FamilyViewUseCase: FamilyViewUseCaseProtocol {
+public final class FamilyUseCase: FamilyUseCaseProtocol {
     private let familyRepository: FamilyRepositoryProtocol
     
     public init(familyRepository: FamilyRepositoryProtocol) {
         self.familyRepository = familyRepository
     }
     
-    public func executeJoinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyData?> {
+    public func executeJoinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyResponse?> {
         return familyRepository.joinFamily(body: body)
     }
     
-    public func executeCreateFamily() -> Observable<FamilyResponse?> {
+    public func executeResignFamily() -> Observable<AccountFamilyResignResponse?> {
+        return familyRepository.resignFamily()
+    }
+    
+    public func executeCreateFamily() -> Observable<FamilyCreatedAtResponse?> {
         return familyRepository.createFamily()
     }
     

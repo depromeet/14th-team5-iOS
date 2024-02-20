@@ -12,15 +12,20 @@ import Foundation
 public enum FamilyAPIs: API {
     case joinFamily
     case createFamily
+    case resignFamily
     case fetchInvitationUrl(String)
     case fetchFamilyCreatedAt(String)
     case fetchPaginationFamilyMembers(Int, Int)
+    
+    @available(*, deprecated, renamed: "fetchPaginationFamilyMembers")
     case familyMembers(FamilySearchRequestDTO)
 
     var spec: APISpec {
         switch self {
         case .joinFamily:
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/me/join-family")
+        case .resignFamily:
+            return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/me/quit-family")
         case .createFamily:
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/me/create-family")
         case let .fetchInvitationUrl(familyId):
@@ -29,6 +34,7 @@ public enum FamilyAPIs: API {
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/families/\(familyId)/created-at")
         case let .fetchPaginationFamilyMembers(page, size):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/members?type=FAMILY&page=\(page)&size=\(size)")
+            
         case let .familyMembers(query):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/members?type=FAMILY&page=\(query.page)&size=\(query.size)")
         }

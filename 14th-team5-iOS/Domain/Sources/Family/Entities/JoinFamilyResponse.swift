@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct JoinFamilyData {
+public struct JoinFamilyResponse {
     public var familyId: String
     
     public init(familyId: String) {

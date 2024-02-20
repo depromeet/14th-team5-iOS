@@ -8,12 +8,14 @@
 import Foundation
 import Domain
 
+@available(*, deprecated, renamed: "FamilyPaginationQuery")
 public struct FamilySearchRequestDTO: Codable {
     let type: String
     let page: Int
     let size: Int
 }
 
+@available(*, deprecated, renamed: "PaginationResponseFamiliyMemberProfileDTO")
 struct FamilyMemberDTO: Codable {
     let memberId: String
     let name: String
@@ -21,6 +23,7 @@ struct FamilyMemberDTO: Codable {
     let dayOfBirth: String
 }
 
+@available(*, deprecated, renamed: "PaginationResponseFamiliyMemberProfileDTO")
 struct FamilySearchResponseDTO: Codable {
     let currentPage: Int
     let totalPage: Int

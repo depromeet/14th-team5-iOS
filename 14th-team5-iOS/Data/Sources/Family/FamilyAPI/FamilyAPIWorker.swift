@@ -36,7 +36,7 @@ extension FamilyAPIs {
 }
 
 extension FamilyAPIWorker {
-    private func joinFamily(headers: [APIHeader]?, jsonEncodable body: JoinFamilyRequestDTO) -> Single<JoinFamilyData?> {
+    private func joinFamily(headers: [APIHeader]?, jsonEncodable body: JoinFamilyRequestDTO) -> Single<JoinFamilyResponse?> {
         let spec = MeAPIs.joinFamily.spec
         
         return request(spec: spec, headers: headers, jsonEncodable: body)
@@ -52,7 +52,7 @@ extension FamilyAPIWorker {
             .asSingle()
     }
     
-    public func joinFamily(body: JoinFamilyRequestDTO) -> Single<JoinFamilyData?> {
+    public func joinFamily(body: JoinFamilyRequestDTO) -> Single<JoinFamilyResponse?> {
         return Observable.just(())
             .withLatestFrom(self._headers)
             .observe(on: Self.queue)
@@ -61,7 +61,30 @@ extension FamilyAPIWorker {
             .asSingle()
     }
     
-    private func createFamily(spec: APISpec, headers: [APIHeader]?) -> Single<FamilyResponse?> {
+    private func resignFamily(spec: APISpec, headers: [APIHeader]?) -> Single<AccountFamilyResignResponse?> {
+        return request(spec: spec, headers: headers)
+            .subscribe(on: Self.queue)
+            .do(onNext: {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Resign Family result: \(str)")
+                }
+            })
+            .map(AccountFamilyResignResponse.self)
+            .catchAndReturn(nil)
+            .asSingle()
+    }
+    
+    public func resignFamily() -> Single<AccountFamilyResignResponse?> {
+        let spec = FamilyAPIs.resignFamily.spec
+        
+        return Observable.just(())
+            .withLatestFrom(self._headers)
+            .withUnretained(self)
+            .flatMap { $0.0.resignFamily(spec: spec, headers: $0.1) }
+            .asSingle()
+    }
+    
+    private func createFamily(spec: APISpec, headers: [APIHeader]?) -> Single<FamilyCreatedAtResponse?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do {
@@ -69,13 +92,13 @@ extension FamilyAPIWorker {
                     debugPrint("Family Create Result: \(str)")
                 }
             }
-            .map(FamilyResponseDTO.self)
+            .map(FamilyCreatedAtResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
             .asSingle()
     }
     
-    public func createFamily() -> Single<FamilyResponse?> {
+    public func createFamily() -> Single<FamilyCreatedAtResponse?> {
         let spec: APISpec = FamilyAPIs.createFamily.spec
         
         return Observable<Void>.just(())

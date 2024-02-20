@@ -8,11 +8,13 @@
 import Foundation
 import RxSwift
 
+@available(*, deprecated, renamed: "FamilyUseCaseProtocol")
 public protocol SearchFamilyMemberUseCaseProtocol {
     func excute(query: SearchFamilyQuery) -> Single<SearchFamilyPage?>
     func execute(memberIds: [String]) -> [ProfileData]?
 }
 
+@available(*, deprecated, renamed: "FamilyUseCase")
 public class SearchFamilyUseCase: SearchFamilyMemberUseCaseProtocol {
     private let searchFamilyRepository: SearchFamilyRepository
     

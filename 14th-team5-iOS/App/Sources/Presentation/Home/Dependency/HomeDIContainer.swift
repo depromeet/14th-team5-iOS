@@ -51,7 +51,7 @@ extension HomeDIContainer {
         return SearchFamilyUseCase(searchFamilyRepository: makeFamilyRepository())
     }
     
-    private func makeInviteFamilyUseCase() -> FamilyViewUseCaseProtocol {
-        return FamilyViewUseCase(familyRepository: makeInviteFamilyRepository())
+    private func makeInviteFamilyUseCase() -> FamilyUseCaseProtocol {
+        return FamilyUseCase(familyRepository: makeInviteFamilyRepository())
     }
 }

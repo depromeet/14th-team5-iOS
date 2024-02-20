@@ -8,7 +8,8 @@
 import Foundation
 import RxSwift
 
+@available(*, deprecated, renamed: "FamilyRepository")
 public protocol JoinFamilyRepository {
-    func joinFamily(body: JoinFamilyRequest) -> Single<JoinFamilyData?>
+    func joinFamily(body: JoinFamilyRequest) -> Single<JoinFamilyResponse?>
     func resignFamily() -> Single<AccountFamilyResignResponse?>
 }

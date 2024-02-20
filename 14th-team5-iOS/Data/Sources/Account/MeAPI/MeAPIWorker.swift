@@ -123,7 +123,7 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             .asSingle()
     }
     
-    public func joinFamily(body: JoinFamilyRequest) -> Single<JoinFamilyData?> {
+    public func joinFamily(body: JoinFamilyRequest) -> Single<JoinFamilyResponse?> {
         return Observable.just(())
             .withLatestFrom(self._headers)
             .withUnretained(self)
@@ -131,7 +131,7 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             .asSingle()
     }
     
-    private func joinFamily(headers: [APIHeader]?, body: Domain.JoinFamilyRequest) -> RxSwift.Single<JoinFamilyData?> {
+    private func joinFamily(headers: [APIHeader]?, body: Domain.JoinFamilyRequest) -> RxSwift.Single<JoinFamilyResponse?> {
         let spec = MeAPIs.joinFamily.spec
         let requestDTO: JoinFamilyRequestDTO = JoinFamilyRequestDTO(inviteCode: body.inviteCode)
         return request(spec: spec, headers: headers, jsonEncodable: requestDTO)
@@ -159,6 +159,7 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             .asSingle()
     }
     
+    @available(*, deprecated, renamed: "resignFamily")
     private func resignFamily(spec: APISpec, headers: [APIHeader]?) -> Single<AccountFamilyResignResponse?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
@@ -172,6 +173,7 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             .asSingle()
     }
     
+    @available(*, deprecated, renamed: "resignFamily")
     public func resignFamily() -> Single<AccountFamilyResignResponse?> {
         let spec = PrivacyAPIs.accountFamilyResign.spec
         return Observable.just(())

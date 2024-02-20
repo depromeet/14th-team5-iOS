@@ -9,11 +9,13 @@ import Foundation
 
 import RxSwift
 
+@available(*, deprecated, renamed: "FamilyUseCaseProtocol")
 public protocol JoinFamilyUseCaseProtocol {
-    func execute(body: JoinFamilyRequest) -> Single<JoinFamilyData?>
+    func execute(body: JoinFamilyRequest) -> Single<JoinFamilyResponse?>
     func resignFamily() -> Single<AccountFamilyResignResponse?>
 }
 
+@available(*, deprecated, renamed: "FamilyUseCase")
 public class JoinFamilyUseCase: JoinFamilyUseCaseProtocol {
     private let joinFamilyRepository: JoinFamilyRepository
     
@@ -21,7 +23,7 @@ public class JoinFamilyUseCase: JoinFamilyUseCaseProtocol {
         self.joinFamilyRepository = joinFamilyRepository
     }
     
-    public func execute(body: JoinFamilyRequest) -> Single<JoinFamilyData?> {
+    public func execute(body: JoinFamilyRequest) -> Single<JoinFamilyResponse?> {
         return joinFamilyRepository.joinFamily(body: body)
     }
     

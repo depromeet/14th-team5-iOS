@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct FamilyResponse {
+public struct FamilyCreatedAtResponse {
     public var familyId: String
     public var createdAt: Date
     

@@ -7,6 +7,7 @@
 
 import Foundation
 
+@available(*, deprecated, renamed: "FamilyPaginationQuery")
 public struct SearchFamilyQuery {
     public let page: Int
     public let size: Int

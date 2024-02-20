@@ -54,16 +54,16 @@ jobs:
       - name: Tuist Fetch Command
         run: tuist fetch
         
-      # - name: Tuist Siging Decrept
-      #   run: tuist signing decrypt
+      - name: Tuist Siging Decrept
+        run: tuist signing decrypt
 
       - name: Fastalne setup Keychain
         run: fastlane setup_keychain
         env:
-            APP_NAME: ${{secrets.APP_NAME}}
-            WIDGET_NAME: ${{secrets.WIDGET_NAME}}
-            KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
-            KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          APP_NAME: ${{secrets.APP_NAME}}
+          WIDGET_NAME: ${{secrets.WIDGET_NAME}}
+          KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
       # - name: Tuist generate Command      
       #   run: |

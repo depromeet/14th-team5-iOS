@@ -25,8 +25,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     ) {
         guard let scene = (scene as? UIWindowScene) else { return }
         
-//        App.Repository.token.accessToken.accept(AccessToken(accessToken: "eyJyZWdEYXRlIjoxNzA0NjI5MzMxNTg3LCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJhY2Nlc3MifQ.eyJ1c2VySWQiOiIyIiwiZXhwIjoxNzA0NjI5MzMxfQ.2KnitlchstGo95Zy6J49OzUShDTd7hjHzSMigpnMKLo", refreshToken: "eyJyZWdEYXRlIjoxNzA0NjI5MzMxNjIwLCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cGUiOiJyZWZyZXNoIn0.eyJleHAiOjE3MDQ2MjkzMzF9.59ZRX0p0zUWs-lHZ4p6opCBCcJeNXc_hZ3VutwNplps", isTemporaryToken: false))
-        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             if let item = connectionOptions.urlContexts.first {
                 App.Repository.member.postId.accept("\(item.url)")

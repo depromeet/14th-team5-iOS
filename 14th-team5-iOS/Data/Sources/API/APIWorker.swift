@@ -36,6 +36,9 @@ public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInter
     private let accountAPIWorker: AccountAPIWorker = AccountAPIWorker()
     private let disposeBag: DisposeBag = DisposeBag()
     
+    var retryCount: Int = 0
+    var retryLimit: Int = 3
+    
     public func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) {
         var urlRequest = urlRequest
         
@@ -59,19 +62,23 @@ public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInter
             return
         }
       
-        let parameter = AccountRefreshParameter(refreshToken: App.Repository.token.accessToken.value?.refreshToken ?? "")
-        
-        accountAPIWorker.accountRefreshToken(parameter: parameter)
-            .compactMap { $0?.toDomain() }
-            .asObservable()
-            .subscribe(onNext: { entity in
-                let refreshToken = AccessToken(accessToken: entity.accessToken, refreshToken: entity.refreshToken, isTemporaryToken: entity.isTemporaryToken)
-                App.Repository.token.accessToken.accept(refreshToken)
-                completion(.retry)
-            }, onError: { error in
-                completion(.doNotRetryWithError(error))
-            })
-            .disposed(by: disposeBag)
+        if retryCount < retryLimit {
+            retryCount += 1
+            let parameter = AccountRefreshParameter(refreshToken: App.Repository.token.accessToken.value?.refreshToken ?? "")
+            
+            accountAPIWorker.accountRefreshToken(parameter: parameter)
+                .compactMap { $0?.toDomain() }
+                .asObservable()
+                .subscribe(onNext: { [weak self] entity in
+                    let refreshToken = AccessToken(accessToken: entity.accessToken, refreshToken: entity.refreshToken, isTemporaryToken: entity.isTemporaryToken)
+                    App.Repository.token.accessToken.accept(refreshToken)
+                    self?.retryCount = 0
+                    completion(.retry)
+                }, onError: { error in
+                    completion(.doNotRetryWithError(error))
+                })
+                .disposed(by: disposeBag)
+        }
     }
 }
 
@@ -134,6 +141,7 @@ public class APIWorker: NSObject, BibbiRouterInterface {
         request.headers = hds
         print("interCepter call with name \(url)")
         return AF.rx.request(urlRequest: request)
+            .retry(5)
             .validate(statusCode: 200..<300)
             .responseData()
             .debug("API Worker has received data from \"\(spec.url)\"")

@@ -112,7 +112,6 @@ extension AccountAPIWorker {
                 }
             }
             .map(AccountRefreshDTO.self)
-//            .catchAndReturn(nil)
             .asSingle()
     }
 }

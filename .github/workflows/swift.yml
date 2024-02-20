@@ -57,19 +57,19 @@ jobs:
       # - name: Tuist Siging Decrept
       #   run: tuist signing decrypt
 
-      # - name: Fastalne setup Keychain
-      #   run: fastlane setup_keychain
-      #   env:
-      #       APP_NAME: ${{secrets.APP_NAME}}
-      #       WIDGET_NAME: ${{secrets.WIDGET_NAME}}
-      #       KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
-      #       KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-
-      - name: Tuist generate Command      
-        run: |
-          tuist generate
+      - name: Fastalne setup Keychain
+        run: fastlane setup_keychain
         env:
-          MASTER_KEY: ${{secrets.MASTER_KEY}}  
+            APP_NAME: ${{secrets.APP_NAME}}
+            WIDGET_NAME: ${{secrets.WIDGET_NAME}}
+            KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
+            KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+
+      # - name: Tuist generate Command      
+      #   run: |
+      #     tuist generate
+      #   env:
+      #     MASTER_KEY: ${{secrets.MASTER_KEY}}  
         
 
       # - name: Tuist Build Command

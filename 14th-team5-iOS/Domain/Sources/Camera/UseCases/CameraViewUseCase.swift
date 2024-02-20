@@ -19,7 +19,7 @@ public protocol CameraViewUseCaseProtocol {
     func executeEditProfileImage(memberId: String, parameter: ProfileImageEditParameter) -> Observable<ProfileMemberResponse?>
     func executeRealEmojiImageURL(memberId: String, parameter: CameraRealEmojiParameters) -> Observable<CameraRealEmojiPreSignedResponse?>
     func executeRealEmojiUploadToS3(memberId: String, parameter: CameraCreateRealEmojiParameters) -> Observable<CameraCreateRealEmojiResponse?>
-    func executeRealEmojiItems(memberId: String) -> Observable<CameraRealEmojiImageItemResponse?>
+    func executeRealEmojiItems(memberId: String) -> Observable<[CameraRealEmojiImageItemResponse?]>
     func executeUpdateRealEmojiImage(memberId: String, realEmojiId: String ,parameter: CameraUpdateRealEmojiParameters) -> Observable<CameraUpdateRealEmojiResponse?>
 }
 
@@ -62,7 +62,7 @@ public final class CameraViewUseCase: CameraViewUseCaseProtocol {
     }
 
     
-    public func executeRealEmojiItems(memberId: String) -> Observable<CameraRealEmojiImageItemResponse?> {
+    public func executeRealEmojiItems(memberId: String) -> Observable<[CameraRealEmojiImageItemResponse?]> {
         return cameraViewRepository.fetchRealEmojiItems(memberId: memberId)
     }
     

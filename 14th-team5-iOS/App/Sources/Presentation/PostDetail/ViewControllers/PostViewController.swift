@@ -40,16 +40,17 @@ final class PostViewController: BaseViewController<PostReactor> {
 
         NotificationCenter.default
             .rx.notification(.didTapSelectableCameraButton)
-            .compactMap { notification -> (String, Int)? in
-                guard let type =  notification.userInfo?["type"] as? String,
-                      let index = notification.userInfo?["index"] as? Int else { return nil }
-                return (type, index)
+            .compactMap { notification -> Emojis? in
+                guard let type =  notification.userInfo?["type"] as? Emojis else { return nil }
+                return type
             }
             .withUnretained(self)
             .bind { owner, entity in
-                let cameraViewController = CameraDIContainer(cameraType: .realEmoji, realEmojiType: entity.0, realEmojiIndex: entity.1).makeViewController()
+                let cameraViewController = CameraDIContainer(cameraType: .realEmoji, realEmojiType: entity).makeViewController()
                 owner.navigationController?.pushViewController(cameraViewController, animated: true)
             }.disposed(by: disposeBag)
+        
+            
 
         reactor.state.map { $0.originPostLists }
             .map(Array.init(with:))

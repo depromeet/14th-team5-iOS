@@ -44,14 +44,11 @@ public final class CameraViewReactor: Reactor {
         case setProfileMemberResponse(ProfileMemberResponse?)
         case setRealEmojiImageURLResponse(CameraRealEmojiPreSignedResponse?)
         case setRealEmojiImageCreateResponse(CameraCreateRealEmojiResponse?)
-        case setRealEmojiItems(CameraRealEmojiImageItemResponse?)
+        case setRealEmojiItems([CameraRealEmojiImageItemResponse?])
         case setRealEmojiSection([EmojiSectionItem])
         case setErrorAlert(Bool)
-        case setRealEmojiType(String)
+        case setRealEmojiType(Emojis)
         case setFeedImageData(Data)
-        case setSelectedIndexPath(Int)
-        case setRealEmojiImage([String: URL?])
-        case setRealEmojiId([String: String])
         case setUpdateEmojiImage(URL)
     }
     
@@ -62,16 +59,13 @@ public final class CameraViewReactor: Reactor {
         @Pulse var profileImageURLEntity: CameraDisplayImageResponse?
         @Pulse var realEmojiURLEntity: CameraRealEmojiPreSignedResponse?
         @Pulse var realEmojiCreateEntity: CameraCreateRealEmojiResponse?
-        @Pulse var realEmojiEntity: CameraRealEmojiImageItemResponse?
+        @Pulse var realEmojiEntity: [CameraRealEmojiImageItemResponse?]
         @Pulse var realEmojiSection: [EmojiSectionModel]
-        @Pulse var reloadRealEmojiImage: [String: URL?]
-        @Pulse var reloadRealEmojiId: [String: String]
         @Pulse var zoomScale: CGFloat
         @Pulse var pinchZoomScale: CGFloat
         @Pulse var feedImageData: Data?
         var updateEmojiImage: URL?
-        var emojiType: String
-        var selectedIndexPath: Int
+        var emojiType: Emojis = .emoji(forIndex: 1)
         var cameraType: UploadLocation = .feed
         var accountImage: Data?
         var memberId: String
@@ -84,8 +78,7 @@ public final class CameraViewReactor: Reactor {
          provider: GlobalStateProviderProtocol,
          cameraType: UploadLocation,
          memberId: String,
-         emojiType: String = "EMOJI_1",
-         emojiIndex: Int = 0
+         emojiType: Emojis = .emoji(forIndex: 1)
     ) {
         self.cameraType = cameraType
         self.cameraUseCase = cameraUseCase
@@ -98,16 +91,13 @@ public final class CameraViewReactor: Reactor {
             profileImageURLEntity: nil,
             realEmojiURLEntity: nil,
             realEmojiCreateEntity: nil,
-            realEmojiEntity: nil,
+            realEmojiEntity: [],
             realEmojiSection: [.realEmoji([])],
-            reloadRealEmojiImage: [:],
-            reloadRealEmojiId: [:],
             zoomScale: 1.0,
             pinchZoomScale: 1.0,
             feedImageData: nil,
             updateEmojiImage: nil,
             emojiType: emojiType,
-            selectedIndexPath: emojiIndex,
             cameraType: cameraType,
             accountImage: nil,
             memberId: memberId,
@@ -138,10 +128,7 @@ public final class CameraViewReactor: Reactor {
             
         case let .didTapRealEmojiPad(indexPath):
             provider.realEmojiGlobalState.didTapRealEmojiEvent(indexPath: indexPath.row)
-            return .concat(
-                .just(.setSelectedIndexPath(indexPath.row)),
-                .just(.setRealEmojiType(Emojis.allEmojis[indexPath.row].emojiString))
-            )
+            return .just(.setRealEmojiType(Emojis.allEmojis[indexPath.row]))
         case let .dragPreviewLayer(scale):
             let minAvailableZoomScale: CGFloat = 1.0
             let maxAvailableZoomScale: CGFloat = 10.0
@@ -182,16 +169,10 @@ public final class CameraViewReactor: Reactor {
             newState.realEmojiSection[sectionIndex] = .realEmoji(section)
         case let .setErrorAlert(isError):
             newState.isError = isError
-        case let .setSelectedIndexPath(indexPath):
-            newState.selectedIndexPath = indexPath
         case let .setRealEmojiType(emojiType):
             newState.emojiType = emojiType
         case let .setUpdateEmojiImage(realEmoji):
             newState.updateEmojiImage = realEmoji
-        case let .setRealEmojiImage(reloadRealEmojiImage):
-            newState.reloadRealEmojiImage = reloadRealEmojiImage
-        case let .setRealEmojiId(reloadRealEmojiId):
-            newState.reloadRealEmojiId = reloadRealEmojiId
         case let .setZoomScale(zoomScale):
             newState.zoomScale = zoomScale
         case let .setPinchZoomScale(pinchZoomScale):
@@ -223,63 +204,33 @@ extension CameraViewReactor {
     }
     
     private func viewDidLoadMutation() -> Observable<CameraViewReactor.Mutation> {
-        var searchImage: [String:URL?] = ["0":nil,"1":nil,"2":nil,"3":nil,"4":nil]
-        var searchId: [String: String] = ["0":"","1":"","2":"","3":"","4":""]
-
         if cameraType == .realEmoji {
             return .concat(
                 cameraUseCase.executeRealEmojiItems(memberId: memberId)
                     .withUnretained(self)
                     .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
                         var sectionItem: [EmojiSectionItem] = []
-                        guard let realEmojiEntity = entity?.realEmojiItems else { return .just(.setErrorAlert(true))}
-                        if realEmojiEntity.isEmpty {
-                            CameraRealEmojiItems.allCases.enumerated().forEach {
-                                let isSelected: Bool = $0.offset == owner.currentState.selectedIndexPath ? true : false
-                                sectionItem.append(.realEmojiItem(
+                        entity.enumerated().forEach {
+                            
+                            let isSelected: Bool = $0.offset == (owner.currentState.emojiType.rawValue - 1) ? true : false
+                            sectionItem.append(
+                                .realEmojiItem(
                                     BibbiRealEmojiCellReactor(
                                         provider: owner.provider,
-                                        realEmojiImage: nil,
-                                        defaultImage: $0.element.rawValue,
+                                        realEmojiImage: $0.element?.realEmojiImageURL,
                                         isSelected: isSelected,
                                         indexPath: $0.offset,
-                                        realEmojiId: "",
-                                        realEmojiType: CameraRealEmojiItems.allCases[$0.offset].emojiType
+                                        realEmojiId: $0.element?.realEmojiId ?? "",
+                                        realEmojiType: $0.element?.realEmojiType ?? ""
                                     )
-                                ))
-                            }
-                        } else {
+                                )
                             
-                            CameraRealEmojiItems.allCases.enumerated().forEach { item in
-                                let index = CameraRealEmojiItems.allCases.firstIndex { emojiItem in
-                                        return emojiItem.emojiType == realEmojiEntity[safe: item.offset]?.realEmojiType
-                                } ?? -1
-                                searchId["\(index)"] = realEmojiEntity[safe: item.offset]?.realEmojiId
-                                searchImage["\(index)"] = realEmojiEntity[safe: item.offset]?.realEmojiImageURL
-                            }
-                            
-                            CameraRealEmojiItems.allCases.enumerated().forEach { item in
-                                let isSelected: Bool = item.offset == owner.currentState.selectedIndexPath ? true : false
-                                sectionItem.append(.realEmojiItem(
-                                    BibbiRealEmojiCellReactor(
-                                        provider: owner.provider,
-                                        realEmojiImage: searchImage["\(item.offset)"] as? URL,
-                                        defaultImage: item.element.rawValue,
-                                        isSelected: isSelected,
-                                        indexPath: item.offset,
-                                        realEmojiId: searchId["\(item.offset)"] ?? "",
-                                        realEmojiType: realEmojiEntity[safe: item.offset]?.realEmojiType ?? ""
-                                    )
-                                ))
-
-                            }
+                            )
                         }
                         return .concat(
                             .just(.setLoading(false)),
                             .just(.setRealEmojiItems(entity)),
                             .just(.setRealEmojiSection(sectionItem)),
-                            .just(.setRealEmojiImage(searchImage)),
-                            .just(.setRealEmojiId(searchId)),
                             .just(.setErrorAlert(false)),
                             .just(.setLoading(true))
                         )
@@ -360,7 +311,7 @@ extension CameraViewReactor {
             let realEmojiImage = "\(imageData.hashValue).jpg"
             let realEmojiParameter = CameraRealEmojiParameters(imageName: realEmojiImage)
 
-            if (currentState.reloadRealEmojiImage["\(currentState.selectedIndexPath)"] as? URL == nil) {
+            if currentState.realEmojiEntity[currentState.emojiType.rawValue - 1] == nil {
                 return .concat(
                     .just(.setLoading(false)),
                     cameraUseCase.executeRealEmojiImageURL(memberId: memberId, parameter: realEmojiParameter)
@@ -374,37 +325,23 @@ extension CameraViewReactor {
                                 .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                                 .asObservable()
                                 .flatMap { isSuccess -> Observable<CameraViewReactor.Mutation> in
-                                    
                                     let originalURL = owner.configureProfileOriginalS3URL(url: presingedURL, with: .realEmoji)
-                                    let realEmojiCreateParameter = CameraCreateRealEmojiParameters(type: owner.currentState.emojiType, imageUrl: originalURL)
+                                    let realEmojiCreateParameter = CameraCreateRealEmojiParameters(type: owner.currentState.emojiType.emojiString, imageUrl: originalURL)
+                                    print("currestState Emoji Type: \(owner.currentState.emojiType)")
                                     if isSuccess {
                                         return owner.cameraUseCase.executeRealEmojiUploadToS3(memberId: owner.memberId, parameter: realEmojiCreateParameter)
                                             .asObservable()
                                             .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                                             .flatMap { realEmojiEntity -> Observable<CameraViewReactor.Mutation> in
                                                 guard let createRealEmojiEntity = realEmojiEntity else { return .just(.setErrorAlert(true))}
-                                                owner.provider.realEmojiGlobalState.createRealEmojiImage(indexPath: owner.currentState.selectedIndexPath, image: createRealEmojiEntity.realEmojiImageURL, emojiType: createRealEmojiEntity.realEmojiType)
+                                                owner.provider.realEmojiGlobalState.createRealEmojiImage(indexPath: owner.currentState.emojiType.rawValue - 1, image: createRealEmojiEntity.realEmojiImageURL, emojiType: createRealEmojiEntity.realEmojiType)
                                                 return owner.cameraUseCase.executeRealEmojiItems(memberId: owner.memberId)
                                                     .asObservable()
                                                     .flatMap { reloadEntity -> Observable<CameraViewReactor.Mutation> in
-                                                        guard let orginalEntity = reloadEntity?.realEmojiItems else { return .just(.setErrorAlert(true)) }
-                                                        var searchArray: [String:URL?] = ["0":nil,"1":nil,"2":nil,"3":nil,"4":nil]
-                                                        var searchIdArray: [String: String] = ["0":"","1":"","2":"","3":"","4":""]
-                                                        
-                                                        CameraRealEmojiItems.allCases.enumerated().forEach { item in
-                                                            let index = CameraRealEmojiItems.allCases.firstIndex { emojiItem in
-                                                                return emojiItem.emojiType == orginalEntity[safe: item.offset]?.realEmojiType
-                                                            } ?? -1
-                                                            searchIdArray["\(index)"] = orginalEntity[safe: item.offset]?.realEmojiId
-                                                            searchArray["\(index)"] = orginalEntity[safe: item.offset]?.realEmojiImageURL
-                                                        }
-                                                        
                                                         return .concat(
                                                             .just(.setRealEmojiImageURLResponse(entity)),
                                                             .just(.setRealEmojiItems(reloadEntity)),
                                                             .just(.uploadImageToS3(isSuccess)),
-                                                            .just(.setRealEmojiId(searchIdArray)),
-                                                            .just(.setRealEmojiImage(searchArray)),
                                                             .just(.setRealEmojiImageCreateResponse(realEmojiEntity)),
                                                             .just(.setErrorAlert(false)),
                                                             .just(.setLoading(true))
@@ -421,7 +358,6 @@ extension CameraViewReactor {
                         }
                 
                 )
-
             } else {
                 let realEmojiImage = "\(imageData.hashValue).jpg"
                 let realEmojiParameter = CameraRealEmojiParameters(imageName: realEmojiImage)
@@ -440,11 +376,11 @@ extension CameraViewReactor {
                                 .asObservable()
                                 .flatMap { isSuccess -> Observable<CameraViewReactor.Mutation> in
                                     if isSuccess {
-                                        return owner.cameraUseCase.executeUpdateRealEmojiImage(memberId: owner.memberId, realEmojiId: owner.currentState.reloadRealEmojiId["\(owner.currentState.selectedIndexPath)"] ?? "", parameter: updateRealEmojiParameter)
+                                        return owner.cameraUseCase.executeUpdateRealEmojiImage(memberId: owner.memberId, realEmojiId: owner.currentState.realEmojiEntity[owner.currentState.emojiType.rawValue - 1]?.realEmojiId ?? "", parameter: updateRealEmojiParameter)
                                             .asObservable()
                                             .flatMap { updateRealEmojiEntity -> Observable<CameraViewReactor.Mutation> in
                                                 guard let updateEntity = updateRealEmojiEntity else { return .just(.setErrorAlert(true))}
-                                                owner.provider.realEmojiGlobalState.updateRealEmojiImage(indexPath: owner.currentState.selectedIndexPath, image: updateEntity.realEmojiImageURL)
+                                                owner.provider.realEmojiGlobalState.updateRealEmojiImage(indexPath: owner.currentState.emojiType.rawValue - 1, image: updateEntity.realEmojiImageURL)
                                                 return .concat(
                                                     .just(.setUpdateEmojiImage(updateEntity.realEmojiImageURL)),
                                                     .just(.setLoading(true)),

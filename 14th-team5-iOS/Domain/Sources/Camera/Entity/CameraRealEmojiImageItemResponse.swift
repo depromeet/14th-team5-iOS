@@ -7,28 +7,14 @@
 
 import Foundation
 
+import Core
 
-public struct CameraRealEmojiImageItemResponse {
-    public var realEmojiItems: [CameraRealEmojiInfoResponse]
-    
-    
-    public init(
-        realEmojiItems: [CameraRealEmojiInfoResponse]
-    ) {
-        self.realEmojiItems = realEmojiItems
-    }
-}
-
-public struct CameraRealEmojiInfoResponse {
+public struct CameraRealEmojiImageItemResponse: Hashable {
     public var realEmojiId: String
     public var realEmojiType: String
     public var realEmojiImageURL: URL
     
-    
-    public init(
-        realEmojiId: String,
-        realEmojiType: String,
-        realEmojiImageURL: URL) {
+    public init(realEmojiId: String, realEmojiType: String, realEmojiImageURL: URL) {
         self.realEmojiId = realEmojiId
         self.realEmojiType = realEmojiType
         self.realEmojiImageURL = realEmojiImageURL

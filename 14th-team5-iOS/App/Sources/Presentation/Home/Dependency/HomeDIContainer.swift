@@ -35,8 +35,8 @@ extension HomeDIContainer {
         return PostListAPIs.Worker()
     }
     
-    private func makeFamilyRepository() -> SearchFamilyRepository {
-        return FamilyAPIs.Worker()
+    private func makeFamilyRepository() -> FamilyRepositoryProtocol {
+        return FamilyRepository()
     }
 
     private func makeInviteFamilyRepository() -> FamilyRepositoryProtocol {
@@ -47,8 +47,8 @@ extension HomeDIContainer {
         return PostListUseCase(postListRepository: makePostRepository())
     }
     
-    private func makeFamilyUseCase() -> SearchFamilyMemberUseCaseProtocol {
-        return SearchFamilyUseCase(searchFamilyRepository: makeFamilyRepository())
+    private func makeFamilyUseCase() -> FamilyUseCaseProtocol {
+        return FamilyUseCase(familyRepository: makeFamilyRepository())
     }
     
     private func makeInviteFamilyUseCase() -> FamilyUseCaseProtocol {

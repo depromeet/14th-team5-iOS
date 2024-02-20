@@ -131,6 +131,7 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             .asSingle()
     }
     
+    @available(*, deprecated, renamed: "joinFamily")
     private func joinFamily(headers: [APIHeader]?, body: Domain.JoinFamilyRequest) -> RxSwift.Single<JoinFamilyResponse?> {
         let spec = MeAPIs.joinFamily.spec
         let requestDTO: JoinFamilyRequestDTO = JoinFamilyRequestDTO(inviteCode: body.inviteCode)
@@ -147,6 +148,7 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             .asSingle()
     }
     
+    @available(*, deprecated, renamed: "joinFamily")
     public func joinFamily(with inviteCode: String) -> Single<FamilyInfo?> {
         
         let payload = _PayLoad.FamilyPayload(inviteCode: inviteCode)

@@ -9,6 +9,6 @@ import RxSwift
 
 @available(*, deprecated, renamed: "FamilyRepository")
 public protocol SearchFamilyRepository {
-    func getSavedFamilyMember(memberIds: [String]) -> [ProfileData]?
+    func fetchPaginationFamilyMembers(memberIds: [String]) -> [ProfileData]?
     func fetchFamilyMember(query: SearchFamilyQuery) -> Single<SearchFamilyPage?>
 }

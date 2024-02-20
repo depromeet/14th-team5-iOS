@@ -58,11 +58,11 @@ final class HomeViewReactor: Reactor {
     
     let initialState: State = State()
     let provider: GlobalStateProviderProtocol
-    private let familyUseCase: SearchFamilyMemberUseCaseProtocol
+    private let familyUseCase: FamilyUseCaseProtocol
     private let postUseCase: PostListUseCaseProtocol
     private let inviteFamilyUseCase: FamilyUseCaseProtocol
     
-    init(provider: GlobalStateProviderProtocol, familyUseCase: SearchFamilyMemberUseCaseProtocol, postUseCase: PostListUseCaseProtocol, inviteFamilyUseCase: FamilyUseCaseProtocol) {
+    init(provider: GlobalStateProviderProtocol, familyUseCase: FamilyUseCaseProtocol, postUseCase: PostListUseCaseProtocol, inviteFamilyUseCase: FamilyUseCaseProtocol) {
         self.provider = provider
         self.familyUseCase = familyUseCase
         self.postUseCase = postUseCase
@@ -172,14 +172,14 @@ extension HomeViewReactor {
         }
     }
 
-    private func handleFamilyListWhenNotTime(_ familyListObservable: Observable<SearchFamilyPage?>) -> Observable<Mutation> {
+    private func handleFamilyListWhenNotTime(_ familyListObservable: Observable<PaginationResponseFamilyMemberProfile?>) -> Observable<Mutation> {
         return familyListObservable
             .flatMap { familyList -> Observable<Mutation> in
-                guard let familyList = familyList, familyList.members.count >= 2 else {
+                guard let familyList = familyList, familyList.results.count >= 2 else {
                     return Observable.just(Mutation.setInviteFamilyView(true))
                 }
 
-                let familySectionItem = familyList.members.map(FamilySection.Item.main)
+                let familySectionItem = familyList.results.map(FamilySection.Item.main)
                 return Observable.from([
                     Mutation.setNoPostTodayView(true),
                     Mutation.setInviteFamilyView(false),
@@ -190,19 +190,19 @@ extension HomeViewReactor {
             }
     }
 
-    private func handleFamilyAndPostList(_ familyListObservable: Observable<SearchFamilyPage?>, _ postListObservable: Observable<PostListPage?>) -> Observable<Mutation> {
+    private func handleFamilyAndPostList(_ familyListObservable: Observable<PaginationResponseFamilyMemberProfile?>, _ postListObservable: Observable<PostListPage?>) -> Observable<Mutation> {
         return Observable.combineLatest(postListObservable, familyListObservable)
             .flatMap { (postList, familyList) -> Observable<Mutation> in
-                guard let familyList = familyList, familyList.members.count >= 1 else {
+                guard let familyList = familyList, familyList.results.count >= 1 else {
                     return Observable.empty()
                 }
 
                 var mutations: [Mutation] = [
-                    Mutation.setInviteFamilyView(familyList.members.count <= 1)
+                    Mutation.setInviteFamilyView(familyList.results.count <= 1)
                 ]
 
                 if let postList = postList, !postList.postLists.isEmpty {
-                    let sortedFamilyMembers = self.sortFamilyMembersByPostRank(familyList.members, with: postList.postLists)
+                    let sortedFamilyMembers = self.sortFamilyMembersByPostRank(familyList.results, with: postList.postLists)
                     let familySectionItem = sortedFamilyMembers.map(FamilySection.Item.main)
                     mutations.append(Mutation.updateFamilyDataSource(familySectionItem))
 
@@ -214,7 +214,7 @@ extension HomeViewReactor {
                         Mutation.setAllFamilyUploaded(postList.allFamilyMembersUploaded)
                     ])
                 } else {
-                    let familySectionItem = familyList.members.map(FamilySection.Item.main)
+                    let familySectionItem = familyList.results.map(FamilySection.Item.main)
                     mutations.append(contentsOf: [
                         Mutation.updateFamilyDataSource(familySectionItem),
                         Mutation.setSelfUploaded(false),
@@ -253,9 +253,9 @@ extension HomeViewReactor {
         return postUseCase.excute(query: query).asObservable()
     }
     
-    private func getFamilyList() -> Observable<SearchFamilyPage?> {
-        let query = SearchFamilyQuery(page: 1, size: 50)
-        return familyUseCase.excute(query: query).asObservable()
+    private func getFamilyList() -> Observable<PaginationResponseFamilyMemberProfile?> {
+        let query = FamilyPaginationQuery()
+        return familyUseCase.executeFetchPaginationFamilyMembers(query: query)
     }
     
     private func calculateRemainingTime() -> (Bool, Int) {

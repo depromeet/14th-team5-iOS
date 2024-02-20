@@ -27,11 +27,11 @@ final class ReactionMemberViewReactor: Reactor {
     }
     
     let initialState: State
-    let familyRepository: SearchFamilyMemberUseCaseProtocol
+    let familyUseCase: FamilyUseCaseProtocol
     
-    init(initialState: State, familyRepository: SearchFamilyMemberUseCaseProtocol) {
+    init(initialState: State, familyUseCase: FamilyUseCaseProtocol) {
         self.initialState = initialState
-        self.familyRepository = familyRepository
+        self.familyUseCase = familyUseCase
     }
 }
 
@@ -39,7 +39,7 @@ extension ReactionMemberViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .makeDataSource:
-            let profiles: [ProfileData] = familyRepository.execute(memberIds: currentState.emojiData.memberIds) ?? []
+            let profiles: [ProfileData] = familyUseCase.executeFetchPaginationFamilyMembers(memberIds: currentState.emojiData.memberIds)
             
             var items: [FamilyMemberProfileCellReactor] = []
             profiles.forEach {

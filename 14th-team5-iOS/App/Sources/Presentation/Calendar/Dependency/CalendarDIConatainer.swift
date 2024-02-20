@@ -25,10 +25,6 @@ public final class CalendarDIConatainer {
         return CalendarViewController(reactor: makeReactor())
     }
     
-    public func makeFamilyUseCase() -> SearchFamilyUseCase {
-        return SearchFamilyUseCase(searchFamilyRepository: makeFamilyRepository())
-    }
-    
     public func makeCalendarUseCase() -> CalendarUseCaseProtocol {
         return CalendarUseCase(calendarRepository: makeCalendarRepository())
     }
@@ -37,13 +33,8 @@ public final class CalendarDIConatainer {
         return CalendarRepository()
     }
     
-    public func makeFamilyRepository() -> SearchFamilyRepository {
-        return FamilyAPIs.Worker()
-    }
-    
     public func makeReactor() -> CalendarViewReactor {
         return CalendarViewReactor(
-            familyUseCase: makeFamilyUseCase(),
             calendarUseCase: makeCalendarUseCase(),
             provider: globalState
         )

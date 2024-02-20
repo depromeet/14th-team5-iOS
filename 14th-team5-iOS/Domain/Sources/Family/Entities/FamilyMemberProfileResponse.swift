@@ -35,6 +35,7 @@ public struct ProfileData: Equatable, Hashable, Codable {
     }
 }
 
+@available(*, deprecated, renamed: "PaginationResponseFamilyMemberProfile")
 public struct SearchFamilyPage: Equatable {
     public let isLast: Bool
     public let members: [ProfileData]

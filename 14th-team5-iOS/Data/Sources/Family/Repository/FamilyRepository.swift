@@ -59,6 +59,10 @@ extension FamilyRepository {
             .asObservable()
     }
     
+    public func fetchPaginationFamilyMembers(memberIds: [String]) -> [ProfileData] {
+        return FamilyUserDefaults.loadMembersFromUserDefaults(memberIds: memberIds)
+    }
+    
     public func fetchFamilyCreatedAt() -> Observable<FamilyCreatedAtResponse?> {
         return familyApiWorker.fetchFamilyCreatedAt(familyId: familyId)
             .asObservable()

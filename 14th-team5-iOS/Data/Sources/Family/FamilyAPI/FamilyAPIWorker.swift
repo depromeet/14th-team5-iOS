@@ -188,6 +188,10 @@ extension FamilyAPIWorker {
     
     
     
+}
+
+extension FamilyAPIWorker {
+    
     public func fetchFamilyMemeberPage(token accessToken: String) -> Single<PaginationResponseFamilyMemberProfile?> {
         let request: FamilySearchRequestDTO = .init(type: "FAMILY", page: 1, size: 20)
         let spec: APISpec = FamilyAPIs.familyMembers(request).spec
@@ -238,11 +242,5 @@ extension FamilyAPIWorker {
                 FamilyUserDefaults.saveFamilyMembers($0?.members ?? [])
             }
             .asSingle()
-    }
-}
-
-extension FamilyAPIWorker: SearchFamilyRepository {
-    public func getSavedFamilyMember(memberIds: [String]) -> [Domain.ProfileData]? {
-        return FamilyUserDefaults.loadMembersFromUserDefaults(memberIds: memberIds)
     }
 }

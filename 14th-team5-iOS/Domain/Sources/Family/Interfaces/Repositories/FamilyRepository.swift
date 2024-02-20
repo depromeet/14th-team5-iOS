@@ -17,5 +17,6 @@ public protocol FamilyRepositoryProtocol {
     func createFamily() -> Observable<FamilyCreatedAtResponse?>
     func fetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?>
     func fetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfile?>
+    func fetchPaginationFamilyMembers(memberIds: [String]) -> [ProfileData]
     func fetchFamilyCreatedAt() -> Observable<FamilyCreatedAtResponse?>
 }

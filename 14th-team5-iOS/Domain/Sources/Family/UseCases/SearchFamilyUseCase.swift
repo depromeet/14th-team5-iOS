@@ -27,6 +27,6 @@ public class SearchFamilyUseCase: SearchFamilyMemberUseCaseProtocol {
     }
     
     public func execute(memberIds: [String]) -> [ProfileData]? {
-        return searchFamilyRepository.getSavedFamilyMember(memberIds: memberIds)
+        return searchFamilyRepository.fetchPaginationFamilyMembers(memberIds: memberIds)
     }
 }

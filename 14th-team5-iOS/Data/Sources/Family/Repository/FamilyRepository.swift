@@ -32,14 +32,26 @@ public final class FamilyRepository: FamilyRepositoryProtocol {
 }
 
 extension FamilyRepository {
-    public func joinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyData?> {
+    public func joinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyResponse?> {
         let body = JoinFamilyRequestDTO(inviteCode: body.inviteCode)
         return familyApiWorker.joinFamily(body: body)
+            .do(onSuccess: { App.Repository.member.familyId.accept($0?.familyId) })
             .asObservable()
     }
     
-    public func createFamily() -> Observable<FamilyResponse?> {
+    public func resignFamily() -> Observable<AccountFamilyResignResponse?> {
+        return familyApiWorker.resignFamily()
+            .asObservable()
+    }
+    
+    public func createFamily() -> Observable<CreateFamilyResponse?> {
         return familyApiWorker.createFamily()
+            .asObservable()
+    }
+    
+    public func fetchFamilyCreatedAt() -> Observable<FamilyCreatedAtResponse?> {
+        return familyApiWorker.fetchFamilyCreatedAt(familyId: familyId)
+            .do(onSuccess: { App.Repository.member.familyCreatedAt.accept($0?.createdAt) })
             .asObservable()
     }
     
@@ -50,12 +62,11 @@ extension FamilyRepository {
     
     public func fetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfile?> {
         return familyApiWorker.fetchPaginationFamilyMember(familyId: familyId, query: query)
-            .do(onSuccess: { _ in /* FamilyUserDefaults.saveFamilyMembers($0?.results ?? []) */ }) // TODO: - 가족 구성원 정보를 UserDefaults에 저장하기
+            .do(onSuccess: { FamilyUserDefaults.saveFamilyMembers($0?.results ?? []) })
             .asObservable()
     }
     
-    public func fetchFamilyCreatedAt() -> Observable<FamilyCreatedAtResponse?> {
-        return familyApiWorker.fetchFamilyCreatedAt(familyId: familyId)
-            .asObservable()
+    public func fetchPaginationFamilyMembers(memberIds: [String]) -> [ProfileData] {
+        return FamilyUserDefaults.loadMembersFromUserDefaults(memberIds: memberIds)
     }
 }

@@ -14,16 +14,16 @@ import Domain
 import RxDataSources
 
 final class ReactionMemberDIContainer {
-    func makeFamilyRepository() -> SearchFamilyRepository {
-        return FamilyAPIs.Worker()
+    func makeFamilyRepository() -> FamilyRepositoryProtocol {
+        return FamilyRepository()
     }
     
-    func makeFamilyUseCase() -> SearchFamilyUseCase {
-        return SearchFamilyUseCase(searchFamilyRepository: makeFamilyRepository())
+    func makeFamilyUseCase() -> FamilyUseCaseProtocol {
+        return FamilyUseCase(familyRepository: makeFamilyRepository())
     }
     
     func makeReactionMemberReactor(emojiData: FetchedEmojiData) -> ReactionMemberViewReactor {
-        return ReactionMemberViewReactor(initialState: .init(emojiData: emojiData), familyRepository: makeFamilyUseCase())
+        return ReactionMemberViewReactor(initialState: .init(emojiData: emojiData), familyUseCase: makeFamilyUseCase())
     }
     
     func makeViewController(emojiData: FetchedEmojiData) -> ReactionMembersViewController {

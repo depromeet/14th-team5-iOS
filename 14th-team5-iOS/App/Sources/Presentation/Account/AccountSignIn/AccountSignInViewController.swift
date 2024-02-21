@@ -123,6 +123,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
         
         App.Repository.token.accessToken
             .observe(on: Schedulers.main)
+            .skip(1)
             .withUnretained(self)
             .bind(onNext: { $0.0.showNextPage(token: $0.1) })
             .disposed(by: disposeBag)

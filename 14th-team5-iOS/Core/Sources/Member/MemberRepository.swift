@@ -17,6 +17,7 @@ public class MemberRepository: RxObject {
     public let inviteCode = BehaviorRelay<String?>(value: nil)
     public let postId = BehaviorRelay<String?>(value: nil)
     public let openComment = BehaviorRelay<Bool?>(value: nil)
+    public let familyCreatedAt = BehaviorRelay<Date?>(value: nil)
     
     override public func bind() {
         memberID
@@ -42,6 +43,11 @@ public class MemberRepository: RxObject {
         postId
             .withUnretained(self)
             .bind(onNext: { $0.0.savePostId(with: $0.1) })
+            .disposed(by: disposeBag)
+        
+        familyCreatedAt
+            .withUnretained(self)
+            .bind(onNext: { $0.0.saveFamilyCreatedAt(with: $0.1) })
             .disposed(by: disposeBag)
     }
     
@@ -71,6 +77,14 @@ public class MemberRepository: RxObject {
             return
         }
         UserDefaults.standard.postId = postId
+    }
+    
+    private func saveFamilyCreatedAt(with date: Date?) {
+        guard let date = date else {
+            UserDefaults.standard.createdAt = nil
+            return
+        }
+        UserDefaults.standard.createdAt = date
     }
     
     override public func unbind() {

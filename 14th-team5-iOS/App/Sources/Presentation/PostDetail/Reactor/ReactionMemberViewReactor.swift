@@ -27,11 +27,11 @@ final class ReactionMemberViewReactor: Reactor {
     }
     
     let initialState: State
-    let familyRepository: SearchFamilyMemberUseCaseProtocol
+    let familyUseCase: FamilyUseCaseProtocol
     
-    init(initialState: State, familyRepository: SearchFamilyMemberUseCaseProtocol) {
+    init(initialState: State, familyUseCase: FamilyUseCaseProtocol) {
         self.initialState = initialState
-        self.familyRepository = familyRepository
+        self.familyUseCase = familyUseCase
     }
 }
 
@@ -39,18 +39,25 @@ extension ReactionMemberViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .makeDataSource:
-            let profiles: [ProfileData] = familyRepository.execute(memberIds: currentState.emojiData.memberIds) ?? []
+            let profiles: [ProfileData] = familyUseCase.executeFetchPaginationFamilyMembers(memberIds: currentState.emojiData.memberIds)
             
             var items: [FamilyMemberProfileCellReactor] = []
             profiles.forEach {
-                let member = FamilyMemberProfileResponse(memberId: $0.memberId, name: $0.name, imageUrl: $0.profileImageURL)
+                let member = ProfileData(
+                    memberId: $0.memberId,
+                    profileImageURL: $0.profileImageURL,
+                    name: $0.name
+                )
                 items.append(FamilyMemberProfileCellReactor(member, isMe: false, cellType: .emoji))
             }
             
             if  profiles.count != currentState.emojiData.memberIds.count {
                 let len = currentState.emojiData.memberIds.count - profiles.count
                 for _ in 0...(len - 1) {
-                    let member = FamilyMemberProfileResponse(memberId: "", name: "알 수 없음")
+                    let member = ProfileData(
+                        memberId: .none,
+                        name: .unknown
+                    )
                     items.append(FamilyMemberProfileCellReactor(member, isMe: false, cellType: .emoji))
                 }
             }

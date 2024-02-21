@@ -1,16 +1,15 @@
 //
-//  FamilyResponse.swift
+//  FamilyCreatedAtResponseDTO.swift
 //  Data
 //
-//  Created by 김건우 on 1/10/24.
+//  Created by 김건우 on 2/20/24.
 //
 
+import Domain
 import Foundation
 
-import Domain
-
 // MARK: - Data Transfer Object (DTO)
-public struct FamilyResponseDTO: Decodable {
+public struct FamilyCreatedAtResponseDTO: Decodable {
     private enum CodingKeys: String, CodingKey {
         case familyId
         case createdAt
@@ -19,10 +18,9 @@ public struct FamilyResponseDTO: Decodable {
     var createdAt: String
 }
 
-extension FamilyResponseDTO {
-    func toDomain() -> FamilyResponse {
+extension FamilyCreatedAtResponseDTO {
+    func toDomain() -> FamilyCreatedAtResponse {
         return .init(
-            familyId: familyId,
             createdAt: createdAt.iso8601ToDate()
         )
     }

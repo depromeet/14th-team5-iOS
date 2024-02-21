@@ -32,9 +32,9 @@ public final class JoinFamilyReactor: Reactor {
     
     // MARK: - Properties
     public let initialState: State
-    private let familyUseCase: FamilyViewUseCaseProtocol
+    private let familyUseCase: FamilyUseCaseProtocol
     
-    init(initialState: State, familyUseCase: FamilyViewUseCaseProtocol) {
+    init(initialState: State, familyUseCase: FamilyUseCaseProtocol) {
         self.initialState = initialState
         self.familyUseCase = familyUseCase
     }
@@ -48,7 +48,7 @@ extension JoinFamilyReactor {
         case .makeFamily:
             return familyUseCase.executeCreateFamily()
                 .flatMap {
-                    guard let familyResponse: FamilyResponse = $0 else {
+                    guard let familyResponse: CreateFamilyResponse = $0 else {
                         return Observable.just(Mutation.setShowHome(false))
                     }
                     App.Repository.member.familyId.accept(familyResponse.familyId)

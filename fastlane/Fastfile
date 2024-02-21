@@ -118,7 +118,7 @@ platform :ios do
     slack(
       message: "⭐️ 테스트 플라이트 업로드 성공",
       slack_url: "#{SLACK_HOOK_URL}",
-      username: "오잉봇",
+      username: "대신 배포해주는 고양이",
       icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
       payload: {
         "Build Date" => Time.new.to_s,
@@ -174,7 +174,7 @@ platform :ios do
     slack(
       message: "⭐️ 테스트 플라이트 업로드 성공",
       slack_url: "#{SLACK_HOOK_URL}",
-      username: "오잉봇",
+      username: "대신 배포해주는 고양이",
       icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
       payload: {
         "Build Date" => Time.new.to_s,
@@ -203,7 +203,7 @@ platform :ios do
     slack(
       message: "❗️ 테스트 플라이트 업로드 실패",
       slack_url: "#{SLACK_HOOK_URL}",
-      username: "오잉봇",
+      username: "대신 배포해주는 고양이",
       icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
       success: false,
       attachment_properties: {

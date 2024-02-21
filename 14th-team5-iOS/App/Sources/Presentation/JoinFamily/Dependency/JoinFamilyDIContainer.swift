@@ -16,8 +16,8 @@ final class JoinFamilyDIContainer {
         return JoinFamilyViewController(reactor: makeReactor())
     }
     
-    public func makeUsecase() -> FamilyViewUseCaseProtocol {
-        return FamilyViewUseCase(familyRepository: makeRepository())
+    public func makeUsecase() -> FamilyUseCaseProtocol {
+        return FamilyUseCase(familyRepository: makeRepository())
     }
     
     public func makeRepository() -> FamilyRepositoryProtocol {

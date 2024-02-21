@@ -17,7 +17,6 @@ public final class CalendarViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case popViewController
-        case fetchFamilyMembers
         case addYearMonthItem(String)
     }
     
@@ -41,17 +40,15 @@ public final class CalendarViewReactor: Reactor {
     public var initialState: State
     
     public let provider: GlobalStateProviderProtocol
-    private let familyUseCase: SearchFamilyMemberUseCaseProtocol
     private let calendarUseCase: CalendarUseCaseProtocol
     
     // MARK: - Intializer
-    init(familyUseCase: SearchFamilyUseCase, calendarUseCase: CalendarUseCaseProtocol, provider: GlobalStateProviderProtocol) {
+    init(calendarUseCase: CalendarUseCaseProtocol, provider: GlobalStateProviderProtocol) {
         self.initialState = State(
             shouldPopCalendarVC: false,
             displayCalendar: [.init(items: [])]
         )
         
-        self.familyUseCase = familyUseCase
         self.calendarUseCase = calendarUseCase
         self.provider = provider
     }
@@ -82,13 +79,6 @@ public final class CalendarViewReactor: Reactor {
             provider.toastGlobalState.clearLastSelectedDate()
             return Observable<Mutation>.just(.popViewController)
             
-        case .fetchFamilyMembers:
-            let query: SearchFamilyQuery = SearchFamilyQuery(page: 1, size: 256)
-            return familyUseCase.excute(query: query)
-                .asObservable()
-                .flatMap {_ in
-                    return Observable<Mutation>.empty()
-                }
         case let .addYearMonthItem(yearMonth):
             return Observable<Mutation>.just(.injectYearMonthItem(yearMonth))
             

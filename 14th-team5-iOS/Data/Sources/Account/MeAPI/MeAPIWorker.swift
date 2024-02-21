@@ -109,6 +109,7 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             .asSingle()
     }
     
+    @available(*, deprecated, renamed: "joinFamily")
     private func joinFamily(spec: APISpec, headers: [APIHeader]?, jsonEncodable: Encodable) -> Single<FamilyInfo?> {
         
         return request(spec: spec, headers: headers, jsonEncodable: jsonEncodable)
@@ -123,7 +124,8 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             .asSingle()
     }
     
-    public func joinFamily(body: JoinFamilyRequest) -> Single<JoinFamilyData?> {
+    @available(*, deprecated, renamed: "joinFamily")
+    public func joinFamily(body: JoinFamilyRequest) -> Single<JoinFamilyResponse?> {
         return Observable.just(())
             .withLatestFrom(self._headers)
             .withUnretained(self)
@@ -131,7 +133,8 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             .asSingle()
     }
     
-    private func joinFamily(headers: [APIHeader]?, body: Domain.JoinFamilyRequest) -> RxSwift.Single<JoinFamilyData?> {
+    @available(*, deprecated, renamed: "joinFamily")
+    private func joinFamily(headers: [APIHeader]?, body: Domain.JoinFamilyRequest) -> RxSwift.Single<JoinFamilyResponse?> {
         let spec = MeAPIs.joinFamily.spec
         let requestDTO: JoinFamilyRequestDTO = JoinFamilyRequestDTO(inviteCode: body.inviteCode)
         return request(spec: spec, headers: headers, jsonEncodable: requestDTO)
@@ -147,6 +150,7 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             .asSingle()
     }
     
+    @available(*, deprecated, renamed: "joinFamily")
     public func joinFamily(with inviteCode: String) -> Single<FamilyInfo?> {
         
         let payload = _PayLoad.FamilyPayload(inviteCode: inviteCode)
@@ -159,6 +163,7 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             .asSingle()
     }
     
+    @available(*, deprecated, renamed: "resignFamily")
     private func resignFamily(spec: APISpec, headers: [APIHeader]?) -> Single<AccountFamilyResignResponse?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
@@ -172,6 +177,7 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             .asSingle()
     }
     
+    @available(*, deprecated, renamed: "resignFamily")
     public func resignFamily() -> Single<AccountFamilyResignResponse?> {
         let spec = PrivacyAPIs.accountFamilyResign.spec
         return Observable.just(())

@@ -2,13 +2,13 @@
 //  FamilyCreatedAtResponse.swift
 //  Domain
 //
-//  Created by 김건우 on 1/6/24.
+//  Created by 김건우 on 2/20/24.
 //
 
 import Foundation
 
 public struct FamilyCreatedAtResponse {
-    var createdAt: Date
+    public var createdAt: Date
     
     public init(createdAt: Date) {
         self.createdAt = createdAt

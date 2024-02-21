@@ -102,28 +102,20 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
             return
         }
         
-        let isTemporary = App.Repository.token.accessToken.value?.isTemporaryToken
-        if isTemporary == true {
-            container = UINavigationController(rootViewController: AccountSignUpDIContainer().makeViewController())
+        if let _ = member.familyId {
+            if UserDefaults.standard.inviteCode != nil {
+                container = UINavigationController(rootViewController: JoinedFamilyDIContainer().makeViewController())
+            } else {
+                container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+            }
             sceneDelegate.window?.rootViewController = container
             sceneDelegate.window?.makeKeyAndVisible()
             return
         } else {
-            if let _ = member.familyId {
-                if UserDefaults.standard.inviteCode != nil {
-                    container = UINavigationController(rootViewController: JoinedFamilyDIContainer().makeViewController())
-                } else {
-                    container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
-                }
-                sceneDelegate.window?.rootViewController = container
-                sceneDelegate.window?.makeKeyAndVisible()
-                return
-            } else {
-                container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
-                sceneDelegate.window?.rootViewController = container
-                sceneDelegate.window?.makeKeyAndVisible()
-                return
-            }
+            container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
+            sceneDelegate.window?.rootViewController = container
+            sceneDelegate.window?.makeKeyAndVisible()
+            return
         }
     }
     

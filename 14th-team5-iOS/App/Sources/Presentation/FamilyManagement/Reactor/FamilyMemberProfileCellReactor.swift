@@ -36,12 +36,12 @@ final public class FamilyMemberProfileCellReactor: Reactor {
     public var initialState: State
     
     // MARK: - Intializer
-    public init(_ memberResponse: FamilyMemberProfileResponse, isMe: Bool, cellType: CellType) {
+    public init(_ memberResponse: ProfileData, isMe: Bool, cellType: CellType) {
         self.initialState = State(
             cellType: cellType,
             memberId: memberResponse.memberId,
             name: memberResponse.name,
-            imageUrl: memberResponse.imageUrl,
+            imageUrl: memberResponse.profileImageURL,
             dayOfBirth: memberResponse.dayOfBirth,
             isMe: isMe
         )

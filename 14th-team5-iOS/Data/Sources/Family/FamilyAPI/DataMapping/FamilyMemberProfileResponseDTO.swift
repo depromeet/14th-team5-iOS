@@ -49,11 +49,11 @@ extension PaginationResponseFamilyMemberProfileDTO {
 }
 
 extension PaginationResponseFamilyMemberProfileDTO.FamilyMemberProfileResponseDTO {
-    func toDomain() -> FamilyMemberProfileResponse {
+    func toDomain() -> ProfileData {
         return .init(
             memberId: memberId,
+            profileImageURL: imageUrl,
             name: name,
-            imageUrl: imageUrl,
             dayOfBirth: dayOfBirth.toDate()
         )
     }

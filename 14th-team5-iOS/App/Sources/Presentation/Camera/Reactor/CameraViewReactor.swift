@@ -259,7 +259,7 @@ extension CameraViewReactor {
             
             return .concat(
                 .just(.setLoading(false)),
-                cameraUseCase.executeProfileImageURL(parameter: profileParameter, type: cameraType)
+                cameraUseCase.executeProfileImageURL(parameter: profileParameter)
                     .withUnretained(self)
                     .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                     .asObservable()

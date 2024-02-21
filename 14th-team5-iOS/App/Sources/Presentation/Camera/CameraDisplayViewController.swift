@@ -363,6 +363,13 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .drive(displayView.rx.image)
             .disposed(by: disposeBag)
         
+        reactor.state
+            .map { $0.isError }
+            .filter { $0 }
+            .map { !$0 }
+            .bind(to: confirmButton.rx.isEnabled)
+            .disposed(by: disposeBag)
+        
         
         reactor.state
             .map { $0.isLoading }

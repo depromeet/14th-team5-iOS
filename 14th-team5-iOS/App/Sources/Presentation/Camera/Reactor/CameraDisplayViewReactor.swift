@@ -68,18 +68,32 @@ public final class CameraDisplayViewReactor: Reactor {
         switch action {
         case .viewDidLoad:
             let fileName = "\(self.currentState.displayData.hashValue).jpg"
-            let parameters: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: "\(fileName).jpg")
+            let parameters: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: "\(fileName)")
+            
+            // 요기서 무한 로딩이 걸린다.
+            // No Such Key Value 오류는 self.currentState.displayData.jpg 값이 executeDisplayImageURL 에 보낸 값이랑 달라서 오류가 발생함
+            
+            
+            // 흰 화면이 뜨는 거는
+            // Presigned URL 쿼리 파람 즉 executeDisplayImageURL에 entity.imageUrl 과
+            // executeCombineWithTextImage 에 요청 보낸 image URL이 다르면 흰색 이미지가 뜸
+            
             
             return .concat(
                 .just(.setLoading(false)),
                 .just(.setError(false)),
                 .just(.setRenderImage(self.currentState.displayData)),
-                cameraDisplayUseCase.executeDisplayImageURL(parameters: parameters, type: .feed)
+                cameraDisplayUseCase.executeDisplayImageURL(parameters: parameters)
                     .withUnretained(self)
                     .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                     .asObservable()
                     .flatMap { owner, entity -> Observable<CameraDisplayViewReactor.Mutation> in
-                        guard let originalURL = entity?.imageURL else { return .just(.setError(true))}
+                        guard let originalURL = entity?.imageURL else { 
+                            return .concat(
+                                .just(.setLoading(true)),
+                                .just(.setError(true))
+                            )
+                        }
                         return owner.cameraDisplayUseCase.executeUploadToS3(toURL: originalURL, imageData: owner.currentState.displayData)
                             .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                             .asObservable()
@@ -92,10 +106,12 @@ public final class CameraDisplayViewReactor: Reactor {
                                         .just(.setError(false))
                                     )
                                 } else {
-                                    return .just(.setError(true))
+                                    return .concat(
+                                        .just(.setLoading(true)),
+                                        .just(.setError(true))
+                                    )
                                 }
                             }
-                        
                     }
             )
         case let .fetchDisplayImage(description):
@@ -124,6 +140,9 @@ public final class CameraDisplayViewReactor: Reactor {
         case .didTapConfirmButton:
             
             MPEvent.Camera.uploadPhoto.track(with: nil)
+            // 요기서 달라질수 있는지 확인
+            // 즉 Server 에서 넘겨준 Entity가
+
             guard let presingedURL = self.currentState.displayEntity?.imageURL else { return .just(.setError(true)) }
             let originURL = configureOriginalS3URL(url: presingedURL, with: .feed)
             

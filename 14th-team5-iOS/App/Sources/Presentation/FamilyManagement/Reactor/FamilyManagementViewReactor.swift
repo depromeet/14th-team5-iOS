@@ -57,13 +57,13 @@ public final class FamilyManagementViewReactor: Reactor {
     public let initialState: State
     
     public let memberUseCase: MemberUseCaseProtocol
-    public let familyUseCase: FamilyViewUseCaseProtocol
+    public let familyUseCase: FamilyUseCaseProtocol
     public let provider: GlobalStateProviderProtocol
     
     // MARK: - Intializer
     init(
         memberUseCase: MemberUseCaseProtocol,
-        familyUseCase: FamilyViewUseCaseProtocol,
+        familyUseCase: FamilyUseCaseProtocol,
         provider: GlobalStateProviderProtocol
     ) {
         self.initialState = State(

@@ -29,8 +29,8 @@ public final class FamilyManagementDIContainer {
         return MemberUseCase(memberRepository: makeMemberRepository())
     }
     
-    public func makeFamilyUseCase() -> FamilyViewUseCaseProtocol {
-        return FamilyViewUseCase(familyRepository: makeFamilyRepository())
+    public func makeFamilyUseCase() -> FamilyUseCaseProtocol {
+        return FamilyUseCase(familyRepository: makeFamilyRepository())
     }
     
     public func makeMemberRepository() -> MemberRepositoryProtocol {

@@ -38,9 +38,9 @@ public final class InputFamilyLinkReactor: Reactor {
     
     // MARK: - Properties
     public let initialState: State
-    private let familyUseCase: JoinFamilyUseCaseProtocol
+    private let familyUseCase: FamilyUseCaseProtocol
     
-    init(initialState: State, familyUseCase: JoinFamilyUseCaseProtocol) {
+    init(initialState: State, familyUseCase: FamilyUseCaseProtocol) {
         self.initialState = initialState
         self.familyUseCase = familyUseCase
     }
@@ -58,19 +58,19 @@ extension InputFamilyLinkReactor {
             MPEvent.Account.invitedGroupFinished.track(with: nil)
             
             let code = currentState.linkString
-            let request = JoinFamilyRequest(inviteCode: String(code))
+            let body = JoinFamilyRequest(inviteCode: String(code))
             
-            let commonLogic: (JoinFamilyData) -> Observable<InputFamilyLinkReactor.Mutation> = { joinFamilyData in
+            let commonLogic: (JoinFamilyResponse) -> Observable<InputFamilyLinkReactor.Mutation> = { joinFamilyData in
                 App.Repository.member.familyId.accept(joinFamilyData.familyId)
                 return Observable.just(Mutation.setShowHome(true))
             }
 
             if App.Repository.member.familyId.value != nil {
-                return familyUseCase.resignFamily()
+                return familyUseCase.executeResignFamily()
                     .asObservable()
                     .withUnretained(self)
                     .flatMap { owner, useCase -> Observable<InputFamilyLinkReactor.Mutation> in
-                        return owner.familyUseCase.execute(body: request)
+                        return owner.familyUseCase.executeJoinFamily(body: body)
                             .asObservable()
                             .flatMap { joinFamilyData in
                                 guard let joinFamilyData = joinFamilyData else {
@@ -80,7 +80,7 @@ extension InputFamilyLinkReactor {
                             }
                     }
             } else {
-                return familyUseCase.execute(body: request)
+                return familyUseCase.executeJoinFamily(body: body)
                     .asObservable()
                     .flatMap { joinFamilyData in
                         guard let joinFamilyData = joinFamilyData else {

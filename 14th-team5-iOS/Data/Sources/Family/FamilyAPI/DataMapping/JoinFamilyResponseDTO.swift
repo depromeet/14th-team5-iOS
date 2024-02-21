@@ -5,21 +5,16 @@
 //  Created by 마경미 on 13.01.24.
 //
 
+import Domain
 import Foundation
 
-import Domain
-
-public struct JoinFamilyRequestDTO: Codable {
-    let inviteCode: String
-}
-
-struct JoinFamilyResponseDTO: Codable {
+struct JoinFamilyResponseDTO: Decodable {
     let familyId: String
     let createdAt: String
 }
 
 extension JoinFamilyResponseDTO {
-    func toDomain() -> JoinFamilyData {
+    func toDomain() -> JoinFamilyResponse {
         return .init(familyId: familyId)
     }
 }

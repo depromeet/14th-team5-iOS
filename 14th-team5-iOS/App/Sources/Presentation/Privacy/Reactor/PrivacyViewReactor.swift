@@ -62,7 +62,7 @@ public final class PrivacyViewReactor: Reactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewDidLoad:
-            let appKey: String = "9c61cc7b-0fe9-40eb-976e-6a74c8cb9092"
+            let appKey: String = "87dca918-ef3b-4e1a-8261-786479fee634"
             let bibbiAppInfoParameter: BibbiAppInfoParameter = BibbiAppInfoParameter(appKey: appKey)
             return .concat(
                 .just(.setLoading(true)),

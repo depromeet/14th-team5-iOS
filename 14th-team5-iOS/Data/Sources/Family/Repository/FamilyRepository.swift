@@ -55,6 +55,12 @@ extension FamilyRepository {
             .asObservable()
     }
     
+    public func fetchFamilyCreatedAt(_ familyId: String) -> Observable<FamilyCreatedAtResponse?> {
+        return familyApiWorker.fetchFamilyCreatedAt(familyId: familyId)
+            .do(onSuccess: { App.Repository.member.familyCreatedAt.accept($0?.createdAt) })
+            .asObservable()
+    }
+    
     public func fetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?> {
         return familyApiWorker.fetchInvitationUrl(familyId: familyId)
             .asObservable()

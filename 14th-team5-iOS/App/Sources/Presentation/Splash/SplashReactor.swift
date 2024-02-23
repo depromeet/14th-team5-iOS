@@ -32,11 +32,13 @@ public final class SplashViewReactor: Reactor {
     
     // MARK: - Properties
     private let meRepository: MeUseCaseProtocol
+    private let familyUseCase: FamilyUseCaseProtocol
     public let initialState: State = State()
     
     // MARK: - Intializer
-    init(meRepository: MeUseCaseProtocol) {
+    init(meRepository: MeUseCaseProtocol, familyUseCase: FamilyUseCaseProtocol) {
         self.meRepository = meRepository
+        self.familyUseCase = familyUseCase
     }
     
     // MARK: - Mutate
@@ -44,30 +46,41 @@ public final class SplashViewReactor: Reactor {
         switch action {
         case .viewDidLoad:
             return meRepository.getAppVersion()
-                .asObservable()
-                .flatMap { appVersionInfo in
-                    
-                    guard let appVersionInfo = appVersionInfo else {
-                        return Observable.just(Mutation.setUpdateNeeded(nil))
-                    }
-                    
-                    return Observable.concat([
-                        Observable.just(Mutation.setUpdateNeeded(appVersionInfo)),
+                    .asObservable()
+                    .flatMap { appVersionInfo in
                         
-                        App.Repository.token.accessToken
-                            .flatMap { token -> Observable<Mutation> in
-                                guard let _ = token else {
-                                    return Observable.just(Mutation.setMemberInfo(nil))
-                                }
-                                
-                                return self.meRepository.getMemberInfo()
-                                    .asObservable()
-                                    .flatMap { memberInfo in
-                                        Observable.just(Mutation.setMemberInfo(memberInfo))
+                        guard let appVersionInfo = appVersionInfo else {
+                            return Observable.just(Mutation.setUpdateNeeded(nil))
+                        }
+                        
+                        return Observable.concat([
+                            Observable.just(Mutation.setUpdateNeeded(appVersionInfo)),
+                            
+                            App.Repository.token.accessToken
+                                .flatMap { token -> Observable<Mutation> in
+                                    guard let _ = token else {
+                                        return Observable.just(Mutation.setMemberInfo(nil))
                                     }
-                            }
-                    ])
-                }
+                                    
+                                    return self.meRepository.getMemberInfo()
+                                        .asObservable()
+                                        .withUnretained(self)
+                                        .flatMap { owner, memberInfo in
+                                            guard let memberInfo = memberInfo,
+                                                  let familyId = memberInfo.familyId else {
+                                                return Observable.just(Mutation.setMemberInfo(nil))
+                                            }
+                                            
+                                            return Observable.concat([
+                                                Observable.just(Mutation.setMemberInfo(memberInfo)),
+                                                
+                                                owner.familyUseCase.executeFetchCreatedAtFamily(familyId)
+                                                    .flatMap { _ in Observable<Mutation>.empty() }
+                                            ])
+                                        }
+                                }
+                        ])
+                    }
         }
     }
     

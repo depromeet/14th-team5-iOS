@@ -26,7 +26,15 @@ public final class SplashDIContainer {
         return MeUseCase(meRepository: makeMeRepository())
     }
     
+    public func makeFamilyRepository() -> FamilyRepositoryProtocol {
+        return FamilyRepository()
+    }
+    
+    public func makeFamilyUseCase() -> FamilyUseCaseProtocol {
+        return FamilyUseCase(familyRepository: makeFamilyRepository())
+    }
+    
     public func makeReactor() -> Reactor {
-        return SplashViewReactor(meRepository: makeMeUseCase())
+        return SplashViewReactor(meRepository: makeMeUseCase(), familyUseCase: makeFamilyUseCase())
     }
 }

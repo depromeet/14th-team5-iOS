@@ -17,7 +17,7 @@ public final class CalendarViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case popViewController
-        case addYearMonthItem(String)
+        case addCalendarItem([String])
     }
     
     // MARK: - Mutation
@@ -25,7 +25,7 @@ public final class CalendarViewReactor: Reactor {
         case popViewController
         case pushCalendarPostVC(Date)
         case makeCalendarPopoverVC(UIView)
-        case injectYearMonthItem(String)
+        case injectYearMonthItem([String])
     }
     
     // MARK: - State
@@ -79,7 +79,7 @@ public final class CalendarViewReactor: Reactor {
             provider.toastGlobalState.clearLastSelectedDate()
             return Observable<Mutation>.just(.popViewController)
             
-        case let .addYearMonthItem(yearMonth):
+        case let .addCalendarItem(yearMonth):
             return Observable<Mutation>.just(.injectYearMonthItem(yearMonth))
             
         }
@@ -98,16 +98,14 @@ public final class CalendarViewReactor: Reactor {
         case let .makeCalendarPopoverVC(sourceView):
             newState.shouldPresnetInfoPopover = sourceView
             
-        case let .injectYearMonthItem(yearMonth):
+        case let .injectYearMonthItem(dateArray):
             guard let datasource: SectionOfMonthlyCalendar = state.displayCalendar.first else {
                 return state
             }
             
-            let oldItems = datasource.items
-            let newItems = SectionOfMonthlyCalendar(items: [yearMonth])
             let newDatasource = SectionOfMonthlyCalendar(
                 original: datasource,
-                items: oldItems + newItems.items
+                items: dateArray
             )
             newState.displayCalendar = [newDatasource]
         }

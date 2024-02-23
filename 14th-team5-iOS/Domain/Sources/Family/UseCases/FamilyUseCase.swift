@@ -14,6 +14,7 @@ public protocol FamilyUseCaseProtocol {
     func executeResignFamily() -> Observable<AccountFamilyResignResponse?>
     func executeCreateFamily() -> Observable<CreateFamilyResponse?>
     func executeFetchCreatedAtFamily() -> Observable<FamilyCreatedAtResponse?>
+    func executeFetchCreatedAtFamily(_ familyId: String) -> Observable<FamilyCreatedAtResponse?>
     func executeFetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?>
     func executeFetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfile?>
     func executeFetchPaginationFamilyMembers(memberIds: [String]) -> [ProfileData]
@@ -40,6 +41,10 @@ public final class FamilyUseCase: FamilyUseCaseProtocol {
     
     public func executeFetchCreatedAtFamily() -> Observable<FamilyCreatedAtResponse?> {
         return familyRepository.fetchFamilyCreatedAt()
+    }
+    
+    public func executeFetchCreatedAtFamily(_ familyId: String) -> Observable<FamilyCreatedAtResponse?> {
+        return familyRepository.fetchFamilyCreatedAt(familyId)
     }
     
     public func executeFetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?> {

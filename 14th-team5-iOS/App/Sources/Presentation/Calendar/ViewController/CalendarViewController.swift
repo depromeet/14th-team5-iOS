@@ -5,9 +5,9 @@
 //  Created by 김건우 on 12/6/23.
 //
 
+import Core
 import UIKit
 
-import Core
 import FSCalendar
 import ReactorKit
 import RxCocoa
@@ -60,16 +60,16 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
             }
             .disposed(by: disposeBag)
         
-        let yearMonthArray: [String] = Date.for20240101.generateYearMonthStringsToToday()
-        Observable<String>.from(yearMonthArray)
-            .map { Reactor.Action.addYearMonthItem($0) }
+        App.Repository.member.familyCreatedAt
+            .map {
+                guard let createdAt = $0 else {
+                    return Date.for20230101.createDateStringArray()
+                }
+                return createdAt.createDateStringArray()
+            }
+            .map { Reactor.Action.addCalendarItem($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
-//        Observable<Void>.just(())
-//            .map { Reactor.Action.fetchFamilyMembers }
-//            .bind(to: reactor.action)
-//            .disposed(by: disposeBag)
 
         navigationBarView.rx.didTapLeftBarButton
             .map { _ in Reactor.Action.popViewController }

@@ -80,9 +80,9 @@ extension Reactive where Base: UILabel {
         Binder(self.base) { label, date in
             var formatString: String = .none
             if date.isEqual([.year], with: Date()) {
-                formatString = date.toFormatString(with: .mm)
+                formatString = date.toFormatString(with: .m)
             } else {
-                formatString = date.toFormatString(with: .yyyyMM)
+                formatString = date.toFormatString(with: .yyyyM)
             }
             label.text = formatString
         }

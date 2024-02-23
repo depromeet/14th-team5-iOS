@@ -67,7 +67,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        let previousNextMonths: [String] = reactor.currentState.selectedDate.generatePreviousNextYearMonth()
+        let previousNextMonths: [String] = reactor.currentState.selectedDate.createPreviousNextDateStringArray()
         Observable<String>.from(previousNextMonths)
             .map { Reactor.Action.fetchCalendarResponse($0) }
             .bind(to: reactor.action)
@@ -369,7 +369,6 @@ extension CalendarPostViewController {
             if fractionPart <= 0.0 {
                 let index: Int = Int(floorPosition)
                 cellIndexRelay.accept(index)
-                debugPrint("cellIndexRelay: \(index)")
             }
         }
         
@@ -390,15 +389,14 @@ extension CalendarPostViewController {
     }
     
     private func setupBlurEffect() {
-        let blurEffect = UIBlurEffect(style: .systemThickMaterialDark)
+        let blurEffect = UIBlurEffect(style: .systemThinMaterialDark)
         let visualEffectView = UIVisualEffectView(effect: blurEffect)
-        visualEffectView.alpha = 0.95
         visualEffectView.frame = view.frame
         blurImageView.insertSubview(visualEffectView, at: 0)
     }
     
     private func setupNavigationTitle(_ date: Date) {
-        navigationBarView.navigationTitle = DateFormatter.yyyyMM.string(from: date)
+        navigationBarView.navigationTitle = date.toFormatString(with: .yyyyM)
     }
     
     private func adjustWeeklyCalendarRect(_ bounds: CGRect) {

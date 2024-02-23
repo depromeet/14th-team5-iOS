@@ -364,7 +364,16 @@ extension ProfileViewController: UICollectionViewDelegateFlowLayout {
 // 기본 이미지가 true 이고 닉네임 변경 할 경우 redraw
 extension ProfileViewController {    
     private func setupProfileImage(url: URL) {
-        profileView.profileImageView.kf.setImage(with: url, options: [.transition(.fade(0.5))])
+        let processor = DownsamplingImageProcessor(size: profileView.bounds.size)
+        
+        profileView
+            .profileImageView
+            .kf
+            .setImage(with: url, options: [
+                .processor(processor),
+                .scaleFactor(UIScreen.main.scale),
+                .transition(.fade(0.5))
+            ])
     }
     
     

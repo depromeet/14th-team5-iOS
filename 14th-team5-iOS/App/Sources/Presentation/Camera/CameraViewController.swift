@@ -178,7 +178,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         cameraView.snp.makeConstraints {
             $0.width.equalToSuperview()
-            $0.height.equalTo(375)
+            $0.height.equalTo(cameraView.snp.width).multipliedBy(1.0)
             $0.center.equalToSuperview()
         }
         

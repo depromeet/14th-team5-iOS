@@ -13,7 +13,7 @@ public protocol FCMUseCaseProtocol {
     func executeSavingFCMToken(token: FCMToken) -> Single<Void?>
 }
 
-public class NotificationUseCase: FCMUseCaseProtocol {
+public class FCMUseCase: FCMUseCaseProtocol {
     private let FCMRepository: FCMRepositoryProtocol
     
     public init(FCMRepository: FCMRepositoryProtocol) {

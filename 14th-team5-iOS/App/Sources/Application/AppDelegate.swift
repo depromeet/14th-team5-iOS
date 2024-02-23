@@ -150,12 +150,10 @@ extension AppDelegate: MessagingDelegate {
         
         debugPrint("Firebase registration token: \(token)")
         
-        let useCase = NotificationUseCase(notificationRepository: MeAPIs.Worker())
+        let useCase = FCMUseCase(FCMRepository: MeAPIs.Worker())
         useCase.executeSavingFCMToken(token: .init(fcmToken: token))
             .asObservable()
-            .bind(onNext: { _ in
-                print("successed to save FCM Token")
-            })
+            .bind(onNext: { _ in })
             .disposed(by: disposeBag)
     }
 }

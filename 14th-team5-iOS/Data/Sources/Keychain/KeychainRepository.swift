@@ -11,8 +11,8 @@ import Domain
 
 import SwiftKeychainWrapper
 
-final class KeychainRepository: KeychainRepositoryProtocol {
-    static let shared = KeychainRepository()
+public final class KeychainRepository: KeychainRepositoryProtocol {
+    public static let shared = KeychainRepository()
         
     private init() {}
     
@@ -24,7 +24,7 @@ final class KeychainRepository: KeychainRepositoryProtocol {
         KeychainWrapper.standard[.fcmToken] = token
     }
     
-    func removeKeychain() {
+    public func removeKeychain() {
         KeychainWrapper.standard.removeAllKeys()
     }
 }

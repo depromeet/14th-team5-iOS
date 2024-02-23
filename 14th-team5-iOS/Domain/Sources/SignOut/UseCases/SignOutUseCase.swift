@@ -26,8 +26,11 @@ public class SignOutUseCase: SignOutUseCaseProtocol {
     }
     
     public func execute() -> Single<Void?> {
-        keychainRepository.removeKeychain()
-        userDefaultsRepository.removeUserDefaults()
         return fcmRepository.deleteFCMToken()
+             .flatMap { _ -> Single<Void?> in
+                 self.keychainRepository.removeKeychain()
+                 self.userDefaultsRepository.removeUserDefaultsWhenSignOut()
+                 return Single.just(nil)
+             }
     }
 }

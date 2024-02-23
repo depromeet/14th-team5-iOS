@@ -10,5 +10,5 @@ import Foundation
 import RxSwift
 
 public protocol UserDefaultsRepositoryProtocol {
-    func removeUserDefaults()
+    func removeUserDefaultsWhenSignOut()
 }

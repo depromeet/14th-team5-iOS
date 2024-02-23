@@ -163,6 +163,7 @@ extension MeAPIWorker {
     
     public func deleteFCMToken() -> Single<Void?> {
         let token = KeychainRepository.shared.loadFCMToken()
+        print(token)
         let spec = MeAPIs.deleteFcmToken(token).spec
         
         return Observable.just(())

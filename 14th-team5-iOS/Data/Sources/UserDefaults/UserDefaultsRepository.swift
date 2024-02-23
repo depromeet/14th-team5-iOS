@@ -11,8 +11,18 @@ import Domain
 
 import RxSwift
 
-final class UserDefaultsRepository: UserDefaultsRepositoryProtocol {
-    func removeUserDefaults() {
-        UserDefaults.standard.clear()
+public final class UserDefaultsRepository: UserDefaultsRepositoryProtocol {
+    public static let shared = UserDefaultsRepository()
+    
+    private init() { }
+    
+    public func removeUserDefaultsWhenSignOut() {
+        let excludedKeys: [UserDefaults.Key] = [.isFirstLaunch, .chekcPermission, .finishTutorial]
+
+        for key in UserDefaults.Key.allCases {
+            if !excludedKeys.contains(key) {
+                UserDefaults.standard.removeObject(forKey: key.rawValue)
+            }
+        }
     }
 }

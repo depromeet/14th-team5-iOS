@@ -537,7 +537,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
     
     public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         guard let photoData = photo.fileDataRepresentation(),
-        let imageData = UIImage(data: photoData)?.jpegData(compressionQuality: 1.0) else { return }
+              let imageData = UIImage(data: photoData)?.asPhoto else { return }
         output.photoOutputDidFinshProcessing(photo: imageData, error: error)
     }
     

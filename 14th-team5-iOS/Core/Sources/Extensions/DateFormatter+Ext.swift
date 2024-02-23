@@ -52,7 +52,9 @@ extension DateFormatter {
 
 extension DateFormatter {
     public enum format {
+        case m
         case mm
+        case yyyyM
         case yyyyMM
         case yyyyMMdd
         case dashYyyyMM
@@ -63,8 +65,12 @@ extension DateFormatter {
         
         public var type: String {
             switch self {
+            case .m:
+                return "M월"
             case .mm:
                 return "MM월"
+            case .yyyyM:
+                return "yyyy년 M월"
             case .yyyyMM:
                 return "yyyy년 MM월"
             case .yyyyMMdd:

@@ -136,44 +136,32 @@ extension Date {
 }
 
 extension Date {
-    public func generatePreviousNextYearMonth() -> [String] {
-        var yearMonthStrings: [String] = []
+    public func createDateStringArray(to date: Date = Date()) -> [String] {
+        var dateArray: [String] = []
         
-        for month in -1...1 {
-            if let date = calendar.date(
-                byAdding: .month,
-                value: month,
-                to: self
-            ) {
+        let interval = self.interval([.month], to: date)[.month]!
+        
+        for month in 0...interval {
+            if let date = calendar.date(byAdding: .month, value: month, to: self) {
                 let yyyyMM = date.toFormatString(with: .dashYyyyMM)
-                yearMonthStrings.append(yyyyMM)
+                dateArray.append(yyyyMM)
             }
         }
-        
-        return yearMonthStrings
+
+        return dateArray
     }
     
-    public func generateYearMonthStringsToToday() -> [String] {
-        let currentDate: Date = Date()
+    public func createPreviousNextDateStringArray() -> [String] {
+        var dateArray: [String] = []
         
-        var yearMonthStrings: [String] = []
-        
-        let monthInterval = self.interval(
-            [.month],
-            to: currentDate
-        )[.month]!
-        for month in 0...monthInterval {
-            if let date = calendar.date(
-                byAdding: .month,
-                value: month,
-                to: self
-            ) {
+        for month in -1...1 {
+            if let date = calendar.date(byAdding: .month, value: month, to: self) {
                 let yyyyMM = date.toFormatString(with: .dashYyyyMM)
-                yearMonthStrings.append(yyyyMM)
+                dateArray.append(yyyyMM)
             }
         }
         
-        return yearMonthStrings
+        return dateArray
     }
 }
 

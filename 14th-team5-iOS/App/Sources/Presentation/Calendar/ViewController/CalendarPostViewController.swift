@@ -67,7 +67,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        let previousNextMonths: [String] = reactor.currentState.selectedDate.generatePreviousNextYearMonth()
+        let previousNextMonths: [String] = reactor.currentState.selectedDate.createPreviousNextDateStringArray()
         Observable<String>.from(previousNextMonths)
             .map { Reactor.Action.fetchCalendarResponse($0) }
             .bind(to: reactor.action)

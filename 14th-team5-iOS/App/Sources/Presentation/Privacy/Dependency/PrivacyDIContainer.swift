@@ -12,33 +12,36 @@ import Data
 import Domain
 
 
-public final class PrivacyDIContainer {
-    public typealias ViewContrller = PrivacyViewController
-    public typealias Repository = PrivacyViewInterface
-    public typealias Reactor = PrivacyViewReactor
-    public typealias UseCase = PrivacyViewUseCaseProtocol
+final class PrivacyDIContainer {
+    let memberId: String
     
-    public let memberId: String
-    
-    public init(memberId: String) {
+    init(memberId: String) {
         self.memberId = memberId
     }
     
-    
-    public func makeViewController() -> PrivacyViewController {
+    func makeViewController() -> PrivacyViewController {
         return PrivacyViewController(reactor: makeReactor())
     }
     
-    public func makeRepository() -> Repository {
+    private func makeRepository() -> PrivacyViewInterface {
         return PrivacyViewRepository()
     }
     
-    public func makeReactor() -> PrivacyViewReactor {
-        return PrivacyViewReactor(privacyUseCase: makeUseCase(), memberId: memberId)
+    private func makeReactor() -> PrivacyViewReactor {
+        return PrivacyViewReactor(privacyUseCase: makeUseCase(), signOutUseCase: makeSignOutUseCase(), memberId: memberId)
     }
     
-    public func makeUseCase() -> PrivacyViewUseCase {
+    private func makeUseCase() -> PrivacyViewUseCase {
         return PrivacyViewUseCase(privacyViewRepository: makeRepository())
     }
+}
+
+extension PrivacyDIContainer {
+    private func makeFCMRepository() -> MeAPIs.Worker {
+        return MeAPIs.Worker()
+    }
     
+    private func makeSignOutUseCase() -> SignOutUseCaseProtocol {
+        return SignOutUseCase(keychainRepository: KeychainRepository.shared, userDefaultsRepository: UserDefaultsRepository.shared, fcmRepository: makeFCMRepository())
+    }
 }

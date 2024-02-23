@@ -13,6 +13,7 @@ import Domain
 import ReactorKit
 import RxCocoa
 import RxSwift
+import SwiftKeychainWrapper
 
 public enum AccountLoaction {
     case profile
@@ -34,6 +35,7 @@ public final class AccountRepository: AccountImpl {
     public var disposeBag: DisposeBag = DisposeBag()
     
     private let accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
+    private let keychain = KeychainWrapper(serviceName: "Bibbi", accessGroup: "P9P4WJ623F.com.5ing.bibbi")
     
     let signInHelper = AccountSignInHelper()
     private let apiWorker = AccountAPIWorker()
@@ -79,16 +81,6 @@ public final class AccountRepository: AccountImpl {
             .asObservable()
             .withUnretained(self)
             .bind(onNext: { $0.0.saveMemberInfo($0.1) })
-            .disposed(by: disposeBag)
-    }
-    
-    // MARK: 회원가입 이후 FCMToken 저장
-    private func saveFCMToken() {
-        let token = App.Repository.token.fcmToken.value
-        meApiWorekr.saveFcmToken(token: token)
-            .asObservable()
-            .withUnretained(self)
-            .bind(onNext: { _ in print("성공") })
             .disposed(by: disposeBag)
     }
     
@@ -167,7 +159,6 @@ public final class AccountRepository: AccountImpl {
             .withUnretained(self)
             .bind(onNext: {
                 $0.0.fetchMemberInfo.accept(())
-                $0.0.saveFCMToken()
             })
             .disposed(by: disposeBag)
         
@@ -180,7 +171,6 @@ public final class AccountRepository: AccountImpl {
             .withUnretained(self)
             .bind(onNext: {
                 $0.0.joinFamily(inviteCode: UserDefaults.standard.inviteCode)
-                $0.0.saveFCMToken()
             })
             .disposed(by: disposeBag)
     }

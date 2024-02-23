@@ -11,10 +11,13 @@ import Data
 import Domain
 
 import ReactorKit
+import FirebaseMessaging
 
 public final class AccountSignInReactor: Reactor {
     public var initialState: State
     private var accountRepository: AccountImpl
+    private let fcmUseCase: FCMUseCaseProtocol
+    private let disposeBag = DisposeBag()
     
     public enum Action {
         case kakaoLoginTapped(SNS, UIViewController)
@@ -30,8 +33,9 @@ public final class AccountSignInReactor: Reactor {
         var pushAccountSingUpVC: Bool
     }
     
-    init(accountRepository: AccountRepository) {
+    init(accountRepository: AccountRepository, fcmUseCase: FCMUseCaseProtocol) {
         self.accountRepository = accountRepository
+        self.fcmUseCase = fcmUseCase
         self.initialState = State(pushAccountSingUpVC: false)
     }
 }
@@ -44,17 +48,20 @@ extension AccountSignInReactor {
                 .flatMap { result in
                     switch result {
                     case .success:
-                        Observable.just(Mutation.kakaoLogin(true))
+                        self.saveFCM()
+                        return Observable.just(Mutation.kakaoLogin(true))
                     case .failed:
-                        Observable.just(Mutation.kakaoLogin(false))
+                        return Observable.just(Mutation.kakaoLogin(false))
                     }
                 }
+            
             
         case .appleLoginTapped(let sns, let vc):
             accountRepository.appleLogin(with: sns, vc: vc)
                 .flatMap { result -> Observable<Mutation> in
                     switch result {
                     case .success:
+                        self.saveFCM()
                         return Observable.just(Mutation.appleLogin(true))
                     case .failed:
                         return Observable.just(Mutation.appleLogin(false))
@@ -72,5 +79,20 @@ extension AccountSignInReactor {
             newState.pushAccountSingUpVC = result
         }
         return newState
+    }
+}
+
+extension AccountSignInReactor {
+    private func saveFCM() {
+        Messaging.messaging().token { token, error in
+          if let error = error {
+            print("Error fetching FCM registration token: \(error)")
+          } else if let token = token {
+              self.fcmUseCase.executeSavingFCMToken(token: .init(fcmToken: token))
+                  .asObservable()
+                  .bind(onNext: { _ in })
+                  .disposed(by: self.disposeBag)
+          }
+        }
     }
 }

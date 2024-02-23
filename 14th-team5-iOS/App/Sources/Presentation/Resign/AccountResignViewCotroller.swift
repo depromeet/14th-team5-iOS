@@ -180,14 +180,11 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
                 owner.navigationController?.popViewController(animated: true)
             }.disposed(by: disposeBag)
         
-        reactor.state
-            .map { $0.isSuccess }
+        reactor.state.map { $0.isSuccess }
             .distinctUntilChanged()
             .withUnretained(self)
             .bind { owner, isSuccess in
-                guard isSuccess else { return }
                 App.Repository.token.clearAccessToken()
-                App.Repository.token.clearFCMToken()
                 owner.makeRootViewController()
             }.disposed(by: disposeBag)
         

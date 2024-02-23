@@ -17,6 +17,7 @@ public final class PrivacyViewReactor: Reactor {
     public var initialState: State
     private var privacyUseCase: PrivacyViewUseCaseProtocol
     private let memberId: String
+    private let signOutUseCase: SignOutUseCaseProtocol
     
     public enum Action {
         case viewDidLoad
@@ -43,8 +44,9 @@ public final class PrivacyViewReactor: Reactor {
         
     }
     
-    public init(privacyUseCase: PrivacyViewUseCaseProtocol, memberId: String) {
+    public init(privacyUseCase: PrivacyViewUseCaseProtocol, signOutUseCase: SignOutUseCaseProtocol,  memberId: String) {
         self.privacyUseCase = privacyUseCase
+        self.signOutUseCase = signOutUseCase
         self.memberId = memberId
         self.initialState = State(
             isLoading: false,
@@ -106,7 +108,7 @@ public final class PrivacyViewReactor: Reactor {
         case .didTapLogoutButton:
             return .concat(
                 .just(.setLoading(true)),
-                privacyUseCase.executeLogout()
+                signOutUseCase.execute()
                     .asObservable()
                     .flatMap { _ -> Observable<PrivacyViewReactor.Mutation> in
                         return .concat(

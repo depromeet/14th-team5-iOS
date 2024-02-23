@@ -12,7 +12,3 @@ public struct AccessTokenResponse: Codable, Equatable {
     public var refreshToken: String?
     public var isTemporaryToken: Bool?
 }
-
-public struct FCMToken: Codable, Equatable {
-    public var fcmToken: String?
-}

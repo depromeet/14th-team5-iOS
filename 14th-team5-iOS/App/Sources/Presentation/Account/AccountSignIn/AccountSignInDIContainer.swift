@@ -8,6 +8,7 @@
 import Foundation
 
 import Data
+import Domain
 import Core
 
 public final class AccountSignInDIContainer: BaseDIContainer {
@@ -22,6 +23,16 @@ public final class AccountSignInDIContainer: BaseDIContainer {
         return AccountRepository()
     }
     public func makeReactor() -> Reactor {
-        return AccountSignInReactor(accountRepository: AccountRepository())
+        return AccountSignInReactor(accountRepository: AccountRepository(), fcmUseCase: makeFCMUseCase())
+    }
+}
+
+extension AccountSignInDIContainer {
+    private func makeFCMRepository() -> FCMRepositoryProtocol {
+        return MeAPIs.Worker()
+    }
+    
+    private func makeFCMUseCase() -> FCMUseCaseProtocol {
+        return FCMUseCase(FCMRepository: makeFCMRepository())
     }
 }

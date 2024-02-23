@@ -236,6 +236,15 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        NotificationCenter.default
+            .rx.notification(.didTapBibbiToastTranstionButton)
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.navigationController?.popViewController(animated: true)
+            }.disposed(by: disposeBag)
+        
+        
+        
         reactor.pulse(\.$feedImageData)
             .distinctUntilChanged()
             .compactMap { $0 }
@@ -266,6 +275,15 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .distinctUntilChanged()
             .bind(to: cameraNavigationBar.rx.navigationTitle)
             .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$isError)
+            .filter { $0 }
+            .withLatestFrom(reactor.state.map { $0.cameraType })
+            .filter { $0 == .profile }
+            .withUnretained(self)
+            .bind(onNext: { $0.0.makeActionBibbiToastView(text: "사진 업로드 실패", transtionText: "프로필 화면으로 이동", duration: 1, offset: 50, direction: .up)})
+            .disposed(by: disposeBag)
+        
         
         reactor.pulse(\.$realEmojiSection)
             .asDriver(onErrorJustReturn: [])

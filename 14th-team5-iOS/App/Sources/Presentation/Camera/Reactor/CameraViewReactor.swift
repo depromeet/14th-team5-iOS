@@ -70,7 +70,7 @@ public final class CameraViewReactor: Reactor {
         var accountImage: Data?
         var memberId: String
         var isUpload: Bool
-        var isError: Bool
+        @Pulse var isError: Bool
         @Pulse var profileMemberEntity: ProfileMemberResponse?
     }
     
@@ -265,7 +265,12 @@ extension CameraViewReactor {
                     .asObservable()
                     .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
                         //TODO: 추후 오류 Alert 추가
-                        guard let presingedURL = entity?.imageURL else { return .just(.setErrorAlert(true)) }
+                        guard let presingedURL = entity?.imageURL else {
+                            return .concat(
+                                .just(.setLoading(true)),
+                                .just(.setErrorAlert(true))
+                            )
+                        }
                         
                         return owner.cameraUseCase.executeUploadToS3(toURL: presingedURL, imageData: imageData)
                             .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
@@ -300,7 +305,10 @@ extension CameraViewReactor {
                                             
                                         }
                                 } else {
-                                    return .just(.setErrorAlert(true))
+                                    return .concat(
+                                        .just(.setLoading(true)),
+                                        .just(.setErrorAlert(true))
+                                    )
                                 }
                                 
                             }
@@ -327,7 +335,6 @@ extension CameraViewReactor {
                                 .flatMap { isSuccess -> Observable<CameraViewReactor.Mutation> in
                                     let originalURL = owner.configureProfileOriginalS3URL(url: presingedURL, with: .realEmoji)
                                     let realEmojiCreateParameter = CameraCreateRealEmojiParameters(type: owner.currentState.emojiType.emojiString, imageUrl: originalURL)
-                                    print("currestState Emoji Type: \(owner.currentState.emojiType)")
                                     if isSuccess {
                                         return owner.cameraUseCase.executeRealEmojiUploadToS3(memberId: owner.memberId, parameter: realEmojiCreateParameter)
                                             .asObservable()

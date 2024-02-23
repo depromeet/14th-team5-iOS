@@ -12,6 +12,5 @@ import RxSwift
 public protocol AccountResignInterface: AnyObject {
     var disposeBag: DisposeBag { get }
     
-    func fetchAccountResign(memberId: String) -> Observable<AccountResignResponse>
-    func fetchAccountFcmResign(fcmToken: String) -> Observable<AccountFcmResignResponse>
+    func fetchAccountResign() -> Observable<AccountResignResponse>
 }

@@ -8,6 +8,9 @@
 import UIKit
 import Core
 
+import Domain
+import Data
+
 import Firebase
 import FirebaseCore
 import FirebaseAnalytics
@@ -15,12 +18,14 @@ import FirebaseMessaging
 import KakaoSDKAuth
 import RxKakaoSDKAuth
 import RxKakaoSDKCommon
+import RxSwift
 import AuthenticationServices
 import Mixpanel
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
+    
+    let disposeBag = DisposeBag()
     var window: UIWindow?
     let globalStateProvider: GlobalStateProviderProtocol = GlobalStateProvider()
     
@@ -58,7 +63,6 @@ extension AppDelegate {
             return
         }
         App.Repository.token.clearAccessToken()
-        App.Repository.token.clearFCMToken()
     }
 }
 
@@ -142,13 +146,17 @@ extension AppDelegate {
 
 extension AppDelegate: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        let token = fcmToken ?? ""
+        guard let token = fcmToken else { return }
+        
         debugPrint("Firebase registration token: \(token)")
         
-        let dataDict: [String: String] = ["token": token]
-        NotificationCenter.default.post(name: Notification.Name("FCMToken"), object: nil, userInfo: dataDict)
-        
-        App.Repository.token.fcmToken.accept(token)
+        let useCase = NotificationUseCase(notificationRepository: MeAPIs.Worker())
+        useCase.executeSavingFCMToken(token: .init(fcmToken: token))
+            .asObservable()
+            .bind(onNext: { _ in
+                print("successed to save FCM Token")
+            })
+            .disposed(by: disposeBag)
     }
 }
 

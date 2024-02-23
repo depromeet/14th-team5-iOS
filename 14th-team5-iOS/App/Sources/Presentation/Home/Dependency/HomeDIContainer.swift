@@ -26,7 +26,7 @@ final class HomeDIContainer {
     }
     
     private func makeReactor() -> HomeViewReactor {
-        return HomeViewReactor(provider: globalState, familyUseCase: makeFamilyUseCase(), postUseCase: makePostUseCase(), inviteFamilyUseCase: makeInviteFamilyUseCase())
+        return HomeViewReactor(provider: globalState, familyUseCase: makeFamilyUseCase(), postUseCase: makePostUseCase())
     }
 }
 

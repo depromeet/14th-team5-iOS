@@ -9,6 +9,7 @@ import Foundation
 import Domain
 import Core
 
+import SwiftKeychainWrapper
 import RxSwift
 import Alamofire
 
@@ -37,35 +38,25 @@ extension MeAPIs {
     }
 }
 
-// MARK: SignIn
-extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
-    private func saveFcmToken(headers: [APIHeader]?, jsonEncodable: Encodable) -> Single<FCMToken?> {
+extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository, FCMRepositoryProtocol {
+    private func saveFcmToken(headers: [APIHeader]?, token: FCMToken) -> Single<Void?> {
         let spec = MeAPIs.saveFcmToken.spec
-        
-        return request(spec: spec, headers: headers, jsonEncodable: jsonEncodable)
+    
+        return request(spec: spec, headers: headers, jsonEncodable: token)
             .subscribe(on: Self.queue)
             .do(onNext: {
                 if let str = String(data: $0.1, encoding: .utf8) {
                     debugPrint("saveFcmToken result : \(str)")
+                    KeychainRepository.shared.saveFCMToken(token: token.fcmToken)
                 }
             })
-            .map(FCMToken.self)
+            .map(VoidResponse.self)
             .catchAndReturn(nil)
+            .map { $0?.toDomain() }
             .asSingle()
     }
     
-    public func saveFcmToken(token: String) -> Single<FCMToken?> {
-        
-        let payload = _PayLoad.FcmPayload(fcmToken: token)
-        
-        return Observable.just(())
-            .withLatestFrom(self._headers)
-            .withUnretained(self)
-            .flatMap { $0.0.saveFcmToken(headers: $0.1, jsonEncodable: payload) }
-            .asSingle()
-    }
-    
-    private func deleteFcmToken(spec: APISpec, headers: [APIHeader]?) -> Single<String?> {
+    private func deleteFcmToken(spec: APISpec, headers: [APIHeader]?) -> Single<Void?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do(onNext: {
@@ -73,18 +64,9 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
                     debugPrint("deleteFcmToken result : \(str)")
                 }
             })
-            .map(String.self)
+            .map(VoidResponse.self)
             .catchAndReturn(nil)
-            .asSingle()
-    }
-    
-    public func deleteFcmToken(token: String) -> Single<String?> {
-        let spec = MeAPIs.deleteFcmToken(token).spec
-        
-        return Observable.just(())
-            .withLatestFrom(self._headers)
-            .withUnretained(self)
-            .flatMap { $0.0.deleteFcmToken(spec: spec, headers: $0.1) }
+            .map { $0?.toDomain() }
             .asSingle()
     }
     
@@ -98,14 +80,6 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             })
             .map(MemberInfo.self)
             .catchAndReturn(nil)
-            .asSingle()
-    }
-    
-    public func fetchMemberInfo() -> Single<MemberInfo?> {
-        let spec = MeAPIs.memberInfo.spec
-        return Observable.just(())
-            .withUnretained(self)
-            .flatMap { $0.0.getMemberInfo(spec: spec)}
             .asSingle()
     }
     
@@ -125,18 +99,10 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
     }
     
     @available(*, deprecated, renamed: "joinFamily")
-    public func joinFamily(body: JoinFamilyRequest) -> Single<JoinFamilyResponse?> {
-        return Observable.just(())
-            .withLatestFrom(self._headers)
-            .withUnretained(self)
-            .flatMap { $0.0.joinFamily(headers: $0.1, body: body) }
-            .asSingle()
-    }
-    
-    @available(*, deprecated, renamed: "joinFamily")
     private func joinFamily(headers: [APIHeader]?, body: Domain.JoinFamilyRequest) -> RxSwift.Single<JoinFamilyResponse?> {
         let spec = MeAPIs.joinFamily.spec
         let requestDTO: JoinFamilyRequestDTO = JoinFamilyRequestDTO(inviteCode: body.inviteCode)
+        
         return request(spec: spec, headers: headers, jsonEncodable: requestDTO)
             .subscribe(on: Self.queue)
             .do {
@@ -147,19 +113,6 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             .map(JoinFamilyResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
-            .asSingle()
-    }
-    
-    @available(*, deprecated, renamed: "joinFamily")
-    public func joinFamily(with inviteCode: String) -> Single<FamilyInfo?> {
-        
-        let payload = _PayLoad.FamilyPayload(inviteCode: inviteCode)
-        let spec = MeAPIs.joinFamily.spec
-        
-        return Observable.just(())
-            .withLatestFrom(self._headers)
-            .withUnretained(self)
-            .flatMap { $0.0.joinFamily(spec: spec, headers: $0.1, jsonEncodable: payload) }
             .asSingle()
     }
     
@@ -174,6 +127,78 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
             })
             .map(AccountFamilyResignResponse.self)
             .catchAndReturn(nil)
+            .asSingle()
+    }
+    
+    private func fetchAppVersion(spec: APISpec) -> Single<AppVersionInfo?> {
+        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey])
+            .subscribe(on: Self.queue)
+            .do(onNext: {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Fetch AppVersion result: \(str)")
+                }
+            })
+            .map(AppVersionInfo.self)
+            .catchAndReturn(nil)
+            .asSingle()
+    }
+}
+
+// MARK: SignIn
+extension MeAPIWorker {
+    public func saveFCMToken(token: Domain.FCMToken) -> RxSwift.Single<Void?> {
+        let prevToken = KeychainWrapper.standard[.fcmToken] ?? ""
+        
+        guard prevToken != token.fcmToken,
+              (App.Repository.token.accessToken.value != nil) else {
+            return .just(nil)
+        }
+        
+        return Observable.just(())
+            .withLatestFrom(self._headers)
+            .withUnretained(self)
+            .flatMap { $0.0.saveFcmToken(headers: $0.1, token: token) }
+            .asSingle()
+    }
+    
+    public func deleteFCMToken() -> Single<Void?> {
+        let token = KeychainRepository.shared.loadFCMToken()
+        let spec = MeAPIs.deleteFcmToken(token).spec
+        
+        return Observable.just(())
+            .withLatestFrom(self._headers)
+            .withUnretained(self)
+            .flatMap { $0.0.deleteFcmToken(spec: spec, headers: $0.1) }
+            .asSingle()
+    }
+    
+    public func fetchMemberInfo() -> Single<MemberInfo?> {
+        let spec = MeAPIs.memberInfo.spec
+        return Observable.just(())
+            .withUnretained(self)
+            .flatMap { $0.0.getMemberInfo(spec: spec)}
+            .asSingle()
+    }
+    
+    @available(*, deprecated, renamed: "joinFamily")
+    public func joinFamily(body: JoinFamilyRequest) -> Single<JoinFamilyResponse?> {
+        return Observable.just(())
+            .withLatestFrom(self._headers)
+            .withUnretained(self)
+            .flatMap { $0.0.joinFamily(headers: $0.1, body: body) }
+            .asSingle()
+    }
+    
+    @available(*, deprecated, renamed: "joinFamily")
+    public func joinFamily(with inviteCode: String) -> Single<FamilyInfo?> {
+        
+        let payload = _PayLoad.FamilyPayload(inviteCode: inviteCode)
+        let spec = MeAPIs.joinFamily.spec
+        
+        return Observable.just(())
+            .withLatestFrom(self._headers)
+            .withUnretained(self)
+            .flatMap { $0.0.joinFamily(spec: spec, headers: $0.1, jsonEncodable: payload) }
             .asSingle()
     }
     
@@ -192,19 +217,6 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository {
         return Observable.just(())
             .withUnretained(self)
             .flatMap { $0.0.fetchAppVersion(spec: spec) }
-            .asSingle()
-    }
-    
-    private func fetchAppVersion(spec: APISpec) -> Single<AppVersionInfo?> {
-        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey])
-            .subscribe(on: Self.queue)
-            .do(onNext: {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Fetch AppVersion result: \(str)")
-                }
-            })
-            .map(AppVersionInfo.self)
-            .catchAndReturn(nil)
             .asSingle()
     }
 }

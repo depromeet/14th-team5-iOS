@@ -161,12 +161,7 @@ extension HomeViewController {
             .disposed(by: disposeBag)
         
         Observable.just(())
-            .map { Reactor.Action.checkInTime }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        Observable.just(())
-            .map { Reactor.Action.startTimer }
+            .map { Reactor.Action.viewDidLoad }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -245,18 +240,11 @@ extension HomeViewController {
     }
     
     private func bindOutput(reactor: HomeViewReactor) {
-        let postStream =  reactor.pulse(\.$postSection)
+        reactor.pulse(\.$postSection)
             .observe(on: MainScheduler.instance)
-        
-        postStream
             .map(Array.init(with:))
             .bind(to: postCollectionView.rx.items(dataSource: createPostDataSource()))
             .disposed(by: disposeBag)
-        
-//        postStream
-//            .withUnretained(self)
-//            .bind(onNext: { _ in App.Repository.member.postId.accept(UserDefaults.standard.postId)  })
-//            .disposed(by: disposeBag)
         
         reactor.pulse(\.$isRefreshEnd)
             .withUnretained(self)
@@ -273,7 +261,6 @@ extension HomeViewController {
             .withUnretained(self)
             .bind(onNext: { 
                 $0.0.timerView.reactor = TimerDIContainer().makeReactor(isSelfUploaded: reactor.currentState.isSelfUploaded, isAllUploaded: reactor.currentState.isAllFamilyMembersUploaded)
-                App.Repository.member.postId.accept(UserDefaults.standard.postId)
             })
             .disposed(by: disposeBag)
         

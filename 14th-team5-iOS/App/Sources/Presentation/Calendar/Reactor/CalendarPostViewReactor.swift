@@ -96,10 +96,12 @@ public final class CalendarPostViewReactor: Reactor {
             }
         
         let postMutation = provider.postGlobalState.event
-            .flatMap {
-                switch $0 {
+            .flatMap { event in
+                switch event {
                 case let .pushProfileViewController(memberId):
                     return Observable<Mutation>.just(.pushProfileViewController(memberId))
+                default:
+                    return Observable<Mutation>.empty()
                 }
             }
         

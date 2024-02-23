@@ -51,17 +51,33 @@ final class ReactionViewReactor: Reactor {
     }
     
     let initialState: State
+    let provider: GlobalStateProviderProtocol
     let emojiRepository: EmojiUseCaseProtocol
     let realEmojiRepository: RealEmojiUseCaseProtocol
     
-    init(initialState: State, emojiRepository: EmojiUseCaseProtocol, realEmojiRepository: RealEmojiUseCaseProtocol) {
+    init(provider: GlobalStateProviderProtocol, initialState: State, emojiRepository: EmojiUseCaseProtocol, realEmojiRepository: RealEmojiUseCaseProtocol) {
         self.initialState = initialState
+        self.provider = provider
         self.emojiRepository = emojiRepository
         self.realEmojiRepository = realEmojiRepository
     }
 }
 
 extension ReactionViewReactor {
+    func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+        let postMutation = provider.postGlobalState.event
+            .flatMap { event in
+                switch event {
+                case let .renewalPostCommentCount(count):
+                    return Observable<Mutation>.just(.setPostCommentCount(count))
+                default:
+                    return Observable<Mutation>.empty()
+                }
+            }
+        
+        return Observable.merge(mutation, postMutation)
+    }
+    
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .fetchReactionList(let postId):

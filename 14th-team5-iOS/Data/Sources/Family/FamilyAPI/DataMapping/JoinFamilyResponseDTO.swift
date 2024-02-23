@@ -15,6 +15,9 @@ struct JoinFamilyResponseDTO: Decodable {
 
 extension JoinFamilyResponseDTO {
     func toDomain() -> JoinFamilyResponse {
-        return .init(familyId: familyId)
+        return .init(
+            familyId: familyId,
+            createdAt: createdAt.iso8601ToDate()
+        )
     }
 }

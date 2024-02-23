@@ -9,8 +9,10 @@ import Foundation
 
 public struct JoinFamilyResponse {
     public var familyId: String
+    public var createdAt: Date
     
-    public init(familyId: String) {
+    public init(familyId: String, createdAt: Date) {
         self.familyId = familyId
+        self.createdAt = createdAt
     }
 }

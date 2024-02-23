@@ -7,6 +7,7 @@
 
 import Core
 import Domain
+import Foundation
 
 import ReactorKit
 
@@ -51,6 +52,7 @@ extension JoinFamilyReactor {
                     guard let familyResponse: CreateFamilyResponse = $0 else {
                         return Observable.just(Mutation.setShowHome(false))
                     }
+                    App.Repository.member.familyCreatedAt.accept(familyResponse.createdAt)
                     App.Repository.member.familyId.accept(familyResponse.familyId)
                     return Observable.just(Mutation.setShowHome(true))
                 }

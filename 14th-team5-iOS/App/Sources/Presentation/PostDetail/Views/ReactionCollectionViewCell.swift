@@ -49,14 +49,14 @@ final class ReactionCollectionViewCell: BaseCollectionViewCell<TempCellReactor> 
     
     override func setupAutoLayout() {
         emojiImageView.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(7)
+            $0.trailing.equalToSuperview().inset(6)
             $0.size.equalTo(26)
             $0.centerY.equalToSuperview()
         }
         
         countLabel.snp.makeConstraints {
-            $0.trailing.equalTo(emojiImageView.snp.leading).offset(-3)
-            $0.leading.equalToSuperview().inset(7)
+            $0.trailing.equalTo(emojiImageView.snp.leading).offset(-2)
+            $0.leading.equalToSuperview().inset(4)
             $0.centerY.equalToSuperview()
         }
         
@@ -69,11 +69,11 @@ final class ReactionCollectionViewCell: BaseCollectionViewCell<TempCellReactor> 
     
     override func setupAttributes() {
         backgroundColor =  .gray700
-        layer.cornerRadius = 18
+        layer.cornerRadius = 20
         
         emojiImageView.do {
 //            $0.layer.cornerRadius = 13
-            $0.clipsToBounds = true
+//            $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
         }
     }
@@ -105,9 +105,11 @@ extension ReactionCollectionViewCell {
         countLabel.text = "\(data.count)"
         
         if data.isStandard {
+            emojiImageView.clipsToBounds = false
             emojiImageView.image = data.emojiType.emojiImage
         } else {
             emojiImageView.layer.cornerRadius = 13
+            emojiImageView.clipsToBounds = true
             emojiImageView.kf.setImage(with: URL(string: data.realEmojiImageURL))
             badgeView.image = data.emojiType.emojiBadgeImage
         }

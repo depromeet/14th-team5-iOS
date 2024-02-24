@@ -88,7 +88,7 @@ enum HomeAutoLayout {
         
         enum ImageView {
             static let size = 172
-            static let topInset = 88
+            static let topInset = 100
         }
     }
     

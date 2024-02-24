@@ -23,7 +23,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
     private let familyCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let postCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let noPostView: NoPostTodayView = NoPostTodayView()
-    private let inviteFamilyView: InviteFamilyView = InviteFamilyView(openType: .inviteUrl)
+    private let inviteFamilyView: InviteFamilyView = InviteFamilyView(openType: .makeUrl)
     private let balloonView: BalloonView = BalloonView()
     private let loadingView: BibbiLoadingView = BibbiLoadingView()
     private let cameraButton: UIButton = UIButton()
@@ -69,7 +69,6 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
             $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
         }
         
-        
         inviteFamilyView.snp.makeConstraints {
             $0.top.equalTo(familyCollectionView).inset(24)
             $0.horizontalEdges.equalTo(familyCollectionView).inset(20)
@@ -89,8 +88,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
         }
         
         noPostView.snp.makeConstraints {
-            $0.top.equalTo(postCollectionView).inset(100)
-            $0.horizontalEdges.bottom.equalTo(postCollectionView)
+            $0.edges.equalTo(postCollectionView)
         }
         
         balloonView.snp.makeConstraints {
@@ -151,6 +149,12 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
 extension HomeViewController {
     private func bindInput(reactor: HomeViewReactor) {
         postCollectionView.rx.setDelegate(self)
+            .disposed(by: disposeBag)
+        
+        NotificationCenter.default.rx.notification(UIScene.willEnterForegroundNotification)
+            .withUnretained(self)
+            .map { _ in Reactor.Action.viewDidLoad }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         App.Repository.member.postId

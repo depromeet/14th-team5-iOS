@@ -35,21 +35,21 @@ final class AddCommentCollectionViewCell: UICollectionViewCell {
     
     private func setupAutoLayout() {
         imageView.snp.makeConstraints {
-            $0.size.equalTo(22)
-            $0.trailing.equalToSuperview().inset(6)
+            $0.size.equalTo(26)
+            $0.trailing.equalToSuperview().inset(7)
             $0.centerY.equalToSuperview()
         }
         
         countLabel.snp.makeConstraints {
-            $0.trailing.equalTo(imageView.snp.leading).offset(-2)
-            $0.height.equalTo(20)
+            $0.trailing.equalTo(imageView.snp.leading).offset(-4)
+            $0.leading.equalToSuperview().inset(7)
             $0.centerY.equalToSuperview()
         }
     }
     
     private func setupAttributes() {
         backgroundColor = .gray700
-        layer.cornerRadius = 18
+        layer.cornerRadius = 20
         
         imageView.do {
             $0.image = DesignSystemAsset.chat.image

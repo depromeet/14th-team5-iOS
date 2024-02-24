@@ -33,14 +33,14 @@ final class AddReactionCollectionViewCell: UICollectionViewCell {
     
     private func setupAutoLayout() {
         imageView.snp.makeConstraints {
-            $0.size.equalTo(24)
+            $0.size.equalTo(26)
             $0.center.equalToSuperview()
         }
     }
     
     private func setupAttributes() {
         backgroundColor = .gray700
-        layer.cornerRadius = 18
+        layer.cornerRadius = 20
         
         imageView.do {
             $0.image = DesignSystemAsset.addEmojiFill.image

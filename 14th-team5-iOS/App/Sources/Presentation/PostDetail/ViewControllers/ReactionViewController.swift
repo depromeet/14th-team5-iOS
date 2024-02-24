@@ -57,8 +57,8 @@ final class ReactionViewController: BaseViewController<ReactionViewReactor>, UIC
         
         reactionCollectionViewLayout.do {
             $0.sectionInset = .init(top: 0, left: 13, bottom: 0, right: 13)
-            $0.itemSize = .init(width: (UIScreen.main.bounds.width - 26 - (6 * 5)) / 6, height: 36)
-            $0.minimumLineSpacing = 12
+            $0.itemSize = .init(width: 56, height: 40)
+            $0.minimumLineSpacing = 8
             $0.minimumInteritemSpacing = 6
         }
         

@@ -88,7 +88,6 @@ extension HomeViewReactor {
             return self.viewWillAppear()
         case .viewDidLoad:
             let (isInTime, time) = self.calculateRemainingTime()
-            return Observable.just(Mutation.setInTime(isInTime))
             
             if isInTime {
                 return Observable<Int>
@@ -97,6 +96,7 @@ extension HomeViewReactor {
                         return Observable.concat([Observable.just(Mutation.setInTime(false)),
                                                   Observable.just(Mutation.setSelfUploaded(true))])
                     }
+                    .startWith(.setInTime(isInTime))
             } else {
                 return Observable<Int>
                     .timer(.seconds(time), scheduler: MainScheduler.instance)
@@ -104,6 +104,7 @@ extension HomeViewReactor {
                         return Observable.concat([Observable.just(Mutation.setInTime(true)),
                                                   Observable.just(Mutation.setSelfUploaded(false))])
                     }
+                    .startWith(.setInTime(isInTime))
                                         
             }
         case .refresh:

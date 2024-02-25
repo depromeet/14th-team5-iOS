@@ -158,8 +158,6 @@ platform :ios do
       use_automatic_signing: false,
       path: "./14th-team5-iOS/App/App.xcodeproj"
     )
-
-    setup_keychain()
     
     update_project_team(
       path: "./14th-team5-iOS/App/App.xcodeproj",

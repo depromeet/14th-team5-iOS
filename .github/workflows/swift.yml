@@ -54,15 +54,18 @@ jobs:
       - name: Tuist Siging Decrept
         run: tuist signing decrypt
 
+      - name: set Keychains
+        run: fastlane setup_keychain
+        env:
+          KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+
       - name: Tuist generate Command      
         run: |
           tuist generate
         env:
           MASTER_KEY: ${{secrets.MASTER_KEY}}  
-        
 
-      # - name: Tuist Build Command
-      #   run: tuist build
                   
       - run: fastlane upload_stg_to_testflight
         env:
@@ -75,15 +78,6 @@ jobs:
           PROJECT_PATH: ${{ secrets.PROJECT_PATH }}
           SLACK_HOOK_URL: ${{ secrets.SLACK_HOOK_URL }}
 
-
-    
-      
-      - name: bibbi app scheme output # Bibbi App Scheme Output Code
-        run: xcodebuild -list -workspace "Bibbi.xcworkspace"
-        
-      - name: xcode build App 🛠️ # Bibbi App Build
-        run: xcodebuild clean build -workspace "./Bibbi.xcworkspace" -scheme "${{ matrix.xcodebuild-scheme }}" -destination "platform=iOS Simulator,name=iPhone 13 mini,OS=latest"
-     
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1.2.1
         env:

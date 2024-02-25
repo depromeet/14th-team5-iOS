@@ -277,11 +277,12 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$isError)
+            .distinctUntilChanged()
             .filter { $0 }
             .withLatestFrom(reactor.state.map { $0.cameraType })
-            .filter { $0 == .profile }
+            .map { $0 == .profile ? "프로필 화면" : "홈 화면" }
             .withUnretained(self)
-            .bind(onNext: { $0.0.makeActionBibbiToastView(text: "사진 업로드 실패", transtionText: "프로필 화면으로 이동", duration: 1, offset: 50, direction: .up)})
+            .bind(onNext: { $0.0.makeActionBibbiToastView(text: "사진 업로드 실패", transtionText: "\($0.1)으로 이동", duration: 1, offset: 50, direction: .up)})
             .disposed(by: disposeBag)
         
         

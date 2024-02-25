@@ -70,15 +70,6 @@ public final class CameraDisplayViewReactor: Reactor {
             let fileName = "\(self.currentState.displayData.hashValue).jpg"
             let parameters: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: "\(fileName)")
             
-            // 요기서 무한 로딩이 걸린다.
-            // No Such Key Value 오류는 self.currentState.displayData.jpg 값이 executeDisplayImageURL 에 보낸 값이랑 달라서 오류가 발생함
-            
-            
-            // 흰 화면이 뜨는 거는
-            // Presigned URL 쿼리 파람 즉 executeDisplayImageURL에 entity.imageUrl 과
-            // executeCombineWithTextImage 에 요청 보낸 image URL이 다르면 흰색 이미지가 뜸
-            
-            
             return .concat(
                 .just(.setLoading(false)),
                 .just(.setError(false)),

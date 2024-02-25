@@ -46,7 +46,7 @@ private let targets: [Target] = [
                 "MIXPANEL_API_KEY": .string("$(MIXPANEL_API_KEY)"),
                 "TEAM_ID": .string("$(TEAM_ID)"),
             ]),
-            entitlements: .file(path: .relativeToRoot("App.entitlements"))
+            entitlements: .relativeToRoot("App.entitlements")
         )
     ),
     .makeModular(extenions: .Widget, factory: .init(
@@ -59,7 +59,7 @@ private let targets: [Target] = [
                 "NSExtensionPointIdentifier": .string("com.apple.widgetkit-extension")
             ])
         ]),
-        entitlements: .file(path: .relativeToRoot("WidgetExtension.entitlements"))
+        entitlements: .relativeToRoot("WidgetExtension.entitlements")
     )
 )
 ]

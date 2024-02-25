@@ -159,7 +159,7 @@ platform :ios do
       path: "./14th-team5-iOS/App/App.xcodeproj"
     )
 
-    get_provisioning_profile
+    setup_keychain()
     
     update_project_team(
       path: "./14th-team5-iOS/App/App.xcodeproj",

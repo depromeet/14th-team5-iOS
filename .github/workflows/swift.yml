@@ -17,6 +17,8 @@ jobs:
         xcodebuild-scheme: ['App']
         
     steps:
+      - uses: actions/checkout@v3
+      - uses: jdx/mise-action@v2
     
       - name: Setup Xcode version
         uses: maxim-lobanov/setup-xcode@v1
@@ -35,20 +37,14 @@ jobs:
 
       - name: Setting Master Key
         run: | 
-          echo "$MASTER_KEY" > Tuist/master.key
-        env:
-          MASTER_KEY: ${{secrets.MASTER_KEY}}
+          echo "${{ secrets.MASTER_KEY }}" >> Tuist/master.key
         
       - name: Install Tuist CLI
-        run: curl -Ls https://install.tuist.io| bash
+        run: bash <(curl -Ls https://install.tuist.io)
         
-      # - name: Install FastLane 
-      #   run: brew install fastlane
-        
-      - uses: actions/setup-ruby@v1
-        with:
-          ruby-version: 2.7
-                
+      - name: Install FastLane 
+        run: brew install fastlane
+
       - name: Tuist Clean Command
         run: tuist clean
       
@@ -58,42 +54,31 @@ jobs:
       - name: Tuist Siging Decrept
         run: tuist signing decrypt
 
-      # - name: Fastalne setup Keychain
-      #   run: fastlane setup_keychain
-      #   env:
-      #       APP_NAME: ${{secrets.APP_NAME}}
-      #       WIDGET_NAME: ${{secrets.WIDGET_NAME}}
-      #       KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
-      #       KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      - name: set Keychains
+        run: fastlane setup_keychain
+        env:
+          KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
       - name: Tuist generate Command      
         run: |
-          echo ${{secrets.MASTER_KEY}} | sed 's/./&/g'
-          tuist generate  
-        
+          tuist generate
+        env:
+          MASTER_KEY: ${{secrets.MASTER_KEY}}  
 
-      # - name: Tuist Build Command
-      #   run: tuist build
                   
-      # - run: fastlane upload_dev_to_testflight
-      #   env:
-      #     KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
-      #     KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-      #     APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
-      #     APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-      #     APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+      - run: fastlane upload_stg_to_testflight
+        env:
+          KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          TEAM_ID: ${{secrets.TEAM_ID}}
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+          PROJECT_PATH: ${{ secrets.PROJECT_PATH }}
+          SLACK_HOOK_URL: ${{ secrets.SLACK_HOOK_URL }}
 
-
-    
-      
-      # - name: bibbi app scheme output # Bibbi App Scheme Output Code
-      #   run: xcodebuild -list -workspace "Bibbi.xcworkspace"
-        
-      # - name: xcode build App 🛠️ # Bibbi App Build
-      #   run: xcodebuild clean build -workspace "./Bibbi.xcworkspace" -scheme "${{ matrix.xcodebuild-scheme }}" -destination "platform=iOS Simulator,name=iPhone 13 mini,OS=latest"
-     
-      # - name: Upload coverage to Codecov
-      #   uses: codecov/codecov-action@v1.2.1
-      #   env:
-      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1.2.1
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

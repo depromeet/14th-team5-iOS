@@ -31,6 +31,7 @@ KEYCHAIN_PASSWORD = ENV["KEYCHAIN_PASSWORD"]
 
 PROJECT_PATH = ENV["PROJECT_PATH"]
 SLACK_HOOK_URL = ENV["SLACK_HOOK_URL"]
+TEAM_ID = ENV["TEAM_ID"]
 
 
 default_platform(:ios)
@@ -48,7 +49,7 @@ platform :ios do
     )
 
     import_certificate(
-      certificate_path: "./Tuist/Signing/prd.cer",
+      certificate_path: "Tuist/Signing/prd.cer",
       keychain_name: "#{KEYCHAIN_NAME}",
       keychain_password: "#{KEYCHAIN_PASSWORD}"
     )
@@ -96,7 +97,7 @@ platform :ios do
     new_build_number = latest_testflight_build_number() + 1
 
     increment_build_number(
-      xcodeproj: "#{PROJECT_PATH}",
+      xcodeproj: "./14th-team5-iOS/App/App.xcodeproj",
       build_number: new_build_number
     )
 
@@ -115,36 +116,33 @@ platform :ios do
 
     upload_to_testflight(skip_waiting_for_build_processing: true)
 
-    slack(
-      message: "⭐️ 테스트 플라이트 업로드 성공",
-      slack_url: "#{SLACK_HOOK_URL}",
-      username: "대신 배포해주는 고양이",
-      icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
-      payload: {
-        "Build Date" => Time.new.to_s,
-      },
-      attachment_properties: {
-        fields: [
-          {
-            title: "Scheme",
-            value: "#{PRD_SCHEME}",
-          },
-          {
-            title: "Build Number",
-            value: "#{new_build_number.to_s}",
-          }
-        ]
-      },
-      success: true
-    )        
+    # slack(
+    #   message: "⭐️ 테스트 플라이트 업로드 성공",
+    #   slack_url: "#{SLACK_HOOK_URL}",
+    #   username: "오잉봇",
+    #   icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
+    #   payload: {
+    #     "Build Date" => Time.new.to_s,
+    #   },
+    #   attachment_properties: {
+    #     fields: [
+    #       {
+    #         title: "Scheme",
+    #         value: "#{PRD_SCHEME}",
+    #       },
+    #       {
+    #         title: "Build Number",
+    #         value: "#{new_build_number.to_s}",
+    #       }
+    #     ]
+    #   },
+    #   success: true
+    # )        
   end
 
   #✅ 테스트 플라이트에 STG 업로드
   lane :upload_stg_to_testflight do |options|
     app_store_connect_api_key(
-      key_id: "#{APP_STORE_CONNECT_KEY_ID}",
-      issuer_id: "#{APP_STORE_CONNECT_ISSUER_ID}",
-      key_content: "#{APP_STORE_CONNECT_API_KEY}",
       is_key_content_base64: true,
       in_house: false
     )
@@ -152,19 +150,30 @@ platform :ios do
     new_build_number = latest_testflight_build_number() + 1
 
     increment_build_number(
-      xcodeproj: "#{PROJECT_PATH}",
-      build_number: new_build_number
+      build_number: new_build_number,
+      xcodeproj: "./14th-team5-iOS/App/App.xcodeproj"
+    )
+
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "./14th-team5-iOS/App/App.xcodeproj"
+    )
+    
+    update_project_team(
+      path: "./14th-team5-iOS/App/App.xcodeproj",
+      teamid: "#{TEAM_ID}"
     )
 
     build_app(
-      workspace: "#{APP_NAME}.xcworkspace",
-      scheme: "#{DEV_SCHEME}",
+      workspace: "Bibbi.xcworkspace",
+      scheme: "App",
+      xcargs: "-allowProvisioningUpdates",
       export_method: "app-store",
       export_options: {
         method: "app-store", 
 	provisioningProfiles: {
-          "#{BUNDLE_ID}" => "prd",
-          "#{WIDGET_BUNDLE_ID}" => "widgetPrd",
+          "com.5ing.bibbi" => "prd",
+          "com.5ing.bibbi.widget" => "widgetPrd",
         }
       }
     )
@@ -174,7 +183,7 @@ platform :ios do
     slack(
       message: "⭐️ 테스트 플라이트 업로드 성공",
       slack_url: "#{SLACK_HOOK_URL}",
-      username: "대신 배포해주는 고양이",
+      username: "오잉봇",
       icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
       payload: {
         "Build Date" => Time.new.to_s,
@@ -198,23 +207,23 @@ platform :ios do
 
 
 
-  #🔴 예외 처리
-  error do |lane, exception, options|
-    slack(
-      message: "❗️ 테스트 플라이트 업로드 실패",
-      slack_url: "#{SLACK_HOOK_URL}",
-      username: "대신 배포해주는 고양이",
-      icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
-      success: false,
-      attachment_properties: {
-        fields: [
-          {
-            title: "Error message",
-            value: "#{exception.to_s}",
-            short: false
-          }
-        ]
-      },
-    )        
-  end
+  # #🔴 예외 처리
+  # error do |lane, exception, options|
+  #   slack(
+  #     message: "❗️ 테스트 플라이트 업로드 실패",
+  #     slack_url: "#{SLACK_HOOK_URL}",
+  #     username: "오잉봇",
+  #     icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
+  #     success: false,
+  #     attachment_properties: {
+  #       fields: [
+  #         {
+  #           title: "Error message",
+  #           value: "#{exception.to_s}",
+  #           short: false
+  #         }
+  #       ]
+  #     },
+  #   )        
+  # end
 end

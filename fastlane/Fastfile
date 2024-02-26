@@ -39,6 +39,16 @@ default_platform(:ios)
 platform :ios do
   #✅ 인증서를 키체인에 저장
   lane :setup_keychain do
+
+    create_keychain(
+      name: "login.keychain-db",
+      password: "",
+      default_keychain: true,
+      unlock: true,
+      timeout: 3600,
+      lock_when_sleeps: true
+    )
+
     create_keychain(
       name: "#{KEYCHAIN_NAME}",
       password: "#{KEYCHAIN_PASSWORD}",
@@ -46,10 +56,6 @@ platform :ios do
       unlock: true,
       timeout: 3600,
       lock_when_sleeps: true
-    )
-
-    get_certificates(
-      username: "55ing.team@gmail.com"
     )
 
     import_certificate(

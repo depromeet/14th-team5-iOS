@@ -50,7 +50,7 @@ platform :ios do
 
     unlock_keychain(
       path: "/Users/runner/Library/Keychains/login.keychain-db",
-      password: ""
+      password: "",
       add_to_search_list: :add
     )
 

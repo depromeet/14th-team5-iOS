@@ -48,6 +48,8 @@ platform :ios do
       lock_when_sleeps: true
     )
 
+    get_certificates
+
     import_certificate(
       certificate_path: "Tuist/Signing/prd.cer",
       keychain_name: "#{KEYCHAIN_NAME}",

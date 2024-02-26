@@ -38,7 +38,7 @@ default_platform(:ios)
 
 platform :ios do
   #✅ 인증서를 키체인에 저장
-  lane :setup_keychain do
+  lane :setup_keychain do |options|
 
 
     create_keychain(

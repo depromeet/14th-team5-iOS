@@ -48,15 +48,10 @@ platform :ios do
       lock_when_sleeps: true
     )
 
-    unlock_keychain(
-      path: "/Users/runner/Library/Keychains/login.keychain-db",
-      password: "",
-      add_to_search_list: :add
-    )
-
     import_certificate(
       certificate_path: "Tuist/Signing/prd.cer",
       keychain_name: "#{KEYCHAIN_NAME}",
+      keychain_path: "/Users/runner/Library/Keychains/#{KEYCHAIN_NAME}-db"
       keychain_password: "#{KEYCHAIN_PASSWORD}",
       log_output: true
     )
@@ -64,6 +59,7 @@ platform :ios do
     import_certificate(
       certificate_path: "Tuist/Signing/prd.p12",
       keychain_name: "#{KEYCHAIN_NAME}",
+      keychain_path: "/Users/runner/Library/Keychains/#{KEYCHAIN_NAME}-db",
       keychain_password: "#{KEYCHAIN_PASSWORD}",
       log_output: true
     )
@@ -71,6 +67,7 @@ platform :ios do
     import_certificate(
       certificate_path: "Tuist/Signing/dev.cer",
       keychain_name: "#{KEYCHAIN_NAME}",
+      keychain_path: "/Users/runner/Library/Keychains/#{KEYCHAIN_NAME}-db",
       keychain_password: "#{KEYCHAIN_PASSWORD}",
       log_output: true
     )
@@ -78,6 +75,7 @@ platform :ios do
     import_certificate(
       certificate_path: "Tuist/Signing/dev.p12",
       keychain_name: "#{KEYCHAIN_NAME}",
+      keychain_path: "/Users/runner/Library/Keychains/#{KEYCHAIN_NAME}-db",
       keychain_password: "#{KEYCHAIN_PASSWORD}",
       log_output: true
     )

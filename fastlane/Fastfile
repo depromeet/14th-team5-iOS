@@ -50,26 +50,34 @@ platform :ios do
 
     import_certificate(
       certificate_path: "Tuist/Signing/prd.cer",
+      certificate_password: "",
       keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
+      keychain_password: "#{KEYCHAIN_PASSWORD}",
+      log_output: true
     )
 
     import_certificate(
       certificate_path: "Tuist/Signing/prd.p12",
+      certificate_password: "",
       keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
+      keychain_password: "#{KEYCHAIN_PASSWORD}",
+      log_output: true
     )
 
     import_certificate(
       certificate_path: "Tuist/Signing/dev.cer",
+      certificate_password: "",
       keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
+      keychain_password: "#{KEYCHAIN_PASSWORD}",
+      log_output: true
     )
 
     import_certificate(
       certificate_path: "Tuist/Signing/dev.p12",
+      certificate_password: "",
       keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
+      keychain_password: "#{KEYCHAIN_PASSWORD}",
+      log_output: true
     )
 
     install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.PRD.mobileprovision")

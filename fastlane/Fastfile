@@ -40,10 +40,10 @@ platform :ios do
   #✅ 인증서를 키체인에 저장
   lane :setup_keychain do
     create_keychain(
-      name: "#{KEYCHAIN_NAME}",
-      password: "#{KEYCHAIN_PASSWORD}",
+      name: "BibbiKeychain",
+      password: "1g2ZdeMJw7FVvS",
       default_keychain: true,
-      unlock: false,
+      unlock: true,
       timeout: 3600,
       lock_when_sleeps: true
     )
@@ -51,32 +51,32 @@ platform :ios do
     import_certificate(
       certificate_path: "Tuist/Signing/prd.cer",
       certificate_password: "",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}",
+      keychain_name: "BibbiKeychain",
+      keychain_password: "1g2ZdeMJw7FVvS",
       log_output: true
     )
 
     import_certificate(
       certificate_path: "Tuist/Signing/prd.p12",
       certificate_password: "",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}",
+      keychain_name: "BibbiKeychain",
+      keychain_password: "1g2ZdeMJw7FVvS",
       log_output: true
     )
 
     import_certificate(
       certificate_path: "Tuist/Signing/dev.cer",
       certificate_password: "",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}",
+      keychain_name: "BibbiKeychain",
+      keychain_password: "1g2ZdeMJw7FVvS",
       log_output: true
     )
 
     import_certificate(
       certificate_path: "Tuist/Signing/dev.p12",
       certificate_password: "",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}",
+      keychain_name: "BibbiKeychain",
+      keychain_password: "1g2ZdeMJw7FVvS",
       log_output: true
     )
 

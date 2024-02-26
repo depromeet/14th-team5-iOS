@@ -43,7 +43,7 @@ platform :ios do
       name: "#{KEYCHAIN_NAME}",
       password: "#{KEYCHAIN_PASSWORD}",
       default_keychain: true,
-      unlock: true,
+      unlock: false,
       timeout: 3600,
       lock_when_sleeps: true
     )
@@ -80,13 +80,13 @@ platform :ios do
       log_output: true
     )
 
-    install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.PRD.mobileprovision")
-    install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.STG.mobileprovision")
-    install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.DEV.mobileprovision")
+    install_provisioning_profile(path: "Tuist/Signing/App.PRD.mobileprovision")
+    install_provisioning_profile(path: "Tuist/Signing/App.STG.mobileprovision")
+    install_provisioning_profile(path: "Tuist/Signing/App.DEV.mobileprovision")
 
-    install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.PRD.mobileprovision")
-    install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.STG.mobileprovision")
-    install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.DEV.mobileprovision")
+    install_provisioning_profile(path: "Tuist/Signing/WidgetExtension.PRD.mobileprovision")
+    install_provisioning_profile(path: "Tuist/Signing/WidgetExtension.STG.mobileprovision")
+    install_provisioning_profile(path: "Tuist/Signing/WidgetExtension.DEV.mobileprovision")
   end
 
 

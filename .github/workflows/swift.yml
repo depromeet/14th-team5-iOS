@@ -37,7 +37,7 @@ jobs:
 
       - name: Setting Master Key
         run: | 
-          echo "${{ secrets.MASTER_KEY }}" >> Tuist/master.key
+          echo "${{secrets.MASTER_KEY}}" >> Tuist/master.key
         
       - name: Install Tuist CLI
         run: bash <(curl -Ls https://install.tuist.io)
@@ -57,22 +57,18 @@ jobs:
       - name: set Keychains
         run: fastlane setup_keychain
         env:
-          KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_NAME: ${{secrets.KEYCHAIN_NAME}}
+          KEYCHAIN_PASSWORD: ${{secrets.KEYCHAIN_PASSWORD}}
           APP_NAME: ${{secrets.APP_NAME}}
           WIDGET_NAME: ${{secrets.WIDGET_NAME}}
 
       - name: Tuist generate Command      
-        run: |
-          tuist generate
-        env:
-          MASTER_KEY: ${{secrets.MASTER_KEY}}  
-
+        run: tuist generate
                   
       - run: fastlane upload_stg_to_testflight
         env:
-          KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_NAME: ${{secrets.KEYCHAIN_NAME}}
+          KEYCHAIN_PASSWORD: ${{secrets.KEYCHAIN_PASSWORD}}
           TEAM_ID: ${{secrets.TEAM_ID}}
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}

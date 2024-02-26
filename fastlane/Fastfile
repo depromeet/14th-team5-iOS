@@ -40,17 +40,9 @@ platform :ios do
   #✅ 인증서를 키체인에 저장
   lane :setup_keychain do
 
-    create_keychain(
-      name: "login.keychain-db",
-      password: "",
-      default_keychain: true,
-      unlock: true,
-      timeout: 3600,
-      lock_when_sleeps: true
-    )
 
     create_keychain(
-      name: "#{KEYCHAIN_NAME}",
+      name: "BibbiKeychain",
       password: "#{KEYCHAIN_PASSWORD}",
       default_keychain: true,
       unlock: true,
@@ -60,32 +52,28 @@ platform :ios do
 
     import_certificate(
       certificate_path: "Tuist/Signing/prd.cer",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_path: "/Users/runner/Library/Keychains/#{KEYCHAIN_NAME}-db",
+      keychain_name: "BibbiKeychain",
       keychain_password: "#{KEYCHAIN_PASSWORD}",
       log_output: true
     )
 
     import_certificate(
       certificate_path: "Tuist/Signing/prd.p12",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_path: "/Users/runner/Library/Keychains/#{KEYCHAIN_NAME}-db",
+      keychain_name: "BibbiKeychain",
       keychain_password: "#{KEYCHAIN_PASSWORD}",
       log_output: true
     )
 
     import_certificate(
       certificate_path: "Tuist/Signing/dev.cer",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_path: "/Users/runner/Library/Keychains/#{KEYCHAIN_NAME}-db",
+      keychain_name: "BibbiKeychain",
       keychain_password: "#{KEYCHAIN_PASSWORD}",
       log_output: true
     )
 
     import_certificate(
       certificate_path: "Tuist/Signing/dev.p12",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_path: "/Users/runner/Library/Keychains/#{KEYCHAIN_NAME}-db",
+      keychain_name: "BibbiKeychain",
       keychain_password: "#{KEYCHAIN_PASSWORD}",
       log_output: true
     )

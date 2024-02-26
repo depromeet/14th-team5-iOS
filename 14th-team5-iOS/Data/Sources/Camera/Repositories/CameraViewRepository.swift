@@ -48,10 +48,9 @@ extension CameraViewRepository: CameraViewInterface {
     }
     
     
-    public func fetchProfileImageURL(parameters: CameraDisplayImageParameters, type: UploadLocation) -> Observable<CameraDisplayImageResponse?> {
+    public func fetchProfileImageURL(parameters: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?> {
         
-        let accessToken = App.Repository.token.accessToken.value?.accessToken ?? ""
-        return cameraAPIWorker.createPresignedURL(accessToken: accessToken, parameters: parameters, type: type)
+        return cameraAPIWorker.createProfilePresignedURL(accessToken: accessToken, parameters: parameters)
             .compactMap { $0?.toDomain() }
             .asObservable()
     }
@@ -83,7 +82,7 @@ extension CameraViewRepository: CameraViewInterface {
             .asObservable()
     }
     
-    public func fetchRealEmojiItems(memberId: String) -> Observable<CameraRealEmojiImageItemResponse?> {
+    public func fetchRealEmojiItems(memberId: String) -> Observable<[CameraRealEmojiImageItemResponse?]> {
         return cameraAPIWorker.loadRealEmojiImage(accessToken: accessToken, memberId: memberId)
             .compactMap { $0?.toDomain() }
             .asObservable()

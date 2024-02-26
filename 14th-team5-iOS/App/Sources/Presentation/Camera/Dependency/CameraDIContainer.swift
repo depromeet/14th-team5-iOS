@@ -21,8 +21,7 @@ public final class CameraDIContainer: BaseDIContainer {
     
     
     private let cameraType: UploadLocation
-    private let realEmojiType: String
-    private let realEmojiIndex: Int
+    private let realEmojiType: Emojis
     private let memberId: String
     
     
@@ -33,10 +32,9 @@ public final class CameraDIContainer: BaseDIContainer {
         return appDelegate.globalStateProvider
     }
     
-    public init(cameraType: UploadLocation, memberId: String = "", realEmojiType: String = "EMOJI_1", realEmojiIndex: Int = 0) {
+    public init(cameraType: UploadLocation, memberId: String = "", realEmojiType: Emojis = Emojis.emoji(forIndex: 1)) {
         self.cameraType = cameraType
         self.realEmojiType = realEmojiType
-        self.realEmojiIndex = realEmojiIndex
         self.memberId = App.Repository.member.memberID.value ?? ""
     }
     
@@ -59,8 +57,7 @@ public final class CameraDIContainer: BaseDIContainer {
             provider: globalState,
             cameraType: cameraType,
             memberId: memberId,
-            emojiType: realEmojiType,
-            emojiIndex: realEmojiIndex
+            emojiType: realEmojiType
         )
     }
     

@@ -33,8 +33,26 @@ extension CameraAPIs {
 
 extension CameraAPIWorker {
     //TODO: 나중에 Prameters memberId 추가하고 type에 따라 realEmoji, feed, profile, PresignedURL 호출 API 분기 작성하면 하나로 통합 할 수 있을듯
-    public func createPresignedURL(accessToken: String, parameters: Encodable, type: UploadLocation) -> Single<CameraDisplayImageDTO?> {
-        let spec = type == .feed ? CameraAPIs.uploadImageURL.spec : CameraAPIs.uploadProfileImageURL.spec
+    public func createProfilePresignedURL(accessToken: String, parameters: Encodable) -> Single<CameraDisplayImageDTO?> {
+        
+        let spec = CameraAPIs.uploadProfileImageURL.spec
+        
+        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("upload Profile Image URL Fetch Reuslt: \(str)")
+                }
+            }
+            .map(CameraDisplayImageDTO.self)
+            .catchAndReturn(nil)
+            .asSingle()
+    }
+    
+    
+    
+    public func createFeedPresignedURL(accessToken: String, parameters: Encodable) -> Single<CameraDisplayImageDTO?> {
+        let spec = CameraAPIs.uploadImageURL.spec
         
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
@@ -69,7 +87,7 @@ extension CameraAPIWorker {
             .subscribe(on: Self.queue)
             .catchAndReturn(false)
             .debug()
-            .map { _ in true }
+            .map { $0 }
     }
     
     public func combineWithTextImageUpload(accessToken: String, parameters: Encodable)  -> Single<CameraDisplayPostDTO?> {

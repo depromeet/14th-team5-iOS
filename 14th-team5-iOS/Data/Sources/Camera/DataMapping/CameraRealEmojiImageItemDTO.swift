@@ -7,6 +7,7 @@
 
 import Foundation
 
+import Core
 import Domain
 
 
@@ -36,13 +37,21 @@ extension CameraRealEmojiImageItemDTO {
 
 
 extension CameraRealEmojiImageItemDTO {
-    func toDomain() -> CameraRealEmojiImageItemResponse {
-        return .init(realEmojiItems: realEmojiItems.map { $0.toDomain() })
+    func toDomain() -> [CameraRealEmojiImageItemResponse?] {
+        var items: [CameraRealEmojiImageItemResponse?] = Array(repeating: nil, count: 5)
+        
+        realEmojiItems.forEach {
+            guard let emojiType = $0.realEmojiType.last else {
+                return
+            }
+            items[(Int(String(emojiType)) ?? 1) - 1] = $0.toDomain()
+        }
+        return items
     }
 }
 
 extension CameraRealEmojiImageItemDTO.CameraRealEmojiInfoDTO {
-    func toDomain() -> CameraRealEmojiInfoResponse {
+    func toDomain() -> CameraRealEmojiImageItemResponse {
         return .init(
             realEmojiId: realEmojiId,
             realEmojiType: realEmojiType,

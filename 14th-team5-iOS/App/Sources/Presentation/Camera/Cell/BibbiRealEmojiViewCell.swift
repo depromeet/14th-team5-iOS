@@ -58,14 +58,6 @@ final class BibbiRealEmojiViewCell: BaseCollectionViewCell<BibbiRealEmojiCellRea
     override func bind(reactor: BibbiRealEmojiCellReactor) {
         
         reactor.state
-            .filter { !$0.defaultImage.isEmpty }
-            .map { $0.defaultImage }
-            .distinctUntilChanged()
-            .map { DesignSystemImages.Image(named: $0, in: DesignSystemResources.bundle, with: nil)}
-            .bind(to: realEmojiImageView.rx.image)
-            .disposed(by: disposeBag)
-        
-        reactor.state
             .filter { $0.realEmojiImage != nil }
             .compactMap { $0.realEmojiImage }
             .distinctUntilChanged()
@@ -82,18 +74,20 @@ final class BibbiRealEmojiViewCell: BaseCollectionViewCell<BibbiRealEmojiCellRea
             .disposed(by: disposeBag)
         
         reactor.state
-            .filter { !$0.isSelected && !$0.defaultImage.isEmpty }
+            .filter { !$0.isSelected }
             .filter { $0.realEmojiImage == nil }
-            .map { "un\($0.defaultImage)"}
-            .map { DesignSystemImages.Image(named: $0, in: DesignSystemResources.bundle, with: nil)}
+            .map { "unemoji\($0.indexPath + 1)" }
+            .withUnretained(self)
+            .map { $0.0.setupRealEmojiImage(name: $0.1)}
             .bind(to: realEmojiImageView.rx.image)
             .disposed(by: disposeBag)
         
         reactor.state
-            .filter { $0.isSelected && !$0.defaultImage.isEmpty}
-            .filter { $0.realEmojiImage == nil }
-            .map { "\($0.defaultImage)"}
-            .map { DesignSystemImages.Image(named: $0, in: DesignSystemResources.bundle, with: nil)}
+            .filter { $0.isSelected }
+            .filter { $0.realEmojiImage == nil}
+            .map { "emoji\($0.indexPath + 1)" }
+            .withUnretained(self)
+            .map { $0.0.setupRealEmojiImage(name: $0.1)}
             .bind(to: realEmojiImageView.rx.image)
             .disposed(by: disposeBag)
     }
@@ -106,6 +100,11 @@ extension BibbiRealEmojiViewCell {
         realEmojiImageView.kf.indicatorType = .activity
         realEmojiImageView.clipsToBounds = true
         realEmojiImageView.kf.setImage(with: url, options: [.transition(.fade(0.5))])
+    }
+    
+    
+    private func setupRealEmojiImage(name: String) -> UIImage {
+        return DesignSystemImages.Image(named: name, in: DesignSystemResources.bundle, with: nil) ?? UIImage()
     }
 
     private func setupPointImageView(_ type: Int) -> UIImage {

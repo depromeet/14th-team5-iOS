@@ -14,12 +14,12 @@ import RxCocoa
 public protocol CameraViewUseCaseProtocol {
     func executeToggleCameraPosition(_ isState: Bool) -> Observable<Bool>
     func executeToggleCameraFlash(_ isState: Bool) -> Observable<Bool>
-    func executeProfileImageURL(parameter: CameraDisplayImageParameters, type: UploadLocation) -> Observable<CameraDisplayImageResponse?>
+    func executeProfileImageURL(parameter: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?>
     func executeUploadToS3(toURL url: String, imageData: Data) -> Observable<Bool>
     func executeEditProfileImage(memberId: String, parameter: ProfileImageEditParameter) -> Observable<ProfileMemberResponse?>
     func executeRealEmojiImageURL(memberId: String, parameter: CameraRealEmojiParameters) -> Observable<CameraRealEmojiPreSignedResponse?>
     func executeRealEmojiUploadToS3(memberId: String, parameter: CameraCreateRealEmojiParameters) -> Observable<CameraCreateRealEmojiResponse?>
-    func executeRealEmojiItems(memberId: String) -> Observable<CameraRealEmojiImageItemResponse?>
+    func executeRealEmojiItems(memberId: String) -> Observable<[CameraRealEmojiImageItemResponse?]>
     func executeUpdateRealEmojiImage(memberId: String, realEmojiId: String ,parameter: CameraUpdateRealEmojiParameters) -> Observable<CameraUpdateRealEmojiResponse?>
 }
 
@@ -41,8 +41,8 @@ public final class CameraViewUseCase: CameraViewUseCaseProtocol {
         return cameraViewRepository.toggleCameraFlash(isState)
     }
     
-    public func executeProfileImageURL(parameter: CameraDisplayImageParameters, type: UploadLocation) -> Observable<CameraDisplayImageResponse?> {
-        return cameraViewRepository.fetchProfileImageURL(parameters: parameter, type: type)
+    public func executeProfileImageURL(parameter: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?> {
+        return cameraViewRepository.fetchProfileImageURL(parameters: parameter)
     }
 
     public func executeUploadToS3(toURL url: String, imageData: Data) -> Observable<Bool> {
@@ -62,7 +62,7 @@ public final class CameraViewUseCase: CameraViewUseCaseProtocol {
     }
 
     
-    public func executeRealEmojiItems(memberId: String) -> Observable<CameraRealEmojiImageItemResponse?> {
+    public func executeRealEmojiItems(memberId: String) -> Observable<[CameraRealEmojiImageItemResponse?]> {
         return cameraViewRepository.fetchRealEmojiItems(memberId: memberId)
     }
     

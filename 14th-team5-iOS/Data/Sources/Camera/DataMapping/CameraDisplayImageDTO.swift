@@ -21,7 +21,7 @@ public struct CameraDisplayImageDTO: Decodable {
 
 extension CameraDisplayImageDTO {
     
-    public func toDomain() -> CameraDisplayImageResponse {
+    public func toDomain() -> CameraDisplayImageResponse? {
         return .init(imageURL: imageURL ?? "")
     }
 }

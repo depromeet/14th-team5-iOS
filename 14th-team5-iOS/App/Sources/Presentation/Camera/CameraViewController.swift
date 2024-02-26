@@ -178,7 +178,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         cameraView.snp.makeConstraints {
             $0.width.equalToSuperview()
-            $0.height.equalTo(375)
+            $0.height.equalTo(cameraView.snp.width).multipliedBy(1.0)
             $0.center.equalToSuperview()
         }
         
@@ -236,6 +236,15 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        NotificationCenter.default
+            .rx.notification(.didTapBibbiToastTranstionButton)
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.navigationController?.popViewController(animated: true)
+            }.disposed(by: disposeBag)
+        
+        
+        
         reactor.pulse(\.$feedImageData)
             .distinctUntilChanged()
             .compactMap { $0 }
@@ -266,6 +275,16 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .distinctUntilChanged()
             .bind(to: cameraNavigationBar.rx.navigationTitle)
             .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$isError)
+            .distinctUntilChanged()
+            .filter { $0 }
+            .withLatestFrom(reactor.state.map { $0.cameraType })
+            .map { $0 == .profile ? "프로필 화면" : "홈 화면" }
+            .withUnretained(self)
+            .bind(onNext: { $0.0.makeActionBibbiToastView(text: "사진 업로드 실패", transtionText: "\($0.1)으로 이동", duration: 1, offset: 50, direction: .up)})
+            .disposed(by: disposeBag)
+        
         
         reactor.pulse(\.$realEmojiSection)
             .asDriver(onErrorJustReturn: [])
@@ -335,17 +354,16 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .disposed(by: disposeBag)
         
         reactor.state
-              .filter { !$0.emojiType.isEmpty }
-              .map { $0.emojiType.replacingOccurrences(of: "EMOJI_", with: "emoji") }
-              .distinctUntilChanged()
-              .map { DesignSystemImages.Image(named: $0, in: DesignSystemResources.bundle, with: nil)}
-              .bind(to: realEmojiFaceImageView.rx.image)
-              .disposed(by: disposeBag)
+            .filter { !$0.emojiType.emojiString.isEmpty }
+            .map { $0.emojiType.emojiImage}
+            .distinctUntilChanged()
+            .bind(to: realEmojiFaceImageView.rx.image)
+            .disposed(by: disposeBag)
         
         shutterButton
             .rx.tap
             .throttle(.seconds(4), scheduler: MainScheduler.asyncInstance)
-            .debug("shutter Button Tap")
+            .do { _ in Haptic.selection() }
             .withUnretained(self)
             .subscribe { owner, _ in
                 let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
@@ -538,7 +556,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
     
     public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         guard let photoData = photo.fileDataRepresentation(),
-        let imageData = UIImage(data: photoData)?.jpegData(compressionQuality: 1.0) else { return }
+              let imageData = UIImage(data: photoData)?.asPhoto else { return }
         output.photoOutputDidFinshProcessing(photo: imageData, error: error)
     }
     

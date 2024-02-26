@@ -48,7 +48,9 @@ platform :ios do
       lock_when_sleeps: true
     )
 
-    get_certificates
+    get_certificates(
+      username: "55ing.team@gmail.com"
+    )
 
     import_certificate(
       certificate_path: "Tuist/Signing/prd.cer",

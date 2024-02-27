@@ -73,6 +73,7 @@ final public class PostCommentViewReactor: Reactor {
     public var postCommentUseCase: PostCommentUseCaseProtocol
     public var provider: GlobalStateProviderProtocol
     
+    private var postComentCount: Int = 0
     private var hasReceivedInputEvent: Bool = false
     
     // MARK: - Intializer
@@ -125,10 +126,12 @@ final public class PostCommentViewReactor: Reactor {
             }
         
         let postMutation = provider.postGlobalState.event
-            .flatMap {
-                switch $0 {
+            .flatMap { event in
+                switch event {
                 case let .pushProfileViewController(memberId):
                     return Observable<Mutation>.just(.setProfileViewController(memberId))
+                default:
+                    return Observable<Mutation>.empty()
                 }
             }
         
@@ -224,7 +227,9 @@ final public class PostCommentViewReactor: Reactor {
                             provider: self.provider
                         )
                         
+                        let count = $0.0.currentState.commentCount
                         $0.0.provider.postGlobalState.clearCommentText()
+                        $0.0.provider.postGlobalState.renewalPostCommentCount(count + 1)
                         return Observable.concat(
                             Observable<Mutation>.just(.enableCommentTextField(true)),
                             Observable<Mutation>.just(.clearCommentTextField),
@@ -248,6 +253,8 @@ final public class PostCommentViewReactor: Reactor {
                         )
                     }
                     
+                    let count = $0.0.currentState.commentCount
+                    $0.0.provider.postGlobalState.renewalPostCommentCount(count - 1)
                     return Observable.concat(
                         Observable<Mutation>.just(.removePostComment(commentId)),
                         Observable<Mutation>.just(.setDeleteCommentCompleteToastMessageView)

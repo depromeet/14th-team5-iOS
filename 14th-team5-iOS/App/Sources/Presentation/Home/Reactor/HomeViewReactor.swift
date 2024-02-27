@@ -16,9 +16,8 @@ import Kingfisher
 
 final class HomeViewReactor: Reactor {
     enum Action {
-        case checkInTime
+        case viewDidLoad
         case viewWillAppear
-        case startTimer
         case refresh
         case tapInviteFamily
     }
@@ -60,13 +59,11 @@ final class HomeViewReactor: Reactor {
     let provider: GlobalStateProviderProtocol
     private let familyUseCase: FamilyUseCaseProtocol
     private let postUseCase: PostListUseCaseProtocol
-    private let inviteFamilyUseCase: FamilyUseCaseProtocol
     
-    init(provider: GlobalStateProviderProtocol, familyUseCase: FamilyUseCaseProtocol, postUseCase: PostListUseCaseProtocol, inviteFamilyUseCase: FamilyUseCaseProtocol) {
+    init(provider: GlobalStateProviderProtocol, familyUseCase: FamilyUseCaseProtocol, postUseCase: PostListUseCaseProtocol) {
         self.provider = provider
         self.familyUseCase = familyUseCase
         self.postUseCase = postUseCase
-        self.inviteFamilyUseCase = inviteFamilyUseCase
     }
 }
 
@@ -89,10 +86,7 @@ extension HomeViewReactor {
         switch action {
         case .viewWillAppear:
             return self.viewWillAppear()
-        case .checkInTime:
-            let (isInTime, _) = self.calculateRemainingTime()
-            return Observable.just(Mutation.setInTime(isInTime))
-        case .startTimer:
+        case .viewDidLoad:
             let (isInTime, time) = self.calculateRemainingTime()
             
             if isInTime {
@@ -102,6 +96,7 @@ extension HomeViewReactor {
                         return Observable.concat([Observable.just(Mutation.setInTime(false)),
                                                   Observable.just(Mutation.setSelfUploaded(true))])
                     }
+                    .startWith(.setInTime(isInTime))
             } else {
                 return Observable<Int>
                     .timer(.seconds(time), scheduler: MainScheduler.instance)
@@ -109,13 +104,14 @@ extension HomeViewReactor {
                         return Observable.concat([Observable.just(Mutation.setInTime(true)),
                                                   Observable.just(Mutation.setSelfUploaded(false))])
                     }
+                    .startWith(.setInTime(isInTime))
                                         
             }
         case .refresh:
             return self.mutate(action: .viewWillAppear)
         case .tapInviteFamily:
                    MPEvent.Home.shareLink.track(with: nil)
-                   return inviteFamilyUseCase.executeFetchInvitationUrl()
+                   return familyUseCase.executeFetchInvitationUrl()
                        .map {
                            guard let invitationLink = $0?.url else {
                                return .setFetchFailureToastMessageView
@@ -131,14 +127,14 @@ extension HomeViewReactor {
         
         switch mutation {
         case .updateFamilyDataSource(let familySectionItem):
+            newState.isRefreshEnd = true
             newState.familySection.items = familySectionItem
         case .updatePostDataSource(let postSectionItem):
-            newState.isRefreshEnd = true
             newState.postSection.items = postSectionItem
+            App.Repository.member.postId.accept(UserDefaults.standard.postId)
         case .setSelfUploaded(let isSelfUploaded):
             newState.isSelfUploaded = isSelfUploaded
         case .setAllFamilyUploaded(let isAllUploaded):
-            newState.isRefreshEnd = true
             newState.isAllFamilyMembersUploaded = isAllUploaded
         case .setInviteFamilyView(let isShow):
             newState.isShowingInviteFamilyView = isShow

@@ -160,7 +160,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         displayView.snp.makeConstraints {
             $0.width.equalToSuperview()
-            $0.height.equalTo(375)
+            $0.height.equalTo(displayView.snp.width).multipliedBy(1.0)
             $0.center.equalToSuperview()
         }
         
@@ -297,7 +297,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .withLatestFrom(reactor.state.map{ $0.displayDescrption })
             .filter { $0.isValidation() }
             .withUnretained(self)
-            .bind(onNext: { $0.0.didTapCollectionViewTransition($0.0)})
+            .bind(onNext: { $0.0.didTapCollectionViewTransition()})
             .disposed(by: disposeBag)
             
         
@@ -306,7 +306,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .observe(on: MainScheduler.instance)
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .withUnretained(self)
-            .bind(onNext: { $0.0.didTapCollectionViewTransition($0.0)})
+            .bind(onNext: { $0.0.didTapCollectionViewTransition()})
             .disposed(by: disposeBag)
         
         displayDimView
@@ -333,7 +333,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .rx.notification(UIResponder.keyboardWillShowNotification)
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
-            .bind(onNext: { $0.0.keyboardWillShowGenerateUI($0.0)})
+            .bind(onNext: { $0.0.keyboardWillShowGenerateUI()})
             .disposed(by: disposeBag)
         
         
@@ -341,7 +341,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .rx.notification(UIResponder.keyboardWillHideNotification)
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
-            .bind(onNext: {$0.0.keyboardWillHideGenerateUI($0.0)})
+            .bind(onNext: {$0.0.keyboardWillHideGenerateUI()})
             .disposed(by: disposeBag)
         
         NotificationCenter.default
@@ -363,6 +363,13 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .drive(displayView.rx.image)
             .disposed(by: disposeBag)
         
+        reactor.state
+            .map { $0.isError }
+            .filter { $0 }
+            .map { !$0 }
+            .bind(to: confirmButton.rx.isEnabled)
+            .disposed(by: disposeBag)
+        
         
         reactor.state
             .map { $0.isLoading }
@@ -374,7 +381,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         reactor.pulse(\.$displayData)
             .skip(until: rx.methodInvoked(#selector(viewWillAppear(_:))))
             .withUnretained(self)
-            .bind(onNext: { $0.0.setupCameraDisplayPermission(owner: $0.0, $0.1) })
+            .bind(onNext: { $0.0.setupCameraDisplayPermission($0.1) })
             .disposed(by: disposeBag)
         
         displayEditCollectionView.rx
@@ -399,13 +406,14 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
 
 
 extension CameraDisplayViewController {
-    private func setupCameraDisplayPermission(owner: CameraDisplayViewController, _ originalData: Data) {
+    private func setupCameraDisplayPermission(_ originalData: Data) {
         let status = PHPhotoLibrary.authorizationStatus(for: .addOnly)
         if status == .authorized || status == .limited {
-            PHPhotoLibrary.shared().performChanges {
+            PHPhotoLibrary.shared().performChanges { [weak self] in
+                guard let `self` = self else { return }
                 let creationRequest = PHAssetCreationRequest.forAsset()
                 creationRequest.addResource(with: .photo, data: originalData, options: nil)
-                owner.makeBibbiToastView(
+                self.makeBibbiToastView(
                     text: "사진이 저장되었습니다.",
                     image: DesignSystemAsset.camera.image.withTintColor(DesignSystemAsset.gray300.color)
                 )
@@ -414,7 +422,8 @@ extension CameraDisplayViewController {
             PHPhotoLibrary.requestAuthorization(for: .addOnly) { stauts in
                 switch status {
                 case .denied:
-                    DispatchQueue.main.async {
+                    DispatchQueue.main.async { [weak self] in
+                        guard let `self` = self else { return }
                         self.showPermissionAlertController()
                     }
                 default:
@@ -424,31 +433,33 @@ extension CameraDisplayViewController {
         }
     }
     
-    private func keyboardWillHideGenerateUI(_ owner: CameraDisplayViewController) {
-        owner.displayEditTextField.snp.updateConstraints {
+    private func keyboardWillHideGenerateUI() {
+        displayEditTextField.snp.updateConstraints {
             $0.height.equalTo(0)
         }
-        owner.dismissDimView()
-        UIView.animate(withDuration: 0.5) {
-            owner.displayEditCollectionView.transform = CGAffineTransform(scaleX: 0.7, y: 0.7).translatedBy(x: 0, y: 300)
+        dismissDimView()
+        UIView.animate(withDuration: 0.5) { [weak self] in
+            guard let `self` = self else { return }
+            self.displayEditCollectionView.transform = CGAffineTransform(scaleX: 0.7, y: 0.7).translatedBy(x: 0, y: self.displayEditButton.frame.midY)
         }
-        owner.displayEditTextField.isHidden = true
+        displayEditTextField.isHidden = true
     }
     
-    private func keyboardWillShowGenerateUI(_ owner: CameraDisplayViewController) {
-        owner.displayEditTextField.isHidden = false
-        owner.presentDimView()
-        owner.displayView.bringSubviewToFront(owner.displayEditCollectionView)
-        owner.displayDimView.backgroundColor = .black.withAlphaComponent(0.5)
-        owner.displayEditTextField.snp.updateConstraints {
+    private func keyboardWillShowGenerateUI() {
+        displayEditTextField.isHidden = false
+        presentDimView()
+        displayView.bringSubviewToFront(displayEditCollectionView)
+        displayDimView.backgroundColor = .black.withAlphaComponent(0.5)
+        displayEditTextField.snp.updateConstraints {
             $0.height.equalTo(46)
         }
     }
     
-    private func didTapCollectionViewTransition(_ owner: CameraDisplayViewController) {
-        owner.displayEditTextField.becomeFirstResponder()
-        UIView.animate(withDuration: 0.5) {
-            owner.displayEditCollectionView.transform = .identity
+    private func didTapCollectionViewTransition() {
+        displayEditTextField.becomeFirstResponder()
+        UIView.animate(withDuration: 0.5) { [weak self] in
+            guard let `self` = self else { return }
+            self.displayEditCollectionView.transform = .identity
         }
     }
     

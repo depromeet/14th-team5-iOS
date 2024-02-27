@@ -68,18 +68,23 @@ public final class CameraDisplayViewReactor: Reactor {
         switch action {
         case .viewDidLoad:
             let fileName = "\(self.currentState.displayData.hashValue).jpg"
-            let parameters: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: "\(fileName).jpg")
+            let parameters: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: "\(fileName)")
             
             return .concat(
                 .just(.setLoading(false)),
                 .just(.setError(false)),
                 .just(.setRenderImage(self.currentState.displayData)),
-                cameraDisplayUseCase.executeDisplayImageURL(parameters: parameters, type: .feed)
+                cameraDisplayUseCase.executeDisplayImageURL(parameters: parameters)
                     .withUnretained(self)
                     .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                     .asObservable()
                     .flatMap { owner, entity -> Observable<CameraDisplayViewReactor.Mutation> in
-                        guard let originalURL = entity?.imageURL else { return .just(.setError(true))}
+                        guard let originalURL = entity?.imageURL else {
+                            return .concat(
+                                .just(.setLoading(true)),
+                                .just(.setError(true))
+                            )
+                        }
                         return owner.cameraDisplayUseCase.executeUploadToS3(toURL: originalURL, imageData: owner.currentState.displayData)
                             .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                             .asObservable()
@@ -92,10 +97,12 @@ public final class CameraDisplayViewReactor: Reactor {
                                         .just(.setError(false))
                                     )
                                 } else {
-                                    return .just(.setError(true))
+                                    return .concat(
+                                        .just(.setLoading(true)),
+                                        .just(.setError(true))
+                                    )
                                 }
                             }
-                        
                     }
             )
         case let .fetchDisplayImage(description):
@@ -124,8 +131,9 @@ public final class CameraDisplayViewReactor: Reactor {
         case .didTapConfirmButton:
             
             MPEvent.Camera.uploadPhoto.track(with: nil)
+
             guard let presingedURL = self.currentState.displayEntity?.imageURL else { return .just(.setError(true)) }
-            let originURL = configureOriginalS3URL(url: presingedURL, with: .feed)
+            let originURL = configureOriginalS3URL(url: presingedURL)
             
             let parameters: CameraDisplayPostParameters = CameraDisplayPostParameters(
                 imageUrl: originURL,
@@ -195,7 +203,7 @@ extension CameraDisplayViewReactor {
     }
     
     
-    func configureOriginalS3URL(url: String, with filePath: UploadLocation) -> String {
+    func configureOriginalS3URL(url: String) -> String {
         guard let range = url.range(of: #"[^&?]+"#, options: .regularExpression) else { return "" }
         return String(url[range])
     }

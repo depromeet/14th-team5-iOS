@@ -25,7 +25,6 @@ public final class BibbiRealEmojiCellReactor: Reactor {
     
     public struct State {
         var realEmojiImage: URL?
-        var defaultImage: String
         var isSelected: Bool
         var indexPath: Int
         var realEmojiId: String
@@ -35,7 +34,6 @@ public final class BibbiRealEmojiCellReactor: Reactor {
     public init(
         provider: GlobalStateProviderProtocol,
         realEmojiImage: URL?,
-        defaultImage: String,
         isSelected: Bool,
         indexPath: Int,
         realEmojiId: String,
@@ -43,7 +41,6 @@ public final class BibbiRealEmojiCellReactor: Reactor {
     ) {
         self.initialState = State(
             realEmojiImage: realEmojiImage,
-            defaultImage: defaultImage,
             isSelected: isSelected,
             indexPath: indexPath,
             realEmojiId: realEmojiId,

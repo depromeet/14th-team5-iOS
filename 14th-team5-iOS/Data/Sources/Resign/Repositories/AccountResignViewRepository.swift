@@ -22,14 +22,8 @@ public final class AccountResignViewRepository {
 
 extension AccountResignViewRepository: AccountResignInterface {
     
-    public func fetchAccountResign(memberId: String) -> Observable<AccountResignResponse> {
-        return resignAPIWorker.resignUser(accessToken: accessToken, memberId: memberId)
-            .compactMap { $0?.toDomain() }
-            .asObservable()
-    }
-    
-    public func fetchAccountFcmResign(fcmToken: String) -> Observable<AccountFcmResignResponse> {
-        return resignAPIWorker.resignFcmToken(accessToken: accessToken, fcmToken: fcmToken)
+    public func fetchAccountResign() -> Observable<AccountResignResponse> {
+        return resignAPIWorker.resignUser(accessToken: accessToken, memberId: FamilyUserDefaults.getMyMemberId())
             .compactMap { $0?.toDomain() }
             .asObservable()
     }

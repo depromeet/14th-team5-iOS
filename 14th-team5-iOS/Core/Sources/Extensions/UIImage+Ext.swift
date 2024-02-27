@@ -6,10 +6,48 @@
 //
 
 import UIKit
+import UniformTypeIdentifiers
 
 import DesignSystem
 
 extension UIImage {
+    
+    public var asPhoto: Data? {
+        
+        //Image Source에 부여할 Options
+        let imageSourceOptions = [
+            kCGImageSourceShouldCache: false
+        ] as CFDictionary
+        
+        
+        //Image Source 생성 메서드 Data -> Image Source로 변환
+        guard let photoData = self.jpegData(compressionQuality: 1.0),
+              let imageSource = CGImageSourceCreateWithData(photoData as CFData, imageSourceOptions) else { return nil }
+        
+        
+        
+        let imageDownSampleOptions = [
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true
+        ] as CFDictionary
+        
+        // Image Soruce 를 통해 CGImage로 변환
+        // Index의 의미는 CGImage를 변환하려는 것을 가져오기위한 것
+        guard let cgImage = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, imageDownSampleOptions) else { return nil }
+        
+        let imageDataOptions = [
+            kCGImageDestinationLossyCompressionQuality: 0.75
+        ] as CFDictionary
+        
+        let originalData = NSMutableData()
+        guard let imageDestinationData = CGImageDestinationCreateWithData(originalData as CFMutableData, UTType.jpeg.identifier as CFString, 1, nil) else { return nil }
+        CGImageDestinationAddImage(imageDestinationData, cgImage, imageDataOptions)
+        CGImageDestinationFinalize(imageDestinationData)
+        return originalData as Data
+    }
+    
+    
     public func combinedTextWithBackground(target text: String, size: CGSize, attributedString: [NSAttributedString.Key : Any]) -> UIImage {
         let renderImage: UIGraphicsImageRenderer = UIGraphicsImageRenderer(size: size)
         let targetText: NSString = (text as NSString)

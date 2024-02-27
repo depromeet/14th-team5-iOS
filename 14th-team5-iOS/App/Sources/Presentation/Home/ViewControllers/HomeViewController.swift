@@ -23,7 +23,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
     private let familyCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let postCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let noPostView: NoPostTodayView = NoPostTodayView()
-    private let inviteFamilyView: InviteFamilyView = InviteFamilyView(openType: .inviteUrl)
+    private let inviteFamilyView: InviteFamilyView = InviteFamilyView(openType: .makeUrl)
     private let balloonView: BalloonView = BalloonView()
     private let loadingView: BibbiLoadingView = BibbiLoadingView()
     private let cameraButton: UIButton = UIButton()
@@ -69,7 +69,6 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
             $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
         }
         
-        
         inviteFamilyView.snp.makeConstraints {
             $0.top.equalTo(familyCollectionView).inset(24)
             $0.horizontalEdges.equalTo(familyCollectionView).inset(20)
@@ -89,8 +88,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
         }
         
         noPostView.snp.makeConstraints {
-            $0.top.equalTo(postCollectionView).inset(100)
-            $0.horizontalEdges.bottom.equalTo(postCollectionView)
+            $0.edges.equalTo(postCollectionView)
         }
         
         balloonView.snp.makeConstraints {
@@ -153,6 +151,12 @@ extension HomeViewController {
         postCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
+        NotificationCenter.default.rx.notification(UIScene.willEnterForegroundNotification)
+            .withUnretained(self)
+            .map { _ in Reactor.Action.viewDidLoad }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         App.Repository.member.postId
             .observe(on: MainScheduler.instance)
             .compactMap { $0 }
@@ -161,12 +165,7 @@ extension HomeViewController {
             .disposed(by: disposeBag)
         
         Observable.just(())
-            .map { Reactor.Action.checkInTime }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        Observable.just(())
-            .map { Reactor.Action.startTimer }
+            .map { Reactor.Action.viewDidLoad }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -245,18 +244,11 @@ extension HomeViewController {
     }
     
     private func bindOutput(reactor: HomeViewReactor) {
-        let postStream =  reactor.pulse(\.$postSection)
+        reactor.pulse(\.$postSection)
             .observe(on: MainScheduler.instance)
-        
-        postStream
             .map(Array.init(with:))
             .bind(to: postCollectionView.rx.items(dataSource: createPostDataSource()))
             .disposed(by: disposeBag)
-        
-//        postStream
-//            .withUnretained(self)
-//            .bind(onNext: { _ in App.Repository.member.postId.accept(UserDefaults.standard.postId)  })
-//            .disposed(by: disposeBag)
         
         reactor.pulse(\.$isRefreshEnd)
             .withUnretained(self)
@@ -273,7 +265,6 @@ extension HomeViewController {
             .withUnretained(self)
             .bind(onNext: { 
                 $0.0.timerView.reactor = TimerDIContainer().makeReactor(isSelfUploaded: reactor.currentState.isSelfUploaded, isAllUploaded: reactor.currentState.isAllFamilyMembersUploaded)
-                App.Repository.member.postId.accept(UserDefaults.standard.postId)
             })
             .disposed(by: disposeBag)
         

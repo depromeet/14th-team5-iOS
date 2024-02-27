@@ -46,7 +46,6 @@ final class AddCommentCollectionViewCell: UICollectionViewCell {
         countLabel.snp.makeConstraints {
             $0.trailing.equalTo(imageView.snp.leading).offset(-4)
             $0.leading.equalToSuperview().offset(8)
-            $0.centerY.equalToSuperview()
 //            $0.trailing.equalTo(imageView.snp.leading).offset(-2)
 //            $0.height.equalTo(20)
 //            $0.centerY.equalToSuperview()
@@ -55,7 +54,7 @@ final class AddCommentCollectionViewCell: UICollectionViewCell {
     
     private func setupAttributes() {
         backgroundColor = .gray700
-        layer.cornerRadius = 18
+        layer.cornerRadius = 20
         
         imageView.do {
             $0.image = DesignSystemAsset.chat.image

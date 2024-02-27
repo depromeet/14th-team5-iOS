@@ -37,9 +37,10 @@ extension CameraDisplayViewRepository: CameraDisplayViewInterface {
         }
     }
     
-    public func fetchImageURL(parameters: CameraDisplayImageParameters, type: UploadLocation) -> Observable<CameraDisplayImageResponse?>  {
-        return cameraDisplayAPIWorker.createPresignedURL(accessToken: accessToken, parameters: parameters, type: type)
-            .compactMap { $0?.toDomain() }
+    public func fetchFeedImageURL(parameters: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?>  {
+        return cameraDisplayAPIWorker.createFeedPresignedURL(accessToken: accessToken, parameters: parameters)
+            .catchAndReturn(nil)
+            .map { $0?.toDomain() ?? nil }
             .asObservable()
                 
     }

@@ -22,8 +22,6 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<FeedViewReactor> {
     private let nameLabel = BibbiLabel(.body2Regular, alignment: .left, textColor: .gray200)
     private let timeLabel = BibbiLabel(.caption, alignment: .right, textColor: .gray400)
     private let imageView = UIImageView(image: DesignSystemAsset.emptyCaseGraphicEmoji.image)
-    private let contentCollectionView = UICollectionView(frame: .zero, collectionViewLayout: .init())
-    private let collectionViewFlowLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     
     override func bind(reactor: FeedViewReactor) {
         bindInput(reactor: reactor)
@@ -31,7 +29,7 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<FeedViewReactor> {
     }
     
     override func setupUI() {
-        addSubviews(imageView, stackView, contentCollectionView)
+        addSubviews(imageView, stackView)
         stackView.addArrangedSubviews(nameLabel, timeLabel)
     }
     
@@ -46,12 +44,6 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<FeedViewReactor> {
             $0.horizontalEdges.equalToSuperview().inset(Layout.StackView.horizontalInset)
             $0.height.equalTo(Layout.StackView.height)
         }
-        
-        contentCollectionView.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview()
-            $0.bottom.equalTo(imageView.snp.bottom).offset(-10)
-            $0.height.equalTo(27)
-        }
     }
     
     override func setupAttributes() {
@@ -64,21 +56,6 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<FeedViewReactor> {
             $0.contentMode = .scaleAspectFill
             $0.clipsToBounds = true
             $0.layer.cornerRadius = Layout.ImageView.cornerRadius
-        }
-        
-        collectionViewFlowLayout.do {
-            $0.itemSize = CGSize(width: 17, height: 27)
-            $0.minimumInteritemSpacing = 2
-        }
-        
-        contentCollectionView.do {
-            $0.backgroundColor = .clear
-            $0.isScrollEnabled = false
-            $0.showsVerticalScrollIndicator = false
-            $0.showsHorizontalScrollIndicator = false
-            $0.collectionViewLayout = collectionViewFlowLayout
-            $0.register(DisplayEditCollectionViewCell.self, forCellWithReuseIdentifier: DisplayEditCollectionViewCell.id)
-            $0.delegate = self
         }
     }
 }
@@ -97,10 +74,6 @@ extension FeedCollectionViewCell {
             .distinctUntilChanged()
             .withUnretained(self)
             .bind(onNext: { $0.0.setCell($0.1)})
-            .disposed(by: disposeBag)
-        
-        reactor.state.map { $0.fetchedDisplayContent }
-            .bind(to: contentCollectionView.rx.items(dataSource: createContentDataSource()))
             .disposed(by: disposeBag)
     }
 }

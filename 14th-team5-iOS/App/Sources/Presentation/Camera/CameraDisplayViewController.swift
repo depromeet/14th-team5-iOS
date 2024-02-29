@@ -504,7 +504,7 @@ extension CameraDisplayViewController {
 extension CameraDisplayViewController: UICollectionViewDelegateFlowLayout {
     
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        guard let displayCellCount = self.reactor?.currentState.displayDescrption.count, displayCellCount != 8 else {
+        guard let displayCellCount = self.reactor?.currentState.displayDescrption.count else {
             return .zero
         }
         let displayCellWidth = 38 * displayCellCount

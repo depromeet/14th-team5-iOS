@@ -60,16 +60,16 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
             }
             .disposed(by: disposeBag)
         
-        App.Repository.member.familyCreatedAt
+        
+        Observable<Date>
+            .just(Date())
             .map {
-                guard let createdAt = $0 else {
-                    return Date.for20230101.createDateStringArray()
-                }
-                return createdAt.createDateStringArray()
+                return $0.createDateStringArray()
             }
-            .map { Reactor.Action.addCalendarItem($0) }
+            .map { Reactor.Action.addCalendarItem($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+         
 
         navigationBarView.rx.didTapLeftBarButton
             .map { _ in Reactor.Action.popViewController }

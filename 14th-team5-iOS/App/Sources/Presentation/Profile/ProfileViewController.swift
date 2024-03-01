@@ -223,16 +223,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .disposed(by: disposeBag)
         
         
-        Observable
-            .zip(
-                profileFeedCollectionView.rx.itemSelected,
-                reactor.state.compactMap { $0.profilePostEntity }
-            )
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-            .map { Reactor.Action.didTapProfilePost($0.0, $0.1)}
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
         reactor.pulse(\.$profileMemberEntity)
             .filter { $0?.memberImage.isFileURL == false }
             .compactMap { $0?.memberImage }
@@ -255,13 +245,25 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(to: profileView.profileDefaultLabel.rx.text)
             .disposed(by: disposeBag)
         
+        profileFeedCollectionView.rx.itemSelected
+            .withLatestFrom(reactor.pulse(\.$feedResultItem)) { indexPath, feedResultItem in
+                print("Index path Selected: \(indexPath) or feedResultItem: \(feedResultItem)")
+                return (indexPath, feedResultItem)
+            }
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .map { Reactor.Action.didTapProfilePost($0.0, $0.1) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        
         Observable
-            .zip(
-                reactor.pulse(\.$profileData),
-                reactor.pulse(\.$selectedIndexPath)
+            .combineLatest(
+                reactor.pulse(\.$profileData).distinctUntilChanged(),
+                reactor.pulse(\.$selectedIndexPath).distinctUntilChanged()
             )
             .withUnretained(self)
             .filter { !$0.1.0.items.isEmpty }
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .subscribe {
                 guard let indexPath = $0.1.1 else { return }
                 let postListViewController = PostListsDIContainer().makeViewController(postLists: $0.1.0, selectedIndex: indexPath)

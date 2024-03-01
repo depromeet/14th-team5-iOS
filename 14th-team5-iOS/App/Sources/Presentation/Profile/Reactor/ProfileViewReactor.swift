@@ -219,7 +219,6 @@ public final class ProfileViewReactor: Reactor {
                     paginationItems.forEach {
                         sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date: $0.createdAt.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter(), commentCount: $0.commentCount, content: $0.content.map { "\($0)"})))
                     }
-                    print("current 페이지네이션 Item: \(paginationItems)")
                     return .concat(
                         .just(.setLoading(false)),
                         .just(.setProfilePostItems(entity)),
@@ -259,8 +258,6 @@ public final class ProfileViewReactor: Reactor {
                     )
                 )
             }
-            print("postSection: \(postSection)")
-
             return .just(.setProfileData(postSection, indexPath))
         }
     }
@@ -277,7 +274,6 @@ public final class ProfileViewReactor: Reactor {
             newState.feedSection[sectionIndex] = .feedCategory(section)
         case let .setProfilePostItems(entity):
             newState.profilePostEntity = entity
-            print("profilePost Entity: \(newState.profilePostEntity)")
         case let .setProfileMemberItems(entity):
             provider.profileGlobalState.refreshFamilyMembers()
             newState.profileMemberEntity = entity
@@ -291,7 +287,6 @@ public final class ProfileViewReactor: Reactor {
             
         case let .setFeedResultItems(feedResultItem):
             newState.feedResultItem = feedResultItem
-            print("Feed ResultItems: \(feedResultItem)")
         }
         
         return newState

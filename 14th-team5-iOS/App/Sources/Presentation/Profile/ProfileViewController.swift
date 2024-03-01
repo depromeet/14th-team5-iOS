@@ -247,7 +247,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         
         profileFeedCollectionView.rx.itemSelected
             .withLatestFrom(reactor.pulse(\.$feedResultItem)) { indexPath, feedResultItem in
-                print("Index path Selected: \(indexPath) or feedResultItem: \(feedResultItem)")
                 return (indexPath, feedResultItem)
             }
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
@@ -263,7 +262,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             )
             .withUnretained(self)
             .filter { !$0.1.0.items.isEmpty }
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .debounce(.milliseconds(300), scheduler: MainScheduler.instance)
             .subscribe {
                 guard let indexPath = $0.1.1 else { return }
                 let postListViewController = PostListsDIContainer().makeViewController(postLists: $0.1.0, selectedIndex: indexPath)

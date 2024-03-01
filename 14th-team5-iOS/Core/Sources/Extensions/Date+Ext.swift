@@ -136,21 +136,6 @@ extension Date {
 }
 
 extension Date {
-    public func createDateStringArray(to date: Date = Date()) -> [String] {
-        var dateArray: [String] = []
-        
-        let monthInterval: Int = monthBetween(from: self, to: date)
-        
-        for value in 0...monthInterval {
-            if let date = calendar.date(byAdding: .month, value: value, to: self) {
-                let yyyyMM = date.toFormatString(with: .dashYyyyMM)
-                dateArray.append(yyyyMM)
-            }
-        }
-
-        return dateArray
-    }
-    
     public func createPreviousNextDateStringArray() -> [String] {
         var dateArray: [String] = []
         
@@ -162,17 +147,6 @@ extension Date {
         }
         
         return dateArray
-    }
-    
-    private func monthBetween(from startDate: Date, to endDate: Date) -> Int {
-        let startComponents = calendar.dateComponents([.year, .month], from: startDate)
-        let endComponents = calendar.dateComponents([.year, .month], from: endDate)
-        
-        let yearDifference = endComponents.year! - startComponents.year!
-        let monthDifference = endComponents.month! - startComponents.month!
-        
-        let monthInterval = yearDifference * 12 + monthDifference
-        return monthInterval
     }
 }
 

@@ -19,7 +19,7 @@ private let targets: [Target] = [
                 "CFBundleDisplayName": .string("Bibbi"),
                 "CFBundleVersion": .string("1"),
                 "CFBuildVersion": .string("0"),
-                "CFBundleShortVersionString": .string("1.1.6"),
+                "CFBundleShortVersionString": .string("1.1.7"),
                 "UILaunchStoryboardName": .string("LaunchScreen.storyboard"),
                 "UISupportedInterfaceOrientations": .array([.string("UIInterfaceOrientationPortrait")]),
                 "UIUserInterfaceStyle": .string("Light"),

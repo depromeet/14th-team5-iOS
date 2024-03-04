@@ -25,13 +25,14 @@ public final class ProfileViewReactor: Reactor {
         case fetchMorePostItems(Bool)
         case didSelectPHAssetsImage(Data)
         case didTapInitProfile
-        case didTapProfilePost(IndexPath, ProfilePostResponse)
+        case didTapProfilePost(IndexPath, [ProfilePostResultResponse])
     }
     
     public enum Mutation {
         case setLoading(Bool)
         case setProfilePresingedURL(CameraDisplayImageResponse?)
         case setFeedCategroySection([ProfileFeedSectionItem])
+        case setFeedResultItems([ProfilePostResultResponse])
         case setProfileMemberItems(ProfileMemberResponse?)
         case setProfilePostItems(ProfilePostResponse)
         case setProfileData(PostSection.Model, IndexPath)
@@ -43,6 +44,7 @@ public final class ProfileViewReactor: Reactor {
         var isUser: Bool
         @Pulse var profileData: PostSection.Model
         @Pulse var selectedIndexPath: IndexPath?
+        @Pulse var feedResultItem: [ProfilePostResultResponse]
         @Pulse var feedSection: [ProfileFeedSectionModel]
         @Pulse var profileMemberEntity: ProfileMemberResponse?
         @Pulse var profilePostEntity: ProfilePostResponse?
@@ -60,7 +62,8 @@ public final class ProfileViewReactor: Reactor {
             profileData: PostSection.Model(
                 model: 0, items: []
             ),
-            selectedIndexPath: nil,
+            selectedIndexPath: nil, 
+            feedResultItem: [],
             feedSection: [.feedCategory([])],
             profileMemberEntity: nil,
             profilePresingedURLEntity: nil
@@ -100,10 +103,11 @@ public final class ProfileViewReactor: Reactor {
                         }
                         return .concat(
                             .just(.setProfilePostItems(entity)),
+                            .just(.setFeedResultItems(entity.results)),
                             .just(.setFeedCategroySection(sectionItem)),
                             .just(.setLoading(true))
                         )
-
+                        
                     }
             )
         case let .updateNickNameProfile(nickNameFileData):
@@ -132,7 +136,7 @@ public final class ProfileViewReactor: Reactor {
                                                 .just(.setProfilePresingedURL(entity)),
                                                 .just(.setProfileMemberItems(memberEntity)),
                                                 .just(.setLoading(true))
-                                            
+                                                
                                             )
                                         }
                                 } else {
@@ -154,10 +158,10 @@ public final class ProfileViewReactor: Reactor {
                                 .just(.setLoading(true))
                             )
                     }
-            
+                
             )
             
-        
+            
             
             
         case let .didSelectPHAssetsImage(fileData):
@@ -186,7 +190,7 @@ public final class ProfileViewReactor: Reactor {
                                                 .just(.setProfilePresingedURL(entity)),
                                                 .just(.setProfileMemberItems(memberEntity)),
                                                 .just(.setLoading(true))
-                                            
+                                                
                                             )
                                         }
                                     
@@ -203,7 +207,6 @@ public final class ProfileViewReactor: Reactor {
         case let .fetchMorePostItems(isPagination):
             query.page += 1
             guard self.currentState.profilePostEntity?.hasNext == true && isPagination else { return .empty() }
-
             return profileUseCase.executeProfilePostItems(query: query, parameters: parameters)
                 .asObservable()
                 .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
@@ -216,9 +219,10 @@ public final class ProfileViewReactor: Reactor {
                     paginationItems.forEach {
                         sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date: $0.createdAt.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter(), commentCount: $0.commentCount, content: $0.content.map { "\($0)"})))
                     }
-                    
                     return .concat(
                         .just(.setLoading(false)),
+                        .just(.setProfilePostItems(entity)),
+                        .just(.setFeedResultItems(paginationItems)),
                         .just(.setFeedCategroySection(sectionItem)),
                         .just(.setLoading(true))
                     )
@@ -239,7 +243,7 @@ public final class ProfileViewReactor: Reactor {
         case let .didTapProfilePost(indexPath, postEntity):
             guard let profleEntity = currentState.profileMemberEntity else { return .empty() }
             var postSection: PostSection.Model = .init(model: 0, items: [])
-            postEntity.results.forEach {
+            postEntity.forEach {
                 postSection.items.append(
                     .main(
                         PostListData(
@@ -254,8 +258,6 @@ public final class ProfileViewReactor: Reactor {
                     )
                 )
             }
-            
-
             return .just(.setProfileData(postSection, indexPath))
         }
     }
@@ -270,7 +272,6 @@ public final class ProfileViewReactor: Reactor {
         case let .setFeedCategroySection(section):
             let sectionIndex = getSection(.feedCategory([]))
             newState.feedSection[sectionIndex] = .feedCategory(section)
-            
         case let .setProfilePostItems(entity):
             newState.profilePostEntity = entity
         case let .setProfileMemberItems(entity):
@@ -284,6 +285,8 @@ public final class ProfileViewReactor: Reactor {
             newState.profileData = profileData
             newState.selectedIndexPath = indexPath
             
+        case let .setFeedResultItems(feedResultItem):
+            newState.feedResultItem = feedResultItem
         }
         
         return newState

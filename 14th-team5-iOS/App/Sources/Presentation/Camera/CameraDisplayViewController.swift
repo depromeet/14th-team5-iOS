@@ -231,12 +231,19 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         displayEditTextField.rx
             .text.orEmpty
-            .distinctUntilChanged()
             .filter { !$0.isEmpty }
             .filter { $0.count <= 8 && !$0.contains(" ") }
             .observe(on: MainScheduler.instance)
+            .distinctUntilChanged()
             .map { Reactor.Action.fetchDisplayImage($0) }
             .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        displayEditTextField.rx
+            .text.orEmpty
+            .filter { $0.contains(" ")}
+            .map { $0.trimmingCharacters(in: .whitespaces)}
+            .bind(to: displayEditTextField.rx.text)
             .disposed(by: disposeBag)
         
         displayEditTextField.rx

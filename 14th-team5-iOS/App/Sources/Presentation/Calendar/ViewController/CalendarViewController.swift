@@ -69,9 +69,10 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
                 }
                 return $0.0.createCalendarItems(from: createdAt)
             }
-            .map { Reactor.Action.addCalendarItem($0) }
+            .map { Reactor.Action.addCalendarItem($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+         
 
         navigationBarView.rx.didTapLeftBarButton
             .map { _ in Reactor.Action.popViewController }

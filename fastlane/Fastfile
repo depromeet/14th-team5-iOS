@@ -48,36 +48,34 @@ platform :ios do
     )
 
     import_certificate(
-      certificate_path: "Tuist/Signing/prd.cer.encrypted",
+      certificate_path: "Tuist/Signing/prd.cer",
       keychain_name: "#{KEYCHAIN_NAME}",
       keychain_password: "#{KEYCHAIN_PASSWORD}"
     )
 
     import_certificate(
-      certificate_path: "Tuist/Signing/prd.p12.encrypted",
+      certificate_path: "Tuist/Signing/prd.p12",
       keychain_name: "#{KEYCHAIN_NAME}",
       keychain_password: "#{KEYCHAIN_PASSWORD}"
     )
 
     import_certificate(
-      certificate_path: "Tuist/Signing/dev.cer.encrypted",
+      certificate_path: "Tuist/Signing/dev.cer",
       keychain_name: "#{KEYCHAIN_NAME}",
       keychain_password: "#{KEYCHAIN_PASSWORD}"
     )
 
     import_certificate(
-      certificate_path: "Tuist/Signing/dev.p12.encrypted",
+      certificate_path: "Tuist/Signing/dev.p12",
       keychain_name: "#{KEYCHAIN_NAME}",
       keychain_password: "#{KEYCHAIN_PASSWORD}"
     )
 
     install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.PRD.mobileprovision")
     install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.STG.mobileprovision")
-    install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.DEV.mobileprovision")
 
     install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.PRD.mobileprovision")
     install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.STG.mobileprovision")
-    install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.DEV.mobileprovision")
   end
 
 

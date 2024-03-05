@@ -73,7 +73,7 @@ jobs:
           security list-keychains
 
           security import "Tuist/Signing/prd.p12" -k "${KEYCHAIN_NAME}.keychain-db" -P "${KEYCHAIN_PASSWORD}" -A
-          security set-key-partition-list -S apple-tool:,apple: -s -k "" "${KEYCHAIN_NAME}"
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" "${KEYCHAIN_NAME}.keychain-db"
           echo 'ls Tuist/Signing/*.mobileprovision'
           PROVISIONING_PROFILES_FOLDER="Tuist/Signing/"
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles

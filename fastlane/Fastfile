@@ -39,7 +39,7 @@ platform :ios do
   #✅ 인증서를 키체인에 저장
   lane :setup_keychain do
     create_keychain(
-      name: "temp.keychain",
+      name: "#{KEYCHAIN_NAME}",
       password: "#{KEYCHAIN_PASSWORD}",
       default_keychain: true,
       unlock: true,
@@ -49,25 +49,13 @@ platform :ios do
 
     import_certificate(
       certificate_path: "Tuist/Signing/prd.cer",
-      keychain_name: "temp.keychain",
+      keychain_name: "#{KEYCHAIN_NAME}",
       keychain_password: "#{KEYCHAIN_PASSWORD}"
     )
 
     import_certificate(
       certificate_path: "Tuist/Signing/prd.p12",
-      keychain_name: "temp.keychain",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
-    )
-
-    import_certificate(
-      certificate_path: "Tuist/Signing/dev.cer",
-      keychain_name: "temp.keychain",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
-    )
-
-    import_certificate(
-      certificate_path: "Tuist/Signing/dev.p12",
-      keychain_name: "temp.keychain",
+      keychain_name: "#{KEYCHAIN_NAME}",
       keychain_password: "#{KEYCHAIN_PASSWORD}"
     )
 

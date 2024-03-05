@@ -65,10 +65,10 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
         run: |
-          security create-keychain -p ${{secrets.KEYCHAIN_PASSWORD}} "$RUNNER_TEMP/${{secrets.KEYCHAIN_NAME}}.keychain-db"
-          security list-keychains -s ${{secrets.KEYCHAIN_NAME}}.keychain-db"
-          security default-keychain -s ${{secrets.KEYCHAIN_NAME}}.keychain-db"
-          security unlock-keychain -p ${{secrets.KEYCHAIN_PASSWORD}} ${{secrets.KEYCHAIN_NAME}}.keychain-db"
+          security create-keychain -p ${{secrets.KEYCHAIN_PASSWORD}} "${{secrets.KEYCHAIN_NAME}}.keychain-db"
+          security list-keychains -s "${{secrets.KEYCHAIN_NAME}}.keychain-db"
+          security default-keychain -s "${{secrets.KEYCHAIN_NAME}}.keychain-db"
+          security unlock-keychain -p ${{secrets.KEYCHAIN_PASSWORD}} "${{secrets.KEYCHAIN_NAME}}.keychain-db"
           security set-keychain-settings -lut 1200
           security list-keychains
 

@@ -55,14 +55,34 @@ jobs:
         
       - name: Tuist Siging Decrept
         run: tuist signing decrypt
-
-      - name: set Keychains
-        run: fastlane setup_keychain
+      
+      - name: Xcode Certification Install
         env:
+          BUILD_CERTIFICATE_BASE64_DEV: ${{ secrets.BUILD_CERTIFICATE_BASE64_DEV }}
+          BUILD_CERTIFICATE_BASE64_PRD: ${{ secrets.BUILD_CERTIFICATE_BASE64_PRD }}
+          BUILD_PROVISION_PROFILE_BASE64_PRD: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64_PRD }}
           KEYCHAIN_NAME: ${{secrets.KEYCHAIN_NAME}}
-          KEYCHAIN_PASSWORD: ${{secrets.KEYCHAIN_PASSWORD}}
-          APP_NAME: ${{secrets.APP_NAME}}
-          WIDGET_NAME: ${{secrets.WIDGET_NAME}}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+
+        run: |
+          security create-keychain -p ${{secrets.KEYCHAIN_PASSWORD}} "$RUNNER_TEMP/${{secrets.KEYCHAIN_NAME}}.keychain-db"
+          security list-keychains -s ${{secrets.KEYCHAIN_NAME}}.keychain-db"
+          security default-keychain -s ${{secrets.KEYCHAIN_NAME}}.keychain-db"
+          security unlock-keychain -p ${{secrets.KEYCHAIN_PASSWORD}} ${{secrets.KEYCHAIN_NAME}}.keychain-db"
+          security set-keychain-settings -lut 1200
+          security list-keychains
+
+          security import "Tuist/Signing/prd.p12" -k ${{secrets.KEYCHAIN_NAME}} -P ${{secrets.KEYCHAIN_PASSWORD}} -A
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" ${{secrets.KEYCHAIN_NAME}}
+          echo 'ls Tuist/Signing/*.mobileprovision'
+          PROVISIONING_PROFILES_FOLDER="Tuist/Signing/"
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          for PROVISION in $(ls $PROVISIONING_PROFILES_FOLDER*.mobileprovision)
+          do
+            UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' /dev/stdin <<< $(security cms -D -i ./$PROVISION))
+            cp "./$PROVISION" "$HOME/Library/MobileDevice/Provisioning Profiles/$UUID.mobileprovision"
+          done
+
 
       - name: Tuist generate Command      
         run: tuist generate

@@ -148,7 +148,6 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
             $0.width.height.equalTo(16)
         }
         
-        
     }
     
     
@@ -199,8 +198,22 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
 
 extension ProfileFeedCollectionViewCell {
     private func setupProfileFeedImage(_ url: URL) {
+        self.layoutIfNeeded()
+        
+        let processor = DownsamplingImageProcessor(size: feedImageView.bounds.size)
+        
         feedImageView.kf.indicatorType = .activity
-        feedImageView.kf.setImage(with: url, placeholder: nil, options: [.transition(.fade(0.5))], completionHandler: nil)
+        feedImageView
+            .kf
+            .setImage(
+                with: url, placeholder: nil,
+                options: [
+                    .processor(processor),
+                    .scaleFactor(UIScreen.main.scale),
+                    .transition(.fade(0.5))
+                ],
+                completionHandler: nil
+            )
     }
 }
 

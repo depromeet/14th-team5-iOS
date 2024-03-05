@@ -61,15 +61,18 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
             .disposed(by: disposeBag)
         
         App.Repository.member.familyCreatedAt
+            .withUnretained(self)
             .map {
-                guard let createdAt = $0 else {
-                    return Date.for20230101.createDateStringArray()
+                guard let createdAt = $0.1 else {
+                    let _20230101 = Date.for20230101
+                    return $0.0.createCalendarItems(from: _20230101)
                 }
-                return createdAt.createDateStringArray()
+                return $0.0.createCalendarItems(from: createdAt)
             }
-            .map { Reactor.Action.addCalendarItem($0) }
+            .map { Reactor.Action.addCalendarItem($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+         
 
         navigationBarView.rx.didTapLeftBarButton
             .map { _ in Reactor.Action.popViewController }
@@ -207,6 +210,37 @@ extension CalendarViewController {
             at: .centeredHorizontally,
             animated: false
         )
+    }
+}
+
+extension CalendarViewController {
+    private func createCalendarItems(from startDate: Date, to endDate: Date = Date()) -> [String] {
+        var items: [String] = []
+        let calendar: Calendar = Calendar.current
+        
+        let monthInterval: Int = monthBetween(from: startDate, to: endDate)
+        
+        for value in 0...monthInterval {
+            if let date = calendar.date(byAdding: .month, value: value, to: startDate) {
+                let yyyyMM = date.toFormatString(with: .dashYyyyMM)
+                items.append(yyyyMM)
+            }
+        }
+
+        return items
+    }
+    
+    private func monthBetween(from startDate: Date, to endDate: Date) -> Int {
+        let calendar: Calendar = Calendar.current
+        
+        let startComponents = calendar.dateComponents([.year, .month], from: startDate)
+        let endComponents = calendar.dateComponents([.year, .month], from: endDate)
+        
+        let yearDifference = endComponents.year! - startComponents.year!
+        let monthDifference = endComponents.month! - startComponents.month!
+        
+        let monthInterval = yearDifference * 12 + monthDifference
+        return monthInterval
     }
 }
 

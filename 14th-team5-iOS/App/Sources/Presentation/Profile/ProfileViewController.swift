@@ -60,11 +60,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         super.viewWillAppear(animated)
         self.navigationController?.navigationBar.isHidden = true
         self.profileIndicatorView.isHidden = false
-        // NOTE:
-        // - 뷰 컨틀로러의 라이프 사이클 동안 로티를 isHidden 처리하는 이유는
-        // 로딩 중에 다른 화면에 진입하고, 다시 되돌아오더라도 로티 애니메이션을 계속 출력하기 위함입니다.
-        // - 뷰가 나타날 때 로티가 보이게 처리하더라도
-        // fetch Profile Member 통신을 완료하면 곧바로 사라집니다.
     }
     
     public override func viewDidDisappear(_ animated: Bool) {
@@ -228,16 +223,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .disposed(by: disposeBag)
         
         
-        Observable
-            .zip(
-                profileFeedCollectionView.rx.itemSelected,
-                reactor.state.compactMap { $0.profilePostEntity }
-            )
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-            .map { Reactor.Action.didTapProfilePost($0.0, $0.1)}
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
         reactor.pulse(\.$profileMemberEntity)
             .filter { $0?.memberImage.isFileURL == false }
             .compactMap { $0?.memberImage }
@@ -260,13 +245,24 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(to: profileView.profileDefaultLabel.rx.text)
             .disposed(by: disposeBag)
         
+        profileFeedCollectionView.rx.itemSelected
+            .withLatestFrom(reactor.pulse(\.$feedResultItem)) { indexPath, feedResultItem in
+                return (indexPath, feedResultItem)
+            }
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .map { Reactor.Action.didTapProfilePost($0.0, $0.1) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        
         Observable
-            .zip(
-                reactor.pulse(\.$profileData),
-                reactor.pulse(\.$selectedIndexPath)
+            .combineLatest(
+                reactor.pulse(\.$profileData).distinctUntilChanged(),
+                reactor.pulse(\.$selectedIndexPath).distinctUntilChanged()
             )
             .withUnretained(self)
             .filter { !$0.1.0.items.isEmpty }
+            .debounce(.milliseconds(300), scheduler: MainScheduler.instance)
             .subscribe {
                 guard let indexPath = $0.1.1 else { return }
                 let postListViewController = PostListsDIContainer().makeViewController(postLists: $0.1.0, selectedIndex: indexPath)
@@ -369,7 +365,16 @@ extension ProfileViewController: UICollectionViewDelegateFlowLayout {
 // 기본 이미지가 true 이고 닉네임 변경 할 경우 redraw
 extension ProfileViewController {    
     private func setupProfileImage(url: URL) {
-        profileView.profileImageView.kf.setImage(with: url, options: [.transition(.fade(0.5))])
+        let processor = DownsamplingImageProcessor(size: profileView.bounds.size)
+        
+        profileView
+            .profileImageView
+            .kf
+            .setImage(with: url, options: [
+                .processor(processor),
+                .scaleFactor(UIScreen.main.scale),
+                .transition(.fade(0.5))
+            ])
     }
     
     

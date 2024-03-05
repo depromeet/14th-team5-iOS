@@ -40,9 +40,7 @@ final class ProfileFeedDescrptionCell: BaseCollectionViewCell<ProfileFeedDescrpt
         super.setupAutoLayout()
         
         descrptionLabel.snp.makeConstraints {
-            $0.width.equalTo(11)
-            $0.height.equalTo(17)
-            $0.center.equalToSuperview()
+            $0.edges.equalToSuperview()
         }
         
         blurContainerView.snp.makeConstraints {

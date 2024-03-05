@@ -48,9 +48,7 @@ public final class DisplayEditCollectionViewCell: BaseCollectionViewCell<Display
         super.setupAutoLayout()
         
         descriptionLabel.snp.makeConstraints {
-            $0.width.equalTo(21)
-            $0.height.equalTo(30)
-            $0.center.equalToSuperview()
+            $0.edges.equalToSuperview()
         }
         
         blurContainerView.snp.makeConstraints {

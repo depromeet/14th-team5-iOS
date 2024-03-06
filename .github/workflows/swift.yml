@@ -73,10 +73,11 @@ jobs:
           security set-keychain-settings -lut 1200
           security list-keychains
 
-          echo -n "${BUILD_CERTIFICATE_BASE64_PRD}" | base64 --decode -o "Tuist/Signing/prd.p12"
-          echo -n "${BUILD_PROVISION_PROFILE_BASE64}" | base64 --decode -o "Tuist/Signing/App.PRD.mobileprovision"
+          set -e
 
-          security import "Tuist/Signing/prd.p12" -k "${KEYCHAIN_NAME}.keychain-db" -P "${KEYCHAIN_PASSWORD}" -A
+          echo "Importing prd.p12 to keychain"
+          security import "Tuist/Signing/prd.p12" -k "${KEYCHAIN_NAME}.keychain-db" -P "" -A
+          echo "Setting key partition list"
           security set-key-partition-list -S apple-tool:,apple: -s -k "" "${KEYCHAIN_NAME}.keychain-db"
           echo 'ls Tuist/Signing/*.mobileprovision'
           PROVISIONING_PROFILES_FOLDER="Tuist/Signing/"

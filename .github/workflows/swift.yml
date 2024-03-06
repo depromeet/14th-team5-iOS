@@ -65,21 +65,20 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
         run: |
-          CERTIFICATE_PATH=Tuist/Signing/prd.p12
-          security create-keychain -p "${KEYCHAIN_PASSWORD}" "$RUNNER_TEMP/${KEYCHAIN_NAME}.keychain-db"
-          security list-keychains -s "$RUNNER_TEMP/${KEYCHAIN_NAME}.keychain-db"
-          security default-keychain -s "$RUNNER_TEMP/${KEYCHAIN_NAME}.keychain-db"
-          security unlock-keychain -p "${KEYCHAIN_PASSWORD}" "$RUNNER_TEMP/${KEYCHAIN_NAME}.keychain-db"
+          security create-keychain -p "${KEYCHAIN_PASSWORD}" "${KEYCHAIN_NAME}.keychain-db"
+          security list-keychains -s "${KEYCHAIN_NAME}.keychain-db"
+          security default-keychain -s "${KEYCHAIN_NAME}.keychain-db"
+          security unlock-keychain -p "${KEYCHAIN_PASSWORD}" "${KEYCHAIN_NAME}.keychain-db"
           security set-keychain-settings -lut 1200
           security list-keychains
 
           echo -n "${BUILD_CERTIFICATE_BASE64_PRD}" | base64 --decode -o "Tuist/Signing/prd.p12"
           echo -n "${BUILD_PROVISION_PROFILE_BASE64}" | base64 --decode -o "Tuist/Signing/App.PRD.mobileprovision"
 
-          security import $CERTIFICATE_PATH -k "$RUNNER_TEMP/${KEYCHAIN_NAME}.keychain-db" -P "${KEYCHAIN_PASSWORD}" -A -t cert
-          security set-key-partition-list -S apple-tool:,apple: -s -k "" "$RUNNER_TEMP/${KEYCHAIN_NAME}.keychain-db"
+          security import "Tuist/Signing/prd.p12" -k "${KEYCHAIN_NAME}.keychain-db" -A -t cert
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" "${KEYCHAIN_NAME}.keychain-db"
           echo 'ls Tuist/Signing/*.mobileprovision'
-          PROVISIONING_PROFILES_FOLDER="$RUNNER_TEMP/Tuist/Signing/"
+          PROVISIONING_PROFILES_FOLDER="Tuist/Signing/"
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           for PROVISION in $(ls $PROVISIONING_PROFILES_FOLDER*.mobileprovision)
           do

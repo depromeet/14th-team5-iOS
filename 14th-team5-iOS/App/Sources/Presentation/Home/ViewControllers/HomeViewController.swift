@@ -38,7 +38,6 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
         navigationController?.navigationBar.isHidden = true
     }
     
@@ -157,11 +156,22 @@ extension HomeViewController {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+//        App.Repository.member.postId
+//            .observe(on: MainScheduler.instance)
+//            .compactMap { $0 }
+//            .withUnretained(self)
+//            .bind(onNext: { $0.0.pushPostViewController($0.1)})
+//            .disposed(by: disposeBag)
+        
         App.Repository.member.postId
-            .observe(on: MainScheduler.instance)
             .compactMap { $0 }
-            .withUnretained(self)
-            .bind(onNext: { $0.0.pushPostViewController($0.1)})
+            .flatMap { postId in
+                return Observable.concat(
+                    Observable.just(Reactor.Action.viewWillAppear),
+                    Observable.just(Reactor.Action.pushDeepLink(postId))
+                )
+            }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         Observable.just(())
@@ -262,6 +272,7 @@ extension HomeViewController {
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$postSection)
+            .distinctUntilChanged()
             .withUnretained(self)
             .bind(onNext: { 
                 $0.0.timerView.reactor = TimerDIContainer().makeReactor(isSelfUploaded: reactor.currentState.isSelfUploaded, isAllUploaded: reactor.currentState.isAllFamilyMembersUploaded)
@@ -325,6 +336,12 @@ extension HomeViewController {
                     text: "잠시 후에 다시 시도해주세요",
                     image: DesignSystemAsset.warning.image
                 )
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$notificationDeepLinkPostId)
+            .bind(with: self) { owner, postId in
+                owner.pushPostViewController(postId)
             }
             .disposed(by: disposeBag)
     }

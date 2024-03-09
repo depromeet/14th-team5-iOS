@@ -169,12 +169,20 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             return
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            if openComment { App.Repository.member.openComment.accept(openComment) }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+//            if openComment { App.Repository.member.openComment.accept(openComment) }
             App.Repository.member.postId.accept(postId)
         }
         
         completionHandler()
+    }
+    
+    
+    // 디바이스 토튼
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data)
+    {
+        let tokenString = deviceToken.reduce("", {$0 + String(format: "%02X", $1)})
+        print("this will return '32 bytes' in iOS 13+ rather than the token \(tokenString)")
     }
 }
 
@@ -193,30 +201,20 @@ extension AppDelegate {
 extension AppDelegate {
     func decodeRemoteNotificationDeepLink(_ response: UNNotificationResponse) -> (String, Bool)? {
         let userInfo = response.notification.request.content.userInfo
-        if let fcmData = userInfo[AnyHashable("data")] as? String {
-            var dictionary: [String: Any]?
-            if let data = fcmData.data(using: .utf8) {
-                do {
-                    dictionary = try JSONSerialization.jsonObject(with: data, options: []) as? Dictionary
-                    if let dict = dictionary,
-                       let link = dict["iosDeepLink"] as? String {
-                        let components = link.components(separatedBy: "?")
-                        
-                        let firstPart = components.first ?? ""
-                        let postId = firstPart.components(separatedBy: "/").last ?? ""
-                        
-                        let secondPart = components.last ?? ""
-                        let openComment = secondPart.components(separatedBy: "=").last == "true" ? true : false
-                        
-                        debugPrint("\(postId), \(openComment)")
-                        return (postId, openComment)
-                    }
-                } catch {
-                    print(error.localizedDescription)
-                }
-            }
+        if let link = userInfo[AnyHashable("iosDeepLink")] as? String {
+            let components = link.components(separatedBy: "?")
+            
+            let firstPart = components.first ?? ""
+            let postId = firstPart.components(separatedBy: "/").last ?? ""
+            
+            let secondPart = components.last ?? ""
+            let openComment = secondPart.components(separatedBy: "=").last == "true" ? true : false
+            
+            debugPrint("\(postId), \(openComment)")
+            return (postId, openComment)
         }
         
+        print("Error: Parsing Notification Request UserInfo")
         return nil
     }
 }

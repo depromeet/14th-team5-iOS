@@ -20,6 +20,7 @@ final class HomeViewReactor: Reactor {
         case viewWillAppear
         case refresh
         case tapInviteFamily
+        case pushDeepLink(String)
     }
     
     enum Mutation {
@@ -36,6 +37,8 @@ final class HomeViewReactor: Reactor {
         case setCopySuccessToastMessageView
         case setFetchFailureToastMessageView
         case setSharePanel(String)
+        
+        case setDeepLink(String)
     }
     
     struct State {
@@ -53,6 +56,8 @@ final class HomeViewReactor: Reactor {
         
         var isShowingNoPostTodayView: Bool = false
         var isShowingInviteFamilyView: Bool = false
+        
+        @Pulse var notificationDeepLinkPostId: String = .none
     }
     
     let initialState: State = State()
@@ -118,6 +123,8 @@ extension HomeViewReactor {
                            }
                            return .setSharePanel(invitationLink)
                        }
+        case let .pushDeepLink(postId):
+            return Observable<Mutation>.just(.setDeepLink(postId))
         }
         
     }
@@ -145,11 +152,13 @@ extension HomeViewReactor {
         case let .showShareAcitivityView(url):
             newState.familyInvitationLink = url
         case .setCopySuccessToastMessageView:
-              newState.shouldPresentCopySuccessToastMessageView = true
-          case .setFetchFailureToastMessageView:
-              newState.shouldPresentFetchFailureToastMessageView = true
-          case let .setSharePanel(urlString):
-              newState.familyInvitationLink = URL(string: urlString)
+            newState.shouldPresentCopySuccessToastMessageView = true
+        case .setFetchFailureToastMessageView:
+            newState.shouldPresentFetchFailureToastMessageView = true
+        case let .setSharePanel(urlString):
+            newState.familyInvitationLink = URL(string: urlString)
+        case let .setDeepLink(postId):
+            newState.notificationDeepLinkPostId = postId
         }
         
         return newState

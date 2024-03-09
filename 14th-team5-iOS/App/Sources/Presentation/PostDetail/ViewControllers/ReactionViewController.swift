@@ -116,25 +116,25 @@ extension ReactionViewController {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        Observable.combineLatest(
-            App.Repository.member.postId,
-            App.Repository.member.openComment
-        )
-        .map { ($0 ?? "", $1 ?? false) }
-        .filter { $1 }
-        .withUnretained(self)
-        .bind { owner, postInfo in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                let postCommentVC = PostCommentDIContainer(
-                    postId: postInfo.0
-                ).makeViewController()
-                owner.presentCustomSheetViewController(
-                    viewController: postCommentVC,
-                    detentHeightRatio: owner.detentHeightRatio
-                )
-            }
-        }
-        .disposed(by: disposeBag)
+//        Observable.combineLatest(
+//            App.Repository.member.postId,
+//            App.Repository.member.openComment
+//        )
+//        .map { ($0 ?? "", $1 ?? false) }
+//        .filter { $1 }
+//        .withUnretained(self)
+//        .bind { owner, postInfo in
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+//                let postCommentVC = PostCommentDIContainer(
+//                    postId: postInfo.0
+//                ).makeViewController()
+//                owner.presentCustomSheetViewController(
+//                    viewController: postCommentVC,
+//                    detentHeightRatio: owner.detentHeightRatio
+//                )
+//            }
+//        }
+//        .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: ReactionViewReactor) {

@@ -176,14 +176,6 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         
         completionHandler()
     }
-    
-    
-    // 디바이스 토튼
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data)
-    {
-        let tokenString = deviceToken.reduce("", {$0 + String(format: "%02X", $1)})
-        print("this will return '32 bytes' in iOS 13+ rather than the token \(tokenString)")
-    }
 }
 
 extension AppDelegate {

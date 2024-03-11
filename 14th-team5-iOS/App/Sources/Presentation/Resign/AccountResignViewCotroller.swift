@@ -35,6 +35,7 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
         super.viewDidLoad()
     }
     
+    
     override func setupUI() {
         super.setupUI()
         view.addSubviews(resignNavigationBarView, resignDesrptionLabel, resignReasonLabel, resignExampleLabel, confirmButton, resignIndicatorView, bibbiTermsView)
@@ -127,7 +128,6 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
     }
     
     override func bind(reactor: AccountResignViewReactor) {
-
         Observable.just(())
             .map{ Reactor.Action.viewDidLoad }
             .bind(to: reactor.action)
@@ -145,7 +145,7 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
         .map { Reactor.Action.didTapCheckButton($0)}
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
-
+        
         
         confirmButton
             .rx.tap
@@ -182,19 +182,17 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
         
         reactor.state.map { $0.isSuccess }
             .distinctUntilChanged()
+            .filter { $0 }
             .withUnretained(self)
             .bind { owner, isSuccess in
                 App.Repository.token.clearAccessToken()
                 owner.makeRootViewController()
             }.disposed(by: disposeBag)
-        
     }
-    
 }
 
 
 extension AccountResignViewCotroller {
-    
     private func setupButton(isSelected: Bool) {
         confirmButton.backgroundColor = isSelected ? DesignSystemAsset.mainYellow.color : DesignSystemAsset.mainYellow.color.withAlphaComponent(0.2)
         confirmButton.isEnabled = isSelected

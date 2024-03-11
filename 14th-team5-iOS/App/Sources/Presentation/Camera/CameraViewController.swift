@@ -30,7 +30,6 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     
     //MARK: Views
     private let cameraView: UIView = UIView()
-    private let cameraNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let shutterButton: UIButton = UIButton()
     private let flashButton: UIButton = UIButton.createCircleButton(radius: 24)
     private let toggleButton: UIButton = UIButton.createCircleButton(radius: 24)
@@ -57,11 +56,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     private var isToggle: Bool = false
     
     //MARK: LifeCylce
-    
-    public override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.navigationBar.isHidden = true
-    }
+ 
     public override func viewDidLoad() {
         super.viewDidLoad()
         setupCameraPermission()
@@ -71,15 +66,14 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     public override func setupUI() {
         super.setupUI()
         realEmojiFaceView.addSubview(realEmojiFaceImageView)
-        view.addSubviews(cameraView, shutterButton, flashButton, toggleButton, realEmojiFaceView, realEmojiHorizontalStakView, realEmojiCollectionView ,cameraIndicatorView , cameraNavigationBar)
+        view.addSubviews(cameraView, shutterButton, flashButton, toggleButton, realEmojiFaceView, realEmojiHorizontalStakView, realEmojiCollectionView ,cameraIndicatorView)
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
         
-        cameraNavigationBar.do {
-            $0.leftBarButtonItem = .xmark
-            $0.leftBarButtonItemTintColor = .gray300
+        navigationBarView.do {
+            $0.setNavigationView(leftItem: .xmark, rightItem: .empty)
         }
         
         realEmojiDescriptionLabel.do {
@@ -152,12 +146,6 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         
-        cameraNavigationBar.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.left.right.equalToSuperview()
-            $0.height.equalTo(42)
-        }
-        
         realEmojiHorizontalStakView.snp.makeConstraints {
             $0.height.equalTo(34)
             $0.centerX.equalTo(cameraView)
@@ -212,7 +200,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     }
     
     public override func bind(reactor: CameraViewReactor) {
-        
+        super.bind(reactor: reactor)
         
         Observable.just(())
             .map { Reactor.Action.viewDidLoad}
@@ -254,13 +242,6 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
                 $0.0.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
             }.disposed(by: disposeBag)
         
-        cameraNavigationBar.rx.didTapLeftBarButton
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind { owner, _ in
-                owner.navigationController?.popViewController(animated: true)
-            }.disposed(by: disposeBag)
-        
         reactor.state
             .map { $0.cameraType == .realEmoji ? false : true }
             .distinctUntilChanged()
@@ -273,7 +254,8 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .map { $0.cameraType }
             .map { $0 == .realEmoji ? "셀피 이미지" : "카메라" }
             .distinctUntilChanged()
-            .bind(to: cameraNavigationBar.rx.navigationTitle)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.navigationBarView.setNavigationTitle(title: $0.1) })
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$isError)

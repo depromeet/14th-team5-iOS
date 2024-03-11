@@ -15,7 +15,6 @@ import SnapKit
 import Then
 
 final class ProfileDetailViewController: BaseViewController<ProfileDetailViewReactor> {
-    private let navigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let profileImageView: UIImageView = UIImageView()
     private let nickNameLabel: BibbiLabel = BibbiLabel(.head1, alignment: .center, textColor: .gray200)
     private let blurView: UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .systemChromeMaterialDark))
@@ -24,20 +23,16 @@ final class ProfileDetailViewController: BaseViewController<ProfileDetailViewRea
         super.viewDidLoad()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.navigationBar.isHidden = true
-    }
-    
     override func setupUI() {
-        super.setupUI()
-        view.addSubviews(blurView, profileImageView, nickNameLabel, navigationBar)
+//        super.setupUI()
+        view.addSubviews(blurView, profileImageView, nickNameLabel, navigationBarView)
     }
     
     override func setupAttributes() {
-
+        super.setupAttributes()
+        
         blurView.do {
-            $0.frame = view.bounds
+            $0.layer.zPosition = -100
             $0.backgroundColor = DesignSystemAsset.black.color.withAlphaComponent(0.9)
             $0.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         }
@@ -48,19 +43,18 @@ final class ProfileDetailViewController: BaseViewController<ProfileDetailViewRea
             $0.clipsToBounds = true
         }
         
-        navigationBar.do {
-            $0.leftBarButtonItem = .arrowLeft
-            $0.leftBarButtonItemTintColor = .gray300
+        navigationBarView.do {
+            $0.layer.zPosition = 100
+            $0.setNavigationView(leftItem: .arrowLeft, centerItem: .label(nil), rightItem: .empty)
         }
     
     }
     
     override func setupAutoLayout() {
-
-        navigationBar.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide.snp.topMargin)
-            $0.left.right.equalToSuperview()
-            $0.height.equalTo(42)
+        super.setupAutoLayout()
+        
+        blurView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
         }
         
         profileImageView.snp.makeConstraints {
@@ -75,6 +69,8 @@ final class ProfileDetailViewController: BaseViewController<ProfileDetailViewRea
     }
     
     override func bind(reactor: ProfileDetailViewReactor) {
+        super.bind(reactor: reactor)
+        
         reactor.pulse(\.$profileURL)
             .filter { $0.isFileURL }
             .withUnretained(self)
@@ -97,13 +93,5 @@ final class ProfileDetailViewController: BaseViewController<ProfileDetailViewRea
             .map { "\($0)" }
             .bind(to: nickNameLabel.rx.text)
             .disposed(by: disposeBag)
-        
-        navigationBar
-            .rx.didTapLeftBarButton
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind { owner, _ in
-                owner.navigationController?.popViewController(animated: true)
-            }.disposed(by: disposeBag)
     }
 }

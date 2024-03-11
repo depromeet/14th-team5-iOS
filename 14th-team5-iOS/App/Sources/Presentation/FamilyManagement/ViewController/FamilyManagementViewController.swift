@@ -19,7 +19,6 @@ import Then
 fileprivate typealias _Str = FamilyManagementStrings
 public final class FamilyManagementViewController: BaseViewController<FamilyManagementViewReactor> {
     // MARK: - Views
-    private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
     
     private let shareContainerview: InvitationUrlContainerView = InvitationUrlContainerDIContainer().makeView()
     private let dividerView: UIView = UIView()
@@ -61,8 +60,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        navigationBarView.rx.didTapRightBarButton
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+        navigationBarView.rx.rightButtonTap
             .map { _ in Reactor.Action.didTapPrivacyBarButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -85,11 +83,6 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     }
     
     private func bindOutput(reactor: FamilyManagementViewReactor) {
-        navigationBarView.rx.didTapLeftBarButton
-            .withUnretained(self)
-            .subscribe {$0.0.navigationController?.popViewController(animated: true) }
-            .disposed(by: disposeBag)
-        
         reactor.pulse(\.$shouldPushPrivacyVC)
             .filter { !$0.isEmpty }
             .withUnretained(self)
@@ -182,7 +175,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     public override func setupUI() {
         super.setupUI()
         view.addSubviews(
-            navigationBarView, shareContainerview,
+            shareContainerview,
             dividerView, headerStack, familyTableView
         )
         headerStack.addArrangedSubviews(
@@ -193,13 +186,6 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
-        
-        navigationBarView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(42)
-        }
-        
         shareContainerview.snp.makeConstraints {
             $0.top.equalTo(navigationBarView.snp.bottom).offset(24)
             $0.horizontalEdges.equalToSuperview().inset(20)
@@ -238,13 +224,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     public override func setupAttributes() {
         super.setupAttributes()
         navigationBarView.do {
-            $0.navigationTitle = _Str.mainTitle
-            
-            $0.leftBarButtonItem = .arrowLeft
-            
-            $0.rightBarButtonItem = .setting
-            $0.rightBarButtonItemScale = 1.2
-            $0.hiddenRightBarButtonBackground = true
+            $0.setNavigationView(leftItem: .arrowLeft, centerItem: .label(_Str.mainTitle), rightItem: .setting)
          }
         
         dividerView.do {

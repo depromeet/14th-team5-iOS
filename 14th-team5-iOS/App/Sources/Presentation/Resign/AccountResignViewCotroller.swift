@@ -27,8 +27,8 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
     private let bibbiTermsView: BibbiCheckBoxView = BibbiCheckBoxView(frame: .zero)
     
     override func viewWillAppear(_ animated: Bool) {
-          super.viewWillAppear(animated)
-          self.navigationController?.navigationBar.isHidden = true
+        super.viewWillAppear(animated)
+        self.navigationController?.navigationBar.isHidden = true
     }
     
     override func viewDidLoad() {
@@ -40,7 +40,7 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
         super.setupUI()
         view.addSubviews(resignNavigationBarView, resignDesrptionLabel, resignReasonLabel, resignExampleLabel, confirmButton, resignIndicatorView, bibbiTermsView)
     }
-
+    
     override func setupAttributes() {
         super.setupAttributes()
         resignNavigationBarView.do {
@@ -89,14 +89,14 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
             $0.left.right.equalToSuperview()
             $0.height.equalTo(42)
         }
-
+        
         bibbiTermsView.snp.makeConstraints {
             $0.top.equalTo(resignExampleLabel.snp.bottom).offset(16)
             $0.left.equalToSuperview()
             $0.height.equalTo(260)
             $0.centerX.equalTo(resignNavigationBarView)
         }
-
+        
         resignDesrptionLabel.snp.makeConstraints {
             $0.top.equalTo(resignNavigationBarView.snp.bottom).offset(26)
             $0.left.equalToSuperview().offset(16)
@@ -146,7 +146,7 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
         .map { Reactor.Action.didTapCheckButton($0)}
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
-
+        
         
         confirmButton
             .rx.tap
@@ -175,12 +175,12 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
             .disposed(by: disposeBag)
         
         resignNavigationBarView.rx.didTapLeftBarButton
-                    .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-                    .withUnretained(self)
-                    .bind { owner, _ in
-                        owner.navigationController?.popViewController(animated: true)
-                    }.disposed(by: disposeBag)
-
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.navigationController?.popViewController(animated: true)
+            }.disposed(by: disposeBag)
+        
         reactor.state.map { $0.isSuccess }
             .distinctUntilChanged()
             .filter { $0 }

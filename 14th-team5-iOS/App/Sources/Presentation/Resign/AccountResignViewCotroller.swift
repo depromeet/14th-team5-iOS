@@ -84,6 +84,7 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
     }
     
     override func setupAutoLayout() {
+        super.setupAutoLayout()
         resignNavigationBarView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide)
             $0.left.right.equalToSuperview()
@@ -127,8 +128,6 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
     }
     
     override func bind(reactor: AccountResignViewReactor) {
-        super.bind(reactor: reactor)
-        
         Observable.just(())
             .map{ Reactor.Action.viewDidLoad }
             .bind(to: reactor.action)

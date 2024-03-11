@@ -18,18 +18,12 @@ import Then
 final class AccountResignViewCotroller: BaseViewController<AccountResignViewReactor> {
     
     //TODO: 텍스트 컬러, 폰트 정해지면 수정
-    private let resignNavigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
     private let resignDesrptionLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray400)
     private let resignReasonLabel: BibbiLabel = BibbiLabel(.head1, textColor: .gray200)
     private let resignExampleLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray400)
     private let resignIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     private let confirmButton: UIButton = UIButton()
     private let bibbiTermsView: BibbiCheckBoxView = BibbiCheckBoxView(frame: .zero)
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.navigationBar.isHidden = true
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,15 +32,13 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
     
     override func setupUI() {
         super.setupUI()
-        view.addSubviews(resignNavigationBarView, resignDesrptionLabel, resignReasonLabel, resignExampleLabel, confirmButton, resignIndicatorView, bibbiTermsView)
+        view.addSubviews(resignDesrptionLabel, resignReasonLabel, resignExampleLabel, confirmButton, resignIndicatorView, bibbiTermsView)
     }
     
     override func setupAttributes() {
         super.setupAttributes()
-        resignNavigationBarView.do {
-            $0.leftBarButtonItem = .arrowLeft
-            $0.leftBarButtonItemTintColor = .gray300
-            $0.navigationTitle = "회원 탈퇴"
+        navigationBarView.do {
+            $0.setNavigationView(leftItem: .arrowLeft, centerItem: .label("회원 탈퇴"), rightItem: .empty)
         }
         
         resignDesrptionLabel.do {
@@ -85,23 +77,18 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
     
     override func setupAutoLayout() {
         super.setupAutoLayout()
-        resignNavigationBarView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.left.right.equalToSuperview()
-            $0.height.equalTo(42)
-        }
         
         bibbiTermsView.snp.makeConstraints {
             $0.top.equalTo(resignExampleLabel.snp.bottom).offset(16)
             $0.left.equalToSuperview()
             $0.height.equalTo(260)
-            $0.centerX.equalTo(resignNavigationBarView)
+            $0.centerX.equalTo(navigationBarView)
         }
         
         resignDesrptionLabel.snp.makeConstraints {
-            $0.top.equalTo(resignNavigationBarView.snp.bottom).offset(26)
+            $0.top.equalTo(navigationBarView.snp.bottom).offset(26)
             $0.left.equalToSuperview().offset(16)
-            $0.centerX.equalTo(resignNavigationBarView)
+            $0.centerX.equalTo(navigationBarView)
             $0.height.equalTo(18)
         }
         
@@ -116,7 +103,7 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
             $0.top.equalTo(resignReasonLabel.snp.bottom).offset(24)
             $0.left.equalToSuperview().offset(12)
             $0.height.equalTo(18)
-            $0.centerX.equalTo(resignNavigationBarView)
+            $0.centerX.equalTo(navigationBarView)
         }
         
         confirmButton.snp.makeConstraints {
@@ -128,6 +115,8 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
     }
     
     override func bind(reactor: AccountResignViewReactor) {
+        super.bind(reactor: reactor)
+        
         Observable.just(())
             .map{ Reactor.Action.viewDidLoad }
             .bind(to: reactor.action)
@@ -172,14 +161,7 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
             .map { _ in Reactor.Action.didTapResignButton}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
-        resignNavigationBarView.rx.didTapLeftBarButton
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind { owner, _ in
-                owner.navigationController?.popViewController(animated: true)
-            }.disposed(by: disposeBag)
-        
+
         reactor.state.map { $0.isSuccess }
             .distinctUntilChanged()
             .filter { $0 }

@@ -31,7 +31,8 @@ final class PostViewController: BaseViewController<PostReactor> {
         super.viewDidLoad()
         self.navigationController?.navigationBar.isHidden = true
         App.Repository.member.postId.accept(nil)
-        App.Repository.member.openComment.accept(nil)
+        
+        App.Repository.deepLink.clearNotficiationUserInfo()
     }
     
     override func bind(reactor: PostReactor) {

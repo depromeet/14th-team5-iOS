@@ -29,6 +29,9 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
     private let cameraButton: UIButton = UIButton()
     private let refreshControl: UIRefreshControl = UIRefreshControl()
     
+    // MARK: - Properties
+    private let deepLinkRepo = App.Repository.deepLink
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -156,24 +159,6 @@ extension HomeViewController {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-//        App.Repository.member.postId
-//            .observe(on: MainScheduler.instance)
-//            .compactMap { $0 }
-//            .withUnretained(self)
-//            .bind(onNext: { $0.0.pushPostViewController($0.1)})
-//            .disposed(by: disposeBag)
-        
-        App.Repository.member.postId
-            .compactMap { $0 }
-            .flatMap { postId in
-                return Observable.concat(
-                    Observable.just(Reactor.Action.viewWillAppear),
-                    Observable.just(Reactor.Action.pushDeepLink(postId))
-                )
-            }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
         Observable.just(())
             .map { Reactor.Action.viewDidLoad }
             .bind(to: reactor.action)
@@ -251,6 +236,29 @@ extension HomeViewController {
                 let cameraViewController = CameraDIContainer(cameraType: .feed).makeViewController()
                 owner.navigationController?.pushViewController(cameraViewController, animated: true)
             }.disposed(by: disposeBag)
+        
+        // 위젯 딥링크 코드
+        App.Repository.member.postId
+            .observe(on: MainScheduler.instance)
+            .compactMap { $0 }
+            .withUnretained(self)
+            .bind(onNext: { $0.0.pushPostViewController($0.1)})
+            .disposed(by: disposeBag)
+        
+        // 푸시 노티피케이션 딥링크 코드
+        Observable.zip(
+            deepLinkRepo.notificationPostId,
+            deepLinkRepo.notificationOpenComment,
+            deepLinkRepo.notificationPostOfDate
+        )
+        .filter { $0.0 != nil && $0.1 != nil && $0.2 != nil }
+        .map { return ($0.0!, $0.1!, $0.2!) }
+        .bind(with: self, onNext: { owner, notification in
+            // ✏️ (통신 완료 →) HomeViewReactor → HomeViewController 흐름을
+            // 따라가도록 하며 피드 자세히보기 화면 혹은 주간 캘린더 화면으로 분기하도록 코드 작성 필요
+            return
+        })
+        .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: HomeViewReactor) {
@@ -339,6 +347,7 @@ extension HomeViewController {
             }
             .disposed(by: disposeBag)
         
+        // 푸시 노티피케이션 딥링크 코드
         reactor.pulse(\.$notificationDeepLinkPostId)
             .bind(with: self) { owner, postId in
                 owner.pushPostViewController(postId)

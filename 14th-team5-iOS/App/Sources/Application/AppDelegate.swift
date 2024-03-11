@@ -164,35 +164,22 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        guard let (postId, openComment) = self.decodeRemoteNotificationDeepLink(response) else {
+        let userInfo = response.notification.request.content.userInfo
+        guard let (postId, openComment, postOfDate) = decodeRemoteNotificationResponse(userInfo) else {
             completionHandler()
             return
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-//            if openComment { App.Repository.member.openComment.accept(openComment) }
-            App.Repository.member.postId.accept(postId)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            App.Repository.deepLink.notificationPostId.accept(postId)
+            App.Repository.deepLink.notificationOpenComment.accept(openComment)
+            App.Repository.deepLink.notificationPostOfDate.accept(postOfDate)
         }
         
         completionHandler()
     }
-}
-
-extension AppDelegate {
-    func bindRepositories() {
-        App.Repository.token.bind()
-        App.Repository.member.bind()
-    }
-
-    func unbindRepositories() {
-        App.Repository.token.unbind()
-        App.Repository.member.unbind()
-    }
-}
-
-extension AppDelegate {
-    func decodeRemoteNotificationDeepLink(_ response: UNNotificationResponse) -> (String, Bool)? {
-        let userInfo = response.notification.request.content.userInfo
+    
+    func decodeRemoteNotificationResponse(_ userInfo: [AnyHashable: Any]) -> (String, Bool, Date)? {
         if let link = userInfo[AnyHashable("iosDeepLink")] as? String {
             let components = link.components(separatedBy: "?")
             
@@ -202,11 +189,28 @@ extension AppDelegate {
             let secondPart = components.last ?? ""
             let openComment = secondPart.components(separatedBy: "=").last == "true" ? true : false
             
-            debugPrint("\(postId), \(openComment)")
-            return (postId, openComment)
+            let thirdPart = "" // ✏️ 파싱 코드 작성 필요
+            let postOfDate = thirdPart.components(separatedBy: "=").last?.toDate(with: .dashYyyyMMdd) ?? Date()
+            
+            debugPrint("Push Notification Request UserInfo: \(postId), \(openComment), \(postOfDate)")
+            return (postId, openComment, postOfDate)
         }
         
-        print("Error: Parsing Notification Request UserInfo")
+        print("Error: Push Notification Request UserInfo")
         return nil
+    }
+}
+
+extension AppDelegate {
+    func bindRepositories() {
+        App.Repository.token.bind()
+        App.Repository.member.bind()
+        App.Repository.deepLink.bind()
+    }
+
+    func unbindRepositories() {
+        App.Repository.token.unbind()
+        App.Repository.member.unbind()
+        App.Repository.deepLink.unbind()
     }
 }

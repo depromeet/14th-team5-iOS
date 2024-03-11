@@ -22,7 +22,6 @@ import Then
 fileprivate typealias _Str = CalendarStrings
 public final class CalendarPostViewController: BaseViewController<CalendarPostViewReactor> {
     // MARK: - Views
-    private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
     private let blurImageView: UIImageView = UIImageView()
 
     private let calendarView: FSCalendar = FSCalendar()
@@ -41,11 +40,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     // MARK: - Lifecycles
     public override func viewDidLoad() {
         super.viewDidLoad()
-    }
-    
-    public override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.navigationBar.isHidden = true
     }
 
     // MARK: - Helpers
@@ -73,7 +67,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        navigationBarView.rx.didTapLeftBarButton
+        navigationBarView.rx.leftButtonTap
             .map { _ in Reactor.Action.popViewController }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -227,23 +221,23 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .subscribe(onNext: { _ in Haptic.selection() })
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldPopViewController)
-            .filter { $0 }
-            .withUnretained(self)
-            .subscribe { $0.0.navigationController?.popViewController(animated: true) }
-            .disposed(by: disposeBag)
-        
+//        reactor.pulse(\.$shouldPopViewController)
+//            .filter { $0 }
+//            .withUnretained(self)
+//            .subscribe { $0.0.navigationController?.popViewController(animated: true) }
+//            .disposed(by: disposeBag)
+//        
         didTapProfileImageNotificationHandler()
         didTapSelectableCameraButtonNotifcationHandler()
     }
     
     public override func setupUI() {
-        super.setupUI()
+//        super.setupUI()
         view.addSubviews(
-            navigationBarView, blurImageView
+            blurImageView, navigationBarView
         )
         blurImageView.addSubviews(
-            navigationBarView, calendarView, postCollectionView
+            calendarView, postCollectionView
         )
         view.addSubview(fireLottieView)
         
@@ -256,12 +250,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         super.setupAutoLayout()
         blurImageView.snp.makeConstraints {
             $0.edges.equalToSuperview()
-        }
-        
-        navigationBarView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(42)
         }
         
         calendarView.snp.makeConstraints {
@@ -296,7 +284,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         }
         
         navigationBarView.do {
-            $0.leftBarButtonItem = .arrowLeft
+            $0.setNavigationView(leftItem: .arrowLeft, rightItem: .empty)
         }
         
         calendarView.do {
@@ -396,7 +384,7 @@ extension CalendarPostViewController {
     }
     
     private func setupNavigationTitle(_ date: Date) {
-        navigationBarView.navigationTitle = date.toFormatString(with: .yyyyM)
+        navigationBarView.setNavigationTitle(title: date.toFormatString(with: .yyyyM))
     }
     
     private func adjustWeeklyCalendarRect(_ bounds: CGRect) {

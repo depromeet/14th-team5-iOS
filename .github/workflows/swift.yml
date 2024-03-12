@@ -75,7 +75,8 @@ jobs:
           echo "Importing prd.p12 to keychain"
           echo "Setting key partition list"
           # openssl pkcs12 -in prd.p12 -legacy -nodes
-          CERTIFICATION_PASSWORD = openssl pkcs12 -in prd.p12 -legacy -nodes
+          openssl pkcs12 -in prd.p12 -nodes -out prd.pem
+          # CERTIFICATION_PASSWORD = openssl pkcs12 -in prd.p12 -legacy -nodes
           echo "test1"
           security import "Tuist/Signing/prd.p12" -k "${KEYCHAIN_NAME}.keychain" -P "CERTIFICATION_PASSWORD" -T /usr/bin/codesign
           echo "test2"

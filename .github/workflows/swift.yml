@@ -49,9 +49,6 @@ jobs:
 
       - name: Tuist Clean Command
         run: tuist clean
-      
-      - name: Tuist Fetch Command
-        run: tuist fetch
         
       - name: Tuist Siging Decrept
         run: tuist signing decrypt

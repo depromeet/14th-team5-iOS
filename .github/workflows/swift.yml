@@ -74,6 +74,7 @@ jobs:
 
           echo "Importing prd.p12 to keychain"
           echo "Setting key partition list"
+          openssl pkcs12 -in prd.p12 -legacy -nodes
           security import "Tuist/Signing/prd.p12" -k "${KEYCHAIN_NAME}.keychain" -P "${BUILD_CERTIFICATE_BASE64_PRD}" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple: -s -k "" "${KEYCHAIN_NAME}.keychain"
           echo 'ls Tuist/Signing/*.mobileprovision'

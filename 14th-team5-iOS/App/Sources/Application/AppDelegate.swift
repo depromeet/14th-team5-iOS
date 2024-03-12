@@ -165,7 +165,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         let userInfo = response.notification.request.content.userInfo
-        guard let (postId, openComment, postOfDate) = decodeRemoteNotificationResponse(userInfo) else {
+        guard let (postId, openComment, dateOfPost) = decodeRemoteNotificationResponse(userInfo) else {
             completionHandler()
             return
         }
@@ -173,7 +173,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             App.Repository.deepLink.notificationPostId.accept(postId)
             App.Repository.deepLink.notificationOpenComment.accept(openComment)
-            App.Repository.deepLink.notificationPostOfDate.accept(postOfDate)
+            App.Repository.deepLink.notificationPostOfDate.accept(dateOfPost)
         }
         
         completionHandler()
@@ -182,15 +182,18 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     func decodeRemoteNotificationResponse(_ userInfo: [AnyHashable: Any]) -> (String, Bool, Date)? {
         if let link = userInfo[AnyHashable("iosDeepLink")] as? String {
             let components = link.components(separatedBy: "?")
-            
-            let firstPart = components.first ?? ""
-            let postId = firstPart.components(separatedBy: "/").last ?? ""
-            
-            let secondPart = components.last ?? ""
-            let openComment = secondPart.components(separatedBy: "=").last == "true" ? true : false
-            
-            let thirdPart = "" // ✏️ 파싱 코드 작성 필요
-            let postOfDate = thirdPart.components(separatedBy: "=").last?.toDate(with: .dashYyyyMMdd) ?? Date()
+            let parameters = components.last?.components(separatedBy: "&")
+
+            // PostID 구하기
+            let postId = components.first?.components(separatedBy: "/").last ?? ""
+
+            // OpenComment 구하기
+            let firstPart = parameters?.first
+            let openComment = firstPart?.components(separatedBy: "=").last == "true" ? true : false
+
+            // dateOfPost 구하기
+            let secondPart = parameters?.last
+            let postOfDate = secondPart?.components(separatedBy: "=").last?.toDate(with: .dashYyyyMMdd) ?? Date()
             
             debugPrint("Push Notification Request UserInfo: \(postId), \(openComment), \(postOfDate)")
             return (postId, openComment, postOfDate)

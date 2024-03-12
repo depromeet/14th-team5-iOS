@@ -13,7 +13,7 @@ import RxCocoa
 public class DeepLinkRepository: RxObject {
     public let notificationPostId = BehaviorRelay<String?>(value: nil)
     public let notificationOpenComment = BehaviorRelay<Bool?>(value: nil)
-    public let notificationPostOfDate = BehaviorRelay<Date?>(value: nil)
+    public let notificationDateOfPost = BehaviorRelay<Date?>(value: nil)
     
     // public let widgetPostId = BehaviorSubject<String?>(value: nil)
     
@@ -28,6 +28,6 @@ extension DeepLinkRepository {
     public func clearNotficiationUserInfo() {
         notificationPostId.accept(nil)
         notificationOpenComment.accept(nil)
-        notificationPostOfDate.accept(nil)
+        notificationDateOfPost.accept(nil)
     }
 }

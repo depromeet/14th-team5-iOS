@@ -120,7 +120,7 @@ extension Date {
         return dateFormatter.string(from: self)
     }
     
-    public func toFormatString(with format: DateFormatter.format) -> String {
+    public func toFormatString(with format: DateFormatter.Format) -> String {
         return toFormatString(with: format.type)
     }
 }

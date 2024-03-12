@@ -173,7 +173,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             App.Repository.deepLink.notificationPostId.accept(postId)
             App.Repository.deepLink.notificationOpenComment.accept(openComment)
-            App.Repository.deepLink.notificationPostOfDate.accept(dateOfPost)
+            App.Repository.deepLink.notificationDateOfPost.accept(dateOfPost)
         }
         
         completionHandler()

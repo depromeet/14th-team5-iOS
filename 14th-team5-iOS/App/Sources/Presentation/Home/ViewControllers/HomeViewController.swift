@@ -30,6 +30,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
     private let refreshControl: UIRefreshControl = UIRefreshControl()
     
     // MARK: - Properties
+    private let memberRepo = App.Repository.member
     private let deepLinkRepo = App.Repository.deepLink
     
     override func viewDidLoad() {
@@ -242,22 +243,27 @@ extension HomeViewController {
             .observe(on: MainScheduler.instance)
             .compactMap { $0 }
             .withUnretained(self)
-            .bind(onNext: { $0.0.pushPostViewController($0.1)})
+            .bind(onNext: { $0.0.pushDeepLinkPostViewController($0.1)})
             .disposed(by: disposeBag)
         
         // 푸시 노티피케이션 딥링크 코드
-        Observable.zip(
+        Observable.combineLatest(
             deepLinkRepo.notificationPostId,
             deepLinkRepo.notificationOpenComment,
-            deepLinkRepo.notificationPostOfDate
+            deepLinkRepo.notificationDateOfPost
         )
         .filter { $0.0 != nil && $0.1 != nil && $0.2 != nil }
         .map { return ($0.0!, $0.1!, $0.2!) }
-        .bind(with: self, onNext: { owner, notification in
-            // ✏️ (통신 완료 →) HomeViewReactor → HomeViewController 흐름을
-            // 따라가도록 하며 피드 자세히보기 화면 혹은 주간 캘린더 화면으로 분기하도록 코드 작성 필요
-            return
-        })
+        .flatMap {
+            // 댓글 푸시 알림이라면
+            if $0.1 {
+                return Observable.just(Reactor.Action.pushNotificationCommentDeepLink($0.0, $0.2))
+            // 포스트 푸시 알림이라면
+            } else {
+                return Observable.just(Reactor.Action.pushNotificationPostDeepLink($0.0))
+            }
+        }
+        .bind(to: reactor.action)
         .disposed(by: disposeBag)
     }
     
@@ -347,10 +353,24 @@ extension HomeViewController {
             }
             .disposed(by: disposeBag)
         
-        // 푸시 노티피케이션 딥링크 코드
+        // 포스트 노티피케이션 딥링크 코드
         reactor.pulse(\.$notificationDeepLinkPostId)
-            .bind(with: self) { owner, postId in
-                owner.pushPostViewController(postId)
+            .debug("========== 푸시 알림으로 인한 화면 이동")
+            .bind(with: self) { owner, info in
+                owner.pushDeepLinkPostViewController(info)
+            }
+            .disposed(by: disposeBag)
+        
+        // 댓글 노티피케이션 딥링크 코드
+        reactor.pulse(\.$notificationDeepLinkCommentId)
+            .bind(with: self) { owner, info in
+                // 오늘 게시물에 댓글이 올라왔다면
+                if info.1.isToday {
+                    owner.pushDeepLinkPostViewController(info.0)
+                // 예전 게시물에 댓글이 올라왔다면
+                } else {
+                    owner.pushDeepLinkPostCommentViewController(info.0, dateOfPost: info.1) // TODO: - 코드 작성하기
+                }
             }
             .disposed(by: disposeBag)
     }
@@ -365,18 +385,30 @@ extension HomeViewController {
         balloonView.isHidden = isHidden
         cameraButton.isHidden = isHidden
     }
-    
-    private func pushPostViewController(_ postId: String) {
+}
+
+extension HomeViewController {
+    private func pushDeepLinkPostViewController(_ postId: String) {
         guard let reactor = reactor else { return }
         reactor.currentState.postSection.items.enumerated().forEach { (index, item) in
             switch item {
             case .main(let postListData):
                 if postListData.postId == postId {
                     let indexPath = IndexPath(row: index, section: 0)
-                    self.navigationController?.pushViewController(PostListsDIContainer().makeViewController(postLists: reactor.currentState.postSection, selectedIndex: indexPath), animated: true)
+                    self.navigationController?.pushViewController(
+                        PostListsDIContainer().makeViewController(
+                            postLists: reactor.currentState.postSection,
+                            selectedIndex: indexPath),
+                        animated: true
+                    )
                 }
             }
         }
+    }
+    
+    // TODO: - 코드 작성하기
+    private func pushDeepLinkPostCommentViewController(_ postId: String, dateOfPost: Date) {
+        
     }
 }
 

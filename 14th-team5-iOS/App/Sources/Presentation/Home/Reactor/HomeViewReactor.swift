@@ -20,7 +20,9 @@ final class HomeViewReactor: Reactor {
         case viewWillAppear
         case refresh
         case tapInviteFamily
-        case pushDeepLink(String)
+        
+        case pushNotificationPostDeepLink(String)
+        case pushNotificationCommentDeepLink(String, Date)
     }
     
     enum Mutation {
@@ -38,7 +40,8 @@ final class HomeViewReactor: Reactor {
         case setFetchFailureToastMessageView
         case setSharePanel(String)
         
-        case setDeepLink(String)
+        case setNotificationPostDeepLink(String)
+        case setNotificationCommentDeepLink(String, Date)
     }
     
     struct State {
@@ -58,6 +61,7 @@ final class HomeViewReactor: Reactor {
         var isShowingInviteFamilyView: Bool = false
         
         @Pulse var notificationDeepLinkPostId: String = .none
+        @Pulse var notificationDeepLinkCommentId: (String, Date) = (.none, .now)
     }
     
     let initialState: State = State()
@@ -123,8 +127,15 @@ extension HomeViewReactor {
                            }
                            return .setSharePanel(invitationLink)
                        }
-        case let .pushDeepLink(postId):
-            return Observable<Mutation>.just(.setDeepLink(postId))
+            
+        case let .pushNotificationPostDeepLink(postId):
+            return Observable.concat(
+                self.viewWillAppear(), // 포스트 네트워크 통신을 완료 한 후,
+                Observable<Mutation>.just(.setNotificationPostDeepLink(postId)) // 다음 화면으로 이동하기
+            )
+            
+        case let .pushNotificationCommentDeepLink(postId, dateOfPost):
+            return Observable<Mutation>.just(.setNotificationCommentDeepLink(postId, dateOfPost))
         }
         
     }
@@ -157,8 +168,11 @@ extension HomeViewReactor {
             newState.shouldPresentFetchFailureToastMessageView = true
         case let .setSharePanel(urlString):
             newState.familyInvitationLink = URL(string: urlString)
-        case let .setDeepLink(postId):
+            
+        case let .setNotificationPostDeepLink(postId):
             newState.notificationDeepLinkPostId = postId
+        case let .setNotificationCommentDeepLink(postId, dateOfPost):
+            newState.notificationDeepLinkCommentId = (postId, dateOfPost)
         }
         
         return newState

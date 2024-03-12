@@ -66,17 +66,17 @@ jobs:
 
         run: |
           echo "$(ls Tuist/Signing/)"
-          security create-keychain -p "" "${KEYCHAIN_NAME}.keychain-db"
+          security create-keychain -p "${APPLE_DEVELOPER_ID_CERTIFICATE_PASSWORD}" "${KEYCHAIN_NAME}.keychain-db"
           security list-keychains -s "${KEYCHAIN_NAME}.keychain-db"
           security default-keychain -s "${KEYCHAIN_NAME}.keychain-db"
-          security unlock-keychain -p "" "${KEYCHAIN_NAME}.keychain-db"
+          security unlock-keychain -p "${APPLE_DEVELOPER_ID_CERTIFICATE_PASSWORD}" "${KEYCHAIN_NAME}.keychain-db"
           security set-keychain-settings -lut 1200
           security list-keychains
 
           set -e
 
           echo "Importing prd.p12 to keychain"
-          security import "Tuist/Signing/prd.p12" -k "${KEYCHAIN_NAME}.keychain-db" -P "" -A -T /usr/bin/codesign
+          security import "Tuist/Signing/prd.p12" -k "${KEYCHAIN_NAME}.keychain-db" -P "${BUILD_CERTIFICATE_BASE64_PRD}" -A -T /usr/bin/codesign
           echo "Setting key partition list"
           security set-key-partition-list -S apple-tool:,apple: -s -k "" "${KEYCHAIN_NAME}.keychain-db"
           echo 'ls Tuist/Signing/*.mobileprovision'

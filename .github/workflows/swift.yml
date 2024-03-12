@@ -76,7 +76,7 @@ jobs:
           set -e
 
           echo "Importing prd.p12 to keychain"
-          security import "Tuist/Signing/prd.p12" -k "${KEYCHAIN_NAME}.keychain-db" -P "" -A -T "Tuist/Signing/"
+          security import "Tuist/Signing/prd.p12" -k "${KEYCHAIN_NAME}.keychain-db" -P "" -A -T /usr/bin/codesign
           echo "Setting key partition list"
           security set-key-partition-list -S apple-tool:,apple: -s -k "" "${KEYCHAIN_NAME}.keychain-db"
           echo 'ls Tuist/Signing/*.mobileprovision'

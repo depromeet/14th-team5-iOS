@@ -40,10 +40,23 @@ final class PostReactor: Reactor {
     let emojiRepository: EmojiUseCaseProtocol
     let provider: GlobalStateProviderProtocol
     
-    init(provider: GlobalStateProviderProtocol, realEmojiRepository: RealEmojiUseCaseProtocol, emojiRepository: EmojiUseCaseProtocol, initialState: State) {
+    // 푸시 노티피케이션 딥링크 코드
+    let postId: String?
+    let openComment: Bool
+    
+    init(
+        provider: GlobalStateProviderProtocol,
+        realEmojiRepository: RealEmojiUseCaseProtocol,
+        emojiRepository: EmojiUseCaseProtocol,
+        postId: String?,
+        openComment: Bool,
+        initialState: State
+    ) {
         self.provider = provider
         self.realEmojiRepository = realEmojiRepository
         self.emojiRepository = emojiRepository
+        self.postId = postId
+        self.openComment = openComment
         self.initialState = initialState
     }
 }

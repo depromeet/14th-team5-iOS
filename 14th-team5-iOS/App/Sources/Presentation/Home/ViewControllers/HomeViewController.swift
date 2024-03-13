@@ -253,7 +253,7 @@ extension HomeViewController {
             deepLinkRepo.notificationDateOfPost
         )
         .filter { $0.0 != nil && $0.1 != nil && $0.2 != nil }
-        .map { return ($0.0!, $0.1!, $0.2!) }
+        .map { ($0.0!, $0.1!, $0.2!) }
         .flatMap {
             // 댓글 푸시 알림이라면
             if $0.1 {
@@ -355,7 +355,7 @@ extension HomeViewController {
         
         // 포스트 노티피케이션 딥링크 코드
         reactor.pulse(\.$notificationDeepLinkPostId)
-            .debug("========== 푸시 알림으로 인한 화면 이동")
+            .debug("========== 피드 알림으로 인한 화면 이동")
             .bind(with: self) { owner, info in
                 owner.pushDeepLinkPostViewController(info)
             }
@@ -363,14 +363,9 @@ extension HomeViewController {
         
         // 댓글 노티피케이션 딥링크 코드
         reactor.pulse(\.$notificationDeepLinkCommentId)
+            .debug("========== 댓글 알림으로 인한 화면 이동")
             .bind(with: self) { owner, info in
-                // 오늘 게시물에 댓글이 올라왔다면
-                if info.1.isToday {
-                    owner.pushDeepLinkPostViewController(info.0)
-                // 예전 게시물에 댓글이 올라왔다면
-                } else {
-                    owner.pushDeepLinkPostCommentViewController(info.0, dateOfPost: info.1) // TODO: - 코드 작성하기
-                }
+                owner.pushDeepLinkPostCommentViewController(info.0, dateOfPost: info.1)
             }
             .disposed(by: disposeBag)
     }
@@ -408,7 +403,33 @@ extension HomeViewController {
     
     // TODO: - 코드 작성하기
     private func pushDeepLinkPostCommentViewController(_ postId: String, dateOfPost: Date) {
+        guard let reactor = reactor else { return }
         
+        guard let selectedIndex = reactor.currentState.postSection.items.firstIndex(where: { postList in
+            switch postList {
+            case let .main(post):
+                post.postId == postId
+            }
+        }) else { return }
+        let selectedIndexPath = IndexPath(row: selectedIndex, section: 0)
+        
+        // 오늘 올린 피드에 댓글이 달렸다면
+        if dateOfPost.isToday {
+            let postListViewController = PostListsDIContainer().makeViewController(
+                postLists: reactor.currentState.postSection,
+                selectedIndex: selectedIndexPath,
+                postId: postId,
+                openComment: true
+            )
+            
+            navigationController?.pushViewController(
+                postListViewController,
+                animated: true
+            )
+            // 이전에 올린 피드에 댓글이 달렸다면
+        } else {
+            // 주간 캘린더로 이동하기
+        }
     }
 }
 

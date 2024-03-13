@@ -21,6 +21,9 @@ final class PostViewController: BaseViewController<PostReactor> {
     private let collectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     private let reactionViewController: ReactionViewController = ReactionDIContainer().makeViewController(post: .init(postId: "", author: nil, commentCount: 0, emojiCount: 0, imageURL: "", content: nil, time: ""))
     
+    // MARK: - Properties
+    private let deepLinkRepo = DeepLinkRepository()
+    
     convenience init(reactor: Reactor? = nil) {
         self.init()
         self.reactor = reactor
@@ -98,6 +101,17 @@ final class PostViewController: BaseViewController<PostReactor> {
             .distinctUntilChanged()
             .map { Reactor.Action.setPost($0) }
             .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        // 댓글 노티피케이션 딥링크 코드
+        Observable.just(reactor.postId)
+            .compactMap { $0 }
+            .filter { _ in reactor.openComment }
+            .bind(with: self) { owner, postId in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    owner.presentDeepLinkPostCommentViewController(postId)
+                }
+            }
             .disposed(by: disposeBag)
         
         didTapProfileImageNotificationHandler()
@@ -192,6 +206,23 @@ extension PostViewController {
         return currentPage
     }
     
+    private func createDataSource() -> RxCollectionViewSectionedReloadDataSource<PostSection.Model> {
+        return RxCollectionViewSectionedReloadDataSource<PostSection.Model>(
+            configureCell: { (_, collectionView, indexPath, item) in
+                switch item {
+                case .main(let data):
+                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostDetailCollectionViewCell.id, for: indexPath) as? PostDetailCollectionViewCell else {
+                        return UICollectionViewCell()
+                    }
+                    cell.reactor = PostDetailCellDIContainer().makeReactor(post: data)
+                    cell.setCell(data: data)
+                    return cell
+                }
+            })
+    }
+}
+
+extension PostViewController {
     private func pushCameraViewController(cameraType type: UploadLocation) {
         let cameraViewController = CameraDIContainer(
             cameraType: type
@@ -214,19 +245,27 @@ extension PostViewController {
         )
     }
     
-    private func createDataSource() -> RxCollectionViewSectionedReloadDataSource<PostSection.Model> {
-        return RxCollectionViewSectionedReloadDataSource<PostSection.Model>(
-            configureCell: { (_, collectionView, indexPath, item) in
-                switch item {
-                case .main(let data):
-                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostDetailCollectionViewCell.id, for: indexPath) as? PostDetailCollectionViewCell else {
-                        return UICollectionViewCell()
-                    }
-                    cell.reactor = PostDetailCellDIContainer().makeReactor(post: data)
-                    cell.setCell(data: data)
-                    return cell
-                }
-            })
+    private func presentDeepLinkPostCommentViewController(_ postId: String) {
+        guard let reactor = reactor else { return }
+        
+        let postList = reactor.initialState.originPostLists.items
+        if let postList = postList.first(where: { item in
+            switch item {
+            case let .main(post):
+                post.postId == postId
+            }
+        }) {
+            switch postList {
+            case let .main(post):
+                let postCommentViewController = PostCommentDIContainer(
+                    postId: post.postId
+                ).makeViewController()
+
+                present(postCommentViewController, animated: true)
+            }
+        }
+        
+        return
     }
 }
 

@@ -38,9 +38,13 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     private let cellIndexRelay: PublishRelay<Int> = PublishRelay<Int>()
     private lazy var dataSource: RxCollectionViewSectionedReloadDataSource<PostListSectionModel> = prepareDatasource()
     
+    private let deepLinkRepo = DeepLinkRepository()
+    
     // MARK: - Lifecycles
     public override func viewDidLoad() {
         super.viewDidLoad()
+        
+        deepLinkRepo.clearNotficiationUserInfo()
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -155,14 +159,30 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         postResponse
             .distinctUntilChanged()
             .drive(with: self) {
-                guard let items = $1.first?.items,
-                      !items.isEmpty else { return }
-                let indexPath = IndexPath(item: 0, section: 0)
-                $0.postCollectionView.scrollToItem(
-                    at: indexPath,
-                    at: .centeredHorizontally,
-                    animated: false
-                )
+                guard let items = $1.first?.items else { return }
+
+                // 알림으로 화면에 진입하면
+                if let notificationInfo = reactor.currentState.notificationInfo {
+                    let postId = notificationInfo.postId
+                    guard let index = items.firstIndex(where: { post in
+                              post.postId == postId
+                          }) else { return }
+                    let indexPath = IndexPath(item: index, section: 0)
+                    $0.postCollectionView.scrollToItem(
+                        at: indexPath,
+                        at: .centeredHorizontally,
+                        animated: false
+                    )
+                // 일반 루트로 화면에 진입하면
+                } else {
+                    guard !items.isEmpty else { return }
+                    let indexPath = IndexPath(item: 0, section: 0)
+                    $0.postCollectionView.scrollToItem(
+                        at: indexPath,
+                        at: .centeredHorizontally,
+                        animated: false
+                    )
+                }
             }
             .disposed(by: disposeBag)
         
@@ -231,6 +251,18 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .filter { $0 }
             .withUnretained(self)
             .subscribe { $0.0.navigationController?.popViewController(animated: true) }
+            .disposed(by: disposeBag)
+        
+        // 댓글 노티피케이션 딥링크 코드
+        reactor.state.compactMap { $0.notificationInfo }
+            .distinctUntilChanged(at: \.postId)
+            .bind(with: self) { owner, info in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    if info.openComment {
+                        owner.presentPostCommentSheet(postId: info.postId)
+                    }
+                }
+            }
             .disposed(by: disposeBag)
         
         didTapProfileImageNotificationHandler()

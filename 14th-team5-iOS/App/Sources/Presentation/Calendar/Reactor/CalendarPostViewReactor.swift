@@ -35,12 +35,15 @@ public final class CalendarPostViewReactor: Reactor {
         case injectBlurImageIndex(Int)
         case injectVisiblePost(PostListData)
         case pushProfileViewController(String)
+        case clearPushNotificationInfo
         case generateSelectionHaptic
     }
     
     // MARK: - State
     public struct State {
         var selectedDate: Date
+        var notificationInfo: NotificationInfo? // 댓글 푸시 알림 체크 변수
+        
         var blurImageUrlString: String?
         var visiblePostList: PostListData?
         @Pulse var displayPostResponse: [PostListSectionModel]
@@ -66,12 +69,14 @@ public final class CalendarPostViewReactor: Reactor {
     // MARK: - Intializer
     init(
         _ selection: Date,
+        notificationInfo: NotificationInfo?,
         calendarUseCase: CalendarUseCaseProtocol,
         postListUseCase: PostListUseCaseProtocol,
         provider: GlobalStateProviderProtocol
     ) {
         self.initialState = State(
             selectedDate: selection,
+            notificationInfo: notificationInfo,
             displayPostResponse: [],
             displayCalendarResponse: [:],
             shouldPresentAllUploadedToastMessageView: false,
@@ -130,7 +135,7 @@ public final class CalendarPostViewReactor: Reactor {
             if !hasReceivedPostEvent || hasThumbnailImages.contains(date) {
                 hasReceivedPostEvent = true
                 // 가족이 게시한 포스트 가져오기
-                let date: String = date.toFormatString(with: "yyyy-MM-dd")
+                let date: String = date.toFormatString(with: .dashYyyyMMdd)
                 let postListQuery: PostListQuery = PostListQuery(date: date)
                 return postListUseCase.excute(query: postListQuery).asObservable()
                     .withUnretained(self)
@@ -142,7 +147,8 @@ public final class CalendarPostViewReactor: Reactor {
                         
                         return Observable.concat(
                             Observable<Mutation>.just(.injectPostResponse(postResponse)),
-                            Observable<Mutation>.just(.injectBlurImageIndex(0))
+                            Observable<Mutation>.just(.injectBlurImageIndex(0)),
+                            Observable<Mutation>.just(.clearPushNotificationInfo)
                         )
                     }
             }
@@ -209,6 +215,9 @@ public final class CalendarPostViewReactor: Reactor {
             
         case let .pushProfileViewController(memberId):
             newState.shouldPushProfileViewController = memberId
+            
+        case .clearPushNotificationInfo:
+            newState.notificationInfo = nil
             
         case .generateSelectionHaptic:
             newState.shouldGenerateSelectionHaptic = true

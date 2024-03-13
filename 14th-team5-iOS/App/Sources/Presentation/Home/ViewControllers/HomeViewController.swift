@@ -401,34 +401,47 @@ extension HomeViewController {
         }
     }
     
-    // TODO: - 코드 작성하기
     private func pushDeepLinkPostCommentViewController(_ postId: String, dateOfPost: Date) {
         guard let reactor = reactor else { return }
         
-        guard let selectedIndex = reactor.currentState.postSection.items.firstIndex(where: { postList in
-            switch postList {
-            case let .main(post):
-                post.postId == postId
-            }
-        }) else { return }
-        let selectedIndexPath = IndexPath(row: selectedIndex, section: 0)
+        let notificationInfo = NotificationInfo(
+            postId: postId,
+            openComment: true,
+            dateOfPost: dateOfPost
+        )
         
         // 오늘 올린 피드에 댓글이 달렸다면
         if dateOfPost.isToday {
+            guard let selectedIndex = reactor.currentState.postSection.items.firstIndex(where: { postList in
+                switch postList {
+                case let .main(post):
+                    post.postId == postId
+                }
+            }) else { return }
+            let indexPath = IndexPath(row: selectedIndex, section: 0)
+            
             let postListViewController = PostListsDIContainer().makeViewController(
                 postLists: reactor.currentState.postSection,
-                selectedIndex: selectedIndexPath,
+                selectedIndex: indexPath,
                 postId: postId,
                 openComment: true
             )
             
             navigationController?.pushViewController(
                 postListViewController,
-                animated: true
+                animated: false
             )
-            // 이전에 올린 피드에 댓글이 달렸다면
+        // 이전에 올린 피드에 댓글이 달렸다면
         } else {
-            // 주간 캘린더로 이동하기
+            let calendarPostViewController = CalendarPostDIConatainer(
+                selectedDate: dateOfPost,
+                notificationInfo: notificationInfo
+            ).makeViewController()
+            
+            navigationController?.pushViewController(
+                calendarPostViewController,
+                animated: false
+            )
         }
     }
 }

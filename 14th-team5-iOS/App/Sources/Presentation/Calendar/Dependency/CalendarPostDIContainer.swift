@@ -11,13 +11,24 @@ import Core
 import Data
 import Domain
 
+public struct NotificationInfo {
+    let postId: String
+    let openComment: Bool
+    let dateOfPost: Date
+}
+
 public final class CalendarPostDIConatainer {
     // MARK: - Properties
     let selectedDate: Date
+    let notificationInfo: NotificationInfo? // 댓글 푸시 알림 체크 변수
     
     // MARK: - Intializer
-    init(selectedDate selection: Date) {
+    init(
+        selectedDate selection: Date,
+        notificationInfo: NotificationInfo? = nil
+    ) {
         self.selectedDate = selection
+        self.notificationInfo = notificationInfo
     }
     
     private var globalState: GlobalStateProviderProtocol {
@@ -51,6 +62,7 @@ public final class CalendarPostDIConatainer {
     public func makeReactor() -> CalendarPostViewReactor {
         return CalendarPostViewReactor(
             selectedDate,
+            notificationInfo: notificationInfo,
             calendarUseCase: makeCalendarUseCase(),
             postListUseCase: makePostListUseCase(),
             provider: globalState

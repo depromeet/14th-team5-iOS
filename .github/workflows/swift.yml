@@ -60,6 +60,7 @@ jobs:
         env:
           KEYCHAIN_NAME: ${{secrets.KEYCHAIN_NAME}}
           KEYCHAIN_PASSWORD: ${{secrets.KEYCHAIN_PASSWORD}}
+          P12_PASSWORD: ${{secrets.P12_PASSWORD}}
           APP_NAME: ${{secrets.APP_NAME}}
           WIDGET_NAME: ${{secrets.WIDGET_NAME}}
         run: fastlane setup_keychain

@@ -47,18 +47,16 @@ platform :ios do
       lock_when_sleeps: true
     )
 
-    # import_certificate(
-    #   certificate_path: "Tuist/Signing/prd.cer",
-    #   certificate_password: "123456789",
-    #   keychain_name: "#{KEYCHAIN_NAME}",
-    #   keychain_password: "#{KEYCHAIN_PASSWORD}"
-    # )
+    import_certificate(
+      certificate_path: "Tuist/Signing/prd.cer",
+      keychain_name: "#{KEYCHAIN_NAME}",
+      keychain_password: "#{P12_PASSWORD}"
+    )
 
     import_certificate(
       certificate_path: "Tuist/Signing/prd.p12",
-      certificate_password: "123456789",
       keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
+      keychain_password: "#{P12_PASSWORD}"
     )
 
     install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.PRD.mobileprovision")

@@ -74,17 +74,13 @@ jobs:
 
           echo "Importing prd.p12 to keychain"
           echo "Setting key partition list"
-          # openssl pkcs12 -in prd.p12 -legacy -nodes
-          openssl pkcs12 -in prd.p12 -nodes -out prd.pem
-          # CERTIFICATION_PASSWORD = openssl pkcs12 -in prd.p12 -legacy -nodes
-          echo "test1"
+          << openssl pkcs12 -in prd.p12 -legacy -nodes
           security import "Tuist/Signing/prd.p12" -k "${KEYCHAIN_NAME}.keychain" -P "CERTIFICATION_PASSWORD" -T /usr/bin/codesign
-          echo "test2"
           security set-key-partition-list -S apple-tool:,apple: -s -k "" "${KEYCHAIN_NAME}.keychain"
-          echo 'ls Tuist/Signing/*.mobileprovision'
-          PROVISIONING_PROFILES_FOLDER="Tuist/Signing/"
+          echo '$(ls Tuist/Signing/)'
+          PROVISIONING_PROFILES_FOLDER="$(ls Tuist/Signing/*.mobileprovision)"
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          for PROVISION in $(ls $PROVISIONING_PROFILES_FOLDER*.mobileprovision)
+          for PROVISION in PROVISIONING_PROFILES_FOLDER
           do
             UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' /dev/stdin <<< $(security cms -D -i ./$PROVISION))
             cp "./$PROVISION" "$HOME/Library/MobileDevice/Provisioning Profiles/$UUID.mobileprovision"

@@ -52,39 +52,47 @@ jobs:
         
       - name: Tuist Siging Decrept
         run: tuist signing decrypt
-      
-      - name: Xcode Certification Install
+
+      - name: fastlane certification
         env:
-          BUILD_CERTIFICATE_BASE64_DEV: ${{ secrets.BUILD_CERTIFICATE_BASE64_DEV }}
-          BUILD_CERTIFICATE_BASE64_PRD: ${{ secrets.BUILD_CERTIFICATE_BASE64_PRD }}
-          BUILD_PROVISION_PROFILE_BASE64_PRD: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64_PRD }}
           KEYCHAIN_NAME: ${{secrets.KEYCHAIN_NAME}}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          BUILD_CERTIFICATE_BASE64_PRD: ${{secrets.BUILD_CERTIFICATE_BASE64_PRD}}
+          APP_NAME: ${{secrets.APP_NAME}}
+          WIDGET_NAME: ${{secrets.WIDGET_NAME}}
+        run: fastlane setup_keychain
+      
+      # - name: Xcode Certification Install
+      #   env:
+      #     BUILD_CERTIFICATE_BASE64_DEV: ${{ secrets.BUILD_CERTIFICATE_BASE64_DEV }}
+      #     BUILD_CERTIFICATE_BASE64_PRD: ${{ secrets.BUILD_CERTIFICATE_BASE64_PRD }}
+      #     BUILD_PROVISION_PROFILE_BASE64_PRD: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64_PRD }}
+      #     KEYCHAIN_NAME: ${{secrets.KEYCHAIN_NAME}}
+      #     KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
-        run: |
-          echo "$(ls Tuist/Signing/)"
-          security create-keychain -p "${BUILD_CERTIFICATE_BASE64_PRD}" "${KEYCHAIN_NAME}.keychain"
-          security list-keychains -s "${KEYCHAIN_NAME}.keychain"
-          security default-keychain -s "${KEYCHAIN_NAME}.keychain"
-          security unlock-keychain -p "${BUILD_CERTIFICATE_BASE64_PRD}" "${KEYCHAIN_NAME}.keychain"
-          security set-keychain-settings -lut 1200
-          security list-keychains
+      #   run: |
+      #     echo "$(ls Tuist/Signing/)"
+      #     security create-keychain -p "${BUILD_CERTIFICATE_BASE64_PRD}" "${KEYCHAIN_NAME}.keychain"
+      #     security list-keychains -s "${KEYCHAIN_NAME}.keychain"
+      #     security default-keychain -s "${KEYCHAIN_NAME}.keychain"
+      #     security unlock-keychain -p "${BUILD_CERTIFICATE_BASE64_PRD}" "${KEYCHAIN_NAME}.keychain"
+      #     security set-keychain-settings -lut 1200
+      #     security list-keychains
 
-          set -e
+      #     set -e
 
-          echo "Importing prd.p12 to keychain"
-          echo "Setting key partition list"
-          << openssl pkcs12 -in prd.p12 -legacy -nodes
-          security import "Tuist/Signing/prd.p12" -k "${KEYCHAIN_NAME}.keychain" -P "CERTIFICATION_PASSWORD" -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple: -s -k "" "${KEYCHAIN_NAME}.keychain"
-          echo '$(ls Tuist/Signing/)'
-          PROVISIONING_PROFILES_FOLDER="$(ls Tuist/Signing/*.mobileprovision)"
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          for PROVISION in PROVISIONING_PROFILES_FOLDER
-          do
-            UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' /dev/stdin <<< $(security cms -D -i ./$PROVISION))
-            cp "./$PROVISION" "$HOME/Library/MobileDevice/Provisioning Profiles/$UUID.mobileprovision"
-          done
+      #     echo "Importing prd.p12 to keychain"
+      #     echo "Setting key partition list"
+      #     << openssl pkcs12 -in prd.p12 -legacy -nodes
+      #     security import "Tuist/Signing/prd.p12" -k "${KEYCHAIN_NAME}.keychain" -P "CERTIFICATION_PASSWORD" -T /usr/bin/codesign
+      #     security set-key-partition-list -S apple-tool:,apple: -s -k "" "${KEYCHAIN_NAME}.keychain"
+      #     echo '$(ls Tuist/Signing/)'
+      #     PROVISIONING_PROFILES_FOLDER="$(ls Tuist/Signing/*.mobileprovision)"
+      #     mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+      #     for PROVISION in PROVISIONING_PROFILES_FOLDER
+      #     do
+      #       UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' /dev/stdin <<< $(security cms -D -i ./$PROVISION))
+      #       cp "./$PROVISION" "$HOME/Library/MobileDevice/Provisioning Profiles/$UUID.mobileprovision"
+      #     done
 
 
       - name: Tuist generate Command      

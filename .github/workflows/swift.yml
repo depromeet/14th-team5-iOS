@@ -50,8 +50,8 @@ jobs:
       - name: Tuist Clean Command
         run: tuist clean
       
-      - name: Tuist Fetch Command
-        run: tuist fetch
+      # - name: Tuist Fetch Command
+      #   run: tuist fetch
         
       - name: Tuist Siging Decrept
         run: tuist signing decrypt
@@ -59,7 +59,7 @@ jobs:
       - name: fastlane certification
         env:
           KEYCHAIN_NAME: ${{secrets.KEYCHAIN_NAME}}
-          BUILD_CERTIFICATE_BASE64_PRD: ${{secrets.BUILD_CERTIFICATE_BASE64_PRD}}
+          KEYCHAIN_PASSWORD: ${{secrets.KEYCHAIN_PASSWORD}}
           APP_NAME: ${{secrets.APP_NAME}}
           WIDGET_NAME: ${{secrets.WIDGET_NAME}}
         run: fastlane setup_keychain

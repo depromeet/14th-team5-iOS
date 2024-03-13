@@ -40,23 +40,25 @@ platform :ios do
   lane :setup_keychain do
     create_keychain(
       name: "#{KEYCHAIN_NAME}",
-      password: "#{BUILD_CERTIFICATE_BASE64_PRD}",
+      password: "#{KEYCHAIN_PASSWORD}",
       default_keychain: true,
       unlock: true,
       timeout: 3600,
       lock_when_sleeps: true
     )
 
-    import_certificate(
-      certificate_path: "Tuist/Signing/prd.cer",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{BUILD_CERTIFICATE_BASE64_PRD}"
-    )
+    # import_certificate(
+    #   certificate_path: "Tuist/Signing/prd.cer",
+    #   certificate_password: "123456789",
+    #   keychain_name: "#{KEYCHAIN_NAME}",
+    #   keychain_password: "#{KEYCHAIN_PASSWORD}"
+    # )
 
     import_certificate(
       certificate_path: "Tuist/Signing/prd.p12",
+      certificate_password: "123456789",
       keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{BUILD_CERTIFICATE_BASE64_PRD}"
+      keychain_password: "#{KEYCHAIN_PASSWORD}"
     )
 
     install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.PRD.mobileprovision")
@@ -103,7 +105,7 @@ platform :ios do
 
     slack(
       message: "⭐️ 테스트 플라이트 업로드 성공",
-      slack_url: "#{SLACK_HOOK_URL}",
+      slack_url: "https://hooks.slack.com/services/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",
       username: "대신 배포해주는 고양이",
       icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
       payload: {
@@ -159,7 +161,7 @@ platform :ios do
 
     slack(
       message: "⭐️ 테스트 플라이트 업로드 성공",
-      slack_url: "#{SLACK_HOOK_URL}",
+      slack_url: "https://hooks.slack.com/services/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",
       username: "대신 배포해주는 고양이",
       icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
       payload: {
@@ -188,7 +190,7 @@ platform :ios do
   error do |lane, exception, options|
     slack(
       message: "❗️ 테스트 플라이트 업로드 실패",
-      slack_url: "#{SLACK_HOOK_URL}",
+      slack_url: "https://hooks.slack.com/services/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",
       username: "대신 배포해주는 고양이",
       icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
       success: false,

@@ -111,7 +111,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         calendarView.rx.boundingRectWillChange
             .distinctUntilChanged()
             .withUnretained(self)
-            .subscribe { $0.0.adjustWeeklyCalendarRect($0.1) }
+            .subscribe { $0.0.updateCalendarViewConstraints($0.1) }
             .disposed(by: disposeBag)
         
 //        postCollectionView.rx.willBeginDragging
@@ -159,28 +159,22 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .drive(with: self) {
                 guard let items = $1.first?.items else { return }
 
+                var indexPath = IndexPath(item: 0, section: 0)
                 // 알림으로 화면에 진입하면
-                if let notificationInfo = reactor.currentState.notificationDeepLink {
-                    let postId = notificationInfo.postId
+                if let deepLink = reactor.currentState.notificationDeepLink {
+                    let postId = deepLink.postId
                     guard let index = items.firstIndex(where: { post in
                               post.postId == postId
                           }) else { return }
-                    let indexPath = IndexPath(item: index, section: 0)
-                    $0.postCollectionView.scrollToItem(
-                        at: indexPath,
-                        at: .centeredHorizontally,
-                        animated: false
-                    )
+                    indexPath = IndexPath(item: index, section: 0)
                 // 일반 루트로 화면에 진입하면
-                } else {
-                    guard !items.isEmpty else { return }
-                    let indexPath = IndexPath(item: 0, section: 0)
-                    $0.postCollectionView.scrollToItem(
-                        at: indexPath,
-                        at: .centeredHorizontally,
-                        animated: false
-                    )
-                }
+                } else { }
+                
+                $0.postCollectionView.scrollToItem(
+                    at: indexPath,
+                    at: .centeredHorizontally,
+                    animated: false
+                )
             }
             .disposed(by: disposeBag)
         
@@ -428,7 +422,7 @@ extension CalendarPostViewController {
         navigationBarView.navigationTitle = date.toFormatString(with: .yyyyM)
     }
     
-    private func adjustWeeklyCalendarRect(_ bounds: CGRect) {
+    private func updateCalendarViewConstraints(_ bounds: CGRect) {
         calendarView.snp.updateConstraints {
             $0.height.equalTo(bounds.height)
         }
@@ -436,22 +430,22 @@ extension CalendarPostViewController {
     }
     
     private func presentPostCommentSheet(postId: String) {
-        let postCommentSheet = PostCommentDIContainer(postId: postId).makeViewController()
+        let postCommentViewController = PostCommentDIContainer(
+            postId: postId
+        ).makeViewController()
         
-        if let sheet = postCommentSheet.sheetPresentationController {
-            if #available(iOS 16.0, *) {
-                let customId = UISheetPresentationController.Detent.Identifier("customId")
-                let customDetents = UISheetPresentationController.Detent.custom(identifier: customId) {
-                    return $0.maximumDetentValue * 0.835
-                }
-                sheet.detents = [customDetents, .large()]
-            } else {
-                sheet.detents = [.medium(), .large()]
-            }
-            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+        if #available(iOS 16.0, *) {
+            presentSheet(
+                postCommentViewController,
+                detentHeightRatio: [0.835],
+                allowLargeDetents: true
+            )
+        } else {
+            presentSheet(
+                postCommentViewController,
+                allowMediumDetents: true
+            )
         }
-        
-        present(postCommentSheet, animated: true)
     }
     
     private func pushCameraViewController(cameraType type: UploadLocation) {

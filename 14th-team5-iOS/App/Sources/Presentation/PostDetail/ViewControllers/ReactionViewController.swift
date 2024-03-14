@@ -153,11 +153,28 @@ extension ReactionViewController {
            .withLatestFrom(postListData)
            .withUnretained(self) { ($0, $1) }
            .bind(onNext: {
-               let detentHeightRatio = UIScreen.isPhoneSE ? 0.835 : 0.85
-               let vc = PostCommentDIContainer( postId: $0.1.postId).makeViewController()
-               $0.0.presentCustomSheetViewController(viewController: vc, detentHeightRatio:  detentHeightRatio)
+               $0.presentPostCommentSheet(postId: $1.postId)
            })
            .disposed(by: disposeBag)
+    }
+    
+    private func presentPostCommentSheet(postId: String) {
+        let postCommentViewController = PostCommentDIContainer(
+            postId: postId
+        ).makeViewController()
+        
+        if #available(iOS 16.0, *) {
+            presentSheet(
+                postCommentViewController,
+                detentHeightRatio: [0.835],
+                allowLargeDetents: true
+            )
+        } else {
+            presentSheet(
+                postCommentViewController,
+                allowMediumDetents: true
+            )
+        }
     }
     
     private func presentCustomSheetViewController<T: UIViewController>(
@@ -165,22 +182,40 @@ extension ReactionViewController {
         detentHeightRatio: CGFloat = 0.0,
         useCustomDetent: Bool = true
     ) {
-        if let sheet = viewController.sheetPresentationController {
-            if #available(iOS 16.0, *), useCustomDetent {
-                let customId = UISheetPresentationController.Detent.Identifier("customId")
-                let customDetents = UISheetPresentationController.Detent.custom(identifier: customId) {
-                    return $0.maximumDetentValue * detentHeightRatio
-                }
-                sheet.detents = [customDetents]
-                sheet.prefersScrollingExpandsWhenScrolledToEdge = false
-            } else {
-                sheet.detents = [ .medium(), .large()]
-            }
-            sheet.prefersGrabberVisible = false
+        if #available(iOS 16.0, *), useCustomDetent {
+            presentSheet(
+                viewController,
+                detentHeightRatio: [detentHeightRatio]
+            )
+        } else {
+            presentSheet(
+                viewController,
+                allowMediumDetents: true
+            )
         }
-
-        self.present(viewController, animated: true)
     }
+    
+//    private func presentCustomSheetViewController<T: UIViewController>(
+//        viewController: T,
+//        detentHeightRatio: CGFloat = 0.0,
+//        useCustomDetent: Bool = true
+//    ) {
+//        if let sheet = viewController.sheetPresentationController {
+//            if #available(iOS 16.0, *), useCustomDetent {
+//                let customId = UISheetPresentationController.Detent.Identifier("customId")
+//                let customDetents = UISheetPresentationController.Detent.custom(identifier: customId) {
+//                    return $0.maximumDetentValue * detentHeightRatio
+//                }
+//                sheet.detents = [customDetents]
+//                sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+//            } else {
+//                sheet.detents = [ .medium(), .large()]
+//            }
+//            sheet.prefersGrabberVisible = false
+//        }
+//
+//        self.present(viewController, animated: true)
+//    }
     
     private func createDataSource() -> RxCollectionViewSectionedReloadDataSource<ReactionSection.Model> {
         return RxCollectionViewSectionedReloadDataSource<ReactionSection.Model>(

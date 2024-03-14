@@ -246,3 +246,70 @@ extension UIViewController {
         )
     }
 }
+
+extension UIViewController {
+    
+    public func presentSheet(
+        _ viewController: UIViewController,
+        allowMediumDetents: Bool
+    ) {
+        let detents: [UISheetPresentationController.Detent] = if allowMediumDetents {
+            [.medium(), .large()]
+        } else {
+            [.large()]
+        }
+        presentSheet(
+            viewController,
+            detents: detents
+        )
+    }
+    
+    public func presentSheet(
+        _ viewController: UIViewController,
+        detents: [UISheetPresentationController.Detent]?,
+        prefersScrollingExpandsWhenScrolledToEdge expands: Bool = false,
+        prefersGrabberVisible grabber: Bool = false
+    ) {
+        if let sheet = viewController.sheetPresentationController {
+            if let detents = detents {
+                sheet.detents = detents
+            }
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = expands
+            sheet.prefersGrabberVisible = grabber
+        }
+        
+        present(viewController, animated: true)
+    }
+    
+    @available(iOS 16.0, *)
+    public func presentSheet(
+        _ viewController: UIViewController,
+        detentHeightRatio ratios: [CGFloat],
+        allowLargeDetents: Bool = false,
+        prefersScrollingExpandsWhenScrolledToEdge expands: Bool = false,
+        prefersGrabberVisble grabber: Bool = false
+    ) {
+        var customHeightDetents: [UISheetPresentationController.Detent] = []
+        
+        ratios.forEach { ratio in
+            let identifier = UISheetPresentationController.Detent.Identifier("\(ratio).identifier")
+            let customDetent = UISheetPresentationController.Detent.custom(identifier: identifier) { context in
+                return context.maximumDetentValue * ratio
+            }
+            customHeightDetents.append(customDetent)
+        }
+        
+        let detents = if allowLargeDetents {
+            customHeightDetents + [.large()]
+        } else {
+            customHeightDetents
+        }
+        
+        presentSheet(
+            viewController,
+            detents: detents,
+            prefersScrollingExpandsWhenScrolledToEdge: expands,
+            prefersGrabberVisible: grabber
+        )
+    }
+}

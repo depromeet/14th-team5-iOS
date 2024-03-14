@@ -109,7 +109,18 @@ final class PostViewController: BaseViewController<PostReactor> {
             .filter { $0.openComment }
             .bind(with: self) { owner, deepLink in
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    owner.presentDeepLinkPostCommentViewController(deepLink.postId)
+                    let postList = reactor.initialState.originPostLists.items
+                    if let postList = postList.first(where: { item in
+                        switch item {
+                        case let .main(post):
+                            post.postId == deepLink.postId
+                        }
+                    }) {
+                        switch postList {
+                        case let .main(post):
+                            owner.presentPostCommentSheet(postId: post.postId)
+                        }
+                    }
                 }
             }
             .disposed(by: disposeBag)
@@ -220,6 +231,25 @@ extension PostViewController {
                 }
             })
     }
+    
+    private func presentPostCommentSheet(postId: String) {
+        let postCommentViewController = PostCommentDIContainer(
+            postId: postId
+        ).makeViewController()
+        
+        if #available(iOS 16.0, *) {
+            presentSheet(
+                postCommentViewController,
+                detentHeightRatio: [0.835],
+                allowLargeDetents: true
+            )
+        } else {
+            presentSheet(
+                postCommentViewController,
+                allowMediumDetents: true
+            )
+        }
+    }
 }
 
 extension PostViewController {
@@ -243,29 +273,6 @@ extension PostViewController {
             profileController,
             animated: true
         )
-    }
-    
-    private func presentDeepLinkPostCommentViewController(_ postId: String) {
-        guard let reactor = reactor else { return }
-        
-        let postList = reactor.initialState.originPostLists.items
-        if let postList = postList.first(where: { item in
-            switch item {
-            case let .main(post):
-                post.postId == postId
-            }
-        }) {
-            switch postList {
-            case let .main(post):
-                let postCommentViewController = PostCommentDIContainer(
-                    postId: post.postId
-                ).makeViewController()
-
-                present(postCommentViewController, animated: true)
-            }
-        }
-        
-        return
     }
 }
 

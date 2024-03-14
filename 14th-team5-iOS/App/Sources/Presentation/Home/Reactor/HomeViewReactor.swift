@@ -137,7 +137,7 @@ extension HomeViewReactor {
         case let .pushNotificationCommentDeepLink(deepLink):
             return Observable.concat(
                 self.viewWillAppear(), // 포스트 네트워크 통신을 완료 한 후,
-                Observable<Mutation>.just(.setNotificationPostDeepLink(deepLink)) // 다음 화면으로 이동하기
+                Observable<Mutation>.just(.setNotificationCommentDeepLink(deepLink)) // 다음 화면으로 이동하기
             )
         }
         

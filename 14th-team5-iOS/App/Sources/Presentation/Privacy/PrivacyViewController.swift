@@ -18,6 +18,7 @@ import Then
 
 public final class PrivacyViewController: BaseViewController<PrivacyViewReactor> {
     //MARK: Views
+    private let inquiryBannerView: UIButton = UIButton(type: .custom)
     private let privacyTableView: UITableView = UITableView(frame: .zero, style: .grouped)
     private let privacyIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     private let privacyTableViewDataSources: RxTableViewSectionedReloadDataSource<PrivacySectionModel> = .init { dataSoruces, tableView, indexPath, sectionItem in
@@ -43,11 +44,17 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(privacyTableView, privacyIndicatorView)
+        view.addSubviews(inquiryBannerView, privacyTableView, privacyIndicatorView)
     }
+
     
     public override func setupAttributes() {
         super.setupAttributes()
+    
+        inquiryBannerView.do {
+            $0.setImage(DesignSystemAsset.inquiryFill.image, for: .normal)
+            $0.imageView?.contentMode = .scaleAspectFit
+        }
         
         navigationBarView.do {
             $0.setNavigationView(leftItem: .arrowLeft, centerItem: .label("설정 및 개인정보"), rightItem: .empty)
@@ -72,10 +79,15 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         
-        privacyTableView.snp.makeConstraints {
+        inquiryBannerView.snp.makeConstraints {
             $0.top.equalTo(navigationBarView.snp.bottom).offset(24)
+            $0.left.right.equalToSuperview()
+            $0.height.equalTo(90)
+        }
+        
+        privacyTableView.snp.makeConstraints {
+            $0.top.equalTo(inquiryBannerView.snp.bottom).offset(25)
             $0.left.bottom.right.equalToSuperview()
-            
         }
         
         privacyIndicatorView.snp.makeConstraints {
@@ -123,6 +135,16 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
             .map { _ in Reactor.Action.didTapFamilyUserResign }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        
+        inquiryBannerView
+            .rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind { owner, _ in
+                let webContentViewController = WebContentDIContainer(webURL: URLTypes.inquiry.originURL).makeViewController()
+                owner.navigationController?.pushViewController(webContentViewController, animated: true)
+            }.disposed(by: disposeBag)
 
         privacyTableView.rx
             .itemSelected

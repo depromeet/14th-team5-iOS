@@ -119,9 +119,9 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         }
         
         profileView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide.snp.topMargin)
+            $0.top.equalTo(profileNavigationBar.snp.bottom)
             $0.left.right.equalToSuperview()
-            $0.height.equalTo(200)
+            $0.bottom.equalTo(profileLineView.snp.top)
         }
         
         
@@ -257,8 +257,8 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         
         Observable
             .combineLatest(
-                reactor.pulse(\.$profileData).distinctUntilChanged(),
-                reactor.pulse(\.$selectedIndexPath).distinctUntilChanged()
+                reactor.pulse(\.$profileData),
+                reactor.pulse(\.$selectedIndexPath)
             )
             .withUnretained(self)
             .filter { !$0.1.0.items.isEmpty }

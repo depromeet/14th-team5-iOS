@@ -111,8 +111,9 @@ public class BibbiProfileView: UIView {
     public func setupAutoLayout() {
         
         profileImageView.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(24)
             $0.width.height.equalTo(2 * cornerRadius)
-            $0.center.equalToSuperview()
+            $0.centerX.equalToSuperview()
         }
         
         profileDefaultLabel.snp.makeConstraints {
@@ -126,9 +127,10 @@ public class BibbiProfileView: UIView {
         }
         
         profileCreateLabel.snp.makeConstraints {
-            $0.top.equalTo(profileNickNameButton.snp.bottom).offset(4)
+            $0.top.equalTo(profileNickNameButton.snp.bottom).offset(12)
             $0.height.equalTo(17)
             $0.centerX.equalTo(profileNickNameButton)
+            $0.bottom.equalToSuperview().offset(-24)
         }
         
         circleButton.snp.makeConstraints {

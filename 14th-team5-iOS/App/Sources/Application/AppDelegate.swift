@@ -5,12 +5,12 @@
 //  Created by Kim dohyun on 11/15/23.
 //
 
-import UIKit
 import Core
-
-import Domain
 import Data
+import Domain
+import UIKit
 
+import AuthenticationServices
 import Firebase
 import FirebaseCore
 import FirebaseAnalytics
@@ -19,7 +19,6 @@ import KakaoSDKAuth
 import RxKakaoSDKAuth
 import RxKakaoSDKCommon
 import RxSwift
-import AuthenticationServices
 import Mixpanel
 
 @main
@@ -165,21 +164,19 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         let userInfo = response.notification.request.content.userInfo
-        guard let (postId, openComment, dateOfPost) = decodeRemoteNotificationResponse(userInfo) else {
+        guard let info = decodeRemoteNotificationResponse(userInfo) else {
             completionHandler()
             return
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            App.Repository.deepLink.notificationPostId.accept(postId)
-            App.Repository.deepLink.notificationOpenComment.accept(openComment)
-            App.Repository.deepLink.notificationDateOfPost.accept(dateOfPost)
+            App.Repository.deepLink.notification.accept(info)
         }
         
         completionHandler()
     }
     
-    func decodeRemoteNotificationResponse(_ userInfo: [AnyHashable: Any]) -> (String, Bool, Date)? {
+    func decodeRemoteNotificationResponse(_ userInfo: [AnyHashable: Any]) -> NotificationDeepLink? {
         if let link = userInfo[AnyHashable("iosDeepLink")] as? String {
             let components = link.components(separatedBy: "?")
             let parameters = components.last?.components(separatedBy: "&")
@@ -193,13 +190,18 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 
             // dateOfPost 구하기
             let secondPart = parameters?.last
-            let postOfDate = secondPart?.components(separatedBy: "=").last?.toDate(with: .dashYyyyMMdd) ?? Date()
+            let dateOfPost = secondPart?.components(separatedBy: "=").last?.toDate(with: .dashYyyyMMdd) ?? Date()
             
-            debugPrint("Push Notification Request UserInfo: \(postId), \(openComment), \(postOfDate)")
-            return (postId, openComment, postOfDate)
+            let deepLink = NotificationDeepLink(
+                postId: postId,
+                openComment: openComment,
+                dateOfPost: dateOfPost
+            )
+            debugPrint("Push Notification Request UserInfo: \(postId), \(openComment), \(dateOfPost)")
+            return deepLink
         }
         
-        print("Error: Push Notification Request UserInfo")
+        print("Error: Decoding Notification Request UserInfo")
         return nil
     }
 }

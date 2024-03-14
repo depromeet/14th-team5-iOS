@@ -32,6 +32,8 @@ final class PostReactor: Reactor {
         
         @Pulse var fetchedPost: PostData? = nil
         @Pulse var reactionMemberIds: [String] = []
+        
+        var notificationDeepLink: NotificationDeepLink?
     }
     
     let initialState: State
@@ -40,23 +42,16 @@ final class PostReactor: Reactor {
     let emojiRepository: EmojiUseCaseProtocol
     let provider: GlobalStateProviderProtocol
     
-    // 푸시 노티피케이션 딥링크 코드
-    let postId: String?
-    let openComment: Bool
     
     init(
         provider: GlobalStateProviderProtocol,
         realEmojiRepository: RealEmojiUseCaseProtocol,
         emojiRepository: EmojiUseCaseProtocol,
-        postId: String?,
-        openComment: Bool,
         initialState: State
     ) {
         self.provider = provider
         self.realEmojiRepository = realEmojiRepository
         self.emojiRepository = emojiRepository
-        self.postId = postId
-        self.openComment = openComment
         self.initialState = initialState
     }
 }

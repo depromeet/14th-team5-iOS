@@ -43,8 +43,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     // MARK: - Lifecycles
     public override func viewDidLoad() {
         super.viewDidLoad()
-        
-        deepLinkRepo.clearNotficiationUserInfo()
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -162,7 +160,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
                 guard let items = $1.first?.items else { return }
 
                 // 알림으로 화면에 진입하면
-                if let notificationInfo = reactor.currentState.notificationInfo {
+                if let notificationInfo = reactor.currentState.notificationDeepLink {
                     let postId = notificationInfo.postId
                     guard let index = items.firstIndex(where: { post in
                               post.postId == postId
@@ -254,13 +252,12 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .disposed(by: disposeBag)
         
         // 댓글 노티피케이션 딥링크 코드
-        reactor.state.compactMap { $0.notificationInfo }
+        reactor.state.compactMap { $0.notificationDeepLink }
             .distinctUntilChanged(at: \.postId)
-            .bind(with: self) { owner, info in
+            .filter { $0.openComment }
+            .bind(with: self) { owner, deepLink in
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    if info.openComment {
-                        owner.presentPostCommentSheet(postId: info.postId)
-                    }
+                    owner.presentPostCommentSheet(postId: deepLink.postId)
                 }
             }
             .disposed(by: disposeBag)

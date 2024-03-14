@@ -5,30 +5,24 @@
 //  Created by 김건우 on 12/16/23.
 //
 
-import UIKit
 
 import Core
 import Data
 import Domain
-
-public struct NotificationInfo {
-    let postId: String
-    let openComment: Bool
-    let dateOfPost: Date
-}
+import UIKit
 
 public final class CalendarPostDIConatainer {
     // MARK: - Properties
     let selectedDate: Date
-    let notificationInfo: NotificationInfo? // 댓글 푸시 알림 체크 변수
+    let notificationDeepLink: NotificationDeepLink? // 댓글 푸시 알림 체크 변수
     
     // MARK: - Intializer
     init(
         selectedDate selection: Date,
-        notificationInfo: NotificationInfo? = nil
+        notificationDeepLink: NotificationDeepLink? = nil
     ) {
         self.selectedDate = selection
-        self.notificationInfo = notificationInfo
+        self.notificationDeepLink = notificationDeepLink
     }
     
     private var globalState: GlobalStateProviderProtocol {
@@ -62,7 +56,7 @@ public final class CalendarPostDIConatainer {
     public func makeReactor() -> CalendarPostViewReactor {
         return CalendarPostViewReactor(
             selectedDate,
-            notificationInfo: notificationInfo,
+            notificationDeepLink: notificationDeepLink,
             calendarUseCase: makeCalendarUseCase(),
             postListUseCase: makePostListUseCase(),
             provider: globalState

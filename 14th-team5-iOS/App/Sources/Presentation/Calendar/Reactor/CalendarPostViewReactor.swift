@@ -42,7 +42,7 @@ public final class CalendarPostViewReactor: Reactor {
     // MARK: - State
     public struct State {
         var selectedDate: Date
-        var notificationInfo: NotificationInfo? // 댓글 푸시 알림 체크 변수
+        var notificationDeepLink: NotificationDeepLink? // 댓글 푸시 알림 체크 변수
         
         var blurImageUrlString: String?
         var visiblePostList: PostListData?
@@ -69,14 +69,14 @@ public final class CalendarPostViewReactor: Reactor {
     // MARK: - Intializer
     init(
         _ selection: Date,
-        notificationInfo: NotificationInfo?,
+        notificationDeepLink deepLink: NotificationDeepLink?,
         calendarUseCase: CalendarUseCaseProtocol,
         postListUseCase: PostListUseCaseProtocol,
         provider: GlobalStateProviderProtocol
     ) {
         self.initialState = State(
             selectedDate: selection,
-            notificationInfo: notificationInfo,
+            notificationDeepLink: deepLink,
             displayPostResponse: [],
             displayCalendarResponse: [:],
             shouldPresentAllUploadedToastMessageView: false,
@@ -217,7 +217,7 @@ public final class CalendarPostViewReactor: Reactor {
             newState.shouldPushProfileViewController = memberId
             
         case .clearPushNotificationInfo:
-            newState.notificationInfo = nil
+            newState.notificationDeepLink = nil
             
         case .generateSelectionHaptic:
             newState.shouldGenerateSelectionHaptic = true

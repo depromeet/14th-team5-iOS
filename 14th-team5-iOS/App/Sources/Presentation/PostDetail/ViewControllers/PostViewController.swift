@@ -33,9 +33,9 @@ final class PostViewController: BaseViewController<PostReactor> {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.navigationBar.isHidden = true
-        App.Repository.member.postId.accept(nil)
         
-        App.Repository.deepLink.clearNotficiationUserInfo()
+        App.Repository.member.postId.accept(nil)
+        App.Repository.deepLink.notification.accept(nil)
     }
     
     override func bind(reactor: PostReactor) {
@@ -104,12 +104,12 @@ final class PostViewController: BaseViewController<PostReactor> {
             .disposed(by: disposeBag)
         
         // 댓글 노티피케이션 딥링크 코드
-        Observable.just(reactor.postId)
-            .compactMap { $0 }
-            .filter { _ in reactor.openComment }
-            .bind(with: self) { owner, postId in
+        reactor.state.compactMap { $0.notificationDeepLink }
+            .distinctUntilChanged(at: \.postId)
+            .filter { $0.openComment }
+            .bind(with: self) { owner, deepLink in
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    owner.presentDeepLinkPostCommentViewController(postId)
+                    owner.presentDeepLinkPostCommentViewController(deepLink.postId)
                 }
             }
             .disposed(by: disposeBag)

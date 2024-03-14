@@ -27,14 +27,12 @@ final class PostListsDIContainer {
     func makeViewController(
         postLists: PostSection.Model,
         selectedIndex: IndexPath,
-        postId: String? = nil,
-        openComment: Bool = false
+        notificationDeepLink: NotificationDeepLink? = nil
     ) -> ViewContrller {
         return PostViewController(reactor: makeReactor(
             postLists: postLists,
             selectedIndex: selectedIndex.row,
-            postId: postId,
-            openComment: openComment)
+            notificationDeepLink: notificationDeepLink)
         )
     }
     
@@ -65,16 +63,17 @@ final class PostListsDIContainer {
     func makeReactor(
         postLists: PostSection.Model,
         selectedIndex: Int,
-        postId: String?,
-        openComment: Bool
+        notificationDeepLink: NotificationDeepLink?
     ) -> Reactor {
         return PostReactor(
             provider: globalState,
             realEmojiRepository: makeRealEmojiUseCase(),
             emojiRepository: makeEmojiUseCase(),
-            postId: postId,
-            openComment: openComment,
-            initialState: PostReactor.State(selectedIndex: selectedIndex, originPostLists: postLists)
+            initialState: PostReactor.State(
+                selectedIndex: selectedIndex,
+                originPostLists: postLists,
+                notificationDeepLink: notificationDeepLink
+            )
         )
     }
 }

@@ -2,7 +2,7 @@
 //  DeepLinkRepository.swift
 //  Core
 //
-//  Created by 김건우 on 3/11/24.
+//  Created by 김건우 on 3/13/24.
 //
 
 import Foundation
@@ -11,23 +11,13 @@ import RxSwift
 import RxCocoa
 
 public class DeepLinkRepository: RxObject {
-    public let notificationPostId = BehaviorRelay<String?>(value: nil)
-    public let notificationOpenComment = BehaviorRelay<Bool?>(value: nil)
-    public let notificationDateOfPost = BehaviorRelay<Date?>(value: nil)
+    public let notification = BehaviorRelay<NotificationDeepLink?>(value: nil)
+ 
+    public override func bind() { }
     
-    // public let widgetPostId = BehaviorSubject<String?>(value: nil)
-    
-    override public func bind() {}
-    
-    override public func unbind() {
+    public override func unbind() {
         super.unbind()
     }
 }
 
-extension DeepLinkRepository {
-    public func clearNotficiationUserInfo() {
-        notificationPostId.accept(nil)
-        notificationOpenComment.accept(nil)
-        notificationDateOfPost.accept(nil)
-    }
-}
+

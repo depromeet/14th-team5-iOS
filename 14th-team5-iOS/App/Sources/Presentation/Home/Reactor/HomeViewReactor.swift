@@ -21,8 +21,8 @@ final class HomeViewReactor: Reactor {
         case refresh
         case tapInviteFamily
         
-        case pushNotificationPostDeepLink(String)
-        case pushNotificationCommentDeepLink(String, Date)
+        case pushNotificationPostDeepLink(NotificationDeepLink)
+        case pushNotificationCommentDeepLink(NotificationDeepLink)
     }
     
     enum Mutation {
@@ -40,8 +40,8 @@ final class HomeViewReactor: Reactor {
         case setFetchFailureToastMessageView
         case setSharePanel(String)
         
-        case setNotificationPostDeepLink(String)
-        case setNotificationCommentDeepLink(String, Date)
+        case setNotificationPostDeepLink(NotificationDeepLink)
+        case setNotificationCommentDeepLink(NotificationDeepLink)
     }
     
     struct State {
@@ -60,8 +60,8 @@ final class HomeViewReactor: Reactor {
         var isShowingNoPostTodayView: Bool = false
         var isShowingInviteFamilyView: Bool = false
         
-        @Pulse var notificationDeepLinkPostId: String = .none
-        @Pulse var notificationDeepLinkCommentId: (String, Date) = (.none, .now)
+        @Pulse var notificationPostDeepLink: NotificationDeepLink?
+        @Pulse var notificationCommentDeepLink: NotificationDeepLink?
     }
     
     let initialState: State = State()
@@ -128,14 +128,17 @@ extension HomeViewReactor {
                            return .setSharePanel(invitationLink)
                        }
             
-        case let .pushNotificationPostDeepLink(postId):
+        case let .pushNotificationPostDeepLink(deepLink):
             return Observable.concat(
                 self.viewWillAppear(), // 포스트 네트워크 통신을 완료 한 후,
-                Observable<Mutation>.just(.setNotificationPostDeepLink(postId)) // 다음 화면으로 이동하기
+                Observable<Mutation>.just(.setNotificationPostDeepLink(deepLink)) // 다음 화면으로 이동하기
             )
             
-        case let .pushNotificationCommentDeepLink(postId, dateOfPost):
-            return Observable<Mutation>.just(.setNotificationCommentDeepLink(postId, dateOfPost))
+        case let .pushNotificationCommentDeepLink(deepLink):
+            return Observable.concat(
+                self.viewWillAppear(), // 포스트 네트워크 통신을 완료 한 후,
+                Observable<Mutation>.just(.setNotificationPostDeepLink(deepLink)) // 다음 화면으로 이동하기
+            )
         }
         
     }
@@ -169,10 +172,10 @@ extension HomeViewReactor {
         case let .setSharePanel(urlString):
             newState.familyInvitationLink = URL(string: urlString)
             
-        case let .setNotificationPostDeepLink(postId):
-            newState.notificationDeepLinkPostId = postId
-        case let .setNotificationCommentDeepLink(postId, dateOfPost):
-            newState.notificationDeepLinkCommentId = (postId, dateOfPost)
+        case let .setNotificationPostDeepLink(deepLink):
+            newState.notificationPostDeepLink = deepLink
+        case let .setNotificationCommentDeepLink(deepLink):
+            newState.notificationCommentDeepLink = deepLink
         }
         
         return newState

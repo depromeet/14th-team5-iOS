@@ -243,28 +243,23 @@ extension HomeViewController {
             .observe(on: MainScheduler.instance)
             .compactMap { $0 }
             .withUnretained(self)
-            .bind(onNext: { $0.0.pushDeepLinkPostViewController($0.1)})
+            .bind(onNext: { $0.0.handlePostWidgetDeepLink($0.1)})
             .disposed(by: disposeBag)
         
         // 푸시 노티피케이션 딥링크 코드
-        Observable.combineLatest(
-            deepLinkRepo.notificationPostId,
-            deepLinkRepo.notificationOpenComment,
-            deepLinkRepo.notificationDateOfPost
-        )
-        .filter { $0.0 != nil && $0.1 != nil && $0.2 != nil }
-        .map { ($0.0!, $0.1!, $0.2!) }
-        .flatMap {
-            // 댓글 푸시 알림이라면
-            if $0.1 {
-                return Observable.just(Reactor.Action.pushNotificationCommentDeepLink($0.0, $0.2))
-            // 포스트 푸시 알림이라면
-            } else {
-                return Observable.just(Reactor.Action.pushNotificationPostDeepLink($0.0))
+        App.Repository.deepLink.notification
+            .compactMap { $0 }
+            .flatMap {
+                // 댓글 푸시 알림이라면
+                if $0.openComment {
+                    return Observable.just(Reactor.Action.pushNotificationCommentDeepLink($0))
+                // 포스트 푸시 알림이라면
+                } else {
+                    return Observable.just(Reactor.Action.pushNotificationPostDeepLink($0))
+                }
             }
-        }
-        .bind(to: reactor.action)
-        .disposed(by: disposeBag)
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: HomeViewReactor) {
@@ -354,18 +349,20 @@ extension HomeViewController {
             .disposed(by: disposeBag)
         
         // 포스트 노티피케이션 딥링크 코드
-        reactor.pulse(\.$notificationDeepLinkPostId)
+        reactor.pulse(\.$notificationPostDeepLink)
+            .compactMap { $0 }
             .debug("========== 피드 알림으로 인한 화면 이동")
-            .bind(with: self) { owner, info in
-                owner.pushDeepLinkPostViewController(info)
+            .bind(with: self) { owner, deepLink in
+                owner.handlePostNotificationDeepLink(deepLink)
             }
             .disposed(by: disposeBag)
         
         // 댓글 노티피케이션 딥링크 코드
-        reactor.pulse(\.$notificationDeepLinkCommentId)
+        reactor.pulse(\.$notificationCommentDeepLink)
+            .compactMap { $0 }
             .debug("========== 댓글 알림으로 인한 화면 이동")
-            .bind(with: self) { owner, info in
-                owner.pushDeepLinkPostCommentViewController(info.0, dateOfPost: info.1)
+            .bind(with: self) { owner, deepLink in
+                owner.handleCommentNotificationDeepLink(deepLink)
             }
             .disposed(by: disposeBag)
     }
@@ -383,7 +380,7 @@ extension HomeViewController {
 }
 
 extension HomeViewController {
-    private func pushDeepLinkPostViewController(_ postId: String) {
+    private func handlePostWidgetDeepLink(_ postId: String) {
         guard let reactor = reactor else { return }
         reactor.currentState.postSection.items.enumerated().forEach { (index, item) in
             switch item {
@@ -394,28 +391,40 @@ extension HomeViewController {
                         PostListsDIContainer().makeViewController(
                             postLists: reactor.currentState.postSection,
                             selectedIndex: indexPath),
-                        animated: true
+                        animated: false
                     )
                 }
             }
         }
     }
     
-    private func pushDeepLinkPostCommentViewController(_ postId: String, dateOfPost: Date) {
+    private func handlePostNotificationDeepLink(_ deepLink: NotificationDeepLink) {
+        guard let reactor = reactor else { return }
+        reactor.currentState.postSection.items.enumerated().forEach { (index, item) in
+            switch item {
+            case .main(let postListData):
+                if postListData.postId == deepLink.postId {
+                    let indexPath = IndexPath(row: index, section: 0)
+                    self.navigationController?.pushViewController(
+                        PostListsDIContainer().makeViewController(
+                            postLists: reactor.currentState.postSection,
+                            selectedIndex: indexPath),
+                        animated: false
+                    )
+                }
+            }
+        }
+    }
+    
+    private func handleCommentNotificationDeepLink(_ deepLink: NotificationDeepLink) {
         guard let reactor = reactor else { return }
         
-        let notificationInfo = NotificationInfo(
-            postId: postId,
-            openComment: true,
-            dateOfPost: dateOfPost
-        )
-        
         // 오늘 올린 피드에 댓글이 달렸다면
-        if dateOfPost.isToday {
+        if deepLink.dateOfPost.isToday {
             guard let selectedIndex = reactor.currentState.postSection.items.firstIndex(where: { postList in
                 switch postList {
                 case let .main(post):
-                    post.postId == postId
+                    post.postId == deepLink.postId
                 }
             }) else { return }
             let indexPath = IndexPath(row: selectedIndex, section: 0)
@@ -423,8 +432,7 @@ extension HomeViewController {
             let postListViewController = PostListsDIContainer().makeViewController(
                 postLists: reactor.currentState.postSection,
                 selectedIndex: indexPath,
-                postId: postId,
-                openComment: true
+                notificationDeepLink: deepLink
             )
             
             navigationController?.pushViewController(
@@ -434,8 +442,8 @@ extension HomeViewController {
         // 이전에 올린 피드에 댓글이 달렸다면
         } else {
             let calendarPostViewController = CalendarPostDIConatainer(
-                selectedDate: dateOfPost,
-                notificationInfo: notificationInfo
+                selectedDate: deepLink.dateOfPost,
+                notificationDeepLink: deepLink
             ).makeViewController()
             
             navigationController?.pushViewController(

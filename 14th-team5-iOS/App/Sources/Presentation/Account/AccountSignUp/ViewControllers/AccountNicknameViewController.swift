@@ -18,7 +18,6 @@ import Then
 fileprivate typealias _Str = AccountSignUpStrings.Nickname
 public final class AccountNicknameViewController: BaseViewController<AccountSignUpReactor> {
     // MARK: SubViews
-    private let navigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let titleLabel = BibbiLabel(.head2Bold, textColor: .gray300)
     private let inputFielView = UITextField()
     private let errorLabel = BibbiLabel(.body1Regular, textColor: .warningRed)
@@ -37,6 +36,7 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
     }
     
     public override func bind(reactor: AccountSignUpReactor) {
+        super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
@@ -69,11 +69,6 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
             .map { Reactor.Action.didTapNickNameButton($0)}
             .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        navigationBar.rx.didTapLeftBarButton
-            .withUnretained(self)
-            .subscribe { $0.0.navigationController?.popViewController(animated: true) }
             .disposed(by: disposeBag)
     }
     
@@ -108,26 +103,19 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
             .filter { $0 == .account }
             .distinctUntilChanged()
             .withUnretained(self)
-            .bind(onNext: { $0.0.navigationBar.isHidden = true  })
+            .bind(onNext: { $0.0.navigationBarView.isHidden = true  })
             .disposed(by: disposeBag)
     }
     
     public override func setupUI() {
         super.setupUI()
         
-        view.addSubviews(navigationBar, titleLabel, inputFielView, errorStackView, descLabel, nextButton)
+        view.addSubviews(titleLabel, inputFielView, errorStackView, descLabel, nextButton)
         errorStackView.addArrangedSubviews(errorImage, errorLabel)
     }
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
-        
-        navigationBar.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(42)
-        }
-        
         titleLabel.snp.makeConstraints {
             $0.centerX.equalToSuperview().inset(20)
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(130)
@@ -156,9 +144,8 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
     }
     
     public override func setupAttributes() {
-        navigationBar.do {
-            $0.navigationTitle = "닉네임 변경"
-            $0.leftBarButtonItem = .arrowLeft
+        navigationBarView.do {
+            $0.setNavigationView(leftItem: .arrowLeft, centerItem: .label("닉네임 변경"), rightItem: .empty)
         }
         
         titleLabel.do {

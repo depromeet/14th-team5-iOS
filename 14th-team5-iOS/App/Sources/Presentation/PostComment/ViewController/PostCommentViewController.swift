@@ -18,7 +18,7 @@ import SnapKit
 fileprivate typealias _Str = PostCommentStrings
 final public class PostCommentViewController: BaseViewController<PostCommentViewReactor> {
     // MARK: - Views
-    private let navigationBarView: PostCommentTopBarView = PostCommentTopBarView()
+    private let commentNavigationBarView: PostCommentTopBarView = PostCommentTopBarView()
     
     private let noCommentLabel: NoCommentLabel = NoCommentLabel()
     private let commentTableView: UITableView = UITableView()
@@ -258,7 +258,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
     public override func setupUI() {
         super.setupUI()
         
-        view.addSubviews(navigationBarView, commentTableView, textFieldContainerView)
+        view.addSubviews(commentNavigationBarView, commentTableView, textFieldContainerView)
         commentTableView.addSubviews(bibbiLottieView, noCommentLabel, fetchFailureView)
         textFieldContainerView.addSubviews(commentTextField)
     }
@@ -266,20 +266,20 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         
-        navigationBarView.snp.makeConstraints {
+        commentNavigationBarView.snp.makeConstraints {
             $0.height.equalTo(60)
             $0.top.equalToSuperview()
             $0.horizontalEdges.equalToSuperview()
         }
         
         noCommentLabel.snp.makeConstraints {
-            $0.top.equalTo(navigationBarView.snp.bottom).offset(74)
+            $0.top.equalTo(commentNavigationBarView.snp.bottom).offset(74)
             $0.bottom.equalTo(textFieldContainerView.snp.top).offset(-5)
             $0.horizontalEdges.equalToSuperview()
         }
         
         commentTableView.snp.makeConstraints {
-            $0.top.equalTo(navigationBarView.snp.bottom)
+            $0.top.equalTo(commentNavigationBarView.snp.bottom)
             $0.horizontalEdges.equalToSuperview()
         }
         

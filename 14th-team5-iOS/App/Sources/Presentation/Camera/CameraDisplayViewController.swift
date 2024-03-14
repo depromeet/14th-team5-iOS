@@ -22,7 +22,6 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     private let displayView: UIImageView = UIImageView()
     private let confirmButton: UIButton = UIButton(configuration: .plain())
     private let displayIndicatorView: BibbiLoadingView = BibbiLoadingView()
-    private let displayNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let backButton: UIButton = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 52, height: 52)))
     private let titleView: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
     private let displayEditButton: UIButton = UIButton()
@@ -53,7 +52,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(displayView, confirmButton, archiveButton, displayEditTextField, displayEditCollectionView, displayIndicatorView ,displayNavigationBar)
+        view.addSubviews(displayView, confirmButton, archiveButton, displayEditTextField, displayEditCollectionView, displayIndicatorView)
         displayView.addSubviews(displayEditButton)
     }
     
@@ -65,10 +64,8 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             $0.minimumInteritemSpacing = 4
         }
         
-        displayNavigationBar.do {
-            $0.navigationTitle = "사진 올리기"
-            $0.leftBarButtonItem = .arrowLeft
-            $0.leftBarButtonItemTintColor = .gray300
+        navigationBarView.do {
+            $0.setNavigationView(leftItem: .arrowLeft, centerItem: .label("사진 올리기"), rightItem: .empty)
         }
         
         archiveButton.do {
@@ -146,12 +143,6 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         
-        displayNavigationBar.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.left.right.equalToSuperview()
-            $0.height.equalTo(42)
-        }
-        
         displayEditTextField.snp.makeConstraints {
             $0.height.equalTo(0)
             $0.left.right.equalToSuperview()
@@ -198,6 +189,8 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     
     
     public override func bind(reactor: CameraDisplayViewReactor) {
+        super.bind(reactor: reactor)
+        
         archiveButton
             .rx.tap
             .throttle(.seconds(1), scheduler: MainScheduler.instance)
@@ -211,15 +204,9 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .subscribe { owner, _ in
                 MPEvent.Camera.photoText.track(with: nil)
                 owner.displayEditTextField.becomeFirstResponder()
-            }.disposed(by: disposeBag)
-        
-        
-        displayNavigationBar.rx.didTapLeftBarButton
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind { owner, _ in
-                owner.navigationController?.popViewController(animated: true)
-            }.disposed(by: disposeBag)
+            }
+            .disposed(by: disposeBag)
+  
         
         displayEditTextField
             .rx.text.changed

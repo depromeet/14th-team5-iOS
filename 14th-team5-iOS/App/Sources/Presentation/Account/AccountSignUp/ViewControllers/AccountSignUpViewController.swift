@@ -11,8 +11,6 @@ import DesignSystem
 
 fileprivate typealias _Str = AccountSignUpStrings
 public final class AccountSignUpViewController: BasePageViewController<AccountSignUpReactor> {
-    
-    private let navigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let nextButton = UIButton()
     
     private var pages = [UIViewController]()
@@ -22,22 +20,16 @@ public final class AccountSignUpViewController: BasePageViewController<AccountSi
         super.viewDidLoad()
         
         dataSource = self
+        navigationBarView.isHidden = true
         setViewControllers([pages[initalPage]], direction: .forward, animated: true)
         isPagingEnabled = false
-        navigationBar.isHidden = true
-    }
-    
-    public override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        navigationController?.navigationBar.isHidden = true
     }
     
     public override func bind(reactor: AccountSignUpReactor) {
-        navigationBar.rx
-            .didTapLeftBarButton
+        super.bind(reactor: reactor)
+        
+        navigationBarView.rx.leftButtonTap
             .observe(on: Schedulers.main)
-            .throttle(.milliseconds(300), scheduler: Schedulers.main)
             .withUnretained(self)
             .bind { $0.0.goToPrevPage() }
             .disposed(by: disposeBag)
@@ -65,27 +57,18 @@ public final class AccountSignUpViewController: BasePageViewController<AccountSi
         pages.append(nicknamePage)
         pages.append(datePage)
         pages.append(profilePage)
-        
-        view.addSubviews(navigationBar)
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
         
-        navigationBar.do {
-            $0.leftBarButtonItem = .arrowLeft
-            $0.leftBarButtonItemTintColor = .gray300
+        navigationBarView.do {
+            $0.setNavigationView(leftItem: .arrowLeft, rightItem: .empty)
         }
     }
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
-        
-        navigationBar.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.left.right.equalToSuperview()
-            $0.height.equalTo(42)
-        }
     }
 }
 
@@ -116,9 +99,9 @@ extension AccountSignUpViewController: UIPageViewControllerDataSource {
         guard let currentIndex = pages.firstIndex(of: viewController) else { return nil }
 
         if currentIndex == 1 {
-            navigationBar.isHidden = true
+            navigationBarView.isHidden = true
         } else {
-            navigationBar.isHidden = false
+            navigationBarView.isHidden = false
         }
         
         guard currentIndex > 0 else { return nil }
@@ -128,7 +111,7 @@ extension AccountSignUpViewController: UIPageViewControllerDataSource {
     public func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         guard let currentIndex = pages.firstIndex(of: viewController) else { return nil }
         
-        navigationBar.isHidden = false
+        navigationBarView.isHidden = false
         
         guard currentIndex < pages.count - 1 else { return nil }
         return pages[currentIndex + 1]

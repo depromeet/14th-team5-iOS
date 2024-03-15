@@ -158,7 +158,10 @@ extension HomeViewController {
         self.rx.viewWillAppear
             .withUnretained(self)
             // 별도 딥링크를 받지 않으면
-            .filter { $0.0.deepLinkRepo.notification.value == nil }
+            .filter {
+                let repo = $0.0.deepLinkRepo
+                return repo.notification.value == nil && repo.widget.value == nil
+            }
             // viewWillAppear 메서드 수행하기
             .map { _ in Reactor.Action.viewWillAppear }
             .bind(to: reactor.action)
@@ -223,11 +226,10 @@ extension HomeViewController {
             .disposed(by: disposeBag)
         
         // 위젯 딥링크 코드
-        App.Repository.member.postId
-            .observe(on: MainScheduler.instance)
+        App.Repository.deepLink.widget
             .compactMap { $0 }
-            .withUnretained(self)
-            .bind(onNext: { $0.0.handlePostWidgetDeepLink($0.1)})
+            .map { Reactor.Action.pushWidgetPostDeepLink($0) }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         // 푸시 노티피케이션 딥링크 코드
@@ -344,6 +346,14 @@ extension HomeViewController {
             }
             .disposed(by: disposeBag)
         
+        // 위젯 딥링크 코드
+        reactor.pulse(\.$widgetPostDeepLink)
+            .compactMap { $0 }
+            .bind(with: self) { owner, deepLink in
+                owner.handlePostWidgetDeepLink(deepLink)
+            }
+            .disposed(by: disposeBag)
+        
         // 포스트 노티피케이션 딥링크 코드
         reactor.pulse(\.$notificationPostDeepLink)
             .compactMap { $0 }
@@ -370,12 +380,12 @@ extension HomeViewController {
 }
 
 extension HomeViewController {
-    private func handlePostWidgetDeepLink(_ postId: String) {
+    private func handlePostWidgetDeepLink(_ deepLink: WidgetDeepLink) {
         guard let reactor = reactor else { return }
         reactor.currentState.postSection.items.enumerated().forEach { (index, item) in
             switch item {
             case .main(let postListData):
-                if postListData.postId == postId {
+                if postListData.postId == deepLink.postId {
                     let indexPath = IndexPath(row: index, section: 0)
                     self.navigationController?.pushViewController(
                         PostListsDIContainer().makeViewController(
@@ -392,8 +402,8 @@ extension HomeViewController {
         guard let reactor = reactor else { return }
         reactor.currentState.postSection.items.enumerated().forEach { (index, item) in
             switch item {
-            case .main(let postListData):
-                if postListData.postId == deepLink.postId {
+            case .main(let post):
+                if post.postId == deepLink.postId {
                     let indexPath = IndexPath(row: index, section: 0)
                     self.navigationController?.pushViewController(
                         PostListsDIContainer().makeViewController(

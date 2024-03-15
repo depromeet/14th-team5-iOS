@@ -39,7 +39,7 @@ final class PostViewController: BaseViewController<PostReactor> {
         super.viewWillDisappear(animated)
         // HomeViewController는 notification이 nil일 때만
         // ViewWillAppear시 가족과 피드를 불러오므로, nil 항목 전달이 필수임
-        App.Repository.member.postId.accept(nil)
+        App.Repository.deepLink.widget.accept(nil)
         App.Repository.deepLink.notification.accept(nil)
     }
     

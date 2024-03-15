@@ -164,19 +164,19 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         let userInfo = response.notification.request.content.userInfo
-        guard let info = decodeRemoteNotificationResponse(userInfo) else {
+        guard let deepLink = decodeRemoteNotificationDeepLink(userInfo) else {
             completionHandler()
             return
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            App.Repository.deepLink.notification.accept(info)
+            App.Repository.deepLink.notification.accept(deepLink)
         }
         
         completionHandler()
     }
     
-    func decodeRemoteNotificationResponse(_ userInfo: [AnyHashable: Any]) -> NotificationDeepLink? {
+    func decodeRemoteNotificationDeepLink(_ userInfo: [AnyHashable: Any]) -> NotificationDeepLink? {
         if let link = userInfo[AnyHashable("iosDeepLink")] as? String {
             let components = link.components(separatedBy: "?")
             let parameters = components.last?.components(separatedBy: "&")

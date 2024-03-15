@@ -22,6 +22,7 @@ final class HomeViewReactor: Reactor {
         case tapInviteFamily
         case tapCameraButton
         
+        case pushWidgetPostDeepLink(WidgetDeepLink)
         case pushNotificationPostDeepLink(NotificationDeepLink)
         case pushNotificationCommentDeepLink(NotificationDeepLink)
     }
@@ -42,6 +43,7 @@ final class HomeViewReactor: Reactor {
         case setFetchFailureToastMessageView
         case setSharePanel(String)
         
+        case setWidgetPostDeepLink(WidgetDeepLink)
         case setNotificationPostDeepLink(NotificationDeepLink)
         case setNotificationCommentDeepLink(NotificationDeepLink)
     }
@@ -63,6 +65,7 @@ final class HomeViewReactor: Reactor {
         var isShowingInviteFamilyView: Bool = false
         @Pulse var isShowingCameraView: Bool = false
         
+        @Pulse var widgetPostDeepLink: WidgetDeepLink?
         @Pulse var notificationPostDeepLink: NotificationDeepLink?
         @Pulse var notificationCommentDeepLink: NotificationDeepLink?
     }
@@ -132,6 +135,12 @@ extension HomeViewReactor {
         case .tapCameraButton:
             return Observable.just(.showCameraView(self.currentState.isInTime))
             
+        case let .pushWidgetPostDeepLink(deepLink):
+            return Observable.concat(
+                self.viewWillAppear(), // 포스트 네트워크 통신을 완료 한 후,
+                Observable<Mutation>.just(.setWidgetPostDeepLink(deepLink)) // 다음 화면으로 이동하기
+            )
+            
         case let .pushNotificationPostDeepLink(deepLink):
             return Observable.concat(
                 self.viewWillAppear(), // 포스트 네트워크 통신을 완료 한 후,
@@ -178,6 +187,8 @@ extension HomeViewReactor {
         case let .showCameraView(isShow):
             newState.isShowingCameraView = isShow
             
+        case let.setWidgetPostDeepLink(deepLink):
+            newState.widgetPostDeepLink = deepLink
         case let .setNotificationPostDeepLink(deepLink):
             newState.notificationPostDeepLink = deepLink
         case let .setNotificationCommentDeepLink(deepLink):

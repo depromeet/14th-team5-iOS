@@ -1,0 +1,21 @@
+app_identifier "com.5ing.bibbi" # appfile에 3가지의 bundle id가 존재하므로 release용 bundle id를 따로 입력해야 가능
+
+price_tier(0)
+
+
+submission_information({
+    export_compliance_encryption_updated: false,
+    export_compliance_uses_encryption: false,
+    content_rights_contains_third_party_content: false,
+    add_id_info_uses_idfa: false
+})
+
+app_rating_config_path("./fastlane/metadata/app_store_rating_config.json")
+
+ipa("./fastlane/distribute/MemoryCam.ipa")
+
+submit_for_review(true)
+
+automatic_release(false)
+
+force(true)

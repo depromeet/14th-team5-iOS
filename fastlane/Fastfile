@@ -22,9 +22,9 @@ DEV_SCHEME = ENV["DEV_SCHEME"]
 BUNDLE_ID = ENV["BUNDLE_ID"]
 WIDGET_BUNDLE_ID = ENV["WIDGET_BUNDLE_ID"]
 
-APP_STORE_CONNECT_KEY_ID = ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"]
-APP_STORE_CONNECT_ISSUER_ID = ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"]
-APP_STORE_CONNECT_API_KEY = ENV["APP_STORE_CONNECT_API_KEY_KEY"]
+APP_STORE_CONNECT_API_KEY_KEY_ID = ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"]
+APP_STORE_CONNECT_API_KEY_ISSUER_ID = ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"]
+APP_STORE_CONNECT_API_KEY_KEY = ENV["APP_STORE_CONNECT_API_KEY_KEY"]
 
 KEYCHAIN_NAME = ENV["KEYCHAIN_NAME"]
 KEYCHAIN_PASSWORD = ENV["KEYCHAIN_PASSWORD"]
@@ -32,6 +32,7 @@ P12_PASSWORD =ENV["P12_PASSWORD"]
 
 PROJECT_PATH = ENV["PROJECT_PATH"]
 SLACK_HOOK_URL = ENV["SLACK_HOOK_URL"]
+
 
 
 default_platform(:ios)
@@ -66,6 +67,53 @@ platform :ios do
     install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.PRD.mobileprovision")
     install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.STG.mobileprovision")
   end
+
+  lane : github_action_upload_testflight do |options|
+    create_keychain(
+      name: "#{KEYCHAIN_NAME}",
+      password: "#{KEYCHAIN_PASSWORD}",
+      default_keychain: true,
+      unlock: true,
+      timeout: 3600,
+      lock_when_sleeps: true
+    )
+
+    app_store_connect_api_key(
+      key_id: "#{APP_STORE_CONNECT_API_KEY_KEY_ID}",
+      issuer_id: "#{APP_STORE_CONNECT_API_KEY_ISSUER_ID}",
+      key_content: "#{APP_STORE_CONNECT_API_KEY_KEY}",
+      is_key_content_base64: true,
+      in_house: false
+    )
+
+
+    match(
+      storage_mode: "git",
+      type: "appstore",
+      readonly: true,
+      keychain_name: ENV["KEYCHAIN_NAME"],
+      keychain_password: ENV["KEYCHAIN_PASSWORD"]
+    )
+
+    increment_build_number(
+      xcodeproj: "#{PROJECT_PATH}",
+      build_number: new_build_number
+    )
+
+    gym(
+      workspace: "#{APP_NAME}.xcworkspace",
+      scheme: "#{PRD_SCHEME}",
+      configuration: "Release",
+      export_options: {
+        method: "app-store",
+        signingStyle: "manual"
+      }
+    )
+
+    deliver
+
+  end
+
 
 
 

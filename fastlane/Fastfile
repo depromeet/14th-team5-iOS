@@ -32,7 +32,7 @@ P12_PASSWORD =ENV["P12_PASSWORD"]
 
 PROJECT_PATH = ENV["PROJECT_PATH"]
 SLACK_HOOK_URL = ENV["SLACK_HOOK_URL"]
-
+TEAM_ID = ENV["TEAM_ID"]
 
 
 default_platform(:ios)
@@ -91,6 +91,7 @@ platform :ios do
       storage_mode: "git",
       type: "appstore",
       readonly: true,
+      git_basic_authorization: ENV["MATCH_PERSONAL_TOKEN"],
       keychain_name: ENV["KEYCHAIN_NAME"],
       keychain_password: ENV["KEYCHAIN_PASSWORD"]
     )
@@ -98,6 +99,17 @@ platform :ios do
     increment_build_number(
       xcodeproj: "#{PROJECT_PATH}",
       build_number: new_build_number
+    )
+
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "#{PROJECT_PATH}"
+    )
+
+    update_project_team(
+      path: "#{PROJECT_PATH}",
+      teamid: "#{TEAM_ID}"
+
     )
 
     gym(

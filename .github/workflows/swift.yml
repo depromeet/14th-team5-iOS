@@ -61,9 +61,11 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
           PROJECT_PATH: ${{ secrets.PROJECT_PATH }}
+          MATCH_PERSONAL_TOKEN: ${{ secrets.MATCH_PERSONAL_TOKEN}}
           PRD_SCHEME: ${{secrets.PRD_SCHEME}}
           SLACK_HOOK_URL: ${{ secrets.SLACK_HOOK_URL }}
           APP_NAME: ${{secrets.APP_NAME}}
+          TEAM_ID: ${{secrets.TEAM_ID}}
           WIDGET_NAME: ${{secrets.WIDGET_NAME}}
         run: fastlane github_action_upload_testflight
 

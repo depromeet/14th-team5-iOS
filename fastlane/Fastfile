@@ -107,13 +107,12 @@ platform :ios do
 
     update_code_signing_settings(
       use_automatic_signing: false,
-      path: "#{PROJECT_PATH}"
+      path: "14th-team5-iOS/App/App.xcodeproj"
     )
 
     update_project_team(
-      path: "#{PROJECT_PATH}",
+      path: "14th-team5-iOS/App/App.xcodeproj",
       teamid: "#{TEAM_ID}"
-
     )
 
     gym(

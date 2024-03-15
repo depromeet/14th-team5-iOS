@@ -4,8 +4,8 @@ storage_mode("git")
 
 type("appstore") # The default type, can be: appstore, adhoc, enterprise or development
 
-app_identifier(ENV["BUNDLE_ID"])
-username(ENV["APPLE_ID"])
+app_identifier("com.5ing.bibbi")
+username("55ing.team@gmail.com")
 
 # app_identifier(["tools.fastlane.app", "tools.fastlane.app2"])
 # username("user@fastlane.tools") # Your Apple Developer Portal username

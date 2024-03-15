@@ -66,6 +66,7 @@ jobs:
           PRD_SCHEME: ${{secrets.PRD_SCHEME}}
           SLACK_HOOK_URL: ${{ secrets.SLACK_HOOK_URL }}
           APP_NAME: ${{secrets.APP_NAME}}
+          APPLE_ID: ${{secrets.APPLE_ID}}
           TEAM_ID: ${{secrets.TEAM_ID}}
           WIDGET_NAME: ${{secrets.WIDGET_NAME}}
         run: fastlane github_action_upload_testflight

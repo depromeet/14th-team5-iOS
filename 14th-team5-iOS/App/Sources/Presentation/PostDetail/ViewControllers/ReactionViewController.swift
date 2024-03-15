@@ -23,8 +23,6 @@ final class ReactionViewController: BaseViewController<ReactionViewReactor>, UIC
     private let reactionCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     let longPressGesture = UILongPressGestureRecognizer(target: nil, action: nil)
     
-    let detentHeightRatio = UIScreen.isPhoneSE ? 0.835 : 0.85
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -160,25 +158,6 @@ extension ReactionViewController {
                 $0.presentPostCommentSheet(postCommentViewController)
             })
             .disposed(by: disposeBag)
-    }
-    
-    private func presentPostCommentSheet(postId: String) {
-        let postCommentViewController = PostCommentDIContainer(
-            postId: postId
-        ).makeViewController()
-        
-        if #available(iOS 16.0, *) {
-            presentSheet(
-                postCommentViewController,
-                detentHeightRatio: [0.835],
-                allowLargeDetent: true
-            )
-        } else {
-            presentSheet(
-                postCommentViewController,
-                allowMediumDetent: true
-            )
-        }
     }
     
     private func presentCustomSheetViewController<T: UIViewController>(

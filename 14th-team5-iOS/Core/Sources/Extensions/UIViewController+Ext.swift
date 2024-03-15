@@ -319,7 +319,7 @@ extension UIViewController {
     public func presentPostCommentSheet(
         _ postCommentViewController: UIViewController
     ) {
-        let ratio = UIScreen.isPhoneSE ? 0.8 : 0.835
+        let ratio = UIScreen.isPhoneSE ? 0.835 : 0.85
         
         if #available(iOS 16.0, *) {
             presentSheet(

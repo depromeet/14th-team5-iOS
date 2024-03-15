@@ -440,25 +440,6 @@ extension CalendarPostViewController {
         view.layoutIfNeeded()
     }
     
-    private func presentPostCommentSheet(postId: String) {
-        let postCommentViewController = PostCommentDIContainer(
-            postId: postId
-        ).makeViewController()
-        
-        if #available(iOS 16.0, *) {
-            presentSheet(
-                postCommentViewController,
-                detentHeightRatio: [0.835],
-                allowLargeDetent: true
-            )
-        } else {
-            presentSheet(
-                postCommentViewController,
-                allowMediumDetent: true
-            )
-        }
-    }
-    
     private func pushCameraViewController(cameraType type: UploadLocation) {
         let cameraViewController = CameraDIContainer(
             cameraType: type

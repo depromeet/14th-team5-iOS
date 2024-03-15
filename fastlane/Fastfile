@@ -98,7 +98,10 @@ platform :ios do
     )
 
     new_build_number = latest_testflight_build_number(
-      app_identifier: "#{BUNDLE_ID}"
+      api_key: "#{APP_STORE_CONNECT_API_KEY_KEY}",
+      app_identifier: "#{BUNDLE_ID}",
+      username "#{APPLE_ID}",
+      team_id: "#{TEAM_ID}"
     ) + 1
 
     increment_build_number(

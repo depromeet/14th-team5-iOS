@@ -53,6 +53,9 @@ jobs:
       - name: Tuist Fetch Command
         run: tuist fetch
 
+      - name: Tuist Generate Commnad
+        run: tuist generate
+
       - name: fastlane upload_testflight
         env:
           KEYCHAIN_NAME: ${{secrets.KEYCHAIN_NAME}}

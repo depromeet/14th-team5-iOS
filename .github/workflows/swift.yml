@@ -76,9 +76,6 @@ jobs:
           WIDGET_NAME: ${{secrets.WIDGET_NAME}}
         run: fastlane github_action_upload_testflight
 
-      - name: Tuist generate Command      
-        run: tuist generate
-
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1.2.1
         env:

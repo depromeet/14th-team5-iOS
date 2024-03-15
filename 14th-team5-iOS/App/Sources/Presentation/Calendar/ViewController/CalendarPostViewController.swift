@@ -168,9 +168,9 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
                               post.postId == postId
                           }) else { return }
                     indexPath = IndexPath(item: index, section: 0)
-                // 일반 루트로 화면에 진입하면
-                } else { }
+                }
                 
+                // 일반 루트로 화면에 진입하면
                 $0.postCollectionView.scrollToItem(
                     at: indexPath,
                     at: .centeredHorizontally,

@@ -19,7 +19,6 @@ import Then
 public final class PrivacyViewController: BaseViewController<PrivacyViewReactor> {
     //MARK: Views
     private let privacyTableView: UITableView = UITableView(frame: .zero, style: .grouped)
-    private let privacyNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let privacyIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     private let privacyTableViewDataSources: RxTableViewSectionedReloadDataSource<PrivacySectionModel> = .init { dataSoruces, tableView, indexPath, sectionItem in
         switch sectionItem {
@@ -41,26 +40,18 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
         super.viewDidLoad()
     }
     
-    public override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.navigationBar.isHidden = true
-    }
-    
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(privacyTableView, privacyIndicatorView, privacyNavigationBar)
+        view.addSubviews(privacyTableView, privacyIndicatorView)
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
         
-        privacyNavigationBar.do {
-            $0.navigationTitle = "설정 및 개인정보"
-            $0.leftBarButtonItem = .arrowLeft
-            $0.leftBarButtonItemTintColor = .gray300
+        navigationBarView.do {
+            $0.setNavigationView(leftItem: .arrowLeft, centerItem: .label("설정 및 개인정보"), rightItem: .empty)
         }
-        
         
         privacyTableView.do {
             $0.backgroundColor = DesignSystemAsset.black.color
@@ -80,14 +71,9 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
-        privacyNavigationBar.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.left.right.equalToSuperview()
-            $0.height.equalTo(42)
-        }
         
         privacyTableView.snp.makeConstraints {
-            $0.top.equalTo(privacyNavigationBar.snp.bottom).offset(24)
+            $0.top.equalTo(navigationBarView.snp.bottom).offset(24)
             $0.left.bottom.right.equalToSuperview()
             
         }
@@ -99,6 +85,8 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
     
     
     public override func bind(reactor: PrivacyViewReactor) {
+        super.bind(reactor: reactor)
+        
         privacyTableView.rx
             .setDelegate(self)
             .disposed(by: disposeBag)
@@ -135,16 +123,7 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
             .map { _ in Reactor.Action.didTapFamilyUserResign }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
-        
-        privacyNavigationBar.rx
-            .didTapLeftBarButton
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind { owner, _ in
-                owner.navigationController?.popViewController(animated: true)
-            }.disposed(by: disposeBag)
-        
+
         privacyTableView.rx
             .itemSelected
             .withUnretained(self)

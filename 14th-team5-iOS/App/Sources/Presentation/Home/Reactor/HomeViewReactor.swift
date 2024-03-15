@@ -20,6 +20,7 @@ final class HomeViewReactor: Reactor {
         case viewWillAppear
         case refresh
         case tapInviteFamily
+        case tapCameraButton
         
         case pushNotificationPostDeepLink(NotificationDeepLink)
         case pushNotificationCommentDeepLink(NotificationDeepLink)
@@ -31,6 +32,7 @@ final class HomeViewReactor: Reactor {
         case setInviteFamilyView(Bool)
         case setNoPostTodayView(Bool)
         case setInTime(Bool)
+        case showCameraView(Bool)
         
         case updateFamilyDataSource([FamilySection.Item])
         case updatePostDataSource([PostSection.Item])
@@ -45,7 +47,7 @@ final class HomeViewReactor: Reactor {
     }
     
     struct State {
-        var isInTime: Bool = false
+        var isInTime: Bool
         @Pulse var isSelfUploaded: Bool = true
         @Pulse var isRefreshEnd: Bool = true
         var isAllFamilyMembersUploaded: Bool = false
@@ -59,17 +61,19 @@ final class HomeViewReactor: Reactor {
         
         var isShowingNoPostTodayView: Bool = false
         var isShowingInviteFamilyView: Bool = false
+        @Pulse var isShowingCameraView: Bool = false
         
         @Pulse var notificationPostDeepLink: NotificationDeepLink?
         @Pulse var notificationCommentDeepLink: NotificationDeepLink?
     }
     
-    let initialState: State = State()
+    let initialState: State
     let provider: GlobalStateProviderProtocol
     private let familyUseCase: FamilyUseCaseProtocol
     private let postUseCase: PostListUseCaseProtocol
     
     init(provider: GlobalStateProviderProtocol, familyUseCase: FamilyUseCaseProtocol, postUseCase: PostListUseCaseProtocol) {
+        self.initialState = State(isInTime: HomeViewReactor.calculateRemainingTime().0)
         self.provider = provider
         self.familyUseCase = familyUseCase
         self.postUseCase = postUseCase
@@ -96,16 +100,15 @@ extension HomeViewReactor {
         case .viewWillAppear:
             return self.viewWillAppear()
         case .viewDidLoad:
-            let (isInTime, time) = self.calculateRemainingTime()
+            let (_, time) = HomeViewReactor.calculateRemainingTime()
             
-            if isInTime {
+            if self.currentState.isInTime {
                 return Observable<Int>
                     .timer(.seconds(time), scheduler: MainScheduler.instance)
                     .flatMap {_ in
                         return Observable.concat([Observable.just(Mutation.setInTime(false)),
                                                   Observable.just(Mutation.setSelfUploaded(true))])
                     }
-                    .startWith(.setInTime(isInTime))
             } else {
                 return Observable<Int>
                     .timer(.seconds(time), scheduler: MainScheduler.instance)
@@ -113,7 +116,6 @@ extension HomeViewReactor {
                         return Observable.concat([Observable.just(Mutation.setInTime(true)),
                                                   Observable.just(Mutation.setSelfUploaded(false))])
                     }
-                    .startWith(.setInTime(isInTime))
                                         
             }
         case .refresh:
@@ -127,6 +129,8 @@ extension HomeViewReactor {
                            }
                            return .setSharePanel(invitationLink)
                        }
+        case .tapCameraButton:
+            return Observable.just(.showCameraView(self.currentState.isInTime))
             
         case let .pushNotificationPostDeepLink(deepLink):
             return Observable.concat(
@@ -171,6 +175,8 @@ extension HomeViewReactor {
             newState.shouldPresentFetchFailureToastMessageView = true
         case let .setSharePanel(urlString):
             newState.familyInvitationLink = URL(string: urlString)
+        case let .showCameraView(isShow):
+            newState.isShowingCameraView = isShow
             
         case let .setNotificationPostDeepLink(deepLink):
             newState.notificationPostDeepLink = deepLink
@@ -280,7 +286,7 @@ extension HomeViewReactor {
         return familyUseCase.executeFetchPaginationFamilyMembers(query: query)
     }
     
-    private func calculateRemainingTime() -> (Bool, Int) {
+    private static func calculateRemainingTime() -> (Bool, Int) {
         let calendar = Calendar.current
         let currentTime = Date()
         

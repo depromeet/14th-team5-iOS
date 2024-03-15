@@ -18,7 +18,6 @@ import Then
 import Domain
 
 final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectionViewDelegateFlowLayout {
-    private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
     private let timerView: TimerView = TimerView()
     private let familyCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let postCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
@@ -40,13 +39,8 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
         UserDefaults.standard.inviteCode = nil
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        print(">>>>>> \(deepLinkRepo.notification.value)")
-        navigationController?.navigationBar.isHidden = true
-    }
-    
     override func bind(reactor: HomeViewReactor) {
+        super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
@@ -54,18 +48,13 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
     override func setupUI() {
         super.setupUI()
         
-        view.addSubviews(navigationBarView, familyCollectionView, timerView,
+        view.addSubviews(familyCollectionView, timerView,
                          noPostView, postCollectionView, inviteFamilyView,
                          balloonView, cameraButton)
     }
     
     override func setupAutoLayout() {
         super.setupAutoLayout()
-        
-        navigationBarView.snp.makeConstraints {
-            $0.top.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
-            $0.height.equalTo(40)
-        }
         
         familyCollectionView.snp.makeConstraints {
             $0.height.equalTo(138)
@@ -88,7 +77,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
         postCollectionView.snp.makeConstraints {
             $0.top.equalTo(timerView.snp.bottom)
             $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
-            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+            $0.bottom.equalToSuperview()
         }
         
         noPostView.snp.makeConstraints {
@@ -112,16 +101,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
         super.setupAttributes()
         
         navigationBarView.do {
-            $0.navigationImage = .newBibbi
-            $0.navigationImageScale = 0.8
-            
-            $0.leftBarButtonItem = .addPerson
-            $0.leftBarButtonItemScale = 1.2
-            $0.leftBarButtonItemYOffset = 10.0
-            
-            $0.rightBarButtonItem = .heartCalendar
-            $0.rightBarButtonItemScale = 1.2
-            $0.rightBarButtonItemYOffset = -10.0
+            $0.setNavigationView(leftItem: .family, centerItem: .logo, rightItem: .calendar)
         }
         
         familyCollectionView.do {
@@ -154,12 +134,15 @@ extension HomeViewController {
     private func bindInput(reactor: HomeViewReactor) {
         postCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
-        
-        NotificationCenter.default.rx.notification(UIScene.willEnterForegroundNotification)
-            .withUnretained(self)
-            .map { _ in Reactor.Action.viewDidLoad }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
+
+        Observable.merge(
+            Observable.just(())
+                .map { Reactor.Action.viewDidLoad },
+            NotificationCenter.default.rx.notification(UIScene.willEnterForegroundNotification)
+                .map { _ in Reactor.Action.viewDidLoad }
+        )
+        .bind(to: reactor.action)
+        .disposed(by: disposeBag)
         
         Observable.just(())
             .map { Reactor.Action.viewDidLoad }
@@ -187,8 +170,7 @@ extension HomeViewController {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        navigationBarView.rx.didTapLeftBarButton
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+        navigationBarView.rx.leftButtonTap
             .withUnretained(self)
             .subscribe {
                 $0.0.navigationController?.pushViewController(
@@ -198,8 +180,7 @@ extension HomeViewController {
             }
             .disposed(by: disposeBag)
         
-        navigationBarView.rx.didTapRightBarButton
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+        navigationBarView.rx.rightButtonTap
             .withUnretained(self)
             .subscribe {
                 $0.0.navigationController?.pushViewController(
@@ -237,12 +218,9 @@ extension HomeViewController {
         
         cameraButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind { owner, _ in
-                MPEvent.Home.cameraTapped.track(with: nil)
-                let cameraViewController = CameraDIContainer(cameraType: .feed).makeViewController()
-                owner.navigationController?.pushViewController(cameraViewController, animated: true)
-            }.disposed(by: disposeBag)
+            .map { Reactor.Action.tapCameraButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
         // 위젯 딥링크 코드
         App.Repository.member.postId
@@ -321,6 +299,18 @@ extension HomeViewController {
             .bind(to: noPostView.rx.isHidden)
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$isShowingCameraView)
+            .observe(on: MainScheduler.instance)
+            .filter { $0 }
+            .withUnretained(self)
+//            .take(1)
+            .bind(onNext: {
+                MPEvent.Home.cameraTapped.track(with: nil)
+                let cameraViewController = CameraDIContainer(cameraType: .feed).makeViewController()
+                $0.0.navigationController?.pushViewController(cameraViewController, animated: true)
+            })
+            .disposed(by: disposeBag)
+        
         reactor.pulse(\.$familyInvitationLink)
             .observe(on: Schedulers.main)
             .withUnretained(self)
@@ -373,10 +363,6 @@ extension HomeViewController {
 }
 
 extension HomeViewController {
-    private func setNoPostTodayView(_ isShow: Bool) {
-        postCollectionView.isHidden = isShow
-    }
-    
     private func hideCameraButton(_ isHidden: Bool) {
         balloonView.isHidden = isHidden
         cameraButton.isHidden = isHidden

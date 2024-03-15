@@ -251,9 +251,9 @@ extension UIViewController {
     
     public func presentSheet(
         _ viewController: UIViewController,
-        allowMediumDetents: Bool
+        allowMediumDetent: Bool
     ) {
-        let detents: [UISheetPresentationController.Detent] = if allowMediumDetents {
+        let detents: [UISheetPresentationController.Detent] = if allowMediumDetent {
             [.medium(), .large()]
         } else {
             [.large()]
@@ -285,7 +285,7 @@ extension UIViewController {
     public func presentSheet(
         _ viewController: UIViewController,
         detentHeightRatio ratios: [CGFloat],
-        allowLargeDetents: Bool = false,
+        allowLargeDetent: Bool = false,
         prefersScrollingExpandsWhenScrolledToEdge expands: Bool = false,
         prefersGrabberVisble grabber: Bool = false
     ) {
@@ -299,7 +299,7 @@ extension UIViewController {
             customHeightDetents.append(customDetent)
         }
         
-        let detents = if allowLargeDetents {
+        let detents = if allowLargeDetent {
             customHeightDetents + [.large()]
         } else {
             customHeightDetents
@@ -311,5 +311,27 @@ extension UIViewController {
             prefersScrollingExpandsWhenScrolledToEdge: expands,
             prefersGrabberVisible: grabber
         )
+    }
+    
+    /// 댓글 목록 화면을 시트로 출력하기 위한 메서드입니다.
+    ///
+    /// - parameter postCommentViewController: PostCommentViewController 타입의 뷰 컨트롤러
+    public func presentPostCommentSheet(
+        _ postCommentViewController: UIViewController
+    ) {
+        let ratio = UIScreen.isPhoneSE ? 0.8 : 0.835
+        
+        if #available(iOS 16.0, *) {
+            presentSheet(
+                postCommentViewController,
+                detentHeightRatio: [ratio],
+                allowLargeDetent: true
+            )
+        } else {
+            presentSheet(
+                postCommentViewController,
+                allowMediumDetent: true
+            )
+        }
     }
 }

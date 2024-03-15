@@ -33,7 +33,12 @@ final class PostViewController: BaseViewController<PostReactor> {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.navigationBar.isHidden = true
-        
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        // HomeViewController는 notification이 nil일 때만
+        // ViewWillAppear시 가족과 피드를 불러오므로, nil 항목 전달이 필수임
         App.Repository.member.postId.accept(nil)
         App.Repository.deepLink.notification.accept(nil)
     }
@@ -118,7 +123,11 @@ final class PostViewController: BaseViewController<PostReactor> {
                     }) {
                         switch postList {
                         case let .main(post):
-                            owner.presentPostCommentSheet(postId: post.postId)
+                            let postCommentViewController = PostCommentDIContainer(
+                                postId: post.postId
+                            ).makeViewController()
+                            
+                            owner.presentPostCommentSheet(postCommentViewController)
                         }
                     }
                 }
@@ -230,25 +239,6 @@ extension PostViewController {
                     return cell
                 }
             })
-    }
-    
-    private func presentPostCommentSheet(postId: String) {
-        let postCommentViewController = PostCommentDIContainer(
-            postId: postId
-        ).makeViewController()
-        
-        if #available(iOS 16.0, *) {
-            presentSheet(
-                postCommentViewController,
-                detentHeightRatio: [0.835],
-                allowLargeDetents: true
-            )
-        } else {
-            presentSheet(
-                postCommentViewController,
-                allowMediumDetents: true
-            )
-        }
     }
 }
 

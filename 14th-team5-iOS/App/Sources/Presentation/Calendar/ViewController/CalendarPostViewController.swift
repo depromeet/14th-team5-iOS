@@ -49,6 +49,13 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         super.viewWillAppear(animated)
         navigationController?.navigationBar.isHidden = true
     }
+    
+    public override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        // HomeViewController는 notification이 nil일 때만
+        // ViewWillAppear시 가족과 피드를 불러오므로, nil 항목 전달이 필수임
+        App.Repository.deepLink.notification.accept(nil)
+    }
 
     // MARK: - Helpers
     public override func bind(reactor: CalendarPostViewReactor) {
@@ -251,7 +258,11 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .filter { $0.openComment }
             .bind(with: self) { owner, deepLink in
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    owner.presentPostCommentSheet(postId: deepLink.postId)
+                    let postCommentViewController = PostCommentDIContainer(
+                        postId: deepLink.postId
+                    ).makeViewController()
+                    
+                    owner.presentPostCommentSheet(postCommentViewController)
                 }
             }
             .disposed(by: disposeBag)
@@ -438,12 +449,12 @@ extension CalendarPostViewController {
             presentSheet(
                 postCommentViewController,
                 detentHeightRatio: [0.835],
-                allowLargeDetents: true
+                allowLargeDetent: true
             )
         } else {
             presentSheet(
                 postCommentViewController,
-                allowMediumDetents: true
+                allowMediumDetent: true
             )
         }
     }

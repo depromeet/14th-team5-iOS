@@ -42,6 +42,7 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        print(">>>>>> \(deepLinkRepo.notification.value)")
         navigationController?.navigationBar.isHidden = true
     }
     
@@ -172,9 +173,14 @@ extension HomeViewController {
             .disposed(by: disposeBag)
         
         self.rx.viewWillAppear
+            .withUnretained(self)
+            // 별도 딥링크를 받지 않으면
+            .filter { $0.0.deepLinkRepo.notification.value == nil }
+            // viewWillAppear 메서드 수행하기
             .map { _ in Reactor.Action.viewWillAppear }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        // 노티피케이션 딥링크를 받게 된다면 딥링크 처리 과정에서 viewWillAppear를 대신 불러옴
         
         refreshControl.rx.controlEvent(.valueChanged)
             .map { Reactor.Action.refresh }
@@ -351,7 +357,6 @@ extension HomeViewController {
         // 포스트 노티피케이션 딥링크 코드
         reactor.pulse(\.$notificationPostDeepLink)
             .compactMap { $0 }
-            .debug("========== 피드 알림으로 인한 화면 이동")
             .bind(with: self) { owner, deepLink in
                 owner.handlePostNotificationDeepLink(deepLink)
             }
@@ -360,7 +365,6 @@ extension HomeViewController {
         // 댓글 노티피케이션 딥링크 코드
         reactor.pulse(\.$notificationCommentDeepLink)
             .compactMap { $0 }
-            .debug("========== 댓글 알림으로 인한 화면 이동")
             .bind(with: self) { owner, deepLink in
                 owner.handleCommentNotificationDeepLink(deepLink)
             }

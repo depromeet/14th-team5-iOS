@@ -148,14 +148,18 @@ extension ReactionViewController {
         
         reactor.pulse(\.$isShowingCommentSheet)
             .filter { $0 }
-           .withUnretained(self)
-           .observe(on: MainScheduler.instance)
-           .withLatestFrom(postListData)
-           .withUnretained(self) { ($0, $1) }
-           .bind(onNext: {
-               $0.presentPostCommentSheet(postId: $1.postId)
-           })
-           .disposed(by: disposeBag)
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .withLatestFrom(postListData)
+            .withUnretained(self) { ($0, $1) }
+            .bind(onNext: {
+                let postCommentViewController = PostCommentDIContainer(
+                    postId: $1.postId
+                ).makeViewController()
+                
+                $0.presentPostCommentSheet(postCommentViewController)
+            })
+            .disposed(by: disposeBag)
     }
     
     private func presentPostCommentSheet(postId: String) {
@@ -167,12 +171,12 @@ extension ReactionViewController {
             presentSheet(
                 postCommentViewController,
                 detentHeightRatio: [0.835],
-                allowLargeDetents: true
+                allowLargeDetent: true
             )
         } else {
             presentSheet(
                 postCommentViewController,
-                allowMediumDetents: true
+                allowMediumDetent: true
             )
         }
     }
@@ -190,7 +194,7 @@ extension ReactionViewController {
         } else {
             presentSheet(
                 viewController,
-                allowMediumDetents: true
+                allowMediumDetent: true
             )
         }
     }

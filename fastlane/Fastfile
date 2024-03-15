@@ -68,7 +68,7 @@ platform :ios do
     install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.STG.mobileprovision")
   end
 
-  lane : github_action_upload_testflight do |options|
+  lane :github_action_upload_testflight do |options|
     create_keychain(
       name: "#{KEYCHAIN_NAME}",
       password: "#{KEYCHAIN_PASSWORD}",

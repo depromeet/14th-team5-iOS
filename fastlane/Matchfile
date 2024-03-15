@@ -1,4 +1,4 @@
-git_url("git@github.com:depromeet/14th-team5-iOS-Certification.git")
+git_url("https://github.com/depromeet/14th-team5-iOS-Certification.git")
 
 storage_mode("git")
 

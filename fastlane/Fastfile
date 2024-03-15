@@ -91,7 +91,7 @@ platform :ios do
       storage_mode: "git",
       type: "appstore",
       readonly: true,
-      git_basic_authorization: ENV["MATCH_PERSONAL_TOKEN"],
+      git_basic_authorization: Base64.strict_encode64("Do-hyun-Kim:ENV["MATCH_PERSONAL_TOKEN"]"),
       keychain_name: ENV["KEYCHAIN_NAME"],
       keychain_password: ENV["KEYCHAIN_PASSWORD"]
     )

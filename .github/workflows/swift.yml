@@ -19,8 +19,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: jdx/mise-action@v2
-        with:
-          key: ${{ secrets.SSH_KEY }}
 
       - name: Setup Xcode version
         uses: maxim-lobanov/setup-xcode@v1

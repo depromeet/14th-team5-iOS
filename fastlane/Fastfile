@@ -33,6 +33,7 @@ P12_PASSWORD =ENV["P12_PASSWORD"]
 PROJECT_PATH = ENV["PROJECT_PATH"]
 TEAM_ID = ENV["TEAM_ID"]
 APPLE_ID = ENV["APPLE_ID"]
+SLACK_HOOK_URL = ENV["SLACK_HOOK_URL"]
 
 
 default_platform(:ios)
@@ -97,10 +98,7 @@ platform :ios do
     )
 
     new_build_number = latest_testflight_build_number(
-      api_key: "#{APP_STORE_CONNECT_API_KEY_KEY_ID}",
-      app_identifier: "#{BUNDLE_ID}",
-      username: "#{APPLE_ID}",
-      team_id: "#{TEAM_ID}"
+      app_identifier: "#{BUNDLE_ID}"
     ) + 1
 
     increment_build_number(
@@ -256,7 +254,7 @@ platform :ios do
   error do |lane, exception, options|
     slack(
       message: "❗️ 테스트 플라이트 업로드 실패",
-      slack_url: "https://hooks.slack.com/services/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",
+      slack_url: "#{SLACK_HOOK_URL}",
       username: "대신 배포해주는 고양이",
       icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
       success: false,

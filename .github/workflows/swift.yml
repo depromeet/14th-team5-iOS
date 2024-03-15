@@ -62,6 +62,7 @@ jobs:
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
           PROJECT_PATH: ${{ secrets.PROJECT_PATH }}
           MATCH_PASSWORD: ${{secrets.MATCH_PASSWORD}}
+          SLACK_HOOK_URL: ${{secrets.SLACK_HOOK_URL}}
           MATCH_PERSONAL_TOKEN: ${{ secrets.MATCH_PERSONAL_TOKEN}}
           PRD_SCHEME: ${{secrets.PRD_SCHEME}}
           APP_NAME: ${{secrets.APP_NAME}}

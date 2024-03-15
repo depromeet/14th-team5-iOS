@@ -65,6 +65,8 @@ jobs:
           SLACK_HOOK_URL: ${{secrets.SLACK_HOOK_URL}}
           MATCH_PERSONAL_TOKEN: ${{ secrets.MATCH_PERSONAL_TOKEN}}
           PRD_SCHEME: ${{secrets.PRD_SCHEME}}
+          BUNDLE_ID: ${{secrets.BUNDLE_ID}}
+          WIDGET_BUNDLE_ID: ${{secrets.WIDGET_BUNDLE_ID}}
           APP_NAME: ${{secrets.APP_NAME}}
           APPLE_ID: ${{secrets.APPLE_ID}}
           TEAM_ID: ${{secrets.TEAM_ID}}

@@ -115,19 +115,18 @@ platform :ios do
       build_number: new_build_number
     )
 
-    build_app(
+    gym(
       workspace: "Bibbi.xcworkspace",
       scheme: "#{PRD_SCHEME}",
-      export_method: "app-store",
+      configuration: "PRD",
       export_options: {
-        method: "app-store", 
-	provisioningProfiles: {
+        method: "app-store",
+        provisioningProfiles: {
           "#{BUNDLE_ID}" => "match AppStore com.5ing.bibbi",
-          "#{WIDGET_BUNDLE_ID}" => "match AppStore com.5ing.bibbi.widget",
+          "#{WIDGET_BUNDLE_ID}" => "match AppStore com.5ing.bibbi.widget"
         }
       }
     )
-
     deliver
 
   end

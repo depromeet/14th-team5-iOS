@@ -116,14 +116,11 @@ platform :ios do
       build_number: new_build_number
     )
 
-    update_project_provisioning(
-      xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
-      profile: "#{PROFILE_PATH}"
-    )
-
+    profile_mapping = Actions.lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING]
     update_code_signing_settings(
-  		use_automatic_signing: true,
-  		path: "14th-team5-iOS/App/App.xcodeproj"
+  		use_automatic_signing: false,
+  		path: "14th-team5-iOS/App/App.xcodeproj",
+      profile_name: profile_mapping['app_identifier']
 	  )
 
     gym(

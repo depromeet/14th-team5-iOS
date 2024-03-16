@@ -348,6 +348,7 @@ extension HomeViewController {
         
         // 위젯 딥링크 코드
         reactor.pulse(\.$widgetPostDeepLink)
+            .delay(RxConst.smallDelayInterval, scheduler: Schedulers.main)
             .compactMap { $0 }
             .bind(with: self) { owner, deepLink in
                 owner.handlePostWidgetDeepLink(deepLink)
@@ -356,6 +357,7 @@ extension HomeViewController {
         
         // 포스트 노티피케이션 딥링크 코드
         reactor.pulse(\.$notificationPostDeepLink)
+            .delay(RxConst.smallDelayInterval, scheduler: Schedulers.main)
             .compactMap { $0 }
             .bind(with: self) { owner, deepLink in
                 owner.handlePostNotificationDeepLink(deepLink)
@@ -364,6 +366,7 @@ extension HomeViewController {
         
         // 댓글 노티피케이션 딥링크 코드
         reactor.pulse(\.$notificationCommentDeepLink)
+            .delay(RxConst.smallDelayInterval, scheduler: Schedulers.main)
             .compactMap { $0 }
             .bind(with: self) { owner, deepLink in
                 owner.handleCommentNotificationDeepLink(deepLink)
@@ -391,7 +394,7 @@ extension HomeViewController {
                         PostListsDIContainer().makeViewController(
                             postLists: reactor.currentState.postSection,
                             selectedIndex: indexPath),
-                        animated: false
+                        animated: true
                     )
                 }
             }
@@ -409,7 +412,7 @@ extension HomeViewController {
                         PostListsDIContainer().makeViewController(
                             postLists: reactor.currentState.postSection,
                             selectedIndex: indexPath),
-                        animated: false
+                        animated: true
                     )
                 }
             }
@@ -437,7 +440,7 @@ extension HomeViewController {
             
             navigationController?.pushViewController(
                 postListViewController,
-                animated: false
+                animated: true
             )
         // 이전에 올린 피드에 댓글이 달렸다면
         } else {
@@ -448,7 +451,7 @@ extension HomeViewController {
             
             navigationController?.pushViewController(
                 calendarPostViewController,
-                animated: false
+                animated: true
             )
         }
     }

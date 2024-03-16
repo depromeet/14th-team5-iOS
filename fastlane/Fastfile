@@ -118,10 +118,14 @@ platform :ios do
     gym(
       workspace: "Bibbi.xcworkspace",
       scheme: "#{PRD_SCHEME}",
-      configuration: "Release",
+      configuration: "PRD",
       export_options: {
         method: "app-store",
         signingStyle: "manual"
+        provisioningProfiles: {
+          "#{BUNDLE_ID}" => "match AppStore com.5ing.bibbi",
+          "#{WIDGET_BUNDLE_ID}" => "match AppStore com.5ing.bibbi.widget",
+        }
       }
     )
 

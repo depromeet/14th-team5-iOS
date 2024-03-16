@@ -105,7 +105,7 @@ platform :ios do
     new_build_number = latest_testflight_build_number() + 1
 
     sync_code_signing(
-      type: "appstore"
+      type: "appstore",
       app_identifier: ["#{BUNDLE_ID}","#{WIDGET_BUNDLE_ID}"],
       readonly: true
     )

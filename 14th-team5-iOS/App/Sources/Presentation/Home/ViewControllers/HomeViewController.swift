@@ -267,7 +267,6 @@ extension HomeViewController {
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$postSection)
-            .distinctUntilChanged()
             .withUnretained(self)
             .bind(onNext: { 
                 $0.0.timerView.reactor = TimerDIContainer().makeReactor(isSelfUploaded: reactor.currentState.isSelfUploaded, isAllUploaded: reactor.currentState.isAllFamilyMembersUploaded)

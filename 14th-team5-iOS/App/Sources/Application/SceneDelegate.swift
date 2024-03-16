@@ -26,16 +26,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let scene = (scene as? UIWindowScene) else { return }
 
         // For when app is terminated
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [unowned self] in
-            if let url = connectionOptions.urlContexts.first?.url {
-                if let deepLink = self.decodeWidgetDeepLink(url) {
-                    App.Repository.deepLink.widget.accept(deepLink)
-                }
-                
-                self.window = UIWindow(windowScene: scene)
-                self.window?.rootViewController = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
-                self.window?.makeKeyAndVisible()
+        if let url = connectionOptions.urlContexts.first?.url {
+            if let deepLink = decodeWidgetDeepLink(url) {
+                App.Repository.deepLink.widget.accept(deepLink)
             }
+            
+            self.window = UIWindow(windowScene: scene)
+            self.window?.rootViewController = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+            self.window?.makeKeyAndVisible()
         }
         
         guard let userActivity = connectionOptions.userActivities.first,

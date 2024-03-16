@@ -160,7 +160,7 @@ platform :ios do
     )
 
     build_app(
-      workspace: "#{APP_NAME}.xcworkspace",
+      workspace: "Bibbi.xcworkspace",
       scheme: "#{PRD_SCHEME}",
       export_method: "app-store",
       export_options: {

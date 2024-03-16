@@ -34,6 +34,7 @@ PROJECT_PATH = ENV["PROJECT_PATH"]
 TEAM_ID = ENV["TEAM_ID"]
 APPLE_ID = ENV["APPLE_ID"]
 SLACK_HOOK_URL = ENV["SLACK_HOOK_URL"]
+PROFILE_PATH = ENV["PROFILE_PATH"]
 
 
 default_platform(:ios)
@@ -114,6 +115,16 @@ platform :ios do
       xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
       build_number: new_build_number
     )
+
+    update_project_provisioning(
+      xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
+      profile: "#{PROFILE_PATH}"
+    )
+
+    update_code_signing_settings(
+  		use_automatic_signing: true,
+  		path: "14th-team5-iOS/App/App.xcodeproj"
+	  )
 
     gym(
       workspace: "Bibbi.xcworkspace",

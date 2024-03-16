@@ -87,6 +87,10 @@ platform :ios do
       in_house: false
     )
 
+    disable_automatic_code_signing(path: "14th-team5-iOS/App/App.xcodeproj",
+      team_id: "#{TEAM_ID}"
+    )
+
 
     match(
       storage_mode: "git",
@@ -114,12 +118,6 @@ platform :ios do
       path: "14th-team5-iOS/App/App.xcodeproj",
       teamid: "#{TEAM_ID}"
     )
-    
-    sync_code_signing(
-      type: "appstore",
-      app_identifier: ["#{BUNDLE_ID}","#{WIDGET_BUNDLE_ID}"],
-      readonly: true
-    )
 
     gym(
       workspace: "Bibbi.xcworkspace",
@@ -127,7 +125,11 @@ platform :ios do
       configuration: "PRD",
       export_options: {
         method: "app-store",
-        signingStyle: "manual"
+        signingStyle: "manual",
+        provisioningProfiles: {
+          "#{BUNDLE_ID}" => "match AppStore com.5ing.bibbi",
+          "#{WIDGET_BUNDLE_ID}" => "match AppStore com.5ing.bibbi.widget"
+        }
       }
     )
 

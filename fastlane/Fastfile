@@ -124,7 +124,7 @@ platform :ios do
     build_app(
       workspace: "Bibbi.xcworkspace",
       scheme: "#{PRD_SCHEME}",
-      xcargs: "-allowProvisioningUpdates",
+      xcargs: "CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=",
       export_method: "app-store",
       export_options: {
         method: "app-store",

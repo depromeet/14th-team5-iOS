@@ -45,7 +45,7 @@ jobs:
         run: bash <(curl -Ls https://install.tuist.io)
         
       - name: Install FastLane 
-        run: gem install fastlane -v 2.219.0
+        run: gem install fastlane -v 2.62.0
 
       - name: Tuist Clean Command
         run: tuist clean

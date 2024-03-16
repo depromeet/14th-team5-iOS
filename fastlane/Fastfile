@@ -104,31 +104,26 @@ platform :ios do
 
     new_build_number = latest_testflight_build_number() + 1
 
+    sync_code_signing(
+      type: "appstore"
+      app_identifier: ["#{BUNDLE_ID}","#{WIDGET_BUNDLE_ID}"],
+      readonly: true
+    )
+
     increment_build_number(
       xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
       build_number: new_build_number
     )
 
-    update_code_signing_settings(
-      use_automatic_signing: false,
-      path: "14th-team5-iOS/App/App.xcodeproj"
-    )
-
-    update_project_team(
-      path: "14th-team5-iOS/App/App.xcodeproj",
-      teamid: "#{TEAM_ID}"
-    )
-
-    gym(
-      workspace: "Bibbi.xcworkspace",
+    build_app(
+      workspace: "#{APP_NAME}.xcworkspace",
       scheme: "#{PRD_SCHEME}",
-      configuration: "PRD",
+      export_method: "app-store",
       export_options: {
-        method: "app-store",
-        signingStyle: "manual",
-        provisioningProfiles: {
+        method: "app-store", 
+	provisioningProfiles: {
           "#{BUNDLE_ID}" => "match AppStore com.5ing.bibbi",
-          "#{WIDGET_BUNDLE_ID}" => "match AppStore com.5ing.bibbi.widget"
+          "#{WIDGET_BUNDLE_ID}" => "match AppStore com.5ing.bibbi.widget",
         }
       }
     )

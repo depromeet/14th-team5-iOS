@@ -71,14 +71,6 @@ platform :ios do
   end
 
   lane :github_action_upload_testflight do |options|
-    create_keychain(
-      name: "#{KEYCHAIN_NAME}",
-      password: "#{KEYCHAIN_PASSWORD}",
-      default_keychain: true,
-      unlock: true,
-      timeout: 3600,
-      lock_when_sleeps: true
-    )
 
     app_store_connect_api_key(
       key_id: "#{APP_STORE_CONNECT_API_KEY_KEY_ID}",
@@ -98,9 +90,7 @@ platform :ios do
       type: "appstore",
       app_identifier: ["com.5ing.bibbi","com.5ing.bibbi.widget"],
       readonly: true,
-      git_basic_authorization: Base64.strict_encode64("Do-hyun-Kim:#{ENV["MATCH_PERSONAL_TOKEN"]}"),
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
+      git_basic_authorization: Base64.strict_encode64("Do-hyun-Kim:#{ENV["MATCH_PERSONAL_TOKEN"]}")
     )
 
     new_build_number = latest_testflight_build_number() + 1

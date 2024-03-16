@@ -116,7 +116,7 @@ platform :ios do
     )
 
     gym(
-      workspace: "#{APP_NAME}.xcworkspace",
+      workspace: "Bibbi.xcworkspace",
       scheme: "#{PRD_SCHEME}",
       configuration: "Release",
       export_options: {

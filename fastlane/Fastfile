@@ -121,10 +121,10 @@ platform :ios do
       configuration: "PRD",
       export_options: {
         method: "app-store",
-        signingStyle: "manual"
+        signingStyle: "manual",
         provisioningProfiles: {
           "#{BUNDLE_ID}" => "match AppStore com.5ing.bibbi",
-          "#{WIDGET_BUNDLE_ID}" => "match AppStore com.5ing.bibbi.widget",
+          "#{WIDGET_BUNDLE_ID}" => "match AppStore com.5ing.bibbi.widget"
         }
       }
     )

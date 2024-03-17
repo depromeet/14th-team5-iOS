@@ -53,7 +53,7 @@ platform :ios do
   end
 
   lane :github_action_upload_testflight do |options|
-
+    xcversion(version: "15.0.1")
     app_store_connect_api_key(
       key_id: "#{APP_STORE_CONNECT_API_KEY_KEY_ID}",
       issuer_id: "#{APP_STORE_CONNECT_API_KEY_ISSUER_ID}",

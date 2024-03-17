@@ -46,28 +46,10 @@ platform :ios do
       name: "#{KEYCHAIN_NAME}",
       password: "#{KEYCHAIN_PASSWORD}",
       default_keychain: true,
-      unlock: true,
+      unlock: false,
       timeout: 3600,
       lock_when_sleeps: true
     )
-
-    import_certificate(
-      certificate_path: "Tuist/Signing/prd.cer",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{P12_PASSWORD}"
-    )
-
-    import_certificate(
-      certificate_path: "Tuist/Signing/prd.p12",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{P12_PASSWORD}"
-    )
-
-    install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.PRD.mobileprovision")
-    install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.STG.mobileprovision")
-
-    install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.PRD.mobileprovision")
-    install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.STG.mobileprovision")
   end
 
   lane :github_action_upload_testflight do |options|

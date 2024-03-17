@@ -130,7 +130,7 @@ platform :ios do
       workspace: "Bibbi.xcworkspace",
       scheme: "#{PRD_SCHEME}",
       export_method: "app-store",
-      export_xcargs: "-allowProvisioningUpdates"
+      export_xcargs: "-allowProvisioningUpdates",
       export_options: {
         method: "app-store",
         provisioningProfiles: {

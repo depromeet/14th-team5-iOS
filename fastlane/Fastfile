@@ -80,20 +80,22 @@ platform :ios do
       in_house: false
     )
 
+    disable_automatic_code_signing(path: "14th-team5-iOS/App/App.xcodeproj",
+      team_id: "#{TEAM_ID}"
+    )
+
     match(
       storage_mode: "git",
       type: "appstore",
       app_identifier: ["com.5ing.bibbi","com.5ing.bibbi.widget"],
       readonly: true,
-      git_basic_authorization: Base64.strict_encode64("Do-hyun-Kim:#{ENV["MATCH_PERSONAL_TOKEN"]}")
+      git_basic_authorization: Base64.strict_encode64("Do-hyun-Kim:#{ENV["MATCH_PERSONAL_TOKEN"]}"),
+      keychain_name: "#{KEYCHAIN_NAME}",
+      keychain_password: "#{KEYCHAIN_PASSWORD}"
     )
 
     new_build_number = latest_testflight_build_number() + 1
 
-
-    disable_automatic_code_signing(path: "14th-team5-iOS/App/App.xcodeproj",
-      team_id: "#{TEAM_ID}"
-    )
 
     update_project_provisioning(
       xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
@@ -128,6 +130,7 @@ platform :ios do
       workspace: "Bibbi.xcworkspace",
       scheme: "#{PRD_SCHEME}",
       export_method: "app-store",
+      export_xcargs: "-allowProvisioningUpdates"
       export_options: {
         method: "app-store",
         provisioningProfiles: {

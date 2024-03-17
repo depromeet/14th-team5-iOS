@@ -95,6 +95,22 @@ platform :ios do
 
     new_build_number = latest_testflight_build_number() + 1
 
+
+    update_project_provisioning(
+      xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
+      target_filter: "App",
+      profile:ENV["sigh_com.5ing.bibbi_appstore_profile-path"],
+      build_configuration: "PRD"
+    )
+
+    update_project_provisioning(
+      xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
+      target_filter: "WidgetExtensions",
+      profile:ENV["sigh_com.5ing.bibbi.widget_appstore_profile-path"],
+      build_configuration: "PRD"
+    )
+    
+
     sync_code_signing(
       type: "appstore",
       app_identifier: ["com.5ing.bibbi","com.5ing.bibbi.widget"],
@@ -119,8 +135,8 @@ platform :ios do
       export_options: {
         method: "app-store",
         provisioningProfiles: {
-          "com.5ing.bibbi" => "match Development com.5ing.bibbi",
-          "com.5ing.bibbi.widget" => "match Development com.5ing.bibbi.widget"
+          "com.5ing.bibbi" => "match Appstore com.5ing.bibbi",
+          "com.5ing.bibbi.widget" => "match Appstore com.5ing.bibbi.widget"
         }
       }
     )

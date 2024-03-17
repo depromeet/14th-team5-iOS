@@ -46,7 +46,7 @@ platform :ios do
       name: "#{KEYCHAIN_NAME}",
       password: "#{KEYCHAIN_PASSWORD}",
       default_keychain: true,
-      unlock: false,
+      unlock: true,
       timeout: 3600,
       lock_when_sleeps: true
     )
@@ -69,7 +69,17 @@ platform :ios do
     match(
       storage_mode: "git",
       type: "development",
-      app_identifier: ["com.5ing.bibbi","com.5ing.bibbi.widget"],
+      app_identifier: "com.5ing.bibbi",
+      readonly: true,
+      git_basic_authorization: Base64.strict_encode64("Do-hyun-Kim:#{ENV["MATCH_PERSONAL_TOKEN"]}"),
+      keychain_name: "#{KEYCHAIN_NAME}",
+      keychain_password: "#{KEYCHAIN_PASSWORD}"
+    )
+
+    match(
+      storage_mode: "git",
+      type: "development",
+      app_identifier: "com.5ing.bibbi.widget",
       readonly: true,
       git_basic_authorization: Base64.strict_encode64("Do-hyun-Kim:#{ENV["MATCH_PERSONAL_TOKEN"]}"),
       keychain_name: "#{KEYCHAIN_NAME}",
@@ -117,8 +127,8 @@ platform :ios do
       export_options: {
         method: "development",
         provisioningProfiles: {
-          "com.5ing.bibbi" => ENV["sigh_com.5ing.bibbi_development_profile-name"],
-          "com.5ing.bibbi.widget" => ENV["sigh_com.5ing.bibbi.widget_development_profile-name"]
+          "com.5ing.bibbi" => "match Development com.5ing.bibbi",
+          "com.5ing.bibbi.widget" => "match Development com.5ing.bibbi.widget"
         }
       }
     )

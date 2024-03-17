@@ -117,7 +117,7 @@ platform :ios do
         method: "app-store",
         provisioningProfiles: {
           "com.5ing.bibbi" => ENV["sigh_com.5ing.bibbi_appstore_profile-name"],
-          "com.5ing.bibbi.widget" => ENV["sigh_com.5ing.bibbi.widget_appstore_name"]
+          "com.5ing.bibbi.widget" => ENV["sigh_com.5ing.bibbi.widget_appstore_profile-name"]
         }
       }
     )

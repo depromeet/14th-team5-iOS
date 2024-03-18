@@ -53,7 +53,6 @@ platform :ios do
   end
 
   lane :github_action_upload_testflight do |options|
-    xcversion(version: "15.0.1")
     app_store_connect_api_key(
       key_id: "#{APP_STORE_CONNECT_API_KEY_KEY_ID}",
       issuer_id: "#{APP_STORE_CONNECT_API_KEY_ISSUER_ID}",
@@ -62,8 +61,9 @@ platform :ios do
       in_house: false
     )
 
-    disable_automatic_code_signing(path: "14th-team5-iOS/App/App.xcodeproj",
-      team_id: "#{TEAM_ID}"
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "14th-team5-iOS/App/App.xcodeproj"
     )
 
     match(
@@ -118,11 +118,6 @@ platform :ios do
     increment_build_number(
       xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
       build_number: new_build_number
-    )
-    
-    update_code_signing_settings(
-      use_automatic_signing: false,
-      path: "14th-team5-iOS/App/App.xcodeproj"
     )
 
     update_project_team(

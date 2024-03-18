@@ -63,17 +63,6 @@ platform :ios do
 
     match(
       storage_mode: "git",
-      type: "appstore",
-      app_identifier: ["com.5ing.bibbi","com.5ing.bibbi.widget"],
-      readonly: true,
-      git_basic_authorization: Base64.strict_encode64("Do-hyun-Kim:#{ENV["MATCH_PERSONAL_TOKEN"]}"),
-      generate_apple_certs: false,
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
-    )
-
-    match(
-      storage_mode: "git",
       type: "development",
       app_identifier: ["com.5ing.bibbi","com.5ing.bibbi.widget"],
       readonly: true,
@@ -119,11 +108,12 @@ platform :ios do
     build_app(
       workspace: "Bibbi.xcworkspace",
       scheme: "#{PRD_SCHEME}",
-      skip_profile_detection: true,
-      export_method: "development",
-      export_xcargs: "-allowProvisioningUpdates",
       export_options: {
-        method: "development"
+        method: "development",
+        provisioningProfiles: {
+          "com.5ing.bibbi" => "match Development com.5ing.bibbi",
+          "com.5ing.bibbi.widget" => "match Development com.5ing.bibbi.widget"
+        }
       }
     )
     deliver

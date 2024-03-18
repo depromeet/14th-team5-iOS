@@ -61,11 +61,6 @@ platform :ios do
       in_house: false
     )
 
-    update_code_signing_settings(
-      use_automatic_signing: false,
-      path: "14th-team5-iOS/App/App.xcodeproj"
-    )
-
     match(
       storage_mode: "git",
       type: "appstore",
@@ -89,19 +84,35 @@ platform :ios do
     new_build_number = latest_testflight_build_number() + 1
 
 
-    update_project_provisioning(
-      xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
-      target_filter: "App-PRD",
-      build_configuration: "PRD",
-      profile:ENV["sigh_com.5ing.bibbi_development_profile-path"]
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      build_configurations: "PRD",
+      code_sign_identity: "iPhone Distribution",
+      path: "14th-team5-iOS/App/App.xcodeproj",
+      profile_name: "match Development com.5ing.bibbi"
     )
 
-    update_project_provisioning(
-      xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
-      target_filter: ".*WidgetExtensions.*",
-      build_configuration: "PRD",
-      profile:ENV["sigh_com.5ing.bibbi.widget_development_profile-path"]
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      build_configurations: "PRD",
+      code_sign_identity: "iPhone Distribution",
+      path: "14th-team5-iOS/App/App.xcodeproj",
+      profile_name: "match Development com.5ing.bibbi.widget"
     )
+
+    # update_project_provisioning(
+    #   xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
+    #   target_filter: "App",
+    #   build_configuration: "PRD",
+    #   profile:ENV["sigh_com.5ing.bibbi_development_profile-path"]
+    # )
+
+    # update_project_provisioning(
+    #   xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
+    #   target_filter: ".*WidgetExtensions.*",
+    #   build_configuration: "PRD",
+    #   profile:ENV["sigh_com.5ing.bibbi.widget_development_profile-path"]
+    # )
     
 
     sync_code_signing(

@@ -69,7 +69,7 @@ platform :ios do
     match(
       storage_mode: "git",
       type: "appstore",
-      app_identifier: ["com.5ing.bibbi","com.5ing.bibbi.widget"],
+      app_identifier: ["#{BUNDLE_ID}","#{WIDGET_BUNDLE_ID}"],
       readonly: true,
       git_basic_authorization: Base64.strict_encode64("Do-hyun-Kim:#{ENV["MATCH_PERSONAL_TOKEN"]}"),
       keychain_name: "#{KEYCHAIN_NAME}",
@@ -79,7 +79,7 @@ platform :ios do
     match(
       storage_mode: "git",
       type: "development",
-      app_identifier: ["com.5ing.bibbi","com.5ing.bibbi.widget"],
+      app_identifier: ["#{BUNDLE_ID}","#{WIDGET_BUNDLE_ID}"],
       readonly: true,
       git_basic_authorization: Base64.strict_encode64("Do-hyun-Kim:#{ENV["MATCH_PERSONAL_TOKEN"]}"),
       keychain_name: "#{KEYCHAIN_NAME}",
@@ -91,27 +91,23 @@ platform :ios do
 
     update_project_provisioning(
       xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
-      target_filter: "App",
+      target_filter: "App-PRD",
+      build_configuration: "PRD"
       profile:ENV["sigh_com.5ing.bibbi_development_profile-path"]
     )
 
     update_project_provisioning(
       xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
-      target_filter: "WidgetExtensions",
+      target_filter: ".*WidgetExtensions.*",
+      build_configuration: "PRD"
       profile:ENV["sigh_com.5ing.bibbi.widget_development_profile-path"]
     )
     
 
     sync_code_signing(
       type: "development",
-      app_identifier: ["com.5ing.bibbi","com.5ing.bibbi.widget"],
+      app_identifier: ["#{BUNDLE_ID}","#{WIDGET_BUNDLE_ID}"],
       force_for_new_devices: true,
-      readonly: true
-    )
-
-    sync_code_signing(
-      type: "appstore",
-      app_identifier: ["com.5ing.bibbi","com.5ing.bibbi.widget"],
       readonly: true
     )
 
@@ -134,8 +130,8 @@ platform :ios do
       export_options: {
         method: "development",
         provisioningProfiles: {
-          "com.5ing.bibbi" => "match Development com.5ing.bibbi",
-          "com.5ing.bibbi.widget" => "match Development com.5ing.bibbi.widget"
+          "#{BUNDLE_ID}" => "match Development com.5ing.bibbi",
+          "#{WIDGET_BUNDLE_ID}" => "match Development com.5ing.bibbi.widget"
         }
       }
     )

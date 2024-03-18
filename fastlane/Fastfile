@@ -100,19 +100,7 @@ platform :ios do
       profile_name: "match Development com.5ing.bibbi.widget"
     )
 
-    update_project_provisioning(
-      xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
-      target_filter: ".*App$",
-      profile:ENV["sigh_com.5ing.bibbi_development_profile-path"]
-    )
-
-    update_project_provisioning(
-      xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
-      target_filter: ".*WidgetExtensions$",
-      profile:ENV["sigh_com.5ing.bibbi.widget_development_profile-path"]
-    )
     
-
     sync_code_signing(
       type: "development",
       app_identifier: ["#{BUNDLE_ID}","#{WIDGET_BUNDLE_ID}"],

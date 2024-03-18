@@ -41,7 +41,8 @@ final public class PostCommentViewReactor: Reactor {
         case becomeFirstResponseder
         case clearCommentTextField
         case enableCommentTextField(Bool)
-        case setProfileViewController(String)
+        
+        case dismiss
     }
     
     // MARK: - State
@@ -60,7 +61,7 @@ final public class PostCommentViewReactor: Reactor {
         @Pulse var shouldPresentEmptyCommentView: Bool
         @Pulse var shouldPresentPaperAirplaneLottieView: Bool
         @Pulse var shouldGenerateErrorHapticNotification: Bool
-        @Pulse var shouldPushProfileViewController: String?
+        @Pulse var shouldDismiss: Bool
         @Pulse var becomeFirstResponder: Bool
         var enableCommentTextField: Bool
         var tableViewBottomOffset: CGFloat
@@ -97,7 +98,7 @@ final public class PostCommentViewReactor: Reactor {
             shouldPresentEmptyCommentView: false,
             shouldPresentPaperAirplaneLottieView: false,
             shouldGenerateErrorHapticNotification: false,
-            shouldPushProfileViewController: nil,
+            shouldDismiss: false,
             becomeFirstResponder: false,
             enableCommentTextField: false,
             tableViewBottomOffset: 0
@@ -128,8 +129,8 @@ final public class PostCommentViewReactor: Reactor {
         let postMutation = provider.postGlobalState.event
             .flatMap { event in
                 switch event {
-                case let .pushProfileViewController(memberId):
-                    return Observable<Mutation>.just(.setProfileViewController(memberId))
+                case let .pushProfileViewController(_):
+                    return Observable<Mutation>.just(.dismiss)
                 default:
                     return Observable<Mutation>.empty()
                 }
@@ -344,8 +345,8 @@ final public class PostCommentViewReactor: Reactor {
         case let .setTableViewOffset(height):
             newState.tableViewBottomOffset = height
             
-        case let .setProfileViewController(memberId):
-            newState.shouldPushProfileViewController = memberId
+        case .dismiss:
+            newState.shouldDismiss = true
         }
         
         return newState

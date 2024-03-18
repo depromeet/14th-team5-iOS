@@ -123,11 +123,7 @@ platform :ios do
       export_method: "development",
       export_xcargs: "-allowProvisioningUpdates",
       export_options: {
-        method: "development",
-        provisioningProfiles: {
-          "com.5ing.bibbi" => "match Development com.5ing.bibbi",
-          "com.5ing.bibbi.widget" => "match Development com.5ing.bibbi.widget"
-        }
+        method: "development"
       }
     )
     deliver

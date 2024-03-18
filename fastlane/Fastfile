@@ -108,7 +108,7 @@ platform :ios do
     build_app(
       workspace: "Bibbi.xcworkspace",
       scheme: "#{PRD_SCHEME}",
-      export_method: "appstore",
+      export_method: "app-store",
       export_options: {
         provisioningProfiles: {
           "com.5ing.bibbi" => ENV["sigh_com.5ing.bibbi_appstore_profile-name"],

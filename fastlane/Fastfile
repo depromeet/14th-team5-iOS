@@ -88,14 +88,14 @@ platform :ios do
 
     update_code_signing_settings(
       use_automatic_signing: false,
-      code_sign_identity: "iPhone Distribution",
+      code_sign_identity: "iPhone Development",
       path: "14th-team5-iOS/App/App.xcodeproj",
       profile_name: "match Development com.5ing.bibbi"
     )
 
     update_code_signing_settings(
       use_automatic_signing: false,
-      code_sign_identity: "iPhone Distribution",
+      code_sign_identity: "iPhone Development",
       path: "14th-team5-iOS/App/App.xcodeproj",
       profile_name: "match Development com.5ing.bibbi.widget"
     )

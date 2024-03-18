@@ -50,7 +50,8 @@ private let targets: [Target] = [
                 base: [
                     "CODE_SIGN_STYLE": "Manual",
                     "DEVELOPMENT_TEAM": "P9P4WJ623F",
-                    "PROVISIONING_PROFILE_SPECIFIER": "match Development com.5ing.bibbi"
+                    "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.5ing.bibbi",
+                    "CODE_SIGN_IDENTITY": "Apple Distribution"
                 ],
                 configurations: [
                     .build(.dev, name: "DEV"),
@@ -74,7 +75,8 @@ private let targets: [Target] = [
             base: [
                 "CODE_SIGN_STYLE": "Manual",
                 "DEVELOPMENT_TEAM": "P9P4WJ623F",
-                "PROVISIONING_PROFILE_SPECIFIER": "match Development com.5ing.bibbi.widget"
+                "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.5ing.bibbi.widget",
+                "CODE_SIGN_IDENTITY": "Apple Distribution"
             ],
             configurations: [
                 .build(.dev, name: "DEV"),

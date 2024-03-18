@@ -63,7 +63,7 @@ platform :ios do
 
     match(
       storage_mode: "git",
-      type: "development",
+      type: "appstore",
       app_identifier: ["com.5ing.bibbi","com.5ing.bibbi.widget"],
       readonly: true,
       git_basic_authorization: Base64.strict_encode64("Do-hyun-Kim:#{ENV["MATCH_PERSONAL_TOKEN"]}"),
@@ -78,18 +78,18 @@ platform :ios do
     update_code_signing_settings(
       use_automatic_signing: false,
       path: "14th-team5-iOS/App/App.xcodeproj",
-      profile_name: "match Development com.5ing.bibbi"
+      profile_name: "match appstore com.5ing.bibbi"
     )
 
     update_code_signing_settings(
       use_automatic_signing: false,
       path: "14th-team5-iOS/App/App.xcodeproj",
-      profile_name: "match Development com.5ing.bibbi.widget"
+      profile_name: "match appstore com.5ing.bibbi.widget"
     )
 
     
     sync_code_signing(
-      type: "development",
+      type: "appstore",
       app_identifier: ["com.5ing.bibbi","com.5ing.bibbi.widget"],
       force_for_new_devices: true,
       readonly: true
@@ -111,8 +111,8 @@ platform :ios do
       export_method: "appstore",
       export_options: {
         provisioningProfiles: {
-          "com.5ing.bibbi" => ENV["sigh_com.5ing.bibbi_development_profile-name"],
-          "com.5ing.bibbi.widget" => ENV["sigh_com.5ing.bibbi.widget_development_profile-name"]
+          "com.5ing.bibbi" => ENV["sigh_com.5ing.bibbi_appstore_profile-name"],
+          "com.5ing.bibbi.widget" => ENV["sigh_com.5ing.bibbi.widget_appstore_profile-name"]
         }
       }
     )

@@ -67,6 +67,7 @@ platform :ios do
       app_identifier: ["#{BUNDLE_ID}","#{WIDGET_BUNDLE_ID}"],
       readonly: true,
       git_basic_authorization: Base64.strict_encode64("Do-hyun-Kim:#{ENV["MATCH_PERSONAL_TOKEN"]}"),
+      generate_apple_certs: false,
       keychain_name: "#{KEYCHAIN_NAME}",
       keychain_password: "#{KEYCHAIN_PASSWORD}"
     )
@@ -77,6 +78,7 @@ platform :ios do
       app_identifier: ["#{BUNDLE_ID}","#{WIDGET_BUNDLE_ID}"],
       readonly: true,
       git_basic_authorization: Base64.strict_encode64("Do-hyun-Kim:#{ENV["MATCH_PERSONAL_TOKEN"]}"),
+      generate_apple_certs: false,
       keychain_name: "#{KEYCHAIN_NAME}",
       keychain_password: "#{KEYCHAIN_PASSWORD}"
     )

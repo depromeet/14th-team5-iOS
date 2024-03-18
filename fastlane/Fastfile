@@ -92,14 +92,14 @@ platform :ios do
     update_project_provisioning(
       xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
       target_filter: "App-PRD",
-      build_configuration: "PRD"
+      build_configuration: "PRD",
       profile:ENV["sigh_com.5ing.bibbi_development_profile-path"]
     )
 
     update_project_provisioning(
       xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
       target_filter: ".*WidgetExtensions.*",
-      build_configuration: "PRD"
+      build_configuration: "PRD",
       profile:ENV["sigh_com.5ing.bibbi.widget_development_profile-path"]
     )
     

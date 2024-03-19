@@ -106,15 +106,15 @@ platform :ios do
       path: "14th-team5-iOS/App/App.xcodeproj",
       teamid: "#{TEAM_ID}"
     )
-    
+
     build_app(
       workspace: "Bibbi.xcworkspace",
       scheme: "#{PRD_SCHEME}",
       export_method: "app-store",
       export_options: {
         provisioningProfiles: {
-          "com.5ing.bibbi" => ENV["sigh_com.5ing.bibbi_appstore_profile-name"],
-          "com.5ing.bibbi.widget" => ENV["sigh_com.5ing.bibbi.widget_appstore_profile-name"]
+          "com.5ing.bibbi" => "match AppStore com.5ing.bibbi",
+          "com.5ing.bibbi.widget" => "match AppStore com.5ing.bibbi.widget"
         }
       }
     )

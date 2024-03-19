@@ -190,12 +190,10 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             .bind(to: bibbiLottieView.rx.isHidden)
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldPushProfileViewController)
-            .compactMap { $0 }
-            .bind(with: self, onNext: { owner, memberId in
-                owner.dismiss(animated: true) {
-                    owner.postDidTapProfileImageNotification(memberId: memberId)
-                }
+        reactor.pulse(\.$shouldDismiss)
+            .filter { $0 }
+            .bind(with: self, onNext: { owner, _ in
+                owner.dismiss(animated: true)
             })
             .disposed(by: disposeBag)
         
@@ -350,16 +348,6 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
         fetchFailureView.do {
             $0.isHidden = true
         }
-    }
-}
-
-extension PostCommentViewController {
-    private func postDidTapProfileImageNotification(memberId: String) {
-        NotificationCenter.default.post(
-            name: .didTapProfilImage,
-            object: nil,
-            userInfo: ["memberId": memberId]
-        )
     }
 }
 

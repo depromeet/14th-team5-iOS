@@ -78,19 +78,10 @@ platform :ios do
     update_code_signing_settings(
       use_automatic_signing: false,
       path: "14th-team5-iOS/App/App.xcodeproj",
-      bundle_identifier: "com.5ing.bibbi",
+      bundle_identifier: ["com.5ing.bibbi","com.5ing.bibbi.widget"],
       code_sign_identity: "Apple Distribution",
-      profile_name: "match AppStore com.5ing.bibbi"
+      profile_name: ["match AppStore com.5ing.bibbi","match AppStore com.5ing.bibbi.widget"]
     )
-
-    update_code_signing_settings(
-      use_automatic_signing: false,
-      path: "14th-team5-iOS/App/App.xcodeproj",
-      bundle_identifier: "com.5ing.bibbi.widget",
-      code_sign_identity: "Apple Distribution",
-      profile_name: "match AppStore com.5ing.bibbi.widget"
-    )
-
     
     sync_code_signing(
       type: "appstore",

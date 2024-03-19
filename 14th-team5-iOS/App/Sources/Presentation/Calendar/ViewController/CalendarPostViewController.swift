@@ -34,7 +34,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     private let fireLottieView: LottieView = LottieView(with: .fire, contentMode: .scaleAspectFill)
     
     // MARK: - Properties
-    private let cellIndexRelay: PublishRelay<Int> = PublishRelay<Int>()
+    private let visibleCellIndex: PublishRelay<Int> = PublishRelay<Int>()
     private lazy var dataSource: RxCollectionViewSectionedReloadDataSource<PostListSectionModel> = prepareDatasource()
     
     // MARK: - Lifecycles
@@ -116,11 +116,11 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
 //            })
 //            .disposed(by: disposeBag)
         
-        cellIndexRelay
+        visibleCellIndex
             .flatMap {
                 Observable.merge(
                     Observable.just(Reactor.Action.setBlurImageIndex($0)),
-                    Observable.just(Reactor.Action.sendPostIdToReaction($0))
+                    Observable.just(Reactor.Action.sendPostToReaction($0))
                 )
             }
             .bind(to: reactor.action)
@@ -181,11 +181,11 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
-        reactor.state.compactMap { $0.visiblePostList }
-            .map { $0 }
+        reactor.state.compactMap { $0.visiblePost }
             .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe { $0.0.reactionViewController.postListData.accept($0.1) }
+            .bind(with: self) {
+                $0.reactionViewController.postListData.accept($1)
+            }
             .disposed(by: disposeBag)
         
         let allUploadedToastMessageView = reactor.pulse(\.$shouldPresentAllUploadedToastMessageView)
@@ -356,7 +356,7 @@ extension CalendarPostViewController {
             
             if fractionPart <= 0.0 {
                 let index: Int = Int(floorPosition)
-                cellIndexRelay.accept(index)
+                visibleCellIndex.accept(index)
             }
         }
         

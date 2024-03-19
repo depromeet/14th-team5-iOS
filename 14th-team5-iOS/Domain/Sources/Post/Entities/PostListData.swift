@@ -10,7 +10,7 @@ import Foundation
 public struct PostListData: Equatable, Hashable {
     public let postId: String
     public let author: ProfileData?
-    public let commentCount: Int
+    public var commentCount: Int
     public let emojiCount: Int
     public let imageURL: String
     public let content: String?

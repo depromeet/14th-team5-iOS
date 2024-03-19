@@ -78,12 +78,14 @@ platform :ios do
     update_code_signing_settings(
       use_automatic_signing: false,
       path: "14th-team5-iOS/App/App.xcodeproj",
+      code_sign_identity: "Apple Distribution",
       profile_name: "match appstore com.5ing.bibbi"
     )
 
     update_code_signing_settings(
       use_automatic_signing: false,
       path: "14th-team5-iOS/App/App.xcodeproj",
+      code_sign_identity: "Apple Distribution",
       profile_name: "match appstore com.5ing.bibbi.widget"
     )
 
@@ -104,7 +106,7 @@ platform :ios do
       path: "14th-team5-iOS/App/App.xcodeproj",
       teamid: "#{TEAM_ID}"
     )
-
+    
     build_app(
       workspace: "Bibbi.xcworkspace",
       scheme: "#{PRD_SCHEME}",

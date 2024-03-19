@@ -79,14 +79,14 @@ platform :ios do
       use_automatic_signing: false,
       path: "14th-team5-iOS/App/App.xcodeproj",
       code_sign_identity: "Apple Distribution",
-      profile_name: "match Appstore com.5ing.bibbi"
+      profile_name: "match AppStore com.5ing.bibbi"
     )
 
     update_code_signing_settings(
       use_automatic_signing: false,
       path: "14th-team5-iOS/App/App.xcodeproj",
       code_sign_identity: "Apple Distribution",
-      profile_name: "match Appstore com.5ing.bibbi.widget"
+      profile_name: "match AppStore com.5ing.bibbi.widget"
     )
 
     

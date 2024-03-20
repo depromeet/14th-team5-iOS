@@ -18,7 +18,7 @@ import Then
 
 public final class PrivacyViewController: BaseViewController<PrivacyViewReactor> {
     //MARK: Views
-    private let inquiryBannerView: UIButton = UIButton(type: .custom)
+    private let inquiryBannerView: BibbiInquireBannerView = BibbiInquireBannerView()
     private let privacyTableView: UITableView = UITableView(frame: .zero, style: .grouped)
     private let privacyIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     private let privacyTableViewDataSources: RxTableViewSectionedReloadDataSource<PrivacySectionModel> = .init { dataSoruces, tableView, indexPath, sectionItem in
@@ -52,8 +52,7 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
         super.setupAttributes()
     
         inquiryBannerView.do {
-            $0.setImage(DesignSystemAsset.inquiryFill.image, for: .normal)
-            $0.imageView?.contentMode = .scaleAspectFit
+            $0.backgroundColor = .mainYellow
         }
         
         navigationBarView.do {
@@ -140,11 +139,10 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
         inquiryBannerView
             .rx.tap
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind { owner, _ in
+            .bind(with: self, onNext: { owner, _ in
                 let webContentViewController = WebContentDIContainer(webURL: URLTypes.inquiry.originURL).makeViewController()
                 owner.navigationController?.pushViewController(webContentViewController, animated: true)
-            }.disposed(by: disposeBag)
+            }).disposed(by: disposeBag)
 
         privacyTableView.rx
             .itemSelected

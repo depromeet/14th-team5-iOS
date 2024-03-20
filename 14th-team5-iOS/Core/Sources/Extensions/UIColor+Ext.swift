@@ -74,6 +74,10 @@ extension UIColor {
         return DesignSystemAsset.gray900.color
     }
     
+    public static var blue500: UIColor {
+        return DesignSystemAsset.blue500.color
+    }
+    
     public static var mainGreen: UIColor {
         return DesignSystemAsset.mainGreen.color
     }

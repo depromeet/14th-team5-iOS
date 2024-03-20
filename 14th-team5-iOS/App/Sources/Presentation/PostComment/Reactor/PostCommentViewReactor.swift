@@ -206,7 +206,6 @@ final public class PostCommentViewReactor: Reactor {
             let body = CreatePostCommentRequest(content: safeComment)
             
             return Observable.concat(
-                // TODO: - Button Indicator UI 구현하기
                 Observable<Mutation>.just(.enableCommentTextField(false)),
                 
                 postCommentUseCase.executeCreatePostComment(postId: postId, body: body)

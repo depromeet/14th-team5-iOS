@@ -86,6 +86,13 @@ final class PostViewController: BaseViewController<PostReactor> {
             .bind(onNext: { $0.0.navigationController?.popViewController(animated: true) })
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$shouldPushProfileViewController)
+            .compactMap { $0 }
+            .bind(with: self) { owner, id in
+                owner.pushProfileViewController(memberId: id)
+            }
+            .disposed(by: disposeBag)
+        
         collectionView.rx.willBeginDragging
             .observe(on: MainScheduler.instance)
             .bind(onNext: { [weak self] _ in
@@ -133,8 +140,6 @@ final class PostViewController: BaseViewController<PostReactor> {
                 }
             }
             .disposed(by: disposeBag)
-        
-        didTapProfileImageNotificationHandler()
     }
     
     override func setupUI() {
@@ -263,22 +268,6 @@ extension PostViewController {
             profileController,
             animated: true
         )
-    }
-}
-
-extension PostViewController {
-    private func didTapProfileImageNotificationHandler() {
-        NotificationCenter.default
-            .rx.notification(.didTapProfilImage)
-            .withUnretained(self)
-            .bind { owner, notification in
-                guard let userInfo = notification.userInfo,
-                      let memberId = userInfo["memberId"] as? String else {
-                    return
-                }
-                owner.pushProfileViewController(memberId: memberId)
-            }
-            .disposed(by: disposeBag)
     }
 }
 

@@ -64,20 +64,6 @@ final class ReactionViewReactor: Reactor {
 }
 
 extension ReactionViewReactor {
-    func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
-        let postMutation = provider.postGlobalState.event
-            .flatMap { event in
-                switch event {
-                case let .renewalPostCommentCount(count):
-                    return Observable<Mutation>.just(.setPostCommentCount(count))
-                default:
-                    return Observable<Mutation>.empty()
-                }
-            }
-        
-        return Observable.merge(mutation, postMutation)
-    }
-    
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .fetchReactionList(let postId):

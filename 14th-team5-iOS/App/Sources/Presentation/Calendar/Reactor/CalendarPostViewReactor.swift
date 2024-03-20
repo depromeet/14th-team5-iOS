@@ -22,20 +22,21 @@ public final class CalendarPostViewReactor: Reactor {
         case fetchPostList(Date)
         case fetchCalendarResponse(String)
         case setBlurImageIndex(Int)
-        case sendPostIdToReaction(Int)
+        case sendPostToReaction(Int)
         case popViewController
     }
     
     // MARK: - Mutation
     public enum Mutation {
-        case popViewController
         case setAllUploadedToastMessageView(Bool)
         case injectCalendarResponse(String, ArrayResponseCalendarResponse)
         case injectPostResponse([PostListData])
         case injectBlurImageIndex(Int)
         case injectVisiblePost(PostListData)
+        case renewPostCommentCount(Int)
         case pushProfileViewController(String)
-        case clearPushNotificationInfo
+        case popViewController
+        case clearNotificationDeepLink
         case generateSelectionHaptic
     }
     
@@ -45,7 +46,7 @@ public final class CalendarPostViewReactor: Reactor {
         var notificationDeepLink: NotificationDeepLink? // 댓글 푸시 알림 체크 변수
         
         var blurImageUrlString: String?
-        var visiblePostList: PostListData?
+        var visiblePost: PostListData?
         @Pulse var displayPostResponse: [PostListSectionModel]
         @Pulse var displayCalendarResponse: [String: [CalendarResponse]]
         @Pulse var shouldPresentAllUploadedToastMessageView: Bool
@@ -90,7 +91,7 @@ public final class CalendarPostViewReactor: Reactor {
         self.provider = provider
     }
     
-    // MARK: - Transform
+    // MARK: - Transfor
     public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
         let toastMutation = provider.toastGlobalState.event
             .flatMap {
@@ -105,8 +106,8 @@ public final class CalendarPostViewReactor: Reactor {
                 switch event {
                 case let .pushProfileViewController(memberId):
                     return Observable<Mutation>.just(.pushProfileViewController(memberId))
-                default:
-                    return Observable<Mutation>.empty()
+                case let .renewalPostCommentCount(count):
+                    return Observable<Mutation>.just(.renewPostCommentCount(count))
                 }
             }
         
@@ -148,7 +149,7 @@ public final class CalendarPostViewReactor: Reactor {
                         return Observable.concat(
                             Observable<Mutation>.just(.injectPostResponse(postResponse)),
                             Observable<Mutation>.just(.injectBlurImageIndex(0)),
-                            Observable<Mutation>.just(.clearPushNotificationInfo)
+                            Observable<Mutation>.just(.clearNotificationDeepLink)
                         )
                     }
             }
@@ -178,12 +179,12 @@ public final class CalendarPostViewReactor: Reactor {
         case let .setBlurImageIndex(index):
             return Observable<Mutation>.just(.injectBlurImageIndex(index))
             
-        case let .sendPostIdToReaction(index):
+        case let .sendPostToReaction(index):
             guard let dataSource = currentState.displayPostResponse.first else {
                 return Observable<Mutation>.empty()
             }
-            let postListData = dataSource.items[index]
-            return Observable<Mutation>.just(.injectVisiblePost(postListData))
+            let post = dataSource.items[index]
+            return Observable<Mutation>.just(.injectVisiblePost(post))
         }
     }
     
@@ -192,14 +193,26 @@ public final class CalendarPostViewReactor: Reactor {
         var newState = state
         
         switch mutation {
-        case .popViewController:
-            newState.shouldPopViewController = true
-            
         case let .injectBlurImageIndex(index):
             guard let items = newState.displayPostResponse.first?.items else {
                 return newState
             }
             newState.blurImageUrlString = items[index].imageURL
+            
+        case let .renewPostCommentCount(count):
+            guard var posts = currentState.displayPostResponse.first?.items,
+                  let index = posts.firstIndex(where: { post in
+                post.postId == currentState.visiblePost?.postId
+            }) else {
+                return newState
+            }
+            guard var renewedPost = currentState.visiblePost else { return newState }
+            renewedPost.commentCount = count
+
+            posts[index] = renewedPost
+            
+            newState.visiblePost = posts[index] // ReactionViewController 데이터 갱신하기
+            newState.displayPostResponse = [.init(model: .none, items: posts)] // PostColelctionView 데이터 갱신하기
             
         case let .setAllUploadedToastMessageView(uploaded):
             newState.shouldPresentAllUploadedToastMessageView = uploaded
@@ -210,13 +223,16 @@ public final class CalendarPostViewReactor: Reactor {
         case let .injectPostResponse(postResponse):
             newState.displayPostResponse = [PostListSectionModel(model: .none, items: postResponse)]
             
-        case let .injectVisiblePost(postListData):
-            newState.visiblePostList = postListData
+        case let .injectVisiblePost(post):
+            newState.visiblePost = post
             
         case let .pushProfileViewController(memberId):
             newState.shouldPushProfileViewController = memberId
             
-        case .clearPushNotificationInfo:
+        case .popViewController:
+            newState.shouldPopViewController = true
+            
+        case .clearNotificationDeepLink:
             newState.notificationDeepLink = nil
             
         case .generateSelectionHaptic:

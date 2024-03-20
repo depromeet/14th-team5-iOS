@@ -19,6 +19,7 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     private let containerView: UIView = UIView()
     private let firstNameLabel: UILabel = BibbiLabel(.head2Bold, alignment: .center, textColor: .bibbiWhite)
     private let profileImageView: UIImageView = UIImageView()
+    private let profileButton: UIButton = UIButton()
     
     private let userNameStack: UIStackView = UIStackView()
     private let userNameLabel: BibbiLabel = BibbiLabel(.body2Bold, textColor: .gray100)
@@ -40,6 +41,10 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     
     // MARK: - Helerps
     public override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        disposeBag = DisposeBag()
+        
         userNameLabel.text = String.none
         createdAtLabel.text = String.none
         profileImageView.image = nil
@@ -59,9 +64,9 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
         
-        containerView.rx.tap
+        profileButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .map { Reactor.Action.didTapProfileImageView }
+            .map { Reactor.Action.didTapProfileButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
@@ -99,7 +104,7 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     public override func setupUI() {
         super.setupUI()
         
-        containerView.addSubviews(firstNameLabel, profileImageView)
+        containerView.addSubviews(firstNameLabel, profileImageView, profileButton)
         contentView.addSubviews(containerView, userNameStack, commentLabel)
         userNameStack.addArrangedSubviews(userNameLabel, createdAtLabel)
     }
@@ -111,6 +116,10 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
             $0.size.equalTo(44)
             $0.top.equalTo(contentView.snp.top).offset(8)
             $0.leading.equalTo(contentView.snp.leading).offset(20)
+        }
+        
+        profileButton.snp.makeConstraints {
+            $0.edges.equalToSuperview()
         }
         
         firstNameLabel.snp.makeConstraints {
@@ -139,6 +148,11 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         
         contentView.do {
             $0.backgroundColor = UIColor.bibbiBlack
+        }
+        
+        profileButton.do {
+            $0.setTitle(.none, for: .normal)
+            $0.backgroundColor = UIColor.clear
         }
         
         containerView.do {

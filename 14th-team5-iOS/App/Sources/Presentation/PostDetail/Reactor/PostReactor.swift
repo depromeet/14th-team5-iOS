@@ -21,6 +21,7 @@ final class PostReactor: Reactor {
     enum Mutation {
         case setPop
         case setSelectedPostIndex(Int)
+        case setPushProfileViewController(String)
     }
     
     struct State {
@@ -32,6 +33,7 @@ final class PostReactor: Reactor {
         
         @Pulse var fetchedPost: PostData? = nil
         @Pulse var reactionMemberIds: [String] = []
+        @Pulse var shouldPushProfileViewController: String?
         
         var notificationDeepLink: NotificationDeepLink?
     }
@@ -57,6 +59,20 @@ final class PostReactor: Reactor {
 }
 
 extension PostReactor {
+    func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+        let postMutation = provider.postGlobalState.event
+            .flatMap { event in
+                switch event {
+                case let .pushProfileViewController(memberId):
+                    return Observable<Mutation>.just(.setPushProfileViewController(memberId))
+                default:
+                    return Observable<Mutation>.empty()
+                }
+            }
+        
+        return Observable.merge(mutation, postMutation)
+    }
+    
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case let .setPost(index):
@@ -75,6 +91,9 @@ extension PostReactor {
             }
         case .setPop:
             newState.isPop = true
+            
+        case let .setPushProfileViewController(memberId):
+            newState.shouldPushProfileViewController = memberId
         }
         return newState
     }

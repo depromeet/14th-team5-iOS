@@ -24,7 +24,6 @@ final class PostDetailViewReactor: Reactor {
     
     enum Mutation {
         case injectDisplayContent([DisplayEditItemModel])
-        case setProfileViewController(String)
     }
     
     struct State {
@@ -53,7 +52,7 @@ extension PostDetailViewReactor {
         case .didTapProfileImageView:
             let memberId = initialState.post.author?.memberId ?? .none
             if memberUseCase.executeCheckIsValidMember(memberId: memberId) {
-                return Observable<Mutation>.just(.setProfileViewController(memberId))
+                provider.postGlobalState.pushProfileViewController(memberId)
             }
             return Observable<Mutation>.empty()
             
@@ -73,8 +72,6 @@ extension PostDetailViewReactor {
         switch mutation {
         case let .injectDisplayContent(section):
             newState.fetchedDisplayContent = [.displayKeyword(section)]
-        case let .setProfileViewController(memberId):
-            newState.shouldPushProfileViewController = memberId
         }
         return newState
     }

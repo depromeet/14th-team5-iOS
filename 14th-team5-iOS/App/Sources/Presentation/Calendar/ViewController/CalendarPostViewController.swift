@@ -34,7 +34,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     private let fireLottieView: LottieView = LottieView(with: .fire, contentMode: .scaleAspectFill)
     
     // MARK: - Properties
-    private let cellIndexRelay: PublishRelay<Int> = PublishRelay<Int>()
+    private let visibleCellIndex: PublishRelay<Int> = PublishRelay<Int>()
     private lazy var dataSource: RxCollectionViewSectionedReloadDataSource<PostListSectionModel> = prepareDatasource()
     
     private let deepLinkRepo = DeepLinkRepository()
@@ -125,11 +125,11 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
 //            })
 //            .disposed(by: disposeBag)
         
-        cellIndexRelay
+        visibleCellIndex
             .flatMap {
                 Observable.merge(
                     Observable.just(Reactor.Action.setBlurImageIndex($0)),
-                    Observable.just(Reactor.Action.sendPostIdToReaction($0))
+                    Observable.just(Reactor.Action.sendPostToReaction($0))
                 )
             }
             .bind(to: reactor.action)
@@ -200,11 +200,19 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
-        reactor.state.compactMap { $0.visiblePostList }
-            .map { $0 }
+        reactor.state.compactMap { $0.visiblePost }
             .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe { $0.0.reactionViewController.postListData.accept($0.1) }
+            .bind(with: self) {
+                $0.reactionViewController.postListData.accept($1)
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPushProfileViewController)
+            .delay(.milliseconds(500), scheduler: Schedulers.main)
+            .compactMap { $0 }
+            .bind(with: self) { owner, id in
+                owner.pushProfileViewController(memberId: id)
+            }
             .disposed(by: disposeBag)
         
         let allUploadedToastMessageView = reactor.pulse(\.$shouldPresentAllUploadedToastMessageView)
@@ -260,9 +268,8 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
                 }
             }
             .disposed(by: disposeBag)
-        
-        didTapProfileImageNotificationHandler()
-        didTapSelectableCameraButtonNotifcationHandler()
+
+        didTapCameraButtonNotifcationHandler()
     }
     
     public override func setupUI() {
@@ -390,7 +397,7 @@ extension CalendarPostViewController {
             
             if fractionPart <= 0.0 {
                 let index: Int = Int(floorPosition)
-                cellIndexRelay.accept(index)
+                visibleCellIndex.accept(index)
             }
         }
         
@@ -452,25 +459,12 @@ extension CalendarPostViewController {
 }
 
 extension CalendarPostViewController {
-    private func didTapSelectableCameraButtonNotifcationHandler() {
+    private func didTapCameraButtonNotifcationHandler() {
         NotificationCenter.default
             .rx.notification(.didTapSelectableCameraButton)
             .withUnretained(self)
             .bind { owner, _ in
                 owner.pushCameraViewController(cameraType: .realEmoji)
-            }.disposed(by: disposeBag)
-    }
-    
-    private func didTapProfileImageNotificationHandler() {
-        NotificationCenter.default
-            .rx.notification(.didTapProfilImage)
-            .withUnretained(self)
-            .bind { owner, notification in
-                guard let userInfo = notification.userInfo,
-                      let memberId = userInfo["memberId"] as? String else {
-                    return
-                }
-                owner.pushProfileViewController(memberId: memberId)
             }
             .disposed(by: disposeBag)
     }

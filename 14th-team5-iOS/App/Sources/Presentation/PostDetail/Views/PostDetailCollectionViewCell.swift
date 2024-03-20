@@ -199,7 +199,7 @@ extension PostDetailCollectionViewCell {
         reactor.pulse(\.$shouldPushProfileViewController)
             .compactMap { $0 }
             .bind(with: self) { owner, memberId in
-                owner.postDidTapProfileImageNotification(memberId: memberId)
+                
             }
             .disposed(by: disposeBag)
     }
@@ -226,14 +226,6 @@ extension PostDetailCollectionViewCell {
         if let name = post.author?.name {
             userNameLabel.text = name
         }
-    }
-    
-    private func postDidTapProfileImageNotification(memberId: String) {
-        NotificationCenter.default.post(
-            name: .didTapProfilImage,
-            object: nil,
-            userInfo: ["memberId": memberId]
-        )
     }
 }
 

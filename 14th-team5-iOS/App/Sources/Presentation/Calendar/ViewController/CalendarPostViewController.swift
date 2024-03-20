@@ -188,6 +188,14 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$shouldPushProfileViewController)
+            .delay(.milliseconds(500), scheduler: Schedulers.main)
+            .compactMap { $0 }
+            .bind(with: self) { owner, id in
+                owner.pushProfileViewController(memberId: id)
+            }
+            .disposed(by: disposeBag)
+        
         let allUploadedToastMessageView = reactor.pulse(\.$shouldPresentAllUploadedToastMessageView)
             .asDriver(onErrorJustReturn: false)
         
@@ -226,9 +234,8 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
 //            .withUnretained(self)
 //            .subscribe { $0.0.navigationController?.popViewController(animated: true) }
 //            .disposed(by: disposeBag)
-//        
-        didTapProfileImageNotificationHandler()
-        didTapSelectableCameraButtonNotifcationHandler()
+//
+        didTapCameraButtonNotifcationHandler()
     }
     
     public override func setupUI() {
@@ -437,25 +444,12 @@ extension CalendarPostViewController {
 }
 
 extension CalendarPostViewController {
-    private func didTapSelectableCameraButtonNotifcationHandler() {
+    private func didTapCameraButtonNotifcationHandler() {
         NotificationCenter.default
             .rx.notification(.didTapSelectableCameraButton)
             .withUnretained(self)
             .bind { owner, _ in
                 owner.pushCameraViewController(cameraType: .realEmoji)
-            }.disposed(by: disposeBag)
-    }
-    
-    private func didTapProfileImageNotificationHandler() {
-        NotificationCenter.default
-            .rx.notification(.didTapProfilImage)
-            .withUnretained(self)
-            .bind { owner, notification in
-                guard let userInfo = notification.userInfo,
-                      let memberId = userInfo["memberId"] as? String else {
-                    return
-                }
-                owner.pushProfileViewController(memberId: memberId)
             }
             .disposed(by: disposeBag)
     }

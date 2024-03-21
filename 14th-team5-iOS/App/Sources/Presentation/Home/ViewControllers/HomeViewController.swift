@@ -28,6 +28,10 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
     private let cameraButton: UIButton = UIButton()
     private let refreshControl: UIRefreshControl = UIRefreshControl()
     
+    // MARK: - Properties
+    private let memberRepo = App.Repository.member
+    private let deepLinkRepo = App.Repository.deepLink
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -140,11 +144,9 @@ extension HomeViewController {
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
         
-        App.Repository.member.postId
-            .observe(on: MainScheduler.instance)
-            .compactMap { $0 }
-            .withUnretained(self)
-            .bind(onNext: { $0.0.pushPostViewController($0.1)})
+        Observable.just(())
+            .map { Reactor.Action.viewDidLoad }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         self.inviteFamilyView.rx.tap
@@ -154,9 +156,17 @@ extension HomeViewController {
             .disposed(by: disposeBag)
         
         self.rx.viewWillAppear
+            .withUnretained(self)
+            // 별도 딥링크를 받지 않으면
+            .filter {
+                let repo = $0.0.deepLinkRepo
+                return repo.notification.value == nil && repo.widget.value == nil
+            }
+            // viewWillAppear 메서드 수행하기
             .map { _ in Reactor.Action.viewWillAppear }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        // 노티피케이션 딥링크를 받게 된다면 딥링크 처리 과정에서 viewWillAppear를 대신 불러옴
         
         refreshControl.rx.controlEvent(.valueChanged)
             .map { Reactor.Action.refresh }
@@ -212,6 +222,28 @@ extension HomeViewController {
         cameraButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .map { Reactor.Action.tapCameraButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        // 위젯 딥링크 코드
+        App.Repository.deepLink.widget
+            .compactMap { $0 }
+            .map { Reactor.Action.pushWidgetPostDeepLink($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        // 푸시 노티피케이션 딥링크 코드
+        App.Repository.deepLink.notification
+            .compactMap { $0 }
+            .flatMap {
+                // 댓글 푸시 알림이라면
+                if $0.openComment {
+                    return Observable.just(Reactor.Action.pushNotificationCommentDeepLink($0))
+                // 포스트 푸시 알림이라면
+                } else {
+                    return Observable.just(Reactor.Action.pushNotificationPostDeepLink($0))
+                }
+            }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
@@ -312,6 +344,33 @@ extension HomeViewController {
                 )
             }
             .disposed(by: disposeBag)
+        
+        // 위젯 딥링크 코드
+        reactor.pulse(\.$widgetPostDeepLink)
+            .delay(RxConst.smallDelayInterval, scheduler: Schedulers.main)
+            .compactMap { $0 }
+            .bind(with: self) { owner, deepLink in
+                owner.handlePostWidgetDeepLink(deepLink)
+            }
+            .disposed(by: disposeBag)
+        
+        // 포스트 노티피케이션 딥링크 코드
+        reactor.pulse(\.$notificationPostDeepLink)
+            .delay(RxConst.smallDelayInterval, scheduler: Schedulers.main)
+            .compactMap { $0 }
+            .bind(with: self) { owner, deepLink in
+                owner.handlePostNotificationDeepLink(deepLink)
+            }
+            .disposed(by: disposeBag)
+        
+        // 댓글 노티피케이션 딥링크 코드
+        reactor.pulse(\.$notificationCommentDeepLink)
+            .delay(RxConst.smallDelayInterval, scheduler: Schedulers.main)
+            .compactMap { $0 }
+            .bind(with: self) { owner, deepLink in
+                owner.handleCommentNotificationDeepLink(deepLink)
+            }
+            .disposed(by: disposeBag)
     }
 }
 
@@ -320,17 +379,79 @@ extension HomeViewController {
         balloonView.isHidden = isHidden
         cameraButton.isHidden = isHidden
     }
-    
-    private func pushPostViewController(_ postId: String) {
+}
+
+extension HomeViewController {
+    private func handlePostWidgetDeepLink(_ deepLink: WidgetDeepLink) {
         guard let reactor = reactor else { return }
         reactor.currentState.postSection.items.enumerated().forEach { (index, item) in
             switch item {
             case .main(let postListData):
-                if postListData.postId == postId {
+                if postListData.postId == deepLink.postId {
                     let indexPath = IndexPath(row: index, section: 0)
-                    self.navigationController?.pushViewController(PostListsDIContainer().makeViewController(postLists: reactor.currentState.postSection, selectedIndex: indexPath), animated: true)
+                    self.navigationController?.pushViewController(
+                        PostListsDIContainer().makeViewController(
+                            postLists: reactor.currentState.postSection,
+                            selectedIndex: indexPath),
+                        animated: true
+                    )
                 }
             }
+        }
+    }
+    
+    private func handlePostNotificationDeepLink(_ deepLink: NotificationDeepLink) {
+        guard let reactor = reactor else { return }
+        reactor.currentState.postSection.items.enumerated().forEach { (index, item) in
+            switch item {
+            case .main(let post):
+                if post.postId == deepLink.postId {
+                    let indexPath = IndexPath(row: index, section: 0)
+                    self.navigationController?.pushViewController(
+                        PostListsDIContainer().makeViewController(
+                            postLists: reactor.currentState.postSection,
+                            selectedIndex: indexPath),
+                        animated: true
+                    )
+                }
+            }
+        }
+    }
+    
+    private func handleCommentNotificationDeepLink(_ deepLink: NotificationDeepLink) {
+        guard let reactor = reactor else { return }
+        
+        // 오늘 올린 피드에 댓글이 달렸다면
+        if deepLink.dateOfPost.isToday {
+            guard let selectedIndex = reactor.currentState.postSection.items.firstIndex(where: { postList in
+                switch postList {
+                case let .main(post):
+                    post.postId == deepLink.postId
+                }
+            }) else { return }
+            let indexPath = IndexPath(row: selectedIndex, section: 0)
+            
+            let postListViewController = PostListsDIContainer().makeViewController(
+                postLists: reactor.currentState.postSection,
+                selectedIndex: indexPath,
+                notificationDeepLink: deepLink
+            )
+            
+            navigationController?.pushViewController(
+                postListViewController,
+                animated: true
+            )
+        // 이전에 올린 피드에 댓글이 달렸다면
+        } else {
+            let calendarPostViewController = CalendarPostDIConatainer(
+                selectedDate: deepLink.dateOfPost,
+                notificationDeepLink: deepLink
+            ).makeViewController()
+            
+            navigationController?.pushViewController(
+                calendarPostViewController,
+                animated: true
+            )
         }
     }
 }

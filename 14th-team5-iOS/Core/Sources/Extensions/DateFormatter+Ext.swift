@@ -51,7 +51,7 @@ extension DateFormatter {
 }
 
 extension DateFormatter {
-    public enum format {
+    public enum Format {
         case m
         case mm
         case yyyyM
@@ -78,7 +78,7 @@ extension DateFormatter {
             case .dashYyyyMM:
                 return "yyyy-MM"
             case .dashYyyyMMdd:
-                return "yyyy년 MM월 dd일"
+                return "yyyy-MM-dd"
             case .dashYyyyMMddhhmmss:
                 return "yyyy-MM-dd hh:mm:ss"
             case .ahhmmss:

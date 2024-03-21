@@ -246,3 +246,92 @@ extension UIViewController {
         )
     }
 }
+
+extension UIViewController {
+    
+    public func presentSheet(
+        _ viewController: UIViewController,
+        allowMediumDetent: Bool
+    ) {
+        let detents: [UISheetPresentationController.Detent] = if allowMediumDetent {
+            [.medium(), .large()]
+        } else {
+            [.large()]
+        }
+        presentSheet(
+            viewController,
+            detents: detents
+        )
+    }
+    
+    public func presentSheet(
+        _ viewController: UIViewController,
+        detents: [UISheetPresentationController.Detent]?,
+        prefersScrollingExpandsWhenScrolledToEdge expands: Bool = false,
+        prefersGrabberVisible grabber: Bool = false
+    ) {
+        if let sheet = viewController.sheetPresentationController {
+            if let detents = detents {
+                sheet.detents = detents
+            }
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = expands
+            sheet.prefersGrabberVisible = grabber
+        }
+        
+        present(viewController, animated: true)
+    }
+    
+    @available(iOS 16.0, *)
+    public func presentSheet(
+        _ viewController: UIViewController,
+        detentHeightRatio ratios: [CGFloat],
+        allowLargeDetent: Bool = false,
+        prefersScrollingExpandsWhenScrolledToEdge expands: Bool = false,
+        prefersGrabberVisble grabber: Bool = false
+    ) {
+        var customHeightDetents: [UISheetPresentationController.Detent] = []
+        
+        ratios.forEach { ratio in
+            let identifier = UISheetPresentationController.Detent.Identifier("\(ratio).identifier")
+            let customDetent = UISheetPresentationController.Detent.custom(identifier: identifier) { context in
+                return context.maximumDetentValue * ratio
+            }
+            customHeightDetents.append(customDetent)
+        }
+        
+        let detents = if allowLargeDetent {
+            customHeightDetents + [.large()]
+        } else {
+            customHeightDetents
+        }
+        
+        presentSheet(
+            viewController,
+            detents: detents,
+            prefersScrollingExpandsWhenScrolledToEdge: expands,
+            prefersGrabberVisible: grabber
+        )
+    }
+    
+    /// 댓글 목록 화면을 시트로 출력하기 위한 메서드입니다.
+    ///
+    /// - parameter postCommentViewController: PostCommentViewController 타입의 뷰 컨트롤러
+    public func presentPostCommentSheet(
+        _ postCommentViewController: UIViewController
+    ) {
+        let ratio = UIScreen.isPhoneSE ? 0.815 : 0.835
+        
+        if #available(iOS 16.0, *) {
+            presentSheet(
+                postCommentViewController,
+                detentHeightRatio: [ratio],
+                allowLargeDetent: true
+            )
+        } else {
+            presentSheet(
+                postCommentViewController,
+                allowMediumDetent: true
+            )
+        }
+    }
+}

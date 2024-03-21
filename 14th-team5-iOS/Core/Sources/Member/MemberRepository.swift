@@ -13,10 +13,9 @@ import RxCocoa
 public class MemberRepository: RxObject {
     public let familyId = BehaviorRelay<String?>(value: nil)
     public let memberID = BehaviorRelay<String?>(value: nil)
-    public let nickname = BehaviorRelay<String?>(value: nil)
-    public let inviteCode = BehaviorRelay<String?>(value: nil)
     public let postId = BehaviorRelay<String?>(value: nil)
-    public let openComment = BehaviorRelay<Bool?>(value: nil)
+    public let inviteCode = BehaviorRelay<String?>(value: nil)
+    public let nickname = BehaviorRelay<String?>(value: nil)
     public let familyCreatedAt = BehaviorRelay<Date?>(value: nil)
     
     override public func bind() {
@@ -72,18 +71,12 @@ public class MemberRepository: RxObject {
     }
     
     private func savePostId(with postId: String?) {
-        guard let postId = postId else {
-            UserDefaults.standard.postId = nil
-            return
-        }
+        guard let postId = postId else { return }
         UserDefaults.standard.postId = postId
     }
     
     private func saveFamilyCreatedAt(with date: Date?) {
-        guard let date = date else {
-            UserDefaults.standard.createdAt = nil
-            return
-        }
+        guard let date = date else { return }
         UserDefaults.standard.createdAt = date
     }
     

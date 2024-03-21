@@ -5,12 +5,12 @@
 //  Created by Kim dohyun on 11/15/23.
 //
 
-import UIKit
 import Core
-
-import Domain
 import Data
+import Domain
+import UIKit
 
+import AuthenticationServices
 import Firebase
 import FirebaseCore
 import FirebaseAnalytics
@@ -19,7 +19,6 @@ import KakaoSDKAuth
 import RxKakaoSDKAuth
 import RxKakaoSDKCommon
 import RxSwift
-import AuthenticationServices
 import Mixpanel
 
 @main
@@ -164,17 +163,46 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        guard let (postId, openComment) = self.decodeRemoteNotificationDeepLink(response) else {
+        let userInfo = response.notification.request.content.userInfo
+        guard let deepLink = decodeRemoteNotificationDeepLink(userInfo) else {
             completionHandler()
             return
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            if openComment { App.Repository.member.openComment.accept(openComment) }
-            App.Repository.member.postId.accept(postId)
+            App.Repository.deepLink.notification.accept(deepLink)
         }
         
         completionHandler()
+    }
+    
+    func decodeRemoteNotificationDeepLink(_ userInfo: [AnyHashable: Any]) -> NotificationDeepLink? {
+        if let link = userInfo[AnyHashable("iosDeepLink")] as? String {
+            let components = link.components(separatedBy: "?")
+            let parameters = components.last?.components(separatedBy: "&")
+
+            // PostID 구하기
+            let postId = components.first?.components(separatedBy: "/").last ?? ""
+
+            // OpenComment 구하기
+            let firstPart = parameters?.first
+            let openComment = firstPart?.components(separatedBy: "=").last == "true" ? true : false
+
+            // dateOfPost 구하기
+            let secondPart = parameters?.last
+            let dateOfPost = secondPart?.components(separatedBy: "=").last?.toDate(with: .dashYyyyMMdd) ?? Date()
+            
+            let deepLink = NotificationDeepLink(
+                postId: postId,
+                openComment: openComment,
+                dateOfPost: dateOfPost
+            )
+            debugPrint("Push Notification Request UserInfo: \(postId), \(openComment), \(dateOfPost)")
+            return deepLink
+        }
+        
+        print("Error: Decoding Notification Request UserInfo")
+        return nil
     }
 }
 
@@ -182,41 +210,12 @@ extension AppDelegate {
     func bindRepositories() {
         App.Repository.token.bind()
         App.Repository.member.bind()
+        App.Repository.deepLink.bind()
     }
 
     func unbindRepositories() {
         App.Repository.token.unbind()
         App.Repository.member.unbind()
-    }
-}
-
-extension AppDelegate {
-    func decodeRemoteNotificationDeepLink(_ response: UNNotificationResponse) -> (String, Bool)? {
-        let userInfo = response.notification.request.content.userInfo
-        if let fcmData = userInfo[AnyHashable("data")] as? String {
-            var dictionary: [String: Any]?
-            if let data = fcmData.data(using: .utf8) {
-                do {
-                    dictionary = try JSONSerialization.jsonObject(with: data, options: []) as? Dictionary
-                    if let dict = dictionary,
-                       let link = dict["iosDeepLink"] as? String {
-                        let components = link.components(separatedBy: "?")
-                        
-                        let firstPart = components.first ?? ""
-                        let postId = firstPart.components(separatedBy: "/").last ?? ""
-                        
-                        let secondPart = components.last ?? ""
-                        let openComment = secondPart.components(separatedBy: "=").last == "true" ? true : false
-                        
-                        debugPrint("\(postId), \(openComment)")
-                        return (postId, openComment)
-                    }
-                } catch {
-                    print(error.localizedDescription)
-                }
-            }
-        }
-        
-        return nil
+        App.Repository.deepLink.unbind()
     }
 }

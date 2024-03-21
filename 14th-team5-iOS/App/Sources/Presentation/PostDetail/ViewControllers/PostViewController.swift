@@ -21,6 +21,9 @@ final class PostViewController: BaseViewController<PostReactor> {
     private let collectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     private let reactionViewController: ReactionViewController = ReactionDIContainer().makeViewController(post: .init(postId: "", author: nil, commentCount: 0, emojiCount: 0, imageURL: "", content: nil, time: ""))
     
+    // MARK: - Properties
+    private let deepLinkRepo = DeepLinkRepository()
+    
     convenience init(reactor: Reactor? = nil) {
         self.init()
         self.reactor = reactor
@@ -30,8 +33,14 @@ final class PostViewController: BaseViewController<PostReactor> {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.navigationBar.isHidden = true
-        App.Repository.member.postId.accept(nil)
-        App.Repository.member.openComment.accept(nil)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        // HomeViewController는 notification이 nil일 때만
+        // ViewWillAppear시 가족과 피드를 불러오므로, nil 항목 전달이 필수임
+        App.Repository.deepLink.widget.accept(nil)
+        App.Repository.deepLink.notification.accept(nil)
     }
     
     override func bind(reactor: PostReactor) {
@@ -104,6 +113,32 @@ final class PostViewController: BaseViewController<PostReactor> {
             .distinctUntilChanged()
             .map { Reactor.Action.setPost($0) }
             .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        // 댓글 노티피케이션 딥링크 코드
+        reactor.state.compactMap { $0.notificationDeepLink }
+            .distinctUntilChanged(at: \.postId)
+            .filter { $0.openComment }
+            .bind(with: self) { owner, deepLink in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    let postList = reactor.initialState.originPostLists.items
+                    if let postList = postList.first(where: { item in
+                        switch item {
+                        case let .main(post):
+                            post.postId == deepLink.postId
+                        }
+                    }) {
+                        switch postList {
+                        case let .main(post):
+                            let postCommentViewController = PostCommentDIContainer(
+                                postId: post.postId
+                            ).makeViewController()
+                            
+                            owner.presentPostCommentSheet(postCommentViewController)
+                        }
+                    }
+                }
+            }
             .disposed(by: disposeBag)
     }
     
@@ -196,6 +231,23 @@ extension PostViewController {
         return currentPage
     }
     
+    private func createDataSource() -> RxCollectionViewSectionedReloadDataSource<PostSection.Model> {
+        return RxCollectionViewSectionedReloadDataSource<PostSection.Model>(
+            configureCell: { (_, collectionView, indexPath, item) in
+                switch item {
+                case .main(let data):
+                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostDetailCollectionViewCell.id, for: indexPath) as? PostDetailCollectionViewCell else {
+                        return UICollectionViewCell()
+                    }
+                    cell.reactor = PostDetailCellDIContainer().makeReactor(post: data)
+                    cell.setCell(data: data)
+                    return cell
+                }
+            })
+    }
+}
+
+extension PostViewController {
     private func pushCameraViewController(cameraType type: UploadLocation) {
         let cameraViewController = CameraDIContainer(
             cameraType: type
@@ -216,21 +268,6 @@ extension PostViewController {
             profileController,
             animated: true
         )
-    }
-    
-    private func createDataSource() -> RxCollectionViewSectionedReloadDataSource<PostSection.Model> {
-        return RxCollectionViewSectionedReloadDataSource<PostSection.Model>(
-            configureCell: { (_, collectionView, indexPath, item) in
-                switch item {
-                case .main(let data):
-                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostDetailCollectionViewCell.id, for: indexPath) as? PostDetailCollectionViewCell else {
-                        return UICollectionViewCell()
-                    }
-                    cell.reactor = PostDetailCellDIContainer().makeReactor(post: data)
-                    cell.setCell(data: data)
-                    return cell
-                }
-            })
     }
 }
 

@@ -5,19 +5,24 @@
 //  Created by 김건우 on 12/16/23.
 //
 
-import UIKit
 
 import Core
 import Data
 import Domain
+import UIKit
 
 public final class CalendarPostDIConatainer {
     // MARK: - Properties
     let selectedDate: Date
+    let notificationDeepLink: NotificationDeepLink? // 댓글 푸시 알림 체크 변수
     
     // MARK: - Intializer
-    init(selectedDate selection: Date) {
+    init(
+        selectedDate selection: Date,
+        notificationDeepLink: NotificationDeepLink? = nil
+    ) {
         self.selectedDate = selection
+        self.notificationDeepLink = notificationDeepLink
     }
     
     private var globalState: GlobalStateProviderProtocol {
@@ -51,6 +56,7 @@ public final class CalendarPostDIConatainer {
     public func makeReactor() -> CalendarPostViewReactor {
         return CalendarPostViewReactor(
             selectedDate,
+            notificationDeepLink: notificationDeepLink,
             calendarUseCase: makeCalendarUseCase(),
             postListUseCase: makePostListUseCase(),
             provider: globalState

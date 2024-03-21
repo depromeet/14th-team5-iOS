@@ -34,6 +34,8 @@ final class PostReactor: Reactor {
         @Pulse var fetchedPost: PostData? = nil
         @Pulse var reactionMemberIds: [String] = []
         @Pulse var shouldPushProfileViewController: String?
+        
+        var notificationDeepLink: NotificationDeepLink?
     }
     
     let initialState: State
@@ -42,7 +44,13 @@ final class PostReactor: Reactor {
     let emojiRepository: EmojiUseCaseProtocol
     let provider: GlobalStateProviderProtocol
     
-    init(provider: GlobalStateProviderProtocol, realEmojiRepository: RealEmojiUseCaseProtocol, emojiRepository: EmojiUseCaseProtocol, initialState: State) {
+    
+    init(
+        provider: GlobalStateProviderProtocol,
+        realEmojiRepository: RealEmojiUseCaseProtocol,
+        emojiRepository: EmojiUseCaseProtocol,
+        initialState: State
+    ) {
         self.provider = provider
         self.realEmojiRepository = realEmojiRepository
         self.emojiRepository = emojiRepository

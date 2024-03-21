@@ -22,15 +22,19 @@ DEV_SCHEME = ENV["DEV_SCHEME"]
 BUNDLE_ID = ENV["BUNDLE_ID"]
 WIDGET_BUNDLE_ID = ENV["WIDGET_BUNDLE_ID"]
 
-APP_STORE_CONNECT_KEY_ID = ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"]
-APP_STORE_CONNECT_ISSUER_ID = ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"]
-APP_STORE_CONNECT_API_KEY = ENV["APP_STORE_CONNECT_API_KEY_KEY"]
+APP_STORE_CONNECT_API_KEY_KEY_ID = ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"]
+APP_STORE_CONNECT_API_KEY_ISSUER_ID = ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"]
+APP_STORE_CONNECT_API_KEY_KEY = ENV["APP_STORE_CONNECT_API_KEY_KEY"]
 
 KEYCHAIN_NAME = ENV["KEYCHAIN_NAME"]
 KEYCHAIN_PASSWORD = ENV["KEYCHAIN_PASSWORD"]
+P12_PASSWORD =ENV["P12_PASSWORD"]
 
 PROJECT_PATH = ENV["PROJECT_PATH"]
+TEAM_ID = ENV["TEAM_ID"]
+APPLE_ID = ENV["APPLE_ID"]
 SLACK_HOOK_URL = ENV["SLACK_HOOK_URL"]
+PROFILE_PATH = ENV["PROFILE_PATH"]
 
 
 default_platform(:ios)
@@ -46,39 +50,82 @@ platform :ios do
       timeout: 3600,
       lock_when_sleeps: true
     )
-
-    import_certificate(
-      certificate_path: "./Tuist/Signing/prd.cer",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
-    )
-
-    import_certificate(
-      certificate_path: "Tuist/Signing/prd.p12",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
-    )
-
-    import_certificate(
-      certificate_path: "Tuist/Signing/dev.cer",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
-    )
-
-    import_certificate(
-      certificate_path: "Tuist/Signing/dev.p12",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
-    )
-
-    install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.PRD.mobileprovision")
-    install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.STG.mobileprovision")
-    install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.DEV.mobileprovision")
-
-    install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.PRD.mobileprovision")
-    install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.STG.mobileprovision")
-    install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.DEV.mobileprovision")
   end
+
+  lane :github_action_upload_testflight do |options|
+    app_store_connect_api_key(
+      key_id: "#{APP_STORE_CONNECT_API_KEY_KEY_ID}",
+      issuer_id: "#{APP_STORE_CONNECT_API_KEY_ISSUER_ID}",
+      key_content: "#{APP_STORE_CONNECT_API_KEY_KEY}",
+      is_key_content_base64: true,
+      in_house: false
+    )
+
+    match(
+      storage_mode: "git",
+      type: "appstore",
+      app_identifier: ["com.5ing.bibbi","com.5ing.bibbi.widget"],
+      readonly: true,
+      git_basic_authorization: Base64.strict_encode64("Do-hyun-Kim:#{ENV["MATCH_PERSONAL_TOKEN"]}"),
+      generate_apple_certs: false,
+      keychain_name: "#{KEYCHAIN_NAME}",
+      keychain_password: "#{KEYCHAIN_PASSWORD}"
+    )
+
+    new_build_number = latest_testflight_build_number() + 1
+
+
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "14th-team5-iOS/App/App.xcodeproj",
+      bundle_identifier: "com.5ing.bibbi",
+      code_sign_identity: "Apple Distribution",
+      profile_name: "match AppStore com.5ing.bibbi",
+      targets: "App"
+    )
+
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "14th-team5-iOS/App/App.xcodeproj",
+      bundle_identifier: "com.5ing.bibbi.widget",
+      code_sign_identity: "Apple Distribution",
+      profile_name: "match AppStore com.5ing.bibbi.widget",
+      targets: "WidgetExtension"
+    )
+
+    
+    sync_code_signing(
+      type: "appstore",
+      app_identifier: ["com.5ing.bibbi","com.5ing.bibbi.widget"],
+      force_for_new_devices: true,
+      readonly: true
+    )
+
+    increment_build_number(
+      xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
+      build_number: new_build_number
+    )
+
+    update_project_team(
+      path: "14th-team5-iOS/App/App.xcodeproj",
+      teamid: "#{TEAM_ID}"
+    )
+
+    build_app(
+      workspace: "Bibbi.xcworkspace",
+      scheme: "#{PRD_SCHEME}",
+      export_method: "app-store",
+      export_options: {
+        provisioningProfiles: {
+          "com.5ing.bibbi" => "match AppStore com.5ing.bibbi",
+          "com.5ing.bibbi.widget" => "match AppStore com.5ing.bibbi.widget"
+        }
+      }
+    )
+    deliver
+
+  end
+
 
 
 
@@ -117,7 +164,7 @@ platform :ios do
 
     slack(
       message: "⭐️ 테스트 플라이트 업로드 성공",
-      slack_url: "#{SLACK_HOOK_URL}",
+      slack_url: "https://hooks.slack.com/services/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",
       username: "대신 배포해주는 고양이",
       icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
       payload: {
@@ -173,7 +220,7 @@ platform :ios do
 
     slack(
       message: "⭐️ 테스트 플라이트 업로드 성공",
-      slack_url: "#{SLACK_HOOK_URL}",
+      slack_url: "https://hooks.slack.com/services/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",
       username: "대신 배포해주는 고양이",
       icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
       payload: {

@@ -46,6 +46,18 @@ private let targets: [Target] = [
                 "MIXPANEL_API_KEY": .string("$(MIXPANEL_API_KEY)"),
                 "TEAM_ID": .string("$(TEAM_ID)"),
             ]),
+            settings: .settings(
+                base: [
+                    "CODE_SIGN_STYLE": "Manual",
+                    "DEVELOPMENT_TEAM": "P9P4WJ623F",
+                    "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.5ing.bibbi",
+                    "CODE_SIGN_IDENTITY": "Apple Distribution"
+                ],
+                configurations: [
+                    .build(.dev, name: "DEV"),
+                    .build(.prd, name: "PRD"),
+                    .build(.stg, name: "STG")
+                ]),
             entitlements: .relativeToRoot("App.entitlements")
         )
     ),
@@ -59,6 +71,18 @@ private let targets: [Target] = [
                 "NSExtensionPointIdentifier": .string("com.apple.widgetkit-extension")
             ])
         ]),
+        settings: .settings(
+            base: [
+                "CODE_SIGN_STYLE": "Manual",
+                "DEVELOPMENT_TEAM": "P9P4WJ623F",
+                "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.5ing.bibbi.widget",
+                "CODE_SIGN_IDENTITY": "Apple Distribution"
+            ],
+            configurations: [
+                .build(.dev, name: "DEV"),
+                .build(.prd, name: "PRD"),
+                .build(.stg, name: "STG")
+            ]),
         entitlements: .relativeToRoot("WidgetExtension.entitlements")
     )
 )

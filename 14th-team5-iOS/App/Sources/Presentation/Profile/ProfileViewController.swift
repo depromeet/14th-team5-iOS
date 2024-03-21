@@ -36,7 +36,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
 
     private let profileIndicatorView: BlurAiraplaneLottieView = BlurAiraplaneLottieView()
     private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 50)
-    private let profileNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let profileLineView: UIView = UIView()
     private lazy var profilePickerController: PHPickerViewController = PHPickerViewController(configuration: pickerConfiguration)
     private let profileFeedCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
@@ -58,7 +57,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.navigationController?.navigationBar.isHidden = true
         self.profileIndicatorView.isHidden = false
     }
     
@@ -73,7 +71,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(profileView, profileLineView, profileFeedCollectionView, profileIndicatorView, profileNavigationBar)
+        view.addSubviews(profileView, profileLineView, profileFeedCollectionView, profileIndicatorView)
     }
     
     public override func setupAttributes() {
@@ -91,14 +89,9 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             $0.backgroundColor = .separator
         }
         
-        profileNavigationBar.do {
-            $0.navigationTitle = "활동"
-            $0.leftBarButtonItem = .arrowLeft
-            $0.rightBarButtonItem = .setting
-            $0.leftBarButtonItemTintColor = .gray300
-            $0.rightBarButtonItemTintColor = .gray400
+        navigationBarView.do {
+            $0.setNavigationView(leftItem: .arrowLeft, centerItem: .label("활동"), rightItem: .setting)
         }
-        
         
         profileFeedCollectionView.do {
             $0.register(ProfileFeedCollectionViewCell.self, forCellWithReuseIdentifier: "ProfileFeedCollectionViewCell")
@@ -111,17 +104,10 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
-        
-        profileNavigationBar.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.left.right.equalToSuperview()
-            $0.height.equalTo(42)
-        }
-        
         profileView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide.snp.topMargin)
+            $0.top.equalTo(navigationBarView.snp.bottom)
             $0.left.right.equalToSuperview()
-            $0.height.equalTo(200)
+            $0.bottom.equalTo(profileLineView.snp.top)
         }
         
         
@@ -143,7 +129,8 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     
     
     public override func bind(reactor: ProfileViewReactor) {
-
+        super.bind(reactor: reactor)
+        
         Observable.just(())
             .map { Reactor.Action.viewDidLoad}
             .bind(to: reactor.action)
@@ -257,8 +244,8 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         
         Observable
             .combineLatest(
-                reactor.pulse(\.$profileData).distinctUntilChanged(),
-                reactor.pulse(\.$selectedIndexPath).distinctUntilChanged()
+                reactor.pulse(\.$profileData),
+                reactor.pulse(\.$selectedIndexPath)
             )
             .withUnretained(self)
             .filter { !$0.1.0.items.isEmpty }
@@ -315,16 +302,8 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .map { Reactor.Action.fetchMorePostItems($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
-        profileNavigationBar.rx.didTapLeftBarButton
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind { owner, _ in
-                owner.navigationController?.popViewController(animated: true)
-            }.disposed(by: disposeBag)
-        
-        profileNavigationBar.rx.didTapRightBarButton
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+    
+        navigationBarView.rx.rightButtonTap
             .withLatestFrom(reactor.state.map { $0.memberId })
             .withUnretained(self)
             .bind { owner, memberId in

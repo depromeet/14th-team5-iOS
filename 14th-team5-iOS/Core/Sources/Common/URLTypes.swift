@@ -13,6 +13,7 @@ public enum URLTypes {
     case appStore
     case privacy
     case terms
+    case inquiry
     
     public var originURL: URL {
         switch self {
@@ -24,6 +25,8 @@ public enum URLTypes {
             return URL(string: "https://no5ing.kr/app/privacy") ?? URL(fileURLWithPath: "")
         case .terms:
             return URL(string: "https://no5ing.kr/app/terms") ?? URL(fileURLWithPath: "")
+        case .inquiry:
+            return URL(string: "https://forms.gle/VUsWgzNfR3ELGozP7") ?? URL(fileURLWithPath: "")
         }
     }
 }

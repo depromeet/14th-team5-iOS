@@ -24,8 +24,16 @@ final class PostListsDIContainer {
         return appDelegate.globalStateProvider
     }
     
-    func makeViewController(postLists: PostSection.Model, selectedIndex: IndexPath) -> ViewContrller {
-        return PostViewController(reactor: makeReactor(postLists: postLists, selectedIndex: selectedIndex.row))
+    func makeViewController(
+        postLists: PostSection.Model,
+        selectedIndex: IndexPath,
+        notificationDeepLink: NotificationDeepLink? = nil
+    ) -> ViewContrller {
+        return PostViewController(reactor: makeReactor(
+            postLists: postLists,
+            selectedIndex: selectedIndex.row,
+            notificationDeepLink: notificationDeepLink)
+        )
     }
     
     func makePostRepository() -> PostListRepositoryProtocol {
@@ -52,7 +60,20 @@ final class PostListsDIContainer {
         return RealEmojiUseCase(realEmojiRepository: makeRealEmojiRepository())
     }
     
-    func makeReactor(postLists: PostSection.Model, selectedIndex: Int) -> Reactor {
-        return PostReactor(provider: globalState, realEmojiRepository: makeRealEmojiUseCase(), emojiRepository: makeEmojiUseCase(), initialState: PostReactor.State(selectedIndex: selectedIndex, originPostLists: postLists))
+    func makeReactor(
+        postLists: PostSection.Model,
+        selectedIndex: Int,
+        notificationDeepLink: NotificationDeepLink?
+    ) -> Reactor {
+        return PostReactor(
+            provider: globalState,
+            realEmojiRepository: makeRealEmojiUseCase(),
+            emojiRepository: makeEmojiUseCase(),
+            initialState: PostReactor.State(
+                selectedIndex: selectedIndex,
+                originPostLists: postLists,
+                notificationDeepLink: notificationDeepLink
+            )
+        )
     }
 }

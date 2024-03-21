@@ -27,7 +27,7 @@ extension String {
         return date
     }
     
-    public func toDate(with format: DateFormatter.format) -> Date {
+    public func toDate(with format: DateFormatter.Format) -> Date {
         return toDate(with: format.type)
     }
     

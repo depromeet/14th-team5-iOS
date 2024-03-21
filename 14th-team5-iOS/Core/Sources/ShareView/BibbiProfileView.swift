@@ -62,11 +62,11 @@ public class BibbiProfileView: UIView {
     }
     
     
-    public func setupUI() {
+    private func setupUI() {
         addSubviews(profileImageView, profileNickNameButton, profileDefaultLabel, circleButton, birthDayView, profileCreateLabel)
     }
     
-    public func setupAttributes() {
+    private func setupAttributes() {
         profileImageView.do {
             $0.clipsToBounds = true
             $0.isUserInteractionEnabled = true
@@ -108,11 +108,12 @@ public class BibbiProfileView: UIView {
 
     }
     
-    public func setupAutoLayout() {
+    private func setupAutoLayout() {
         
         profileImageView.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(24)
             $0.width.height.equalTo(2 * cornerRadius)
-            $0.center.equalToSuperview()
+            $0.centerX.equalToSuperview()
         }
         
         profileDefaultLabel.snp.makeConstraints {
@@ -126,9 +127,10 @@ public class BibbiProfileView: UIView {
         }
         
         profileCreateLabel.snp.makeConstraints {
-            $0.top.equalTo(profileNickNameButton.snp.bottom).offset(4)
+            $0.top.equalTo(profileNickNameButton.snp.bottom).offset(12)
             $0.height.equalTo(17)
             $0.centerX.equalTo(profileNickNameButton)
+            $0.bottom.equalToSuperview().offset(-24)
         }
         
         circleButton.snp.makeConstraints {
@@ -136,12 +138,6 @@ public class BibbiProfileView: UIView {
             $0.bottom.equalTo(profileImageView)
         }
         
-        profileNickNameButton.snp.makeConstraints {
-            $0.height.equalTo(24)
-            $0.width.lessThanOrEqualToSuperview()
-            $0.top.equalTo(profileImageView.snp.bottom).offset(12)
-            $0.centerX.equalTo(profileImageView)
-        }
     }
     
     private func setupDefaultProfile(isDefault: Bool) {
@@ -155,6 +151,24 @@ public class BibbiProfileView: UIView {
         profileCreateLabel.isHidden = !isUser
         circleButton.isEnabled = isUser
         profileNickNameButton.isEnabled = isUser
+        
+        if !isUser {
+            profileNickNameButton.snp.remakeConstraints {
+                $0.width.lessThanOrEqualToSuperview()
+                $0.top.equalTo(profileImageView.snp.bottom).offset(12)
+                $0.centerX.equalTo(profileImageView)
+                $0.bottom.equalToSuperview().offset(-24)
+            }
+            
+        } else {
+            profileNickNameButton.snp.remakeConstraints {
+                $0.height.equalTo(24)
+                $0.width.lessThanOrEqualToSuperview()
+                $0.top.equalTo(profileImageView.snp.bottom).offset(12)
+                $0.centerX.equalTo(profileImageView)
+            }
+        }
+        
     }
     
     private func setupBirtyDay(isBirtyDay: Bool) {

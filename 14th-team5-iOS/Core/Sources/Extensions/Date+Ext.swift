@@ -114,13 +114,15 @@ extension Date {
         }
         return dict
     }
-    
+}
+
+extension Date {
     public func toFormatString(with format: String = "yyyy-MM") -> String {
         let dateFormatter = DateFormatter.withFormat(format)
         return dateFormatter.string(from: self)
     }
     
-    public func toFormatString(with format: DateFormatter.format) -> String {
+    public func toFormatString(with format: DateFormatter.Format) -> String {
         return toFormatString(with: format.type)
     }
 }

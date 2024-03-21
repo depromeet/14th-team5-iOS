@@ -22,7 +22,6 @@ import Then
 fileprivate typealias _Str = CalendarStrings
 public final class CalendarPostViewController: BaseViewController<CalendarPostViewReactor> {
     // MARK: - Views
-    private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
     private let blurImageView: UIImageView = UIImageView()
 
     private let calendarView: FSCalendar = FSCalendar()
@@ -35,17 +34,21 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     private let fireLottieView: LottieView = LottieView(with: .fire, contentMode: .scaleAspectFill)
     
     // MARK: - Properties
-    private let cellIndexRelay: PublishRelay<Int> = PublishRelay<Int>()
+    private let visibleCellIndex: PublishRelay<Int> = PublishRelay<Int>()
     private lazy var dataSource: RxCollectionViewSectionedReloadDataSource<PostListSectionModel> = prepareDatasource()
+    
+    private let deepLinkRepo = DeepLinkRepository()
     
     // MARK: - Lifecycles
     public override func viewDidLoad() {
         super.viewDidLoad()
     }
     
-    public override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.navigationBar.isHidden = true
+    public override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        // HomeViewController는 notification이 nil일 때만
+        // ViewWillAppear시 가족과 피드를 불러오므로, nil 항목 전달이 필수임
+        App.Repository.deepLink.notification.accept(nil)
     }
 
     // MARK: - Helpers
@@ -73,7 +76,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        navigationBarView.rx.didTapLeftBarButton
+        navigationBarView.rx.leftButtonTap
             .map { _ in Reactor.Action.popViewController }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -109,7 +112,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         calendarView.rx.boundingRectWillChange
             .distinctUntilChanged()
             .withUnretained(self)
-            .subscribe { $0.0.adjustWeeklyCalendarRect($0.1) }
+            .subscribe { $0.0.updateCalendarViewConstraints($0.1) }
             .disposed(by: disposeBag)
         
 //        postCollectionView.rx.willBeginDragging
@@ -122,11 +125,11 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
 //            })
 //            .disposed(by: disposeBag)
         
-        cellIndexRelay
+        visibleCellIndex
             .flatMap {
                 Observable.merge(
                     Observable.just(Reactor.Action.setBlurImageIndex($0)),
-                    Observable.just(Reactor.Action.sendPostIdToReaction($0))
+                    Observable.just(Reactor.Action.sendPostToReaction($0))
                 )
             }
             .bind(to: reactor.action)
@@ -155,9 +158,19 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         postResponse
             .distinctUntilChanged()
             .drive(with: self) {
-                guard let items = $1.first?.items,
-                      !items.isEmpty else { return }
-                let indexPath = IndexPath(item: 0, section: 0)
+                guard let items = $1.first?.items else { return }
+
+                var indexPath = IndexPath(item: 0, section: 0)
+                // 알림으로 화면에 진입하면
+                if let deepLink = reactor.currentState.notificationDeepLink {
+                    let postId = deepLink.postId
+                    guard let index = items.firstIndex(where: { post in
+                              post.postId == postId
+                          }) else { return }
+                    indexPath = IndexPath(item: index, section: 0)
+                }
+                
+                // 일반 루트로 화면에 진입하면
                 $0.postCollectionView.scrollToItem(
                     at: indexPath,
                     at: .centeredHorizontally,
@@ -187,11 +200,19 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
-        reactor.state.compactMap { $0.visiblePostList }
-            .map { $0 }
+        reactor.state.compactMap { $0.visiblePost }
             .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe { $0.0.reactionViewController.postListData.accept($0.1) }
+            .bind(with: self) {
+                $0.reactionViewController.postListData.accept($1)
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPushProfileViewController)
+            .delay(.milliseconds(500), scheduler: Schedulers.main)
+            .compactMap { $0 }
+            .bind(with: self) { owner, id in
+                owner.pushProfileViewController(memberId: id)
+            }
             .disposed(by: disposeBag)
         
         let allUploadedToastMessageView = reactor.pulse(\.$shouldPresentAllUploadedToastMessageView)
@@ -227,23 +248,37 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .subscribe(onNext: { _ in Haptic.selection() })
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldPopViewController)
-            .filter { $0 }
-            .withUnretained(self)
-            .subscribe { $0.0.navigationController?.popViewController(animated: true) }
-            .disposed(by: disposeBag)
+//        reactor.pulse(\.$shouldPopViewController)
+//            .filter { $0 }
+//            .withUnretained(self)
+//            .subscribe { $0.0.navigationController?.popViewController(animated: true) }
+//            .disposed(by: disposeBag)
         
-        didTapProfileImageNotificationHandler()
-        didTapSelectableCameraButtonNotifcationHandler()
+        // 댓글 노티피케이션 딥링크 코드
+        reactor.state.compactMap { $0.notificationDeepLink }
+            .distinctUntilChanged(at: \.postId)
+            .filter { $0.openComment }
+            .bind(with: self) { owner, deepLink in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    let postCommentViewController = PostCommentDIContainer(
+                        postId: deepLink.postId
+                    ).makeViewController()
+                    
+                    owner.presentPostCommentSheet(postCommentViewController)
+                }
+            }
+            .disposed(by: disposeBag)
+
+        didTapCameraButtonNotifcationHandler()
     }
     
     public override func setupUI() {
-        super.setupUI()
+//        super.setupUI()
         view.addSubviews(
-            navigationBarView, blurImageView
+            blurImageView, navigationBarView
         )
         blurImageView.addSubviews(
-            navigationBarView, calendarView, postCollectionView
+            calendarView, postCollectionView
         )
         view.addSubview(fireLottieView)
         
@@ -256,12 +291,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         super.setupAutoLayout()
         blurImageView.snp.makeConstraints {
             $0.edges.equalToSuperview()
-        }
-        
-        navigationBarView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(42)
         }
         
         calendarView.snp.makeConstraints {
@@ -296,7 +325,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         }
         
         navigationBarView.do {
-            $0.leftBarButtonItem = .arrowLeft
+            $0.setNavigationView(leftItem: .arrowLeft, rightItem: .empty)
         }
         
         calendarView.do {
@@ -368,7 +397,7 @@ extension CalendarPostViewController {
             
             if fractionPart <= 0.0 {
                 let index: Int = Int(floorPosition)
-                cellIndexRelay.accept(index)
+                visibleCellIndex.accept(index)
             }
         }
         
@@ -396,33 +425,14 @@ extension CalendarPostViewController {
     }
     
     private func setupNavigationTitle(_ date: Date) {
-        navigationBarView.navigationTitle = date.toFormatString(with: .yyyyM)
+        navigationBarView.setNavigationTitle(title: date.toFormatString(with: .yyyyM))
     }
     
-    private func adjustWeeklyCalendarRect(_ bounds: CGRect) {
+    private func updateCalendarViewConstraints(_ bounds: CGRect) {
         calendarView.snp.updateConstraints {
             $0.height.equalTo(bounds.height)
         }
         view.layoutIfNeeded()
-    }
-    
-    private func presentPostCommentSheet(postId: String) {
-        let postCommentSheet = PostCommentDIContainer(postId: postId).makeViewController()
-        
-        if let sheet = postCommentSheet.sheetPresentationController {
-            if #available(iOS 16.0, *) {
-                let customId = UISheetPresentationController.Detent.Identifier("customId")
-                let customDetents = UISheetPresentationController.Detent.custom(identifier: customId) {
-                    return $0.maximumDetentValue * 0.835
-                }
-                sheet.detents = [customDetents, .large()]
-            } else {
-                sheet.detents = [.medium(), .large()]
-            }
-            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
-        }
-        
-        present(postCommentSheet, animated: true)
     }
     
     private func pushCameraViewController(cameraType type: UploadLocation) {
@@ -449,25 +459,12 @@ extension CalendarPostViewController {
 }
 
 extension CalendarPostViewController {
-    private func didTapSelectableCameraButtonNotifcationHandler() {
+    private func didTapCameraButtonNotifcationHandler() {
         NotificationCenter.default
             .rx.notification(.didTapSelectableCameraButton)
             .withUnretained(self)
             .bind { owner, _ in
                 owner.pushCameraViewController(cameraType: .realEmoji)
-            }.disposed(by: disposeBag)
-    }
-    
-    private func didTapProfileImageNotificationHandler() {
-        NotificationCenter.default
-            .rx.notification(.didTapProfilImage)
-            .withUnretained(self)
-            .bind { owner, notification in
-                guard let userInfo = notification.userInfo,
-                      let memberId = userInfo["memberId"] as? String else {
-                    return
-                }
-                owner.pushProfileViewController(memberId: memberId)
             }
             .disposed(by: disposeBag)
     }

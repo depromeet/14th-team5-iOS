@@ -542,6 +542,9 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         output.photoOutputDidFinshProcessing(photo: imageData, error: error)
     }
     
+    public func photoOutput(_ output: AVCapturePhotoOutput, willCapturePhotoFor resolvedSettings: AVCaptureResolvedPhotoSettings) {
+        AudioServicesDisposeSystemSoundID(1108)
+    }
     
     
     private func setupImageScale(owner: CameraViewController, scale: CGFloat, camera: AVCaptureDevice) {

@@ -134,7 +134,10 @@ final class PostViewController: BaseViewController<PostReactor> {
                                 postId: post.postId
                             ).makeViewController()
                             
-                            owner.presentPostCommentSheet(postCommentViewController)
+                            owner.presentPostCommentSheet(
+                                postCommentViewController,
+                                from: .post
+                            )
                         }
                     }
                 }

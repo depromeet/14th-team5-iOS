@@ -249,6 +249,11 @@ extension UIViewController {
 
 extension UIViewController {
     
+    public enum CommentSheetType {
+        case post
+        case calendar
+    }
+    
     public func presentSheet(
         _ viewController: UIViewController,
         allowMediumDetent: Bool
@@ -317,9 +322,13 @@ extension UIViewController {
     ///
     /// - parameter postCommentViewController: PostCommentViewController 타입의 뷰 컨트롤러
     public func presentPostCommentSheet(
-        _ postCommentViewController: UIViewController
+        _ postCommentViewController: UIViewController,
+        from type: UIViewController.CommentSheetType
     ) {
-        let ratio = UIScreen.isPhoneSE ? 0.815 : 0.835
+        var ratio: CGFloat = switch type {
+        case .post: 0.85
+        case .calendar: UIScreen.isPhoneSE ? 0.815 : 0.835
+        }
         
         if #available(iOS 16.0, *) {
             presentSheet(

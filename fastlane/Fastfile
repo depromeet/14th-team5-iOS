@@ -133,9 +133,9 @@ platform :ios do
   #✅ 테스트 플라이트에 PRD 업로드
   lane :upload_prd_to_testflight do |options|
     app_store_connect_api_key(
-      key_id: "#{APP_STORE_CONNECT_KEY_ID}",
-      issuer_id: "#{APP_STORE_CONNECT_ISSUER_ID}",
-      key_content: "#{APP_STORE_CONNECT_API_KEY}",
+      key_id: "#{APP_STORE_CONNECT_API_KEY_KEY_ID}",
+      issuer_id: "#{APP_STORE_CONNECT_API_KEY_ISSUER_ID}",
+      key_content: "#{APP_STORE_CONNECT_API_KEY_KEY}",
       is_key_content_base64: true,
       in_house: false
     )
@@ -154,8 +154,8 @@ platform :ios do
       export_options: {
         method: "app-store", 
 	provisioningProfiles: {
-          "#{BUNDLE_ID}" => "prd",
-          "#{WIDGET_BUNDLE_ID}" => "widgetPrd",
+      "com.5ing.bibbi" => "match AppStore com.5ing.bibbi",
+      "com.5ing.bibbi.widget" => "match AppStore com.5ing.bibbi.widget",
         }
       }
     )
@@ -189,9 +189,9 @@ platform :ios do
   #✅ 테스트 플라이트에 STG 업로드
   lane :upload_stg_to_testflight do |options|
     app_store_connect_api_key(
-      key_id: "#{APP_STORE_CONNECT_KEY_ID}",
-      issuer_id: "#{APP_STORE_CONNECT_ISSUER_ID}",
-      key_content: "#{APP_STORE_CONNECT_API_KEY}",
+      key_id: "#{APP_STORE_CONNECT_API_KEY_KEY_ID}",
+      issuer_id: "#{APP_STORE_CONNECT_API_KEY_ISSUER_ID}",
+      key_content: "#{APP_STORE_CONNECT_API_KEY_KEY}",
       is_key_content_base64: true,
       in_house: false
     )
@@ -210,8 +210,8 @@ platform :ios do
       export_options: {
         method: "app-store", 
 	provisioningProfiles: {
-          "#{BUNDLE_ID}" => "prd",
-          "#{WIDGET_BUNDLE_ID}" => "widgetPrd",
+      "com.5ing.bibbi" => "match AppStore com.5ing.bibbi",
+      "com.5ing.bibbi.widget" => "match AppStore com.5ing.bibbi.widget",
         }
       }
     )

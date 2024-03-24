@@ -155,7 +155,10 @@ extension ReactionViewController {
                     postId: $1.postId
                 ).makeViewController()
                 
-                $0.presentPostCommentSheet(postCommentViewController)
+                $0.presentPostCommentSheet(
+                    postCommentViewController,
+                    from: .post
+                )
             })
             .disposed(by: disposeBag)
     }

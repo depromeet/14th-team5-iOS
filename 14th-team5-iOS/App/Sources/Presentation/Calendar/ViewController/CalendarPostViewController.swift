@@ -264,7 +264,10 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
                         postId: deepLink.postId
                     ).makeViewController()
                     
-                    owner.presentPostCommentSheet(postCommentViewController)
+                    owner.presentPostCommentSheet(
+                        postCommentViewController,
+                        from: .calendar
+                    )
                 }
             }
             .disposed(by: disposeBag)

@@ -76,18 +76,10 @@ jobs:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
-          PROJECT_PATH: ${{ secrets.PROJECT_PATH }}
           MATCH_PASSWORD: ${{secrets.MATCH_PASSWORD}}
-          SLACK_HOOK_URL: ${{secrets.SLACK_HOOK_URL}}
           MATCH_PERSONAL_TOKEN: ${{ secrets.MATCH_PERSONAL_TOKEN}}
           PRD_SCHEME: ${{secrets.PRD_SCHEME}}
-          BUNDLE_ID: ${{secrets.BUNDLE_ID}}
-          WIDGET_BUNDLE_ID: ${{secrets.WIDGET_BUNDLE_ID}}
-          PROFILE_PATH: ${{secrets.PROFILE_PATH}}
-          APP_NAME: ${{secrets.APP_NAME}}
-          APPLE_ID: ${{secrets.APPLE_ID}}
           TEAM_ID: ${{secrets.TEAM_ID}}
-          WIDGET_NAME: ${{secrets.WIDGET_NAME}}
         run: fastlane github_action_upload_testflight
 
       - name: Upload coverage to Codecov

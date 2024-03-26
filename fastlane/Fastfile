@@ -60,8 +60,7 @@ platform :ios do
       is_key_content_base64: true,
       in_house: false
     )
-
-    setup_ci
+    
 
     match(
       storage_mode: "git",
@@ -69,7 +68,9 @@ platform :ios do
       app_identifier: ["com.5ing.bibbi","com.5ing.bibbi.widget"],
       readonly: true,
       git_basic_authorization: Base64.strict_encode64("Do-hyun-Kim:#{ENV["MATCH_PERSONAL_TOKEN"]}"),
-      generate_apple_certs: false
+      generate_apple_certs: false,
+      keychain_name: "#{KEYCHAIN_NAME}",
+      keychain_password: "#{KEYCHAIN_PASSWORD}"
     )
 
     new_build_number = latest_testflight_build_number() + 1

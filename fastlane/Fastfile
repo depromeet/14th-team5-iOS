@@ -48,7 +48,7 @@ platform :ios do
       default_keychain: true,
       unlock: true,
       timeout: 3600,
-      lock_when_sleeps: true
+      lock_when_sleeps: false
     )
   end
 
@@ -66,7 +66,7 @@ platform :ios do
       storage_mode: "git",
       type: "appstore",
       app_identifier: ["com.5ing.bibbi","com.5ing.bibbi.widget"],
-      readonly: true,
+      readonly: is_ci,
       git_basic_authorization: Base64.strict_encode64("Do-hyun-Kim:#{ENV["MATCH_PERSONAL_TOKEN"]}"),
       generate_apple_certs: false,
       keychain_name: "#{KEYCHAIN_NAME}",
@@ -118,14 +118,14 @@ platform :ios do
       export_method: "app-store",
       export_options: {
         method: "app-store",
-        signingStyle: "manual"
+        signingStyle: "manual",
         provisioningProfiles: {
           "com.5ing.bibbi" => "match AppStore com.5ing.bibbi",
           "com.5ing.bibbi.widget" => "match AppStore com.5ing.bibbi.widget"
         }
       }
     )
-    
+
     upload_to_testflight(skip_waiting_for_build_processing: true)
 
   end

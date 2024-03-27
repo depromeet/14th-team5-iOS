@@ -59,12 +59,6 @@ jobs:
       - name: Tuist Generate Commnad
         run: tuist generate
 
-      - name: fastalne setup_keychain
-        env:
-          KEYCHAIN_NAME: ${{secrets.KEYCHAIN_NAME}}
-          KEYCHAIN_PASSWORD: ${{secrets.KEYCHAIN_PASSWORD}}
-        run: fastlane setup_keychain
-
       - name: fastlane upload_testflight
         env:
           KEYCHAIN_NAME: ${{secrets.KEYCHAIN_NAME}}

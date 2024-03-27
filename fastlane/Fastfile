@@ -40,17 +40,6 @@ PROFILE_PATH = ENV["PROFILE_PATH"]
 default_platform(:ios)
 
 platform :ios do
-  #✅ 인증서를 키체인에 저장
-  lane :setup_keychain do
-    create_keychain(
-      name: "#{KEYCHAIN_NAME}",
-      password: "#{KEYCHAIN_PASSWORD}",
-      default_keychain: true,
-      unlock: true,
-      timeout: 3600,
-      lock_when_sleeps: false
-    )
-  end
 
   lane :github_action_upload_testflight do |options|
     app_store_connect_api_key(
@@ -60,8 +49,17 @@ platform :ios do
       is_key_content_base64: true,
       in_house: false
     )
-    
 
+
+    create_keychain(
+      name: "#{KEYCHAIN_NAME}",
+      password: "#{KEYCHAIN_PASSWORD}",
+      default_keychain: true,
+      unlock: true,
+      timeout: 3600,
+      lock_when_sleeps: false
+    )
+    
     match(
       storage_mode: "git",
       type: "appstore",
@@ -116,6 +114,7 @@ platform :ios do
       workspace: "Bibbi.xcworkspace",
       scheme: "#{PRD_SCHEME}",
       export_method: "app-store",
+      xcodebuild_formatter: "xcpretty",
       export_options: {
         method: "app-store",
         signingStyle: "manual",

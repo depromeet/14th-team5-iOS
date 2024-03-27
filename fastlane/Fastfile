@@ -115,6 +115,8 @@ platform :ios do
       scheme: "#{PRD_SCHEME}",
       export_method: "app-store",
       xcodebuild_formatter: "xcpretty",
+      archive_path: "./build/Runner.xcarchive",
+      output_directory: "./build/Runner",
       export_options: {
         method: "app-store",
         signingStyle: "manual",

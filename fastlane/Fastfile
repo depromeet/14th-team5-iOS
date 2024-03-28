@@ -96,28 +96,28 @@ platform :ios do
     upload_to_testflight(skip_waiting_for_build_processing: true)
 
 
-    # slack(
-    #   message: "⭐️ 테스트 플라이트 업로드 성공",
-    #   slack_url: "https://hooks.slack.com/services/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",
-    #   username: "대신 배포해주는 고양이",
-    #   icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
-    #   payload: {
-    #     "Build Date" => Time.new.to_s,
-    #   },
-    #   attachment_properties: {
-    #     fields: [
-    #       {
-    #         title: "Scheme",
-    #         value: "#{DEV_SCHEME}",
-    #       },
-    #       {
-    #         title: "Build Number",
-    #         value: "#{new_build_number.to_s}",
-    #       }
-    #     ]
-    #   },
-    #   success: true
-    # )
+    slack(
+      message: "⭐️ 테스트 플라이트 업로드 성공",
+      slack_url: "https://hooks.slack.com/services/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",
+      username: "대신 배포해주는 고양이",
+      icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
+      payload: {
+        "Build Date" => Time.new.to_s,
+      },
+      attachment_properties: {
+        fields: [
+          {
+            title: "Scheme",
+            value: "#{DEV_SCHEME}",
+          },
+          {
+            title: "Build Number",
+            value: "#{new_build_number.to_s}",
+          }
+        ]
+      },
+      success: true
+    )
 
   end
 
@@ -177,28 +177,28 @@ platform :ios do
     upload_to_testflight(skip_waiting_for_build_processing: true)
 
 
-    # slack(
-    #   message: "⭐️ 테스트 플라이트 업로드 성공",
-    #   slack_url: "https://hooks.slack.com/services/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",
-    #   username: "대신 배포해주는 고양이",
-    #   icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
-    #   payload: {
-    #     "Build Date" => Time.new.to_s,
-    #   },
-    #   attachment_properties: {
-    #     fields: [
-    #       {
-    #         title: "Scheme",
-    #         value: "#{PRD_SCHEME}",
-    #       },
-    #       {
-    #         title: "Build Number",
-    #         value: "#{new_build_number.to_s}",
-    #       }
-    #     ]
-    #   },
-    #   success: true
-    # )
+    slack(
+      message: "⭐️ 테스트 플라이트 업로드 성공",
+      slack_url: "https://hooks.slack.com/services/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",
+      username: "대신 배포해주는 고양이",
+      icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
+      payload: {
+        "Build Date" => Time.new.to_s,
+      },
+      attachment_properties: {
+        fields: [
+          {
+            title: "Scheme",
+            value: "#{PRD_SCHEME}",
+          },
+          {
+            title: "Build Number",
+            value: "#{new_build_number.to_s}",
+          }
+        ]
+      },
+      success: true
+    )
 
   end
 
@@ -240,7 +240,7 @@ platform :ios do
 
     slack(
       message: "⭐️ 테스트 플라이트 업로드 성공",
-      slack_url: "https://hooks.slack.com/services/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",
+      slack_url: "https://hooks.slack.com/services/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",
       username: "대신 배포해주는 고양이",
       icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
       payload: {
@@ -296,7 +296,7 @@ platform :ios do
 
     slack(
       message: "⭐️ 테스트 플라이트 업로드 성공",
-      slack_url: "https://hooks.slack.com/services/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",
+      slack_url: "https://hooks.slack.com/services/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",
       username: "대신 배포해주는 고양이",
       icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
       payload: {
@@ -325,7 +325,7 @@ platform :ios do
   error do |lane, exception, options|
     slack(
       message: "❗️ 테스트 플라이트 업로드 실패",
-      slack_url: "https://hooks.slack.com/services/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",
+      slack_url: "https://hooks.slack.com/services/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",
       username: "대신 배포해주는 고양이",
       icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
       success: false,

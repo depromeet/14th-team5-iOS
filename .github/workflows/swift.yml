@@ -61,6 +61,7 @@ jobs:
         run: tuist generate
 
       - name: fastlane upload_stg_testflight
+        if: github.ref == 'refs/heads/releases/**'
         env:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}

@@ -293,14 +293,14 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .observe(on: MainScheduler.instance)
             .bind(onNext: {
                 guard let currentCamera = $0.0.isToggle ? $0.0.frontCamera : $0.0.backCamera else { return }
-                $0.0.transitionZoomImageScale(owner: $0.0, scale: $0.1, camera: currentCamera)
+                $0.0.transitionZoomImageScale(scale: $0.1, camera: currentCamera)
             }).disposed(by: disposeBag)
         
         reactor.pulse(\.$pinchZoomScale)
             .withUnretained(self)
             .bind(onNext: {
                 guard let currentCamera = $0.0.isToggle ? $0.0.frontCamera : $0.0.backCamera else { return }
-                $0.0.transitionPinchImageScale(owner: $0.0, scale: $0.1, camera: currentCamera)
+                $0.0.transitionPinchImageScale(scale: $0.1, camera: currentCamera)
             }).disposed(by: disposeBag)
         
         reactor.pulse(\.$zoomScale)
@@ -377,13 +377,13 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         reactor.pulse(\.$isSwitchPosition)
             .withUnretained(self)
             .skip(1)
-            .bind(onNext: { $0.0.transitionPreViewLayer(owner: $0.0, state: $0.1) })
+            .bind(onNext: { $0.0.transitionPreViewLayer(state: $0.1) })
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$isFlashMode)
             .skip(1)
             .withUnretained(self)
-            .bind(onNext: { $0.0.setupFlashMode(owner: $0.0, isFlash: $0.1) })
+            .bind(onNext: { $0.0.setupFlashMode(isFlash: $0.1) })
             .disposed(by: disposeBag)
         
     }
@@ -391,7 +391,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
 
 
 
-extension CameraViewController: AVCapturePhotoCaptureDelegate {
+extension CameraViewController {
     
     private func setupCamera() {
         captureSession = AVCaptureSession()
@@ -481,8 +481,8 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { isPermission in
                 guard isPermission else {
-                    DispatchQueue.main.async {
-                        self.showPermissionAlertController()
+                    DispatchQueue.main.async { [weak self] in
+                        self?.showPermissionAlertController()
                     }
                     return
                 }
@@ -491,63 +491,52 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
             setupCameraOuputStream()
             setupPreviewLayout()
         case .denied:
-            //TODO: Alert 추가 예정
-            print("사용자에 의해 권한이 거부된 상태 입니다.")
+            showPermissionAlertController()
         default:
             break
         }
     }
     
     
-    private func transitionPreViewLayer(owner: CameraViewController, state isTransition: Bool) {
+    private func transitionPreViewLayer(state isTransition: Bool) {
         captureSession.beginConfiguration()
         if isTransition {
-            UIView.transition(with: owner.cameraView, duration: 0.5, options: .transitionFlipFromLeft) {
-                owner.captureSession.removeInput(owner.backCameraInput)
-                owner.captureSession.addInput(owner.frontCameraInput)
-                owner.isToggle = true
+            UIView.transition(with: cameraView, duration: 0.5, options: .transitionFlipFromLeft) { [weak self] in
+                guard let self = self else { return }
+                self.captureSession.removeInput(self.backCameraInput)
+                self.captureSession.addInput(self.frontCameraInput)
+                self.isToggle = true
             }
         } else {
-            UIView.transition(with: owner.cameraView, duration: 0.5, options: .transitionFlipFromLeft) {
-                owner.captureSession.removeInput(owner.frontCameraInput)
-                owner.captureSession.addInput(owner.backCameraInput)
-                owner.isToggle = false
+            UIView.transition(with: cameraView, duration: 0.5, options: .transitionFlipFromLeft) { [weak self] in
+                guard let self = self else { return }
+                self.captureSession.removeInput(self.frontCameraInput)
+                self.captureSession.addInput(self.backCameraInput)
+                self.isToggle = false
             }
         }
-        owner.cameraOuputStream.connections.first?.isVideoMirrored = !isTransition
-        owner.captureSession.commitConfiguration()
+        cameraOuputStream.connections.first?.isVideoMirrored = !isTransition
+        captureSession.commitConfiguration()
     }
     
     
-    private func setupFlashMode(owner: CameraViewController, isFlash: Bool) {
+    private func setupFlashMode(isFlash: Bool) {
         do {
-            try owner.backCamera.lockForConfiguration()
-            try owner.backCamera.setTorchModeOn(level: 1.0)
+            try backCamera.lockForConfiguration()
+            try backCamera.setTorchModeOn(level: 1.0)
             
             if isFlash {
-                owner.backCamera.torchMode = .on
+                backCamera.torchMode = .on
             } else {
-                owner.backCamera.torchMode = .off
+                backCamera.torchMode = .off
             }
-            owner.backCamera.unlockForConfiguration()
+            backCamera.unlockForConfiguration()
         } catch {
             print(error.localizedDescription)
         }
     }
     
-    
-    public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        guard let photoData = photo.fileDataRepresentation(),
-              let imageData = UIImage(data: photoData)?.asPhoto else { return }
-        output.photoOutputDidFinshProcessing(photo: imageData, error: error)
-    }
-    
-    public func photoOutput(_ output: AVCapturePhotoOutput, willCapturePhotoFor resolvedSettings: AVCaptureResolvedPhotoSettings) {
-        AudioServicesDisposeSystemSoundID(1108)
-    }
-    
-    
-    private func setupImageScale(owner: CameraViewController, scale: CGFloat, camera: AVCaptureDevice) {
+    private func setupImageScale(scale: CGFloat, camera: AVCaptureDevice) {
         do {
             
             try camera.lockForConfiguration()
@@ -564,22 +553,22 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         self.navigationController?.popViewController(animated: true)
     }
     
-    private func transitionZoomImageScale(owner: CameraViewController, scale: CGFloat, camera: AVCaptureDevice) {
+    private func transitionZoomImageScale(scale: CGFloat, camera: AVCaptureDevice) {
         let minAvailableZoomScale: CGFloat = 1.0
         let maxAvailableZoomScale: CGFloat = 2.0
         let availableZoomScaleRange = minAvailableZoomScale...maxAvailableZoomScale
         let resolvedZoomScaleRange = zoomScaleRange.clamped(to: availableZoomScaleRange)
         let resolvedScale = max(resolvedZoomScaleRange.lowerBound, min(scale, resolvedZoomScaleRange.upperBound))
-        setupImageScale(owner: owner, scale: resolvedScale, camera: camera)
+        setupImageScale(scale: resolvedScale, camera: camera)
     }
     
-    private func transitionPinchImageScale(owner: CameraViewController, scale: CGFloat, camera: AVCaptureDevice) {
+    private func transitionPinchImageScale(scale: CGFloat, camera: AVCaptureDevice) {
         let minAvailableZoomScale: CGFloat = 1.0
         let maxAvailableZoomScale: CGFloat = 10.0
         let availableZoomScaleRange = minAvailableZoomScale...maxAvailableZoomScale
         let resolvedZoomScaleRange = zoomScaleRange.clamped(to: availableZoomScaleRange)
         let resolvedScale = max(resolvedZoomScaleRange.lowerBound, min(scale, resolvedZoomScaleRange.upperBound))
-        setupImageScale(owner: owner, scale: resolvedScale, camera: camera)
+        setupImageScale(scale: resolvedScale, camera: camera)
     }
     
     private func showPermissionAlertController() {
@@ -619,6 +608,22 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         realEmojiFaceView.isHidden = isShow
     }
     
+    
+    
+}
+
+
+extension CameraViewController: AVCapturePhotoCaptureDelegate {
+    
+    public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        guard let photoData = photo.fileDataRepresentation(),
+              let imageData = UIImage(data: photoData)?.asPhoto else { return }
+        output.photoOutputDidFinshProcessing(photo: imageData, error: error)
+    }
+    
+    public func photoOutput(_ output: AVCapturePhotoOutput, willCapturePhotoFor resolvedSettings: AVCaptureResolvedPhotoSettings) {
+        AudioServicesDisposeSystemSoundID(1108)
+    }
 }
 
 

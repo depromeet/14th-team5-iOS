@@ -1,3 +1,5 @@
+[![Bibbi](https://github.com/depromeet/14th-team5-iOS/actions/workflows/swift.yml/badge.svg)](https://github.com/depromeet/14th-team5-iOS/actions/workflows/swift.yml)
+
 # Bibbi: 하루 한번, 가족에게 보내는 생존 신고
 
 ` 연락에 대한 부담감과 거부감이 들지 않게
@@ -6,6 +8,7 @@
 
 <br />
 <img src = "https://github.com/depromeet/14th-team5-iOS/assets/96224311/2a1c0d30-0792-4240-88ce-122174b4874c" width = "800" />
+
 
 
 

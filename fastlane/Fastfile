@@ -34,6 +34,7 @@ PROJECT_PATH = ENV["PROJECT_PATH"]
 TEAM_ID = ENV["TEAM_ID"]
 APPLE_ID = ENV["APPLE_ID"]
 PROFILE_PATH = ENV["PROFILE_PATH"]
+SLACK_HOOK_URL = ENV["SLACK_HOOK_URL"]
 
 
 default_platform(:ios)
@@ -98,7 +99,8 @@ platform :ios do
 
     slack(
       message: "⭐️ 테스트 플라이트 업로드 성공",
-      slack_url: "https://hooks.slack.com/services/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",
+      channel: "#알림-ios-배포",
+      slack_url: "#{SLACK_HOOK_URL}",
       username: "대신 배포해주는 고양이",
       icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
       payload: {
@@ -179,7 +181,8 @@ platform :ios do
 
     slack(
       message: "⭐️ 테스트 플라이트 업로드 성공",
-      slack_url: "https://hooks.slack.com/services/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",
+      channel: "#알림-ios-배포",
+      slack_url: "#{SLACK_HOOK_URL}",
       username: "대신 배포해주는 고양이",
       icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
       payload: {
@@ -240,7 +243,8 @@ platform :ios do
 
     slack(
       message: "⭐️ 테스트 플라이트 업로드 성공",
-      slack_url: "https://hooks.slack.com/services/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",
+      channel: "#알림-ios-배포",
+      slack_url: "#{SLACK_HOOK_URL}",
       username: "대신 배포해주는 고양이",
       icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
       payload: {
@@ -259,7 +263,7 @@ platform :ios do
         ]
       },
       success: true
-    )        
+    )    
   end
 
   #✅ 테스트 플라이트에 STG 업로드
@@ -296,9 +300,10 @@ platform :ios do
 
     slack(
       message: "⭐️ 테스트 플라이트 업로드 성공",
-      slack_url: "https://hooks.slack.com/services/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",
-      username: "대신 배포해주는 고양이",
-      icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
+      channel: "#알림-ios-배포",
+      slack_url: "#{SLACK_HOOK_URL}",
+      username: "Bibbibot",
+      icon_url: "https://avatars.githubusercontent.com/u/160627812?s=200&v=4",
       payload: {
         "Build Date" => Time.new.to_s,
       },
@@ -325,7 +330,8 @@ platform :ios do
   error do |lane, exception, options|
     slack(
       message: "❗️ 테스트 플라이트 업로드 실패",
-      slack_url: "https://hooks.slack.com/services/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",
+      channel: "#알림-ios-배포",
+      slack_url: "#{SLACK_HOOK_URL}",
       username: "대신 배포해주는 고양이",
       icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
       success: false,

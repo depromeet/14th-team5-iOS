@@ -3,15 +3,16 @@ name: Bibbi
 on:
   push:
     branches:
-      - develop
       - feat/*
       - fix/*
-    tags:
-      - "v*"
+  pull_request:
+    branches:
+      - releases/**
+      - develop
   
 jobs:  
   build:
-    runs-on: macos-14-large
+    runs-on: macos-13
     strategy:
       matrix:
         xcodebuild-scheme: ['App']
@@ -40,10 +41,6 @@ jobs:
           repository: depromeet/14th-team5-iOS-ignored
           path: depromeet/14th-team5-iOS/14th-team5-iOS/XCConfig
           token: ${{secrets.ACTION_TOKEN}}
-
-      - name: Setting Master Key
-        run: | 
-          echo "${{secrets.MASTER_KEY}}" >> Tuist/master.key
         
       - name: Install Tuist CLI
         run: bash <(curl -Ls https://install.tuist.io)
@@ -63,16 +60,31 @@ jobs:
       - name: Tuist Generate Commnad
         run: tuist generate
 
-      - name: fastalne setup_keychain
+      - name: fastlane upload_stg_testflight
+        if: github.ref == 'refs/heads/releases/**'
         env:
-          KEYCHAIN_NAME: ${{secrets.KEYCHAIN_NAME}}
-          KEYCHAIN_PASSWORD: ${{secrets.KEYCHAIN_PASSWORD}}
-        run: fastlane setup_keychain
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+          PROJECT_PATH: ${{ secrets.PROJECT_PATH }}
+          MATCH_PASSWORD: ${{secrets.MATCH_PASSWORD}}
+          MATCH_PERSONAL_TOKEN: ${{ secrets.MATCH_PERSONAL_TOKEN}}
+          DEV_SCHEME: ${{secrets.DEV_SCHEME}}
+          BUNDLE_ID: ${{secrets.BUNDLE_ID}}
+          SLACK_HOOK_URL: ${{secrets.SLACK_HOOK_URL}}
+          WIDGET_BUNDLE_ID: ${{secrets.WIDGET_BUNDLE_ID}}
+          PROFILE_PATH: ${{secrets.PROFILE_PATH}}
+          APP_NAME: ${{secrets.APP_NAME}}
+          APPLE_ID: ${{secrets.APPLE_ID}}
+          TEAM_ID: ${{secrets.TEAM_ID}}
+          WIDGET_NAME: ${{secrets.WIDGET_NAME}}
+        run: fastlane github_action_stg_upload_testflight
 
-      - name: fastlane upload_testflight
+
+
+      - name: fastlane upload_prd_testflight
+        if: github.ref == 'refs/heads/develop'
         env:
-          KEYCHAIN_NAME: ${{secrets.KEYCHAIN_NAME}}
-          KEYCHAIN_PASSWORD: ${{secrets.KEYCHAIN_PASSWORD}}
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
@@ -88,7 +100,7 @@ jobs:
           APPLE_ID: ${{secrets.APPLE_ID}}
           TEAM_ID: ${{secrets.TEAM_ID}}
           WIDGET_NAME: ${{secrets.WIDGET_NAME}}
-        run: fastlane github_action_upload_testflight
+        run: fastlane github_action_prd_upload_testflight
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1.2.1

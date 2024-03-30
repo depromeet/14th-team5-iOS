@@ -43,8 +43,12 @@ extension HomeDIContainer {
         return FamilyRepository()
     }
     
-    private func makePostUseCase() -> PostListUseCaseProtocol {
-        return PostListUseCase(postListRepository: makePostRepository())
+    func makeUploadPostRepository() -> UploadPostRepositoryProtocol {
+        return PostUserDefaultsRepository()
+    }
+    
+    func makePostUseCase() -> PostListUseCaseProtocol {
+        return PostListUseCase(postListRepository: makePostRepository(), uploadePostRepository: makeUploadPostRepository())
     }
     
     private func makeFamilyUseCase() -> FamilyUseCaseProtocol {

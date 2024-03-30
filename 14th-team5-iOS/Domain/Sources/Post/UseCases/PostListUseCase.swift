@@ -11,13 +11,16 @@ import RxSwift
 public protocol PostListUseCaseProtocol {
     func excute(query: PostQuery) -> Single<PostData?>
     func excute(query: PostListQuery) -> Single<PostListPage?>
+    func excute() -> Single<Bool>
 }
 
 public class PostListUseCase: PostListUseCaseProtocol {
     private let postListRepository: PostListRepositoryProtocol
+    private let uploadPostRepository: UploadPostRepositoryProtocol?
     
-    public init(postListRepository: PostListRepositoryProtocol) {
+    public init(postListRepository: PostListRepositoryProtocol, uploadePostRepository: UploadPostRepositoryProtocol? = nil) {
         self.postListRepository = postListRepository
+        self.uploadPostRepository = uploadePostRepository
     }
     
     public func excute(query: PostListQuery) -> Single<PostListPage?> {
@@ -26,5 +29,10 @@ public class PostListUseCase: PostListUseCaseProtocol {
     
     public func excute(query: PostQuery) -> Single<PostData?> {
         return postListRepository.fetchPostDetail(query: query)
+    }
+    
+    public func excute() -> RxSwift.Single<Bool> {
+        guard let uploadPostRepository = uploadPostRepository else { return .just(false)}
+        return uploadPostRepository.checkPostUploadedToday()
     }
 }

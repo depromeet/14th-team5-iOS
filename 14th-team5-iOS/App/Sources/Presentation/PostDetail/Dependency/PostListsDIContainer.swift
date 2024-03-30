@@ -40,6 +40,10 @@ final class PostListsDIContainer {
         return PostListAPIs.Worker()
     }
     
+    func makeUploadPostRepository() -> UploadPostRepositoryProtocol {
+        return PostUserDefaultsRepository()
+    }
+    
     func makePostUseCase() -> PostListUseCaseProtocol {
         return PostListUseCase(postListRepository: makePostRepository())
     }

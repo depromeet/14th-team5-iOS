@@ -101,7 +101,7 @@ extension HomeViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewWillAppear:
-            return self.viewWillAppear()
+            return Observable.concat([self.viewWillAppear(), checkSelfUploaded()])
         case .viewDidLoad:
             let (_, time) = HomeViewReactor.calculateRemainingTime()
             
@@ -153,7 +153,6 @@ extension HomeViewReactor {
                 Observable<Mutation>.just(.setNotificationCommentDeepLink(deepLink)) // 다음 화면으로 이동하기
             )
         }
-        
     }
     
     func reduce(state: State, mutation: Mutation) -> State {
@@ -222,10 +221,16 @@ extension HomeViewReactor {
                 return Observable.from([
                     Mutation.setNoPostTodayView(true),
                     Mutation.setInviteFamilyView(false),
-                    Mutation.setSelfUploaded(true),
                     Mutation.updateFamilyDataSource(familySectionItem),
                     Mutation.updatePostDataSource([])
                 ])
+            }
+    }
+    
+    private func checkSelfUploaded() -> Observable<Mutation> {
+        return postUseCase.excute().asObservable()
+            .flatMap {
+                return Observable.just(Mutation.setSelfUploaded($0))
             }
     }
 
@@ -248,7 +253,6 @@ extension HomeViewReactor {
                     let postSectionItem = postList.postLists.map(PostSection.Item.main)
                     mutations.append(contentsOf: [
                         Mutation.updatePostDataSource(postSectionItem),
-                        Mutation.setSelfUploaded(postList.selfUploaded),
                         Mutation.setNoPostTodayView(false),
                         Mutation.setAllFamilyUploaded(postList.allFamilyMembersUploaded)
                     ])
@@ -256,7 +260,6 @@ extension HomeViewReactor {
                     let familySectionItem = familyList.results.map(FamilySection.Item.main)
                     mutations.append(contentsOf: [
                         Mutation.updateFamilyDataSource(familySectionItem),
-                        Mutation.setSelfUploaded(false),
                         Mutation.setNoPostTodayView(true)
                     ])
                 }

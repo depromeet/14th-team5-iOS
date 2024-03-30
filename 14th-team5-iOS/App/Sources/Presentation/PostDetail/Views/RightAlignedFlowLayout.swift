@@ -26,7 +26,6 @@ class RightAlignedFlowLayout: UICollectionViewFlowLayout {
             margin += width + minimumInteritemSpacing
             attribute.frame.origin.x = collectionViewContentSize.width - margin
             attribute.frame.size.width = width
-            print(attribute)
         }
         
     

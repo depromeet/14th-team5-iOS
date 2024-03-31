@@ -49,20 +49,20 @@ final class ReactionCollectionViewCell: BaseCollectionViewCell<TempCellReactor> 
     
     override func setupAutoLayout() {
         emojiImageView.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(6)
+            $0.leading.equalToSuperview().inset(6)
             $0.size.equalTo(26)
             $0.centerY.equalToSuperview()
         }
         
         countLabel.snp.makeConstraints {
-            $0.trailing.equalTo(emojiImageView.snp.leading).offset(-2)
-            $0.leading.equalToSuperview().inset(4)
+            $0.leading.equalTo(emojiImageView.snp.trailing).offset(2)
+            $0.trailing.equalToSuperview().inset(4)
             $0.centerY.equalToSuperview()
         }
         
         badgeView.snp.makeConstraints {
             $0.size.equalTo(13)
-            $0.leading.equalTo(emojiImageView).offset(-2.5)
+            $0.trailing.equalTo(emojiImageView).offset(2.5)
             $0.bottom.equalTo(emojiImageView).offset(2.5)
         }
     }

@@ -19,8 +19,8 @@ final class ReactionViewController: BaseViewController<ReactionViewReactor>, UIC
     
     private let selectedReactionSubject: PublishSubject<Void> = PublishSubject<Void>()
     
-    private let reactionCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-    private let reactionCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
+    private let reactionCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: RightAlignedFlowLayout())
+    private let reactionCollectionViewLayout: RightAlignedFlowLayout = RightAlignedFlowLayout()
     let longPressGesture = UILongPressGestureRecognizer(target: nil, action: nil)
     
     override func viewDidLoad() {
@@ -55,15 +55,14 @@ final class ReactionViewController: BaseViewController<ReactionViewReactor>, UIC
         
         reactionCollectionViewLayout.do {
             $0.sectionInset = .init(top: 0, left: 13, bottom: 0, right: 13)
-            $0.itemSize = .init(width: 56, height: 40)
-            $0.minimumLineSpacing = 8
+            $0.itemSize = .init(width: 53, height: 40)
+            $0.minimumLineSpacing = 12
             $0.minimumInteritemSpacing = 6
         }
         
         reactionCollectionView.do {
             $0.backgroundColor = .clear
             $0.collectionViewLayout = reactionCollectionViewLayout
-            $0.semanticContentAttribute = .forceRightToLeft
             $0.showsVerticalScrollIndicator = false
             $0.showsHorizontalScrollIndicator = false
             $0.isScrollEnabled = false
@@ -180,28 +179,6 @@ extension ReactionViewController {
             )
         }
     }
-    
-//    private func presentCustomSheetViewController<T: UIViewController>(
-//        viewController: T,
-//        detentHeightRatio: CGFloat = 0.0,
-//        useCustomDetent: Bool = true
-//    ) {
-//        if let sheet = viewController.sheetPresentationController {
-//            if #available(iOS 16.0, *), useCustomDetent {
-//                let customId = UISheetPresentationController.Detent.Identifier("customId")
-//                let customDetents = UISheetPresentationController.Detent.custom(identifier: customId) {
-//                    return $0.maximumDetentValue * detentHeightRatio
-//                }
-//                sheet.detents = [customDetents]
-//                sheet.prefersScrollingExpandsWhenScrolledToEdge = false
-//            } else {
-//                sheet.detents = [ .medium(), .large()]
-//            }
-//            sheet.prefersGrabberVisible = false
-//        }
-//
-//        self.present(viewController, animated: true)
-//    }
     
     private func createDataSource() -> RxCollectionViewSectionedReloadDataSource<ReactionSection.Model> {
         return RxCollectionViewSectionedReloadDataSource<ReactionSection.Model>(

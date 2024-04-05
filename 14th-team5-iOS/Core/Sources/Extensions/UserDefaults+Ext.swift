@@ -26,6 +26,8 @@ extension UserDefaults {
         case snsType
         case isDefaultProfile
         
+        case lastPostUploadDateId
+        
         
         var value: String { "\(Bundle.current.bundleIdentifier ?? "").\(self.rawValue.lowercased())" }
     }

@@ -32,6 +32,12 @@ public final class PostUserDefaultsRepository: UploadPostRepositoryProtocol {
         }
     }
     
+    public func checkUploadDate(date: String) {
+        if UserDefaults.standard.string(forKey: lastPostUploadDateId) == nil {
+            UserDefaults.standard.set(date, forKey: lastPostUploadDateId)
+        }
+    }
+    
     public func checkPostUploadedToday() -> RxSwift.Single<Bool> {
         guard let lastDate = UserDefaults.standard.string(forKey: lastPostUploadDateId) else {
             return .just(false)

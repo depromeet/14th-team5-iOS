@@ -101,7 +101,7 @@ extension HomeViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewWillAppear:
-            return Observable.concat([self.viewWillAppear(), checkSelfUploaded()])
+            return self.viewWillAppear()
         case .viewDidLoad:
             let (_, time) = HomeViewReactor.calculateRemainingTime()
             
@@ -220,19 +220,14 @@ extension HomeViewReactor {
                 let familySectionItem = familyList.results.map(FamilySection.Item.main)
                 return Observable.from([
                     Mutation.setNoPostTodayView(true),
+                    Mutation.setSelfUploaded(true),
                     Mutation.setInviteFamilyView(false),
                     Mutation.updateFamilyDataSource(familySectionItem),
                     Mutation.updatePostDataSource([])
                 ])
             }
     }
-    
-    private func checkSelfUploaded() -> Observable<Mutation> {
-        return postUseCase.excute().asObservable()
-            .flatMap {
-                return Observable.just(Mutation.setSelfUploaded($0))
-            }
-    }
+
 
     private func handleFamilyAndPostList(_ familyListObservable: Observable<PaginationResponseFamilyMemberProfile?>, _ postListObservable: Observable<PostListPage?>) -> Observable<Mutation> {
         return Observable.combineLatest(postListObservable, familyListObservable)
@@ -264,7 +259,7 @@ extension HomeViewReactor {
                     ])
                 }
 
-                return Observable.from(mutations)
+                return Observable.concat(Observable.from(mutations), self.postUseCase.excute().asObservable().take(1).map { Mutation.setSelfUploaded($0) })
             }
     }
 

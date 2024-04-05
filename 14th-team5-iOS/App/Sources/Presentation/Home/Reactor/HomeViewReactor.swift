@@ -153,7 +153,6 @@ extension HomeViewReactor {
                 Observable<Mutation>.just(.setNotificationCommentDeepLink(deepLink)) // 다음 화면으로 이동하기
             )
         }
-        
     }
     
     func reduce(state: State, mutation: Mutation) -> State {
@@ -221,13 +220,14 @@ extension HomeViewReactor {
                 let familySectionItem = familyList.results.map(FamilySection.Item.main)
                 return Observable.from([
                     Mutation.setNoPostTodayView(true),
-                    Mutation.setInviteFamilyView(false),
                     Mutation.setSelfUploaded(true),
+                    Mutation.setInviteFamilyView(false),
                     Mutation.updateFamilyDataSource(familySectionItem),
                     Mutation.updatePostDataSource([])
                 ])
             }
     }
+
 
     private func handleFamilyAndPostList(_ familyListObservable: Observable<PaginationResponseFamilyMemberProfile?>, _ postListObservable: Observable<PostListPage?>) -> Observable<Mutation> {
         return Observable.combineLatest(postListObservable, familyListObservable)
@@ -248,7 +248,6 @@ extension HomeViewReactor {
                     let postSectionItem = postList.postLists.map(PostSection.Item.main)
                     mutations.append(contentsOf: [
                         Mutation.updatePostDataSource(postSectionItem),
-                        Mutation.setSelfUploaded(postList.selfUploaded),
                         Mutation.setNoPostTodayView(false),
                         Mutation.setAllFamilyUploaded(postList.allFamilyMembersUploaded)
                     ])
@@ -256,12 +255,11 @@ extension HomeViewReactor {
                     let familySectionItem = familyList.results.map(FamilySection.Item.main)
                     mutations.append(contentsOf: [
                         Mutation.updateFamilyDataSource(familySectionItem),
-                        Mutation.setSelfUploaded(false),
                         Mutation.setNoPostTodayView(true)
                     ])
                 }
 
-                return Observable.from(mutations)
+                return Observable.concat(Observable.from(mutations), self.postUseCase.excute().asObservable().take(1).map { Mutation.setSelfUploaded($0) })
             }
     }
 

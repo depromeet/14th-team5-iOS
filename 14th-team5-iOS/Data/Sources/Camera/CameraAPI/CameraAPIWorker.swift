@@ -101,6 +101,12 @@ extension CameraAPIWorker {
                 }
             }
             .map(CameraDisplayPostDTO.self)
+            .map { dto in
+                guard let dto = dto else { return nil }
+                let repository = PostUserDefaultsRepository()
+                repository.savePostUploadDate(createdAt: dto.createdAt)
+                return dto
+            }
             .catchAndReturn(nil)
             .asSingle()
         

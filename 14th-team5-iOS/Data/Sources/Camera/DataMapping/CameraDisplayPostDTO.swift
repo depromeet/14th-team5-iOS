@@ -17,7 +17,7 @@ public struct CameraDisplayPostDTO: Decodable {
     public var emojiCount: Int?
     public var imageUrl: String?
     public var content: String?
-    public var createdAt: String?
+    public var createdAt: String
     
 }
 
@@ -33,7 +33,7 @@ extension CameraDisplayPostDTO {
             emojiCount: emojiCount ?? 0,
             imageURL: imageUrl ?? "",
             content: content ?? "",
-            createdAt: createdAt ?? ""
+            createdAt: createdAt
         )
         
     }

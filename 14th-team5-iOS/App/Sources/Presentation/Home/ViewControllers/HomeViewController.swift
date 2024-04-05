@@ -304,7 +304,6 @@ extension HomeViewController {
             .observe(on: MainScheduler.instance)
             .filter { $0 }
             .withUnretained(self)
-//            .take(1)
             .bind(onNext: {
                 MPEvent.Home.cameraTapped.track(with: nil)
                 let cameraViewController = CameraDIContainer(cameraType: .feed).makeViewController()

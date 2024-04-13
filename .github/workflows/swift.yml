@@ -61,7 +61,7 @@ jobs:
         run: tuist generate
 
       - name: fastlane upload_stg_testflight
-        if: github.event.pull_request.base.ref == 'release'
+        if: github.event.pull_request.base.ref == 'release' && github.head_ref == 'develop'
         env:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
@@ -78,12 +78,11 @@ jobs:
           APPLE_ID: ${{secrets.APPLE_ID}}
           TEAM_ID: ${{secrets.TEAM_ID}}
           WIDGET_NAME: ${{secrets.WIDGET_NAME}}
-        run: fastlane github_action_stg_upload_testflight
-
+        run: fastlane github_action_prd_upload_testflight
 
 
       - name: fastlane upload_prd_testflight
-        if: github.event.pull_request.base.ref == 'develop'
+        if: github.event.pull_request.base.ref == 'develop' && github.head_ref == 'feature'
         env:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
@@ -100,7 +99,7 @@ jobs:
           APPLE_ID: ${{secrets.APPLE_ID}}
           TEAM_ID: ${{secrets.TEAM_ID}}
           WIDGET_NAME: ${{secrets.WIDGET_NAME}}
-        run: fastlane github_action_prd_upload_testflight
+        run: fastlane github_action_stg_upload_testflight
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1.2.1

@@ -17,7 +17,6 @@ public final class FamilyRepository: FamilyRepositoryProtocol {
     private let familyApiWorker: FamilyAPIWorker = FamilyAPIWorker()
     
     private var familyId: String = App.Repository.member.familyId.value ?? ""
-    private var accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
     
     public init() { 
         bind()
@@ -29,28 +28,58 @@ public final class FamilyRepository: FamilyRepositoryProtocol {
             .withUnretained(self)
             .bind(onNext: { $0.0.familyId = $0.1 })
             .disposed(by: disposeBag)
-        
-        App.Repository.token.accessToken
-            .compactMap { $0?.accessToken }
-            .withUnretained(self)
-            .bind(onNext: { $0.0.accessToken = $0.1 })
-            .disposed(by: disposeBag)
     }
 }
 
 extension FamilyRepository {
-    public func createFamily() -> Observable<FamilyResponse?> {
-        return familyApiWorker.createFamily(token: accessToken)
+    public func joinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyResponse?> {
+        let body = JoinFamilyRequestDTO(inviteCode: body.inviteCode)
+        return familyApiWorker.joinFamily(body: body)
+            .do(onSuccess: { 
+                App.Repository.member.familyId.accept($0?.familyId)
+                App.Repository.member.familyCreatedAt.accept($0?.createdAt)
+            })
+            .asObservable()
+    }
+    
+    public func resignFamily() -> Observable<AccountFamilyResignResponse?> {
+        return familyApiWorker.resignFamily()
+            .asObservable()
+    }
+    
+    public func createFamily() -> Observable<CreateFamilyResponse?> {
+        return familyApiWorker.createFamily()
+            .do(onSuccess: {
+                App.Repository.member.familyId.accept($0?.familyId)
+                App.Repository.member.familyCreatedAt.accept($0?.createdAt)
+            })
+            .asObservable()
+    }
+    
+    public func fetchFamilyCreatedAt() -> Observable<FamilyCreatedAtResponse?> {
+        return familyApiWorker.fetchFamilyCreatedAt(familyId: familyId)
+            .do(onSuccess: { App.Repository.member.familyCreatedAt.accept($0?.createdAt) })
+            .asObservable()
+    }
+    
+    public func fetchFamilyCreatedAt(_ familyId: String) -> Observable<FamilyCreatedAtResponse?> {
+        return familyApiWorker.fetchFamilyCreatedAt(familyId: familyId)
+            .do(onSuccess: { App.Repository.member.familyCreatedAt.accept($0?.createdAt) })
             .asObservable()
     }
     
     public func fetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?> {
-        return familyApiWorker.fetchInvitationUrl(token: accessToken, familyId: familyId)
+        return familyApiWorker.fetchInvitationUrl(familyId: familyId)
             .asObservable()
     }
     
-    public func fetchFamilyMembers() -> Observable<PaginationResponseFamilyMemberProfile?> {
-        return familyApiWorker.fetchFamilyMemeberPage(token: accessToken)
+    public func fetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfile?> {
+        return familyApiWorker.fetchPaginationFamilyMember(familyId: familyId, query: query)
+            .do(onSuccess: { FamilyUserDefaults.saveFamilyMembers($0?.results ?? []) })
             .asObservable()
+    }
+    
+    public func fetchPaginationFamilyMembers(memberIds: [String]) -> [ProfileData] {
+        return FamilyUserDefaults.loadMembersFromUserDefaults(memberIds: memberIds)
     }
 }

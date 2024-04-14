@@ -12,17 +12,43 @@ import DesignSystem
 final class InviteFamilyView: UIView {
     typealias Layout = HomeAutoLayout.InviteFamilyView
     
+    enum InviteType {
+        case makeUrl
+        case inviteUrl
+        
+        var title: String {
+            switch self {
+            case .inviteUrl: return "그룹 입장하기"
+            case .makeUrl: return "가족 초대하기"
+            }
+        }
+        
+        var subTitle: String {
+            switch self {
+            case .inviteUrl: return "이미 초대링크를 받았다면"
+            case .makeUrl: return "이런, 아직 아무도 없군요"
+            }
+        }
+    }
+    
     private let inviteImageView: UIImageView = UIImageView()
     private let labelStack: UIStackView = UIStackView()
     private let subLabel: UILabel = BibbiLabel(.body2Regular)
     private let titleLabel: UILabel = BibbiLabel(.head2Bold)
     private let nextIconImageView: UIImageView = UIImageView()
     
-    override init(frame: CGRect) {
+    private var openType: InviteType
+    
+    init(frame: CGRect, openType: InviteType) {
+        self.openType = openType
         super.init(frame: frame)
         setupUI()
         setupAutoLayout()
         setupAttributes()
+    }
+    
+    convenience init(openType: InviteType) {
+        self.init(frame: .zero, openType: openType)
     }
     
     required init?(coder: NSCoder) {
@@ -31,8 +57,7 @@ final class InviteFamilyView: UIView {
     
     private func setupUI() {
         labelStack.addArrangedSubviews(subLabel, titleLabel)
-        addSubviews(inviteImageView, labelStack,
-                    nextIconImageView)
+        addSubviews(inviteImageView, labelStack, nextIconImageView)
     }
     
     private func setupAutoLayout() {
@@ -58,8 +83,16 @@ final class InviteFamilyView: UIView {
         backgroundColor = .gray900
         layer.cornerRadius = Layout.cornerRadius
         
+        titleLabel.do {
+            $0.text = openType.title
+        }
+        
+        subLabel.do {
+            $0.text = openType.subTitle
+        }
+        
         inviteImageView.do {
-            $0.image = DesignSystemAsset.envelopeBackground.image
+            $0.image = DesignSystemAsset.envelope.image
         }
         
         labelStack.do {
@@ -73,12 +106,5 @@ final class InviteFamilyView: UIView {
             $0.image = DesignSystemAsset.arrowRight.image
             $0.tintColor = .gray400
         }
-    }
-}
-
-extension InviteFamilyView {
-    func setLabel(caption: String, title: String) {
-        titleLabel.text = title
-        subLabel.text = caption
     }
 }

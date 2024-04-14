@@ -19,8 +19,8 @@ private let targets: [Target] = [
                 "CFBundleDisplayName": .string("Bibbi"),
                 "CFBundleVersion": .string("1"),
                 "CFBuildVersion": .string("0"),
-                "CFBundleShortVersionString": .string("1.0.1"),
-                "UILaunchStoryboardName": .string("Launch Screen"),
+                "CFBundleShortVersionString": .string("1.1.8"),
+                "UILaunchStoryboardName": .string("LaunchScreen.storyboard"),
                 "UISupportedInterfaceOrientations": .array([.string("UIInterfaceOrientationPortrait")]),
                 "UIUserInterfaceStyle": .string("Light"),
                 "NSPhotoLibraryAddUsageDescription" : .string("프로필 사진, 피드 업로드를 위한 사진 촬영을 위해 Bibbi가 앨범에 접근할 수 있도록 허용해 주세요"),
@@ -43,9 +43,22 @@ private let targets: [Target] = [
                     ]),
                 ]),
                 "KAKAO_LOGIN_API_KEY": .string("$(KAKAO_LOGIN_API_KEY)"),
+                "MIXPANEL_API_KEY": .string("$(MIXPANEL_API_KEY)"),
                 "TEAM_ID": .string("$(TEAM_ID)"),
             ]),
-            entitlements: .file(path: .relativeToRoot("App.entitlements"))
+            settings: .settings(
+                base: [
+                    "CODE_SIGN_STYLE": "Manual",
+                    "DEVELOPMENT_TEAM": "P9P4WJ623F",
+                    "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.5ing.bibbi",
+                    "CODE_SIGN_IDENTITY": "Apple Distribution"
+                ],
+                configurations: [
+                    .build(.dev, name: "DEV"),
+                    .build(.prd, name: "PRD"),
+                    .build(.stg, name: "STG")
+                ]),
+            entitlements: .relativeToRoot("App.entitlements")
         )
     ),
     .makeModular(extenions: .Widget, factory: .init(
@@ -58,7 +71,19 @@ private let targets: [Target] = [
                 "NSExtensionPointIdentifier": .string("com.apple.widgetkit-extension")
             ])
         ]),
-        entitlements: .file(path: .relativeToRoot("WidgetExtension.entitlements"))
+        settings: .settings(
+            base: [
+                "CODE_SIGN_STYLE": "Manual",
+                "DEVELOPMENT_TEAM": "P9P4WJ623F",
+                "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.5ing.bibbi.widget",
+                "CODE_SIGN_IDENTITY": "Apple Distribution"
+            ],
+            configurations: [
+                .build(.dev, name: "DEV"),
+                .build(.prd, name: "PRD"),
+                .build(.stg, name: "STG")
+            ]),
+        entitlements: .relativeToRoot("WidgetExtension.entitlements")
     )
 )
 ]

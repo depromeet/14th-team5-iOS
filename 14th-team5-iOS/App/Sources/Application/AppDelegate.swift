@@ -5,9 +5,12 @@
 //  Created by Kim dohyun on 11/15/23.
 //
 
-import UIKit
 import Core
+import Data
+import Domain
+import UIKit
 
+import AuthenticationServices
 import Firebase
 import FirebaseCore
 import FirebaseAnalytics
@@ -15,11 +18,13 @@ import FirebaseMessaging
 import KakaoSDKAuth
 import RxKakaoSDKAuth
 import RxKakaoSDKCommon
-import AuthenticationServices
+import RxSwift
+import Mixpanel
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
+    
+    let disposeBag = DisposeBag()
     var window: UIWindow?
     let globalStateProvider: GlobalStateProviderProtocol = GlobalStateProvider()
     
@@ -28,10 +33,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         appleApp(application, didFinishLauchingWithOptions: launchOptions)
         
         FirebaseApp.configure()
+        mixpanelApp(application, didFinishLaunchingWithOptions: launchOptions)
         setupUserNotificationCenter(application)
         removeKeychainAtFirstLaunch()
         bindRepositories()
-        
+        App.indicator.bind()
+    
         return true
     }
     
@@ -45,6 +52,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func applicationWillTerminate(_ application: UIApplication) {
         unbindRepositories()
+        App.indicator.unbind()
     }
 }
 
@@ -54,7 +62,6 @@ extension AppDelegate {
             return
         }
         App.Repository.token.clearAccessToken()
-        App.Repository.token.clearFCMToken()
     }
 }
 
@@ -93,6 +100,20 @@ extension AppDelegate {
     }
 }
 
+extension AppDelegate: MixpanelDelegate {
+    
+    func mixpanelApp(_ app: UIApplication, didFinishLaunchingWithOptions launchOption: [UIApplication.LaunchOptionsKey: Any]?) {
+        guard let mixPanelKey = Bundle.main.object(forInfoDictionaryKey: "MIXPANEL_API_KEY") as? String else {
+            return
+        }
+        let _ = Mixpanel.initialize(token: mixPanelKey, trackAutomaticEvents: true)
+    }
+    
+    func mixpanelWillFlush(_ mixpanel: MixpanelInstance) -> Bool {
+        return true
+    }
+}
+
 extension AppDelegate {
     
     func appleApp(_ app: UIApplication, didFinishLauchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) {
@@ -124,13 +145,15 @@ extension AppDelegate {
 
 extension AppDelegate: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        let token = fcmToken ?? ""
+        guard let token = fcmToken else { return }
+        
         debugPrint("Firebase registration token: \(token)")
         
-        let dataDict: [String: String] = ["token": token]
-        NotificationCenter.default.post(name: Notification.Name("FCMToken"), object: nil, userInfo: dataDict)
-        
-        App.Repository.token.fcmToken.accept(token)
+        let useCase = FCMUseCase(FCMRepository: MeAPIs.Worker())
+        useCase.executeSavingFCMToken(token: .init(fcmToken: token))
+            .asObservable()
+            .bind(onNext: { _ in })
+            .disposed(by: disposeBag)
     }
 }
 
@@ -140,7 +163,46 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        let userInfo = response.notification.request.content.userInfo
+        guard let deepLink = decodeRemoteNotificationDeepLink(userInfo) else {
+            completionHandler()
+            return
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            App.Repository.deepLink.notification.accept(deepLink)
+        }
+        
         completionHandler()
+    }
+    
+    func decodeRemoteNotificationDeepLink(_ userInfo: [AnyHashable: Any]) -> NotificationDeepLink? {
+        if let link = userInfo[AnyHashable("iosDeepLink")] as? String {
+            let components = link.components(separatedBy: "?")
+            let parameters = components.last?.components(separatedBy: "&")
+
+            // PostID 구하기
+            let postId = components.first?.components(separatedBy: "/").last ?? ""
+
+            // OpenComment 구하기
+            let firstPart = parameters?.first
+            let openComment = firstPart?.components(separatedBy: "=").last == "true" ? true : false
+
+            // dateOfPost 구하기
+            let secondPart = parameters?.last
+            let dateOfPost = secondPart?.components(separatedBy: "=").last?.toDate(with: .dashYyyyMMdd) ?? Date()
+            
+            let deepLink = NotificationDeepLink(
+                postId: postId,
+                openComment: openComment,
+                dateOfPost: dateOfPost
+            )
+            debugPrint("Push Notification Request UserInfo: \(postId), \(openComment), \(dateOfPost)")
+            return deepLink
+        }
+        
+        print("Error: Decoding Notification Request UserInfo")
+        return nil
     }
 }
 
@@ -148,10 +210,12 @@ extension AppDelegate {
     func bindRepositories() {
         App.Repository.token.bind()
         App.Repository.member.bind()
+        App.Repository.deepLink.bind()
     }
 
     func unbindRepositories() {
         App.Repository.token.unbind()
         App.Repository.member.unbind()
+        App.Repository.deepLink.unbind()
     }
 }

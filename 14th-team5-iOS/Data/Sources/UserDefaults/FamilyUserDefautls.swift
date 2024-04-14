@@ -17,7 +17,7 @@ public class FamilyUserDefaults {
     /// 각 memberId - familymember 객체 저장
 
     private let familyIdKey = "familyId"
-    private static let myMemberIdKey = "myMemberId"
+    private static let myMemberIdKey = "memberId"
     private static let memberIdsKey = "memberIds"
     private static let dayOfBirths = "dayOfBirths"
     
@@ -77,6 +77,10 @@ public class FamilyUserDefaults {
             }
         }
         return nil
+    }
+    
+    public static func loadMemberIds() -> [String] {
+        return userDefaults.array(forKey: memberIdsKey) as! [String]
     }
 }
 

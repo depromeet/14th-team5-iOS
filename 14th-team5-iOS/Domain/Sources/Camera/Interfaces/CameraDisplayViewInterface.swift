@@ -13,6 +13,8 @@ import RxSwift
 public enum UploadLocation {
     case feed
     case profile
+    case realEmoji
+    
     
     public var location: String {
         switch self {
@@ -20,6 +22,8 @@ public enum UploadLocation {
             return "images/feed/"
         case .profile:
             return "images/profile/"
+        case .realEmoji:
+            return "images/real-emoji/"
         }
     }
 }
@@ -28,7 +32,7 @@ public enum UploadLocation {
 public protocol CameraDisplayViewInterface: AnyObject {
     var disposeBag: DisposeBag { get }
     func generateDescrption(with keyword: String) -> Observable<Array<String>>
-    func fetchImageURL(parameters: CameraDisplayImageParameters, type: UploadLocation) -> Observable<CameraDisplayImageResponse?>
+    func fetchFeedImageURL(parameters: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?>
     func uploadImageToS3(toURL url: String, imageData: Data) -> Observable<Bool>
     func combineWithTextImage(parameters: CameraDisplayPostParameters) -> Observable<CameraDisplayPostResponse?>
     

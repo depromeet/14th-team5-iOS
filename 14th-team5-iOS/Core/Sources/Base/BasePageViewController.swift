@@ -16,6 +16,7 @@ open class BasePageViewController<R>: UIPageViewController, ReactorKit.View wher
     
     // MARK: - Properties
     public var disposeBag: RxSwift.DisposeBag = DisposeBag()
+    public let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
     
     // MARK: - Intializer
     public init() {
@@ -39,19 +40,33 @@ open class BasePageViewController<R>: UIPageViewController, ReactorKit.View wher
         setupAttributes()
     }
     
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        navigationController?.navigationBar.isHidden = true
+    }
+    
+    
     // MARK: - Helpers
     /// 리액터와 바인딩을 위한 메서드
     open func bind(reactor: R) { }
     
     /// 서브 뷰 추가를 위한 메서드
-    open func setupUI() { }
+    open func setupUI() {
+        view.addSubview(navigationBarView)
+    }
     
     /// 오토레이아웃 설정을 위한 메서드
-    open func setupAutoLayout() { }
+    open func setupAutoLayout() {
+        navigationBarView.snp.makeConstraints {
+            $0.horizontalEdges.top.equalTo(view.safeAreaLayoutGuide)
+            $0.height.equalTo(42)
+        }
+    }
     
     /// 뷰의 속성 설정을 위한 메서드
     open func setupAttributes() {
-        // assets 정해지면 바꿀게요.
-        view.backgroundColor = DesignSystemAsset.black.color
+        view.backgroundColor = .bibbiBlack
+        navigationController?.navigationBar.isHidden = true
     }
 }

@@ -48,11 +48,14 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
     }
     
     private func bindInput(reactor: AccountSignUpReactor) {
+        
+        
         nextButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .map { Reactor.Action.didTapCompletehButton }
+            .map { _ in Reactor.Action.didTapCompletehButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
         
         profileButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
@@ -141,6 +144,7 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
             $0.bottom.equalTo(view.keyboardLayoutGuide.snp.top).offset(-10)
             $0.height.equalTo(56)
         }
+
     }
     
     override func setupAttributes() {
@@ -169,8 +173,8 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
             $0.setTitle(_Str.buttonTitle, for: .normal)
             $0.titleLabel?.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 16)
             $0.setTitleColor(DesignSystemAsset.black.color, for: .normal)
-            $0.backgroundColor = DesignSystemAsset.mainGreen.color
-            $0.layer.cornerRadius = 30
+            $0.backgroundColor = DesignSystemAsset.mainYellow.color
+            $0.layer.cornerRadius = 28
         }
         
     }
@@ -178,8 +182,6 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
 
 extension AccountProfileViewController {
     private func setProfilewView(with nickname: String) {
-        let profileImageData = profileButton.asImage().jpegData(compressionQuality: 1.0)
-        UserDefaults.standard.profileImage = profileImageData
         titleLabel.text = String(format: _Str.title, nickname)
         
         if let firstName = nickname.first {

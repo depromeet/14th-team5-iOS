@@ -10,4 +10,5 @@ import RxSwift
 
 public protocol MeRepositoryProtocol {
     func fetchMemberInfo() -> Single<MemberInfo?>
+    func fetchAppVersion() -> Single<AppVersionInfo?>
 }

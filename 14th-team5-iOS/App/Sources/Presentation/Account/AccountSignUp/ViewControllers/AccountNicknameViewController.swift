@@ -17,8 +17,6 @@ import Then
 
 fileprivate typealias _Str = AccountSignUpStrings.Nickname
 public final class AccountNicknameViewController: BaseViewController<AccountSignUpReactor> {
-    private enum Metric {}
-    
     // MARK: SubViews
     private let titleLabel = BibbiLabel(.head2Bold, textColor: .gray300)
     private let inputFielView = UITextField()
@@ -33,14 +31,12 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
     
     public override func viewDidLoad() {
         super.viewDidLoad()
-    }
-    
-    public override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.navigationBar.isHidden = false
+        
+        view.backgroundColor = DesignSystemAsset.black.color
     }
     
     public override func bind(reactor: AccountSignUpReactor) {
+        super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
@@ -63,16 +59,6 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        nextButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .withLatestFrom(reactor.state.map { $0.profileType})
-            .filter { $0 == .profile }
-            .withUnretained(self)
-            .bind { owner, _ in
-                guard let nickNameText = owner.inputFielView.text?.first else { return }
-                let userInfo: [AnyHashable: Any] = ["isUpdate": true, "updateNickName": "\(nickNameText)"]
-                NotificationCenter.default.post(name: .DidFinishProfileNickNameUpdate, object: nil, userInfo: userInfo)
-            }.disposed(by: disposeBag)
         
         Observable
             .zip(
@@ -111,6 +97,14 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
             .map { _ in "완료"}
             .bind(to: nextButton.rx.title())
             .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.profileType }
+            .take(1)
+            .filter { $0 == .account }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .bind(onNext: { $0.0.navigationBarView.isHidden = true  })
+            .disposed(by: disposeBag)
     }
     
     public override func setupUI() {
@@ -122,7 +116,6 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
-        
         titleLabel.snp.makeConstraints {
             $0.centerX.equalToSuperview().inset(20)
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(130)
@@ -151,6 +144,10 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
     }
     
     public override func setupAttributes() {
+        navigationBarView.do {
+            $0.setNavigationView(leftItem: .arrowLeft, centerItem: .label("닉네임 변경"), rightItem: .empty)
+        }
+        
         titleLabel.do {
             $0.text = _Str.title
         }
@@ -192,9 +189,9 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
             $0.setTitle("계속", for: .normal)
             $0.titleLabel?.font = UIFont(font: DesignSystemFontFamily.Pretendard.semiBold, size: 16)
             $0.setTitleColor(DesignSystemAsset.black.color, for: .normal)
-            $0.backgroundColor = DesignSystemAsset.mainGreen.color.withAlphaComponent(0.2)
+            $0.backgroundColor = DesignSystemAsset.mainYellow.color.withAlphaComponent(0.2)
             $0.isEnabled = false
-            $0.layer.cornerRadius = 30
+            $0.layer.cornerRadius = 28
         }
     }
 }
@@ -206,7 +203,7 @@ extension AccountNicknameViewController {
     }
     
     fileprivate func validationButton(_ isValid: Bool) {
-        let defaultColor = DesignSystemAsset.mainGreen.color
+        let defaultColor = DesignSystemAsset.mainYellow.color
         nextButton.backgroundColor = isValid ? defaultColor : defaultColor.withAlphaComponent(0.2)
         nextButton.isEnabled = isValid
     }

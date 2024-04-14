@@ -26,6 +26,15 @@ extension UIFont {
         textAlignment: NSTextAlignment = .left
     ) -> FontAttributes {
         switch textStyle {
+        case .homeFeed:
+            return FontAttributes(
+                size: 12,
+                weight: .bold,
+                color: color,
+                letterSpacing: -0.3,
+                lineHeight: 1.38,
+                alignment: textAlignment
+            )
         case .title:
             return FontAttributes(
                 size: 36.0, // 폰트 크기
@@ -118,6 +127,7 @@ extension UIFont {
     public enum Pretendard {
         public enum Style {
             case title
+            case homeFeed
             case head1
             case head2Bold
             case head2Regular
@@ -129,15 +139,15 @@ extension UIFont {
         }
         
         public enum Family {
-            case black
-            case extraBold
+//            case black
+//            case extraBold
             case bold
             case semiBold
-            case medium
+//            case medium
             case regular
-            case thin
-            case light
-            case extraLight
+//            case thin
+//            case light
+//            case extraLight
         }
     }
     
@@ -155,24 +165,24 @@ extension UIFont {
 extension UIFont.FontAttributes {
     public var font: DesignSystemFontConvertible {
         switch weight {
-        case .black:
-            return DesignSystemFontFamily.Pretendard.black
-        case .extraBold:
-            return DesignSystemFontFamily.Pretendard.extraBold
+//        case .black:
+//            return DesignSystemFontFamily.Pretendard.black
+//        case .extraBold:
+//            return DesignSystemFontFamily.Pretendard.extraBold
         case .bold:
             return DesignSystemFontFamily.Pretendard.bold
         case .semiBold:
             return DesignSystemFontFamily.Pretendard.semiBold
-        case .medium:
-            return DesignSystemFontFamily.Pretendard.medium
+//        case .medium:
+//            return DesignSystemFontFamily.Pretendard.medium
         case .regular:
             return DesignSystemFontFamily.Pretendard.regular
-        case .thin:
-            return DesignSystemFontFamily.Pretendard.thin
-        case .light:
-            return DesignSystemFontFamily.Pretendard.light
-        case .extraLight:
-            return DesignSystemFontFamily.Pretendard.extraLight
+//        case .thin:
+//            return DesignSystemFontFamily.Pretendard.thin
+//        case .light:
+//            return DesignSystemFontFamily.Pretendard.light
+//        case .extraLight:
+//            return DesignSystemFontFamily.Pretendard.extraLight
         }
     }
 }

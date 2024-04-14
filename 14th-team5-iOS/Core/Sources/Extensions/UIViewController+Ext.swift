@@ -5,138 +5,109 @@
 //  Created by Kim dohyun on 12/12/23.
 //
 
+import DesignSystem
 import UIKit
 
-import DesignSystem
+import SnapKit
+import Then
 
 extension UIViewController {
-    enum StringLiterals {
-        static let invitationUrlSharePanelTitle: String = "삐삐! 가족에게 보내는 하루 한번 생존 신고"
+    public enum ToastDirection {
+        case up
+        case down
     }
-}
-
-extension UIViewController {
-    typealias ToastView = UILabel
     
-    public func makeToastView(title: String, textColor: UIColor, radius: CGFloat) {
+    public func makeErrorBibbiToastView(
+        delay: CGFloat = 0.6,
+        duration: CGFloat = 0.6,
+        offset: CGFloat = 40,
+        direction: ToastDirection = .up
+    ) {
+        makeBibbiToastView(
+            text: "잠시 후에 다시 시도해주세요",
+            image: DesignSystemAsset.warning.image,
+            offset: offset,
+            direction: direction
+        )
+    }
+    
+    public func makeActionBibbiToastView(
+        text: String = "",
+        transtionText: String = "",
+        duration: CGFloat = 0.6,
+        offset: CGFloat = 40,
+        direction: ToastDirection = .up
+    ) {
+        makeTranstionToastView(
+            text: text,
+            transtionText: transtionText,
+            image: DesignSystemAsset.warning.image,
+            duration: duration,
+            offset: offset,
+            direction: direction
+        )
+    }
+    
+    public func makeTranstionToastView(
+        text: String = "",
+        transtionText: String = "",
+        image: DesignSystemImages.Image? = nil,
+        duration: CGFloat = 0.6,
+        offset: CGFloat = 40,
+        direction: ToastDirection = .up
+    ) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
-            let toastView: ToastView = UILabel()
+            guard let toastView = self.prepareBibbiToastView(text: text, transtionText: transtionText, image: image, offset: offset, animation: direction) else { return }
             
-            toastView.backgroundColor = UIColor.black.withAlphaComponent(0.7)
-            toastView.text = title
-            toastView.textColor = textColor
-            toastView.textAlignment = .center
-            toastView.alpha = 1.0
-            toastView.font = .systemFont(ofSize: 17, weight: .regular)
-            toastView.layer.cornerRadius = radius
-            toastView.clipsToBounds = true
-            
-            
-            self.view.addSubview(toastView)
-            
-            toastView.snp.makeConstraints {
-                $0.height.equalTo(47)
-                $0.width.equalTo(self.view.frame.size.width - 80)
-                $0.centerX.equalToSuperview()
-                $0.bottom.equalToSuperview().offset(-40)
-            }
-            
-            
-            UIView.animate(withDuration: 1.0, delay: 0.5, options: .curveEaseOut) {
-                toastView.alpha = 0
-            } completion: { isCompletion in
-                toastView.removeFromSuperview()
+            UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.4) {
+                if direction == .up {
+                    toastView.transform = CGAffineTransform(translationX: 0, y: -offset * 2)
+                } else {
+                    toastView.transform = CGAffineTransform(translationX: 0, y: offset * 2)
+                }
             }
         }
     }
     
-    /// 둥근 모양의 토스트 메시지를 보여줍니다.
-    /// - Parameters:
-    ///   - text: 토스트 메시지
-    ///   - name: SFSymbol 이름
-    ///   - pattetteColors: SFSymbol 색상 (기본값 .gray300)
-    ///   - width: 너비 (기본값 250)
-    ///   - height: 높이 (기본값 56)
-    ///   - duration: 알림 표시 지속 시간 (기본값 0.5)
-    ///   - offset: 표시할 위치 (기본값 40)
     public func makeBibbiToastView(
         text: String,
-        symbol name: String = "",
-        palletteColors: [UIColor] = [.gray300],
-        backgroundColor: UIColor = .gray900,
-        width: CGFloat = 250,
-        height: CGFloat = 56,
-        duration: CGFloat = 0.5,
-        offset: CGFloat = 40
+        image: DesignSystemImages.Image? = nil,
+        transtionText: String = "",
+        duration: CGFloat = 0.6,
+        delay: CGFloat = 0.6,
+        offset: CGFloat = 40,
+        direction: ToastDirection = .up
     ) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
             guard let toastView = self.prepareBibbiToastView(
                 text: text,
-                symbol: name,
-                palletteColors: palletteColors,
-                backgroundColor: backgroundColor,
-                width: width,
-                height: height,
-                offset: offset
+                transtionText: transtionText,
+                image: image,
+                offset: offset,
+                animation: direction
             ) else {
                 return
             }
             
-            UIView.animate(withDuration: 0.6, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.4) {
-                toastView.transform = CGAffineTransform(translationX: 0, y: -offset * 2)
-            } completion: { _ in
-                UIView.animate(withDuration: 0.6, delay: duration, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.4) {
+            UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.4) {
+                if direction == .up {
+                    toastView.transform = CGAffineTransform(translationX: 0, y: -offset * 2)
+                } else {
                     toastView.transform = CGAffineTransform(translationX: 0, y: offset * 2)
                 }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                    toastView.removeFromSuperview()
-                }
-            }
-        }
-    }
-    
-    /// 둥근 모양의 토스트 메시지를 보여줍니다.
-    /// - Parameters:
-    ///   - text: 토스트 메시지
-    ///   - designSystemImage: 이미지
-    ///   - width: 너비 (기본값 250)
-    ///   - height: 높이 (기본값 56)
-    ///   - duration: 알림 표시 지속 시간 (기본값 0.5)
-    ///   - offset: 표시할 위치 (기본값 40)
-    public func makeBibbiToastView(
-        text: String,
-        designSystemImage image: DesignSystemImages.Image,
-        backgroundColor: UIColor = .gray900,
-        width: CGFloat = 250,
-        height: CGFloat = 56,
-        duration: CGFloat = 0.5,
-        offset: CGFloat = 40
-    ) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            
-            guard let toastView = self.prepareBibbiToastView(
-                text: text,
-                designSystemImage: image,
-                backgroundColor: backgroundColor,
-                width: width,
-                height: height,
-                offset: offset
-            ) else {
-                return
-            }
-            
-            UIView.animate(withDuration: 0.6, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.4) {
-                toastView.transform = CGAffineTransform(translationX: 0, y: -offset * 2)
             } completion: { _ in
-                UIView.animate(withDuration: 0.6, delay: duration, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.4) {
-                    toastView.transform = CGAffineTransform(translationX: 0, y: offset * 2)
+                UIView.animate(withDuration: duration, delay: delay, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.4) {
+                    if direction == .up {
+                        toastView.transform = CGAffineTransform(translationX: 0, y: offset * 2)
+                    } else {
+                        toastView.transform = CGAffineTransform(translationX: 0, y: -offset * 2)
+                    }
                 }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + duration * 2) {
                     toastView.removeFromSuperview()
                 }
             }
@@ -145,43 +116,27 @@ extension UIViewController {
     
     private func prepareBibbiToastView(
         text: String,
-        symbol name: String? = nil,
-        palletteColors colors: [UIColor]? = nil,
-        designSystemImage image: DesignSystemImages.Image? = nil,
-        backgroundColor: UIColor = .gray900,
-        width: CGFloat,
-        height: CGFloat,
-        offset: CGFloat
+        transtionText: String,
+        image: DesignSystemImages.Image? = nil,
+        offset: CGFloat,
+        animation: ToastDirection
     ) -> UIView? {
         // 하위 뷰에 이미 ToastView가 존재한다면
         guard view.findSubview(of: BibbiToastMessageView.self) == nil else {
             return nil
         }
         
-        let image: UIImage? = {
-            if let name = name {
-                let colors: [UIColor] = colors ?? [.gray300]
-                let config = UIImage.SymbolConfiguration(paletteColors: colors)
-                return UIImage(systemName: name, withConfiguration: config)
-            } else {
-                return image
-            }
-        }()
-        
-        let toastView: BibbiToastMessageView = BibbiToastMessageView(
-            text: text,
-            image: image,
-            containerColor: backgroundColor,
-            width: width,
-            height: height
-        )
+        let toastView = BibbiToastMessageView(transtionText: transtionText, text: text, image: image)
         
         self.view.addSubview(toastView)
         toastView.snp.makeConstraints {
-            $0.width.equalTo(width)
-            $0.height.equalTo(height)
-            $0.bottom.equalToSuperview().offset(offset)
-            $0.centerX.equalToSuperview()
+            $0.height.equalTo(56)
+            $0.horizontalEdges.equalToSuperview()
+            if animation == .up {
+                $0.bottom.equalToSuperview().offset(offset)
+            } else {
+                $0.top.equalToSuperview().offset(-offset)
+            }
         }
         
         return toastView
@@ -210,7 +165,7 @@ extension UIViewController {
     public func makeInvitationUrlSharePanel(_ url: URL?, provider globalState: GlobalStateProviderProtocol? = nil) {
         guard let url = url else { return }
         let itemSource = UrlActivityItemSource(
-            title: StringLiterals.invitationUrlSharePanelTitle,
+            title: "삐삐! 가족에게 보내는 하루 한번 생존 신고",
             url: url
         )
         let copyToPastboard = CopyInvitationUrlActivity(url, provider: globalState)
@@ -289,5 +244,103 @@ extension UIViewController {
             popoverSize: size,
             permittedArrowDrections: directions
         )
+    }
+}
+
+extension UIViewController {
+    
+    public enum CommentSheetType {
+        case post
+        case calendar
+    }
+    
+    public func presentSheet(
+        _ viewController: UIViewController,
+        allowMediumDetent: Bool
+    ) {
+        let detents: [UISheetPresentationController.Detent] = if allowMediumDetent {
+            [.medium(), .large()]
+        } else {
+            [.large()]
+        }
+        presentSheet(
+            viewController,
+            detents: detents
+        )
+    }
+    
+    public func presentSheet(
+        _ viewController: UIViewController,
+        detents: [UISheetPresentationController.Detent]?,
+        prefersScrollingExpandsWhenScrolledToEdge expands: Bool = false,
+        prefersGrabberVisible grabber: Bool = false
+    ) {
+        if let sheet = viewController.sheetPresentationController {
+            if let detents = detents {
+                sheet.detents = detents
+            }
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = expands
+            sheet.prefersGrabberVisible = grabber
+        }
+        
+        present(viewController, animated: true)
+    }
+    
+    @available(iOS 16.0, *)
+    public func presentSheet(
+        _ viewController: UIViewController,
+        detentHeightRatio ratios: [CGFloat],
+        allowLargeDetent: Bool = false,
+        prefersScrollingExpandsWhenScrolledToEdge expands: Bool = false,
+        prefersGrabberVisble grabber: Bool = false
+    ) {
+        var customHeightDetents: [UISheetPresentationController.Detent] = []
+        
+        ratios.forEach { ratio in
+            let identifier = UISheetPresentationController.Detent.Identifier("\(ratio).identifier")
+            let customDetent = UISheetPresentationController.Detent.custom(identifier: identifier) { context in
+                return context.maximumDetentValue * ratio
+            }
+            customHeightDetents.append(customDetent)
+        }
+        
+        let detents = if allowLargeDetent {
+            customHeightDetents + [.large()]
+        } else {
+            customHeightDetents
+        }
+        
+        presentSheet(
+            viewController,
+            detents: detents,
+            prefersScrollingExpandsWhenScrolledToEdge: expands,
+            prefersGrabberVisible: grabber
+        )
+    }
+    
+    /// 댓글 목록 화면을 시트로 출력하기 위한 메서드입니다.
+    ///
+    /// - parameter postCommentViewController: PostCommentViewController 타입의 뷰 컨트롤러
+    public func presentPostCommentSheet(
+        _ postCommentViewController: UIViewController,
+        from type: UIViewController.CommentSheetType
+    ) {
+        var ratio: CGFloat = switch type {
+        case .post: 0.85
+        case .calendar: UIScreen.isPhoneSE ? 0.815 : 0.835
+        }
+        
+        if #available(iOS 16.0, *) {
+            presentSheet(
+                postCommentViewController,
+                detentHeightRatio: [ratio],
+                allowLargeDetent: true
+            )
+        } else {
+            presentSheet(
+                postCommentViewController,
+                allowMediumDetent: true
+            )
+        }
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Core
 
 // MARK: APIs of AFP
 typealias BibbiHeader = BibbiAPI.Header
@@ -30,6 +31,7 @@ enum BibbiAPI {
         case acceptJson
         case xUserPlatform
         case xAppVersion
+        case xUserID
         
         var key: String {
             switch self {
@@ -42,13 +44,14 @@ enum BibbiAPI {
             case .acceptJson: return "Accept"
             case .xUserPlatform: return "X-USER-PLATFORM"
             case .xAppVersion: return "X-APP-VERSION"
+            case .xUserID: return "X-USER-ID"
             }
         }
         
         var value: String {
             switch self {
             case .auth(let value): return "Bearer \(value)"
-            case .xAppKey: return "9c61cc7b-0fe9-40eb-976e-6a74c8cb9092" // v1.0
+            case .xAppKey: return "7c5aaa36-570e-491f-b18a-26a1a0b72959"
             case .xAuthToken(let value): return "\(value)"
             case .contentForm: return "application/x-www-form-urlencoded"
             case .contentJson: return "application/json"
@@ -56,11 +59,12 @@ enum BibbiAPI {
             case .acceptJson: return "application/json"
             case .xUserPlatform: return "iOS"
             case .xAppVersion: return "\(Bundle.main.appVersion)"
+            case .xUserID: return "\(App.Repository.member.memberID.value ?? "송영민짱")"
             }
         }
         
         static var baseHeaders: [Self] {
-            return [.xAppKey, .xAppVersion, .xUserPlatform]
+            return [.xAppKey, .xAppVersion, .xUserPlatform, .xUserID]
         }
     }
     

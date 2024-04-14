@@ -55,7 +55,7 @@ public final class AccountSignUpReactor: Reactor {
         var nickname: String = ""
         var isValidNickname: Bool = false
         var isValidNicknameButton: Bool = false
-        var nicknameButtonTappedFinish: Bool = false
+        @Pulse var nicknameButtonTappedFinish: Bool = false
         
         var memberId: String
         var profileNickNameEditEntity: AccountNickNameEditResponse?
@@ -66,7 +66,7 @@ public final class AccountSignUpReactor: Reactor {
         var day: Int = 0
         var isValidDay: Bool = false
         var isValidDateButton: Bool = false
-        var dateButtonTappedFinish: Bool = false
+        @Pulse var dateButtonTappedFinish: Bool = false
         var profileType: AccountLoaction = .account
         
         var profilePresignedURL: String = ""
@@ -108,8 +108,9 @@ extension AccountSignUpReactor {
             
             // MARK: Profile
         case let .profilePresignedURL(presignedURL, originImage):
+            let originProfilePath = configureAccountOriginalS3URL(url: presignedURL)
             return .concat(
-                .just(.setprofilePresignedURL(presignedURL)),
+                .just(.setprofilePresignedURL(originProfilePath)),
                 .just(.setprofileImage(originImage))
             )
         case let .didTapNickNameButton(nickName):
@@ -120,12 +121,18 @@ extension AccountSignUpReactor {
                         .just(.setEditNickName(entity))
                 }
             
-        case .didTapCompletehButton:
+        case let .didTapCompletehButton:
             let date = getDateToString(year: currentState.year!, month: currentState.month, day: currentState.day)
-            return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: currentState.profilePresignedURL)
-                .flatMap { tokenEntity -> Observable<Mutation> in
+            
+            if self.currentState.profilePresignedURL.isEmpty {
+                return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: nil).flatMap { tokenEntity -> Observable<Mutation> in
                     return Observable.just(Mutation.didTapCompletehButton(tokenEntity))
                 }
+            } else {
+                return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: currentState.profilePresignedURL).flatMap { tokenEntity -> Observable<Mutation> in
+                    return Observable.just(Mutation.didTapCompletehButton(tokenEntity))
+                }
+            }
         case let .didTapPHAssetsImage(profileImage):
             let originalImage: String = "\(profileImage.hashValue).jpg"
             let profileImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: originalImage)
@@ -141,10 +148,10 @@ extension AccountSignUpReactor {
                             .asObservable()
                             .flatMap { isSuccess -> Observable<AccountSignUpReactor.Mutation> in
                                 let originalPath = owner.configureAccountOriginalS3URL(url: accountPresignedURL)
-                                let accountParameter = ProfileImageEditParameter(profileImageUrl: originalPath)
+                                
                                 if isSuccess {
                                    return  .concat(
-                                    .just(.setprofilePresignedURL(accountPresignedURL)),
+                                    .just(.setprofilePresignedURL(originalPath)),
                                     .just(.setprofileImage(profileImage))
                                 )
                                 } else {
@@ -152,11 +159,8 @@ extension AccountSignUpReactor {
                                 }
                                 
                             }
-                        
                     }
-            
             )
-            
         }
     }
     

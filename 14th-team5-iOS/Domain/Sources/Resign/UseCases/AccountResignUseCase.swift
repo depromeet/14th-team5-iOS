@@ -10,9 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol AccountResignUseCaseProtocol {
-    func executeAccountResign(memberId: String) -> Observable<AccountResignResponse>
-    func executeAccountFcmResign(fcmToken: String) -> Observable<AccountFcmResignResponse>
-    
+    func executeAccountResign() -> Observable<AccountResignResponse>
 }
 
 
@@ -23,11 +21,7 @@ public final class AccountResignUseCase: AccountResignUseCaseProtocol {
         self.accountResignViewRepository = accountResignViewRepository
     }
     
-    public func executeAccountResign(memberId: String) -> Observable<AccountResignResponse> {
-        return accountResignViewRepository.fetchAccountResign(memberId: memberId)
-    }
-    
-    public func executeAccountFcmResign(fcmToken: String) -> Observable<AccountFcmResignResponse> {
-        return accountResignViewRepository.fetchAccountFcmResign(fcmToken: fcmToken)
+    public func executeAccountResign() -> Observable<AccountResignResponse> {
+        return accountResignViewRepository.fetchAccountResign()
     }
 }

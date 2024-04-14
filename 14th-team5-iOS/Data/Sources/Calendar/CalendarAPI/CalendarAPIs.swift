@@ -10,18 +10,18 @@ import Foundation
 import Domain
 
 enum CalendarAPIs: API {
-    case calendarInfo(String)
-    case familySummaryInfo(String)
-    case familyCreatedAt(String)
+    case fetchCalendarResponse(String)
+    case fetchStatisticsSummary(String)
+    case fetchCalendarBenner(String)
     
     var spec: APISpec {
         switch self {
-        case let .calendarInfo(yearMonth):
+        case let .fetchCalendarResponse(yearMonth):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar?type=MONTHLY&yearMonth=\(yearMonth)")
-        case let .familySummaryInfo(familyId):
-            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/families/\(familyId)/summary")
-        case let .familyCreatedAt(familyId):
-            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/families/\(familyId)/created-at")
+        case let .fetchStatisticsSummary(yearMonth):
+            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar/summary?yearMonth=\(yearMonth)")
+        case let .fetchCalendarBenner(yearMonth):
+            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar/banner?yearMonth=\(yearMonth)")
         }
     }
 }

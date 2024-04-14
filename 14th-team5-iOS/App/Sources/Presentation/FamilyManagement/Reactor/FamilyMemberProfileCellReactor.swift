@@ -14,13 +14,21 @@ import RxDataSources
 import RxSwift
 
 final public class FamilyMemberProfileCellReactor: Reactor {
+    public enum CellType {
+        case family
+        case emoji
+    }
+    
     // MARK: - Action
     public typealias Action = NoAction
     
     // MARK: - State
     public struct State {
+        let cellType: CellType
+        var memberId: String
         var name: String
         var imageUrl: String?
+        var dayOfBirth: Date
         var isMe: Bool
     }
     
@@ -28,10 +36,13 @@ final public class FamilyMemberProfileCellReactor: Reactor {
     public var initialState: State
     
     // MARK: - Intializer
-    public init(_ memberResponse: FamilyMemberProfileResponse, isMe: Bool) {
+    public init(_ memberResponse: ProfileData, isMe: Bool, cellType: CellType) {
         self.initialState = State(
+            cellType: cellType,
+            memberId: memberResponse.memberId,
             name: memberResponse.name,
-            imageUrl: memberResponse.imageUrl,
+            imageUrl: memberResponse.profileImageURL,
+            dayOfBirth: memberResponse.dayOfBirth,
             isMe: isMe
         )
     }

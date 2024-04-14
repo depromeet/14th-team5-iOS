@@ -8,6 +8,7 @@
 import Foundation
 
 import Domain
+import Core
 
 import ReactorKit
 
@@ -31,15 +32,15 @@ public final class InputFamilyLinkReactor: Reactor {
     public struct State {
         var linkString: String = ""
         var isShowHome: Bool = false
-        var showToastMessage: String = ""
+        @Pulse var showToastMessage: String = ""
         var isPoped: Bool = false
     }
     
     // MARK: - Properties
     public let initialState: State
-    private let familyUseCase: JoinFamilyUseCaseProtocol
+    private let familyUseCase: FamilyUseCaseProtocol
     
-    init(initialState: State, familyUseCase: JoinFamilyUseCaseProtocol) {
+    init(initialState: State, familyUseCase: FamilyUseCaseProtocol) {
         self.initialState = initialState
         self.familyUseCase = familyUseCase
     }
@@ -54,27 +55,41 @@ extension InputFamilyLinkReactor {
             return Observable.just(Mutation.setLinkString(link))
         case .tapJoinFamily:
             
-            let urlString = currentState.linkString
-
-            guard let firstIndex = urlString.lastIndex(of: "/") else {
-                return Observable.just(Mutation.setToastMessage("링크 형식이 맞지 않습니다."))
+            MPEvent.Account.invitedGroupFinished.track(with: nil)
+            
+            let code = currentState.linkString
+            let body = JoinFamilyRequest(inviteCode: String(code))
+            
+            let commonLogic: (JoinFamilyResponse) -> Observable<InputFamilyLinkReactor.Mutation> = { joinFamilyData in
+//                App.Repository.member.familyId.accept(joinFamilyData.familyId)
+//                App.Repository.member.familyCreatedAt.accept(joinFamilyData.createdAt)
+                return Observable.just(Mutation.setShowHome(true))
             }
 
-            let endIndex = urlString.endIndex
-            let afterSlashIndex = urlString.index(after: firstIndex)
-            let result = urlString[afterSlashIndex..<endIndex]
-            // result 가 invite 코드거든?
-            let request = JoinFamilyRequest(inviteCode: String(result))
-            
-            return familyUseCase.execute(body: request)
-                .asObservable()
-                .flatMap { joinFamilyData in
-                    guard let joinFamilyData else {
-                        return Observable.just(Mutation.setToastMessage("가족에 입장할 수 없습니다."))
+            if App.Repository.member.familyId.value != nil {
+                return familyUseCase.executeResignFamily()
+                    .asObservable()
+                    .withUnretained(self)
+                    .flatMap { owner, useCase -> Observable<InputFamilyLinkReactor.Mutation> in
+                        return owner.familyUseCase.executeJoinFamily(body: body)
+                            .asObservable()
+                            .flatMap { joinFamilyData in
+                                guard let joinFamilyData = joinFamilyData else {
+                                    return Observable.just(Mutation.setToastMessage("존재하지 않는 초대코드에요."))
+                                }
+                                return commonLogic(joinFamilyData)
+                            }
                     }
-                    
-                    return Observable.just(Mutation.setShowHome(true))
-                }
+            } else {
+                return familyUseCase.executeJoinFamily(body: body)
+                    .asObservable()
+                    .flatMap { joinFamilyData in
+                        guard let joinFamilyData = joinFamilyData else {
+                            return Observable.just(Mutation.setToastMessage("존재하지 않는 초대코드에요."))
+                        }
+                        return commonLogic(joinFamilyData)
+                    }
+            }
         case .tapPopButton:
             return Observable.just(Mutation.setPoped(true))
         }

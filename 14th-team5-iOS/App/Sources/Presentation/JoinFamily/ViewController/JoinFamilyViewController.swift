@@ -17,22 +17,21 @@ import RxSwift
 import SnapKit
 import Then
 
+fileprivate typealias _Str = JoinFamilyStrings
 final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
     // MARK: - Views
     private let titleLabel: BibbiLabel = BibbiLabel(.head1, textColor: .gray100)
-    private let captionLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray300)
-    private let createFamilyButton: UIButton = UIButton()
-    private let joinFamilyButton: InviteFamilyView = InviteFamilyView()
-    
-    // MARK: - Lifecycles
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
+    private let joinFamilyButton: InviteFamilyView = InviteFamilyView(openType: .inviteUrl)
+    private let makeFamilyButton: MakeNewFamilyView = MakeNewFamilyView()
     
     override func setupUI() {
         super.setupUI()
-        view.addSubviews(titleLabel, captionLabel, createFamilyButton,
-                         joinFamilyButton)
+        view.addSubviews(titleLabel, makeFamilyButton, joinFamilyButton)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.isHidden = true
     }
     
     override func setupAutoLayout() {
@@ -44,20 +43,14 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
             $0.height.equalTo(66)
         }
         
-        captionLabel.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(8)
-            $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.height.equalTo(24)
-        }
-        
-        createFamilyButton.snp.makeConstraints {
-            $0.top.equalTo(captionLabel.snp.bottom).offset(24)
-            $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.height.equalTo(createFamilyButton.snp.width)
-        }
-        
         joinFamilyButton.snp.makeConstraints {
-            $0.top.equalTo(createFamilyButton.snp.bottom).offset(24)
+            $0.top.equalTo(titleLabel.snp.bottom).offset(24)
+            $0.horizontalEdges.equalToSuperview().inset(20)
+            $0.height.equalTo(90)
+        }
+        
+        makeFamilyButton.snp.makeConstraints {
+            $0.top.equalTo(joinFamilyButton.snp.bottom).offset(24)
             $0.horizontalEdges.equalToSuperview().inset(20)
             $0.height.equalTo(90)
         }
@@ -67,20 +60,12 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
         super.setupAttributes()
         
         titleLabel.do {
-            $0.text = "\(UserDefaults.standard.nickname ?? "삐삐")님, 가족 중 첫 번째로\n방을 생성해보세요"
+            $0.text = _Str.mainTitle
             $0.numberOfLines = 2
         }
         
-        captionLabel.do {
-            $0.text = "하나의 그룹에만 소속될 수 있어요."
-        }
-        
-        createFamilyButton.do {
-            $0.setImage(DesignSystemAsset.makeGroupButton.image, for: .normal)
-        }
-        
-        joinFamilyButton.do {
-            $0.setLabel(caption: "이미 초대링크를 받았다면", title: "그룹 입장하기")
+        makeFamilyButton.do {
+            $0.layer.cornerRadius = 16
         }
     }
     
@@ -91,8 +76,16 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
     }
     
     private func bindInput(reactor: JoinFamilyReactor) {
-        createFamilyButton.rx.tap
-            .map { Reactor.Action.makeFamily }
+        makeFamilyButton.rx.tap
+            .do(onNext: { MPEvent.Account.creatGroup.track(with: nil) })
+            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.newGroupAlertController()})
+            .disposed(by: disposeBag)
+        
+        NotificationCenter.default
+            .rx.notification(.didTapCreatFamilyGroupButton)
+            .map { _ in Reactor.Action.makeFamily }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -108,19 +101,14 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
             .observe(on: MainScheduler.instance)
             .distinctUntilChanged()
             .withUnretained(self)
-            .bind(onNext: {
-                $0.0.showHomeViewController($0.1)
-            })
+            .bind(onNext: { $0.0.showHomeViewController($0.1) })
             .disposed(by: disposeBag)
         
         reactor.state
             .map { $0.isShowJoinFamily }
             .observe(on: MainScheduler.instance)
-            .distinctUntilChanged()
             .withUnretained(self)
-            .bind(onNext: {
-                $0.0.showInputLinkViewController($0.1)
-            })
+            .bind(onNext: { $0.0.showInputLinkViewController($0.1) })
             .disposed(by: disposeBag)
     }
 }
@@ -128,6 +116,8 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
 extension JoinFamilyViewController {
     private func showHomeViewController(_ isShow: Bool) {
         guard isShow else { return }
+        
+        UserDefaults.standard.clearInviteCode()
         
         guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
         sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
@@ -139,5 +129,24 @@ extension JoinFamilyViewController {
         
         let inputFamilyLinkViewController = InputFamilyLinkDIContainer().makeViewController()
         self.navigationController?.pushViewController(inputFamilyLinkViewController, animated: true)
+    }
+    
+    private func newGroupAlertController() {
+        let resignAlertController = UIAlertController(
+            title: "새 그룹방으로 입장",
+            message: "초대 받은 그룹이 없어\n새 그룹방으로 입장할래요",
+            preferredStyle: .alert
+        )
+        
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)
+        let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
+            MPEvent.Account.creatGroupFinished.track(with: nil)
+            NotificationCenter.default.post(name: .didTapCreatFamilyGroupButton, object: nil, userInfo: nil)
+        }
+        
+        [cancelAction, confirmAction].forEach(resignAlertController.addAction(_:))
+        
+        resignAlertController.overrideUserInterfaceStyle = .dark
+        present(resignAlertController, animated: true)
     }
 }

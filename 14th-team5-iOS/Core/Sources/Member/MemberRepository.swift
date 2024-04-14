@@ -13,8 +13,10 @@ import RxCocoa
 public class MemberRepository: RxObject {
     public let familyId = BehaviorRelay<String?>(value: nil)
     public let memberID = BehaviorRelay<String?>(value: nil)
-    public let nickname = BehaviorRelay<String?>(value: nil)
+    public let postId = BehaviorRelay<String?>(value: nil)
     public let inviteCode = BehaviorRelay<String?>(value: nil)
+    public let nickname = BehaviorRelay<String?>(value: nil)
+    public let familyCreatedAt = BehaviorRelay<Date?>(value: nil)
     
     override public func bind() {
         memberID
@@ -36,6 +38,16 @@ public class MemberRepository: RxObject {
             .withUnretained(self)
             .bind(onNext: { $0.0.saveInviteCode(with: $0.1) })
             .disposed(by: disposeBag)
+        
+        postId
+            .withUnretained(self)
+            .bind(onNext: { $0.0.savePostId(with: $0.1) })
+            .disposed(by: disposeBag)
+        
+        familyCreatedAt
+            .withUnretained(self)
+            .bind(onNext: { $0.0.saveFamilyCreatedAt(with: $0.1) })
+            .disposed(by: disposeBag)
     }
     
     private func saveMemberId(with id: String?) {
@@ -56,6 +68,16 @@ public class MemberRepository: RxObject {
     private func saveNicknmae(with nickname: String?) {
         guard let nickname = nickname else { return }
         UserDefaults.standard.nickname = nickname
+    }
+    
+    private func savePostId(with postId: String?) {
+        guard let postId = postId else { return }
+        UserDefaults.standard.postId = postId
+    }
+    
+    private func saveFamilyCreatedAt(with date: Date?) {
+        guard let date = date else { return }
+        UserDefaults.standard.createdAt = date
     }
     
     override public func unbind() {

@@ -14,5 +14,6 @@ public struct AccountNickNameEditResponse {
     public var imageUrl: URL
     public var familyId: String
     public var dayOfBirth: String
+    public var familyJoinAt: String
     
 }

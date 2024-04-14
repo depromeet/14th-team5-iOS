@@ -16,9 +16,9 @@ import RxSwift
 import SnapKit
 import Then
 
+fileprivate typealias _Str = FamilyManagementStrings
 public final class FamilyManagementViewController: BaseViewController<FamilyManagementViewReactor> {
     // MARK: - Views
-    private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
     
     private let shareContainerview: InvitationUrlContainerView = InvitationUrlContainerDIContainer().makeView()
     private let dividerView: UIView = UIView()
@@ -26,10 +26,16 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     private let headerStack: UIStackView = UIStackView()
     private let tableTitleLabel: BibbiLabel = BibbiLabel(.head1, textColor: .gray200)
     private let tableCountLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray400)
+    
     private let familyTableView: UITableView = UITableView()
+    private let refreshControl: UIRefreshControl = UIRefreshControl()
+
+    private let bibbiLottieView: AirplaneLottieView = AirplaneLottieView()
+    
+    private let fetchFailureView: BibbiFetchFailureView = BibbiFetchFailureView(type: .family)
     
     // MARK: - Properties
-    lazy var dataSource: RxTableViewSectionedReloadDataSource<FamilyMemberProfileSectionModel> = prepareDatasource()
+    private lazy var dataSource: RxTableViewSectionedReloadDataSource<FamilyMemberProfileSectionModel> = prepareDatasource()
     
     // MARK: - Lifecycles
     public override func viewDidLoad() {
@@ -50,7 +56,12 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     
     private func bindInput(reactor: FamilyManagementViewReactor) {
         Observable<Void>.just(())
-            .map { Reactor.Action.fetchFamilyMemebers }
+            .map { Reactor.Action.fetchPaginationFamilyMemebers(false) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        navigationBarView.rx.rightButtonTap
+            .map { _ in Reactor.Action.didTapPrivacyBarButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -59,13 +70,25 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .map { Reactor.Action.didTapShareContainer }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        familyTableView.rx.itemSelected
+            .map { Reactor.Action.didSelectTableCell($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        refreshControl.rx.controlEvent(.valueChanged)
+            .map { Reactor.Action.fetchPaginationFamilyMemebers(true) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: FamilyManagementViewReactor) {
-        navigationBarView.rx.didTapLeftBarButton
+        reactor.pulse(\.$shouldPushPrivacyVC)
+            .filter { !$0.isEmpty }
             .withUnretained(self)
             .subscribe {
-                $0.0.navigationController?.popViewController(animated: true)
+                let privacyVC = PrivacyDIContainer(memberId: $0.1).makeViewController()
+                $0.0.navigationController?.pushViewController(privacyVC, animated: true)
             }
             .disposed(by: disposeBag)
         
@@ -84,55 +107,85 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .bind(to: tableCountLabel.rx.text)
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$displayFamilyMemberInfo)
-            .bind(to: familyTableView.rx.items(dataSource: dataSource))
+        let familyMember = reactor.pulse(\.$displayFamilyMember).asDriver(onErrorJustReturn: [])
+        
+        familyMember
+            .drive(familyTableView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        familyMember
+            .drive(with: self, onNext: { owner, _ in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    owner.refreshControl.endRefreshing()
+                }
+            })
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPushProfileVC)
+            .filter { !$0.isEmpty }
+            .withUnretained(self)
+            .subscribe {
+                let profileVC = ProfileDIContainer(memberId: $0.1).makeViewController()
+                $0.0.navigationController?.pushViewController(profileVC, animated: true)
+            }
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentCopySuccessToastMessageView)
-            .skip(1)
+            .filter { $0 }
             .withUnretained(self)
             .subscribe {
                 $0.0.makeBibbiToastView(
-                    text: FamilyManagementStrings.sucessCopyInvitationUrlText,
-                    designSystemImage: DesignSystemAsset.link.image,
-                    width: 220
+                    text: _Str.sucessCopyInvitationUrlText,
+                    image: DesignSystemAsset.link.image
                 )
             }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldPresentFetchFailureToastMessageView)
-            .skip(1)
+        reactor.pulse(\.$shouldPresentUrlFetchFailureToastMessageView)
+            .filter { $0 }
+            .withUnretained(self)
+            .subscribe { $0.0.makeErrorBibbiToastView() }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentFamilyFetchFailureToastMessageView)
+            .filter { $0 }
             .withUnretained(self)
             .subscribe {
                 $0.0.makeBibbiToastView(
-                    text: FamilyManagementStrings.fetchFailInvitationUrlText,
-                    designSystemImage: DesignSystemAsset.warning.image,
-                    width: 240
+                    text: _Str.fetchFailFamilyText,
+                    image: DesignSystemAsset.warning.image
                 )
             }
+            .disposed(by: disposeBag)
+
+        reactor.pulse(\.$shouldPresentPaperAirplaneLottieView)
+            .bind(to: bibbiLottieView.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentFamilyFetchFailureView)
+            .bind(to: fetchFailureView.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldGenerateErrorHapticNotification)
+            .filter { $0 }
+            .subscribe(onNext: { _ in Haptic.notification(type: .error) })
             .disposed(by: disposeBag)
     }
     
     public override func setupUI() {
         super.setupUI()
         view.addSubviews(
-            navigationBarView, shareContainerview,
+            shareContainerview,
             dividerView, headerStack, familyTableView
         )
         headerStack.addArrangedSubviews(
             tableTitleLabel, tableCountLabel
         )
+        familyTableView.addSubviews(bibbiLottieView, fetchFailureView)
     }
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
-        
-        navigationBarView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(42)
-        }
-        
         shareContainerview.snp.makeConstraints {
             $0.top.equalTo(navigationBarView.snp.bottom).offset(24)
             $0.horizontalEdges.equalToSuperview().inset(20)
@@ -155,17 +208,27 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             $0.top.equalTo(headerStack.snp.bottom).offset(8)
             $0.bottom.equalToSuperview()
         }
+        
+        bibbiLottieView.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview()
+            $0.top.equalToSuperview().offset(140)
+        }
+        
+        fetchFailureView.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(70)
+            $0.centerX.equalToSuperview()
+        }
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
         navigationBarView.do {
-            $0.navigationTitle = FamilyManagementStrings.mainTitle
-            $0.leftBarButtonItem = .arrowLeft
+            $0.setNavigationView(leftItem: .arrowLeft, centerItem: .label(_Str.mainTitle), rightItem: .setting)
          }
         
         dividerView.do {
-            $0.backgroundColor = .gray600
+            $0.backgroundColor = UIColor.gray600
         }
         
         headerStack.do {
@@ -176,23 +239,27 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
         }
         
         tableTitleLabel.do {
-            $0.text = FamilyManagementStrings.headerTitle
+            $0.text = _Str.headerTitle
         }
         
         tableCountLabel.do {
-            $0.text = FamilyManagementStrings.headerCount
+            $0.text = _Str.headerCount
         }
         
         familyTableView.do {
             $0.separatorStyle = .none
-            $0.allowsSelection = false
             $0.estimatedRowHeight = UITableView.automaticDimension
             $0.backgroundColor = UIColor.clear
-            $0.contentInset = UIEdgeInsets(
-                top: 10, left: 0, bottom: 0, right: 0
-            )
+            $0.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 0)
+            
+            $0.refreshControl = refreshControl
+            $0.refreshControl?.tintColor = UIColor.bibbiWhite
             
             $0.register(FamilyMemberProfileCell.self, forCellReuseIdentifier: FamilyMemberProfileCell.id)
+        }
+        
+        fetchFailureView.do {
+            $0.isHidden = true
         }
     }
 }

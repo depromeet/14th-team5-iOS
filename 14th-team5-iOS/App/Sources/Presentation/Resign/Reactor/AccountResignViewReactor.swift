@@ -55,20 +55,18 @@ final class AccountResignViewReactor: Reactor {
             return .just(.setSelect(isSelected))
         case .didTapResignButton:
             //TODO: MemberID는 유저 디폴트 저장한거 사용 하자
-            return resignUseCase.executeAccountResign(memberId: App.Repository.member.memberID.value ?? "")
+            MPEvent.Account.withdrawl.track(with: nil)
+            return resignUseCase.executeAccountResign()
                 .asObservable()
                 .withUnretained(self)
                 .flatMap { owner, entity -> Observable<AccountResignViewReactor.Mutation> in
                     if entity.isSuccess {
-                        return owner.resignUseCase.executeAccountFcmResign(fcmToken: App.Repository.token.fcmToken.value)
-                            .flatMap { fcmEntity ->
-                                Observable<AccountResignViewReactor.Mutation> in
-                                return .concat(
-                                    .just(.setLoading(true)),
-                                    .just(.setResignEntity(entity.isSuccess)),
-                                    .just(.setLoading(false))
-                                )
-                            }
+                        
+                        return .concat(
+                            .just(.setLoading(true)),
+                            .just(.setResignEntity(entity.isSuccess)),
+                            .just(.setLoading(false))
+                        )
                     } else {
                         return .empty()
                     }

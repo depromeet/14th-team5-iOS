@@ -22,61 +22,189 @@ DEV_SCHEME = ENV["DEV_SCHEME"]
 BUNDLE_ID = ENV["BUNDLE_ID"]
 WIDGET_BUNDLE_ID = ENV["WIDGET_BUNDLE_ID"]
 
-APP_STORE_CONNECT_KEY_ID = ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"]
-APP_STORE_CONNECT_ISSUER_ID = ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"]
-APP_STORE_CONNECT_API_KEY = ENV["APP_STORE_CONNECT_API_KEY_KEY"]
+APP_STORE_CONNECT_API_KEY_KEY_ID = ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"]
+APP_STORE_CONNECT_API_KEY_ISSUER_ID = ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"]
+APP_STORE_CONNECT_API_KEY_KEY = ENV["APP_STORE_CONNECT_API_KEY_KEY"]
 
 KEYCHAIN_NAME = ENV["KEYCHAIN_NAME"]
 KEYCHAIN_PASSWORD = ENV["KEYCHAIN_PASSWORD"]
+P12_PASSWORD =ENV["P12_PASSWORD"]
 
 PROJECT_PATH = ENV["PROJECT_PATH"]
+TEAM_ID = ENV["TEAM_ID"]
+APPLE_ID = ENV["APPLE_ID"]
+PROFILE_PATH = ENV["PROFILE_PATH"]
 SLACK_HOOK_URL = ENV["SLACK_HOOK_URL"]
 
 
 default_platform(:ios)
 
 platform :ios do
-  #✅ 인증서를 키체인에 저장
-  lane :setup_keychain do
-    create_keychain(
-      name: "#{KEYCHAIN_NAME}",
-      password: "#{KEYCHAIN_PASSWORD}",
-      default_keychain: true,
-      unlock: true,
-      timeout: 3600,
-      lock_when_sleeps: true
+
+
+  lane :github_action_stg_upload_testflight do |options|
+    app_store_connect_api_key(
+      key_id: "#{APP_STORE_CONNECT_API_KEY_KEY_ID}",
+      issuer_id: "#{APP_STORE_CONNECT_API_KEY_ISSUER_ID}",
+      key_content: "#{APP_STORE_CONNECT_API_KEY_KEY}",
+      is_key_content_base64: true,
+      in_house: false
+    )
+    
+    setup_ci
+
+    match(
+      storage_mode: "git",
+      type: "appstore",
+      app_identifier: ["com.5ing.bibbi","com.5ing.bibbi.widget"],
+      readonly: is_ci,
+      git_basic_authorization: Base64.strict_encode64("Do-hyun-Kim:#{ENV["MATCH_PERSONAL_TOKEN"]}"),
+      generate_apple_certs: false
     )
 
-    import_certificate(
-      certificate_path: "./Tuist/Signing/prd.cer",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
+    new_build_number = latest_testflight_build_number() + 1
+
+
+    increment_build_number(
+      xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
+      build_number: new_build_number
     )
 
-    import_certificate(
-      certificate_path: "Tuist/Signing/prd.p12",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
+    update_project_team(
+      path: "14th-team5-iOS/App/App.xcodeproj",
+      teamid: "#{TEAM_ID}"
     )
 
-    import_certificate(
-      certificate_path: "Tuist/Signing/dev.cer",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
+
+
+    build_app(
+      workspace: "Bibbi.xcworkspace",
+      scheme: "#{DEV_SCHEME}",
+      export_method: "app-store",
+      xcodebuild_formatter: "xcpretty",
+      archive_path: "./build/Runner.xcarchive",
+      output_directory: "./build/Runner",
+      export_options: {
+        method: "app-store",
+        signingStyle: "manual",
+        provisioningProfiles: {
+          "com.5ing.bibbi" => "match AppStore com.5ing.bibbi",
+          "com.5ing.bibbi.widget" => "match AppStore com.5ing.bibbi.widget"
+        }
+      }
     )
 
-    import_certificate(
-      certificate_path: "Tuist/Signing/dev.p12",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
+    upload_to_testflight(skip_waiting_for_build_processing: true)
+
+
+    slack(
+      message: "⭐️ 테스트 플라이트 업로드 성공",
+      channel: "#알림-ios-배포",
+      slack_url: "#{SLACK_HOOK_URL}",
+      username: "대신 배포해주는 고양이",
+      icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
+      payload: {
+        "Build Date" => Time.new.to_s,
+      },
+      attachment_properties: {
+        fields: [
+          {
+            title: "Scheme",
+            value: "#{DEV_SCHEME}",
+          },
+          {
+            title: "Build Number",
+            value: "#{new_build_number.to_s}",
+          }
+        ]
+      },
+      success: true
     )
 
-    install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.PRD.mobileprovision")
-    install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.DEV.mobileprovision")
-
-    install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.PRD.mobileprovision")
-    install_provisioning_profile(path: "Tuist/Signing/#{WIDGET_NAME}.DEV.mobileprovision")
   end
+
+
+  lane :github_action_prd_upload_testflight do |options|
+    app_store_connect_api_key(
+      key_id: "#{APP_STORE_CONNECT_API_KEY_KEY_ID}",
+      issuer_id: "#{APP_STORE_CONNECT_API_KEY_ISSUER_ID}",
+      key_content: "#{APP_STORE_CONNECT_API_KEY_KEY}",
+      is_key_content_base64: true,
+      in_house: false
+    )
+    
+    setup_ci
+
+    match(
+      storage_mode: "git",
+      type: "appstore",
+      app_identifier: ["com.5ing.bibbi","com.5ing.bibbi.widget"],
+      readonly: is_ci,
+      git_basic_authorization: Base64.strict_encode64("Do-hyun-Kim:#{ENV["MATCH_PERSONAL_TOKEN"]}"),
+      generate_apple_certs: false
+    )
+
+    new_build_number = latest_testflight_build_number() + 1
+
+
+    increment_build_number(
+      xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
+      build_number: new_build_number
+    )
+
+    update_project_team(
+      path: "14th-team5-iOS/App/App.xcodeproj",
+      teamid: "#{TEAM_ID}"
+    )
+
+
+
+    build_app(
+      workspace: "Bibbi.xcworkspace",
+      scheme: "#{PRD_SCHEME}",
+      export_method: "app-store",
+      xcodebuild_formatter: "xcpretty",
+      archive_path: "./build/Runner.xcarchive",
+      output_directory: "./build/Runner",
+      export_options: {
+        method: "app-store",
+        signingStyle: "manual",
+        provisioningProfiles: {
+          "com.5ing.bibbi" => "match AppStore com.5ing.bibbi",
+          "com.5ing.bibbi.widget" => "match AppStore com.5ing.bibbi.widget"
+        }
+      }
+    )
+
+    upload_to_testflight(skip_waiting_for_build_processing: true)
+
+
+    slack(
+      message: "⭐️ 테스트 플라이트 업로드 성공",
+      channel: "#알림-ios-배포",
+      slack_url: "#{SLACK_HOOK_URL}",
+      username: "대신 배포해주는 고양이",
+      icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
+      payload: {
+        "Build Date" => Time.new.to_s,
+      },
+      attachment_properties: {
+        fields: [
+          {
+            title: "Scheme",
+            value: "#{PRD_SCHEME}",
+          },
+          {
+            title: "Build Number",
+            value: "#{new_build_number.to_s}",
+          }
+        ]
+      },
+      success: true
+    )
+
+  end
+
 
 
 
@@ -84,9 +212,9 @@ platform :ios do
   #✅ 테스트 플라이트에 PRD 업로드
   lane :upload_prd_to_testflight do |options|
     app_store_connect_api_key(
-      key_id: "#{APP_STORE_CONNECT_KEY_ID}",
-      issuer_id: "#{APP_STORE_CONNECT_ISSUER_ID}",
-      key_content: "#{APP_STORE_CONNECT_API_KEY}",
+      key_id: "#{APP_STORE_CONNECT_API_KEY_KEY_ID}",
+      issuer_id: "#{APP_STORE_CONNECT_API_KEY_ISSUER_ID}",
+      key_content: "#{APP_STORE_CONNECT_API_KEY_KEY}",
       is_key_content_base64: true,
       in_house: false
     )
@@ -105,8 +233,8 @@ platform :ios do
       export_options: {
         method: "app-store", 
 	provisioningProfiles: {
-          "#{BUNDLE_ID}" => "App.PRD",
-          "#{WIDGET_BUNDLE_ID}" => "WidgetExtension.PRD",
+      "com.5ing.bibbi" => "match AppStore com.5ing.bibbi",
+      "com.5ing.bibbi.widget" => "match AppStore com.5ing.bibbi.widget",
         }
       }
     )
@@ -115,8 +243,9 @@ platform :ios do
 
     slack(
       message: "⭐️ 테스트 플라이트 업로드 성공",
+      channel: "#알림-ios-배포",
       slack_url: "#{SLACK_HOOK_URL}",
-      username: "오잉봇",
+      username: "대신 배포해주는 고양이",
       icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
       payload: {
         "Build Date" => Time.new.to_s,
@@ -134,15 +263,15 @@ platform :ios do
         ]
       },
       success: true
-    )        
+    )    
   end
 
-  #✅ 테스트 플라이트에 DEV 업로드
-  lane :upload_dev_to_testflight do |options|
+  #✅ 테스트 플라이트에 STG 업로드
+  lane :upload_stg_to_testflight do |options|
     app_store_connect_api_key(
-      key_id: "#{APP_STORE_CONNECT_KEY_ID}",
-      issuer_id: "#{APP_STORE_CONNECT_ISSUER_ID}",
-      key_content: "#{APP_STORE_CONNECT_API_KEY}",
+      key_id: "#{APP_STORE_CONNECT_API_KEY_KEY_ID}",
+      issuer_id: "#{APP_STORE_CONNECT_API_KEY_ISSUER_ID}",
+      key_content: "#{APP_STORE_CONNECT_API_KEY_KEY}",
       is_key_content_base64: true,
       in_house: false
     )
@@ -161,8 +290,8 @@ platform :ios do
       export_options: {
         method: "app-store", 
 	provisioningProfiles: {
-          "#{BUNDLE_ID}" => "App.DEV",
-          "#{WIDGET_BUNDLE_ID}" => "WidgetExtension.DEV",
+      "com.5ing.bibbi" => "match AppStore com.5ing.bibbi",
+      "com.5ing.bibbi.widget" => "match AppStore com.5ing.bibbi.widget",
         }
       }
     )
@@ -171,9 +300,10 @@ platform :ios do
 
     slack(
       message: "⭐️ 테스트 플라이트 업로드 성공",
+      channel: "#알림-ios-배포",
       slack_url: "#{SLACK_HOOK_URL}",
-      username: "오잉봇",
-      icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
+      username: "Bibbibot",
+      icon_url: "https://avatars.githubusercontent.com/u/160627812?s=200&v=4",
       payload: {
         "Build Date" => Time.new.to_s,
       },
@@ -181,7 +311,7 @@ platform :ios do
         fields: [
           {
             title: "Scheme",
-            value: "#{DEV_SCHEME}-DEV",
+            value: "#{DEV_SCHEME}",
           },
           {
             title: "Build Number",
@@ -200,8 +330,9 @@ platform :ios do
   error do |lane, exception, options|
     slack(
       message: "❗️ 테스트 플라이트 업로드 실패",
+      channel: "#알림-ios-배포",
       slack_url: "#{SLACK_HOOK_URL}",
-      username: "오잉봇",
+      username: "대신 배포해주는 고양이",
       icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
       success: false,
       attachment_properties: {

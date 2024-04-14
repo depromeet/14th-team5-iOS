@@ -65,12 +65,14 @@ extension Project {
                 ],
                 configurations: [
                     .build(.dev, name: name),
+                    .build(.stg, name: name),
                     .build(.prd, name: name)
                 ]
             ),
             targets: target,
             schemes: [
                 .makeScheme(.dev, name: name),
+                .makeScheme(.stg, name: name),
                 .makeScheme(.prd, name: name)
             ],
             additionalFiles: [

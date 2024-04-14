@@ -18,8 +18,8 @@ import Then
 
 public final class PrivacyViewController: BaseViewController<PrivacyViewReactor> {
     //MARK: Views
+    private let inquiryBannerView: BibbiInquireBannerView = BibbiInquireBannerView()
     private let privacyTableView: UITableView = UITableView(frame: .zero, style: .grouped)
-    private let privacyNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let privacyIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     private let privacyTableViewDataSources: RxTableViewSectionedReloadDataSource<PrivacySectionModel> = .init { dataSoruces, tableView, indexPath, sectionItem in
         switch sectionItem {
@@ -41,26 +41,23 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
         super.viewDidLoad()
     }
     
-    public override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.navigationBar.isHidden = true
-    }
-    
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(privacyTableView, privacyIndicatorView, privacyNavigationBar)
+        view.addSubviews(inquiryBannerView, privacyTableView, privacyIndicatorView)
     }
+
     
     public override func setupAttributes() {
         super.setupAttributes()
-        
-        privacyNavigationBar.do {
-            $0.navigationTitle = "설정 및 개인정보"
-            $0.leftBarButtonItem = .arrowLeft
-            $0.leftBarButtonItemTintColor = .gray300
+    
+        inquiryBannerView.do {
+            $0.backgroundColor = .mainYellow
         }
         
+        navigationBarView.do {
+            $0.setNavigationView(leftItem: .arrowLeft, centerItem: .label("설정 및 개인정보"), rightItem: .empty)
+        }
         
         privacyTableView.do {
             $0.backgroundColor = DesignSystemAsset.black.color
@@ -80,16 +77,16 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
-        privacyNavigationBar.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
+        
+        inquiryBannerView.snp.makeConstraints {
+            $0.top.equalTo(navigationBarView.snp.bottom).offset(24)
             $0.left.right.equalToSuperview()
-            $0.height.equalTo(42)
+            $0.height.equalTo(90)
         }
         
         privacyTableView.snp.makeConstraints {
-            $0.top.equalTo(privacyNavigationBar.snp.bottom)
+            $0.top.equalTo(inquiryBannerView.snp.bottom).offset(25)
             $0.left.bottom.right.equalToSuperview()
-            
         }
         
         privacyIndicatorView.snp.makeConstraints {
@@ -99,6 +96,8 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
     
     
     public override func bind(reactor: PrivacyViewReactor) {
+        super.bind(reactor: reactor)
+        
         privacyTableView.rx
             .setDelegate(self)
             .disposed(by: disposeBag)
@@ -106,10 +105,10 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
         
         NotificationCenter.default
             .rx.notification(.AppVersionsCheckWithRedirectStore)
-            .withLatestFrom(reactor.state.map { $0.isCheck })
-            .filter { $0 == true }
+            .withLatestFrom(reactor.state.compactMap { $0.appInfo?.latest})
+            .filter { $0 == false }
             .bind { _ in
-                UIApplication.shared.open(URLTypes.appStore("362057947").originURL)
+                UIApplication.shared.open(URLTypes.appStore.originURL)
             }.disposed(by: disposeBag)
         
         
@@ -130,14 +129,21 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        privacyNavigationBar.rx
-            .didTapLeftBarButton
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind { owner, _ in
-                owner.navigationController?.popViewController(animated: true)
-            }.disposed(by: disposeBag)
+        NotificationCenter.default
+            .rx.notification(.UserFamilyResign)
+            .map { _ in Reactor.Action.didTapFamilyUserResign }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
+        
+        inquiryBannerView
+            .rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .bind(with: self, onNext: { owner, _ in
+                let webContentViewController = WebContentDIContainer(webURL: URLTypes.inquiry.originURL).makeViewController()
+                owner.navigationController?.pushViewController(webContentViewController, animated: true)
+            }).disposed(by: disposeBag)
+
         privacyTableView.rx
             .itemSelected
             .withUnretained(self)
@@ -148,17 +154,21 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
                         NotificationCenter.default.post(name: .AppVersionsCheckWithRedirectStore, object: nil, userInfo: nil)
                     } else if indexPath.item == 1 {
                         UIApplication.shared.open(URLTypes.settings.originURL)
+                    } else if indexPath.item == 2{
+                        let webContentViewController = WebContentDIContainer(webURL: URLTypes.privacy.originURL).makeViewController()
+                        owner.navigationController?.pushViewController(webContentViewController, animated: true)
                     } else {
-                        let webContentViewController = WebContentDIContainer().makeViewController()
-                        self.navigationController?.pushViewController(webContentViewController, animated: true)
+                        let webContentViewController = WebContentDIContainer(webURL: URLTypes.terms.originURL).makeViewController()
+                        owner.navigationController?.pushViewController(webContentViewController, animated: true)
                     }
                 case .userAuthorizationItem:
                     if indexPath.item == 0 {
-                        NotificationCenter.default.post(name: .UserAccountLogout, object: nil, userInfo: nil)
-                        self.showLogoutAlertController()
+                        owner.showLogoutAlertController()
+                    } else if indexPath.item == 1 {
+                        owner.showFamilyResignAlertController()
                     } else {
                         let resignViewController = AccountResignDIContainer().makeViewController()
-                        self.navigationController?.pushViewController(resignViewController, animated: true)
+                        owner.navigationController?.pushViewController(resignViewController, animated: true)
                     }
                 }
             }.disposed(by: disposeBag)
@@ -180,6 +190,15 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
             .drive(privacyTableView.rx.items(dataSource: privacyTableViewDataSources))
             .disposed(by: disposeBag)
         
+        reactor.state
+            .map { $0.isFamilyResign }
+            .filter { $0 }
+            .subscribe { _ in
+                App.Repository.member.familyId.accept(nil)
+                guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
+                sceneDelegate.window?.rootViewController =  UINavigationController(rootViewController: JoinFamilyDIContainer().makeViewController())
+                sceneDelegate.window?.makeKeyAndVisible()
+            }.disposed(by: disposeBag)
         
     }
     
@@ -214,17 +233,35 @@ extension PrivacyViewController {
             preferredStyle: .alert
         )
         
-        let cancelAction = UIAlertAction(title: "취소", style: .cancel) { _ in
-            logoutAlertController.dismiss(animated: true)
-        }
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)
         
         let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
-            
+            NotificationCenter.default.post(name: .UserAccountLogout, object: nil, userInfo: nil)
         }
         
         [cancelAction, confirmAction].forEach(logoutAlertController.addAction(_:))
         logoutAlertController.overrideUserInterfaceStyle = .dark
         present(logoutAlertController, animated: true)
+    }
+    
+    private func showFamilyResignAlertController() {
+        let resignAlertController = UIAlertController(
+            title: "가족 탈퇴",
+            message: "가족을 탈퇴해도 나의 활동 내역은\n유지되니 참고해주세요.",
+            preferredStyle: .alert
+        )
+        
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)
+        
+        let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
+            NotificationCenter.default.post(name: .UserFamilyResign, object: nil, userInfo: nil)
+        }
+        
+        [cancelAction, confirmAction].forEach(resignAlertController.addAction(_:))
+        
+        resignAlertController.overrideUserInterfaceStyle = .dark
+        present(resignAlertController, animated: true)
+        
     }
     
 }

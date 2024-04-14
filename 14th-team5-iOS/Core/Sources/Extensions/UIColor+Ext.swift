@@ -22,6 +22,14 @@ extension UIColor {
         return DesignSystemAsset.graphicBlue.color
     }
     
+    public static var graphicOrange: UIColor {
+        return DesignSystemAsset.graphicOrange.color
+    }
+    
+    public static var graphicGreen: UIColor {
+        return DesignSystemAsset.graphicGreen.color
+    }
+    
     public static var graphicPink: UIColor {
         return DesignSystemAsset.graphicPink.color
     }
@@ -66,8 +74,16 @@ extension UIColor {
         return DesignSystemAsset.gray900.color
     }
     
+    public static var blue500: UIColor {
+        return DesignSystemAsset.blue500.color
+    }
+    
     public static var mainGreen: UIColor {
         return DesignSystemAsset.mainGreen.color
+    }
+    
+    public static var mainYellow: UIColor {
+        return DesignSystemAsset.mainYellow.color
     }
     
     public static var mainGreenHover: UIColor {

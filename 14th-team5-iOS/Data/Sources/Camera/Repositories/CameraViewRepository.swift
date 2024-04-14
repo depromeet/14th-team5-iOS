@@ -48,15 +48,14 @@ extension CameraViewRepository: CameraViewInterface {
     }
     
     
-    public func fetchProfileImageURL(parameters: CameraDisplayImageParameters, type: UploadLocation) -> Observable<CameraDisplayImageResponse?> {
+    public func fetchProfileImageURL(parameters: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?> {
         
-        let accessToken = App.Repository.token.accessToken.value?.accessToken ?? ""
-        return cameraAPIWorker.createPresignedURL(accessToken: accessToken, parameters: parameters, type: type)
+        return cameraAPIWorker.createProfilePresignedURL(accessToken: accessToken, parameters: parameters)
             .compactMap { $0?.toDomain() }
             .asObservable()
     }
         
-    public func uploadProfileImage(toURL url: String, imageData: Data) -> Observable<Bool> {
+    public func uploadImageToS3(toURL url: String, imageData: Data) -> Observable<Bool> {
         return cameraAPIWorker.uploadImageToPresignedURL(accessToken: accessToken, toURL: url, withImageData: imageData)
             .asObservable()
     }
@@ -67,6 +66,30 @@ extension CameraViewRepository: CameraViewInterface {
                 guard let userEntity = $0?.toProfileDomain() else { return }
                 FamilyUserDefaults.saveMemberToUserDefaults(familyMember: userEntity)
             }
+            .compactMap { $0?.toDomain() }
+            .asObservable()
+    }
+    
+    public func fetchRealEmojiImageURL(memberId: String, parameters: CameraRealEmojiParameters) -> Observable<CameraRealEmojiPreSignedResponse?> {
+        return cameraAPIWorker.createRealEmojiPresignedURL(accessToken: accessToken, memberId: memberId, parameters: parameters)
+            .compactMap { $0?.toDomain() }
+            .asObservable()
+    }
+    
+    public func uploadRealEmojiImageToS3(memberId: String, parameters: CameraCreateRealEmojiParameters) -> Observable<CameraCreateRealEmojiResponse?> {
+        return cameraAPIWorker.uploadRealEmojiImageToS3(accessToken: accessToken, memberId: memberId, parameters: parameters)
+            .compactMap { $0?.toDomain() }
+            .asObservable()
+    }
+    
+    public func fetchRealEmojiItems(memberId: String) -> Observable<[CameraRealEmojiImageItemResponse?]> {
+        return cameraAPIWorker.loadRealEmojiImage(accessToken: accessToken, memberId: memberId)
+            .compactMap { $0?.toDomain() }
+            .asObservable()
+    }
+    
+    public func updateRealEmojiImage(memberId: String, realEmojiId: String, parameters: CameraUpdateRealEmojiParameters) -> Observable<CameraUpdateRealEmojiResponse?> {
+        return cameraAPIWorker.updateRealEmojiImage(accessToken: accessToken, memberId: memberId, realEmojiId: realEmojiId, parameters: parameters)
             .compactMap { $0?.toDomain() }
             .asObservable()
     }

@@ -16,36 +16,43 @@ final class PostReactor: Reactor {
     enum Action {
         case tapBackButton
         case setPost(Int)
-        case fetchPost(String)
     }
     
     enum Mutation {
         case setPop
         case setSelectedPostIndex(Int)
-        case fetchedPost(PostData?)
-        case showReactionSheet([String])
+        case setPushProfileViewController(String)
     }
     
     struct State {
         let selectedIndex: Int
-        let originPostLists: [SectionModel<String,PostListData>]
+        let originPostLists: PostSection.Model
         
         var isPop: Bool = false
-        var selectedPost: PostListData = .init(postId: "", author: .init(memberId: "", profileImageURL: "", name: ""), emojiCount: 0, imageURL: "", content: "", time: "")
+        var selectedPost: PostListData = .init(postId: "", author: .init(memberId: "", profileImageURL: "", name: ""), commentCount: 0, emojiCount: 0, imageURL: "", content: "", time: "")
         
         @Pulse var fetchedPost: PostData? = nil
         @Pulse var reactionMemberIds: [String] = []
+        @Pulse var shouldPushProfileViewController: String?
+        
+        var notificationDeepLink: NotificationDeepLink?
     }
     
     let initialState: State
     
-    let postRepository: PostListUseCaseProtocol
+    let realEmojiRepository: RealEmojiUseCaseProtocol
     let emojiRepository: EmojiUseCaseProtocol
     let provider: GlobalStateProviderProtocol
     
-    init(provider: GlobalStateProviderProtocol, postRepository: PostListUseCaseProtocol, emojiRepository: EmojiUseCaseProtocol, initialState: State) {
+    
+    init(
+        provider: GlobalStateProviderProtocol,
+        realEmojiRepository: RealEmojiUseCaseProtocol,
+        emojiRepository: EmojiUseCaseProtocol,
+        initialState: State
+    ) {
         self.provider = provider
-        self.postRepository = postRepository
+        self.realEmojiRepository = realEmojiRepository
         self.emojiRepository = emojiRepository
         self.initialState = initialState
     }
@@ -53,45 +60,41 @@ final class PostReactor: Reactor {
 
 extension PostReactor {
     func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
-        let eventMutation = provider.reactionSheetGloablState.event
-            .flatMap { event -> Observable<Mutation> in
+        let postMutation = provider.postGlobalState.event
+            .flatMap { event in
                 switch event {
-                case let .showReactionMemberSheet(memberIds):
-                    return Observable<Mutation>.just(.showReactionSheet(memberIds))
+                case let .pushProfileViewController(memberId):
+                    return Observable<Mutation>.just(.setPushProfileViewController(memberId))
+                default:
+                    return Observable<Mutation>.empty()
                 }
             }
         
-        return Observable<Mutation>.merge(mutation, eventMutation)
+        return Observable.merge(mutation, postMutation)
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case let .fetchPost(postId):
-            let query: PostQuery = PostQuery(postId: postId)
-            return postRepository.excute(query: query)
-                .asObservable()
-                .flatMap { post in
-                    return Observable.just(Mutation.fetchedPost(post))
-                }
         case let .setPost(index):
             return Observable.just(Mutation.setSelectedPostIndex(index))
         case .tapBackButton:
             return Observable.just(Mutation.setPop)
         }
     }
-        
-        func reduce(state: State, mutation: Mutation) -> State {
-            var newState = state
-            switch mutation {
-            case let .fetchedPost(post):
-                newState.fetchedPost = post
-            case let .setSelectedPostIndex(index):
-                newState.selectedPost = newState.originPostLists[0].items[index]
-            case .setPop:
-                newState.isPop = true
-            case let .showReactionSheet(memberIds):
-                newState.reactionMemberIds = memberIds
+    
+    func reduce(state: State, mutation: Mutation) -> State {
+        var newState = state
+        switch mutation {
+        case let .setSelectedPostIndex(index):
+            if case let .main(postData) = newState.originPostLists.items[index] {
+                newState.selectedPost = postData
             }
-            return newState
+        case .setPop:
+            newState.isPop = true
+            
+        case let .setPushProfileViewController(memberId):
+            newState.shouldPushProfileViewController = memberId
         }
+        return newState
+    }
 }

@@ -17,19 +17,25 @@ public final class CalendarPageCellReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case didSelectDate(Date)
-        case didTapInfoButton(UIView)
+        case fetchCalendarBanner
+        case fetchStatisticsSummary
         case fetchCalendarResponse
+        case didTapInfoButton(UIView)
     }
     
     // MARK: - Mutation
     public enum Mutation {
+        case injectCalendarBanner(BannerResponse)
+        case injectStatisticsSummary(FamilyMonthlyStatisticsResponse)
         case injectCalendarResponse(ArrayResponseCalendarResponse)
     }
     
     // MARK: - State
     public struct State {
-        var date: Date
-        var arrayCalendarResponse: ArrayResponseCalendarResponse?
+        var yearMonthDate: Date
+        var displayCalendarBanner: BannerViewModel.State?
+        var displayMemoryCount: Int
+        var displayCalendarResponse: ArrayResponseCalendarResponse?
     }
     
     // MARK: - Properties
@@ -38,16 +44,15 @@ public final class CalendarPageCellReactor: Reactor {
     public let provider: GlobalStateProviderProtocol
     private let calendarUseCase: CalendarUseCaseProtocol
     
-    private var yearMonth: String
-    
     // MARK: - Intializer
-    init(_ yearMonth: String, usecase: CalendarUseCaseProtocol, provider: GlobalStateProviderProtocol) {
-        self.initialState = State(date: yearMonth.toDate(with: "yyyy-MM"))
+    init(_ yearMonth: String, calendarUseCase: CalendarUseCaseProtocol, provider: GlobalStateProviderProtocol) {
+        self.initialState = State(
+            yearMonthDate: yearMonth.toDate(with: "yyyy-MM"),
+            displayMemoryCount: 0
+        )
         
-        self.calendarUseCase = usecase
+        self.calendarUseCase = calendarUseCase
         self.provider = provider
-        
-        self.yearMonth = yearMonth
     }
     
     // MARK: - Mutate
@@ -57,12 +62,32 @@ public final class CalendarPageCellReactor: Reactor {
             return provider.calendarGlabalState.pushCalendarPostVC(date)
                 .flatMap { _ in Observable<Mutation>.empty() }
             
-        case let .didTapInfoButton(sourceView):
-            return provider.calendarGlabalState.didTapCalendarInfoButton(sourceView)
-                .flatMap { _ in Observable<Mutation>.empty() }
+        case .fetchStatisticsSummary:
+            let yearMonthString = currentState.yearMonthDate.toFormatString()
+            
+            return calendarUseCase.executeFetchStatisticsSummary(yearMonth: yearMonthString)
+                .flatMap {
+                    guard let statistics = $0 else {
+                        return Observable<Mutation>.empty()
+                    }
+                    return Observable<Mutation>.just(.injectStatisticsSummary(statistics))
+                }
+            
+        case .fetchCalendarBanner:
+            let yearMonthString = currentState.yearMonthDate.toFormatString()
+            
+            return calendarUseCase.executeFetchCalendarBenner(yearMonth: yearMonthString)
+                .flatMap {
+                    guard let banner = $0 else {
+                        return Observable<Mutation>.empty()
+                    }
+                    return Observable<Mutation>.just(.injectCalendarBanner(banner))
+                }
             
         case .fetchCalendarResponse:
-            return calendarUseCase.executeFetchCalednarInfo(yearMonth)
+            let yearMonthString = currentState.yearMonthDate.toFormatString()
+            
+            return calendarUseCase.executeFetchCalednarResponse(yearMonth: yearMonthString)
                 .map {
                     guard let arrayCalendarResponse = $0 else {
                         return .injectCalendarResponse(.init(results: []))
@@ -70,19 +95,10 @@ public final class CalendarPageCellReactor: Reactor {
                     return .injectCalendarResponse(arrayCalendarResponse)
                 }
             
-            // NOTE: - 테스트 코드 ①
-//            return Observable<Mutation>.just(
-//                .fetchCalendarResponse(
-//                    SectionOfMonthlyCalendar.generateTestData()
-//                )
-//            )
+        case let .didTapInfoButton(sourceView):
+            return provider.calendarGlabalState.didTapCalendarInfoButton(sourceView)
+                .flatMap { _ in Observable<Mutation>.empty() }
             
-            // NOTE: - 테스트 코드 ②
-//            return Observable<Mutation>.just(
-//                .fetchCalendarResponse(
-//                    SectionOfMonthlyCalendar.generateTestData(yearMonth)
-//                )
-//            )
         }
     }
     
@@ -90,8 +106,21 @@ public final class CalendarPageCellReactor: Reactor {
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
+        case let .injectStatisticsSummary(statistics):
+            newState.displayMemoryCount = statistics.totalImageCnt
+            
+        case let .injectCalendarBanner(banner):
+            let bannerState = BannerViewModel.State(
+                familyTopPercentage: banner.familyTopPercentage,
+                allFamilyMemberUploadedDays: banner.allFammilyMembersUploadedDays,
+                bannerImage: banner.bannerImage,
+                bannerString: banner.bannerString,
+                bannerColor: banner.bannerColor
+            )
+            newState.displayCalendarBanner = bannerState
+            
         case let .injectCalendarResponse(arrayCalendarResponse):
-            newState.arrayCalendarResponse = arrayCalendarResponse
+            newState.displayCalendarResponse = arrayCalendarResponse
         }
         return newState
     }

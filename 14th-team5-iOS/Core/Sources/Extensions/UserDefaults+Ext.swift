@@ -16,14 +16,17 @@ extension UserDefaults {
         case familyId
         case memberId
         case nickname
+        case postId
+        case createdAt
         
         case inviteUrl
         case inviteCode
-        case dayOfBirths
         
         case profileImage
         case snsType
         case isDefaultProfile
+        
+        case lastPostUploadDateId
         
         
         var value: String { "\(Bundle.current.bundleIdentifier ?? "").\(self.rawValue.lowercased())" }
@@ -63,6 +66,11 @@ extension UserDefaults {
         set { UserDefaults.standard.set(newValue, forKey: Key.nickname.value) }
     }
     
+    public var createdAt: Date? {
+        get { UserDefaults.standard.object(forKey: Key.createdAt.value) as? Date }
+        set { UserDefaults.standard.set(newValue, forKey: Key.createdAt.value) }
+    }
+    
     public var inviteCode: String? {
         get { UserDefaults.standard.string(forKey: Key.inviteCode.value) }
         set { UserDefaults.standard.set(newValue, forKey: Key.inviteCode.value) }
@@ -83,16 +91,14 @@ extension UserDefaults {
         set { UserDefaults.standard.set(newValue, forKey: Key.snsType.value) }
     }
     
-
     public var isDefaultProfile: Bool {
         get { UserDefaults.standard.bool(forKey: Key.isDefaultProfile.value) }
         set { UserDefaults.standard.set(newValue, forKey: Key.isDefaultProfile.value) }
     }
-
-    public var dayOfBirths: [Date]? {
-        get { userDefaults.array(forKey: Key.dayOfBirths.value) as? [Date] }
-        set { userDefaults.set(newValue, forKey: Key.dayOfBirths.value) }
-
+    
+    public var postId: String? {
+        get { UserDefaults.standard.string(forKey: Key.postId.value) }
+        set { UserDefaults.standard.set(newValue, forKey: Key.postId.value) }
     }
 }
 
@@ -111,5 +117,9 @@ extension UserDefaults {
         Key.allCases
             .map { $0.value }
             .forEach(UserDefaults.standard.removeObject)
+    }
+    
+    public func clearInviteCode() {
+        UserDefaults.standard.removeObject(forKey: Key.inviteCode.value)
     }
 }

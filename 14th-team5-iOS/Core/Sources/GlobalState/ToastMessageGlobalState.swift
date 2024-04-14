@@ -16,21 +16,29 @@ public enum ToastMessageEvent {
 public protocol ToastMessageGlobalStateType {
     var lastSelectedDate: Date { get set }
     var event: BehaviorSubject<ToastMessageEvent> { get }
-    func showAllFamilyUploadedToastMessageView(_ bool: Bool, selection date: Date) -> Observable<Bool>
-    func resetLastSelectedDate()
+    
+    @discardableResult
+    func showAllFamilyUploadedToastMessageView(selection date: Date) -> Observable<Bool>
+    
+    func clearToastMessageEvent()
+    func clearLastSelectedDate()
 }
 
 final public class ToastMessageGlobalState: BaseGlobalState, ToastMessageGlobalStateType {
     public var lastSelectedDate: Date = .distantFuture
     public var event: BehaviorSubject<ToastMessageEvent> = BehaviorSubject<ToastMessageEvent>(value: .showAllFamilyUploadedToastView(false))
     
-    public func showAllFamilyUploadedToastMessageView(_ isUploaded: Bool, selection date: Date) -> Observable<Bool> {
+    public func showAllFamilyUploadedToastMessageView(selection date: Date) -> Observable<Bool> {
         lastSelectedDate = date
-        event.onNext(.showAllFamilyUploadedToastView(isUploaded))
-        return Observable<Bool>.just(isUploaded)
+        event.onNext(.showAllFamilyUploadedToastView(true))
+        return Observable<Bool>.just(true)
     }
     
-    public func resetLastSelectedDate() {
+    public func clearToastMessageEvent() {
+        event.onNext(.showAllFamilyUploadedToastView(false))
+    }
+    
+    public func clearLastSelectedDate() {
         lastSelectedDate = .distantFuture
     }
 }

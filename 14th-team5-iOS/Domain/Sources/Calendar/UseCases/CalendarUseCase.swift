@@ -10,9 +10,9 @@ import Foundation
 import RxSwift
 
 public protocol CalendarUseCaseProtocol {
-    func executeCheckDateOfBirth(_ date: Date) -> Bool
-    func executeFetchCalednarInfo(_ yearMonth: String) -> Observable<ArrayResponseCalendarResponse?>
-    func executeFetchFamilySummaryInfo() -> Observable<FamilyMonthlyStatisticsResponse?>
+    func executeFetchCalednarResponse(yearMonth: String) -> Observable<ArrayResponseCalendarResponse?>
+    func executeFetchStatisticsSummary(yearMonth: String) -> Observable<FamilyMonthlyStatisticsResponse?>
+    func executeFetchCalendarBenner(yearMonth: String) -> Observable<BannerResponse?>
 }
 
 public final class CalendarUseCase: CalendarUseCaseProtocol {
@@ -21,16 +21,16 @@ public final class CalendarUseCase: CalendarUseCaseProtocol {
     public init(calendarRepository: CalendarRepositoryProtocol) {
         self.calendarRepository = calendarRepository
     }
-    
-    public func executeCheckDateOfBirth(_ date: Date) -> Bool {
-        return calendarRepository.checkDateOfBirth(date)
+
+    public func executeFetchCalednarResponse(yearMonth: String) -> Observable<ArrayResponseCalendarResponse?> {
+        return calendarRepository.fetchCalendarResponse(yearMonth: yearMonth)
     }
     
-    public func executeFetchCalednarInfo(_ yearMonth: String) -> Observable<ArrayResponseCalendarResponse?> {
-        return calendarRepository.fetchCalendarInfo(yearMonth)
+    public func executeFetchStatisticsSummary(yearMonth: String) -> Observable<FamilyMonthlyStatisticsResponse?> {
+        return calendarRepository.fetchStatisticsSummary(yearMonth: yearMonth)
     }
     
-    public func executeFetchFamilySummaryInfo() -> Observable<FamilyMonthlyStatisticsResponse?> {
-        return calendarRepository.fetchFamilyStatisticsInfo()
+    public func executeFetchCalendarBenner(yearMonth: String) -> Observable<BannerResponse?> {
+        return calendarRepository.fetchCalendarBanner(yearMonth: yearMonth)
     }
 }

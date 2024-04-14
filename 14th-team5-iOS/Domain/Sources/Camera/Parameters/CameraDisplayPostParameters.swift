@@ -9,9 +9,9 @@ import Foundation
 
 
 public struct CameraDisplayPostParameters: Encodable {
-    public var imageUrl: String
-    public var content: String
-    public var uploadTime: String
+    public let imageUrl: String
+    public let content: String
+    public let uploadTime: String
     
     
     public init(imageUrl: String, content: String, uploadTime: String) {

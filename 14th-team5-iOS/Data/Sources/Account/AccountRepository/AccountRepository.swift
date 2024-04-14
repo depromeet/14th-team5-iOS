@@ -13,6 +13,7 @@ import Domain
 import ReactorKit
 import RxCocoa
 import RxSwift
+import SwiftKeychainWrapper
 
 public enum AccountLoaction {
     case profile
@@ -34,6 +35,7 @@ public final class AccountRepository: AccountImpl {
     public var disposeBag: DisposeBag = DisposeBag()
     
     private let accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
+    private let keychain = KeychainWrapper(serviceName: "Bibbi", accessGroup: "P9P4WJ623F.com.5ing.bibbi")
     
     let signInHelper = AccountSignInHelper()
     private let apiWorker = AccountAPIWorker()
@@ -62,8 +64,6 @@ public final class AccountRepository: AccountImpl {
         return Observable.create { observer in
             self.signInHelper.trySignInWith(sns: snsType, window: vc.view.window)
                 .subscribe(onNext: { result in
-                    
-                    
                     observer.onNext(result)
                     observer.onCompleted()
                 }, onError: { error in
@@ -87,8 +87,6 @@ public final class AccountRepository: AccountImpl {
     // MARK: 링크가입 사용자 -> 가입 이후 가족가입
     private func joinFamily(inviteCode: String?) {
         guard let inviteCode else { return }
-        
-        print("inviteCode: \(inviteCode)")
         
         meApiWorekr.joinFamily(with: inviteCode)
             .asObservable()
@@ -159,7 +157,9 @@ public final class AccountRepository: AccountImpl {
         signInHelper.snsSignInResult
             .filter { $0.0 == .success }
             .withUnretained(self)
-            .bind(onNext: { $0.0.fetchMemberInfo.accept(()) })
+            .bind(onNext: {
+                $0.0.fetchMemberInfo.accept(())
+            })
             .disposed(by: disposeBag)
         
         fetchMemberInfo
@@ -169,7 +169,9 @@ public final class AccountRepository: AccountImpl {
         
         signUpFinished
             .withUnretained(self)
-            .bind(onNext: { $0.0.joinFamily(inviteCode: UserDefaults.standard.inviteCode) })
+            .bind(onNext: {
+                $0.0.joinFamily(inviteCode: UserDefaults.standard.inviteCode)
+            })
             .disposed(by: disposeBag)
     }
 }

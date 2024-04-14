@@ -16,7 +16,7 @@ extension Bundle {
 
 extension Bundle {
     var appName: String {
-        guard let dict = self.infoDictionary else {
+        guard let dict = Bundle.main.infoDictionary else {
             return ""
         }
         
@@ -28,7 +28,7 @@ extension Bundle {
     }
     
     public var displayName: String {
-        guard let dict = self.infoDictionary else {
+        guard let dict = Bundle.main.infoDictionary else {
             return ""
         }
         
@@ -41,7 +41,7 @@ extension Bundle {
     }
     
     public var appVersion: String {
-        guard let dict = self.infoDictionary else {
+        guard let dict = Bundle.main.infoDictionary else {
             return ""
         }
         
@@ -53,7 +53,7 @@ extension Bundle {
     }
     
     public var appBuildNumber: Int {
-        guard let dict = self.infoDictionary else {
+        guard let dict = Bundle.main.infoDictionary else {
             return 0
         }
         

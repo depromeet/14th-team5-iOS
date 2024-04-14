@@ -11,7 +11,7 @@ import RxSwift
 import RxCocoa
 import SwiftKeychainWrapper
 
-fileprivate extension KeychainWrapper.Key {
+public extension KeychainWrapper.Key {
     static let fcmToken: KeychainWrapper.Key = "FCMToken"
     static let accessToken: KeychainWrapper.Key = "accessToken"
     static let refreshToken: KeychainWrapper.Key = "refreshToken"
@@ -56,30 +56,15 @@ public extension String {
 public class TokenRepository: RxObject {
     public lazy var keychain = KeychainWrapper(serviceName: "Bibbi", accessGroup: "P9P4WJ623F.com.5ing.bibbi")
     
-    public let fcmToken = BehaviorRelay<String>(value: KeychainWrapper.standard[.fcmToken] ?? "")
     public let accessToken = BehaviorRelay<AccessToken?>(value: (KeychainWrapper.standard[.accessToken] as String?)?.decode(AccessToken.self))
+    
     public func clearAccessToken() {
         KeychainWrapper.standard.remove(forKey: .accessToken)
         accessToken.accept(nil)
     }
     
-    public func clearFCMToken() {
-        KeychainWrapper.standard.remove(forKey: .fcmToken)
-        fcmToken.accept("")
-    }
-    
     override public func bind() {
         super.bind()
-        
-        fcmToken
-            .distinctUntilChanged()
-            .subscribe(on: Schedulers.io)
-            .map { ($0, KeychainWrapper.standard[.fcmToken] ?? "") }
-            .filter { $0.0 != $0.1 }
-            .map { $0.0 }
-            .bind(onNext: { KeychainWrapper.standard[.fcmToken] = $0 })
-            .disposed(by: self.disposeBag)
-        
         accessToken
             .distinctUntilChanged()
             .subscribe(on: Schedulers.io)

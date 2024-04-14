@@ -12,10 +12,12 @@ import DesignSystem
 import RxSwift
 import RxDataSources
 
-final class ReactionMembersViewController: BaseViewController<ReactionMemberReactor> {
-    private let headerView: UIView = UIView()
+final class ReactionMembersViewController: BaseViewController<ReactionMemberViewReactor> {
+    private let grabber: UIView = UIView()
+    
     private let reactionImageView: UIImageView = UIImageView()
-    private let reactionLabel: UILabel = BibbiLabel(.head2Bold)
+    private let reactionBadgeView: UIImageView = UIImageView()
+    private let reactionLabel: UILabel = BibbiLabel(.body1Bold)
     private let memberTableView: UITableView = UITableView()
     private let closeButton: UIButton = UIButton()
     
@@ -25,63 +27,75 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberReac
         self.navigationController?.navigationBar.isHidden = true
     }
     
-    override func bind(reactor: ReactionMemberReactor) {
+    override func bind(reactor: ReactionMemberViewReactor) {
         Observable.just(())
+            .take(1)
             .map { Reactor.Action.makeDataSource }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        reactor.state
-            .map { "총 \($0.reactionMemberIds.count)명이 반응을 남겼어요" }
-            .distinctUntilChanged()
+        reactor.state.map { $0.emojiData }
+            .withUnretained(self)
             .observe(on: MainScheduler.instance)
-            .bind(to: reactionLabel.rx.text)
+            .bind(onNext: {
+                if let url = URL(string: $0.1.realEmojiImageURL) {
+                    $0.0.reactionImageView.kf.setImage(with: url)
+                } else {
+                    $0.0.reactionImageView.image = $0.1.emojiType.emojiImage
+                }
+                $0.0.reactionBadgeView.image = $0.1.emojiType.emojiBadgeImage
+                $0.0.reactionLabel.text = "총 \($0.1.memberIds.count)명이 반응을 남겼어요"
+            })
             .disposed(by: disposeBag)
         
-        reactor.state
-            .map { $0.memberDataSource }
+        reactor.state.map { $0.memberDataSource }
+            .observe(on: MainScheduler.instance)
             .bind(to: memberTableView.rx.items(dataSource: createDataSource()))
             .disposed(by: disposeBag)
         
         closeButton.rx.tap
-            .asObservable()
             .withUnretained(self)
-            .bind(onNext: {
-                $0.0.dismiss(animated: true)
-            })
+            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .bind(onNext: { $0.0.dismiss(animated: true) })
             .disposed(by: disposeBag)
     }
     
     override func setupUI() {
         super.setupUI()
         
-        view.addSubviews(headerView, memberTableView, closeButton)
-        headerView.addSubviews(reactionImageView, reactionLabel)
+        view.addSubviews(grabber, reactionImageView, reactionBadgeView, reactionLabel,
+            memberTableView, closeButton)
     }
     
     override func setupAutoLayout() {
         super.setupAutoLayout()
         
-        headerView.snp.makeConstraints {
-            $0.top.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
-            $0.height.equalTo(90)
+        grabber.snp.makeConstraints {
+            $0.width.equalTo(36)
+            $0.height.equalTo(5.08)
+            $0.centerX.equalToSuperview()
+            $0.top.equalToSuperview().offset(6)
         }
         
         reactionImageView.snp.makeConstraints {
-            $0.size.equalTo(42)
-            $0.leading.equalToSuperview().inset(24)
-            $0.centerY.equalToSuperview()
+            $0.size.equalTo(66)
+            $0.centerX.equalToSuperview()
+            $0.top.equalTo(view.safeAreaLayoutGuide).inset(32)
+        }
+        
+        reactionBadgeView.snp.makeConstraints {
+            $0.size.equalTo(30)
+            $0.trailing.bottom.equalTo(reactionImageView)
         }
         
         reactionLabel.snp.makeConstraints {
-            $0.leading.equalTo(reactionImageView.snp.trailing).offset(20)
-            $0.trailing.equalToSuperview().inset(24)
+            $0.top.equalTo(reactionImageView.snp.bottom).offset(10)
+            $0.centerX.equalToSuperview()
             $0.height.equalTo(25)
-            $0.centerY.equalToSuperview()
         }
         
         memberTableView.snp.makeConstraints {
-            $0.top.equalTo(headerView.snp.bottom)
+            $0.top.equalTo(reactionLabel.snp.bottom).offset(16)
             $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
         }
         
@@ -96,8 +110,23 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberReac
     override func setupAttributes() {
         super.setupAttributes()
         
+        grabber.do {
+            $0.layer.masksToBounds = true
+            $0.layer.cornerRadius = 5.08 / 2.0
+            $0.backgroundColor = UIColor.gray500
+        }
+        
         reactionImageView.do {
-            $0.image = DesignSystemAsset.emoji4.image
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = 33
+            $0.contentMode = .scaleAspectFill
+            $0.layer.borderWidth = 4.5
+            $0.layer.borderColor = DesignSystemAsset.gray600.color.cgColor
+        }
+        
+        reactionBadgeView.do {
+            $0.layer.cornerRadius = 15
+            $0.contentMode = .scaleAspectFill
         }
 
         memberTableView.do {
@@ -105,16 +134,13 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberReac
             $0.separatorStyle = .none
             $0.allowsSelection = false
             $0.backgroundColor = UIColor.clear
-            $0.contentInset = UIEdgeInsets(
-                top: 10, left: 0, bottom: 0, right: 0
-            )
-            
+            $0.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 0)
             $0.register(FamilyMemberProfileCell.self, forCellReuseIdentifier: FamilyMemberProfileCell.id)
         }
         
         closeButton.do {
             $0.layer.cornerRadius = 28
-            $0.backgroundColor = .mainGreen
+            $0.backgroundColor = .mainYellow
             $0.titleLabel?.font = DesignSystemFontFamily.Pretendard.semiBold.font(size: 16)
             $0.setTitle("닫기", for: .normal)
             $0.setTitleColor(.black, for: .normal)

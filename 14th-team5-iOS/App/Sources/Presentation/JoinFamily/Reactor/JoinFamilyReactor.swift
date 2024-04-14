@@ -7,6 +7,7 @@
 
 import Core
 import Domain
+import Foundation
 
 import ReactorKit
 
@@ -20,7 +21,7 @@ public final class JoinFamilyReactor: Reactor {
     // MARK: - Mutate
     public enum Mutation {
         case setShowHome(Bool)
-        case setShowJoineFamily(Bool)
+        case setShowJoinFamily(Bool)
     }
     
     // MARK: - State
@@ -32,9 +33,9 @@ public final class JoinFamilyReactor: Reactor {
     
     // MARK: - Properties
     public let initialState: State
-    private let familyUseCase: FamilyViewUseCaseProtocol
+    private let familyUseCase: FamilyUseCaseProtocol
     
-    init(initialState: State, familyUseCase: FamilyViewUseCaseProtocol) {
+    init(initialState: State, familyUseCase: FamilyUseCaseProtocol) {
         self.initialState = initialState
         self.familyUseCase = familyUseCase
     }
@@ -48,15 +49,16 @@ extension JoinFamilyReactor {
         case .makeFamily:
             return familyUseCase.executeCreateFamily()
                 .flatMap {
-                    guard let familyResponse: FamilyResponse = $0 else {
-                        // 여기 왜 뭐지?
+                    guard let familyResponse: CreateFamilyResponse = $0 else {
                         return Observable.just(Mutation.setShowHome(false))
                     }
-                    App.Repository.member.familyId.accept(familyResponse.familyId)
+//                    App.Repository.member.familyCreatedAt.accept(familyResponse.createdAt)
+//                    App.Repository.member.familyId.accept(familyResponse.familyId)
                     return Observable.just(Mutation.setShowHome(true))
                 }
         case .joinFamily:
-            return Observable.just(Mutation.setShowJoineFamily(true))
+            MPEvent.Account.invitedGroup.track(with: nil)
+            return Observable.just(Mutation.setShowJoinFamily(true))
         }
     }
     
@@ -66,7 +68,7 @@ extension JoinFamilyReactor {
         switch mutation {
         case let .setShowHome(isShow):
             newState.isShowHome = isShow
-        case let .setShowJoineFamily(isShow):
+        case let .setShowJoinFamily(isShow):
             newState.isShowJoinFamily = isShow
         }
         return newState

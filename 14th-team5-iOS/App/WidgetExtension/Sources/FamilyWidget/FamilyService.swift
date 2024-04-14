@@ -13,7 +13,7 @@ struct FamilyService {
     func fetchInfo(completion: @escaping (Result<Family?, Error>) -> Void) {
         
         let token = App.Repository.token.keychain.string(forKey: "accessToken")
-        let appKey = "9c61cc7b-0fe9-40eb-976e-6a74c8cb9092"
+        let appKey = "7c5aaa36-570e-491f-b18a-26a1a0b72959"
 #if PRD
         var hostApi: String = "https://api.no5ing.kr/v1"
 #else

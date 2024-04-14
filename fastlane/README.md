@@ -15,10 +15,10 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
-### ios setup_keychain
+### ios github_action_upload_testflight
 
 ```sh
-[bundle exec] fastlane ios setup_keychain
+[bundle exec] fastlane ios github_action_upload_testflight
 ```
 
 
@@ -31,10 +31,10 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 
 
-### ios upload_dev_to_testflight
+### ios upload_stg_to_testflight
 
 ```sh
-[bundle exec] fastlane ios upload_dev_to_testflight
+[bundle exec] fastlane ios upload_stg_to_testflight
 ```
 
 

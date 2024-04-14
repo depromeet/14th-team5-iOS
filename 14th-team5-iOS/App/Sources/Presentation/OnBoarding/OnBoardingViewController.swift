@@ -26,6 +26,8 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
     
     public override func viewDidLoad() {
         super.viewDidLoad()
+        
+        view.backgroundColor = DesignSystemAsset.mainYellow.color
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -69,7 +71,7 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
             $0.isPagingEnabled = true
             $0.contentInset = .zero
             $0.collectionViewLayout = horizontalFlowLayout
-            $0.backgroundColor = DesignSystemAsset.black.color
+            $0.backgroundColor = DesignSystemAsset.mainYellow.color
             $0.showsHorizontalScrollIndicator = false
             $0.register(OnBoardingCollectionViewCell.self,
                         forCellWithReuseIdentifier: OnBoardingCollectionViewCell.id)
@@ -84,16 +86,16 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
             $0.isUserInteractionEnabled = false
             $0.currentPage = 0
             $0.numberOfPages = 3
-            $0.pageIndicatorTintColor = .white.withAlphaComponent(0.2)
-            $0.currentPageIndicatorTintColor = .white
+            $0.pageIndicatorTintColor = DesignSystemAsset.black.color.withAlphaComponent(0.2)
+            $0.currentPageIndicatorTintColor = DesignSystemAsset.black.color
         }
         
         nextButton.do {
             $0.setTitle(OnBoardingStrings.normalButtonTitle, for: .normal)
-            $0.setTitleColor(DesignSystemAsset.black.color, for: .normal)
+            $0.setTitleColor(DesignSystemAsset.white.color, for: .normal)
             $0.titleLabel?.font = UIFont(font: DesignSystemFontFamily.Pretendard.bold, size: 16)
-            $0.backgroundColor = DesignSystemAsset.mainGreen.color.withAlphaComponent(0.2)
-            $0.layer.cornerRadius = 24
+            $0.backgroundColor = DesignSystemAsset.black.color.withAlphaComponent(0.2)
+            $0.layer.cornerRadius = 28
             $0.isEnabled = false
         }
         
@@ -133,7 +135,7 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
     }
     
     private func validationButtion(for index: Int) {
-        let defaultColor = DesignSystemAsset.mainGreen.color
+        let defaultColor = DesignSystemAsset.black.color
         nextButton.backgroundColor = index == 2 ? defaultColor : defaultColor.withAlphaComponent(0.2)
         nextButton.isEnabled = index == 2
     }
@@ -146,7 +148,12 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
             sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: JoinFamilyDIContainer().makeViewController())
             sceneDelegate.window?.makeKeyAndVisible()
         } else {
-            sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+            if let _ = UserDefaults.standard.inviteCode {
+                sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: JoinedFamilyDIContainer().makeViewController())
+            } else {
+                sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+            }
+            
             sceneDelegate.window?.makeKeyAndVisible()
         }
     }

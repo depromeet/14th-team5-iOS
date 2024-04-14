@@ -24,12 +24,24 @@ final class PostListsDIContainer {
         return appDelegate.globalStateProvider
     }
     
-    func makeViewController(postLists: SectionModel<String, PostListData>, selectedIndex: IndexPath) -> ViewContrller {
-        return PostViewController(reactor: makeReactor(postLists: postLists, selectedIndex: selectedIndex.row))
+    func makeViewController(
+        postLists: PostSection.Model,
+        selectedIndex: IndexPath,
+        notificationDeepLink: NotificationDeepLink? = nil
+    ) -> ViewContrller {
+        return PostViewController(reactor: makeReactor(
+            postLists: postLists,
+            selectedIndex: selectedIndex.row,
+            notificationDeepLink: notificationDeepLink)
+        )
     }
     
     func makePostRepository() -> PostListRepositoryProtocol {
         return PostListAPIs.Worker()
+    }
+    
+    func makeUploadPostRepository() -> UploadPostRepositoryProtocol {
+        return PostUserDefaultsRepository()
     }
     
     func makePostUseCase() -> PostListUseCaseProtocol {
@@ -40,11 +52,32 @@ final class PostListsDIContainer {
         return EmojiAPIs.Worker()
     }
     
+    func makeRealEmojiRepository() -> RealEmojiRepository {
+        return RealEmojiAPIS.Worker()
+    }
+    
     func makeEmojiUseCase() -> EmojiUseCaseProtocol {
         return EmojiUseCase(emojiRepository: makeEmojiRepository())
     }
     
-    func makeReactor(postLists: SectionModel<String, PostListData>, selectedIndex: Int) -> Reactor {
-        return PostReactor(provider: globalState, postRepository: makePostUseCase(), emojiRepository: makeEmojiUseCase(), initialState: PostReactor.State(selectedIndex: selectedIndex, originPostLists: [postLists]))
+    func makeRealEmojiUseCase() -> RealEmojiUseCaseProtocol {
+        return RealEmojiUseCase(realEmojiRepository: makeRealEmojiRepository())
+    }
+    
+    func makeReactor(
+        postLists: PostSection.Model,
+        selectedIndex: Int,
+        notificationDeepLink: NotificationDeepLink?
+    ) -> Reactor {
+        return PostReactor(
+            provider: globalState,
+            realEmojiRepository: makeRealEmojiUseCase(),
+            emojiRepository: makeEmojiUseCase(),
+            initialState: PostReactor.State(
+                selectedIndex: selectedIndex,
+                originPostLists: postLists,
+                notificationDeepLink: notificationDeepLink
+            )
+        )
     }
 }

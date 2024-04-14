@@ -2,19 +2,15 @@
 //  ReactionDIContainer.swift
 //  App
 //
-//  Created by 마경미 on 07.01.24.
+//  Created by 마경미 on 28.01.24.
 //
-
-import UIKit
 
 import Core
 import Data
 import Domain
-
-import RxDataSources
+import UIKit
 
 final class ReactionDIContainer {
-    
     private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             return GlobalStateProvider()
@@ -22,35 +18,31 @@ final class ReactionDIContainer {
         return appDelegate.globalStateProvider
     }
     
-    func makeFamilyRepository() -> SearchFamilyRepository {
-        return FamilyAPIs.Worker()
+    private func makeReactor(post: PostListData) -> ReactionViewReactor {
+        return ReactionViewReactor(provider: globalState, initialState: .init(postListData: post), emojiRepository: makeEmojiUseCase(), realEmojiRepository: makeRealEmojiUseCase())
     }
     
-    func makeFamilyUseCase() -> SearchFamilyUseCase {
-        return SearchFamilyUseCase(searchFamilyRepository: makeFamilyRepository())
+    func makeViewController(post: PostListData) -> ReactionViewController {
+        return ReactionViewController(reactor: makeReactor(post: post))
+    }
+}
+
+extension ReactionDIContainer {
+    private func makeRealEmojiRepository() -> RealEmojiRepository {
+        return RealEmojiAPIWorker()
     }
     
-    func makeReactionMemberReactor(memberIds: [String]) -> ReactionMemberReactor {
-        return ReactionMemberReactor(initialState: .init(reactionMemberIds: memberIds), familyRepository: makeFamilyUseCase())
+    private func makeRealEmojiUseCase() -> RealEmojiUseCaseProtocol {
+        return RealEmojiUseCase(realEmojiRepository: makeRealEmojiRepository())
+    }
+}
+
+extension ReactionDIContainer {
+    private func makeEmojiRepository() -> EmojiRepository {
+        return EmojiAPIWorker()
     }
     
-    func makeViewController(memberIds: [String]) -> ReactionMembersViewController {
-        return ReactionMembersViewController(reactor: makeReactionMemberReactor(memberIds: memberIds))
-    }
-    
-    func makeEmojiRepository() -> EmojiRepository {
-        return EmojiAPIs.Worker()
-    }
-    
-    func makeEmojiUseCase() -> EmojiUseCaseProtocol {
+    private func makeEmojiUseCase() -> EmojiUseCaseProtocol {
         return EmojiUseCase(emojiRepository: makeEmojiRepository())
-    }
-    
-    func makeReactor(type: EmojiReactor.CellType = .home, post: PostListData) -> EmojiReactor {
-        return EmojiReactor(
-            provider: globalState,
-            emojiRepository: makeEmojiUseCase(),
-            initialState: .init(type: type, post: post)
-        )
     }
 }

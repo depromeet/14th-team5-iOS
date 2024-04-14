@@ -14,6 +14,7 @@ import DesignSystem
 import ReactorKit
 import RxSwift
 import RxCocoa
+import RxDataSources
 import SnapKit
 
 public final class CameraViewController: BaseViewController<CameraViewReactor> {
@@ -29,22 +30,33 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     
     //MARK: Views
     private let cameraView: UIView = UIView()
-    private let cameraNavigationBar: BibbiNavigationBarView = BibbiNavigationBarView()
     private let shutterButton: UIButton = UIButton()
     private let flashButton: UIButton = UIButton.createCircleButton(radius: 24)
     private let toggleButton: UIButton = UIButton.createCircleButton(radius: 24)
-    private let cameraIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
+    private let cameraIndicatorView: BibbiLoadingView = BibbiLoadingView()
+    private let filterView: UIImageView = UIImageView()
+    private let zoomView: UIButton = UIButton()
+    private let realEmojiDescriptionLabel = BibbiLabel(.body1Regular, textColor: .mainYellow)
+    private let realEmojiFaceView = UIView()
+    private let realEmojiFaceImageView = UIImageView()
+    private let realEmojiHorizontalStakView = UIStackView()
+    private let realEmojiFlowLayout = UICollectionViewFlowLayout()
+    private lazy var realEmojiCollectionView = UICollectionView(frame: .zero, collectionViewLayout: realEmojiFlowLayout)
+    private lazy var realEmojiDataSources: RxCollectionViewSectionedReloadDataSource<EmojiSectionModel> = .init { dataSources, collectionView, indexPath, sectionItem in
+        switch sectionItem {
+        case let .realEmojiItem(cellReactor):
+            guard let realEmojiCell = collectionView.dequeueReusableCell(withReuseIdentifier: "BibbiRealEmojiViewCell", for: indexPath) as? BibbiRealEmojiViewCell else { return UICollectionViewCell() }
+            realEmojiCell.reactor = cellReactor
+            return realEmojiCell
+        }
+    }
     
     private var initialScale: CGFloat = 0
     private var zoomScaleRange: ClosedRange<CGFloat> = 1...10
     private var isToggle: Bool = false
     
     //MARK: LifeCylce
-    
-    public override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.navigationBar.isHidden = true
-    }
+ 
     public override func viewDidLoad() {
         super.viewDidLoad()
         setupCameraPermission()
@@ -53,24 +65,63 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(cameraView, shutterButton, flashButton, toggleButton, cameraIndicatorView, cameraNavigationBar)
+        realEmojiFaceView.addSubview(realEmojiFaceImageView)
+        view.addSubviews(cameraView, shutterButton, flashButton, toggleButton, realEmojiFaceView, realEmojiHorizontalStakView, realEmojiCollectionView ,cameraIndicatorView)
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
         
-        cameraIndicatorView.do {
-            $0.hidesWhenStopped = true
-            $0.color = .gray
+        navigationBarView.do {
+            $0.setNavigationView(leftItem: .xmark, rightItem: .empty)
         }
         
-        cameraNavigationBar.do {
-            $0.navigationTitle = "카메라"
-            $0.leftBarButtonItem = .xmark
-            $0.leftBarButtonItemTintColor = .gray300
+        realEmojiDescriptionLabel.do {
+            $0.text = "표정을 따라해보세요"
         }
         
+        zoomView.do {
+            $0.setBackgroundImage(DesignSystemAsset.zoomin.image, for: .normal)
+            $0.setTitle("", for: .normal)
+        }
         
+        realEmojiFlowLayout.do {
+            $0.scrollDirection = .horizontal
+            $0.sectionInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+        }
+        
+        realEmojiCollectionView.do {
+            $0.register(BibbiRealEmojiViewCell.self, forCellWithReuseIdentifier: "BibbiRealEmojiViewCell")
+            $0.showsVerticalScrollIndicator = false
+            $0.showsHorizontalScrollIndicator = false
+            $0.backgroundColor = .gray700
+            $0.layer.cornerRadius = 33
+            $0.clipsToBounds = true
+        }
+        
+        realEmojiFaceView.do {
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = 35 / 2
+            $0.backgroundColor = DesignSystemAsset.gray600.color
+        }
+        
+        realEmojiFaceImageView.do {
+            $0.contentMode = .scaleAspectFill
+            $0.layer.cornerRadius = 26 / 2
+        }
+        
+        realEmojiHorizontalStakView.do {
+            $0.axis = .horizontal
+            $0.spacing = 4
+            $0.alignment = .center
+            $0.distribution = .fill
+            $0.addArrangedSubviews(realEmojiDescriptionLabel)
+        }
+        
+        filterView.do {
+            $0.contentMode = .scaleAspectFill
+            $0.image = DesignSystemAsset.filter.image
+        }
 
         cameraView.do {
             $0.layer.cornerRadius = 40
@@ -95,15 +146,27 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         
-        cameraNavigationBar.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.left.right.equalToSuperview()
-            $0.height.equalTo(42)
+        realEmojiHorizontalStakView.snp.makeConstraints {
+            $0.height.equalTo(34)
+            $0.centerX.equalTo(cameraView)
+            $0.bottom.equalTo(cameraView.snp.top).offset(-16)
         }
+        
+        realEmojiFaceView.snp.makeConstraints {
+            $0.width.height.equalTo(35)
+            $0.right.equalTo(realEmojiHorizontalStakView.snp.left).offset(-10)
+            $0.centerY.equalTo(realEmojiHorizontalStakView)
+        }
+        
+        realEmojiFaceImageView.snp.makeConstraints {
+            $0.width.height.equalTo(26)
+            $0.center.equalToSuperview()
+        }
+
         
         cameraView.snp.makeConstraints {
             $0.width.equalToSuperview()
-            $0.height.equalTo(375)
+            $0.height.equalTo(cameraView.snp.width).multipliedBy(1.0)
             $0.center.equalToSuperview()
         }
         
@@ -127,15 +190,27 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             $0.center.equalToSuperview()
         }
         
+        realEmojiCollectionView.snp.makeConstraints {
+            $0.top.equalTo(shutterButton.snp.bottom).offset(28)
+            $0.width.equalTo(317)
+            $0.centerX.equalTo(shutterButton)
+            $0.height.equalTo(60)
+        }
+        
     }
     
     public override func bind(reactor: CameraViewReactor) {
+        super.bind(reactor: reactor)
         
-        reactor.state
-            .map { $0.isLoading }
+        Observable.just(())
+            .map { Reactor.Action.viewDidLoad}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+    
+        
+        reactor.pulse(\.$isLoading)
             .distinctUntilChanged()
-            .asDriver(onErrorJustReturn: false)
-            .drive(cameraIndicatorView.rx.isAnimating)
+            .bind(to: cameraIndicatorView.rx.isHidden)
             .disposed(by: disposeBag)
         
         
@@ -144,17 +219,59 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
                 guard let userInfo = notification.userInfo else { return nil }
                 return userInfo["photo"] as? Data
             }
-            .debug("Notification")
+            .debug("Notification didTapShutter Button")
             .map { Reactor.Action.didTapShutterButton($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        cameraNavigationBar.rx.didTapLeftBarButton
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+        NotificationCenter.default
+            .rx.notification(.didTapBibbiToastTranstionButton)
             .withUnretained(self)
             .bind { owner, _ in
                 owner.navigationController?.popViewController(animated: true)
             }.disposed(by: disposeBag)
+        
+        
+        
+        reactor.pulse(\.$feedImageData)
+            .distinctUntilChanged()
+            .compactMap { $0 }
+            .withUnretained(self)
+            .bind {
+                let cameraDisplayViewController = CameraDisplayDIContainer(displayData: $0.1).makeViewController()
+                $0.0.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
+            }.disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.cameraType == .realEmoji ? false : true }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .bind(onNext: {$0.0.setupRealEmojiLayoutContent(isShow: $0.1)})
+            .disposed(by: disposeBag)
+        
+        
+        reactor.state
+            .map { $0.cameraType }
+            .map { $0 == .realEmoji ? "셀피 이미지" : "카메라" }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .bind(onNext: { $0.0.navigationBarView.setNavigationTitle(title: $0.1) })
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$isError)
+            .distinctUntilChanged()
+            .filter { $0 }
+            .withLatestFrom(reactor.state.map { $0.cameraType })
+            .map { $0 == .profile ? "프로필 화면" : "홈 화면" }
+            .withUnretained(self)
+            .bind(onNext: { $0.0.makeActionBibbiToastView(text: "사진 업로드 실패", transtionText: "\($0.1)으로 이동", duration: 1, offset: 50, direction: .up)})
+            .disposed(by: disposeBag)
+        
+        
+        reactor.pulse(\.$realEmojiSection)
+            .asDriver(onErrorJustReturn: [])
+            .drive(realEmojiCollectionView.rx.items(dataSource: realEmojiDataSources))
+            .disposed(by: disposeBag)
         
         
         reactor.pulse(\.$profileMemberEntity)
@@ -162,11 +279,43 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .withUnretained(self)
             .bind { owner, _ in
                 owner.dismissCameraViewController()
-                let userInfo: [AnyHashable: Any] = ["isProfileUpdate": true]
-                UserDefaults.standard.isDefaultProfile = false
-                NotificationCenter.default.post(name: .DidFinishProfileImageUpdate, object: nil, userInfo: userInfo)
             }.disposed(by: disposeBag)
         
+        zoomView
+            .rx.tap
+            .map { _ in CGFloat(1.0)}
+            .map { Reactor.Action.didTapZoomButton($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$zoomScale)
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: {
+                guard let currentCamera = $0.0.isToggle ? $0.0.frontCamera : $0.0.backCamera else { return }
+                $0.0.transitionZoomImageScale(scale: $0.1, camera: currentCamera)
+            }).disposed(by: disposeBag)
+        
+        reactor.pulse(\.$pinchZoomScale)
+            .withUnretained(self)
+            .bind(onNext: {
+                guard let currentCamera = $0.0.isToggle ? $0.0.frontCamera : $0.0.backCamera else { return }
+                $0.0.transitionPinchImageScale(scale: $0.1, camera: currentCamera)
+            }).disposed(by: disposeBag)
+        
+        reactor.pulse(\.$zoomScale)
+            .map { $0 == 2.0 ? DesignSystemAsset.zoomout.image : DesignSystemAsset.zoomin.image }
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.zoomView.setBackgroundImage($0.1, for: .normal) })
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$pinchZoomScale)
+            .map { $0 == 10.0 ? DesignSystemAsset.zoomout.image : DesignSystemAsset.zoomin.image }
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { $0.0.zoomView.setBackgroundImage($0.1, for: .normal) })
+            .disposed(by: disposeBag)
         
         reactor.state
             .map { ($0.accountImage, $0.profileImageURLEntity, $0.memberId)}
@@ -179,10 +328,24 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             }).disposed(by: disposeBag)
             
         
+        realEmojiCollectionView
+            .rx.itemSelected
+            .debug("Tap item Select")
+            .map { Reactor.Action.didTapRealEmojiPad($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .filter { !$0.emojiType.emojiString.isEmpty }
+            .map { $0.emojiType.emojiImage}
+            .distinctUntilChanged()
+            .bind(to: realEmojiFaceImageView.rx.image)
+            .disposed(by: disposeBag)
+        
         shutterButton
             .rx.tap
-            .throttle(.seconds(1), scheduler: MainScheduler.instance)
-            .debug("shutter Button Tap")
+            .throttle(.seconds(4), scheduler: MainScheduler.asyncInstance)
+            .do { _ in Haptic.selection() }
             .withUnretained(self)
             .subscribe { owner, _ in
                 let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
@@ -198,12 +361,10 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
                 
         cameraView.rx
             .pinchGesture
-            .withUnretained(self)
-            .observe(on: MainScheduler.instance)
-            .bind(onNext: {
-                guard let currentCamera = $0.0.isToggle ? $0.0.frontCamera : $0.0.backCamera else { return }
-                $0.0.transitionImageScale(owner: $0.0, gesture: $0.1, camera: currentCamera)
-            }).disposed(by: disposeBag)
+            .map { $0.scale }
+            .map { Reactor.Action.dragPreviewLayer($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
 
         
         toggleButton
@@ -216,13 +377,13 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         reactor.pulse(\.$isSwitchPosition)
             .withUnretained(self)
             .skip(1)
-            .bind(onNext: { $0.0.transitionPreViewLayer(owner: $0.0, state: $0.1) })
+            .bind(onNext: { $0.0.transitionPreViewLayer(state: $0.1) })
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$isFlashMode)
             .skip(1)
             .withUnretained(self)
-            .bind(onNext: { $0.0.setupFlashMode(owner: $0.0, isFlash: $0.1) })
+            .bind(onNext: { $0.0.setupFlashMode(isFlash: $0.1) })
             .disposed(by: disposeBag)
         
     }
@@ -230,7 +391,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
 
 
 
-extension CameraViewController: AVCapturePhotoCaptureDelegate {
+extension CameraViewController {
     
     private func setupCamera() {
         captureSession = AVCaptureSession()
@@ -298,7 +459,9 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
             guard let self = self else { return }
             self.previewLayer.frame = self.cameraView.bounds
         }
+        
         cameraView.layer.addSublayer(previewLayer)
+        setupPreViewLayerContent()
         DispatchQueue.global(qos: .background).async { [weak self] in
             guard let self = self else { return }
             self.captureSession.startRunning()
@@ -318,8 +481,8 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { isPermission in
                 guard isPermission else {
-                    DispatchQueue.main.async {
-                        self.showPermissionAlertController()
+                    DispatchQueue.main.async { [weak self] in
+                        self?.showPermissionAlertController()
                     }
                     return
                 }
@@ -328,65 +491,52 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
             setupCameraOuputStream()
             setupPreviewLayout()
         case .denied:
-            //TODO: Alert 추가 예정
-            print("사용자에 의해 권한이 거부된 상태 입니다.")
+            showPermissionAlertController()
         default:
             break
         }
     }
     
     
-    private func transitionPreViewLayer(owner: CameraViewController, state isTransition: Bool) {
+    private func transitionPreViewLayer(state isTransition: Bool) {
         captureSession.beginConfiguration()
         if isTransition {
-            UIView.transition(with: owner.cameraView, duration: 0.5, options: .transitionFlipFromLeft) {
-                owner.captureSession.removeInput(owner.backCameraInput)
-                owner.captureSession.addInput(owner.frontCameraInput)
-                owner.isToggle = true
+            UIView.transition(with: cameraView, duration: 0.5, options: .transitionFlipFromLeft) { [weak self] in
+                guard let self = self else { return }
+                self.captureSession.removeInput(self.backCameraInput)
+                self.captureSession.addInput(self.frontCameraInput)
+                self.isToggle = true
             }
         } else {
-            UIView.transition(with: owner.cameraView, duration: 0.5, options: .transitionFlipFromLeft) {
-                owner.captureSession.removeInput(owner.frontCameraInput)
-                owner.captureSession.addInput(owner.backCameraInput)
-                owner.isToggle = false
+            UIView.transition(with: cameraView, duration: 0.5, options: .transitionFlipFromLeft) { [weak self] in
+                guard let self = self else { return }
+                self.captureSession.removeInput(self.frontCameraInput)
+                self.captureSession.addInput(self.backCameraInput)
+                self.isToggle = false
             }
         }
-        owner.cameraOuputStream.connections.first?.isVideoMirrored = !isTransition
-        owner.captureSession.commitConfiguration()
+        cameraOuputStream.connections.first?.isVideoMirrored = !isTransition
+        captureSession.commitConfiguration()
     }
     
     
-    private func setupFlashMode(owner: CameraViewController, isFlash: Bool) {
+    private func setupFlashMode(isFlash: Bool) {
         do {
-            try owner.backCamera.lockForConfiguration()
-            try owner.backCamera.setTorchModeOn(level: 1.0)
+            try backCamera.lockForConfiguration()
+            try backCamera.setTorchModeOn(level: 1.0)
             
             if isFlash {
-                owner.backCamera.torchMode = .on
+                backCamera.torchMode = .on
             } else {
-                owner.backCamera.torchMode = .off
+                backCamera.torchMode = .off
             }
-            owner.backCamera.unlockForConfiguration()
+            backCamera.unlockForConfiguration()
         } catch {
             print(error.localizedDescription)
         }
     }
     
-    
-    public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        guard let photoData = photo.fileDataRepresentation(),
-        let imageData = UIImage(data: photoData)?.jpegData(compressionQuality: 1.0) else { return }
-        if self.reactor?.cameraType == .profile  {
-            output.photoOutputDidFinshProcessing(photo: imageData, error: error)
-        } else {
-            let cameraDisplayViewController = CameraDisplayDIContainer(displayData: imageData).makeViewController()
-            self.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
-        }
-    }
-    
-    
-    
-    private func setupImageScale(owner: CameraViewController, scale: CGFloat, camera: AVCaptureDevice) {
+    private func setupImageScale(scale: CGFloat, camera: AVCaptureDevice) {
         do {
             
             try camera.lockForConfiguration()
@@ -403,25 +553,22 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         self.navigationController?.popViewController(animated: true)
     }
     
-    private func transitionImageScale(owner: CameraViewController, gesture: UIPinchGestureRecognizer, camera: AVCaptureDevice) {
-        
-        switch gesture.state {
-            
-        case .began:
-            owner.initialScale = camera.videoZoomFactor
-            
-        case .changed:
-            let minAvailableZoomScale = camera.minAvailableVideoZoomFactor
-            let maxAvailableZoomScale = camera.maxAvailableVideoZoomFactor
-            let availableZoomScaleRange = minAvailableZoomScale...maxAvailableZoomScale
-            let resolvedZoomScaleRange = zoomScaleRange.clamped(to: availableZoomScaleRange)
-
-            let resolvedScale = max(resolvedZoomScaleRange.lowerBound, min(gesture.scale * initialScale, resolvedZoomScaleRange.upperBound))
-            setupImageScale(owner: owner, scale: resolvedScale, camera: camera)
-        default:
-            return
-            
-        }
+    private func transitionZoomImageScale(scale: CGFloat, camera: AVCaptureDevice) {
+        let minAvailableZoomScale: CGFloat = 1.0
+        let maxAvailableZoomScale: CGFloat = 2.0
+        let availableZoomScaleRange = minAvailableZoomScale...maxAvailableZoomScale
+        let resolvedZoomScaleRange = zoomScaleRange.clamped(to: availableZoomScaleRange)
+        let resolvedScale = max(resolvedZoomScaleRange.lowerBound, min(scale, resolvedZoomScaleRange.upperBound))
+        setupImageScale(scale: resolvedScale, camera: camera)
+    }
+    
+    private func transitionPinchImageScale(scale: CGFloat, camera: AVCaptureDevice) {
+        let minAvailableZoomScale: CGFloat = 1.0
+        let maxAvailableZoomScale: CGFloat = 10.0
+        let availableZoomScaleRange = minAvailableZoomScale...maxAvailableZoomScale
+        let resolvedZoomScaleRange = zoomScaleRange.clamped(to: availableZoomScaleRange)
+        let resolvedScale = max(resolvedZoomScaleRange.lowerBound, min(scale, resolvedZoomScaleRange.upperBound))
+        setupImageScale(scale: resolvedScale, camera: camera)
     }
     
     private func showPermissionAlertController() {
@@ -438,6 +585,60 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         [cancelAction,settingAction].forEach(permissionAlertController.addAction(_:))
         permissionAlertController.overrideUserInterfaceStyle = .dark
         present(permissionAlertController, animated: true)
+    }
+    
+    private func setupPreViewLayerContent() {
+        cameraView.layer.addSublayer(previewLayer)
+        cameraView.addSubviews(filterView, zoomView)
+        filterView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        zoomView.snp.makeConstraints {
+            $0.width.height.equalTo(43)
+            $0.bottom.equalToSuperview().offset(-23)
+            $0.centerX.equalToSuperview()
+        }
+    }
+    
+    private func setupRealEmojiLayoutContent(isShow: Bool) {
+        filterView.isHidden = isShow
+        realEmojiHorizontalStakView.isHidden = isShow
+        realEmojiCollectionView.isHidden = isShow
+        realEmojiFaceView.isHidden = isShow
+    }
+    
+    
+    
+}
+
+
+extension CameraViewController: AVCapturePhotoCaptureDelegate {
+    
+    public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        guard let photoData = photo.fileDataRepresentation(),
+              let imageData = UIImage(data: photoData)?.asPhoto else { return }
+        output.photoOutputDidFinshProcessing(photo: imageData, error: error)
+    }
+    
+    public func photoOutput(_ output: AVCapturePhotoOutput, willCapturePhotoFor resolvedSettings: AVCaptureResolvedPhotoSettings) {
+        AudioServicesDisposeSystemSoundID(1108)
+    }
+}
+
+
+extension CameraViewController: UICollectionViewDelegateFlowLayout {
+    
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: 40, height: 40)
+    }
+    
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return .zero
+    }
+    
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 16
     }
     
 }

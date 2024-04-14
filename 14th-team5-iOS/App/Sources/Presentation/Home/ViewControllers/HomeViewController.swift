@@ -17,87 +17,71 @@ import SnapKit
 import Then
 import Domain
 
-public final class HomeViewController: BaseViewController<HomeViewReactor> {
-    private let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
-    private let familyViewController: HomeFamilyViewController = HomeFamilyDIContainer().makeViewController()
-    private let dividerView: UIView = UIView()
-    private let timerLabel: BibbiLabel = BibbiLabel(.head1, alignment: .center)
-    private let descriptionLabel: UILabel = BibbiLabel(.body2Regular, alignment: .center, textColor: .gray300)
-    private let noPostTodayView: UIView = NoPostTodayView()
+final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectionViewDelegateFlowLayout {
+    private let timerView: TimerView = TimerView()
+    private let familyCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let postCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private let noPostView: NoPostTodayView = NoPostTodayView()
+    private let inviteFamilyView: InviteFamilyView = InviteFamilyView(openType: .makeUrl)
     private let balloonView: BalloonView = BalloonView()
+    private let loadingView: BibbiLoadingView = BibbiLoadingView()
     private let cameraButton: UIButton = UIButton()
     private let refreshControl: UIRefreshControl = UIRefreshControl()
     
-    public override func viewDidLoad() {
+    // MARK: - Properties
+    private let memberRepo = App.Repository.member
+    private let deepLinkRepo = App.Repository.deepLink
+    
+    override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.hideCameraButton(true)
+        UserDefaults.standard.inviteCode = nil
     }
     
-    public override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-    
-        navigationController?.navigationBar.isHidden = true
-    }
-    
-    deinit {
-        print("deinit HomeViewController")
-    }
-    
-    public override func bind(reactor: HomeViewReactor) {
+    override func bind(reactor: HomeViewReactor) {
+        super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
-    public override func setupUI() {
+    override func setupUI() {
         super.setupUI()
         
-        addChild(familyViewController)
-        view.addSubviews(navigationBarView, dividerView, timerLabel,
-                         descriptionLabel, postCollectionView, noPostTodayView,
-                         balloonView, cameraButton, familyViewController.view)
-        
-        familyViewController.didMove(toParent: self)
+        view.addSubviews(familyCollectionView, timerView,
+                         noPostView, postCollectionView, inviteFamilyView,
+                         balloonView, cameraButton)
     }
     
-    public override func setupAutoLayout() {
+    override func setupAutoLayout() {
         super.setupAutoLayout()
         
-        navigationBarView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.height.equalTo(33)
-            $0.horizontalEdges.equalToSuperview()
+        familyCollectionView.snp.makeConstraints {
+            $0.height.equalTo(138)
+            $0.top.equalTo(navigationBarView.snp.bottom)
+            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
         }
         
-        familyViewController.view.snp.makeConstraints {
-            $0.top.equalTo(navigationBarView.snp.bottom).offset(24)
-            $0.horizontalEdges.equalToSuperview()
+        inviteFamilyView.snp.makeConstraints {
+            $0.top.equalTo(familyCollectionView).inset(24)
+            $0.horizontalEdges.equalTo(familyCollectionView).inset(20)
             $0.height.equalTo(90)
         }
         
-        dividerView.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview()
-            $0.top.equalTo(view.safeAreaLayoutGuide).inset(HomeAutoLayout.DividerView.topInset)
-            $0.height.equalTo(HomeAutoLayout.DividerView.height)
-        }
-        
-        timerLabel.snp.makeConstraints {
-            $0.top.equalTo(dividerView.snp.bottom).offset(HomeAutoLayout.TimerLabel.topOffset)
-            $0.height.equalTo(HomeAutoLayout.TimerLabel.height)
-            $0.horizontalEdges.equalToSuperview().inset(HomeAutoLayout.TimerLabel.horizontalInset)
-            $0.centerX.equalToSuperview()
-        }
-        
-        descriptionLabel.snp.makeConstraints {
-            $0.top.equalTo(timerLabel.snp.bottom).offset(HomeAutoLayout.DescriptionLabel.topOffset)
-            $0.centerX.equalToSuperview()
-            $0.horizontalEdges.equalToSuperview().inset(HomeAutoLayout.DescriptionLabel.horizontalInset)
-            $0.height.equalTo(HomeAutoLayout.DescriptionLabel.height)
+        timerView.snp.makeConstraints {
+            $0.top.equalTo(familyCollectionView.snp.bottom)
+            $0.height.equalTo(100)
+            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
         }
         
         postCollectionView.snp.makeConstraints {
-            $0.top.equalTo(descriptionLabel.snp.bottom).offset(HomeAutoLayout.FeedCollectionView.topOffset)
-            $0.horizontalEdges.equalToSuperview()
-            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+            $0.top.equalTo(timerView.snp.bottom)
+            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            $0.bottom.equalToSuperview()
+        }
+        
+        noPostView.snp.makeConstraints {
+            $0.edges.equalTo(postCollectionView)
         }
         
         balloonView.snp.makeConstraints {
@@ -111,50 +95,29 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
             $0.centerX.equalToSuperview()
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
         }
-        
-        noPostTodayView.snp.makeConstraints {
-            $0.top.equalTo(descriptionLabel.snp.bottom).offset(HomeAutoLayout.NoPostTodayView.topOffset)
-            $0.horizontalEdges.equalToSuperview()
-            $0.bottom.equalTo(view.safeAreaLayoutGuide)
-        }
     }
     
-    public override func setupAttributes() {
+    override func setupAttributes() {
         super.setupAttributes()
-
-        let feedCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
         
         navigationBarView.do {
-            $0.navigationImage = .newBibbi
-            $0.navigationImageScale = 0.8
-            
-            $0.leftBarButtonItem = .addPerson
-            $0.leftBarButtonItemScale = 1.2
-            $0.leftBarButtonItemYOffset = 10.0
-            
-            $0.rightBarButtonItem = .heartCalendar
-            $0.rightBarButtonItemScale = 1.2
-            $0.rightBarButtonItemYOffset = -10.0
+            $0.setNavigationView(leftItem: .family, centerItem: .logo, rightItem: .calendar)
         }
         
-        dividerView.do {
-            $0.backgroundColor = .gray900
-        }
-        
-        feedCollectionViewLayout.do {
-            $0.sectionInset = .zero
-            $0.minimumLineSpacing = HomeAutoLayout.FeedCollectionView.minimumLineSpacing
-            $0.minimumInteritemSpacing = HomeAutoLayout.FeedCollectionView.minimumInteritemSpacing
+        familyCollectionView.do {
+            $0.collectionViewLayout = createFamilyLayout()
+            $0.showsHorizontalScrollIndicator = false
+            $0.backgroundColor = .clear
+            $0.register(FamilyCollectionViewCell.self, forCellWithReuseIdentifier: FamilyCollectionViewCell.id)
         }
         
         postCollectionView.do {
-            $0.refreshControl = refreshControl
-            $0.register(FeedCollectionViewCell.self, forCellWithReuseIdentifier: FeedCollectionViewCell.id)
+            $0.collectionViewLayout = createPostLayout()
+            $0.showsVerticalScrollIndicator = false
             $0.backgroundColor = .clear
-        }
-        
-        noPostTodayView.do {
-            $0.isHidden = true
+            $0.refreshControl = refreshControl
+            $0.refreshControl?.tintColor = UIColor.bibbiWhite
+            $0.register(FeedCollectionViewCell.self, forCellWithReuseIdentifier: FeedCollectionViewCell.id)
         }
         
         balloonView.do {
@@ -162,7 +125,7 @@ public final class HomeViewController: BaseViewController<HomeViewReactor> {
         }
         
         cameraButton.do {
-            $0.setImage(DesignSystemAsset.camerButton.image, for: .normal)
+            $0.setImage(DesignSystemAsset.shutter.image, for: .normal)
         }
     }
 }
@@ -171,19 +134,46 @@ extension HomeViewController {
     private func bindInput(reactor: HomeViewReactor) {
         postCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
+
+        Observable.merge(
+            Observable.just(())
+                .map { Reactor.Action.viewDidLoad },
+            NotificationCenter.default.rx.notification(UIScene.willEnterForegroundNotification)
+                .map { _ in Reactor.Action.viewDidLoad }
+        )
+        .bind(to: reactor.action)
+        .disposed(by: disposeBag)
         
         Observable.just(())
-            .map { Reactor.Action.startTimer }
+            .map { Reactor.Action.viewDidLoad }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        rx.viewWillAppear
-            .map { _ in Reactor.Action.getTodayPostList }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        navigationBarView.rx.didTapLeftBarButton
+        self.inviteFamilyView.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .map { Reactor.Action.tapInviteFamily }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        self.rx.viewWillAppear
+            .withUnretained(self)
+            // 별도 딥링크를 받지 않으면
+            .filter {
+                let repo = $0.0.deepLinkRepo
+                return repo.notification.value == nil && repo.widget.value == nil
+            }
+            // viewWillAppear 메서드 수행하기
+            .map { _ in Reactor.Action.viewWillAppear }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        // 노티피케이션 딥링크를 받게 된다면 딥링크 처리 과정에서 viewWillAppear를 대신 불러옴
+        
+        refreshControl.rx.controlEvent(.valueChanged)
+            .map { Reactor.Action.refresh }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        navigationBarView.rx.leftButtonTap
             .withUnretained(self)
             .subscribe {
                 $0.0.navigationController?.pushViewController(
@@ -193,8 +183,7 @@ extension HomeViewController {
             }
             .disposed(by: disposeBag)
         
-        navigationBarView.rx.didTapRightBarButton
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+        navigationBarView.rx.rightButtonTap
             .withUnretained(self)
             .subscribe {
                 $0.0.navigationController?.pushViewController(
@@ -204,115 +193,317 @@ extension HomeViewController {
             }
             .disposed(by: disposeBag)
         
-        postCollectionView.rx.itemSelected
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .bind(onNext: { [weak self] indexPath in
-                guard let self else { return }
-                let sectionModel = reactor.currentState.feedSections[indexPath.section]
-                let selectedItem = sectionModel.items[indexPath.item]
-
-                self.navigationController?.pushViewController(
-                    PostListsDIContainer().makeViewController(
-                        postLists: sectionModel,
-                        selectedIndex: indexPath
-                    ),
-                    animated: true
-                )
-            })
+        familyCollectionView.rx.modelSelected(FamilySection.Item.self)
+            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .compactMap { item -> ProfileData? in
+                switch item {
+                case .main(let profileData): return profileData
+                }
+            }
+            .withUnretained(self)
+            .bind { owner, profileData in
+                let profileViewController = ProfileDIContainer(memberId: profileData.memberId).makeViewController()
+                self.navigationController?.pushViewController(profileViewController, animated: true)
+            }
             .disposed(by: disposeBag)
         
-        refreshControl.rx.controlEvent(.valueChanged)
-            .map { Reactor.Action.refreshCollectionview }
-            .bind(to: reactor.action)
+        postCollectionView.rx.itemSelected
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .withUnretained(self)
+            .bind(onNext: {
+                $0.0.navigationController?.pushViewController(
+                    PostListsDIContainer().makeViewController(
+                        postLists: reactor.currentState.postSection,
+                        selectedIndex: $0.1
+                    ), animated: true)
+            })
             .disposed(by: disposeBag)
         
         cameraButton.rx.tap
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind { owner, _ in
-                let cameraViewController = CameraDIContainer(cameraType: .feed).makeViewController()
-                owner.navigationController?.pushViewController(cameraViewController, animated: true)
-            }.disposed(by: disposeBag)
+            .map { Reactor.Action.tapCameraButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        // 위젯 딥링크 코드
+        App.Repository.deepLink.widget
+            .compactMap { $0 }
+            .map { Reactor.Action.pushWidgetPostDeepLink($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        // 푸시 노티피케이션 딥링크 코드
+        App.Repository.deepLink.notification
+            .compactMap { $0 }
+            .flatMap {
+                // 댓글 푸시 알림이라면
+                if $0.openComment {
+                    return Observable.just(Reactor.Action.pushNotificationCommentDeepLink($0))
+                // 포스트 푸시 알림이라면
+                } else {
+                    return Observable.just(Reactor.Action.pushNotificationPostDeepLink($0))
+                }
+            }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: HomeViewReactor) {
-        reactor.state
-            .map { $0.isRefreshing }
+        reactor.pulse(\.$postSection)
             .observe(on: MainScheduler.instance)
-            .bind(onNext: { [weak postCollectionView] isRefreshing in
-                if let refreshControl = postCollectionView?.refreshControl {
-                    refreshControl.endRefreshing()
-                    postCollectionView?.reloadData()
+            .map(Array.init(with:))
+            .bind(to: postCollectionView.rx.items(dataSource: createPostDataSource()))
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$isRefreshEnd)
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    owner.refreshControl.endRefreshing()
                 }
             })
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$timer)
-            .observe(on: Schedulers.main)
-            .bind(to: timerLabel.rx.text)
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$timerLabelColor)
-            .observe(on: Schedulers.main)
-            .bind(to: timerLabel.rx.textColor)
-            .disposed(by: disposeBag)
-
-        reactor.state
-            .map { $0.isHideCameraButton }
-            .distinctUntilChanged()
-            .observe(on: Schedulers.main)
+        reactor.pulse(\.$postSection)
             .withUnretained(self)
-            .bind(onNext: { $0.0.hideCameraButton($0.1) })
-            .disposed(by: disposeBag)
-
-        reactor.state
-            .map { $0.descriptionText }
-            .distinctUntilChanged()
-            .observe(on: Schedulers.main)
-            .bind(to: descriptionLabel.rx.text)
+            .bind(onNext: { 
+                $0.0.timerView.reactor = TimerDIContainer().makeReactor(isSelfUploaded: reactor.currentState.isSelfUploaded, isAllUploaded: reactor.currentState.isAllFamilyMembersUploaded)
+            })
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$feedSections)
-            .distinctUntilChanged()
-            .bind(to: postCollectionView.rx.items(dataSource: createFeedDataSource()))
+        reactor.pulse(\.$familySection)
+            .observe(on: MainScheduler.instance)
+            .map(Array.init(with:))
+            .bind(to: familyCollectionView.rx.items(dataSource: createFamilyDataSource()))
             .disposed(by: disposeBag)
         
-        reactor.state
-            .map { $0.isShowingNoPostTodayView }
+        reactor.pulse(\.$isSelfUploaded)
             .distinctUntilChanged()
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
-            .bind(onNext: { $0.0.setNoPostTodayView($0.1) })
+            .bind(onNext: { $0.0.hideCameraButton($0.1) })
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.isShowingInviteFamilyView}
+            .observe(on: MainScheduler.instance)
+            .distinctUntilChanged()
+            .map { !$0 }
+            .bind(to: inviteFamilyView.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.isShowingNoPostTodayView }
+            .observe(on: MainScheduler.instance)
+            .distinctUntilChanged()
+            .map { !$0 }
+            .bind(to: noPostView.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$isShowingCameraView)
+            .observe(on: MainScheduler.instance)
+            .filter { $0 }
+            .withUnretained(self)
+            .bind(onNext: {
+                MPEvent.Home.cameraTapped.track(with: nil)
+                let cameraViewController = CameraDIContainer(cameraType: .feed).makeViewController()
+                $0.0.navigationController?.pushViewController(cameraViewController, animated: true)
+            })
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$familyInvitationLink)
+            .observe(on: Schedulers.main)
+            .withUnretained(self)
+            .bind(onNext: {
+                $0.0.makeInvitationUrlSharePanel(
+                    $0.1,
+                    provider: reactor.provider
+                )
+            })
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentCopySuccessToastMessageView)
+            .skip(1)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.makeBibbiToastView(
+                    text: "링크가 복사되었어요",
+                    image: DesignSystemAsset.link.image
+                )
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentFetchFailureToastMessageView)
+            .skip(1)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.makeBibbiToastView(
+                    text: "잠시 후에 다시 시도해주세요",
+                    image: DesignSystemAsset.warning.image
+                )
+            }
+            .disposed(by: disposeBag)
+        
+        // 위젯 딥링크 코드
+        reactor.pulse(\.$widgetPostDeepLink)
+            .delay(RxConst.smallDelayInterval, scheduler: Schedulers.main)
+            .compactMap { $0 }
+            .bind(with: self) { owner, deepLink in
+                owner.handlePostWidgetDeepLink(deepLink)
+            }
+            .disposed(by: disposeBag)
+        
+        // 포스트 노티피케이션 딥링크 코드
+        reactor.pulse(\.$notificationPostDeepLink)
+            .delay(RxConst.smallDelayInterval, scheduler: Schedulers.main)
+            .compactMap { $0 }
+            .bind(with: self) { owner, deepLink in
+                owner.handlePostNotificationDeepLink(deepLink)
+            }
+            .disposed(by: disposeBag)
+        
+        // 댓글 노티피케이션 딥링크 코드
+        reactor.pulse(\.$notificationCommentDeepLink)
+            .delay(RxConst.smallDelayInterval, scheduler: Schedulers.main)
+            .compactMap { $0 }
+            .bind(with: self) { owner, deepLink in
+                owner.handleCommentNotificationDeepLink(deepLink)
+            }
             .disposed(by: disposeBag)
     }
 }
 
 extension HomeViewController {
-    private func setNoPostTodayView(_ isShow: Bool) {
-        noPostTodayView.isHidden = !isShow
-        postCollectionView.isHidden = isShow
-    }
-
-    private func hideCameraButton(_ isShow: Bool) {
-        balloonView.isHidden = isShow
-        cameraButton.isHidden = isShow
-    }
-    
-    private func createFeedDataSource() -> RxCollectionViewSectionedReloadDataSource<SectionModel<String, PostListData>> {
-        return RxCollectionViewSectionedReloadDataSource<SectionModel<String, PostListData>>(
-            configureCell: { (_, collectionView, indexPath, item) in
-                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FeedCollectionViewCell.id, for: indexPath) as? FeedCollectionViewCell else {
-                    return UICollectionViewCell()
-                }
-                cell.setCell(data: item)
-                return cell
-            })
+    private func hideCameraButton(_ isHidden: Bool) {
+        balloonView.isHidden = isHidden
+        cameraButton.isHidden = isHidden
     }
 }
 
-extension HomeViewController: UICollectionViewDelegateFlowLayout {
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-            let width = (collectionView.frame.size.width - 10) / 2
-            return CGSize(width: width, height: width + 36)
+extension HomeViewController {
+    private func handlePostWidgetDeepLink(_ deepLink: WidgetDeepLink) {
+        guard let reactor = reactor else { return }
+        reactor.currentState.postSection.items.enumerated().forEach { (index, item) in
+            switch item {
+            case .main(let postListData):
+                if postListData.postId == deepLink.postId {
+                    let indexPath = IndexPath(row: index, section: 0)
+                    self.navigationController?.pushViewController(
+                        PostListsDIContainer().makeViewController(
+                            postLists: reactor.currentState.postSection,
+                            selectedIndex: indexPath),
+                        animated: true
+                    )
+                }
+            }
+        }
+    }
+    
+    private func handlePostNotificationDeepLink(_ deepLink: NotificationDeepLink) {
+        guard let reactor = reactor else { return }
+        reactor.currentState.postSection.items.enumerated().forEach { (index, item) in
+            switch item {
+            case .main(let post):
+                if post.postId == deepLink.postId {
+                    let indexPath = IndexPath(row: index, section: 0)
+                    self.navigationController?.pushViewController(
+                        PostListsDIContainer().makeViewController(
+                            postLists: reactor.currentState.postSection,
+                            selectedIndex: indexPath),
+                        animated: true
+                    )
+                }
+            }
+        }
+    }
+    
+    private func handleCommentNotificationDeepLink(_ deepLink: NotificationDeepLink) {
+        guard let reactor = reactor else { return }
+        
+        // 오늘 올린 피드에 댓글이 달렸다면
+        if deepLink.dateOfPost.isToday {
+            guard let selectedIndex = reactor.currentState.postSection.items.firstIndex(where: { postList in
+                switch postList {
+                case let .main(post):
+                    post.postId == deepLink.postId
+                }
+            }) else { return }
+            let indexPath = IndexPath(row: selectedIndex, section: 0)
+            
+            let postListViewController = PostListsDIContainer().makeViewController(
+                postLists: reactor.currentState.postSection,
+                selectedIndex: indexPath,
+                notificationDeepLink: deepLink
+            )
+            
+            navigationController?.pushViewController(
+                postListViewController,
+                animated: true
+            )
+        // 이전에 올린 피드에 댓글이 달렸다면
+        } else {
+            let calendarPostViewController = CalendarPostDIConatainer(
+                selectedDate: deepLink.dateOfPost,
+                notificationDeepLink: deepLink
+            ).makeViewController()
+            
+            navigationController?.pushViewController(
+                calendarPostViewController,
+                animated: true
+            )
+        }
+    }
+}
+
+extension HomeViewController {
+    private func createFamilyLayout() -> UICollectionViewFlowLayout {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.itemSize = .init(width: 64, height: 90)
+        layout.sectionInset = UIEdgeInsets(
+            top: HomeAutoLayout.FamilyCollectionView.edgeInsetTop,
+            left: HomeAutoLayout.FamilyCollectionView.edgeInsetLeft,
+            bottom: HomeAutoLayout.FamilyCollectionView.edgeInsetBottom,
+            right: HomeAutoLayout.FamilyCollectionView.edgeInsetRight)
+        layout.minimumLineSpacing = HomeAutoLayout.FamilyCollectionView.minimumLineSpacing
+        return layout
+    }
+    
+    private func createPostLayout() -> UICollectionViewFlowLayout {
+        let layout = UICollectionViewFlowLayout()
+        layout.sectionInset = .zero
+        layout.itemSize = .init(width: UIScreen.main.bounds.width / 2 - 3, height: UIScreen.main.bounds.width / 2 - 3 + 36)
+        layout.minimumLineSpacing = HomeAutoLayout.FeedCollectionView.minimumLineSpacing
+        layout.minimumInteritemSpacing = HomeAutoLayout.FeedCollectionView.minimumInteritemSpacing
+        return layout
+    }
+    
+    private func createPostDataSource() -> RxCollectionViewSectionedReloadDataSource<PostSection.Model> {
+        return RxCollectionViewSectionedReloadDataSource<PostSection.Model>(
+            configureCell: { (_, collectionView, indexPath, item) in
+                switch item {
+                case .main(let data):
+                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FeedCollectionViewCell.id, for: indexPath) as? FeedCollectionViewCell else {
+                        return UICollectionViewCell()
+                    }
+                    cell.reactor = FeedViewReactor(initialState: .init(postListData: data))
+                    return cell
+                }
+            })
+        
+    }
+    
+    private func createFamilyDataSource() -> RxCollectionViewSectionedReloadDataSource<FamilySection.Model>  {
+        return RxCollectionViewSectionedReloadDataSource<FamilySection.Model>(
+            configureCell: { (_, collectionView, indexPath, item) in
+                switch item {
+                case .main(let data):
+                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FamilyCollectionViewCell.id, for: indexPath) as? FamilyCollectionViewCell else {
+                        return UICollectionViewCell()
+                    }
+                    cell.setCell(data: data)
+                    return cell
+                }
+            })
     }
 }

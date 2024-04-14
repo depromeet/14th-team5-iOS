@@ -12,11 +12,7 @@ import Data
 import Domain
 
 public final class CalendarDIConatainer {
-    public typealias ViewController = CalendarViewController
-    public typealias UseCase = CalendarUseCaseProtocol
-    public typealias Repository = CalendarRepositoryProtocol
-    public typealias Reactor = CalendarViewReactor
-    
+    // MARK: - Properties
     private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             return GlobalStateProvider()
@@ -24,30 +20,21 @@ public final class CalendarDIConatainer {
         return appDelegate.globalStateProvider
     }
     
-    public func makeViewController() -> ViewController {
+    // MARK: - Make
+    public func makeViewController() -> CalendarViewController {
         return CalendarViewController(reactor: makeReactor())
     }
     
-    public func makeFamilyUseCase() -> SearchFamilyUseCase {
-        return SearchFamilyUseCase(searchFamilyRepository: makeFamilyRepository())
-    }
-    
-    public func makeCalendarUseCase() -> UseCase {
+    public func makeCalendarUseCase() -> CalendarUseCaseProtocol {
         return CalendarUseCase(calendarRepository: makeCalendarRepository())
     }
     
-    public func makeCalendarRepository() -> Repository {
+    public func makeCalendarRepository() -> CalendarRepositoryProtocol {
         return CalendarRepository()
     }
     
-    public func makeFamilyRepository() -> SearchFamilyRepository {
-        return FamilyAPIs.Worker()
-    }
-    
-    
-    public func makeReactor() -> Reactor {
+    public func makeReactor() -> CalendarViewReactor {
         return CalendarViewReactor(
-            familyUseCase: makeFamilyUseCase(),
             calendarUseCase: makeCalendarUseCase(),
             provider: globalState
         )

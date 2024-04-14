@@ -16,6 +16,10 @@ extension Date {
         return self.isEqual(with: Date.now)
     }
     
+    public var isBirthDay: Bool {
+        return self.isEqual([.month, .day], with: Date.now)
+    }
+    
     public var year: Int {
         return calendar.component(.year, from: self)
     }
@@ -30,6 +34,29 @@ extension Date {
 }
 
 extension Date {
+    
+    public func realativeFormatterYYMM() -> String {
+        let dateFormatter = DateFormatter()
+        let relativeDateformatter: RelativeDateTimeFormatter = RelativeDateTimeFormatter()
+        relativeDateformatter.unitsStyle = .full
+        relativeDateformatter.locale = Locale(identifier: "ko_KR")
+        relativeDateformatter.calendar = .autoupdatingCurrent
+        
+        let dateToString = relativeDateformatter.localizedString(for: self, relativeTo: Date())
+        let yearOfComponents = calendar.component(.year, from: self)
+        let dateOfComponents = calendar.component(.year, from: .now)
+        
+        if yearOfComponents != dateOfComponents {
+            dateFormatter.dateFormat = "yyyy년 M월 d일"
+            return dateFormatter.string(from: self)
+        } else {
+            dateFormatter.dateFormat = "M월 d일"
+            return dateFormatter.string(from: self)
+        }
+        
+        
+    }
+    
     public func relativeFormatter() -> String {
         let dateFormatter = DateFormatter()
         let relativeDateformatter: RelativeDateTimeFormatter = RelativeDateTimeFormatter()
@@ -45,14 +72,14 @@ extension Date {
         
         // 년도 비교 해서 다르면 yyyy mm dd로 표시
         if yearOfComponents != dateOfComponents {
-            dateFormatter.dateFormat = "yyyy년 MM월 dd일"
+            dateFormatter.dateFormat = "yyyy년 M월 dd일"
         } else {
             // 년도 같으니깐 월일 비교하고 월일도 같으면 RelativeDateTimeFormatter 로 표기
             if isEqual([.month, .day], with: Date()) {
                 return dateToString
             } else {
                 // 아니면 걍 dateformatter로 표기 return은 최종으로
-                dateFormatter.dateFormat = "MM월 dd일"
+                dateFormatter.dateFormat = "M월 dd일"
             }
         }
 
@@ -87,12 +114,16 @@ extension Date {
         }
         return dict
     }
-    
+}
+
+extension Date {
     public func toFormatString(with format: String = "yyyy-MM") -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = format
-        
+        let dateFormatter = DateFormatter.withFormat(format)
         return dateFormatter.string(from: self)
+    }
+    
+    public func toFormatString(with format: DateFormatter.Format) -> String {
+        return toFormatString(with: format.type)
     }
 }
 
@@ -107,42 +138,17 @@ extension Date {
 }
 
 extension Date {
-    public func generatePreviousNextYearMonth() -> [String] {
-        var yearMonthStrings: [String] = []
+    public func createPreviousNextDateStringArray() -> [String] {
+        var dateArray: [String] = []
         
         for month in -1...1 {
-            if let date = calendar.date(
-                byAdding: .month,
-                value: month,
-                to: self
-            ) {
-                yearMonthStrings.append(date.toFormatString())
+            if let date = calendar.date(byAdding: .month, value: month, to: self) {
+                let yyyyMM = date.toFormatString(with: .dashYyyyMM)
+                dateArray.append(yyyyMM)
             }
         }
         
-        return yearMonthStrings
-    }
-    
-    public func generateYearMonthStringsToToday() -> [String] {
-        let currentDate: Date = Date()
-        
-        var yearMonthStrings: [String] = []
-        
-        let monthInterval = self.interval(
-            [.month],
-            to: currentDate
-        )[.month]!
-        for month in 0...monthInterval {
-            if let date = calendar.date(
-                byAdding: .month,
-                value: month,
-                to: self
-            ) {
-                yearMonthStrings.append(date.toFormatString())
-            }
-        }
-        
-        return yearMonthStrings
+        return dateArray
     }
 }
 

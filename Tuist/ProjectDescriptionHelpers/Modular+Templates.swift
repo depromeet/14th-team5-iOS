@@ -19,7 +19,7 @@ public struct ModularFactory {
     var sources: SourceFilesList?
     var resources: ResourceFileElements?
     var settings: Settings?
-    var entitlements: Entitlements?
+    var entitlements:  ProjectDescription.Path?
     
     
     public init(
@@ -33,7 +33,7 @@ public struct ModularFactory {
         sources: SourceFilesList? = .default,
         resources: ResourceFileElements? = .default,
         settings: Settings? = nil,
-        entitlements: Entitlements? = nil
+        entitlements:  ProjectDescription.Path? = nil
     ) {
         self.name = name
         self.platform = platform

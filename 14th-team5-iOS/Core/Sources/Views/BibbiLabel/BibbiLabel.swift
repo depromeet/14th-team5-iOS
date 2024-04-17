@@ -10,38 +10,34 @@ import UIKit
 import DesignSystem
 
 public class BibbiLabel: UILabel {
-    // MARK: - Properties
-    public var textStyle: UIFont.BibbiFontStyle {
-        didSet {
-            updateAttributes(textStyle)
-        }
-    }
-    private var alignment: NSTextAlignment
     
+    // MARK: - Properties
     public override var text: String? {
         didSet {
-            updateAttributes()
+            setupText(text)
         }
     }
     
-    
-    public var textBibbiColor: UIColor = .bibbiWhite {
+    public var fontStyle: BibbiFontStyle {
         didSet {
-            updateAttributes()
+            setupFontStyle(fontStyle)
         }
     }
     
     // MARK: - Intializer
     public init(
-        _ style: UIFont.BibbiFontStyle,
-        alignment: NSTextAlignment = .left,
+        _ fontStyle: BibbiFontStyle,
+        textAlignment alignment: NSTextAlignment = .left,
         textColor color: UIColor = .bibbiWhite
     ) {
-        self.textStyle = style
-        self.alignment = alignment
-        self.textBibbiColor = color
+        self.fontStyle = fontStyle
+        
         super.init(frame: .zero)
-        updateAttributes()
+    
+        self.textColor = color
+        self.textAlignment = alignment
+        
+        configureBibbiFont()
     }
     
     required init?(coder: NSCoder) {
@@ -49,60 +45,35 @@ public class BibbiLabel: UILabel {
     }
 }
 
+// MARK: - Extensions
 extension BibbiLabel {
-    public func updateTextStyle(
-        _ style: UIFont.BibbiFontStyle,
-        alignment: NSTextAlignment = .left,
-        textColor color: UIColor? = nil
-    ) {
-        self.textStyle = style
-        self.alignment = alignment
-        if let color = color {
-            self.textBibbiColor = color
-        }
-        updateAttributes()
+    private func setupText(_ text: String?) {
+        self.setupAttributedString(fontStyle, text: text)
+    }
+    
+    private func setupFontStyle(_ style: BibbiFontStyle) {
+        self.font = UIFont.pretendard(style)
+    }
+    
+    private func configureBibbiFont() {
+        setupText(text)
+        setupFontStyle(fontStyle)
     }
 }
 
 extension BibbiLabel {
-    private func updateAttributes(_ textStyle: UIFont.BibbiFontStyle) {
-        let attributes = UIFont.fontAttributes(
-            textStyle,
-            textColor: textBibbiColor,
-            textAlignment: alignment
-        )
-        setupBasicAttributes(attributes)
-        setupDetailAttributes(attributes)
+    private func setupAttributedString(_ fontStlye: BibbiFontStyle) {
+        self.setupAttributedString(fontStlye, text: self.text)
     }
     
-    
-    private func updateAttributes() {
-        let attributes = UIFont.fontAttributes(
-            textStyle,
-            textColor: textBibbiColor,
-            textAlignment: alignment
-        )
-        setupBasicAttributes(attributes)
-        setupDetailAttributes(attributes)
-    }
-    
-    private func setupBasicAttributes(_ attributes: UIFont.FontAttributes) {
-        font = UIFont(
-            font: attributes.font,
-            size: attributes.size
-        )
-        textColor = attributes.color
-        textAlignment = attributes.alignment
-    }
-    
-    private func setupDetailAttributes(_ attributes: UIFont.FontAttributes) {
+    private func setupAttributedString(_ fontStyle: BibbiFontStyle, text: String?) {
+        let attr = UIFont.bibbiFontAttributes(fontStyle)
+        
         guard let text = text else { return }
-        
-        var attrString = NSMutableAttributedString(string: text)
-        attrString = setLetterSpacingAttributes(attrString, letterSpacing: attributes.letterSpacing)
-        attrString = setLineHeightPercentageAttributes(attrString, lienHiehgt: attributes.lineHeight)
-        attributedText = attrString
-        
-        textAlignment = attributes.alignment
+        let attrText = NSMutableAttributedString(string: text)
+            .letterSpacing(attr.letterSpacing)
+            .lineHeight(attr.lineHeight, font: self.font)
+        self.attributedText = attrText
     }
+    
 }

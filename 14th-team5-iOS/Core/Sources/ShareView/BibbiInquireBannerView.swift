@@ -16,8 +16,8 @@ public final class BibbiInquireBannerView: UIView {
     
     private let mainLogoView: UIImageView = UIImageView()
     private let subLogoView: UIImageView = UIImageView()
-    private let descrptionLabel: UILabel = BibbiLabel(.body1Bold, alignment: .left)
-    private let subtitleLabel: UILabel = BibbiLabel(.caption, alignment: .left)
+    private let descrptionLabel: UILabel = BibbiLabel(.body1Bold, textAlignment: .left)
+    private let subtitleLabel: UILabel = BibbiLabel(.caption, textAlignment: .left)
     private let arrowImageView: UIImageView = UIImageView()
     
     

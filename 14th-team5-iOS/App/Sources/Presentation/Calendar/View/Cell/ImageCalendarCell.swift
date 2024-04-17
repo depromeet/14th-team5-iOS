@@ -19,7 +19,7 @@ import Then
 
 final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {    
     // MARK: - Views
-    private let dayLabel: BibbiLabel = BibbiLabel(.body1Regular, alignment: .center)
+    private let dayLabel: BibbiLabel = BibbiLabel(.body1Regular, textAlignment: .center)
     private let containerView: UIView = UIView()
     private let thumbnailView: UIImageView = UIImageView()
     private let todayStrokeView: UIView = UIView()
@@ -43,7 +43,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
     }
     
     public override func prepareForReuse() {
-        dayLabel.textBibbiColor = UIColor.bibbiWhite
+        dayLabel.textColor = UIColor.bibbiWhite
         thumbnailView.image = nil
         thumbnailView.layer.borderWidth = .zero
         thumbnailView.layer.borderColor = UIColor.bibbiWhite.cgColor
@@ -71,7 +71,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
             .subscribe {
                 if $0.1 {
                     $0.0.todayStrokeView.isHidden = false
-                    $0.0.dayLabel.textBibbiColor = UIColor.mainYellow
+                    $0.0.dayLabel.textColor = UIColor.mainYellow
                 }
             }
             .disposed(by: disposeBag)
@@ -106,7 +106,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
                         
                         if reactor.currentState.date.isToday {
                             $0.0.todayStrokeView.isHidden = false
-                            $0.0.dayLabel.textBibbiColor = UIColor.mainYellow
+                            $0.0.dayLabel.textColor = UIColor.mainYellow
                         }
                     }
                 }

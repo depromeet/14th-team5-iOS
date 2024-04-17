@@ -19,11 +19,11 @@ import Then
 
 public class BibbiProfileView: UIView {
     public let profileImageView: UIImageView = UIImageView()
-    public let profileDefaultLabel: BibbiLabel = BibbiLabel(.head1, alignment: .center, textColor: .gray200)
+    public let profileDefaultLabel: BibbiLabel = BibbiLabel(.head1, textAlignment: .center, textColor: .gray200)
     public let circleButton: UIButton = UIButton.createCircleButton(radius: 15)
     public let birthDayView: UIImageView = UIImageView()
     public let profileNickNameButton: UIButton = UIButton()
-    public let profileCreateLabel: UILabel = BibbiLabel(.caption, alignment: .center ,textColor: .gray400)
+    public let profileCreateLabel: UILabel = BibbiLabel(.caption, textAlignment: .center ,textColor: .gray400)
     
     
     public var isSetting: Bool = false {

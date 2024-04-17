@@ -14,8 +14,8 @@ import SnapKit
 final class NoCommentLabel: UIView {
     // MARK: - Views
     private let labelStack: UIStackView = UIStackView()
-    private let mainLabel: BibbiLabel = BibbiLabel(.body1Bold, alignment: .center)
-    private let subLabel: BibbiLabel = BibbiLabel(.body2Regular, alignment: .center, textColor: .gray500)
+    private let mainLabel: BibbiLabel = BibbiLabel(.body1Bold, textAlignment: .center)
+    private let subLabel: BibbiLabel = BibbiLabel(.body2Regular, textAlignment: .center, textColor: .gray500)
     
     // MARK: - Intializer
     override init(frame: CGRect) {

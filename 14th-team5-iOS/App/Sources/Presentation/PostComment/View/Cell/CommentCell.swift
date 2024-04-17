@@ -17,7 +17,7 @@ import Then
 final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     // MARK: - Views
     private let containerView: UIView = UIView()
-    private let firstNameLabel: UILabel = BibbiLabel(.head2Bold, alignment: .center, textColor: .bibbiWhite)
+    private let firstNameLabel: UILabel = BibbiLabel(.head2Bold, textAlignment: .center)
     private let profileImageView: UIImageView = UIImageView()
     private let profileButton: UIButton = UIButton()
     

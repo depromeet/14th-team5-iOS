@@ -49,8 +49,8 @@ public final class BibbiSegmentedControl: UIView {
     
     survivalButton.do {
       $0.configuration = .plain()
+      $0.configuration?.baseForegroundColor = .bibbiBlack
       $0.configuration?.attributedTitle = AttributedString(NSAttributedString(string: "생존", attributes: [
-        .foregroundColor: UIColor(red: 19/255, green: 19/255, blue: 19/255, alpha: 1.0),
         .font: UIFont.pretendard(.body2Bold),
       ]))
       $0.backgroundColor = .gray100
@@ -60,10 +60,9 @@ public final class BibbiSegmentedControl: UIView {
     
     
     missionButton.do {
-      let imageSize = CGSize(width: 16, height: 16)
       $0.configuration = .plain()
+      $0.configuration?.baseForegroundColor = .bibbiBlack
       $0.configuration?.attributedTitle = AttributedString(NSAttributedString(string: "미션", attributes: [
-        .foregroundColor: DesignSystemAsset.black.color,
         .font: UIFont.pretendard(.body2Bold),
       ]))
       $0.configuration?.imagePlacement = .trailing
@@ -92,6 +91,8 @@ public final class BibbiSegmentedControl: UIView {
   private func updateSegmentedLayout(type: BibbiSegmentedType) {
     survivalButton.backgroundColor = type == .survival ? .gray100 : .clear
     missionButton.backgroundColor = type == .mission ? .gray100 : .clear
+    survivalButton.configuration?.baseForegroundColor = type == .survival ? .bibbiBlack : .gray500
+    missionButton.configuration?.baseForegroundColor = type == .mission ? .bibbiBlack : .gray500
   }
 }
 

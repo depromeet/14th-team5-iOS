@@ -19,8 +19,8 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<FeedViewReactor> {
     static let id = "FeedCollectionViewCell"
     
     private let stackView = UIStackView()
-    private let nameLabel = BibbiLabel(.body2Regular, alignment: .left, textColor: .gray200)
-    private let timeLabel = BibbiLabel(.caption, alignment: .right, textColor: .gray400)
+    private let nameLabel = BibbiLabel(.body2Regular, textAlignment: .left, textColor: .gray200)
+    private let timeLabel = BibbiLabel(.caption, textAlignment: .right, textColor: .gray400)
     private let imageView = UIImageView(image: DesignSystemAsset.emptyCaseGraphicEmoji.image)
     
     override func bind(reactor: FeedViewReactor) {

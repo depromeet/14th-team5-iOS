@@ -20,7 +20,7 @@ import Then
 fileprivate typealias _Str = AccountSignUpStrings.Profile
 final class AccountProfileViewController: BaseViewController<AccountSignUpReactor> {
     // MARK: SubViews
-    private let titleLabel = BibbiLabel(.head2Bold, alignment: .center, textColor: .gray300)
+    private let titleLabel = BibbiLabel(.head2Bold, textAlignment: .center, textColor: .gray300)
     private let profileButton = UIButton()
     
     private var pickerConfiguration: PHPickerConfiguration = {

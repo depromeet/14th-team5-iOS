@@ -21,7 +21,7 @@ import Then
 final class CalendarPageCell: BaseCollectionViewCell<CalendarPageCellReactor> {
     // MARK: - Views
     private lazy var labelStack: UIStackView = UIStackView()
-    private let calendarTitleLabel: BibbiLabel = BibbiLabel(.head2Bold, alignment: .center, textColor: .gray200)
+    private let calendarTitleLabel: BibbiLabel = BibbiLabel(.head2Bold, textAlignment: .center, textColor: .gray200)
     private let memoryCountLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray200)
     private let infoButton: UIButton = UIButton(type: .system)
     

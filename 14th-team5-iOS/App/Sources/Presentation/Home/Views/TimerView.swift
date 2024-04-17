@@ -49,8 +49,8 @@ fileprivate extension TimerType {
 
 final class TimerView: BaseView<TimerReactor> {
     private let dividerView: UIView = UIView()
-    private let timerLabel: BibbiLabel = BibbiLabel(.head1, alignment: .center)
-    private let descriptionLabel: BibbiLabel = BibbiLabel(.body2Regular, alignment: .center, textColor: .gray300)
+    private let timerLabel: BibbiLabel = BibbiLabel(.head1, textAlignment: .center)
+    private let descriptionLabel: BibbiLabel = BibbiLabel(.body2Regular, textAlignment: .center, textColor: .gray300)
     private let imageView: UIImageView = UIImageView()
   
     override init(frame: CGRect) {
@@ -133,8 +133,8 @@ extension TimerView {
 extension TimerView {
     private func setCell(type: TimerType) {
         descriptionLabel.text = type.title
-        descriptionLabel.textBibbiColor = type.descTextColor
-        timerLabel.textBibbiColor = type.timerTextColor
+        descriptionLabel.textColor = type.descTextColor
+        timerLabel.textColor = type.timerTextColor
         imageView.image = type.image
     }
 }

@@ -15,7 +15,7 @@ import RxSwift
 final class ProfileView: UIView {
     typealias Layout = HomeAutoLayout.ProfileView
     
-    private let defaultNameLabel = BibbiLabel(.head1, alignment: .center, textColor: .gray200)
+    private let defaultNameLabel = BibbiLabel(.head1, textAlignment: .center, textColor: .gray200)
     private let imageView = UIImageView()
     private let nameLabel = UILabel()
     

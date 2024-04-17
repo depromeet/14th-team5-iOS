@@ -19,7 +19,7 @@ import Then
 public final class DisplayEditCollectionViewCell: BaseCollectionViewCell<DisplayEditCellReactor> {
     static let id = "DisplayEditCollectionViewCell"
 
-    private var descriptionLabel: BibbiLabel = BibbiLabel(.head1, alignment: .center)
+    private var descriptionLabel: BibbiLabel = BibbiLabel(.head1, textAlignment: .center)
     private let blurContainerView: UIVisualEffectView = UIVisualEffectView.makeBlurView(style: .dark)
     
     
@@ -72,7 +72,7 @@ public final class DisplayEditCollectionViewCell: BaseCollectionViewCell<Display
         reactor.state
             .map { $0.font }
             .distinctUntilChanged()
-            .bind(to: descriptionLabel.rx.textStyle)
+            .bind(to: descriptionLabel.rx.fontStyle)
             .disposed(by: disposeBag)
     }
 }

@@ -15,7 +15,7 @@ final class FamilyCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
     typealias Layout = HomeAutoLayout.ProfileView
     static let id: String = "familyCollectionViewCell"
     
-    private let defaultNameLabel = BibbiLabel(.head1, alignment: .center, textColor: .gray200)
+    private let defaultNameLabel = BibbiLabel(.head1, textAlignment: .center, textColor: .gray200)
     private let imageView = UIImageView()
     private let nameLabel = UILabel()
     private let rankBadge = UIImageView()

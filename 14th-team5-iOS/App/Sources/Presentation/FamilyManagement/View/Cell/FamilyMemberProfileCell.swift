@@ -17,7 +17,7 @@ import Then
 final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellReactor> {    
     // MARK: - Views
     private let containerView: UIView = UIView()
-    private let firstNameLabel: BibbiLabel = BibbiLabel(.head2Bold, alignment: .center, textColor: .gray200)
+    private let firstNameLabel: BibbiLabel = BibbiLabel(.head2Bold, textAlignment: .center, textColor: .gray200)
     private let profileImageView: UIImageView = UIImageView()
     private let dayOfBirthBadgeView: UIImageView = UIImageView()
     

@@ -23,8 +23,8 @@ final public class BibbiFetchFailureView: UIView {
     // MARK: - Views
     private let emptyImageView: UIImageView = UIImageView()
     private let labelStack: UIStackView = UIStackView()
-    private let mainLabel: BibbiLabel = BibbiLabel(.body1Regular, alignment: .center, textColor: .gray300)
-    private let subLabel: BibbiLabel = BibbiLabel(.body2Regular, alignment: .center, textColor: .gray500)
+    private let mainLabel: BibbiLabel = BibbiLabel(.body1Regular, textAlignment: .center, textColor: .gray300)
+    private let subLabel: BibbiLabel = BibbiLabel(.body2Regular, textAlignment: .center, textColor: .gray500)
     
     // MARK: - Properties
     private var type: FailureType?

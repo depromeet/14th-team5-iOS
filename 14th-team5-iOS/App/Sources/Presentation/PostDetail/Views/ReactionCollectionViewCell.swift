@@ -20,7 +20,7 @@ final class ReactionCollectionViewCell: BaseCollectionViewCell<TempCellReactor> 
     
     private let emojiImageView = UIImageView()
     private let badgeView = UIImageView()
-    private let countLabel = BibbiLabel(.body2Regular, alignment: .left)
+    private let countLabel = BibbiLabel(.body2Regular, textAlignment: .left)
     
     convenience init(reacter: TempCellReactor? = nil) {
         self.init(frame: .zero)
@@ -118,12 +118,12 @@ extension ReactionCollectionViewCell {
     private func setSelected(isSelected: Bool) {
         self.isSelected = isSelected
         if isSelected {
-            countLabel.textBibbiColor = .mainYellow
+            countLabel.textColor = .mainYellow
             layer.borderColor = UIColor.mainYellow.cgColor
             layer.borderWidth = 1
         } else {
             layer.borderWidth = 0
-            countLabel.textBibbiColor = .gray300
+            countLabel.textColor = .gray300
         }
     }
 }

@@ -11,7 +11,7 @@ import UIKit
 public enum BibbiAlertStyle {
     case missionKey
     case takeSurvival
-    case pickMember
+    case pickMember(String)
     
     var mainTitle: String {
         switch self {
@@ -30,8 +30,8 @@ public enum BibbiAlertStyle {
             return "열쇠를 획득해 잠금이 해제되었어요.\n미션 사진을 찍을 수 있어요!"
         case .takeSurvival:
             return "미션 사진을 올리려면\n생존신고 사진을 먼저 업로드해야해요."
-        case .pickMember:
-            return "[닉네임]님의 생존 여부를 물어볼까요?\n지금 알림이 전송됩니다."
+        case let .pickMember(name):
+            return "\(name)님의 생존 여부를 물어볼까요?\n지금 알림이 전송됩니다."
         }
     }
     

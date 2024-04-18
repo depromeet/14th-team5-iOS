@@ -21,6 +21,12 @@ public final class BibbiAlertBuilder {
     private var confirmAction: BibbiAlertAction?
     private var cancelAction: BibbiAlertAction?
     
+    private var alertStyle: BibbiAlertStyle? {
+        didSet {
+            configureAlertStlye()
+        }
+    }
+    
     // MARK: - Intializer
     public init(_ baseViewController: UIViewController?) {
         self.baseViewController = baseViewController
@@ -28,12 +34,12 @@ public final class BibbiAlertBuilder {
     
     // MARK: - Helpers
     public func setMainTitle(
-        _ text: String,
+        _ text: String? = nil,
         textColor: UIColor = .gray100,
         fontStyle: BibbiFontStyle = .head2Bold
     ) -> Self {
         mainTitle = BibbiAlertTitle(
-            text: text,
+            text: text != nil ? text : alertStyle?.mainTitle,
             textColor: textColor,
             fontStyle: fontStyle
         )
@@ -41,32 +47,32 @@ public final class BibbiAlertBuilder {
     }
     
     public func setSubTitle(
-        _ text: String,
+        _ text: String? = nil,
         textColor: UIColor = .gray300,
         fontStyle: BibbiFontStyle = .body2Regular
     ) -> Self {
         subTitle = BibbiAlertTitle(
-            text: text,
+            text: text != nil ? text : alertStyle?.subTitle,
             textColor: textColor,
             fontStyle: fontStyle
         )
         return self
     }
     
-    public func setImage(_ designSystemImage: DesignSystemImages.Image) -> Self {
-        image = designSystemImage
+    public func setImage(_ designSystemImage: DesignSystemImages.Image? = nil) -> Self {
+        image = (designSystemImage != nil ? designSystemImage : alertStyle?.image)
         return self
     }
     
     public func setConfirmAction(
-        _ text: String,
+        _ text: String? = nil,
         textColor: UIColor = .bibbiBlack,
         backgroundColor: UIColor = .mainYellow,
         fontStyle: BibbiFontStyle = .body1Bold,
         action: Action = nil
     ) -> Self {
         confirmAction = BibbiAlertAction(
-            text: text,
+            text: text != nil ? text : alertStyle?.confirmText,
             textColor: textColor,
             backgroundColor: backgroundColor,
             fontStlye: fontStyle,
@@ -76,14 +82,14 @@ public final class BibbiAlertBuilder {
     }
     
     public func setCancelAction(
-        _ text: String,
+        _ text: String? = nil,
         textColor: UIColor = .gray400,
         backgroundColor: UIColor = .gray700,
         fontStyle: BibbiFontStyle = .body1Bold,
         action: Action = nil
     ) -> Self {
         cancelAction = BibbiAlertAction(
-            text: text,
+            text: text != nil ? text : alertStyle?.cancelText,
             textColor: textColor,
             backgroundColor: backgroundColor,
             fontStlye: fontStyle,
@@ -94,6 +100,7 @@ public final class BibbiAlertBuilder {
     
     
     public func alertStyle(_ style: BibbiAlertStyle) -> Self {
+        alertStyle = style
         return self
     }
     
@@ -112,5 +119,15 @@ public final class BibbiAlertBuilder {
         return self
     }
     
-    
+}
+
+// MARK: - Extensions
+extension BibbiAlertBuilder {
+    private func configureAlertStlye() {
+        setSubTitle()
+        setMainTitle()
+        setImage()
+        setConfirmAction()
+        setCancelAction()
+    }
 }

@@ -145,10 +145,6 @@ public final class BibbiAlertViewController: UIViewController {
             $0.height.equalTo(40)
         }
         
-//        imageView.snp.makeConstraints {
-//            $0.height.equalTo(151)
-//        }
-        
         confirmButton.snp.makeConstraints {
             $0.height.equalTo(45)
         }
@@ -216,15 +212,13 @@ public final class BibbiAlertViewController: UIViewController {
 extension BibbiAlertViewController {
     
     @objc func didTapConfirmAction(_ sender: UIButton) {
-        confirmAction?.action?(self)
+        self.dismiss(animated: true)
+        confirmAction?.action?()
     }
     
     @objc func didTapCancelAction(_ sender: UIButton) {
-        if let action = cancelAction?.action {
-            action(self)
-        } else {
-            self.dismiss(animated: true)
-        }
+        self.dismiss(animated: true)
+        cancelAction?.action?()
     }
     
 }

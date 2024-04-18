@@ -7,7 +7,7 @@
 
 import UIKit
 
-public typealias Action = ((BibbiAlertViewController) -> Void)?
+public typealias Action = (() -> Void)?
 struct BibbiAlertAction {
     var text: String?
     var textColor: UIColor?

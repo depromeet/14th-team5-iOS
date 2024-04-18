@@ -132,23 +132,6 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
 
 extension HomeViewController {
     private func bindInput(reactor: HomeViewReactor) {
-        
-        // Alert Test
-        Observable<Void>.just(())
-            .delay(.seconds(1), scheduler: Schedulers.main)
-            .bind(with: self) { owner, _ in
-                BibbiAlertBuilder(owner)
-                    .setMainTitle("미션 열쇠 획득!")
-                    .setSubTitle("열쇠를 획득해 잠금이 해제되었어요.\n미션 사진을 찍을 수 있어요!")
-                    .setImage(DesignSystemAsset.emoji.image)
-                    .setConfirmAction("미션 사진 찍기")
-                    .setCancelAction("닫기")
-                    .present(animated: true)
-            }
-            .disposed(by: disposeBag)
-        
-        
-        
         postCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
 

@@ -21,8 +21,8 @@ public final class BibbiAlertViewController: UIViewController {
     private var mainTitleLabel: BibbiLabel = BibbiLabel(.body2Regular)
     private var imageView: UIImageView = UIImageView()
     private var buttonStackView: UIStackView = UIStackView()
-    private var confirmButton: UIButton = UIButton(type: .system)
-    private var cancelButton: UIButton = UIButton(type: .system)
+    private var confirmButton: BibbiButton = BibbiButton(type: .system)
+    private var cancelButton: BibbiButton = BibbiButton(type: .system)
     
     // MARK: - Properties
     var subTitle: BibbiAlertTitle? {
@@ -51,8 +51,8 @@ public final class BibbiAlertViewController: UIViewController {
                 confirmAction?.text,
                 for: .normal
             )
-            confirmButton.titleLabel?.font = UIFont.pretendard(
-                confirmAction?.fontStlye ?? .body1Bold
+            confirmButton.setFontStyle(
+                confirmAction?.fontStlye ?? .body1Regular
             )
             confirmButton.setTitleColor(
                 confirmAction?.textColor,
@@ -76,8 +76,8 @@ public final class BibbiAlertViewController: UIViewController {
                 cancelAction?.text,
                 for: .normal
             )
-            cancelButton.titleLabel?.font = UIFont.pretendard(
-                confirmAction?.fontStlye ?? .body1Bold
+            cancelButton.setFontStyle(
+                cancelAction?.fontStlye ?? .body1Regular
             )
             cancelButton.setTitleColor(
                 cancelAction?.textColor,

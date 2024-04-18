@@ -25,6 +25,7 @@ public final class ProfileViewReactor: Reactor {
         case fetchMorePostItems(Bool)
         case didSelectPHAssetsImage(Data)
         case didTapInitProfile
+        case didTapSegementControl(BibbiSegmentedType)
         case didTapProfilePost(IndexPath, [ProfilePostResultResponse])
     }
     
@@ -34,6 +35,7 @@ public final class ProfileViewReactor: Reactor {
         case setFeedCategroySection([ProfileFeedSectionItem])
         case setFeedResultItems([ProfilePostResultResponse])
         case setProfileMemberItems(ProfileMemberResponse?)
+        case setProfileFeedType(BibbiSegmentedType)
         case setProfilePostItems(ProfilePostResponse)
         case setProfileData(PostSection.Model, IndexPath)
     }
@@ -42,6 +44,7 @@ public final class ProfileViewReactor: Reactor {
         var isLoading: Bool
         var memberId: String
         var isUser: Bool
+        var feedType: BibbiSegmentedType
         @Pulse var profileData: PostSection.Model
         @Pulse var selectedIndexPath: IndexPath?
         @Pulse var feedResultItem: [ProfilePostResultResponse]
@@ -59,6 +62,7 @@ public final class ProfileViewReactor: Reactor {
             isLoading: false,
             memberId: memberId,
             isUser: isUser,
+            feedType: .survival,
             profileData: PostSection.Model(
                 model: 0, items: []
             ),
@@ -259,6 +263,14 @@ public final class ProfileViewReactor: Reactor {
                 )
             }
             return .just(.setProfileData(postSection, indexPath))
+          
+          
+        case let .didTapSegementControl(feedType):
+          return .concat(
+            .just(.setLoading(false)),
+            .just(.setProfileFeedType(feedType)),
+            .just(.setLoading(true))
+          )
         }
     }
     
@@ -287,6 +299,8 @@ public final class ProfileViewReactor: Reactor {
             
         case let .setFeedResultItems(feedResultItem):
             newState.feedResultItem = feedResultItem
+        case let .setProfileFeedType(feedType):
+            newState.feedType = feedType
         }
         
         return newState

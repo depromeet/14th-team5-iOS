@@ -8,8 +8,9 @@
 import UIKit
 
 extension NSMutableAttributedString {
-    public func lineHeight(_ height: CGFloat, font: UIFont) -> Self {
+    public func paragraphStyle(_ alignment: NSTextAlignment, height: CGFloat, font: UIFont) -> Self {
         let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = alignment
         paragraph.lineSpacing = (font.lineHeight - font.pointSize) * height
         self.addAttribute(
             NSAttributedString.Key.paragraphStyle,

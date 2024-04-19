@@ -22,3 +22,9 @@ extension UIButton {
     }
     
 }
+
+extension UIButton {
+    public func setBackgroundColor(_ backgroundColor: UIColor, for state: UIControl.State) {
+        self.setBackgroundImage(.pixel(of: backgroundColor), for: state)
+    }
+}

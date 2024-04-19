@@ -51,7 +51,7 @@ public final class BibbiAlertViewController: UIViewController {
                 confirmAction?.text,
                 for: .normal
             )
-            confirmButton.setFontStyle(
+            confirmButton.setTitleFontStyle(
                 confirmAction?.fontStlye ?? .body1Regular
             )
             confirmButton.setTitleColor(
@@ -76,7 +76,7 @@ public final class BibbiAlertViewController: UIViewController {
                 cancelAction?.text,
                 for: .normal
             )
-            cancelButton.setFontStyle(
+            cancelButton.setTitleFontStyle(
                 cancelAction?.fontStlye ?? .body1Regular
             )
             cancelButton.setTitleColor(
@@ -160,6 +160,8 @@ public final class BibbiAlertViewController: UIViewController {
         containerView.do {
             $0.backgroundColor = UIColor.bibbiBlack
             $0.layer.cornerRadius = 16
+            $0.layer.masksToBounds = true
+            $0.layer.cornerCurve = .continuous
         }
         
         alertStackView.do {
@@ -199,11 +201,13 @@ public final class BibbiAlertViewController: UIViewController {
         confirmButton.do {
             $0.layer.cornerRadius = 10
             $0.layer.masksToBounds = true
+            $0.layer.cornerCurve = .continuous
         }
         
         cancelButton.do {
             $0.layer.cornerRadius = 10
             $0.layer.masksToBounds = true
+            $0.layer.cornerCurve = .continuous
         }
     }
 }

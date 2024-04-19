@@ -26,7 +26,7 @@ public class BibbiLabel: UILabel {
     
     // MARK: - Intializer
     public init(
-        _ fontStyle: BibbiFontStyle,
+        _ fontStyle: BibbiFontStyle = .body1Regular,
         textAlignment alignment: NSTextAlignment = .left,
         textColor color: UIColor = .bibbiWhite
     ) {

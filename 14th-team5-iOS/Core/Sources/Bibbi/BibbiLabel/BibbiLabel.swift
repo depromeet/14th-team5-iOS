@@ -13,15 +13,11 @@ public class BibbiLabel: UILabel {
     
     // MARK: - Properties
     public override var text: String? {
-        didSet {
-            setupText(text)
-        }
+        didSet { setupText() }
     }
     
     public var fontStyle: BibbiFontStyle {
-        didSet {
-            setupFontStyle(fontStyle)
-        }
+        didSet { setupFontStyle() }
     }
     
     // MARK: - Intializer
@@ -37,7 +33,7 @@ public class BibbiLabel: UILabel {
         self.textColor = color
         self.textAlignment = alignment
         
-        configureBibbiFont()
+        configureFontAttributes()
     }
     
     required init?(coder: NSCoder) {
@@ -47,33 +43,22 @@ public class BibbiLabel: UILabel {
 
 // MARK: - Extensions
 extension BibbiLabel {
-    private func setupText(_ text: String?) {
-        self.setupAttributedString(fontStyle, text: text)
-    }
-    
-    private func setupFontStyle(_ style: BibbiFontStyle) {
-        self.font = UIFont.pretendard(style)
-    }
-    
-    private func configureBibbiFont() {
-        setupText(text)
-        setupFontStyle(fontStyle)
-    }
-}
-
-extension BibbiLabel {
-    private func setupAttributedString(_ fontStlye: BibbiFontStyle) {
-        self.setupAttributedString(fontStlye, text: self.text)
-    }
-    
-    private func setupAttributedString(_ fontStyle: BibbiFontStyle, text: String?) {
+    private func setupText() {
         let attr = UIFont.bibbiFontAttributes(fontStyle)
         
         guard let text = text else { return }
         let attrText = NSMutableAttributedString(string: text)
             .letterSpacing(attr.letterSpacing)
-            .lineHeight(attr.lineHeight, font: self.font)
+            .paragraphStyle(textAlignment, height: attr.lineHeight, font: font)
         self.attributedText = attrText
     }
     
+    private func setupFontStyle() {
+        self.font = UIFont.pretendard(fontStyle)
+    }
+    
+    private func configureFontAttributes() {
+        setupText()
+        setupFontStyle()
+    }
 }

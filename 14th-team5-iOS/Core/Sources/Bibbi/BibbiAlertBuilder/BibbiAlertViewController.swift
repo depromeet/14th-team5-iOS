@@ -17,8 +17,8 @@ public final class BibbiAlertViewController: UIViewController {
     private var containerView: UIView = UIView()
     private var alertStackView: UIStackView = UIStackView()
     private var labelStackView: UIStackView = UIStackView()
-    private var subTitleLabel: BibbiLabel = BibbiLabel(.head2Bold)
-    private var mainTitleLabel: BibbiLabel = BibbiLabel(.body2Regular)
+    private var subTitleLabel: BibbiLabel = BibbiLabel(.head2Bold, textAlignment: .center)
+    private var mainTitleLabel: BibbiLabel = BibbiLabel(.body2Regular, textAlignment: .center)
     private var imageView: UIImageView = UIImageView()
     private var buttonStackView: UIStackView = UIStackView()
     private var confirmButton: BibbiButton = BibbiButton(type: .system)
@@ -178,12 +178,12 @@ public final class BibbiAlertViewController: UIViewController {
             $0.distribution = .fillProportionally
         }
         
-        mainTitleLabel.do {
-            $0.textAlignment = .center
-        }
+//        mainTitleLabel.do {
+//            $0.textAlignment = .center
+//        }
         
         subTitleLabel.do {
-            $0.textAlignment = .center
+//            $0.textAlignment = .center
             $0.numberOfLines = 0
         }
         

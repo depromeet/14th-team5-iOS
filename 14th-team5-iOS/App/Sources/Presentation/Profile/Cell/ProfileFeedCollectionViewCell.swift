@@ -22,6 +22,7 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
     private let feedStackView: UIStackView = UIStackView()
     private let feedContentStackView: UIStackView = UIStackView()
     private let feedEmojiIconView: UIImageView = UIImageView()
+    private let feedBadgeImageView: UIImageView = UIImageView()
     private let feedEmojiCountLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray200)
     private let feedCommentImageView: UIImageView = UIImageView()
     private let feedCommentCountLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray200)
@@ -50,7 +51,7 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
         super.setupUI()
         feedContentStackView.addArrangedSubviews(feedEmojiIconView , feedEmojiCountLabel, feedCommentImageView, feedCommentCountLabel)
         feedStackView.addArrangedSubviews(feedContentStackView, feedUplodeLabel)
-        feedImageView.addSubviews(descrptionCollectionView)
+        feedImageView.addSubviews(feedBadgeImageView, descrptionCollectionView)
         contentView.addSubviews(feedImageView, feedStackView)
         
         
@@ -62,6 +63,10 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
             $0.layer.cornerRadius = 24
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
+        }
+      
+        feedBadgeImageView.do {
+          $0.contentMode = .scaleAspectFill
         }
         
         feedEmojiIconView.do {
@@ -164,7 +169,11 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
             .withUnretained(self)
             .bind(onNext: { $0.0.setupProfileFeedImage($0.1)})
             .disposed(by: disposeBag)
-
+      
+        reactor.state
+          .map { $0.feedType == "MISSION" ? false : true }
+          .bind(to: feedBadgeImageView.rx.isHidden)
+          .disposed(by: disposeBag)
         
         reactor.state
             .map { $0.date }

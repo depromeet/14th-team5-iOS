@@ -11,20 +11,12 @@ import DesignSystem
 import SnapKit
 import Then
 
-/// MARK:  API 호출 Paramers 사용 용도
-public enum BibbiSegmentedType: String {
-  case survival = "SURVIVAL"
-  case mission = "MISSION"
-}
-
 // MARK: BibbiSegmentedControl
 public final class BibbiSegmentedControl: UIView {
-  
-  
   //MARK: Property
   public let survivalButton: UIButton = UIButton()
   public let missionButton: UIButton = UIButton()
-  public var isSelected: BibbiSegmentedType = .survival {
+  public var isSelected: Bool = true {
     didSet {
       updateSegmentedLayout(type: isSelected)
     }
@@ -88,11 +80,11 @@ public final class BibbiSegmentedControl: UIView {
     }
   }
   
-  private func updateSegmentedLayout(type: BibbiSegmentedType) {
-    survivalButton.backgroundColor = type == .survival ? .gray100 : .clear
-    missionButton.backgroundColor = type == .mission ? .gray100 : .clear
-    survivalButton.configuration?.baseForegroundColor = type == .survival ? .bibbiBlack : .gray500
-    missionButton.configuration?.baseForegroundColor = type == .mission ? .bibbiBlack : .gray500
+  private func updateSegmentedLayout(type: Bool) {
+    survivalButton.backgroundColor = type == true ? .gray100 : .clear
+    missionButton.backgroundColor = type == false ? .gray100 : .clear
+    survivalButton.configuration?.baseForegroundColor = type == true ? .bibbiBlack : .gray500
+    missionButton.configuration?.baseForegroundColor = type == false ? .bibbiBlack : .gray500
   }
 }
 

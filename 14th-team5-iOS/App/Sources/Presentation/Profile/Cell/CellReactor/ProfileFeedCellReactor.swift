@@ -20,6 +20,7 @@ public final class ProfileFeedCellReactor: Reactor {
         var date: String
         var commentCount: String
         var content: [String]
+        var feedType: String?
         @Pulse var descrptionSection: [ProfileFeedDescrptionSectionModel] = [.feedDescrption([])]
     }
     
@@ -43,7 +44,8 @@ public final class ProfileFeedCellReactor: Reactor {
             emojiCount: emojiCount,
             date: date,
             commentCount: commentCount,
-            content: content
+            content: content,
+            feedType: nil
         )
     }
     

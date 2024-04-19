@@ -34,8 +34,10 @@ public struct ProfilePostResultResponse {
     public var imageUrl: URL
     public var content: String
     public var createdAt: String
+    public var missionId: String
+    public var missionType: String
     
-    public init(postId: String, authorId: String, commentCount: String, emojiCount: String, imageUrl: URL, content: String, createdAt: String) {
+    public init(postId: String, authorId: String, commentCount: String, emojiCount: String, imageUrl: URL, content: String, createdAt: String, missionId: String, missionType: String) {
         self.postId = postId
         self.authorId = authorId
         self.commentCount = commentCount
@@ -43,5 +45,7 @@ public struct ProfilePostResultResponse {
         self.imageUrl = imageUrl
         self.content = content
         self.createdAt = createdAt
+        self.missionId = missionId
+        self.missionType = missionType
     }
 }

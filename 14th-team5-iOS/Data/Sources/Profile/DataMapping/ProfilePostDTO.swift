@@ -17,19 +17,37 @@ public struct ProfilePostDTO: Decodable {
     public var itemPerPage: Int
     public var hasNext: Bool
     public var results: [ProfilePostResponseDTO]
+    
+  
+  public enum CodingKeys: String, CodingKey {
+    case currentPage, totalPage, itemPerPage
+    case hasNext
+    case results
+  }
+  
 }
 
 extension ProfilePostDTO {
-    public struct ProfilePostResponseDTO: Decodable {
-        public var postId: String
-        public var authorId: String
-        public var commentCount: Int
-        public var emojiCount: Int
-        public var imageUrl: String
-        public var content: String
-        public var createdAt: String
-    }
     
+  public struct ProfilePostResponseDTO: Decodable {
+    public var postId: String
+    public var authorId: String
+    public var commentCount: Int
+    public var emojiCount: Int
+    public var imageUrl: String
+    public var content: String
+    public var createdAt: String
+    public var missionId: String?
+    public var missionType: String?
+    
+    
+    public enum CodingKeys: String, CodingKey {
+      case postId, authorId, content, imageUrl, createdAt, missionId
+      case commentCount, emojiCount
+      case missionType = "type"
+    }
+  }
+  
 }
 
 
@@ -54,7 +72,9 @@ extension ProfilePostDTO.ProfilePostResponseDTO {
             emojiCount: "\(emojiCount)",
             imageUrl: URL(string: imageUrl) ?? URL(fileURLWithPath: ""),
             content: content,
-            createdAt: createdAt
+            createdAt: createdAt,
+            missionId: missionId ?? "",
+            missionType: missionType ?? ""
         )
     }
 }

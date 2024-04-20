@@ -60,7 +60,7 @@ public class FamilyUserDefaults {
     
     public static func saveFamilyMembers(_ familyMembers: [ProfileData]) {
         saveMemberIdToUserDefaults(memberIds: familyMembers.map { $0.memberId })
-        saveDayOfBirths(dateOfBirths: familyMembers.map { $0.dayOfBirth })
+        saveDayOfBirths(dateOfBirths: familyMembers.map { $0.dayOfBirth ?? Date() })
         familyMembers.forEach {
             saveMemberToUserDefaults(familyMember: $0)
         }

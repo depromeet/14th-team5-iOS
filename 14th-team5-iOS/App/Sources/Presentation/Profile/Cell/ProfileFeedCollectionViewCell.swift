@@ -66,6 +66,7 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
         }
       
         feedBadgeImageView.do {
+          $0.image = DesignSystemAsset.missionBadge.image
           $0.contentMode = .scaleAspectFill
         }
         
@@ -131,6 +132,12 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
             $0.top.horizontalEdges.equalToSuperview()
             $0.height.equalTo(self.snp.width)
         }
+      
+        feedBadgeImageView.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(12)
+            $0.left.equalToSuperview().offset(12)
+            $0.width.height.equalTo(24)
+        }
         
         descrptionCollectionView.snp.makeConstraints {
             $0.bottom.equalToSuperview().offset(-10)
@@ -171,7 +178,7 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
             .disposed(by: disposeBag)
       
         reactor.state
-          .map { $0.feedType == "MISSION" ? false : true }
+          .map { $0.feedType == "mission" ? false : true }
           .bind(to: feedBadgeImageView.rx.isHidden)
           .disposed(by: disposeBag)
         

@@ -16,19 +16,23 @@ public final class BibbiSegmentedControl: UIView {
   //MARK: Property
   public let survivalButton: UIButton = UIButton()
   public let missionButton: UIButton = UIButton()
+  
+  public var isUpdated: Bool
   public var isSelected: Bool = true {
     didSet {
       updateSegmentedLayout(type: isSelected)
     }
   }
   
-  public override init(frame: CGRect) {
-    super.init(frame: frame)
+  public init(isUpdated: Bool) {
+    self.isUpdated = isUpdated
+    super.init(frame: .zero)
+    
     setupUI()
     setupAttributes()
     setupAutoLayout()
   }
-  
+
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
@@ -57,6 +61,11 @@ public final class BibbiSegmentedControl: UIView {
       $0.configuration?.attributedTitle = AttributedString(NSAttributedString(string: "미션", attributes: [
         .font: UIFont.pretendard(.body2Bold),
       ]))
+      
+      $0.configurationUpdateHandler = { [weak self] in
+        guard let self = self else { return }
+        $0.configuration?.image = self.isUpdated ? nil : DesignSystemAsset.mission.image
+      }
       $0.configuration?.imagePlacement = .trailing
       $0.configuration?.imagePadding = 4
       $0.configuration?.image = DesignSystemAsset.mission.image

@@ -42,7 +42,7 @@ final public class FamilyMemberProfileCellReactor: Reactor {
             memberId: memberResponse.memberId,
             name: memberResponse.name,
             imageUrl: memberResponse.profileImageURL,
-            dayOfBirth: memberResponse.dayOfBirth,
+            dayOfBirth: memberResponse.dayOfBirth ?? Date(),
             isMe: isMe
         )
     }

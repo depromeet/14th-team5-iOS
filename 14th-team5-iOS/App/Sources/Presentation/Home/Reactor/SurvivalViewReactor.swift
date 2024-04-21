@@ -25,15 +25,18 @@ final class SurvivalViewReactor: Reactor {
     }
     
     struct State {
+        let type: PostType
+        
         @Pulse var isRefreshEnd: Bool = true
         @Pulse var postSection: PostSection.Model = PostSection.Model(model: 0, items: [])
         var isShowingNoPostTodayView: Bool = false
     }
     
-    let initialState: State = State()
+    let initialState: State
     private let postUseCase: PostListUseCaseProtocol
     
-    init(postUseCase: PostListUseCaseProtocol) {
+    init(initialState: State, postUseCase: PostListUseCaseProtocol) {
+        self.initialState = initialState
         self.postUseCase = postUseCase
     }
 }
@@ -44,7 +47,7 @@ extension SurvivalViewReactor {
         case .refresh:
             return self.mutate(action: .fetchPost)
         case .fetchPost:
-            let query = PostListQuery(date: DateFormatter.dashYyyyMMdd.string(from: Date()))
+            let query = PostListQuery(date: DateFormatter.dashYyyyMMdd.string(from: Date()), type: currentState.type)
             return postUseCase.excute(query: query)
                 .asObservable()
                 .flatMap { (postList) -> Observable<Mutation> in

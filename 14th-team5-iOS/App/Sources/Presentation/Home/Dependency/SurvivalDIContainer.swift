@@ -13,12 +13,12 @@ import Domain
 
 
 final class SurvivalDIContainer {
-    func makeViewController() -> SurvivalViewController {
-        return SurvivalViewController(reactor: makeReactor())
+    func makeViewController(type: PostType) -> SurvivalViewController {
+        return SurvivalViewController(reactor: makeReactor(type: type))
     }
     
-    private func makeReactor() -> SurvivalViewReactor {
-        return SurvivalViewReactor(postUseCase: makePostUseCase())
+    private func makeReactor(type: PostType) -> SurvivalViewReactor {
+        return SurvivalViewReactor(initialState: .init(type: type), postUseCase: makePostUseCase())
     }
 }
 

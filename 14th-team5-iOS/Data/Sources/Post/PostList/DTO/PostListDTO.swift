@@ -14,11 +14,14 @@ public struct PostListRequestDTO: Codable {
     let date: String
     let memberId: String?
     let sort: String
+    let type: String
 }
 
 struct PostListDTO: Codable {
     let postId: String
     let authorId: String
+    let type: String
+    let missionId: String?
     let commentCount: Int
     let emojiCount: Int
     let imageUrl: String
@@ -30,7 +33,8 @@ extension PostListDTO {
     func toDomain() -> PostListData {
         let author = FamilyUserDefaults.loadMemberFromUserDefaults(memberId: authorId)
         return .init(
-            postId: postId,
+            postId: postId, 
+            missionId: missionId,
             author: author,
             commentCount: commentCount,
             emojiCount: emojiCount,

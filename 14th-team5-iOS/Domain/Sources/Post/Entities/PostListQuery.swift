@@ -7,12 +7,31 @@
 
 import Foundation
 
+public enum Sort: String {
+    case asc = "ASC"
+    case desc = "DESC"
+}
+
+public enum PostType: String {
+    case survival = "SURVIVAL"
+    case mission = "MISSION"
+    
+    public func getIndex() -> Int {
+        switch self {
+        case .survival:
+            return 0
+        case .mission:
+            return 1
+        }
+    }
+}
+
 public struct PostListQuery {
     public let page: Int
     public let size: Int
     public let date: String
     public let memberId: String
-    /// DESC | ASC
+    public let type: PostType
     public let sort: String
     
     public init(
@@ -20,19 +39,14 @@ public struct PostListQuery {
         size: Int = 256,
         date: String,
         memberId: String = "",
-        sort: PostListQuery.Sort = .desc
+        type: PostType = .survival,
+        sort: Sort = .desc
     ) {
         self.page = page
         self.size = size
         self.date = date
         self.memberId = memberId
+        self.type = type
         self.sort = sort.rawValue
-    }
-}
-
-extension PostListQuery {
-    public enum Sort: String {
-        case asc = "ASC"
-        case desc = "DESC"
     }
 }

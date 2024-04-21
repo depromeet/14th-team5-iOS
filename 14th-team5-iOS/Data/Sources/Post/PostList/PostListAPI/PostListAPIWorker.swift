@@ -69,7 +69,7 @@ extension PostListAPIWorker: PostListRepositoryProtocol {
     }
     
     private func fetchTodayPostList(headers: [APIHeader]?, query: Domain.PostListQuery) -> RxSwift.Single<Domain.PostListPage?> {
-        let requestDTO = PostListRequestDTO(page: query.page, size: query.size, date: query.date, memberId: nil, sort: query.sort)
+        let requestDTO = PostListRequestDTO(page: query.page, size: query.size, date: query.date, memberId: nil, sort: query.sort, type: query.type.rawValue)
         let spec = PostListAPIs.fetchPostList.spec
         return request(spec: spec, headers: headers, parameters: requestDTO)
             .subscribe(on: Self.queue)

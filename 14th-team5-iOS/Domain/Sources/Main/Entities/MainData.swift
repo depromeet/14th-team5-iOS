@@ -7,26 +7,6 @@
 
 import Foundation
 
-//public struct MainFamilyProfileData {
-//    let memberId: String
-//    let imageUrl: String
-//    let noImageLetter: String
-//    let displayName: String
-//    let displayRank: Int
-//    let shouldShowBirthdayMark: Bool
-//    let shouldShowPickIcon: Bool
-//    
-//    public init(memberId: String, imageUrl: String, noImageLetter: String, displayName: String, displayRank: Int, shouldShowBirthdayMark: Bool, shouldShowPickIcon: Bool) {
-//        self.memberId = memberId
-//        self.imageUrl = imageUrl
-//        self.noImageLetter = noImageLetter
-//        self.displayName = displayName
-//        self.displayRank = displayRank
-//        self.shouldShowBirthdayMark = shouldShowBirthdayMark
-//        self.shouldShowPickIcon = shouldShowPickIcon
-//    }
-//}
-
 public struct Picker {
     let memberId: String
     let imageUrl: String

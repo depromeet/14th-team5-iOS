@@ -20,6 +20,8 @@ final class HomeViewReactor: Reactor {
         case viewWillAppear
         case tapCameraButton
         
+        case didTapSegmentControl(PostType)
+        
         case pushWidgetPostDeepLink(WidgetDeepLink)
         case pushNotificationPostDeepLink(NotificationDeepLink)
         case pushNotificationCommentDeepLink(NotificationDeepLink)
@@ -32,6 +34,7 @@ final class HomeViewReactor: Reactor {
         case showCameraView(Bool)
         
 //        case showShareAcitivityView(URL?)
+        case setPageIndex(Int)
         case setCopySuccessToastMessageView
         
         case setWidgetPostDeepLink(WidgetDeepLink)
@@ -41,6 +44,8 @@ final class HomeViewReactor: Reactor {
     
     struct State {
         var isInTime: Bool
+        var pageIndex: Int = 0
+        
         @Pulse var isSelfUploaded: Bool = true
         var isAllFamilyMembersUploaded: Bool = false
         
@@ -117,6 +122,8 @@ extension HomeViewReactor {
             return Observable.concat(
                 Observable<Mutation>.just(.setNotificationCommentDeepLink(deepLink)) // 다음 화면으로 이동하기
             )
+        case .didTapSegmentControl(let type):
+            return Observable.just(.setPageIndex(type.getIndex()))
         }
     }
     
@@ -140,6 +147,8 @@ extension HomeViewReactor {
             newState.notificationCommentDeepLink = deepLink
         case .setCopySuccessToastMessageView:
             newState.shouldPresentCopySuccessToastMessageView = true
+        case .setPageIndex(let index):
+            newState.pageIndex = index
         }
         
         return newState

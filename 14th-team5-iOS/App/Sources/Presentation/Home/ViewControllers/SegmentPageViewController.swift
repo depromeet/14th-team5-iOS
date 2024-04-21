@@ -7,12 +7,17 @@
 
 import UIKit
 
-final class SegmentPageViewController: UIPageViewController {
+import RxSwift
+import RxCocoa
 
-    private let survivalViewController: SurvivalViewController = SurvivalDIContainer().makeViewController()
-    private let missionViewController: MissionViewController = MissionViewController()
+final class SegmentPageViewController: UIPageViewController {
+    private let survivalViewController: SurvivalViewController = SurvivalDIContainer().makeViewController(type: .survival)
+    private let missionViewController: SurvivalViewController = SurvivalDIContainer().makeViewController(type: .mission)
+    private let disposeBag = DisposeBag()
     
     private lazy var pages: [UIViewController] = [survivalViewController, missionViewController]
+    
+    let indexRelay: BehaviorRelay<Int> = BehaviorRelay(value: 0)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,32 +26,42 @@ final class SegmentPageViewController: UIPageViewController {
         self.delegate = self
         
         setViewControllers([survivalViewController], direction: .forward, animated: true)
+        bind()
     }
     
+    func bind() {
+        indexRelay
+            .withUnretained(self)
+            .bind(onNext: {
+                switch $0.1 {
+                case 0:
+                    $0.0.setViewControllers([$0.0.survivalViewController], direction: .reverse, animated: true)
+                case 1:
+                    $0.0.setViewControllers([$0.0.missionViewController], direction: .forward, animated: true)
+                default:
+                    fatalError("INDEX OUT OF RANGE")
+                }
+            })
+            .disposed(by: disposeBag)
+    }
 
 }
 
 extension SegmentPageViewController: UIPageViewControllerDelegate, UIPageViewControllerDataSource {
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
-        guard let currentIndex = pages.firstIndex(of: viewController), currentIndex > 0 else {
-            return nil
-        }
-        return pages[currentIndex - 1]
+        return nil
     }
     
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
-        guard let currentIndex = pages.firstIndex(of: viewController), currentIndex < pages.count - 1 else {
-            return nil
-        }
-        return pages[currentIndex + 1]
+        return nil
     }
     
-    func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
-        if completed {
-            if let currentViewController = pageViewController.viewControllers?.first,
-               let currentIndex = pages.firstIndex(of: currentViewController) {
-                print("현재 페이지: \(currentIndex)")
-            }
-        }
-    }
+//    func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+//        if completed {
+//            if let currentViewController = pageViewController.viewControllers?.first,
+//               let currentIndex = pages.firstIndex(of: currentViewController) {
+//                print("현재 페이지: \(currentIndex)")
+//            }
+//        }
+//    }
 }

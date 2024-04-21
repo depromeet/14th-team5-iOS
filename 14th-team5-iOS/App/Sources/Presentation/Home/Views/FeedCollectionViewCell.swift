@@ -18,18 +18,20 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<SurvivalCellReactor> 
     typealias Layout = HomeAutoLayout.FeedCollectionView
     static let id = "FeedCollectionViewCell"
     
-    private let stackView = UIStackView()
-    private let nameLabel = BibbiLabel(.body2Regular, textAlignment: .left, textColor: .gray200)
-    private let timeLabel = BibbiLabel(.caption, textAlignment: .right, textColor: .gray400)
-    private let imageView = UIImageView(image: DesignSystemAsset.emptyCaseGraphicEmoji.image)
-    
+    private let imageView: UIImageView = UIImageView(image: DesignSystemAsset.emptyCaseGraphicEmoji.image)
+    private let indicator: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
+    private let missionBadge: UIImageView = UIImageView(image: DesignSystemAsset.mission.image)
+    private let stackView: UIStackView = UIStackView()
+    private let nameLabel: BibbiLabel = BibbiLabel(.body2Regular, textAlignment: .left, textColor: .gray200)
+    private let timeLabel: BibbiLabel = BibbiLabel(.caption, textAlignment: .right, textColor: .gray400)
+
     override func bind(reactor: SurvivalCellReactor) {
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
     override func setupUI() {
-        addSubviews(imageView, stackView)
+        addSubviews(imageView, missionBadge, stackView)
         stackView.addArrangedSubviews(nameLabel, timeLabel)
     }
     
@@ -37,6 +39,11 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<SurvivalCellReactor> 
         imageView.snp.makeConstraints {
             $0.top.horizontalEdges.equalToSuperview()
             $0.height.equalTo(self.snp.width)
+        }
+        
+        missionBadge.snp.makeConstraints {
+            $0.top.leading.equalToSuperview().inset(12)
+            $0.size.equalTo(24)
         }
         
         stackView.snp.makeConstraints {
@@ -47,15 +54,21 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<SurvivalCellReactor> 
     }
     
     override func setupAttributes() {
-        stackView.do {
-            $0.distribution = .fillProportionally
-            $0.spacing = Layout.StackView.spacing
-        }
+        indicator.startAnimating()
         
         imageView.do {
             $0.contentMode = .scaleAspectFill
             $0.clipsToBounds = true
             $0.layer.cornerRadius = Layout.ImageView.cornerRadius
+        }
+        
+        missionBadge.do {
+            $0.isHidden = true
+        }
+        
+        stackView.do {
+            $0.distribution = .fillProportionally
+            $0.spacing = Layout.StackView.spacing
         }
     }
 }
@@ -82,10 +95,12 @@ extension FeedCollectionViewCell {
     private func setCell(_ data: PostListData) {
         if let url = URL(string: data.imageURL ) {
             imageView.kf.setImage(with: url)
+            indicator.stopAnimating()
         } else {
             imageView.image = DesignSystemAsset.emptyCaseGraphicEmoji.image
         }
         
+        missionBadge.isHidden = data.missionId == nil ? true : false
         nameLabel.text = data.author?.name ?? "알 수 없음"
         timeLabel.text = data.time.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter()
     }

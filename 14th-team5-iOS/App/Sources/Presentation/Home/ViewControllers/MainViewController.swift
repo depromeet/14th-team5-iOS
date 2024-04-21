@@ -21,7 +21,7 @@ final class MainViewController: BaseViewController<HomeViewReactor>, UICollectio
     private let familyViewController: MainFamilyViewController = MainFamilyDIContainer().makeViewController()
     private let segmentControl: BibbiSegmentedControl = BibbiSegmentedControl()
     private let timerView: TimerView = TimerView()
-    private let pageViewController: SegmentPageViewController = SegmentPageViewController()
+    private let pageViewController: SegmentPageViewController = SegmentPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
 
     private let balloonView: BalloonView = BalloonView()
     private let loadingView: BibbiLoadingView = BibbiLoadingView()
@@ -141,7 +141,20 @@ extension MainViewController {
             .map { _ in Reactor.Action.viewWillAppear }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        // 노티피케이션 딥링크를 받게 된다면 딥링크 처리 과정에서 viewWillAppear를 대신 불러옴
+
+        segmentControl
+            .survivalButton.rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .map { Reactor.Action.didTapSegmentControl(.survival) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+      
+        segmentControl
+            .missionButton.rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .map { Reactor.Action.didTapSegmentControl(.mission) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
         navigationBarView.rx.leftButtonTap
             .withUnretained(self)
@@ -210,7 +223,13 @@ extension MainViewController {
                 $0.0.navigationController?.pushViewController(cameraViewController, animated: true)
             })
             .disposed(by: disposeBag)
-//        
+        
+        reactor.state.map { $0.pageIndex }
+            .distinctUntilChanged()
+            .observe(on: MainScheduler.instance)
+            .bind(to: pageViewController.indexRelay)
+            .disposed(by: disposeBag)
+//
 //        // 위젯 딥링크 코드
 //        reactor.pulse(\.$widgetPostDeepLink)
 //            .delay(RxConst.smallDelayInterval, scheduler: Schedulers.main)

@@ -23,7 +23,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
 
     
     //MARK: Views
-    private lazy var profileSegementControl: BibbiSegmentedControl = BibbiSegmentedControl()
+  private lazy var profileSegementControl: BibbiSegmentedControl = BibbiSegmentedControl(isUpdated: true)
     private var pickerConfiguration: PHPickerConfiguration = {
         var configuration: PHPickerConfiguration = PHPickerConfiguration()
         configuration.filter = .images
@@ -176,7 +176,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .disposed(by: disposeBag)
         
         
-        //프로필 이미지 초기화 할 경우 요기 Action에 이동
         NotificationCenter.default.rx
             .notification(.ProfileImageInitializationUpdate)
             .map { _ in Reactor.Action.didTapInitProfile }
@@ -233,8 +232,11 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
       
+      
+      
+      
         reactor
-          .state.map { $0.feedType }
+          .state.map { $0.feedType == .survival ? true : false }
           .distinctUntilChanged()
           .observe(on: MainScheduler.instance)
           .bind(to: profileSegementControl.rx.isSelected)

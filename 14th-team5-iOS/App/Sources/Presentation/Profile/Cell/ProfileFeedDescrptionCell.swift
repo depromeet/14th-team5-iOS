@@ -20,6 +20,10 @@ final class ProfileFeedDescrptionCell: BaseCollectionViewCell<ProfileFeedDescrpt
     private let blurContainerView: UIVisualEffectView = UIVisualEffectView.makeBlurView(style: .dark)
     
     
+    override func layoutSubviews() {
+      descrptionLabel.textAlignment = .center
+    }
+  
     override func setupUI() {
         super.setupUI()
         contentView.addSubviews(blurContainerView, descrptionLabel)

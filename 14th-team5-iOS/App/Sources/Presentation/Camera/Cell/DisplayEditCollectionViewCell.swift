@@ -27,6 +27,10 @@ public final class DisplayEditCollectionViewCell: BaseCollectionViewCell<Display
         super.setupUI()
         self.contentView.addSubviews(blurContainerView, descriptionLabel)
     }
+  
+    public override func layoutSubviews() {
+      descriptionLabel.textAlignment = .center
+    }
     
     public override func setupAttributes() {
         super.setupAttributes()

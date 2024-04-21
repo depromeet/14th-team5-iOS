@@ -41,6 +41,7 @@ extension ProfileViewRepository: ProfileViewInterface {
             page: query.page,
             size: query.size,
             date: parameter.date,
+            type: parameter.type,
             memberId: parameter.memberId,
             sort: parameter.sort
         )

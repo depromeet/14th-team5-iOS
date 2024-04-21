@@ -1,8 +1,8 @@
 //
-//  FeedViewReactor.swift
+//  SurvivalCellReactor.swift
 //  App
 //
-//  Created by 마경미 on 13.02.24.
+//  Created by 마경미 on 21.04.24.
 //
 
 import Foundation
@@ -13,7 +13,7 @@ import Domain
 import ReactorKit
 import RxDataSources
 
-final class FeedViewReactor: Reactor {
+final class SurvivalCellReactor: Reactor {
     enum Action {
         case setCell
     }
@@ -34,7 +34,7 @@ final class FeedViewReactor: Reactor {
     }
 }
 
-extension FeedViewReactor {
+extension SurvivalCellReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .setCell:

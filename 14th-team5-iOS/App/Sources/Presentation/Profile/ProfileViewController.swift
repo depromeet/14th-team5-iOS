@@ -85,11 +85,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         profileLineView.do {
             $0.backgroundColor = .separator
         }
-      
-        profileSegementControl.do {
-            $0.backgroundColor = .gray800
-            $0.layer.cornerRadius = 20
-        }
         
         navigationBarView.do {
             $0.setNavigationView(leftItem: .arrowLeft, centerItem: .label("활동"), rightItem: .setting)

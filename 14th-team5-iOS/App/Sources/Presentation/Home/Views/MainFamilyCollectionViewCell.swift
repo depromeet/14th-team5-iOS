@@ -13,7 +13,7 @@ import DesignSystem
 
 import RxSwift
 
-final class FamilyCollectionViewCell: BaseCollectionViewCell<MainFamilyCellReactor> {
+final class MainFamilyCollectionViewCell: BaseCollectionViewCell<MainFamilyCellReactor> {
     typealias Layout = HomeAutoLayout.ProfileView
     static let id: String = "familyCollectionViewCell"
     
@@ -115,7 +115,7 @@ final class FamilyCollectionViewCell: BaseCollectionViewCell<MainFamilyCellReact
     }
 }
 
-extension FamilyCollectionViewCell {
+extension MainFamilyCollectionViewCell {
     private func bindInput(reactor: MainFamilyCellReactor) {
         Observable.just(())
             .map { Reactor.Action.fetchData}
@@ -152,7 +152,7 @@ extension FamilyCollectionViewCell {
     }
 }
 
-extension FamilyCollectionViewCell {
+extension MainFamilyCollectionViewCell {
     private func setupImageView(imageUrl: String?, name: String) {
         if let profileImageURL = imageUrl,
            let url = URL(string: profileImageURL), !profileImageURL.isEmpty {

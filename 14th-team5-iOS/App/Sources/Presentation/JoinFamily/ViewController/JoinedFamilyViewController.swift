@@ -140,7 +140,7 @@ extension JoinedFamilyViewController {
         UserDefaults.standard.clearInviteCode()
         
         guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
-        sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+        sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: MainViewDIContainer().makeViewController())
         sceneDelegate.window?.makeKeyAndVisible()
     }
     

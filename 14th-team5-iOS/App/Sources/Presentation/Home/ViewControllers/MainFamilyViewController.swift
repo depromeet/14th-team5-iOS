@@ -55,7 +55,7 @@ final class MainFamilyViewController: BaseViewController<MainFamilyReactor> {
             $0.collectionViewLayout = createFamilyLayout()
             $0.showsHorizontalScrollIndicator = false
             $0.backgroundColor = .clear
-            $0.register(FamilyCollectionViewCell.self, forCellWithReuseIdentifier: FamilyCollectionViewCell.id)
+            $0.register(MainFamilyCollectionViewCell.self, forCellWithReuseIdentifier: MainFamilyCollectionViewCell.id)
         }
     }
     
@@ -158,7 +158,7 @@ extension MainFamilyViewController {
             configureCell: { (_, collectionView, indexPath, item) in
                 switch item {
                 case .main(let data):
-                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FamilyCollectionViewCell.id, for: indexPath) as? FamilyCollectionViewCell else {
+                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MainFamilyCollectionViewCell.id, for: indexPath) as? MainFamilyCollectionViewCell else {
                         return UICollectionViewCell()
                     }
                     cell.reactor = MainFamilyCellReactor(initialState: .init(profileData: data))

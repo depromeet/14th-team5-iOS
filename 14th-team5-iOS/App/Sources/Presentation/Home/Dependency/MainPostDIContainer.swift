@@ -12,17 +12,17 @@ import Data
 import Domain
 
 
-final class SurvivalDIContainer {
-    func makeViewController(type: PostType) -> SurvivalViewController {
-        return SurvivalViewController(reactor: makeReactor(type: type))
+final class MainPostDIContainer {
+    func makeViewController(type: PostType) -> MainPostViewController {
+        return MainPostViewController(reactor: makeReactor(type: type))
     }
     
-    private func makeReactor(type: PostType) -> SurvivalViewReactor {
-        return SurvivalViewReactor(initialState: .init(type: type), postUseCase: makePostUseCase())
+    private func makeReactor(type: PostType) -> MainPostViewReactor {
+        return MainPostViewReactor(initialState: .init(type: type), postUseCase: makePostUseCase())
     }
 }
 
-extension SurvivalDIContainer {
+extension MainPostDIContainer {
     private func makePostRepository() -> PostListRepositoryProtocol {
         return PostListAPIs.Worker()
     }

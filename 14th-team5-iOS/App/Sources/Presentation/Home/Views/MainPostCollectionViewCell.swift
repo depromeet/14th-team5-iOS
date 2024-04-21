@@ -14,7 +14,7 @@ import Domain
 import RxDataSources
 import RxSwift
 
-final class FeedCollectionViewCell: BaseCollectionViewCell<SurvivalCellReactor> {
+final class MainPostCollectionViewCell: BaseCollectionViewCell<MainPostCellReactor> {
     typealias Layout = HomeAutoLayout.FeedCollectionView
     static let id = "FeedCollectionViewCell"
     
@@ -25,7 +25,7 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<SurvivalCellReactor> 
     private let nameLabel: BibbiLabel = BibbiLabel(.body2Regular, textAlignment: .left, textColor: .gray200)
     private let timeLabel: BibbiLabel = BibbiLabel(.caption, textAlignment: .right, textColor: .gray400)
 
-    override func bind(reactor: SurvivalCellReactor) {
+    override func bind(reactor: MainPostCellReactor) {
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
@@ -73,8 +73,8 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<SurvivalCellReactor> 
     }
 }
 
-extension FeedCollectionViewCell {
-    private func bindInput(reactor: SurvivalCellReactor) {
+extension MainPostCollectionViewCell {
+    private func bindInput(reactor: MainPostCellReactor) {
         Observable.just(())
             .take(1)
             .map { Reactor.Action.setCell }
@@ -82,7 +82,7 @@ extension FeedCollectionViewCell {
             .disposed(by: disposeBag)
     }
     
-    private func bindOutput(reactor: SurvivalCellReactor) {
+    private func bindOutput(reactor: MainPostCellReactor) {
         reactor.state.map { $0.postListData }
             .distinctUntilChanged()
             .withUnretained(self)
@@ -91,7 +91,7 @@ extension FeedCollectionViewCell {
     }
 }
 
-extension FeedCollectionViewCell {
+extension MainPostCollectionViewCell {
     private func setCell(_ data: PostListData) {
         if let url = URL(string: data.imageURL ) {
             imageView.kf.setImage(with: url)
@@ -119,7 +119,7 @@ extension FeedCollectionViewCell {
     }
 }
 
-extension FeedCollectionViewCell: UICollectionViewDelegateFlowLayout {
+extension MainPostCollectionViewCell: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         guard let cellCount = reactor?.currentState.postListData.content?.count else {
             return .zero

@@ -12,7 +12,7 @@ import Core
 import RxSwift
 import RxDataSources
 
-final class SurvivalViewController: BaseViewController<SurvivalViewReactor>, UICollectionViewDelegate {
+final class MainPostViewController: BaseViewController<MainPostViewReactor>, UICollectionViewDelegate {
     private let postCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
     private let refreshControl: UIRefreshControl = UIRefreshControl()
@@ -24,7 +24,7 @@ final class SurvivalViewController: BaseViewController<SurvivalViewReactor>, UIC
         navigationBarView.isHidden = true
     }
     
-    override func bind(reactor: SurvivalViewReactor) {
+    override func bind(reactor: MainPostViewReactor) {
         super.bind(reactor: reactor)
         
         bindInput(reactor: reactor)
@@ -59,13 +59,13 @@ final class SurvivalViewController: BaseViewController<SurvivalViewReactor>, UIC
             $0.backgroundColor = .clear
             $0.refreshControl = refreshControl
             $0.refreshControl?.tintColor = UIColor.bibbiWhite
-            $0.register(FeedCollectionViewCell.self, forCellWithReuseIdentifier: FeedCollectionViewCell.id)
+            $0.register(MainPostCollectionViewCell.self, forCellWithReuseIdentifier: MainPostCollectionViewCell.id)
         }
     }
 }
 
-extension SurvivalViewController {
-    private func bindInput(reactor: SurvivalViewReactor) {
+extension MainPostViewController {
+    private func bindInput(reactor: MainPostViewReactor) {
         postCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
@@ -92,7 +92,7 @@ extension SurvivalViewController {
             .disposed(by: disposeBag)
     }
     
-    private func bindOutput(reactor: SurvivalViewReactor) {
+    private func bindOutput(reactor: MainPostViewReactor) {
         reactor.pulse(\.$postSection)
             .observe(on: MainScheduler.instance)
             .map(Array.init(with:))
@@ -126,7 +126,7 @@ extension SurvivalViewController {
     }
 }
 
-extension SurvivalViewController {
+extension MainPostViewController {
     private func createPostLayout() -> UICollectionViewFlowLayout {
         let layout = UICollectionViewFlowLayout()
         layout.sectionInset = .zero
@@ -141,10 +141,10 @@ extension SurvivalViewController {
             configureCell: { (_, collectionView, indexPath, item) in
                 switch item {
                 case .main(let data):
-                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FeedCollectionViewCell.id, for: indexPath) as? FeedCollectionViewCell else {
+                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MainPostCollectionViewCell.id, for: indexPath) as? MainPostCollectionViewCell else {
                         return UICollectionViewCell()
                     }
-                    cell.reactor = SurvivalCellReactor(initialState: .init(postListData: data))
+                    cell.reactor = MainPostCellReactor(initialState: .init(postListData: data))
                     return cell
                 }
             })

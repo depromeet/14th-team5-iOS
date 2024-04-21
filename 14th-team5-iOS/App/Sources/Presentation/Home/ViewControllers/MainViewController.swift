@@ -19,8 +19,11 @@ import Domain
 
 final class MainViewController: BaseViewController<HomeViewReactor>, UICollectionViewDelegateFlowLayout {
     private let familyViewController: MainFamilyViewController = MainFamilyDIContainer().makeViewController()
+
+    private let timerView: TimerView = TimerDIContainer().makeView()
+    private let descriptionView: DescriptionView = DescriptionView()
+    
     private let segmentControl: BibbiSegmentedControl = BibbiSegmentedControl()
-    private let timerView: TimerView = TimerView()
     private let pageViewController: SegmentPageViewController = SegmentPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
 
     private let balloonView: BalloonView = BalloonView()
@@ -229,6 +232,13 @@ extension MainViewController {
             .observe(on: MainScheduler.instance)
             .bind(to: pageViewController.indexRelay)
             .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.pageIndex }
+          .distinctUntilChanged()
+          .observe(on: MainScheduler.instance)
+          .map { return $0 == 0 ? .survival : .mission }
+          .bind(to: segmentControl.rx.isSelected)
+          .disposed(by: disposeBag)
 //
 //        // 위젯 딥링크 코드
 //        reactor.pulse(\.$widgetPostDeepLink)

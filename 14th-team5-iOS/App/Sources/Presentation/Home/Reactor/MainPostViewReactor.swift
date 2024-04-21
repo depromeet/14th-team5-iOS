@@ -13,7 +13,7 @@ import Domain
 import ReactorKit
 import RxDataSources
 
-final class SurvivalViewReactor: Reactor {
+final class MainPostViewReactor: Reactor {
     enum Action {
         case fetchPost
         case refresh
@@ -41,7 +41,7 @@ final class SurvivalViewReactor: Reactor {
     }
 }
 
-extension SurvivalViewReactor {
+extension MainPostViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .refresh:

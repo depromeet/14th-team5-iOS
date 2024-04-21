@@ -106,7 +106,7 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
             if UserDefaults.standard.inviteCode != nil {
                 container = UINavigationController(rootViewController: JoinedFamilyDIContainer().makeViewController())
             } else {
-                container = UINavigationController(rootViewController: HomeDIContainer().makeViewController())
+                container = UINavigationController(rootViewController: MainViewDIContainer().makeViewController())
             }
             sceneDelegate.window?.rootViewController = container
             sceneDelegate.window?.makeKeyAndVisible()

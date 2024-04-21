@@ -14,7 +14,7 @@ import ReactorKit
 import RxDataSources
 import Kingfisher
 
-final class HomeViewReactor: Reactor {
+final class MainViewReactor: Reactor {
     enum Action {
         case viewDidLoad
         case viewWillAppear
@@ -62,12 +62,12 @@ final class HomeViewReactor: Reactor {
     let provider: GlobalStateProviderProtocol
     
     init(provider: GlobalStateProviderProtocol) {
-        self.initialState = State(isInTime: HomeViewReactor.calculateRemainingTime().0)
+        self.initialState = State(isInTime: MainViewReactor.calculateRemainingTime().0)
         self.provider = provider
     }
 }
 
-extension HomeViewReactor {
+extension MainViewReactor {
     func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
         let eventMutation = provider.activityGlobalState.event
             .flatMap { event -> Observable<Mutation> in
@@ -87,7 +87,7 @@ extension HomeViewReactor {
         case .viewWillAppear:
             return Observable.empty()
         case .viewDidLoad:
-            let (_, time) = HomeViewReactor.calculateRemainingTime()
+            let (_, time) = MainViewReactor.calculateRemainingTime()
             
             if self.currentState.isInTime {
                 return Observable<Int>
@@ -155,7 +155,7 @@ extension HomeViewReactor {
     }
 }
 
-extension HomeViewReactor {
+extension MainViewReactor {
     private static func calculateRemainingTime() -> (Bool, Int) {
         let calendar = Calendar.current
         let currentTime = Date()

@@ -13,7 +13,7 @@ import Domain
 import ReactorKit
 import RxDataSources
 
-final class SurvivalCellReactor: Reactor {
+final class MainPostCellReactor: Reactor {
     enum Action {
         case setCell
     }
@@ -34,7 +34,7 @@ final class SurvivalCellReactor: Reactor {
     }
 }
 
-extension SurvivalCellReactor {
+extension MainPostCellReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .setCell:

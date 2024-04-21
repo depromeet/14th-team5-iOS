@@ -11,29 +11,27 @@ import Core
 import Domain
 import DesignSystem
 
-final class FamilyCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
+import RxSwift
+
+final class FamilyCollectionViewCell: BaseCollectionViewCell<MainFamilyCellReactor> {
     typealias Layout = HomeAutoLayout.ProfileView
     static let id: String = "familyCollectionViewCell"
     
     private let defaultNameLabel = BibbiLabel(.head1, textAlignment: .center, textColor: .gray200)
-    private let imageView = UIImageView()
-    private let nameLabel = UILabel()
-    private let rankBadge = UIImageView()
-    private let birthdayBadge = UIImageView()
+    private let imageView: UIImageView = UIImageView()
+    private let nameLabel: UILabel = UILabel()
+    private let rankBadge: UIImageView = UIImageView()
+    private let birthdayBadge: UIImageView = UIImageView()
+    private let pickButton: UIButton = UIButton()
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    override func bind(reactor: MainFamilyCellReactor) {
+        bindInput(reactor: reactor)
+        bindOutput(reactor: reactor)
     }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-    }
-    
-    override func bind(reactor: HomeViewReactor) { }
     
     override func setupUI() {
         addSubviews(imageView, nameLabel, defaultNameLabel,
-                    birthdayBadge, rankBadge)
+                    birthdayBadge, rankBadge, pickButton)
     }
     
     override func prepareForReuse() {
@@ -63,13 +61,18 @@ final class FamilyCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
         
         birthdayBadge.snp.makeConstraints {
             $0.size.equalTo(20)
-            $0.top.trailing.equalToSuperview()
+            $0.top.trailing.equalToSuperview().offset(-4)
         }
         
         rankBadge.snp.makeConstraints {
             $0.width.equalTo(20)
             $0.height.equalTo(24)
             $0.leading.bottom.equalTo(imageView)
+        }
+        
+        pickButton.snp.makeConstraints {
+            $0.size.equalTo(32)
+            $0.bottom.trailing.equalTo(imageView).offset(4)
         }
     }
     
@@ -87,6 +90,7 @@ final class FamilyCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = 64 / 2
+            $0.backgroundColor = .gray800
         }
         
         birthdayBadge.do {
@@ -97,37 +101,79 @@ final class FamilyCollectionViewCell: BaseCollectionViewCell<HomeViewReactor> {
         rankBadge.do {
             $0.isHidden = true
         }
+        
+        pickButton.do {
+            $0.isHidden = true
+            $0.setImage(DesignSystemAsset.paperPlane.image, for: .normal)
+            $0.contentMode = .scaleToFill
+            $0.backgroundColor = .gray100
+            $0.layer.cornerRadius = 16
+            $0.clipsToBounds = true
+            $0.layer.borderWidth = 4
+            $0.layer.borderColor = UIColor.bibbiBlack.cgColor
+        }
     }
 }
 
 extension FamilyCollectionViewCell {
-    func setCell(data: ProfileData) {
-        setupImageView(with: data)
-        nameLabel.text = data.name
-        setRankBadge(for: data)
-        setBirthdayBadge(for: data)
+    private func bindInput(reactor: MainFamilyCellReactor) {
+        Observable.just(())
+            .map { Reactor.Action.fetchData}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
-    private func setupImageView(with data: ProfileData) {
-        if let profileImageURL = data.profileImageURL,
+    private func bindOutput(reactor: MainFamilyCellReactor) {
+        reactor.state.map { $0.profile }
+            .distinctUntilChanged({ $0.0 })
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: { $0.0.setupImageView(imageUrl: $0.1.0, name: $0.1.1) })
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.rank }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: { $0.0.setRankBadge(rank: $0.1) })
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.isShowBirthdayBadge }
+            .distinctUntilChanged()
+            .map { !$0 }
+            .bind(to: birthdayBadge.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.isShowPickButton }
+            .distinctUntilChanged()
+            .map { !$0 }
+            .bind(to: pickButton.rx.isHidden)
+            .disposed(by: disposeBag)
+    }
+}
+
+extension FamilyCollectionViewCell {
+    private func setupImageView(imageUrl: String?, name: String) {
+        if let profileImageURL = imageUrl,
            let url = URL(string: profileImageURL), !profileImageURL.isEmpty {
             imageView.kf.setImage(with: url)
             defaultNameLabel.isHidden = true
         } else {
-            guard let name = data.name.first else {
+            guard let name = name.first else {
                 return
             }
             defaultNameLabel.isHidden = false
-            imageView.backgroundColor = .gray800
             defaultNameLabel.text = "\(name)"
         }
+        nameLabel.text = name
     }
     
-    private func setRankBadge(for data: ProfileData) {
-        guard let rank = data.postRank else {
+    private func setRankBadge(rank: Int?) {
+        guard let rank = rank else {
             imageView.alpha = 0.5
             defaultNameLabel.alpha = 0.5
             imageView.layer.borderWidth = 0
+            pickButton.isHidden = false
             return
         }
         
@@ -150,14 +196,4 @@ extension FamilyCollectionViewCell {
             rankBadge.isHidden = true
         }
     }
-    
-    private func setBirthdayBadge(for data: ProfileData) {
-        birthdayBadge.isHidden = (data.dayOfBirth.month, data.dayOfBirth.day) != (Date().month, Date().day)
-    }
-}
-
-enum RankBadge: Int {
-    case one = 1
-    case two
-    case three
 }

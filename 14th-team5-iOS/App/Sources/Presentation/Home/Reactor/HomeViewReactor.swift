@@ -19,7 +19,6 @@ final class HomeViewReactor: Reactor {
         case viewDidLoad
         case viewWillAppear
         case refresh
-        case tapInviteFamily
         case tapCameraButton
         
         case pushWidgetPostDeepLink(WidgetDeepLink)
@@ -30,18 +29,14 @@ final class HomeViewReactor: Reactor {
     enum Mutation {
         case setSelfUploaded(Bool)
         case setAllFamilyUploaded(Bool)
-        case setInviteFamilyView(Bool)
         case setNoPostTodayView(Bool)
         case setInTime(Bool)
         case showCameraView(Bool)
         
-        case updateFamilyDataSource([FamilySection.Item])
         case updatePostDataSource([PostSection.Item])
         
-        case showShareAcitivityView(URL?)
+//        case showShareAcitivityView(URL?)
         case setCopySuccessToastMessageView
-        case setFetchFailureToastMessageView
-        case setSharePanel(String)
         
         case setWidgetPostDeepLink(WidgetDeepLink)
         case setNotificationPostDeepLink(NotificationDeepLink)
@@ -54,49 +49,43 @@ final class HomeViewReactor: Reactor {
         @Pulse var isRefreshEnd: Bool = true
         var isAllFamilyMembersUploaded: Bool = false
         
-        @Pulse var familySection: FamilySection.Model = FamilySection.Model(model: 0, items: [])
         @Pulse var postSection: PostSection.Model = PostSection.Model(model: 0, items: [])
         
-        @Pulse var familyInvitationLink: URL?
-        @Pulse var shouldPresentCopySuccessToastMessageView: Bool = false
-        @Pulse var shouldPresentFetchFailureToastMessageView: Bool = false
-        
         var isShowingNoPostTodayView: Bool = false
-        var isShowingInviteFamilyView: Bool = false
         @Pulse var isShowingCameraView: Bool = false
         
         @Pulse var widgetPostDeepLink: WidgetDeepLink?
         @Pulse var notificationPostDeepLink: NotificationDeepLink?
         @Pulse var notificationCommentDeepLink: NotificationDeepLink?
+        
+        @Pulse var shouldPresentCopySuccessToastMessageView: Bool = false
     }
     
     let initialState: State
     let provider: GlobalStateProviderProtocol
-    private let familyUseCase: FamilyUseCaseProtocol
     private let postUseCase: PostListUseCaseProtocol
     
     init(provider: GlobalStateProviderProtocol, familyUseCase: FamilyUseCaseProtocol, postUseCase: PostListUseCaseProtocol) {
         self.initialState = State(isInTime: HomeViewReactor.calculateRemainingTime().0)
         self.provider = provider
-        self.familyUseCase = familyUseCase
         self.postUseCase = postUseCase
     }
 }
 
 extension HomeViewReactor {
     func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
-         let eventMutation = provider.activityGlobalState.event
-             .flatMap { event -> Observable<Mutation> in
-                 switch event {
-                 case .didTapCopyInvitationUrlAction:
-                     return Observable<Mutation>.just(.setCopySuccessToastMessageView)
-                 default:
-                     return Observable<Mutation>.empty()
-                 }
-             }
-         
-         return Observable<Mutation>.merge(mutation, eventMutation)
-     }
+        let eventMutation = provider.activityGlobalState.event
+            .flatMap { event -> Observable<Mutation> in
+                switch event {
+                case .didTapCopyInvitationUrlAction:
+                    return Observable<Mutation>.just(.setCopySuccessToastMessageView)
+                default:
+                    return Observable<Mutation>.empty()
+                }
+            }
+        
+        return Observable<Mutation>.merge(mutation, eventMutation)
+    }
     
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
@@ -123,15 +112,6 @@ extension HomeViewReactor {
             }
         case .refresh:
             return self.mutate(action: .viewWillAppear)
-        case .tapInviteFamily:
-                   MPEvent.Home.shareLink.track(with: nil)
-                   return familyUseCase.executeFetchInvitationUrl()
-                       .map {
-                           guard let invitationLink = $0?.url else {
-                               return .setFetchFailureToastMessageView
-                           }
-                           return .setSharePanel(invitationLink)
-                       }
         case .tapCameraButton:
             return Observable.just(.showCameraView(self.currentState.isInTime))
             
@@ -159,9 +139,6 @@ extension HomeViewReactor {
         var newState = state
         
         switch mutation {
-        case .updateFamilyDataSource(let familySectionItem):
-            newState.isRefreshEnd = true
-            newState.familySection.items = familySectionItem
         case .updatePostDataSource(let postSectionItem):
             newState.postSection.items = postSectionItem
             App.Repository.member.postId.accept(UserDefaults.standard.postId)
@@ -169,29 +146,20 @@ extension HomeViewReactor {
             newState.isSelfUploaded = isSelfUploaded
         case .setAllFamilyUploaded(let isAllUploaded):
             newState.isAllFamilyMembersUploaded = isAllUploaded
-        case .setInviteFamilyView(let isShow):
-            newState.isShowingInviteFamilyView = isShow
         case .setNoPostTodayView(let isShow):
             newState.isShowingNoPostTodayView = isShow
         case .setInTime(let isInTime):
             newState.isInTime = isInTime
-        case let .showShareAcitivityView(url):
-            newState.familyInvitationLink = url
-        case .setCopySuccessToastMessageView:
-            newState.shouldPresentCopySuccessToastMessageView = true
-        case .setFetchFailureToastMessageView:
-            newState.shouldPresentFetchFailureToastMessageView = true
-        case let .setSharePanel(urlString):
-            newState.familyInvitationLink = URL(string: urlString)
         case let .showCameraView(isShow):
             newState.isShowingCameraView = isShow
-            
         case let.setWidgetPostDeepLink(deepLink):
             newState.widgetPostDeepLink = deepLink
         case let .setNotificationPostDeepLink(deepLink):
             newState.notificationPostDeepLink = deepLink
         case let .setNotificationCommentDeepLink(deepLink):
             newState.notificationCommentDeepLink = deepLink
+        case .setCopySuccessToastMessageView:
+            newState.shouldPresentCopySuccessToastMessageView = true
         }
         
         return newState
@@ -200,85 +168,25 @@ extension HomeViewReactor {
 
 extension HomeViewReactor {
     private func viewWillAppear() -> Observable<Mutation> {
-        let familyListObservable = getFamilyList()
-
-        if currentState.isInTime {
-            let postListObservable = getPostList()
-            return handleFamilyAndPostList(familyListObservable, postListObservable)
-        } else {
-            return handleFamilyListWhenNotTime(familyListObservable)
-        }
+        let postListObservable = getPostList()
+        return handleFamilyAndPostList(postListObservable)
     }
 
-    private func handleFamilyListWhenNotTime(_ familyListObservable: Observable<PaginationResponseFamilyMemberProfile?>) -> Observable<Mutation> {
-        return familyListObservable
-            .flatMap { familyList -> Observable<Mutation> in
-                guard let familyList = familyList, familyList.results.count >= 2 else {
-                    return Observable.just(Mutation.setInviteFamilyView(true))
-                }
-
-                let familySectionItem = familyList.results.map(FamilySection.Item.main)
-                return Observable.from([
-                    Mutation.setNoPostTodayView(true),
-                    Mutation.setSelfUploaded(true),
-                    Mutation.setInviteFamilyView(false),
-                    Mutation.updateFamilyDataSource(familySectionItem),
-                    Mutation.updatePostDataSource([])
-                ])
-            }
-    }
-
-
-    private func handleFamilyAndPostList(_ familyListObservable: Observable<PaginationResponseFamilyMemberProfile?>, _ postListObservable: Observable<PostListPage?>) -> Observable<Mutation> {
-        return Observable.combineLatest(postListObservable, familyListObservable)
-            .flatMap { (postList, familyList) -> Observable<Mutation> in
-                guard let familyList = familyList, familyList.results.count >= 1 else {
-                    return Observable.empty()
-                }
-
-                var mutations: [Mutation] = [
-                    Mutation.setInviteFamilyView(familyList.results.count <= 1)
-                ]
-
+    private func handleFamilyAndPostList(_ postListObservable: Observable<PostListPage?>) -> Observable<Mutation> {
+        return postListObservable
+            .flatMap { (postList) -> Observable<Mutation> in
+                var mutations: [Mutation] = []
                 if let postList = postList, !postList.postLists.isEmpty {
-                    let sortedFamilyMembers = self.sortFamilyMembersByPostRank(familyList.results, with: postList.postLists)
-                    let familySectionItem = sortedFamilyMembers.map(FamilySection.Item.main)
-                    mutations.append(Mutation.updateFamilyDataSource(familySectionItem))
-
                     let postSectionItem = postList.postLists.map(PostSection.Item.main)
                     mutations.append(contentsOf: [
                         Mutation.updatePostDataSource(postSectionItem),
                         Mutation.setNoPostTodayView(false),
                         Mutation.setAllFamilyUploaded(postList.allFamilyMembersUploaded)
                     ])
-                } else {
-                    let familySectionItem = familyList.results.map(FamilySection.Item.main)
-                    mutations.append(contentsOf: [
-                        Mutation.updateFamilyDataSource(familySectionItem),
-                        Mutation.setNoPostTodayView(true)
-                    ])
                 }
-
+                
                 return Observable.concat(Observable.from(mutations), self.postUseCase.excute().asObservable().take(1).map { Mutation.setSelfUploaded($0) })
             }
-    }
-
-    private func sortFamilyMembersByPostRank(_ familyMembers: [ProfileData], with postLists: [PostListData]) -> [ProfileData] {
-        let authorProfileDatas = postLists.compactMap { $0.author }.reversed()
-        let subtractMembers = Array(Set(familyMembers).subtracting(Set(authorProfileDatas)))
-        
-        var sortedMembers = authorProfileDatas + subtractMembers
-        for index in 0..<authorProfileDatas.count {
-            sortedMembers[index].postRank = index + 1
-        }
-        
-        let myMemberId = App.Repository.member.memberID.value
-        if let index = sortedMembers.firstIndex(where: { $0.memberId == myMemberId }) {
-            let element = sortedMembers.remove(at: index)
-            sortedMembers.insert(element, at: 0)
-        }
-        
-        return sortedMembers
     }
 
     private func getPostList() -> Observable<PostListPage?> {
@@ -290,16 +198,10 @@ extension HomeViewReactor {
         return postUseCase.excute(query: query).asObservable()
     }
     
-    private func getFamilyList() -> Observable<PaginationResponseFamilyMemberProfile?> {
-        let query = FamilyPaginationQuery()
-        return familyUseCase.executeFetchPaginationFamilyMembers(query: query)
-    }
-    
     private static func calculateRemainingTime() -> (Bool, Int) {
         let calendar = Calendar.current
         let currentTime = Date()
         
-        // Get components of the current time
         let currentHour = calendar.component(.hour, from: currentTime)
 
         if currentHour >= 12 {

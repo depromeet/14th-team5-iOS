@@ -38,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         removeKeychainAtFirstLaunch()
         bindRepositories()
         App.indicator.bind()
-    
+        
         return true
     }
     

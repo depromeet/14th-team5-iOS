@@ -18,11 +18,10 @@ import Then
 import Domain
 
 final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectionViewDelegateFlowLayout {
+    private let familyViewController: MainFamilyViewController = MainFamilyDIContainer().makeViewController()
     private let timerView: TimerView = TimerView()
-    private let familyCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let postCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let noPostView: NoPostTodayView = NoPostTodayView()
-    private let inviteFamilyView: InviteFamilyView = InviteFamilyView(openType: .makeUrl)
     private let balloonView: BalloonView = BalloonView()
     private let loadingView: BibbiLoadingView = BibbiLoadingView()
     private let cameraButton: UIButton = UIButton()
@@ -48,28 +47,24 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
     override func setupUI() {
         super.setupUI()
         
-        view.addSubviews(familyCollectionView, timerView,
-                         noPostView, postCollectionView, inviteFamilyView,
-                         balloonView, cameraButton)
+        addChild(familyViewController)
+        view.addSubviews(familyViewController.view, timerView, noPostView,
+                         postCollectionView, balloonView, cameraButton)
+        
+        familyViewController.didMove(toParent: self)
     }
     
     override func setupAutoLayout() {
         super.setupAutoLayout()
         
-        familyCollectionView.snp.makeConstraints {
-            $0.height.equalTo(138)
+        familyViewController.view.snp.makeConstraints {
             $0.top.equalTo(navigationBarView.snp.bottom)
-            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
-        }
-        
-        inviteFamilyView.snp.makeConstraints {
-            $0.top.equalTo(familyCollectionView).inset(24)
-            $0.horizontalEdges.equalTo(familyCollectionView).inset(20)
-            $0.height.equalTo(90)
+            $0.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(138)
         }
         
         timerView.snp.makeConstraints {
-            $0.top.equalTo(familyCollectionView.snp.bottom)
+            $0.top.equalTo(familyViewController.view.snp.bottom)
             $0.height.equalTo(100)
             $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
         }
@@ -102,13 +97,6 @@ final class HomeViewController: BaseViewController<HomeViewReactor>, UICollectio
         
         navigationBarView.do {
             $0.setNavigationView(leftItem: .family, centerItem: .logo, rightItem: .calendar)
-        }
-        
-        familyCollectionView.do {
-            $0.collectionViewLayout = createFamilyLayout()
-            $0.showsHorizontalScrollIndicator = false
-            $0.backgroundColor = .clear
-            $0.register(FamilyCollectionViewCell.self, forCellWithReuseIdentifier: FamilyCollectionViewCell.id)
         }
         
         postCollectionView.do {
@@ -149,12 +137,6 @@ extension HomeViewController {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        self.inviteFamilyView.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .map { Reactor.Action.tapInviteFamily }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
         self.rx.viewWillAppear
             .withUnretained(self)
             // 별도 딥링크를 받지 않으면
@@ -190,20 +172,6 @@ extension HomeViewController {
                     CalendarDIConatainer().makeViewController(),
                     animated: true
                 )
-            }
-            .disposed(by: disposeBag)
-        
-        familyCollectionView.rx.modelSelected(FamilySection.Item.self)
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
-            .compactMap { item -> ProfileData? in
-                switch item {
-                case .main(let profileData): return profileData
-                }
-            }
-            .withUnretained(self)
-            .bind { owner, profileData in
-                let profileViewController = ProfileDIContainer(memberId: profileData.memberId).makeViewController()
-                self.navigationController?.pushViewController(profileViewController, animated: true)
             }
             .disposed(by: disposeBag)
         
@@ -273,24 +241,11 @@ extension HomeViewController {
             })
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$familySection)
-            .observe(on: MainScheduler.instance)
-            .map(Array.init(with:))
-            .bind(to: familyCollectionView.rx.items(dataSource: createFamilyDataSource()))
-            .disposed(by: disposeBag)
-        
         reactor.pulse(\.$isSelfUploaded)
             .distinctUntilChanged()
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
             .bind(onNext: { $0.0.hideCameraButton($0.1) })
-            .disposed(by: disposeBag)
-        
-        reactor.state.map { $0.isShowingInviteFamilyView}
-            .observe(on: MainScheduler.instance)
-            .distinctUntilChanged()
-            .map { !$0 }
-            .bind(to: inviteFamilyView.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.isShowingNoPostTodayView }
@@ -309,39 +264,6 @@ extension HomeViewController {
                 let cameraViewController = CameraDIContainer(cameraType: .feed).makeViewController()
                 $0.0.navigationController?.pushViewController(cameraViewController, animated: true)
             })
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$familyInvitationLink)
-            .observe(on: Schedulers.main)
-            .withUnretained(self)
-            .bind(onNext: {
-                $0.0.makeInvitationUrlSharePanel(
-                    $0.1,
-                    provider: reactor.provider
-                )
-            })
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$shouldPresentCopySuccessToastMessageView)
-            .skip(1)
-            .withUnretained(self)
-            .subscribe {
-                $0.0.makeBibbiToastView(
-                    text: "링크가 복사되었어요",
-                    image: DesignSystemAsset.link.image
-                )
-            }
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$shouldPresentFetchFailureToastMessageView)
-            .skip(1)
-            .withUnretained(self)
-            .subscribe {
-                $0.0.makeBibbiToastView(
-                    text: "잠시 후에 다시 시도해주세요",
-                    image: DesignSystemAsset.warning.image
-                )
-            }
             .disposed(by: disposeBag)
         
         // 위젯 딥링크 코드
@@ -368,6 +290,17 @@ extension HomeViewController {
             .compactMap { $0 }
             .bind(with: self) { owner, deepLink in
                 owner.handleCommentNotificationDeepLink(deepLink)
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentCopySuccessToastMessageView)
+            .skip(1)
+            .withUnretained(self)
+            .subscribe {
+                $0.0.makeBibbiToastView(
+                    text: "링크가 복사되었어요",
+                    image: DesignSystemAsset.link.image
+                )
             }
             .disposed(by: disposeBag)
     }
@@ -456,19 +389,6 @@ extension HomeViewController {
 }
 
 extension HomeViewController {
-    private func createFamilyLayout() -> UICollectionViewFlowLayout {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        layout.itemSize = .init(width: 64, height: 90)
-        layout.sectionInset = UIEdgeInsets(
-            top: HomeAutoLayout.FamilyCollectionView.edgeInsetTop,
-            left: HomeAutoLayout.FamilyCollectionView.edgeInsetLeft,
-            bottom: HomeAutoLayout.FamilyCollectionView.edgeInsetBottom,
-            right: HomeAutoLayout.FamilyCollectionView.edgeInsetRight)
-        layout.minimumLineSpacing = HomeAutoLayout.FamilyCollectionView.minimumLineSpacing
-        return layout
-    }
-    
     private func createPostLayout() -> UICollectionViewFlowLayout {
         let layout = UICollectionViewFlowLayout()
         layout.sectionInset = .zero
@@ -491,19 +411,5 @@ extension HomeViewController {
                 }
             })
         
-    }
-    
-    private func createFamilyDataSource() -> RxCollectionViewSectionedReloadDataSource<FamilySection.Model>  {
-        return RxCollectionViewSectionedReloadDataSource<FamilySection.Model>(
-            configureCell: { (_, collectionView, indexPath, item) in
-                switch item {
-                case .main(let data):
-                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FamilyCollectionViewCell.id, for: indexPath) as? FamilyCollectionViewCell else {
-                        return UICollectionViewCell()
-                    }
-                    cell.setCell(data: data)
-                    return cell
-                }
-            })
     }
 }

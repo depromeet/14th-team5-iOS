@@ -21,41 +21,41 @@ final class HomeDIContainer {
     }
     
     
-    func makeViewController() -> HomeViewController {
-        return HomeViewController(reactor: makeReactor())
+    func makeViewController() -> MainViewController {
+        return MainViewController(reactor: makeReactor())
     }
     
     private func makeReactor() -> HomeViewReactor {
-        return HomeViewReactor(provider: globalState, familyUseCase: makeFamilyUseCase(), postUseCase: makePostUseCase())
+        return HomeViewReactor(provider: globalState)
     }
 }
 
 extension HomeDIContainer {
-    private func makePostRepository() -> PostListRepositoryProtocol {
-        return PostListAPIs.Worker()
-    }
+//    private func makePostRepository() -> PostListRepositoryProtocol {
+//        return PostListAPIs.Worker()
+//    }
+//    
+//    private func makeFamilyRepository() -> FamilyRepositoryProtocol {
+//        return FamilyRepository()
+//    }
+//
+//    private func makeInviteFamilyRepository() -> FamilyRepositoryProtocol {
+//        return FamilyRepository()
+//    }
     
-    private func makeFamilyRepository() -> FamilyRepositoryProtocol {
-        return FamilyRepository()
-    }
-
-    private func makeInviteFamilyRepository() -> FamilyRepositoryProtocol {
-        return FamilyRepository()
-    }
-    
-    func makeUploadPostRepository() -> UploadPostRepositoryProtocol {
-        return PostUserDefaultsRepository()
-    }
-    
-    func makePostUseCase() -> PostListUseCaseProtocol {
-        return PostListUseCase(postListRepository: makePostRepository(), uploadePostRepository: makeUploadPostRepository())
-    }
-    
-    private func makeFamilyUseCase() -> FamilyUseCaseProtocol {
-        return FamilyUseCase(familyRepository: makeFamilyRepository())
-    }
-    
-    private func makeInviteFamilyUseCase() -> FamilyUseCaseProtocol {
-        return FamilyUseCase(familyRepository: makeInviteFamilyRepository())
-    }
+//    func makeUploadPostRepository() -> UploadPostRepositoryProtocol {
+//        return PostUserDefaultsRepository()
+//    }
+//    
+//    func makePostUseCase() -> PostListUseCaseProtocol {
+//        return PostListUseCase(postListRepository: makePostRepository(), uploadePostRepository: makeUploadPostRepository())
+//    }
+//    
+//    private func makeFamilyUseCase() -> FamilyUseCaseProtocol {
+//        return FamilyUseCase(familyRepository: makeFamilyRepository())
+//    }
+//    
+//    private func makeInviteFamilyUseCase() -> FamilyUseCaseProtocol {
+//        return FamilyUseCase(familyRepository: makeInviteFamilyRepository())
+//    }
 }

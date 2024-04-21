@@ -18,7 +18,6 @@ final class HomeViewReactor: Reactor {
     enum Action {
         case viewDidLoad
         case viewWillAppear
-        case refresh
         case tapCameraButton
         
         case pushWidgetPostDeepLink(WidgetDeepLink)
@@ -29,11 +28,8 @@ final class HomeViewReactor: Reactor {
     enum Mutation {
         case setSelfUploaded(Bool)
         case setAllFamilyUploaded(Bool)
-        case setNoPostTodayView(Bool)
         case setInTime(Bool)
         case showCameraView(Bool)
-        
-        case updatePostDataSource([PostSection.Item])
         
 //        case showShareAcitivityView(URL?)
         case setCopySuccessToastMessageView
@@ -46,12 +42,8 @@ final class HomeViewReactor: Reactor {
     struct State {
         var isInTime: Bool
         @Pulse var isSelfUploaded: Bool = true
-        @Pulse var isRefreshEnd: Bool = true
         var isAllFamilyMembersUploaded: Bool = false
         
-        @Pulse var postSection: PostSection.Model = PostSection.Model(model: 0, items: [])
-        
-        var isShowingNoPostTodayView: Bool = false
         @Pulse var isShowingCameraView: Bool = false
         
         @Pulse var widgetPostDeepLink: WidgetDeepLink?
@@ -63,12 +55,10 @@ final class HomeViewReactor: Reactor {
     
     let initialState: State
     let provider: GlobalStateProviderProtocol
-    private let postUseCase: PostListUseCaseProtocol
     
-    init(provider: GlobalStateProviderProtocol, familyUseCase: FamilyUseCaseProtocol, postUseCase: PostListUseCaseProtocol) {
+    init(provider: GlobalStateProviderProtocol) {
         self.initialState = State(isInTime: HomeViewReactor.calculateRemainingTime().0)
         self.provider = provider
-        self.postUseCase = postUseCase
     }
 }
 
@@ -90,7 +80,7 @@ extension HomeViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewWillAppear:
-            return self.viewWillAppear()
+            return Observable.empty()
         case .viewDidLoad:
             let (_, time) = HomeViewReactor.calculateRemainingTime()
             
@@ -110,26 +100,21 @@ extension HomeViewReactor {
                     }
                                         
             }
-        case .refresh:
-            return self.mutate(action: .viewWillAppear)
         case .tapCameraButton:
             return Observable.just(.showCameraView(self.currentState.isInTime))
             
         case let .pushWidgetPostDeepLink(deepLink):
             return Observable.concat(
-                self.viewWillAppear(), // 포스트 네트워크 통신을 완료 한 후,
                 Observable<Mutation>.just(.setWidgetPostDeepLink(deepLink)) // 다음 화면으로 이동하기
             )
             
         case let .pushNotificationPostDeepLink(deepLink):
             return Observable.concat(
-                self.viewWillAppear(), // 포스트 네트워크 통신을 완료 한 후,
                 Observable<Mutation>.just(.setNotificationPostDeepLink(deepLink)) // 다음 화면으로 이동하기
             )
             
         case let .pushNotificationCommentDeepLink(deepLink):
             return Observable.concat(
-                self.viewWillAppear(), // 포스트 네트워크 통신을 완료 한 후,
                 Observable<Mutation>.just(.setNotificationCommentDeepLink(deepLink)) // 다음 화면으로 이동하기
             )
         }
@@ -139,15 +124,10 @@ extension HomeViewReactor {
         var newState = state
         
         switch mutation {
-        case .updatePostDataSource(let postSectionItem):
-            newState.postSection.items = postSectionItem
-            App.Repository.member.postId.accept(UserDefaults.standard.postId)
         case .setSelfUploaded(let isSelfUploaded):
             newState.isSelfUploaded = isSelfUploaded
         case .setAllFamilyUploaded(let isAllUploaded):
             newState.isAllFamilyMembersUploaded = isAllUploaded
-        case .setNoPostTodayView(let isShow):
-            newState.isShowingNoPostTodayView = isShow
         case .setInTime(let isInTime):
             newState.isInTime = isInTime
         case let .showCameraView(isShow):
@@ -167,37 +147,6 @@ extension HomeViewReactor {
 }
 
 extension HomeViewReactor {
-    private func viewWillAppear() -> Observable<Mutation> {
-        let postListObservable = getPostList()
-        return handleFamilyAndPostList(postListObservable)
-    }
-
-    private func handleFamilyAndPostList(_ postListObservable: Observable<PostListPage?>) -> Observable<Mutation> {
-        return postListObservable
-            .flatMap { (postList) -> Observable<Mutation> in
-                var mutations: [Mutation] = []
-                if let postList = postList, !postList.postLists.isEmpty {
-                    let postSectionItem = postList.postLists.map(PostSection.Item.main)
-                    mutations.append(contentsOf: [
-                        Mutation.updatePostDataSource(postSectionItem),
-                        Mutation.setNoPostTodayView(false),
-                        Mutation.setAllFamilyUploaded(postList.allFamilyMembersUploaded)
-                    ])
-                }
-                
-                return Observable.concat(Observable.from(mutations), self.postUseCase.excute().asObservable().take(1).map { Mutation.setSelfUploaded($0) })
-            }
-    }
-
-    private func getPostList() -> Observable<PostListPage?> {
-        guard currentState.isInTime else {
-            return Observable.empty()
-        }
-
-        let query = PostListQuery(page: 1, size: 50, date: DateFormatter.dashYyyyMMdd.string(from: Date()), sort: .desc)
-        return postUseCase.excute(query: query).asObservable()
-    }
-    
     private static func calculateRemainingTime() -> (Bool, Int) {
         let calendar = Calendar.current
         let currentTime = Date()

@@ -14,7 +14,7 @@ import Domain
 import RxDataSources
 import RxSwift
 
-final class FeedCollectionViewCell: BaseCollectionViewCell<FeedViewReactor> {
+final class FeedCollectionViewCell: BaseCollectionViewCell<SurvivalCellReactor> {
     typealias Layout = HomeAutoLayout.FeedCollectionView
     static let id = "FeedCollectionViewCell"
     
@@ -23,7 +23,7 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<FeedViewReactor> {
     private let timeLabel = BibbiLabel(.caption, textAlignment: .right, textColor: .gray400)
     private let imageView = UIImageView(image: DesignSystemAsset.emptyCaseGraphicEmoji.image)
     
-    override func bind(reactor: FeedViewReactor) {
+    override func bind(reactor: SurvivalCellReactor) {
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
@@ -61,7 +61,7 @@ final class FeedCollectionViewCell: BaseCollectionViewCell<FeedViewReactor> {
 }
 
 extension FeedCollectionViewCell {
-    private func bindInput(reactor: FeedViewReactor) {
+    private func bindInput(reactor: SurvivalCellReactor) {
         Observable.just(())
             .take(1)
             .map { Reactor.Action.setCell }
@@ -69,7 +69,7 @@ extension FeedCollectionViewCell {
             .disposed(by: disposeBag)
     }
     
-    private func bindOutput(reactor: FeedViewReactor) {
+    private func bindOutput(reactor: SurvivalCellReactor) {
         reactor.state.map { $0.postListData }
             .distinctUntilChanged()
             .withUnretained(self)

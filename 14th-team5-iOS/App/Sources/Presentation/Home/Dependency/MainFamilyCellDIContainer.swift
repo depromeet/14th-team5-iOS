@@ -12,8 +12,8 @@ import Data
 import Domain
 
 final class MainFamilyCellDIContainer {
-    func makeCell(data: ProfileData) -> FamilyCollectionViewCell {
-        return FamilyCollectionViewCell(reacter: makeReactor(data: data))
+    func makeCell(data: ProfileData) -> MainFamilyCollectionViewCell {
+        return MainFamilyCollectionViewCell(reacter: makeReactor(data: data))
     }
     
     private func makeReactor(data: ProfileData) -> MainFamilyCellReactor {

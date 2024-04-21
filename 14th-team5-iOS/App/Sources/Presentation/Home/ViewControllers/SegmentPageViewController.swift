@@ -11,8 +11,8 @@ import RxSwift
 import RxCocoa
 
 final class SegmentPageViewController: UIPageViewController {
-    private let survivalViewController: SurvivalViewController = SurvivalDIContainer().makeViewController(type: .survival)
-    private let missionViewController: SurvivalViewController = SurvivalDIContainer().makeViewController(type: .mission)
+    private let survivalViewController: MainPostViewController = MainPostDIContainer().makeViewController(type: .survival)
+    private let missionViewController: MainPostViewController = MainPostDIContainer().makeViewController(type: .mission)
     private let disposeBag = DisposeBag()
     
     private lazy var pages: [UIViewController] = [survivalViewController, missionViewController]

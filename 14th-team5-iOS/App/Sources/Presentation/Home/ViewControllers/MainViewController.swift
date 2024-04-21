@@ -17,7 +17,7 @@ import SnapKit
 import Then
 import Domain
 
-final class MainViewController: BaseViewController<HomeViewReactor>, UICollectionViewDelegateFlowLayout {
+final class MainViewController: BaseViewController<MainViewReactor>, UICollectionViewDelegateFlowLayout {
     private let familyViewController: MainFamilyViewController = MainFamilyDIContainer().makeViewController()
 
     private let timerView: TimerView = TimerDIContainer().makeView()
@@ -41,7 +41,7 @@ final class MainViewController: BaseViewController<HomeViewReactor>, UICollectio
         UserDefaults.standard.inviteCode = nil
     }
     
-    override func bind(reactor: HomeViewReactor) {
+    override func bind(reactor: MainViewReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
@@ -118,7 +118,7 @@ final class MainViewController: BaseViewController<HomeViewReactor>, UICollectio
 }
 
 extension MainViewController {
-    private func bindInput(reactor: HomeViewReactor) {
+    private func bindInput(reactor: MainViewReactor) {
         Observable.merge(
             Observable.just(())
                 .map { Reactor.Action.viewDidLoad },
@@ -208,7 +208,7 @@ extension MainViewController {
             .disposed(by: disposeBag)
     }
     
-    private func bindOutput(reactor: HomeViewReactor) {
+    private func bindOutput(reactor: MainViewReactor) {
         reactor.pulse(\.$isSelfUploaded)
             .distinctUntilChanged()
             .observe(on: MainScheduler.instance)

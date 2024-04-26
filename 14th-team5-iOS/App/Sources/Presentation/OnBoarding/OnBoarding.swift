@@ -19,6 +19,7 @@ enum OnBoarding {
     static var info: [Self.Info] = [
         Info(title: OnBoardingStrings.push, image: DesignSystemAsset.onBoarding01.image),
         Info(title: OnBoardingStrings.widget, image: DesignSystemAsset.onBoarding02.image),
-        Info(title: OnBoardingStrings.permission, image: DesignSystemAsset.onBoarding03.image)
+        Info(title: OnBoardingStrings.mission, image: DesignSystemAsset.onBoarding03.image),
+        Info(title: OnBoardingStrings.permission, image: DesignSystemAsset.onBoarding04.image)
     ]
 }

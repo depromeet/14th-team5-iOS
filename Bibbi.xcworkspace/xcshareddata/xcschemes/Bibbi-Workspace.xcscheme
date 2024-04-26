@@ -308,6 +308,20 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "47F627FD023B90723D5A3BC9"
+               BuildableName = "GoogleDataTransport_GoogleDataTransport.bundle"
+               BlueprintName = "GoogleDataTransport_GoogleDataTransport"
+               ReferencedContainer = "container:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/GoogleDataTransport/GoogleDataTransport.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "3ED94F9FE92CD30586A12982"
                BuildableName = "GoogleUtilities_AppDelegateSwizzler.framework"
                BlueprintName = "GoogleUtilities-AppDelegateSwizzler"
@@ -409,6 +423,34 @@
                BlueprintIdentifier = "3EEFCF626C2BCF3F7E6BCF80"
                BuildableName = "GoogleUtilities_UserDefaults.framework"
                BlueprintName = "GoogleUtilities-UserDefaults"
+               ReferencedContainer = "container:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/GoogleUtilities/GoogleUtilities.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "EB90FAD5F60FE50D10E84EFD"
+               BuildableName = "GoogleUtilitiesPrivacy.framework"
+               BlueprintName = "GoogleUtilitiesPrivacy"
+               ReferencedContainer = "container:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/GoogleUtilities/GoogleUtilities.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "855D7D904350B563639C3548"
+               BuildableName = "GoogleUtilities_GoogleUtilitiesPrivacy.bundle"
+               BlueprintName = "GoogleUtilities_GoogleUtilitiesPrivacy"
                ReferencedContainer = "container:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/GoogleUtilities/GoogleUtilities.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -578,6 +620,20 @@
                BuildableName = "Mixpanel.framework"
                BlueprintName = "Mixpanel"
                ReferencedContainer = "container:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/mixpanel-swift/Mixpanel.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "82B33931410C5E34C202CFA7"
+               BuildableName = "Promises_FBLPromises.bundle"
+               BlueprintName = "Promises_FBLPromises"
+               ReferencedContainer = "container:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/promises/Promises.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry

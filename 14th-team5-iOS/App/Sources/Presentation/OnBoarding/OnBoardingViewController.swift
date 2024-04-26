@@ -85,7 +85,7 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
         pageControl.do {
             $0.isUserInteractionEnabled = false
             $0.currentPage = 0
-            $0.numberOfPages = 3
+            $0.numberOfPages = 4
             $0.pageIndicatorTintColor = DesignSystemAsset.black.color.withAlphaComponent(0.2)
             $0.currentPageIndicatorTintColor = DesignSystemAsset.black.color
         }
@@ -136,8 +136,8 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
     
     private func validationButtion(for index: Int) {
         let defaultColor = DesignSystemAsset.black.color
-        nextButton.backgroundColor = index == 2 ? defaultColor : defaultColor.withAlphaComponent(0.2)
-        nextButton.isEnabled = index == 2
+        nextButton.backgroundColor = index == 3 ? defaultColor : defaultColor.withAlphaComponent(0.2)
+        nextButton.isEnabled = index == 3
     }
     
     private func showNextPage(_ show: Bool) {

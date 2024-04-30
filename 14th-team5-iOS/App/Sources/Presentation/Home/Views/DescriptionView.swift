@@ -85,9 +85,13 @@ extension DescriptionView {
             .map { Reactor.Action.setPostType($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-
     }
     
     private func bindOutput(reactor: DescriptionReactor) {
+        reactor.state.map { $0.description }
+            .compactMap { $0 }
+            .distinctUntilChanged()
+            .bind(to: descriptionLabel.rx.text)
+            .disposed(by: disposeBag)
     }
 }

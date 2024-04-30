@@ -24,8 +24,18 @@ final class MainViewDIContainer {
     func makeViewController() -> MainViewController {
         return MainViewController(reactor: makeReactor())
     }
-    
+}
+
+extension MainViewDIContainer {
     private func makeReactor() -> MainViewReactor {
-        return MainViewReactor(provider: globalState)
+        return MainViewReactor(initialState: .init(isInTime: false), fetchMainUseCase: makeFetchMainUseCase(), provider: globalState)
+    }
+    
+    private func makeMainRepository() -> MainRepository {
+        return MainRepository()
+    }
+    
+    private func makeFetchMainUseCase() -> FetchMainUseCaseProtocol {
+        return FetchMainUseCase(mainRepository: makeMainRepository())
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+
 import Core
 import Domain
 import DesignSystem
@@ -13,23 +14,18 @@ import DesignSystem
 import RxDataSources
 import RxCocoa
 import RxSwift
-import SnapKit
-import Then
-import Domain
 
 final class MainViewController: BaseViewController<MainViewReactor>, UICollectionViewDelegateFlowLayout {
-    private let familyViewController: MainFamilyViewController = MainFamilyDIContainer().makeViewController()
+    private let familyViewController: MainFamilyViewController = MainFamilyViewDIContainer().makeViewController()
 
     private let timerView: TimerView = TimerDIContainer().makeView()
-    private let descriptionView: DescriptionView = DescriptionView()
+    private let descriptionView: DescriptionView = DescriptionDIContainer().makeView()
     
     private let segmentControl: BibbiSegmentedControl = BibbiSegmentedControl(isUpdated: true)
     private let pageViewController: SegmentPageViewController = SegmentPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
-
-    private let balloonView: BalloonView = BalloonView()
-    private let loadingView: BibbiLoadingView = BibbiLoadingView()
-    private let cameraButton: UIButton = UIButton()
     
+    lazy var cameraButton: MainCameraButtonView = MainCameraDIContainer().makeView()
+
     // MARK: - Properties
     private let memberRepo = App.Repository.member
     private let deepLinkRepo = App.Repository.deepLink
@@ -37,7 +33,6 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.hideCameraButton(true)
         UserDefaults.standard.inviteCode = nil
     }
     
@@ -53,8 +48,8 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
         addChild(familyViewController)
         addChild(pageViewController)
         
-        view.addSubviews(familyViewController.view, timerView, segmentControl,
-                         pageViewController.view, balloonView, cameraButton)
+        view.addSubviews(familyViewController.view, timerView, descriptionView, segmentControl,
+                         pageViewController.view, cameraButton)
         
         familyViewController.didMove(toParent: self)
         pageViewController.didMove(toParent: self)
@@ -71,12 +66,18 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
         
         timerView.snp.makeConstraints {
             $0.top.equalTo(familyViewController.view.snp.bottom)
-            $0.height.equalTo(100)
+            $0.height.equalTo(48)
             $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
         }
         
+        descriptionView.snp.makeConstraints {
+            $0.top.equalTo(timerView.snp.bottom).offset(8)
+            $0.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(20)
+        }
+        
         segmentControl.snp.makeConstraints {
-            $0.top.equalTo(timerView.snp.bottom)
+            $0.top.equalTo(descriptionView.snp.bottom).offset(20)
             $0.centerX.equalToSuperview()
             $0.width.equalTo(138)
             $0.height.equalTo(40)
@@ -87,16 +88,9 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
             $0.horizontalEdges.bottom.equalToSuperview()
         }
         
-        balloonView.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
-            $0.bottom.equalTo(cameraButton.snp.top).offset(-8)
-            $0.height.equalTo(52)
-        }
-        
         cameraButton.snp.makeConstraints {
-            $0.size.equalTo(HomeAutoLayout.CamerButton.size)
-            $0.centerX.equalToSuperview()
-            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+            $0.bottom.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            $0.height.equalTo(140)
         }
     }
     
@@ -105,14 +99,6 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
         
         navigationBarView.do {
             $0.setNavigationView(leftItem: .family, centerItem: .logo, rightItem: .calendar)
-        }
-        
-        balloonView.do {
-            $0.text = "하루에 한번 사진을 올릴 수 있어요"
-        }
-        
-        cameraButton.do {
-            $0.setImage(DesignSystemAsset.shutter.image, for: .normal)
         }
     }
 }
@@ -129,21 +115,21 @@ extension MainViewController {
         .disposed(by: disposeBag)
         
         Observable.just(())
-            .map { Reactor.Action.viewDidLoad }
+            .map { Reactor.Action.fetchMainUseCase }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        self.rx.viewWillAppear
-            .withUnretained(self)
-            // 별도 딥링크를 받지 않으면
-            .filter {
-                let repo = $0.0.deepLinkRepo
-                return repo.notification.value == nil && repo.widget.value == nil
-            }
-            // viewWillAppear 메서드 수행하기
-            .map { _ in Reactor.Action.viewWillAppear }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
+//        self.rx.viewWillAppear
+//            .withUnretained(self)
+//            // 별도 딥링크를 받지 않으면
+//            .filter {
+//                let repo = $0.0.deepLinkRepo
+//                return repo.notification.value == nil && repo.widget.value == nil
+//            }
+//            // viewWillAppear 메서드 수행하기
+//            .map { _ in Reactor.Action.viewWillAppear }
+//            .bind(to: reactor.action)
+//            .disposed(by: disposeBag)
 
         segmentControl
             .survivalButton.rx.tap
@@ -160,29 +146,25 @@ extension MainViewController {
             .disposed(by: disposeBag)
         
         navigationBarView.rx.leftButtonTap
+            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .withUnretained(self)
-            .subscribe {
-                $0.0.navigationController?.pushViewController(
-                    FamilyManagementDIContainer().makeViewController(),
-                    animated: true
-                )
-            }
+            .bind { $0.0.navigationController?.pushViewController( FamilyManagementDIContainer().makeViewController(), animated: true) }
             .disposed(by: disposeBag)
         
         navigationBarView.rx.rightButtonTap
+            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .withUnretained(self)
-            .subscribe {
-                $0.0.navigationController?.pushViewController(
-                    CalendarDIConatainer().makeViewController(),
-                    animated: true
-                )
-            }
+            .bind { $0.0.navigationController?.pushViewController(CalendarDIConatainer().makeViewController(), animated: true) }
             .disposed(by: disposeBag)
         
-        cameraButton.rx.tap
+        cameraButton.camerTapObservable
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
-            .map { Reactor.Action.tapCameraButton }
-            .bind(to: reactor.action)
+            .withUnretained(self)
+            .bind(onNext: {
+                MPEvent.Home.cameraTapped.track(with: nil)
+                let cameraViewController = CameraDIContainer(cameraType: .feed).makeViewController()
+                $0.0.navigationController?.pushViewController(cameraViewController, animated: true)
+            })
             .disposed(by: disposeBag)
         
         // 위젯 딥링크 코드
@@ -209,36 +191,29 @@ extension MainViewController {
     }
     
     private func bindOutput(reactor: MainViewReactor) {
-        reactor.pulse(\.$isSelfUploaded)
+        
+        reactor.pulse(\.$familySection)
             .distinctUntilChanged()
             .observe(on: MainScheduler.instance)
-            .withUnretained(self)
-            .bind(onNext: { $0.0.hideCameraButton($0.1) })
+            .bind(to: familyViewController.familySectionRelay)
             .disposed(by: disposeBag)
+//        reactor.pulse(\.$isSelfUploaded)
+//            .distinctUntilChanged()
+//            .observe(on: MainScheduler.instance)
+//            .withUnretained(self)
+//            .bind(onNext: { $0.0.hideCameraButton($0.1) })
+//            .disposed(by: disposeBag)
         
-        reactor.pulse(\.$isShowingCameraView)
-            .observe(on: MainScheduler.instance)
-            .filter { $0 }
+        reactor.state.map { $0.pageIndex }
+            .distinctUntilChanged()
             .withUnretained(self)
+            .observe(on: MainScheduler.instance)
             .bind(onNext: {
-                MPEvent.Home.cameraTapped.track(with: nil)
-                let cameraViewController = CameraDIContainer(cameraType: .feed).makeViewController()
-                $0.0.navigationController?.pushViewController(cameraViewController, animated: true)
+                $0.0.pageViewController.indexRelay.accept($0.1)
+                $0.0.segmentControl.isSelected = ($0.1 == 0)
+                $0.0.descriptionView.postTypeRelay.accept(($0.1 == 0) ? .survival : .mission)
             })
             .disposed(by: disposeBag)
-        
-        reactor.state.map { $0.pageIndex }
-            .distinctUntilChanged()
-            .observe(on: MainScheduler.instance)
-            .bind(to: pageViewController.indexRelay)
-            .disposed(by: disposeBag)
-        
-        reactor.state.map { $0.pageIndex }
-          .distinctUntilChanged()
-          .observe(on: MainScheduler.instance)
-          .map { return $0 == 0 ? true : false }
-          .bind(to: segmentControl.rx.isSelected)
-          .disposed(by: disposeBag)
 //
 //        // 위젯 딥링크 코드
 //        reactor.pulse(\.$widgetPostDeepLink)
@@ -277,13 +252,6 @@ extension MainViewController {
                 )
             }
             .disposed(by: disposeBag)
-    }
-}
-
-extension MainViewController {
-    private func hideCameraButton(_ isHidden: Bool) {
-        balloonView.isHidden = isHidden
-        cameraButton.isHidden = isHidden
     }
 }
 

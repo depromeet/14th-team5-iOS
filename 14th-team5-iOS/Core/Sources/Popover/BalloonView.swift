@@ -6,17 +6,17 @@
 //
 
 import UIKit
+
 import DesignSystem
+
+import RxSwift
 
 public class BalloonView: UIView {
     private let containerView: UIView = UIView()
     private let textLabel: UILabel = BibbiLabel(.body2Regular)
     
-    public var text: String? {
-        didSet {
-            textLabel.text = text
-            sizeToFit()
-        }
+    public var text: Binder<String?> {
+        return textLabel.rx.text
     }
     
     override init(frame: CGRect) {

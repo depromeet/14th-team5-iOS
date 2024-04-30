@@ -24,6 +24,17 @@ public enum PostType: String {
             return 1
         }
     }
+    
+    public static func getPostType(index: Int) -> PostType {
+        switch index {
+        case 0:
+            return .survival
+        case 1:
+            return .mission
+        default:
+            fatalError("index Out of range")
+        }
+    }
 }
 
 public struct PostListQuery {

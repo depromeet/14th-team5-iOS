@@ -15,7 +15,7 @@ public enum MainAPIs: API {
     var spec: APISpec {
         switch self {
         case .fetchMain:
-            let urlString = "\(BibbiAPI.hostApi)/view/main"
+            let urlString = "\(BibbiAPI.hostApi)/view/main/daytime-page"
             return APISpec(method: .get, url: urlString)
         }
     }

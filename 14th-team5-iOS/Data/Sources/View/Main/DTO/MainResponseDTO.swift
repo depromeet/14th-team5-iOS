@@ -57,13 +57,22 @@ struct Picker: Codable {
 
 struct MainResponseDTO: Codable {
     let topBarElements: [TopBarElement]
+    let leftUploadCountUntilMissionUnlock: Int
     let isMissionUnlocked: Bool
-    let isMeUploadedToday: Bool
+    let isMeSurvivalUploadedToday: Bool
+    let isMeMissionUploadedToday: Bool
+    let dailyMissionContent: String
     let survivalFeeds: [SurvivalFeed]
     let missionFeeds: [MissionFeed]
     let pickers: [Picker]
     
     func toDomain() -> MainData {
-        return .init(mainFamilyProfileDatas: topBarElements.map { $0.toDomain() }, isMissionUnlocked: isMissionUnlocked, isMeUploadedToday: isMeUploadedToday, pickers: pickers.map { $0.toDomain() })
+        return .init(
+            mainFamilyProfileDatas: topBarElements.map { $0.toDomain() },
+            leftUploadCountUntilMissionUnlock: leftUploadCountUntilMissionUnlock,
+            isMissionUnlocked: isMissionUnlocked,
+            isMeSurvivalUploadedToday: isMeSurvivalUploadedToday,
+            isMeMissionUploadedToday: isMeMissionUploadedToday,
+            pickers: pickers.map { $0.toDomain() })
     }
 }

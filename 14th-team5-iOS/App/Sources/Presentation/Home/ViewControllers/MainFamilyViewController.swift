@@ -12,11 +12,14 @@ import Domain
 import DesignSystem
 
 import RxSwift
+import RxCocoa
 import RxDataSources
 
-final class MainFamilyViewController: BaseViewController<MainFamilyReactor> {
+final class MainFamilyViewController: BaseViewController<MainFamilyViewReactor> {
     private let inviteFamilyView: InviteFamilyView = InviteFamilyView(openType: .makeUrl)
     private let familyCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    
+    let familySectionRelay: BehaviorRelay<[FamilySection.Item]> = BehaviorRelay(value: .init())
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,7 +27,7 @@ final class MainFamilyViewController: BaseViewController<MainFamilyReactor> {
         navigationBarView.isHidden = true
     }
     
-    override func bind(reactor: MainFamilyReactor) {
+    override func bind(reactor: MainFamilyViewReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
@@ -69,9 +72,9 @@ final class MainFamilyViewController: BaseViewController<MainFamilyReactor> {
 }
 
 extension MainFamilyViewController {
-    private func bindInput(reactor: MainFamilyReactor) {
-        Observable.just(())
-            .map { Reactor.Action.fetchFamily }
+    private func bindInput(reactor: MainFamilyViewReactor) {
+        familySectionRelay
+            .map { Reactor.Action.updateFamilySection($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -96,7 +99,7 @@ extension MainFamilyViewController {
             .disposed(by: disposeBag)
     }
     
-    private func bindOutput(reactor: MainFamilyReactor) {
+    private func bindOutput(reactor: MainFamilyViewReactor) {
         reactor.pulse(\.$familySection)
             .observe(on: MainScheduler.instance)
             .map(Array.init(with:))

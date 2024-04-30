@@ -7,12 +7,14 @@
 
 import UIKit
 
+import Domain
+
 import RxSwift
 import RxCocoa
 
 final class SegmentPageViewController: UIPageViewController {
-    private let survivalViewController: MainPostViewController = MainPostDIContainer().makeViewController(type: .survival)
-    private let missionViewController: MainPostViewController = MainPostDIContainer().makeViewController(type: .mission)
+    private let survivalViewController: MainPostViewController = MainPostViewDIContainer().makeViewController(type: .survival)
+    private let missionViewController: MainPostViewController = MainPostViewDIContainer().makeViewController(type: .mission)
     private let disposeBag = DisposeBag()
     
     private lazy var pages: [UIViewController] = [survivalViewController, missionViewController]
@@ -29,7 +31,7 @@ final class SegmentPageViewController: UIPageViewController {
         bind()
     }
     
-    func bind() {
+    private func bind() {
         indexRelay
             .withUnretained(self)
             .bind(onNext: {

@@ -40,8 +40,10 @@ public final class CameraDisplayViewReactor: Reactor {
     public struct State {
         var isLoading: Bool
         var displayDescrption: String
+        var cameraType: PostType
         @Pulse var isError: Bool
         @Pulse var displayData: Data
+        @Pulse var missionTitle: String
         @Pulse var displaySection: [DisplayEditSectionModel]
         @Pulse var displayEntity: CameraDisplayImageResponse?
         @Pulse var displayOringalEntity: Bool
@@ -50,13 +52,20 @@ public final class CameraDisplayViewReactor: Reactor {
     
     
     
-    init(cameraDisplayUseCase: CameraDisplayViewUseCaseProtocol, displayData: Data) {
+    init(
+      cameraDisplayUseCase: CameraDisplayViewUseCaseProtocol,
+      displayData: Data,
+      missionTitle: String,
+      cameraType: PostType = .survival
+    ) {
         self.cameraDisplayUseCase = cameraDisplayUseCase
         self.initialState = State(
             isLoading: true,
             displayDescrption: "",
+            cameraType: cameraType,
             isError: false,
             displayData: displayData,
+            missionTitle: missionTitle,
             displaySection: [.displayKeyword([])],
             displayEntity: nil,
             displayOringalEntity: false,
@@ -67,13 +76,13 @@ public final class CameraDisplayViewReactor: Reactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewDidLoad:
-            let fileName = "\(self.currentState.displayData.hashValue).jpg"
+            let fileName = "\(currentState.displayData.hashValue).jpg"
             let parameters: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: "\(fileName)")
             
             return .concat(
                 .just(.setLoading(false)),
                 .just(.setError(false)),
-                .just(.setRenderImage(self.currentState.displayData)),
+                .just(.setRenderImage(currentState.displayData)),
                 cameraDisplayUseCase.executeDisplayImageURL(parameters: parameters)
                     .withUnretained(self)
                     .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
@@ -124,7 +133,7 @@ public final class CameraDisplayViewReactor: Reactor {
         case .didTapArchiveButton:
             return .concat(
                 .just(.setLoading(false)),
-                .just(.saveDeviceimage(self.currentState.displayData)),
+                .just(.saveDeviceimage(currentState.displayData)),
                 .just(.setLoading(true))
             )
             
@@ -132,25 +141,30 @@ public final class CameraDisplayViewReactor: Reactor {
             
             MPEvent.Camera.uploadPhoto.track(with: nil)
 
-            guard let presingedURL = self.currentState.displayEntity?.imageURL else { return .just(.setError(true)) }
+            guard let presingedURL = currentState.displayEntity?.imageURL else { return .just(.setError(true)) }
             let originURL = configureOriginalS3URL(url: presingedURL)
+            let cameraQuery = CameraMissionFeedQuery(type: currentState.cameraType.rawValue, isUploded: true)
             
             let parameters: CameraDisplayPostParameters = CameraDisplayPostParameters(
                 imageUrl: originURL,
-                content: self.currentState.displayDescrption,
+                content: currentState.displayDescrption,
                 uploadTime: DateFormatter.yyyyMMddTHHmmssXXX.string(from: Date())
             )
             
-            return cameraDisplayUseCase.executeCombineWithTextImage(parameters: parameters)
+            return cameraDisplayUseCase.executeCombineWithTextImage(parameters: parameters, query: cameraQuery)
                 .asObservable()
+                .catchAndReturn(nil)
                 .flatMap { entity -> Observable<CameraDisplayViewReactor.Mutation> in
-                    return .concat(
-                        .just(.setLoading(false)),
-                        .just(.setPostEntity(entity)),
-                        .just(.setLoading(true)),
-                        .just(.setError(false))
-                    )
-                    
+                    if entity == nil  {
+                        return .just(.setError(true))
+                    } else {
+                        return .concat(
+                            .just(.setLoading(false)),
+                            .just(.setPostEntity(entity)),
+                            .just(.setLoading(true)),
+                            .just(.setError(false))
+                        )
+                    }
                 }
         case .hideDisplayEditCell:
             return .concat(
@@ -195,7 +209,7 @@ extension CameraDisplayViewReactor {
     func getSection(_ section: DisplayEditSectionModel) -> Int {
         var index: Int = 0
         
-        for i in 0 ..< self.currentState.displaySection.count where self.currentState.displaySection[i].getSectionType() == section.getSectionType() {
+        for i in 0 ..< currentState.displaySection.count where currentState.displaySection[i].getSectionType() == section.getSectionType() {
             index = i
         }
         

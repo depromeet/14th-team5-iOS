@@ -24,4 +24,5 @@ public protocol CameraViewInterface: AnyObject {
     func uploadRealEmojiImageToS3(memberId: String, parameters: CameraCreateRealEmojiParameters) -> Observable<CameraCreateRealEmojiResponse?>
     func fetchRealEmojiItems(memberId: String) -> Observable<[CameraRealEmojiImageItemResponse?]>
     func updateRealEmojiImage(memberId: String, realEmojiId: String, parameters: CameraUpdateRealEmojiParameters) -> Observable<CameraUpdateRealEmojiResponse?>
+    func fetchTodayMissionItem() -> Observable<CameraTodayMissionResponse?>
 }

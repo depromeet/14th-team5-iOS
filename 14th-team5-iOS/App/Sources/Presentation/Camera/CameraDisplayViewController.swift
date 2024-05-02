@@ -20,6 +20,7 @@ import SnapKit
 public final class CameraDisplayViewController: BaseViewController<CameraDisplayViewReactor> {
     //MARK: Views
     private let displayView: UIImageView = UIImageView()
+    private let missionDisplayView: BibbiMissionView = BibbiMissionView()
     private let confirmButton: UIButton = UIButton(configuration: .plain())
     private let displayIndicatorView: BibbiLoadingView = BibbiLoadingView()
     private let backButton: UIButton = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 52, height: 52)))
@@ -52,7 +53,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(displayView, confirmButton, archiveButton, displayEditTextField, displayEditCollectionView, displayIndicatorView)
+        view.addSubviews(displayView, missionDisplayView, confirmButton, archiveButton, displayEditTextField, displayEditCollectionView, displayIndicatorView)
         displayView.addSubviews(displayEditButton)
     }
     
@@ -143,6 +144,12 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         
+        missionDisplayView.snp.makeConstraints {
+            $0.top.equalTo(navigationBarView.snp.bottom).offset(26)
+            $0.left.right.equalToSuperview()
+            $0.height.equalTo(46)
+        }
+        
         displayEditTextField.snp.makeConstraints {
             $0.height.equalTo(0)
             $0.left.right.equalToSuperview()
@@ -215,6 +222,15 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        reactor.state
+            .map { $0.cameraType == .mission ? false : true }
+            .bind(to: missionDisplayView.rx.isHidden)
+            .disposed(by: disposeBag)
+            
+        
+        reactor.pulse(\.$missionTitle)
+            .bind(to: missionDisplayView.missionTitleView.rx.text)
+            .disposed(by: disposeBag)
         
         displayEditTextField.rx
             .text.orEmpty

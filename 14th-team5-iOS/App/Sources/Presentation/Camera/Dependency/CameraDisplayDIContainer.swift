@@ -19,9 +19,13 @@ public final class CameraDisplayDIContainer: BaseDIContainer {
     public typealias UseCase = CameraDisplayViewUseCaseProtocol
     
     fileprivate var displayData: Data
-    
-    public init(displayData: Data) {
+    fileprivate var missionTitle: String
+    fileprivate var cameraDisplayType: PostType
+  
+    public init(displayData: Data, missionTitle: String = "", cameraDisplayType: PostType = .survival) {
         self.displayData = displayData
+        self.missionTitle = missionTitle
+        self.cameraDisplayType = cameraDisplayType
     }
     
     public func makeViewController() -> ViewContrller {
@@ -37,7 +41,7 @@ public final class CameraDisplayDIContainer: BaseDIContainer {
     }
     
     public func makeReactor() -> Reactor {
-        return CameraDisplayViewReactor(cameraDisplayUseCase: makeUseCase(), displayData: displayData)
+        return CameraDisplayViewReactor(cameraDisplayUseCase: makeUseCase(), displayData: displayData, missionTitle: missionTitle, cameraType: cameraDisplayType)
     }
     
 }

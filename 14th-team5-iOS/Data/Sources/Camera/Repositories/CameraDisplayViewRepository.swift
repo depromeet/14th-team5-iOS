@@ -51,9 +51,10 @@ extension CameraDisplayViewRepository: CameraDisplayViewInterface {
     }
     
     
-    public func combineWithTextImage(parameters: CameraDisplayPostParameters) -> Observable<CameraDisplayPostResponse?> {
-        return cameraDisplayAPIWorker.combineWithTextImageUpload(accessToken: accessToken, parameters: parameters)
-            .compactMap { $0?.toDomain() }
+    public func combineWithTextImage(parameters: CameraDisplayPostParameters, query:CameraMissionFeedQuery) -> Observable<CameraDisplayPostResponse?> {
+        return cameraDisplayAPIWorker.combineWithTextImageUpload(accessToken: accessToken, parameters: parameters, query: query)
+            .map { $0?.toDomain() }
+            .catchAndReturn(nil)
             .asObservable()
     }
     

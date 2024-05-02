@@ -24,7 +24,6 @@ final class ProfileDetailViewController: BaseViewController<ProfileDetailViewRea
     }
     
     override func setupUI() {
-//        super.setupUI()
         view.addSubviews(blurView, profileImageView, nickNameLabel, navigationBarView)
     }
     

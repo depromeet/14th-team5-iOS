@@ -93,4 +93,10 @@ extension CameraViewRepository: CameraViewInterface {
             .compactMap { $0?.toDomain() }
             .asObservable()
     }
+  
+  public func fetchTodayMissionItem() -> Observable<CameraTodayMissionResponse?> {
+      return cameraAPIWorker.fetchMissionItems(accessToken: accessToken)
+        .compactMap { $0?.toDomain() }
+        .asObservable()
+  }
 }

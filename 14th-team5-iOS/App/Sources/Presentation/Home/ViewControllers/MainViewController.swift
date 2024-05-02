@@ -158,13 +158,15 @@ extension MainViewController {
             .withUnretained(self)
             .bind { $0.0.navigationController?.pushViewController(CalendarDIConatainer().makeViewController(), animated: true) }
             .disposed(by: disposeBag)
+      
+  
         
         cameraButton.camerTapObservable
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind(onNext: {
                 MPEvent.Home.cameraTapped.track(with: nil)
-                let cameraViewController = CameraDIContainer(cameraType: .feed).makeViewController()
+                let cameraViewController = CameraDIContainer(cameraType: .survival).makeViewController()
                 $0.0.navigationController?.pushViewController(cameraViewController, animated: true)
             })
             .disposed(by: disposeBag)

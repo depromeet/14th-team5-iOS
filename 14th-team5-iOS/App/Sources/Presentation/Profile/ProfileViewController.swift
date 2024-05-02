@@ -157,7 +157,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .rx.tap
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .withUnretained(self)
-            .bind(onNext: {$0.0.createAlertController(owner: $0.0)})
+            .bind(onNext: {$0.0.createAlertController()})
             .disposed(by: disposeBag)
         
         
@@ -400,14 +400,14 @@ extension ProfileViewController {
         self.navigationController?.pushViewController(accountNickNameViewController, animated: false)
     }
     
-    private func createAlertController(owner: ProfileViewController) {
+    private func createAlertController() {
         let alertController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
         let presentCameraAction: UIAlertAction = UIAlertAction(title: "카메라", style: .default) { _ in
             guard let profileMemberId = self.reactor?.currentState.profileMemberEntity?.memberId else { return }
             
             let cameraViewController = CameraDIContainer(cameraType: .profile, memberId: profileMemberId).makeViewController()
-            owner.navigationController?.pushViewController(cameraViewController, animated: true)
+            self.navigationController?.pushViewController(cameraViewController, animated: true)
         }
         
         let presentAlbumAction: UIAlertAction = UIAlertAction(title: "앨범", style: .default) { _ in
@@ -428,7 +428,7 @@ extension ProfileViewController {
             alertController.addAction($0)
         }
         alertController.overrideUserInterfaceStyle = .dark
-        owner.present(alertController, animated: true)
+        self.present(alertController, animated: true)
     }
     
 }

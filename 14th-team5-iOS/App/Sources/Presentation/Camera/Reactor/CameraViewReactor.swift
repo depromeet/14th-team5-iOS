@@ -46,6 +46,7 @@ public final class CameraViewReactor: Reactor {
         case setRealEmojiImageCreateResponse(CameraCreateRealEmojiResponse?)
         case setRealEmojiItems([CameraRealEmojiImageItemResponse?])
         case setRealEmojiSection([EmojiSectionItem])
+        case setMissionResponse(CameraTodayMissionResponse?)
         case setErrorAlert(Bool)
         case setRealEmojiType(Emojis)
         case setFeedImageData(Data)
@@ -60,13 +61,14 @@ public final class CameraViewReactor: Reactor {
         @Pulse var realEmojiURLEntity: CameraRealEmojiPreSignedResponse?
         @Pulse var realEmojiCreateEntity: CameraCreateRealEmojiResponse?
         @Pulse var realEmojiEntity: [CameraRealEmojiImageItemResponse?]
+        @Pulse var missionEnttiy: CameraTodayMissionResponse?
         @Pulse var realEmojiSection: [EmojiSectionModel]
         @Pulse var zoomScale: CGFloat
         @Pulse var pinchZoomScale: CGFloat
         @Pulse var feedImageData: Data?
         var updateEmojiImage: URL?
         var emojiType: Emojis = .emoji(forIndex: 1)
-        var cameraType: UploadLocation = .feed
+        @Pulse var cameraType: UploadLocation = .survival
         var accountImage: Data?
         var memberId: String
         var isUpload: Bool
@@ -92,6 +94,7 @@ public final class CameraViewReactor: Reactor {
             realEmojiURLEntity: nil,
             realEmojiCreateEntity: nil,
             realEmojiEntity: [],
+            missionEnttiy: nil,
             realEmojiSection: [.realEmoji([])],
             zoomScale: 1.0,
             pinchZoomScale: 1.0,
@@ -179,6 +182,8 @@ public final class CameraViewReactor: Reactor {
             newState.pinchZoomScale = pinchZoomScale
         case let .setFeedImageData(feedImage):
             newState.feedImageData = feedImage
+        case let .setMissionResponse(missionEntity):
+            newState.missionEnttiy = missionEntity
         }
         
         return newState
@@ -204,7 +209,8 @@ extension CameraViewReactor {
     }
     
     private func viewDidLoadMutation() -> Observable<CameraViewReactor.Mutation> {
-        if cameraType == .realEmoji {
+        switch cameraType {
+        case .realEmoji:
             return .concat(
                 cameraUseCase.executeRealEmojiItems(memberId: memberId)
                     .withUnretained(self)
@@ -224,7 +230,7 @@ extension CameraViewReactor {
                                         realEmojiType: $0.element?.realEmojiType ?? ""
                                     )
                                 )
-                            
+                                
                             )
                         }
                         return .concat(
@@ -237,15 +243,28 @@ extension CameraViewReactor {
                         
                     }
             )
-        } else {
+        case .mission:
+            return cameraUseCase.executeTodayMission()
+                .withUnretained(self)
+                .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
+                    
+                    return .concat(
+                        .just(.setLoading(false)),
+                        .just(.setMissionResponse(entity)),
+                        .just(.setLoading(true))
+                    )
+                }
+            
+            
+        default:
             return .empty()
         }
     }
     
     private func didTapShutterButtonMutation(imageData: Data) -> Observable<CameraViewReactor.Mutation> {
-      
+        
         switch cameraType {
-        case .feed:
+        case .survival, .mission:
             return .concat(
                 .just(.setLoading(false)),
                 .just(.setFeedImageData(imageData)),
@@ -318,7 +337,7 @@ extension CameraViewReactor {
         case .realEmoji:
             let realEmojiImage = "\(imageData.hashValue).jpg"
             let realEmojiParameter = CameraRealEmojiParameters(imageName: realEmojiImage)
-
+            
             if currentState.realEmojiEntity[currentState.emojiType.rawValue - 1] == nil {
                 return .concat(
                     .just(.setLoading(false)),
@@ -363,7 +382,7 @@ extension CameraViewReactor {
                                 }
                             
                         }
-                
+                    
                 )
             } else {
                 let realEmojiImage = "\(imageData.hashValue).jpg"
@@ -400,12 +419,12 @@ extension CameraViewReactor {
                                 }
                             
                         }
-                
+                    
                 )
                 
             }
         }
-            
+        
         
     }
     

@@ -13,6 +13,8 @@ public struct CameraDisplayPostDTO: Decodable {
     
     public var postId: String?
     public var authorId: String?
+    public var type: String?
+    public var missionId: String?
     public var commentCount: Int?
     public var emojiCount: Int?
     public var imageUrl: String?
@@ -30,6 +32,8 @@ extension CameraDisplayPostDTO {
             postId: postId ?? "",
             authorId: authorId ?? "",
             commentCount: commentCount ?? 0,
+            missionType: type ?? "SURVIVAL",
+            missionId: missionId ?? "",
             emojiCount: emojiCount ?? 0,
             imageURL: imageUrl ?? "",
             content: content ?? "",

@@ -20,7 +20,9 @@ struct FamilySection {
     /// `RxDatasource` 테이블을 구성하는 데 필요한 `ModelType`은 UI 구성에 조금 더 가깝지 않나라는 개인적인 견해도 가지고 있습니다.
     ///
     /// 이와 관련된 코드는 `PostSectionModel`과 `CommentViewReactor`를 참조하시면 됩니다.
-    /// 추가 자료는 [여기](https://ios-development.tistory.com/796)에서 확인하실 수 있습니다. 감사합니다.
+    /// 추가 자료는 [여기](https://ios-development.tistory.com/796)에서 확인하실 수 있습니다.
+    ///
+    /// 회의 때 더 자세히 설명드릴게요.
     
     enum Item {
         case main(MainFamilyCellReactor)

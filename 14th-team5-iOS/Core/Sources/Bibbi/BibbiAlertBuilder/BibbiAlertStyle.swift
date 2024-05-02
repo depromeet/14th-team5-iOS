@@ -12,6 +12,7 @@ public enum BibbiAlertStyle {
     case missionKey
     case takeSurvival
     case pickMember(String)
+    case widget
     
     var mainTitle: String {
         switch self {
@@ -21,6 +22,8 @@ public enum BibbiAlertStyle {
             return "생존신고 사진을 먼저 찍으세요!"
         case .pickMember:
             return "생존 확인하기"
+        case .widget:
+            return "위젯 추가하셨나요?"
         }
     }
     
@@ -32,6 +35,8 @@ public enum BibbiAlertStyle {
             return "미션 사진을 올리려면\n생존신고 사진을 먼저 업로드해야해요."
         case let .pickMember(name):
             return "\(name)님의 생존 여부를 물어볼까요?\n지금 알림이 전송됩니다."
+        case .widget:
+            return "홈 화면에서 위젯으로\n가족의 소식을 한눈에 파악할 수 있어요"
         }
     }
     
@@ -43,6 +48,8 @@ public enum BibbiAlertStyle {
             return DesignSystemAsset.takeSurvivalGraphic.image
         case .pickMember:
             return DesignSystemAsset.exhaustedBibbiGraphic.image
+        case .widget:
+            return DesignSystemAsset.widgetGraphic.image
         }
     }
     
@@ -54,6 +61,8 @@ public enum BibbiAlertStyle {
             return "생존신고 먼저 하기"
         case .pickMember:
             return "지금 하기"
+        case .widget:
+            return "확인하기"
         }
     }
     
@@ -65,6 +74,8 @@ public enum BibbiAlertStyle {
             return "다음에 하기"
         case .pickMember:
             return "다음에 하기"
+        case .widget:
+            return "닫기"
         }
     }
 }

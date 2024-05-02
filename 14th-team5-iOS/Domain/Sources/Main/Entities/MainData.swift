@@ -20,7 +20,7 @@ public struct Picker {
 }
 
 public struct MainData {
-    public let mainFamilyProfileDatas: [FamilySection.Item]
+    public let mainFamilyProfileDatas: [ProfileData]
     public let leftUploadCountUntilMissionUnlock: Int
     public let isMissionUnlocked: Bool
     public let isMeSurvivalUploadedToday: Bool
@@ -28,7 +28,7 @@ public struct MainData {
     public let pickers: [Picker]
     
     public init(mainFamilyProfileDatas: [ProfileData], leftUploadCountUntilMissionUnlock: Int, isMissionUnlocked: Bool, isMeSurvivalUploadedToday: Bool, isMeMissionUploadedToday: Bool, pickers: [Picker]) {
-        self.mainFamilyProfileDatas = mainFamilyProfileDatas.map(FamilySection.Item.main)
+        self.mainFamilyProfileDatas = mainFamilyProfileDatas
         self.leftUploadCountUntilMissionUnlock = leftUploadCountUntilMissionUnlock
         self.isMissionUnlocked = isMissionUnlocked
         self.isMeSurvivalUploadedToday = isMeSurvivalUploadedToday

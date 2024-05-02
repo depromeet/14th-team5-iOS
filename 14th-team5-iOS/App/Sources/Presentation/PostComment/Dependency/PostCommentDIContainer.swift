@@ -47,8 +47,8 @@ public final class PostCommentDIContainer {
         return PostCommentUseCase(postCommentRepository: makePostCommentRespository())
     }
     
-    public func makeReactor() -> PostCommentViewReactor {
-        return PostCommentViewReactor(
+    public func makeReactor() -> CommentViewReactor {
+        return CommentViewReactor(
             postId: postId,
             memberUseCase: makeMemberUseCase(),
             postCommentUseCase: makePostCommentUseCase(),

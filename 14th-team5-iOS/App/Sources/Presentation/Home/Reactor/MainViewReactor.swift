@@ -20,6 +20,7 @@ final class MainViewReactor: Reactor {
         case fetchMainUseCase
         
         case didTapSegmentControl(PostType)
+        case pickConfirmButtonTapped(String, String)
         
         case pushWidgetPostDeepLink(WidgetDeepLink)
         case pushNotificationPostDeepLink(NotificationDeepLink)
@@ -32,7 +33,12 @@ final class MainViewReactor: Reactor {
         case setInTime(Bool)
         
         case setPageIndex(Int)
-        case setCopySuccessToastMessageView
+        
+        case setPickSuccessToastMessage(String)
+        case setCopySuccessToastMessage
+        case setFailureToastMessage
+        
+        case setPickAlertView(String, String)
         
         case setWidgetPostDeepLink(WidgetDeepLink)
         case setNotificationPostDeepLink(NotificationDeepLink)
@@ -46,38 +52,59 @@ final class MainViewReactor: Reactor {
         @Pulse var isMeSurvivalUploadedToday: Bool = false
         @Pulse var isMissionUnlocked: Bool = false
         @Pulse var familySection: [FamilySection.Item] = []
+    
         
         @Pulse var widgetPostDeepLink: WidgetDeepLink?
         @Pulse var notificationPostDeepLink: NotificationDeepLink?
         @Pulse var notificationCommentDeepLink: NotificationDeepLink?
-        
-        @Pulse var shouldPresentCopySuccessToastMessageView: Bool = false
+    
+        @Pulse var shouldPresentPickAlert: (String, String)?
+        @Pulse var shouldPresentPickSuccessToastMessage: String?
+        @Pulse var shouldPresentCopySuccessToastMessage: Bool = false
+        @Pulse var shouldPresentFailureToastMessage: Bool = false
     }
     
     let initialState: State
     let fetchMainUseCase: FetchMainUseCaseProtocol
+    let pickUseCase: PickUseCaseProtocol
     let provider: GlobalStateProviderProtocol
     
-    init(initialState: State, fetchMainUseCase: FetchMainUseCaseProtocol, provider: GlobalStateProviderProtocol) {
+    init(
+        initialState: State,
+        fetchMainUseCase: FetchMainUseCaseProtocol,
+        pickUseCase: PickUseCaseProtocol,
+        provider: GlobalStateProviderProtocol
+    ) {
         self.initialState = initialState
         self.fetchMainUseCase = fetchMainUseCase
+        self.pickUseCase = pickUseCase
         self.provider = provider
     }
 }
 
 extension MainViewReactor {
     func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
-        let eventMutation = provider.activityGlobalState.event
-            .flatMap { event -> Observable<Mutation> in
+        let homeMutation = provider.homeService.event
+            .flatMap { event in
                 switch event {
-                case .didTapCopyInvitationUrlAction:
-                    return Observable<Mutation>.just(.setCopySuccessToastMessageView)
+                case let .presentPickAlert(name, id):
+                    return Observable<Mutation>.just(.setPickAlertView(name, id))
                 default:
                     return Observable<Mutation>.empty()
                 }
             }
         
-        return Observable<Mutation>.merge(mutation, eventMutation)
+        let eventMutation = provider.activityGlobalState.event
+            .flatMap { event -> Observable<Mutation> in
+                switch event {
+                case .didTapCopyInvitationUrlAction:
+                    return Observable<Mutation>.just(.setCopySuccessToastMessage)
+                default:
+                    return Observable<Mutation>.empty()
+                }
+            }
+        
+        return Observable<Mutation>.merge(mutation, eventMutation, homeMutation)
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
@@ -123,6 +150,17 @@ extension MainViewReactor {
             )
         case .didTapSegmentControl(let type):
             return Observable.just(.setPageIndex(type.getIndex()))
+            
+        case let .pickConfirmButtonTapped(name, id):
+            return pickUseCase.executePickMember(memberId: id)
+                .flatMap { response in
+                    guard let response = response,
+                          response.success else {
+                        return Observable<Mutation>.just(.setFailureToastMessage)
+                    }
+                    self.provider.homeService.showPickButton(false, memberId: id)
+                    return Observable<Mutation>.just(.setPickSuccessToastMessage(name))
+                }
         }
     }
     
@@ -138,14 +176,25 @@ extension MainViewReactor {
             newState.notificationPostDeepLink = deepLink
         case let .setNotificationCommentDeepLink(deepLink):
             newState.notificationCommentDeepLink = deepLink
-        case .setCopySuccessToastMessageView:
-            newState.shouldPresentCopySuccessToastMessageView = true
+        case .setCopySuccessToastMessage:
+            newState.shouldPresentCopySuccessToastMessage = true
+        case let .setPickSuccessToastMessage(name):
+            newState.shouldPresentPickSuccessToastMessage = name
+        case .setFailureToastMessage:
+            newState.shouldPresentFailureToastMessage = true
         case .setPageIndex(let index):
             newState.pageIndex = index
         case .updateMainData(let data):
             newState.isMissionUnlocked = data.isMissionUnlocked
             newState.isMeSurvivalUploadedToday = data.isMeSurvivalUploadedToday
-            newState.familySection = data.mainFamilyProfileDatas
+            newState.familySection = FamilySection.Model(
+                model: 0,
+                items: data.mainFamilyProfileDatas.map {
+                    .main(MainFamilyCellReactor($0, service: provider))
+                }
+            ).items
+        case let .setPickAlertView(name, id):
+            newState.shouldPresentPickAlert = (name, id)
         }
         
         return newState

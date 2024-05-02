@@ -178,12 +178,7 @@ public final class BibbiAlertViewController: UIViewController {
             $0.distribution = .fillProportionally
         }
         
-//        mainTitleLabel.do {
-//            $0.textAlignment = .center
-//        }
-        
         subTitleLabel.do {
-//            $0.textAlignment = .center
             $0.numberOfLines = 0
         }
         

@@ -12,7 +12,7 @@ import Core
 import Data
 import Domain
 
-final class MainFamilyDIContainer {
+final class MainFamilyViewDIContainer {
     private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             return GlobalStateProvider()
@@ -25,25 +25,17 @@ final class MainFamilyDIContainer {
         return MainFamilyViewController(reactor: makeReactor())
     }
     
-    private func makeReactor() -> MainFamilyReactor {
-        return MainFamilyReactor(provider: globalState, familyUseCase: makeInviteFamilyUseCase(), fetchMainUseCase: makeFetchMainUseCase())
+    private func makeReactor() -> MainFamilyViewReactor {
+        return MainFamilyViewReactor(provider: globalState, familyUseCase: makeInviteFamilyUseCase())
     }
 }
 
-extension MainFamilyDIContainer {
+extension MainFamilyViewDIContainer {
     private func makeInviteFamilyRepository() -> FamilyRepositoryProtocol {
         return FamilyRepository()
     }
     
     private func makeInviteFamilyUseCase() -> FamilyUseCaseProtocol {
         return FamilyUseCase(familyRepository: makeInviteFamilyRepository())
-    }
-    
-    private func makeMainRepository() -> MainRepository {
-        return MainRepository()
-    }
-    
-    private func makeFetchMainUseCase() -> FetchMainUseCaseProtocol {
-        return FetchMainUseCase(mainRepository: makeMainRepository())
     }
 }

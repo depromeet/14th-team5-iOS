@@ -12,9 +12,9 @@ import Domain
 
 import ReactorKit
 
-final class MainFamilyReactor: Reactor {
+final class MainFamilyViewReactor: Reactor {
     enum Action {
-        case fetchFamily
+        case updateFamilySection([FamilySection.Item])
         case tapInviteFamily
     }
     
@@ -39,16 +39,14 @@ final class MainFamilyReactor: Reactor {
     let initialState: State = State()
     let provider: GlobalStateProviderProtocol
     private let familyUseCase: FamilyUseCaseProtocol
-    private let fetchMainUseCase: FetchMainUseCaseProtocol
     
-    init(provider: GlobalStateProviderProtocol, familyUseCase: FamilyUseCaseProtocol, fetchMainUseCase: FetchMainUseCaseProtocol) {
+    init(provider: GlobalStateProviderProtocol, familyUseCase: FamilyUseCaseProtocol) {
         self.provider = provider
         self.familyUseCase = familyUseCase
-        self.fetchMainUseCase = fetchMainUseCase
     }
 }
 
-extension MainFamilyReactor {
+extension MainFamilyViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .tapInviteFamily:
@@ -60,23 +58,12 @@ extension MainFamilyReactor {
                     }
                     return .setSharePanel(invitationLink)
                 }
-        case .fetchFamily:
-            return fetchMainUseCase.execute()
-                .flatMap {
-                    guard let familySectionItem = $0?.mainFamilyProfileDatas.map(FamilySection.Item.main) else {
-                        return Observable.from([Mutation.setInviteFamilyView(true)])
-                    }
-                    
-                    if familySectionItem.count < 2 {
-                        return Observable.from([Mutation.setInviteFamilyView(true)])
-                    }
-                    
-                    let mutations: [Mutation] = [
-                        .updateFamilyDataSource(familySectionItem),
-                        .setInviteFamilyView(false)
-                    ]
-                    return Observable.from(mutations)
-                }
+        case .updateFamilySection(let items):
+            if items.count < 2 {
+                return Observable.from([.setInviteFamilyView(true)])
+            } else{
+                return Observable.from([.setInviteFamilyView(false), .updateFamilyDataSource(items)])
+            }
         }
     }
 

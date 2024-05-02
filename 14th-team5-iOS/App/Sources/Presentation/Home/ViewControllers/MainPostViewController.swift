@@ -8,8 +8,10 @@
 import UIKit
 
 import Core
+import Domain
 
 import RxSwift
+import RxCocoa
 import RxDataSources
 
 final class MainPostViewController: BaseViewController<MainPostViewReactor>, UICollectionViewDelegate {
@@ -17,7 +19,7 @@ final class MainPostViewController: BaseViewController<MainPostViewReactor>, UIC
     
     private let refreshControl: UIRefreshControl = UIRefreshControl()
     private let noPostView: NoPostTodayView = NoPostTodayView()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -69,8 +71,8 @@ extension MainPostViewController {
         postCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
-        Observable.just(())
-            .map { Reactor.Action.fetchPost }
+        self.rx.viewWillAppear
+            .map { _ in Reactor.Action.fetchPost }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
 

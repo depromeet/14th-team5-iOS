@@ -11,7 +11,6 @@ import Core
 import Domain
 
 import RxSwift
-import SwiftKeychainWrapper
 
 typealias FamilyAPIWorker = FamilyAPIs.Worker
 extension FamilyAPIs {

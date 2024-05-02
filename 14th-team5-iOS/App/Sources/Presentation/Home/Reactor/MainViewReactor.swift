@@ -17,8 +17,7 @@ import Kingfisher
 final class MainViewReactor: Reactor {
     enum Action {
         case viewDidLoad
-        case viewWillAppear
-        case tapCameraButton
+        case fetchMainUseCase
         
         case didTapSegmentControl(PostType)
         
@@ -28,12 +27,10 @@ final class MainViewReactor: Reactor {
     }
     
     enum Mutation {
-        case setSelfUploaded(Bool)
-        case setAllFamilyUploaded(Bool)
-        case setInTime(Bool)
-        case showCameraView(Bool)
+        case updateMainData(MainData)
         
-//        case showShareAcitivityView(URL?)
+        case setInTime(Bool)
+        
         case setPageIndex(Int)
         case setCopySuccessToastMessageView
         
@@ -46,10 +43,9 @@ final class MainViewReactor: Reactor {
         var isInTime: Bool
         var pageIndex: Int = 0
         
-        @Pulse var isSelfUploaded: Bool = true
-        var isAllFamilyMembersUploaded: Bool = false
-        
-        @Pulse var isShowingCameraView: Bool = false
+        @Pulse var isMeSurvivalUploadedToday: Bool = false
+        @Pulse var isMissionUnlocked: Bool = false
+        @Pulse var familySection: [FamilySection.Item] = []
         
         @Pulse var widgetPostDeepLink: WidgetDeepLink?
         @Pulse var notificationPostDeepLink: NotificationDeepLink?
@@ -59,10 +55,12 @@ final class MainViewReactor: Reactor {
     }
     
     let initialState: State
+    let fetchMainUseCase: FetchMainUseCaseProtocol
     let provider: GlobalStateProviderProtocol
     
-    init(provider: GlobalStateProviderProtocol) {
-        self.initialState = State(isInTime: MainViewReactor.calculateRemainingTime().0)
+    init(initialState: State, fetchMainUseCase: FetchMainUseCaseProtocol, provider: GlobalStateProviderProtocol) {
+        self.initialState = initialState
+        self.fetchMainUseCase = fetchMainUseCase
         self.provider = provider
     }
 }
@@ -84,8 +82,14 @@ extension MainViewReactor {
     
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .viewWillAppear:
-            return Observable.empty()
+        case .fetchMainUseCase:
+            return fetchMainUseCase.execute()
+                .flatMap { result -> Observable<MainViewReactor.Mutation> in
+                    guard let data = result else {
+                        return Observable.empty()
+                    }
+                    return Observable.just(.updateMainData(data))
+                }
         case .viewDidLoad:
             let (_, time) = MainViewReactor.calculateRemainingTime()
             
@@ -93,21 +97,16 @@ extension MainViewReactor {
                 return Observable<Int>
                     .timer(.seconds(time), scheduler: MainScheduler.instance)
                     .flatMap {_ in
-                        return Observable.concat([Observable.just(Mutation.setInTime(false)),
-                                                  Observable.just(Mutation.setSelfUploaded(true))])
+                        return Observable.concat([Observable.just(Mutation.setInTime(false))])
                     }
             } else {
                 return Observable<Int>
                     .timer(.seconds(time), scheduler: MainScheduler.instance)
                     .flatMap {_ in
-                        return Observable.concat([Observable.just(Mutation.setInTime(true)),
-                                                  Observable.just(Mutation.setSelfUploaded(false))])
+                        return Observable.concat([Observable.just(Mutation.setInTime(true))])
                     }
                                         
             }
-        case .tapCameraButton:
-            return Observable.just(.showCameraView(self.currentState.isInTime))
-            
         case let .pushWidgetPostDeepLink(deepLink):
             return Observable.concat(
                 Observable<Mutation>.just(.setWidgetPostDeepLink(deepLink)) // 다음 화면으로 이동하기
@@ -131,14 +130,8 @@ extension MainViewReactor {
         var newState = state
         
         switch mutation {
-        case .setSelfUploaded(let isSelfUploaded):
-            newState.isSelfUploaded = isSelfUploaded
-        case .setAllFamilyUploaded(let isAllUploaded):
-            newState.isAllFamilyMembersUploaded = isAllUploaded
         case .setInTime(let isInTime):
             newState.isInTime = isInTime
-        case let .showCameraView(isShow):
-            newState.isShowingCameraView = isShow
         case let.setWidgetPostDeepLink(deepLink):
             newState.widgetPostDeepLink = deepLink
         case let .setNotificationPostDeepLink(deepLink):
@@ -149,6 +142,10 @@ extension MainViewReactor {
             newState.shouldPresentCopySuccessToastMessageView = true
         case .setPageIndex(let index):
             newState.pageIndex = index
+        case .updateMainData(let data):
+            newState.isMissionUnlocked = data.isMissionUnlocked
+            newState.isMeSurvivalUploadedToday = data.isMeSurvivalUploadedToday
+            newState.familySection = data.mainFamilyProfileDatas
         }
         
         return newState

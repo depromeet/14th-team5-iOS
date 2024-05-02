@@ -12,7 +12,7 @@ import Data
 import Domain
 
 
-final class MainPostDIContainer {
+final class MainPostViewDIContainer {
     func makeViewController(type: PostType) -> MainPostViewController {
         return MainPostViewController(reactor: makeReactor(type: type))
     }
@@ -22,7 +22,7 @@ final class MainPostDIContainer {
     }
 }
 
-extension MainPostDIContainer {
+extension MainPostViewDIContainer {
     private func makePostRepository() -> PostListRepositoryProtocol {
         return PostListAPIs.Worker()
     }

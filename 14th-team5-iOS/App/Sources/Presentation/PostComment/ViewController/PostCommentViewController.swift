@@ -16,7 +16,7 @@ import Then
 import SnapKit
 
 fileprivate typealias _Str = PostCommentStrings
-final public class PostCommentViewController: BaseViewController<PostCommentViewReactor> {
+final public class PostCommentViewController: BaseViewController<CommentViewReactor> {
     // MARK: - Views
     private let commentNavigationBarView: PostCommentTopBarView = PostCommentTopBarView()
     
@@ -31,7 +31,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
     private let fetchFailureView: BibbiFetchFailureView = BibbiFetchFailureView(type: .comment)
     
     // MARK: - Properties
-    private lazy var dataSource: RxTableViewSectionedAnimatedDataSource<PostCommentSectionModel> = prepareDatasource()
+    private lazy var dataSource: RxTableViewSectionedAnimatedDataSource<CommentSectionModel> = prepareDatasource()
     
     // MARK: - LifeCycles
     public override func viewDidLoad() {
@@ -44,14 +44,14 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
     }
     
     // MARK: - Helpers
-    public override func bind(reactor: PostCommentViewReactor) {
+    public override func bind(reactor: CommentViewReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
         bindDatasource(reactor: reactor)
     }
     
-    private func bindInput(reactor: PostCommentViewReactor) { 
+    private func bindInput(reactor: CommentViewReactor) { 
         Observable<Void>.just(())
             .map { Reactor.Action.fetchPostComment }
             .bind(to: reactor.action)
@@ -111,7 +111,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
             .disposed(by: disposeBag)
     }
     
-    private func bindOutput(reactor: PostCommentViewReactor) {
+    private func bindOutput(reactor: CommentViewReactor) {
         reactor.pulse(\.$commentCount)
             .map { $0 != 0 }
             .bind(to: noCommentLabel.rx.isHidden)
@@ -352,7 +352,7 @@ final public class PostCommentViewController: BaseViewController<PostCommentView
 }
 
 extension PostCommentViewController {
-    private func prepareDatasource() -> RxTableViewSectionedAnimatedDataSource<PostCommentSectionModel> {
+    private func prepareDatasource() -> RxTableViewSectionedAnimatedDataSource<CommentSectionModel> {
         return RxTableViewSectionedAnimatedDataSource { dataSource, tableView, indexPath, reactor in
             let cell = tableView.dequeueReusableCell(withIdentifier: CommentCell.id) as! CommentCell
             cell.reactor = reactor
@@ -360,7 +360,7 @@ extension PostCommentViewController {
         }
     }
     
-    private func bindDatasource(reactor: PostCommentViewReactor) {
+    private func bindDatasource(reactor: CommentViewReactor) {
         dataSource.canEditRowAtIndexPath = { dataSource, indexPath in
             let myMemberId = App.Repository.member.memberID.value
             let cellMemberId = dataSource[indexPath].currentState.memberId

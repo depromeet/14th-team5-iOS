@@ -30,6 +30,8 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
     private let memberRepo = App.Repository.member
     private let deepLinkRepo = App.Repository.deepLink
     
+    private let alertConfirmRelay = PublishRelay<(String, String)>()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -156,17 +158,19 @@ extension MainViewController {
             .withUnretained(self)
             .bind { $0.0.navigationController?.pushViewController(CalendarDIConatainer().makeViewController(), animated: true) }
             .disposed(by: disposeBag)
+      
+  
         
         cameraButton.camerTapObservable
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind(onNext: {
                 MPEvent.Home.cameraTapped.track(with: nil)
-                let cameraViewController = CameraDIContainer(cameraType: .feed).makeViewController()
+                let cameraViewController = CameraDIContainer(cameraType: .survival).makeViewController()
                 $0.0.navigationController?.pushViewController(cameraViewController, animated: true)
             })
             .disposed(by: disposeBag)
-        
+    
         // 위젯 딥링크 코드
         App.Repository.deepLink.widget
             .compactMap { $0 }
@@ -197,6 +201,7 @@ extension MainViewController {
             .observe(on: MainScheduler.instance)
             .bind(to: familyViewController.familySectionRelay)
             .disposed(by: disposeBag)
+        
 //        reactor.pulse(\.$isSelfUploaded)
 //            .distinctUntilChanged()
 //            .observe(on: MainScheduler.instance)
@@ -214,7 +219,52 @@ extension MainViewController {
                 $0.0.descriptionView.postTypeRelay.accept(($0.1 == 0) ? .survival : .mission)
             })
             .disposed(by: disposeBag)
-//
+        
+        reactor.pulse(\.$shouldPresentPickAlert)
+            .compactMap { $0 }
+            .bind(with: self) { owner, profile in
+                BibbiAlertBuilder(owner)
+                    .alertStyle(.pickMember(profile.0))
+                    .setConfirmAction {
+                        // (name, memberId)
+                        owner.alertConfirmRelay.accept((profile.0, profile.1))
+                    }
+                    .present()
+            }
+            .disposed(by: disposeBag)
+        
+        alertConfirmRelay
+            .map { Reactor.Action.pickConfirmButtonTapped($0.0, $0.1) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentPickSuccessToastMessage)
+            .compactMap { $0 }
+            .bind(with: self) { owner, name in
+                owner.makeBibbiToastView(
+                    text: "\(name)님에게 생존신고 알림을 보냈어요",
+                    image: DesignSystemAsset.yellowPaperPlane.image
+                )
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentCopySuccessToastMessage)
+            .filter { $0 }
+            .bind(with: self) { owner, _ in
+                owner.makeBibbiToastView(
+                    text: "링크가 복사되었어요",
+                    image: DesignSystemAsset.link.image
+                )
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$shouldPresentFailureToastMessage)
+            .filter { $0 }
+            .bind(with: self) { owner, _ in
+                owner.makeErrorBibbiToastView()
+            }
+            .disposed(by: disposeBag)
+
 //        // 위젯 딥링크 코드
 //        reactor.pulse(\.$widgetPostDeepLink)
 //            .delay(RxConst.smallDelayInterval, scheduler: Schedulers.main)
@@ -241,17 +291,6 @@ extension MainViewController {
 //                owner.handleCommentNotificationDeepLink(deepLink)
 //            }
 //            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$shouldPresentCopySuccessToastMessageView)
-            .skip(1)
-            .withUnretained(self)
-            .subscribe {
-                $0.0.makeBibbiToastView(
-                    text: "링크가 복사되었어요",
-                    image: DesignSystemAsset.link.image
-                )
-            }
-            .disposed(by: disposeBag)
     }
 }
 

@@ -88,7 +88,7 @@ extension MainFamilyViewController {
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
             .compactMap { item -> ProfileData? in
                 switch item {
-                case .main(let profileData): return profileData
+                case let .main(reactor): return reactor.currentState.profileData
                 }
             }
             .withUnretained(self)
@@ -132,13 +132,9 @@ extension MainFamilyViewController {
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentFetchFailureToastMessageView)
-            .skip(1)
-            .withUnretained(self)
-            .subscribe {
-                $0.0.makeBibbiToastView(
-                    text: "잠시 후에 다시 시도해주세요",
-                    image: DesignSystemAsset.warning.image
-                )
+            .filter {  $0 }
+            .bind(with: self) { owner, _ in
+                owner.makeErrorBibbiToastView()
             }
             .disposed(by: disposeBag)
     }
@@ -160,11 +156,11 @@ extension MainFamilyViewController {
         return RxCollectionViewSectionedReloadDataSource<FamilySection.Model>(
             configureCell: { (_, collectionView, indexPath, item) in
                 switch item {
-                case .main(let data):
+                case let .main(reactor):
                     guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MainFamilyCollectionViewCell.id, for: indexPath) as? MainFamilyCollectionViewCell else {
                         return UICollectionViewCell()
                     }
-                    cell.reactor = MainFamilyCellReactor(initialState: .init(profileData: data))
+                    cell.reactor = reactor
                     return cell
                 }
             })

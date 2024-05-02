@@ -121,6 +121,12 @@ extension MainFamilyCollectionViewCell {
             .map { Reactor.Action.fetchData}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        pickButton.rx.tap
+            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .map { Reactor.Action.pickButtonTapped }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: MainFamilyCellReactor) {

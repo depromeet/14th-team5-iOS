@@ -29,6 +29,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     fileprivate var captureOutputStream: AVCapturePhotoOutput!
     
     //MARK: Views
+    private let missionView: BibbiMissionView = BibbiMissionView()
     private let cameraView: UIView = UIView()
     private let shutterButton: UIButton = UIButton()
     private let flashButton: UIButton = UIButton.createCircleButton(radius: 24)
@@ -56,7 +57,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     private var isToggle: Bool = false
     
     //MARK: LifeCylce
- 
+    
     public override func viewDidLoad() {
         super.viewDidLoad()
         setupCameraPermission()
@@ -66,7 +67,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     public override func setupUI() {
         super.setupUI()
         realEmojiFaceView.addSubview(realEmojiFaceImageView)
-        view.addSubviews(cameraView, shutterButton, flashButton, toggleButton, realEmojiFaceView, realEmojiHorizontalStakView, realEmojiCollectionView ,cameraIndicatorView)
+        view.addSubviews(cameraView, missionView ,shutterButton, flashButton, toggleButton, realEmojiFaceView, realEmojiHorizontalStakView, realEmojiCollectionView ,cameraIndicatorView)
     }
     
     public override func setupAttributes() {
@@ -122,7 +123,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             $0.contentMode = .scaleAspectFill
             $0.image = DesignSystemAsset.filter.image
         }
-
+        
         cameraView.do {
             $0.layer.cornerRadius = 40
             $0.clipsToBounds = true
@@ -146,6 +147,12 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         
+        missionView.snp.makeConstraints {
+            $0.top.equalTo(navigationBarView.snp.bottom).offset(26)
+            $0.left.right.equalToSuperview()
+            $0.height.equalTo(46)
+        }
+        
         realEmojiHorizontalStakView.snp.makeConstraints {
             $0.height.equalTo(34)
             $0.centerX.equalTo(cameraView)
@@ -162,7 +169,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             $0.width.height.equalTo(26)
             $0.center.equalToSuperview()
         }
-
+        
         
         cameraView.snp.makeConstraints {
             $0.width.equalToSuperview()
@@ -206,7 +213,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .map { Reactor.Action.viewDidLoad}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-    
+        
         
         reactor.pulse(\.$isLoading)
             .distinctUntilChanged()
@@ -232,9 +239,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             }.disposed(by: disposeBag)
         
         
-        
         reactor.pulse(\.$feedImageData)
-            .distinctUntilChanged()
             .compactMap { $0 }
             .withUnretained(self)
             .bind {
@@ -242,20 +247,42 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
                 $0.0.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
             }.disposed(by: disposeBag)
         
+        
+        Observable
+            .zip(
+                reactor.state.compactMap { $0.feedImageData }.distinctUntilChanged(),
+                reactor.state.compactMap { $0.missionEnttiy?.missionContent}.distinctUntilChanged(),
+                reactor.state.map { $0.cameraType.asPostType }
+            )
+            .withUnretained(self)
+            .bind {
+                let cameraDisplayViewController = CameraDisplayDIContainer(displayData: $0.1.0, missionTitle: $0.1.1, cameraDisplayType: $0.1.2).makeViewController()
+                $0.0.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
+            }.disposed(by: disposeBag)
+        
         reactor.state
-            .map { $0.cameraType == .realEmoji ? false : true }
+            .map { $0.cameraType.isRealEmojiType }
             .distinctUntilChanged()
             .withUnretained(self)
-            .bind(onNext: {$0.0.setupRealEmojiLayoutContent(isShow: $0.1)})
+            .bind(onNext: {$0.0.setupRealEmojiLayoutContent(isShow: !$0.1)})
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$missionEnttiy)
+            .map { $0?.missionContent }
+            .bind(to: missionView.missionTitleView.rx.text)
+            .disposed(by: disposeBag)
         
-        reactor.state
-            .map { $0.cameraType }
-            .map { $0 == .realEmoji ? "셀피 이미지" : "카메라" }
-            .distinctUntilChanged()
-            .withUnretained(self)
-            .bind(onNext: { $0.0.navigationBarView.setNavigationTitle(title: $0.1) })
+        //TODO: Navigation Bar 제약 조건 이슈
+        reactor.pulse(\.$cameraType)
+            .map { $0.setTitle() }
+            .observe(on: MainScheduler.instance)
+            .bind(with: self, onNext: { owner, title in
+                owner.navigationBarView.setNavigationTitle(title: title)
+            }).disposed(by: disposeBag)
+        
+        reactor.pulse(\.$cameraType)
+            .map { $0 == .mission ? false : true }
+            .bind(to: missionView.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$isError)
@@ -317,6 +344,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .bind(onNext: { $0.0.zoomView.setBackgroundImage($0.1, for: .normal) })
             .disposed(by: disposeBag)
         
+        
         reactor.state
             .map { ($0.accountImage, $0.profileImageURLEntity, $0.memberId)}
             .filter { $0.0 != nil }
@@ -326,7 +354,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
                 NotificationCenter.default.post(name: .AccountViewPresignURLDismissNotification, object: nil, userInfo: userInfo)
                 owner.dismissCameraViewController()
             }).disposed(by: disposeBag)
-            
+        
         
         realEmojiCollectionView
             .rx.itemSelected
@@ -358,14 +386,14 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .map { Reactor.Action.didTapFlashButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-                
+        
         cameraView.rx
             .pinchGesture
             .map { $0.scale }
             .map { Reactor.Action.dragPreviewLayer($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-
+        
         
         toggleButton
             .rx.tap
@@ -396,7 +424,7 @@ extension CameraViewController {
     private func setupCamera() {
         captureSession = AVCaptureSession()
         captureSession.beginConfiguration()
-
+        
         if captureSession.canSetSessionPreset(.photo) {
             captureSession.sessionPreset = .photo
         }
@@ -472,7 +500,7 @@ extension CameraViewController {
     
     private func setupCameraPermission() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
-        
+            
         case .authorized:
             setupCamera()
             setupCameraOuputStream()

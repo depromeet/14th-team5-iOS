@@ -15,7 +15,7 @@ public protocol CameraDisplayViewUseCaseProtocol {
     func executeDescrptionItems(with keyword: String) -> Observable<Array<String>>
     func executeDisplayImageURL(parameters: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?>
     func executeUploadToS3(toURL url: String, imageData: Data) -> Observable<Bool>
-    func executeCombineWithTextImage(parameters: CameraDisplayPostParameters) -> Observable<CameraDisplayPostResponse?>
+    func executeCombineWithTextImage(parameters: CameraDisplayPostParameters, query: CameraMissionFeedQuery) -> Observable<CameraDisplayPostResponse?>
     
 }
 
@@ -40,8 +40,8 @@ public final class CameraDisplayViewUseCase: CameraDisplayViewUseCaseProtocol {
         return cameraDisplayViewRepository.uploadImageToS3(toURL: url, imageData: imageData)
     }
     
-    public func executeCombineWithTextImage(parameters: CameraDisplayPostParameters) -> Observable<CameraDisplayPostResponse?> {
-        return cameraDisplayViewRepository.combineWithTextImage(parameters: parameters)
+    public func executeCombineWithTextImage(parameters: CameraDisplayPostParameters, query: CameraMissionFeedQuery) -> Observable<CameraDisplayPostResponse?> {
+        return cameraDisplayViewRepository.combineWithTextImage(parameters: parameters, query: query)
     }
     
     

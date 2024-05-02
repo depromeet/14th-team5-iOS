@@ -12,7 +12,7 @@ import Foundation
 import ReactorKit
 import RxSwift
 
-final public class PostCommentViewReactor: Reactor {
+final public class CommentViewReactor: Reactor {
     // MARK: - Action
     public enum Action { 
         case inputComment(String)
@@ -51,7 +51,7 @@ final public class PostCommentViewReactor: Reactor {
         @Pulse var commentCount: Int
         
         var inputComment: String
-        @Pulse var displayComment: [PostCommentSectionModel]
+        @Pulse var displayComment: [CommentSectionModel]
         @Pulse var shouldScrollToLast: Int
         @Pulse var shouldClearCommentTextField: Bool
         @Pulse var shouldPresentUploadCommentFailureTaostMessageView: Bool

@@ -54,6 +54,7 @@ final class PostViewController: BaseViewController<PostReactor> {
                 return type
             }
             .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
             .bind { owner, entity in
                 let cameraViewController = CameraDIContainer(cameraType: .realEmoji, realEmojiType: entity).makeViewController()
                 owner.navigationController?.pushViewController(cameraViewController, animated: true)

@@ -12,6 +12,8 @@ public struct CameraDisplayPostResponse {
     public var postId: String
     public var authorId: String
     public var commentCount: Int
+    public var missionType: String
+    public var missionId: String
     public var emojiCount: Int
     public var imageURL: String
     public var content: String
@@ -21,6 +23,8 @@ public struct CameraDisplayPostResponse {
         postId: String,
         authorId: String,
         commentCount: Int,
+        missionType: String,
+        missionId: String,
         emojiCount: Int,
         imageURL: String,
         content: String,
@@ -29,6 +33,8 @@ public struct CameraDisplayPostResponse {
         self.postId = postId
         self.authorId = authorId
         self.commentCount = commentCount
+        self.missionType = missionType
+        self.missionId = missionId
         self.emojiCount = emojiCount
         self.imageURL = imageURL
         self.content = content

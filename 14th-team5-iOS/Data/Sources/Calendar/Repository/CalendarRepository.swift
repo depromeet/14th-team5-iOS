@@ -23,18 +23,32 @@ public final class CalendarRepository: CalendarRepositoryProtocol {
 
 // MARK: - Extensions
 extension CalendarRepository {
-    public func fetchCalendarResponse(yearMonth: String) -> Observable<ArrayResponseCalendarResponse?> {
+    
+    @available(*, deprecated)
+    public func fetchCalendarResponse(yearMonth: String) -> Observable<ArrayResponseCalendarEntity?> {
         return calendarApiWorker.fetchCalendarResponse(yearMonth: yearMonth)
             .asObservable()
     }
     
-    public func fetchStatisticsSummary(yearMonth: String) -> Observable<FamilyMonthlyStatisticsResponse?> {
+    
+    public func fetchMonthyCalendarResponse(yearMonth: String) -> Observable<ArrayResponseMonthlyCalendarEntity?> {
+        return calendarApiWorker.fetchMonthlyCalendar(yearMonth: yearMonth)
+            .asObservable()
+    }
+    
+    public func fetchDailyCalendarResponse(yearMonth: String) -> Observable<ArrayResponseDailyCalendarEntity?> {
+        return calendarApiWorker.fetchDailyCalendar(yearMonth: yearMonth)
+            .asObservable()
+    }
+    
+    public func fetchStatisticsSummary(yearMonth: String) -> Observable<FamilyMonthlyStatisticsEntity?> {
         return calendarApiWorker.fetchStatisticsSummary(yearMonth: yearMonth)
             .asObservable()
     }
     
-    public func fetchCalendarBanner(yearMonth: String) -> Observable<BannerResponse?> {
+    public func fetchCalendarBanner(yearMonth: String) -> Observable<BannerEntity?> {
         return calendarApiWorker.fetchCalendarBanner(yearMonth: yearMonth)
             .asObservable()
     }
+    
 }

@@ -1,23 +1,22 @@
 //
-//  ArrayResponseCalendarResponse+Mapping.swift
+//  ArrayResponseMonthlyCalendarResponse.swift
 //  Data
 //
-//  Created by 김건우 on 12/21/23.
+//  Created by 김건우 on 5/3/24.
 //
 
 import Domain
 import Foundation
 
-@available(*, deprecated)
-public struct ArrayResponseCalendarResponseDTO: Decodable {
+public struct ArrayResponseMonthlyCalendarResponseDTO: Decodable {
     private enum CodingKeys: String, CodingKey {
         case results
     }
-    var results: [CalendarResponseDTO]
+    var results: [MonthlyCalendarResponseDTO]
 }
 
-extension ArrayResponseCalendarResponseDTO {
-    public struct CalendarResponseDTO: Decodable {
+extension ArrayResponseMonthlyCalendarResponseDTO {
+    public struct MonthlyCalendarResponseDTO: Decodable {
         private enum CodingKeys: String, CodingKey {
             case date
             case representativePostId
@@ -31,18 +30,18 @@ extension ArrayResponseCalendarResponseDTO {
     }
 }
 
-extension ArrayResponseCalendarResponseDTO {
-    func toDomain() -> ArrayResponseCalendarEntity {
-        return ArrayResponseCalendarEntity(
+extension ArrayResponseMonthlyCalendarResponseDTO {
+    func toDomain() -> ArrayResponseMonthlyCalendarEntity {
+        return ArrayResponseMonthlyCalendarEntity(
             results: results.map { $0.toDomain() }
         )
     }
 }
 
-extension ArrayResponseCalendarResponseDTO.CalendarResponseDTO {
-    func toDomain() -> CalendarEntity {
-        return CalendarEntity(
-            date: date.toDate(),
+extension ArrayResponseMonthlyCalendarResponseDTO.MonthlyCalendarResponseDTO {
+    func toDomain() -> MonthlyCalendarEntity {
+        return MonthlyCalendarEntity(
+            date: date.toDate(with: .dashYyyyMMdd),
             representativePostId: representativePostId,
             representativeThumbnailUrl: representativeThumbnailUrl,
             allFamilyMemebersUploaded: allFamilyMembersUploaded

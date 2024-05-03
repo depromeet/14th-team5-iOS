@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct FamilyMonthlyStatisticsResponse {
+public struct FamilyMonthlyStatisticsEntity {
     public var totalImageCnt: Int
     
     public init(totalImageCnt: Int) {

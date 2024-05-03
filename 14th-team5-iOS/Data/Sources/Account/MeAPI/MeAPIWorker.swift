@@ -26,15 +26,6 @@ extension MeAPIs {
             super.init()
             self.id = "MeAPIWorker"
         }
-        
-        // MARK: Values
-        private var _headers: Observable<[APIHeader]?> {
-            return App.Repository.token.accessToken
-                .map {
-                    guard let token = $0, let accessToken = token.accessToken, !accessToken.isEmpty else { return [] }
-                    return [BibbiAPI.Header.xAuthToken(accessToken), BibbiAPI.Header.acceptJson]
-                }
-        }
     }
 }
 

@@ -15,7 +15,7 @@ final public class ImageCalendarCellDIContainer {
     // MARK: - Properties
     public let type: ImageCalendarCellReactor.CalendarType
     public let isSelected: Bool
-    public let dayResponse: CalendarResponse
+    public let dayResponse: CalendarEntity
     
     private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
@@ -28,7 +28,7 @@ final public class ImageCalendarCellDIContainer {
     public init(
         _ type: ImageCalendarCellReactor.CalendarType,
         isSelected: Bool = false,
-        dayResponse: CalendarResponse
+        dayResponse: CalendarEntity
     ) {
         self.type = type
         self.isSelected = isSelected

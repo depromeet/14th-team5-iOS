@@ -49,7 +49,7 @@ final public class ImageCalendarCellReactor: Reactor {
     init(
         _ type: CalendarType,
         isSelected: Bool,
-        dayResponse: CalendarResponse,
+        dayResponse: CalendarEntity,
         calendarUseCase: CalendarUseCaseProtocol,
         provider: GlobalStateProviderProtocol
     ) {

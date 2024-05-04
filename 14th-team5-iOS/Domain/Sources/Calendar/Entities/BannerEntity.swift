@@ -7,7 +7,7 @@
 
 import UIKit
 
-public struct BannerResponse {
+public struct BannerEntity {
     public var familyTopPercentage: Int
     public var allFammilyMembersUploadedDays: Int
     public var familyLevel: Int

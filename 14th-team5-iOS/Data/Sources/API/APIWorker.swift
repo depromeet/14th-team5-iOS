@@ -85,6 +85,15 @@ public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInter
 // MARK: API Worker
 public class APIWorker: NSObject, BibbiRouterInterface {
     
+    // MARK: - Headers
+    var _headers: Observable<[APIHeader]?> {
+        return App.Repository.token.accessToken
+            .map {
+                guard let token = $0, let accessToken = token.accessToken, !accessToken.isEmpty else { return [] }
+                return [BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(accessToken)]
+            }
+    }
+    
     private func appendCommonHeaders(to headers: [APIHeader]?) -> [APIHeader] {
         var result: [APIHeader] = BibbiAPI.Header.baseHeaders
         guard let headers = headers else { return result }

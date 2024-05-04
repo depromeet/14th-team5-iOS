@@ -29,7 +29,7 @@ public final class CalendarPostViewReactor: Reactor {
     // MARK: - Mutation
     public enum Mutation {
         case setAllUploadedToastMessageView(Bool)
-        case injectCalendarResponse(String, ArrayResponseCalendarResponse)
+        case injectCalendarResponse(String, ArrayResponseCalendarEntity)
         case injectPostResponse([PostListData])
         case injectBlurImageIndex(Int)
         case injectVisiblePost(PostListData)
@@ -48,7 +48,7 @@ public final class CalendarPostViewReactor: Reactor {
         var blurImageUrlString: String?
         var visiblePost: PostListData?
         @Pulse var displayPostResponse: [PostListSectionModel]
-        @Pulse var displayCalendarResponse: [String: [CalendarResponse]]
+        @Pulse var displayCalendarResponse: [String: [CalendarEntity]]
         @Pulse var shouldPresentAllUploadedToastMessageView: Bool
         @Pulse var shouldGenerateSelectionHaptic: Bool
         @Pulse var shouldPushProfileViewController: String?

@@ -238,7 +238,7 @@ extension CalendarPageCell: FSCalendarDataSource {
             
             // 해당 일자에 데이터가 존재하지 않는다면
             guard let dayResponse = reactor?.currentState.displayCalendarResponse?.results.filter({ $0.date == date }).first else {
-                let emptyResponse = CalendarResponse(
+                let emptyResponse = CalendarEntity(
                     date: date,
                     representativePostId: .none,
                     representativeThumbnailUrl: .none,

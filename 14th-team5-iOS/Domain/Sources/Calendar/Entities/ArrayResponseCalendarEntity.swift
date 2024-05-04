@@ -1,21 +1,22 @@
 //
-//  ArrayResponseCalendarResponse.swift
+//  dddd.swift
 //  Domain
 //
-//  Created by 김건우 on 12/21/23.
+//  Created by 김건우 on 5/3/24.
 //
 
 import Foundation
 
-public struct ArrayResponseCalendarResponse {
-    public var results: [CalendarResponse]
+@available(*, deprecated)
+public struct ArrayResponseCalendarEntity {
+    public var results: [CalendarEntity]
     
-    public init(results: [CalendarResponse]) {
+    public init(results: [CalendarEntity]) {
         self.results = results
     }
 }
 
-public struct CalendarResponse {
+public struct CalendarEntity {
     public var date: Date
     public var representativePostId: String
     public var representativeThumbnailUrl: String
@@ -33,3 +34,4 @@ public struct CalendarResponse {
         self.allFamilyMemebersUploaded = allFamilyMemebersUploaded
     }
 }
+

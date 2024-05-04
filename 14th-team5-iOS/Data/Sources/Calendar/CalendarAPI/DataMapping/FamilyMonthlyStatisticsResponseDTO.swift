@@ -18,7 +18,7 @@ public struct FamilyMonthlyStatisticsResponseDTO: Decodable {
 }
 
 extension FamilyMonthlyStatisticsResponseDTO {
-    func toDomain() -> FamilyMonthlyStatisticsResponse {
+    func toDomain() -> FamilyMonthlyStatisticsEntity {
         return .init(totalImageCnt: self.totalImageCnt)
     }
 }

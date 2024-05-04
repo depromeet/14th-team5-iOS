@@ -25,9 +25,9 @@ public final class CalendarPageCellReactor: Reactor {
     
     // MARK: - Mutation
     public enum Mutation {
-        case injectCalendarBanner(BannerResponse)
-        case injectStatisticsSummary(FamilyMonthlyStatisticsResponse)
-        case injectCalendarResponse(ArrayResponseCalendarResponse)
+        case injectCalendarBanner(BannerEntity)
+        case injectStatisticsSummary(FamilyMonthlyStatisticsEntity)
+        case injectCalendarResponse(ArrayResponseCalendarEntity)
     }
     
     // MARK: - State
@@ -35,7 +35,7 @@ public final class CalendarPageCellReactor: Reactor {
         var yearMonthDate: Date
         var displayCalendarBanner: BannerViewModel.State?
         var displayMemoryCount: Int
-        var displayCalendarResponse: ArrayResponseCalendarResponse?
+        var displayCalendarResponse: ArrayResponseCalendarEntity?
     }
     
     // MARK: - Properties

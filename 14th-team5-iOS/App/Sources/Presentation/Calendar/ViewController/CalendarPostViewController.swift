@@ -486,7 +486,7 @@ extension CalendarPostViewController: FSCalendarDataSource {
         guard let currentState = reactor?.currentState,
               let dayResponse = currentState.displayCalendarResponse[yyyyMM]?.filter({ $0.date.isEqual(with: date) }).first
         else {
-            let emptyResponse = CalendarResponse(
+            let emptyResponse = CalendarEntity(
                 date: date,
                 representativePostId: .none,
                 representativeThumbnailUrl: .none,

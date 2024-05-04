@@ -71,7 +71,7 @@ extension BannerResponseDTO {
 }
 
 extension BannerResponseDTO {
-    func toDomain() -> BannerResponse {
+    func toDomain() -> BannerEntity {
         return .init(
             familyTopPercentage: familyTopPercentage,
             allFamilyMembersUploadedDays: allFamilyMembersUploadedDays,

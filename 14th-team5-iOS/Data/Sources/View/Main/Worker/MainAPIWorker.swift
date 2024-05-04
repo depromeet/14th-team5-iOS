@@ -23,15 +23,6 @@ extension MainAPIs {
             super.init()
             self.id = "MainAPIWorker"
         }
-        
-        // MARK: - Headers
-        private var _headers: Observable<[APIHeader]?> {
-            return App.Repository.token.accessToken
-                .map {
-                    guard let token = $0, let accessToken = token.accessToken, !accessToken.isEmpty else { return [] }
-                    return [BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(accessToken)]
-                }
-        }
     }
 }
 

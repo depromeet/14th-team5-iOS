@@ -22,18 +22,33 @@ public struct Picker {
 public struct MainData {
     public let mainFamilyProfileDatas: [ProfileData]
     public let leftUploadCountUntilMissionUnlock: Int
+    public let isFamilySurvivalUploadedToday: Bool
+    public let isFamilyMissionUploadedToday: Bool
     public let isMissionUnlocked: Bool
     public let isMeSurvivalUploadedToday: Bool
     public let isMeMissionUploadedToday: Bool
+    public let dailyMissionContent: String
     public let pickers: [Picker]
     
-    public init(mainFamilyProfileDatas: [ProfileData], leftUploadCountUntilMissionUnlock: Int, isMissionUnlocked: Bool, isMeSurvivalUploadedToday: Bool, isMeMissionUploadedToday: Bool, pickers: [Picker]) {
+    public init(
+        mainFamilyProfileDatas: [ProfileData],
+        leftUploadCountUntilMissionUnlock: Int,
+        isMissionUnlocked: Bool,
+        isMeSurvivalUploadedToday: Bool,
+        isMeMissionUploadedToday: Bool,
+        pickers: [Picker],
+        survivalUploadCount: Int,
+        missionUploadCount: Int,
+        dailyMissionContent: String) {
         self.mainFamilyProfileDatas = mainFamilyProfileDatas
         self.leftUploadCountUntilMissionUnlock = leftUploadCountUntilMissionUnlock
         self.isMissionUnlocked = isMissionUnlocked
         self.isMeSurvivalUploadedToday = isMeSurvivalUploadedToday
         self.isMeMissionUploadedToday = isMeMissionUploadedToday
         self.pickers = pickers
+        self.dailyMissionContent = dailyMissionContent
+        self.isFamilySurvivalUploadedToday = survivalUploadCount == mainFamilyProfileDatas.count
+        self.isFamilyMissionUploadedToday = missionUploadCount == mainFamilyProfileDatas.count
     }
     
     

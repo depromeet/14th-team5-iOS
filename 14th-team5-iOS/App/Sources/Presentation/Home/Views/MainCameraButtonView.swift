@@ -17,7 +17,7 @@ final class MainCameraButtonView: BaseView<MainCameraReactor> {
     private let balloonView: BalloonView = BalloonView()
     private let cameraButton: UIButton = UIButton()
     
-    let indexRelay: BehaviorRelay<Int> = BehaviorRelay(value: 0)
+    let textRelay: BehaviorRelay<BalloonText> = BehaviorRelay(value: .survivalStandard)
     var camerTapObservable: ControlEvent<Void> {
         return cameraButton.rx.tap
     }
@@ -53,8 +53,8 @@ final class MainCameraButtonView: BaseView<MainCameraReactor> {
 
 extension MainCameraButtonView {
     private func bindInput(reactor: MainCameraReactor) {
-        indexRelay
-            .map { Reactor.Action.getType($0) }
+        textRelay
+            .map { Reactor.Action.setText($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }

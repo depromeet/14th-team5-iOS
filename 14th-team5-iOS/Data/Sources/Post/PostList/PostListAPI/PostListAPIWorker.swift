@@ -72,18 +72,7 @@ extension PostListAPIWorker: PostListRepositoryProtocol {
             }
             .map(PostListResponseDTO.self)
             .map {
-                let myMemberId = FamilyUserDefaults.getMyMemberId()
-                let familyCount = FamilyUserDefaults.getMemberCount()
-                
-                let selfUploaded = $0?.results.map { $0.authorId == myMemberId }.contains(true) ?? false
-                let familyUploaded = $0?.results.count == familyCount
-                
-                if selfUploaded {
-                    let repository = PostUserDefaultsRepository()
-                    repository.checkUploadDate(date: query.date)
-                }
-
-                return $0?.toDomain(selfUploaded, familyUploaded)
+                return $0?.toDomain()
             }
             .catchAndReturn(nil)
             .asSingle()

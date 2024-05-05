@@ -5,18 +5,55 @@
 //  Created by 마경미 on 05.12.23.
 //
 
-import Foundation
+import UIKit
 
 import Core
 import Domain
+import DesignSystem
 
 import ReactorKit
 import RxDataSources
 import Kingfisher
 
+
+enum Description {
+    case survivalNone
+    case survivalFull
+    case missionNone(Int)
+    case mission(String)
+    case missionFull
+    
+    var text: String {
+        switch self {
+        case .survivalNone:
+            return "매일 12-24시에 사진 한 장을 올려요"
+        case .survivalFull:
+            return "우리 가족 모두가 사진을 올린 날"
+        case .missionNone(let count):
+            return "가족 중 \(count)명만 더 올리면 미션 열쇠를 받아요!"
+        case .mission(let string):
+            return string
+        case .missionFull:
+            return "우리 가족 모두가 미션을 성공한 날"
+        }
+    }
+    
+    var image: UIImage {
+        switch self {
+        case .survivalNone, .mission:
+            return DesignSystemAsset.smile.image
+        case .missionFull, .survivalFull:
+            return DesignSystemAsset.congratulation.image
+        case .missionNone:
+            return DesignSystemAsset.missionKeyGraphic.image
+        }
+    }
+}
+
 final class MainViewReactor: Reactor {
+    
     enum Action {
-        case viewDidLoad
+        case calculateTime
         case fetchMainUseCase
         
         case didTapSegmentControl(PostType)
@@ -31,8 +68,9 @@ final class MainViewReactor: Reactor {
         case updateMainData(MainData)
         
         case setInTime(Bool)
-        
         case setPageIndex(Int)
+        case setBalloonText
+        case setDescriptionText
         
         case setPickSuccessToastMessage(String)
         case setCopySuccessToastMessage
@@ -48,16 +86,22 @@ final class MainViewReactor: Reactor {
     struct State {
         var isInTime: Bool
         var pageIndex: Int = 0
+        var leftCount: Int = 0
+        var missionText: String = ""
+        var balloonText: BalloonText = .survivalStandard
+        var description: Description = .survivalNone
+
+        var isFamilySurvivalUploadedToday: Bool = false
+        var isFamilyMissionUploadedToday: Bool = false
+        var isMeSurvivalUploadedToday: Bool = false
+        var isMissionUnlocked: Bool = false
         
-        @Pulse var isMeSurvivalUploadedToday: Bool = false
-        @Pulse var isMissionUnlocked: Bool = false
         @Pulse var familySection: [FamilySection.Item] = []
-    
         
         @Pulse var widgetPostDeepLink: WidgetDeepLink?
         @Pulse var notificationPostDeepLink: NotificationDeepLink?
         @Pulse var notificationCommentDeepLink: NotificationDeepLink?
-    
+        
         @Pulse var shouldPresentPickAlert: (String, String)?
         @Pulse var shouldPresentPickSuccessToastMessage: String?
         @Pulse var shouldPresentCopySuccessToastMessage: Bool = false
@@ -115,9 +159,9 @@ extension MainViewReactor {
                     guard let data = result else {
                         return Observable.empty()
                     }
-                    return Observable.just(.updateMainData(data))
+                    return Observable.concat(Observable.just(.updateMainData(data)), Observable.just(.setBalloonText))
                 }
-        case .viewDidLoad:
+        case .calculateTime:
             let (_, time) = MainViewReactor.calculateRemainingTime()
             
             if self.currentState.isInTime {
@@ -132,7 +176,7 @@ extension MainViewReactor {
                     .flatMap {_ in
                         return Observable.concat([Observable.just(Mutation.setInTime(true))])
                     }
-                                        
+                
             }
         case let .pushWidgetPostDeepLink(deepLink):
             return Observable.concat(
@@ -149,7 +193,11 @@ extension MainViewReactor {
                 Observable<Mutation>.just(.setNotificationCommentDeepLink(deepLink)) // 다음 화면으로 이동하기
             )
         case .didTapSegmentControl(let type):
-            return Observable.just(.setPageIndex(type.getIndex()))
+            return Observable.concat(
+                Observable.just(.setPageIndex(type.getIndex())),
+                Observable.just(.setBalloonText),
+                Observable.just(.setDescriptionText))
+                
             
         case let .pickConfirmButtonTapped(name, id):
             return pickUseCase.executePickMember(memberId: id)
@@ -187,6 +235,10 @@ extension MainViewReactor {
         case .updateMainData(let data):
             newState.isMissionUnlocked = data.isMissionUnlocked
             newState.isMeSurvivalUploadedToday = data.isMeSurvivalUploadedToday
+            newState.isFamilyMissionUploadedToday = data.isFamilyMissionUploadedToday
+            newState.isFamilySurvivalUploadedToday = data.isFamilySurvivalUploadedToday
+            newState.leftCount = data.leftUploadCountUntilMissionUnlock
+            newState.missionText = data.dailyMissionContent
             newState.familySection = FamilySection.Model(
                 model: 0,
                 items: data.mainFamilyProfileDatas.map {
@@ -195,6 +247,34 @@ extension MainViewReactor {
             ).items
         case let .setPickAlertView(name, id):
             newState.shouldPresentPickAlert = (name, id)
+        case .setBalloonText:
+            if currentState.pageIndex == 0 {
+                newState.balloonText = .survivalStandard
+            } else {
+                if currentState.isMissionUnlocked {
+                    newState.balloonText = .cantMission
+                } else {
+                    newState.balloonText = .canMission
+                }
+            }
+        case .setDescriptionText:
+            if currentState.pageIndex == 0 {
+                if currentState.isFamilySurvivalUploadedToday {
+                    newState.description = .survivalFull
+                } else {
+                    newState.description = .survivalNone
+                }
+            } else {
+                if currentState.isMissionUnlocked {
+                    newState.description = .missionNone(currentState.leftCount)
+                } else {
+                    if currentState.isFamilyMissionUploadedToday {
+                        newState.description = .missionFull
+                    } else {
+                        newState.description = .mission(currentState.missionText)
+                    }
+                }
+            }
         }
         
         return newState
@@ -207,7 +287,7 @@ extension MainViewReactor {
         let currentTime = Date()
         
         let currentHour = calendar.component(.hour, from: currentTime)
-
+        
         if currentHour >= 12 {
             if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {
                 let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
@@ -219,8 +299,8 @@ extension MainViewReactor {
                 return (false, max(0, timeDifference.second ?? 0))
             }
         }
-
+        
         return (false, 0)
     }
-
+    
 }

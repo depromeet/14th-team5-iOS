@@ -66,7 +66,8 @@ public class BalloonView: UIView {
     public override func draw(_ rect: CGRect) {
         super.draw(rect)
         
-        let tipLeft = rect.origin.x + (rect.size.width / 2.0) - 6
+        let screenSize = UIScreen.main.bounds.size
+        let tipLeft = (screenSize.width / 2.0) - 6
         let tipBottom = CGPoint(x: rect.origin.x + (rect.size.width / 2.0), y: rect.size.height)
         let heightWithoutTip = 40
 

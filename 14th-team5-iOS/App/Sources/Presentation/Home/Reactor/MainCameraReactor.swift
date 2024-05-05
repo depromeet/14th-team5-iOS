@@ -11,24 +11,22 @@ import Domain
 
 import ReactorKit
 
+enum BalloonText: String {
+    case survivalStandard = "하루에 한번 사진을 올릴 수 있어요"
+    case cantMission = "아직 미션 사진을 찍을 수 없어요"
+    case canMission = "미션 사진을 찍으러 가볼까요?"
+}
+
 final class MainCameraReactor: Reactor {
-    enum BalloonText: String {
-        case survivalStandard = "하루에 한번 사진을 올릴 수 있어요"
-        case cantMission = "아직 미션 사진을 찍을 수 없어요"
-        case canMission = "미션 사진을 찍으러 가볼까요?"
-    }
-    
     enum Action {
-        case getType(Int)
-        case setText
+        case setText(BalloonText)
     }
     
     enum Mutation {
-        case setType(PostType)
+        case setText(BalloonText)
     }
 
     struct State {
-        var type: PostType = .survival
         var balloonText: BalloonText = .survivalStandard
     }
     
@@ -38,10 +36,8 @@ final class MainCameraReactor: Reactor {
 extension MainCameraReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .getType(let index):
-            Observable.just(.setType(PostType.getPostType(index: index)))
-        case .setText:
-            Observable.empty()
+        case .setText(let text):
+            return Observable.just(.setText(text))
         }
     }
     
@@ -49,8 +45,8 @@ extension MainCameraReactor {
         var newState = state
         
         switch mutation {
-        case .setType(let type):
-            newState.type = type
+        case .setText(let text):
+            newState.balloonText = text
         }
         
         return newState

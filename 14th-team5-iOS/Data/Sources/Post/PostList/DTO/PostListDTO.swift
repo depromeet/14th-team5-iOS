@@ -54,7 +54,7 @@ struct PostListResponseDTO: Codable {
 }
 
 extension PostListResponseDTO {
-    func toDomain(_ selfUploaded: Bool, _ allFamilyMembersUploaded: Bool) -> PostListPage {
-        return .init(isLast: !hasNext, postLists: results.map { $0.toDomain() }, allFamilyMembersUploaded: allFamilyMembersUploaded, selfUploaded: selfUploaded)
+    func toDomain() -> PostListPage {
+        return .init(isLast: !hasNext, postLists: results.map { $0.toDomain() })
     }
 }

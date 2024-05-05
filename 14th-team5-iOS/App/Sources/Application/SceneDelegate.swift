@@ -29,6 +29,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if let url = connectionOptions.urlContexts.first?.url {
             if let deepLink = decodeWidgetDeepLink(url) {
                 App.Repository.deepLink.widget.accept(deepLink)
+                DeepLinkManager.shared.handlePostWidgetDeepLink(deepLink)
             }
             
             self.window = UIWindow(windowScene: scene)
@@ -71,6 +72,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             // 위젯 딥링크라면
             if let deepLink = decodeWidgetDeepLink(url) {
                 App.Repository.deepLink.widget.accept(deepLink)
+                DeepLinkManager.shared.handlePostWidgetDeepLink(deepLink)
             }
         }
     }

@@ -38,10 +38,10 @@ public enum PostType: String {
 }
 
 public struct PostListQuery {
-    public let page: Int
+    public var page: Int
     public let size: Int
     public let date: String
-    public let memberId: String
+    public let memberId: String?
     public let type: PostType
     public let sort: String
     
@@ -49,7 +49,7 @@ public struct PostListQuery {
         page: Int = 1,
         size: Int = 256,
         date: String,
-        memberId: String = "",
+        memberId: String? = nil,
         type: PostType = .survival,
         sort: Sort = .desc
     ) {

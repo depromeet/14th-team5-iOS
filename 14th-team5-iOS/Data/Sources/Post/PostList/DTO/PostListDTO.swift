@@ -35,6 +35,7 @@ extension PostListDTO {
         return .init(
             postId: postId, 
             missionId: missionId,
+            missionType: type,
             author: author,
             commentCount: commentCount,
             emojiCount: emojiCount,

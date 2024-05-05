@@ -20,7 +20,7 @@ public final class ProfileFeedCellReactor: Reactor {
         var date: String
         var commentCount: String
         var content: [String]
-        var feedType: String?
+        var feedType: String
         @Pulse var descrptionSection: [ProfileFeedDescrptionSectionModel] = [.feedDescrption([])]
     }
     
@@ -37,7 +37,8 @@ public final class ProfileFeedCellReactor: Reactor {
         emojiCount: String,
         date: String,
         commentCount: String,
-        content: [String]
+        content: [String],
+        feedType: String
     ) {
         self.initialState = State(
             imageURL: imageURL,
@@ -45,7 +46,7 @@ public final class ProfileFeedCellReactor: Reactor {
             date: date,
             commentCount: commentCount,
             content: content,
-            feedType: nil
+            feedType: feedType
         )
     }
     

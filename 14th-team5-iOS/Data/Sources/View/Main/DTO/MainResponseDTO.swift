@@ -73,6 +73,9 @@ struct MainResponseDTO: Codable {
             isMissionUnlocked: isMissionUnlocked,
             isMeSurvivalUploadedToday: isMeSurvivalUploadedToday,
             isMeMissionUploadedToday: isMeMissionUploadedToday,
-            pickers: pickers.map { $0.toDomain() })
+            pickers: pickers.map { $0.toDomain() },
+            survivalUploadCount: survivalFeeds.count,
+            missionUploadCount: missionFeeds.count, 
+            dailyMissionContent: dailyMissionContent)
     }
 }

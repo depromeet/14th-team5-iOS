@@ -32,13 +32,9 @@ public struct PostListData: Equatable, Hashable {
 public struct PostListPage: Equatable {
     public let isLast: Bool
     public let postLists: [PostListData]
-    public let allFamilyMembersUploaded: Bool
-    public let selfUploaded: Bool
     
-    public init(isLast: Bool, postLists: [PostListData], allFamilyMembersUploaded: Bool, selfUploaded: Bool) {
+    public init(isLast: Bool, postLists: [PostListData]) {
         self.isLast = isLast
         self.postLists = postLists
-        self.allFamilyMembersUploaded = allFamilyMembersUploaded
-        self.selfUploaded = selfUploaded
     }
 }

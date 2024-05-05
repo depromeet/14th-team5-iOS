@@ -19,14 +19,14 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
     private let familyViewController: MainFamilyViewController = MainFamilyViewDIContainer().makeViewController()
 
     private let timerView: TimerView = TimerDIContainer().makeView()
-    private let descriptionView: DescriptionView = DescriptionDIContainer().makeView()
+    private let descriptionLabel: BibbiLabel = BibbiLabel(.body2Regular, textAlignment: .center, textColor: .gray300)
+    private let imageView: UIImageView = UIImageView()
     
     private let segmentControl: BibbiSegmentedControl = BibbiSegmentedControl(isUpdated: true)
     private let pageViewController: SegmentPageViewController = SegmentPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
     
-    lazy var cameraButton: MainCameraButtonView = MainCameraDIContainer().makeView()
+    private let cameraButton: MainCameraButtonView = MainCameraDIContainer().makeView()
 
-    // MARK: - Properties
     private let memberRepo = App.Repository.member
     private let deepLinkRepo = App.Repository.deepLink
     
@@ -50,8 +50,9 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
         addChild(familyViewController)
         addChild(pageViewController)
         
-        view.addSubviews(familyViewController.view, timerView, descriptionView, segmentControl,
-                         pageViewController.view, cameraButton)
+        view.addSubviews(familyViewController.view, timerView, descriptionLabel,
+                         imageView, segmentControl, pageViewController.view,
+                         cameraButton)
         
         familyViewController.didMove(toParent: self)
         pageViewController.didMove(toParent: self)
@@ -72,14 +73,20 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
             $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
         }
         
-        descriptionView.snp.makeConstraints {
+        descriptionLabel.snp.makeConstraints {
             $0.top.equalTo(timerView.snp.bottom).offset(8)
-            $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(20)
+            $0.centerX.equalToSuperview()
+        }
+
+        imageView.snp.makeConstraints {
+            $0.top.equalTo(descriptionLabel)
+            $0.size.equalTo(20)
+            $0.leading.equalTo(descriptionLabel.snp.trailing).offset(2)
         }
         
         segmentControl.snp.makeConstraints {
-            $0.top.equalTo(descriptionView.snp.bottom).offset(20)
+            $0.top.equalTo(descriptionLabel.snp.bottom).offset(20)
             $0.centerX.equalToSuperview()
             $0.width.equalTo(138)
             $0.height.equalTo(40)
@@ -109,17 +116,12 @@ extension MainViewController {
     private func bindInput(reactor: MainViewReactor) {
         Observable.merge(
             Observable.just(())
-                .map { Reactor.Action.viewDidLoad },
+                .map { Reactor.Action.fetchMainUseCase },
             NotificationCenter.default.rx.notification(UIScene.willEnterForegroundNotification)
-                .map { _ in Reactor.Action.viewDidLoad }
+                .map { _ in Reactor.Action.fetchMainUseCase }
         )
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
-        
-        Observable.just(())
-            .map { Reactor.Action.fetchMainUseCase }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
         
 //        self.rx.viewWillAppear
 //            .withUnretained(self)
@@ -133,16 +135,14 @@ extension MainViewController {
 //            .bind(to: reactor.action)
 //            .disposed(by: disposeBag)
 
-        segmentControl
-            .survivalButton.rx.tap
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+        segmentControl.survivalButton.rx.tap
+            .throttle(.milliseconds(1000), scheduler: MainScheduler.instance)
             .map { Reactor.Action.didTapSegmentControl(.survival) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
       
-        segmentControl
-            .missionButton.rx.tap
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+        segmentControl.missionButton.rx.tap
+            .throttle(.milliseconds(1000), scheduler: MainScheduler.instance)
             .map { Reactor.Action.didTapSegmentControl(.mission) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -159,7 +159,10 @@ extension MainViewController {
             .bind { $0.0.navigationController?.pushViewController(CalendarDIConatainer().makeViewController(), animated: true) }
             .disposed(by: disposeBag)
       
-  
+        alertConfirmRelay
+            .map { Reactor.Action.pickConfirmButtonTapped($0.0, $0.1) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
         cameraButton.camerTapObservable
             .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
@@ -195,19 +198,11 @@ extension MainViewController {
     }
     
     private func bindOutput(reactor: MainViewReactor) {
-        
         reactor.pulse(\.$familySection)
             .distinctUntilChanged()
             .observe(on: MainScheduler.instance)
             .bind(to: familyViewController.familySectionRelay)
             .disposed(by: disposeBag)
-        
-//        reactor.pulse(\.$isSelfUploaded)
-//            .distinctUntilChanged()
-//            .observe(on: MainScheduler.instance)
-//            .withUnretained(self)
-//            .bind(onNext: { $0.0.hideCameraButton($0.1) })
-//            .disposed(by: disposeBag)
         
         reactor.state.map { $0.pageIndex }
             .distinctUntilChanged()
@@ -216,7 +211,21 @@ extension MainViewController {
             .bind(onNext: {
                 $0.0.pageViewController.indexRelay.accept($0.1)
                 $0.0.segmentControl.isSelected = ($0.1 == 0)
-                $0.0.descriptionView.postTypeRelay.accept(($0.1 == 0) ? .survival : .mission)
+            })
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.balloonText }
+            .distinctUntilChanged()
+            .bind(to: cameraButton.textRelay)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.description }
+            .distinctUntilChanged { $0.text }
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: {
+                $0.0.descriptionLabel.text = $0.1.text
+                $0.0.imageView.image = $0.1.image
             })
             .disposed(by: disposeBag)
         
@@ -226,16 +235,10 @@ extension MainViewController {
                 BibbiAlertBuilder(owner)
                     .alertStyle(.pickMember(profile.0))
                     .setConfirmAction {
-                        // (name, memberId)
                         owner.alertConfirmRelay.accept((profile.0, profile.1))
                     }
                     .present()
             }
-            .disposed(by: disposeBag)
-        
-        alertConfirmRelay
-            .map { Reactor.Action.pickConfirmButtonTapped($0.0, $0.1) }
-            .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentPickSuccessToastMessage)
@@ -293,78 +296,3 @@ extension MainViewController {
 //            .disposed(by: disposeBag)
     }
 }
-
-//extension MainViewController {
-//    private func handlePostWidgetDeepLink(_ deepLink: WidgetDeepLink) {
-//        guard let reactor = reactor else { return }
-//        reactor.currentState.postSection.items.enumerated().forEach { (index, item) in
-//            switch item {
-//            case .main(let postListData):
-//                if postListData.postId == deepLink.postId {
-//                    let indexPath = IndexPath(row: index, section: 0)
-//                    self.navigationController?.pushViewController(
-//                        PostListsDIContainer().makeViewController(
-//                            postLists: reactor.currentState.postSection,
-//                            selectedIndex: indexPath),
-//                        animated: true
-//                    )
-//                }
-//            }
-//        }
-//    }
-//    
-//    private func handlePostNotificationDeepLink(_ deepLink: NotificationDeepLink) {
-//        guard let reactor = reactor else { return }
-//        reactor.currentState.postSection.items.enumerated().forEach { (index, item) in
-//            switch item {
-//            case .main(let post):
-//                if post.postId == deepLink.postId {
-//                    let indexPath = IndexPath(row: index, section: 0)
-//                    self.navigationController?.pushViewController(
-//                        PostListsDIContainer().makeViewController(
-//                            postLists: reactor.currentState.postSection,
-//                            selectedIndex: indexPath),
-//                        animated: true
-//                    )
-//                }
-//            }
-//        }
-//    }
-//    
-//    private func handleCommentNotificationDeepLink(_ deepLink: NotificationDeepLink) {
-//        guard let reactor = reactor else { return }
-//        
-//        // 오늘 올린 피드에 댓글이 달렸다면
-//        if deepLink.dateOfPost.isToday {
-//            guard let selectedIndex = reactor.currentState.postSection.items.firstIndex(where: { postList in
-//                switch postList {
-//                case let .main(post):
-//                    post.postId == deepLink.postId
-//                }
-//            }) else { return }
-//            let indexPath = IndexPath(row: selectedIndex, section: 0)
-//            
-//            let postListViewController = PostListsDIContainer().makeViewController(
-//                postLists: reactor.currentState.postSection,
-//                selectedIndex: indexPath,
-//                notificationDeepLink: deepLink
-//            )
-//            
-//            navigationController?.pushViewController(
-//                postListViewController,
-//                animated: true
-//            )
-//        // 이전에 올린 피드에 댓글이 달렸다면
-//        } else {
-//            let calendarPostViewController = CalendarPostDIConatainer(
-//                selectedDate: deepLink.dateOfPost,
-//                notificationDeepLink: deepLink
-//            ).makeViewController()
-//            
-//            navigationController?.pushViewController(
-//                calendarPostViewController,
-//                animated: true
-//            )
-//        }
-//    }
-//}

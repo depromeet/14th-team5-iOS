@@ -115,7 +115,6 @@ extension AppDelegate: MixpanelDelegate {
 }
 
 extension AppDelegate {
-    
     func appleApp(_ app: UIApplication, didFinishLauchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) {
         
         guard let accessToken = App.Repository.token.accessToken.value?.accessToken else {
@@ -171,6 +170,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             App.Repository.deepLink.notification.accept(deepLink)
+            DeepLinkManager.shared.handleDeepLink(deepLink)
         }
         
         completionHandler()

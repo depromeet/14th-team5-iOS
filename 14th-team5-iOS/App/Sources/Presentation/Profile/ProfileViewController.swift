@@ -55,6 +55,8 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     
     public override func setupUI() {
         super.setupUI()
+        
+        addChild(profileFeedViewController)
         view.addSubviews(profileView, profileLineView, profileFeedViewController.view, profileSegementControl, profileIndicatorView)
     }
     

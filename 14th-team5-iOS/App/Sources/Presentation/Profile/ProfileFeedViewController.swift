@@ -85,13 +85,37 @@ final class ProfileFeedViewController: BaseViewController<ProfileFeedViewReactor
         
         profileFeedCollectionView.rx
             .prefetchItems
-            .distinctUntilChanged()
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .compactMap(\.last?.item)
             .withLatestFrom(reactor.state.compactMap { $0.feedItems})
             .filter { !$0.isLast }
             .map { _ in Reactor.Action.fetchMoreFeedItems}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        profileFeedCollectionView.rx
+            .itemSelected
+            .withLatestFrom(reactor.pulse(\.$feedPaginationItems)) { indexPath, feedItems in
+                return (indexPath, feedItems)
+            }
+            .debounce(.milliseconds(100), scheduler: MainScheduler.instance)
+            .map { Reactor.Action.didTapProfileFeedItem($0.0, $0.1)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        Observable
+            .combineLatest(
+                reactor.pulse(\.$feedDetailItem),
+                reactor.pulse(\.$selectedIndex)
+            )
+            .withUnretained(self)
+            .filter { !$0.1.0.items.isEmpty }
+            .debounce(.milliseconds(300), scheduler: MainScheduler.asyncInstance)
+            .bind {
+                guard let indexPath = $0.1.1 else { return }
+                let postListViewController = PostListsDIContainer().makeViewController(postLists: $0.1.0, selectedIndex: indexPath)
+                $0.0.navigationController?.pushViewController(postListViewController, animated: true)
+            }.disposed(by: disposeBag)
         
         reactor.state
             .compactMap { $0.feedItems?.postLists.isEmpty }

@@ -20,6 +20,7 @@ final class ProfileFeedViewReactor: Reactor {
     enum Action {
         case reloadFeedItems
         case fetchMoreFeedItems
+        case didTapProfileFeedItem(IndexPath, [PostListData])
     }
     
     enum Mutation {
@@ -28,11 +29,14 @@ final class ProfileFeedViewReactor: Reactor {
         case setFeedItemPage(Int)
         case setFeedPaginationItems([PostListData])
         case setFeedItems(PostListPage)
+        case setFeedDetailItem(PostSection.Model, IndexPath)
     }
     
     struct State {
         var isLoading: Bool
         var memberId: String
+        @Pulse var selectedIndex: IndexPath?
+        @Pulse var feedDetailItem: PostSection.Model
         @Pulse var feedPaginationItems: [PostListData]
         @Pulse var feedPage: Int
         @Pulse var type: PostType
@@ -45,6 +49,8 @@ final class ProfileFeedViewReactor: Reactor {
         self.initialState = State(
             isLoading: false,
             memberId: memberId,
+            selectedIndex: nil,
+            feedDetailItem: .init(model: 0, items: []),
             feedPaginationItems: [],
             feedPage: 1,
             type: type,
@@ -82,7 +88,7 @@ final class ProfileFeedViewReactor: Reactor {
                                     ProfileFeedCellReactor(
                                         imageURL: URL(string: $0.imageURL) ?? URL(fileReferenceLiteralResourceName: ""),
                                         emojiCount: "\($0.emojiCount)",
-                                        date: $0.time,
+                                        date: $0.time.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter(),
                                         commentCount: "\($0.commentCount)",
                                         content: $0.content?.map { "\($0)"} ?? [],
                                         feedType: $0.missionType ?? .none
@@ -100,10 +106,8 @@ final class ProfileFeedViewReactor: Reactor {
                     )
                 }
         case .fetchMoreFeedItems:
-            print("query page: \(query.page)")
             let updatePage = currentState.feedPage + 1
             query.page = updatePage
-            print("fetch query value: \(query.page)")
             return feedUseCase.execute(query: query)
                 .asObservable()
                 .withUnretained(self)
@@ -120,7 +124,7 @@ final class ProfileFeedViewReactor: Reactor {
                                 ProfileFeedCellReactor(
                                     imageURL: URL(string: $0.imageURL) ?? URL(fileReferenceLiteralResourceName: ""),
                                     emojiCount: "\($0.emojiCount)",
-                                    date: $0.time,
+                                    date: $0.time.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter(),
                                     commentCount: "\($0.commentCount)",
                                     content: $0.content?.map { "\($0)"} ?? [],
                                     feedType: $0.missionType ?? .none
@@ -131,12 +135,37 @@ final class ProfileFeedViewReactor: Reactor {
                     
                     return .concat(
                         .just(.setLoading(false)),
-                        .just(.setFeedItemPage(updatePage)),
                         .just(.setFeedPaginationItems(feedItems)),
+                        .just(.setFeedItemPage(updatePage)),
                         .just(.setFeedSectionItems(sectionItem)),
                         .just(.setLoading(true))
                     )
                 }
+        case let .didTapProfileFeedItem(indexPath, feedItems):
+            var feedDetailSection: PostSection.Model = .init(model: 0, items: [])
+            
+            feedItems.forEach {
+                feedDetailSection.items.append(
+                    .main(PostListData(
+                        postId: $0.postId,
+                        missionId: $0.missionId,
+                        missionType: $0.missionType,
+                        author: ProfileData(
+                            memberId: currentState.memberId,
+                            profileImageURL: $0.author?.profileImageURL,
+                            name: $0.author?.name ?? ""),
+                        commentCount: $0.commentCount,
+                        emojiCount: $0.emojiCount,
+                        imageURL: $0.imageURL,
+                        content: $0.content,
+                        time: $0.time
+                    )
+                    )
+                )
+            }
+            
+            
+            return .just(.setFeedDetailItem(feedDetailSection, indexPath))
         }
     }
     
@@ -158,6 +187,9 @@ final class ProfileFeedViewReactor: Reactor {
             newState.feedPage = feedPage
         case let .setFeedPaginationItems(PaginationItems):
             newState.feedPaginationItems = PaginationItems
+        case let .setFeedDetailItem(feedDetailItem, selectedIndex):
+            newState.feedDetailItem = feedDetailItem
+            newState.selectedIndex = selectedIndex
         }
         
         return newState

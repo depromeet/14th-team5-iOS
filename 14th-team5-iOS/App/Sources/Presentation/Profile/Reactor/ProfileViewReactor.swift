@@ -11,6 +11,10 @@ import Core
 import Domain
 import ReactorKit
 
+public enum BibbiFeedType: Int {
+    case survival = 0
+    case mission = 1
+}
 
 public final class ProfileViewReactor: Reactor {
     public var initialState: State
@@ -22,22 +26,16 @@ public final class ProfileViewReactor: Reactor {
         case viewDidLoad
         case viewWillAppear
         case updateNickNameProfile(Data)
-        case fetchMorePostItems(Bool)
         case didSelectPHAssetsImage(Data)
         case didTapInitProfile
         case didTapSegementControl(BibbiFeedType)
-        case didTapProfilePost(IndexPath, [ProfilePostResultResponse])
     }
     
     public enum Mutation {
         case setLoading(Bool)
         case setProfilePresingedURL(CameraDisplayImageResponse?)
-        case setFeedCategroySection([ProfileFeedSectionItem])
-        case setFeedResultItems([ProfilePostResultResponse])
         case setProfileMemberItems(ProfileMemberResponse?)
         case setProfileFeedType(BibbiFeedType)
-        case setProfilePostItems(ProfilePostResponse)
-        case setProfileData(PostSection.Model, IndexPath)
     }
     
     public struct State {
@@ -45,12 +43,7 @@ public final class ProfileViewReactor: Reactor {
         var memberId: String
         var isUser: Bool
         var feedType: BibbiFeedType
-        @Pulse var profileData: PostSection.Model
-        @Pulse var selectedIndexPath: IndexPath?
-        @Pulse var feedResultItem: [ProfilePostResultResponse]
-        @Pulse var feedSection: [ProfileFeedSectionModel]
         @Pulse var profileMemberEntity: ProfileMemberResponse?
-        @Pulse var profilePostEntity: ProfilePostResponse?
         @Pulse var profilePresingedURLEntity: CameraDisplayImageResponse?
     }
     
@@ -62,15 +55,7 @@ public final class ProfileViewReactor: Reactor {
             isLoading: false,
             memberId: memberId,
             isUser: isUser,
-            feedType: .survival,
-            profileData: PostSection.Model(
-                model: 0, items: []
-            ),
-            selectedIndexPath: nil, 
-            feedResultItem: [],
-            feedSection: [.feedCategory([])],
-            profileMemberEntity: nil,
-            profilePresingedURLEntity: nil
+            feedType: .survival
         )
         
         self.provider = provider
@@ -80,8 +65,6 @@ public final class ProfileViewReactor: Reactor {
     
     public func mutate(action: Action) -> Observable<Mutation> {
         //TODO: Keychain, UserDefaults 추가
-        var query: ProfilePostQuery = ProfilePostQuery(page: 1, size: 10)
-        let parameters: ProfilePostDefaultValue = ProfilePostDefaultValue(date: "", memberId: currentState.memberId, type: currentState.feedType.rawValue, sort: "DESC")
         switch action {
         case .viewDidLoad:
             return .concat(
@@ -89,28 +72,11 @@ public final class ProfileViewReactor: Reactor {
                 profileUseCase.executeProfileMemberItems(memberId: currentState.memberId)
                     .asObservable()
                     .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
-                            .just(.setProfileMemberItems(entity))
-                    },
-                
-                profileUseCase.executeProfilePostItems(query: query, parameters: parameters)
-                    .asObservable()
-                    .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
-                        var sectionItem: [ProfileFeedSectionItem] = []
-                        if entity.results.isEmpty {
-                            sectionItem.append(.feedCateogryEmptyItem(ProfileFeedEmptyCellReactor(descrption: "아직 업로드한 사진이 없어요", resource: "profileEmpty")))
-                        } else {
-                            entity.results.forEach {
-                                sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date:  $0.createdAt.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter(), commentCount: $0.commentCount, content: $0.content.map { "\($0)"})))
-                            }
-                        }
                         return .concat(
-                            .just(.setProfilePostItems(entity)),
-                            .just(.setFeedResultItems(entity.results)),
-                            .just(.setFeedCategroySection(sectionItem)),
+                            .just(.setProfileMemberItems(entity)),
                             .just(.setLoading(true))
                         )
-                        
-                    }
+                }
             )
         case let .updateNickNameProfile(nickNameFileData):
             let nickNameProfileImage: String = "\(nickNameFileData.hashValue).jpg"
@@ -149,19 +115,16 @@ public final class ProfileViewReactor: Reactor {
                     })
             
         case .viewWillAppear:
-            return .concat(
-                profileUseCase.executeProfileMemberItems(memberId: currentState.memberId)
-                    .asObservable()
-                    .withUnretained(self)
-                    .flatMap { owner ,entity -> Observable<ProfileViewReactor.Mutation> in
-                            .concat(
-                                .just(.setLoading(false)),
-                                .just(.setProfileMemberItems(entity)),
-                                .just(.setLoading(true))
-                            )
-                    }
-                
-            )
+            return profileUseCase.executeProfileMemberItems(memberId: currentState.memberId)
+                .asObservable()
+                .withUnretained(self)
+                .flatMap { owner ,entity -> Observable<ProfileViewReactor.Mutation> in
+                        .concat(
+                            .just(.setLoading(false)),
+                            .just(.setProfileMemberItems(entity)),
+                            .just(.setLoading(true))
+                        )
+                }
         
         case let .didSelectPHAssetsImage(fileData):
             let profileImage: String = "\(fileData.hashValue).jpg"
@@ -198,34 +161,9 @@ public final class ProfileViewReactor: Reactor {
                                 }
                                 
                             }
-                        
-                        
                     }
             )
             
-        case let .fetchMorePostItems(isPagination):
-            query.page += 1
-            guard self.currentState.profilePostEntity?.hasNext == true && isPagination else { return .empty() }
-            return profileUseCase.executeProfilePostItems(query: query, parameters: parameters)
-                .asObservable()
-                .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
-                    guard let originalItems = self.currentState.profilePostEntity?.results else { return .empty() }
-                    var paginationItems: [ProfilePostResultResponse] = originalItems
-                    
-                    var sectionItem: [ProfileFeedSectionItem] = []
-                    paginationItems.append(contentsOf: entity.results)
-                   
-                    paginationItems.forEach {
-                        sectionItem.append(.feedCategoryItem(ProfileFeedCellReactor(imageURL: $0.imageUrl, emojiCount: $0.emojiCount, date: $0.createdAt.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter(), commentCount: $0.commentCount, content: $0.content.map { "\($0)"})))
-                    }
-                    return .concat(
-                        .just(.setLoading(false)),
-                        .just(.setProfilePostItems(entity)),
-                        .just(.setFeedResultItems(paginationItems)),
-                        .just(.setFeedCategroySection(sectionItem)),
-                        .just(.setLoading(true))
-                    )
-                }
         case .didTapInitProfile:
             return profileUseCase.executeDeleteProfileImage(memberId: memberId)
                 .asObservable()
@@ -238,64 +176,8 @@ public final class ProfileViewReactor: Reactor {
                     
                 }
             
-            
-        case let .didTapProfilePost(indexPath, postEntity):
-            guard let profleEntity = currentState.profileMemberEntity else { return .empty() }
-            var postSection: PostSection.Model = .init(model: 0, items: [])
-            postEntity.forEach {
-                postSection.items.append(
-                    .main(
-                        PostListData(
-                            postId: $0.postId,
-                            author: ProfileData(memberId: memberId, profileImageURL: profleEntity.memberImage.absoluteString, name: profleEntity.memberName, dayOfBirth: profleEntity.dayOfBirth),
-                            commentCount: Int($0.commentCount) ?? 0,
-                            emojiCount: Int($0.emojiCount) ?? 0,
-                            imageURL: $0.imageUrl.absoluteString,
-                            content: $0.content,
-                            time: $0.createdAt
-                        )
-                    )
-                )
-            }
-            return .just(.setProfileData(postSection, indexPath))
-          
-          
         case let .didTapSegementControl(feedType):
-          let feedQuery: ProfilePostQuery = ProfilePostQuery(page: 1, size: 10)
-          let feedParameters: ProfilePostDefaultValue = ProfilePostDefaultValue(date: "", memberId: currentState.memberId, type: feedType.rawValue, sort: "DESC")
-          
-          return .concat(
-            .just(.setLoading(false)),
-            .just(.setProfileFeedType(feedType)),
-            profileUseCase.executeProfilePostItems(query: feedQuery, parameters: feedParameters)
-              .asObservable()
-              .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
-                var sectionItem: [ProfileFeedSectionItem] = []
-                if entity.results.isEmpty {
-                  sectionItem.append(.feedCateogryEmptyItem(ProfileFeedEmptyCellReactor(descrption: "아직 업로드한 사진이 없어요", resource: "profileEmpty")))
-                } else {
-                  entity.results.forEach {
-                    sectionItem.append(
-                      .feedCategoryItem(
-                        ProfileFeedCellReactor(
-                          imageURL: $0.imageUrl,
-                          emojiCount: $0.emojiCount,
-                          date: $0.createdAt.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter(),
-                          commentCount: $0.commentCount,
-                          content: $0.content.map {"\($0)"}
-                        )
-                      )
-                    )
-                  }
-                }
-                return .concat(
-                  .just(.setProfilePostItems(entity)),
-                  .just(.setFeedResultItems(entity.results)),
-                  .just(.setFeedCategroySection(sectionItem)),
-                  .just(.setLoading(true))
-                )
-              }
-          )
+            return .just(.setProfileFeedType(feedType))
         }
     }
     
@@ -306,24 +188,14 @@ public final class ProfileViewReactor: Reactor {
         switch mutation {
         case let .setLoading(isLoading):
             newState.isLoading = isLoading
-        case let .setFeedCategroySection(section):
-            let sectionIndex = getSection(.feedCategory([]))
-            newState.feedSection[sectionIndex] = .feedCategory(section)
-        case let .setProfilePostItems(entity):
-            newState.profilePostEntity = entity
+        
         case let .setProfileMemberItems(entity):
             provider.profileGlobalState.refreshFamilyMembers()
             newState.profileMemberEntity = entity
             
         case let .setProfilePresingedURL(entity):
             newState.profilePresingedURLEntity = entity
-            
-        case let .setProfileData(profileData, indexPath):
-            newState.profileData = profileData
-            newState.selectedIndexPath = indexPath
-            
-        case let .setFeedResultItems(feedResultItem):
-            newState.feedResultItem = feedResultItem
+
         case let .setProfileFeedType(feedType):
             newState.feedType = feedType
         }
@@ -336,15 +208,6 @@ public final class ProfileViewReactor: Reactor {
 
 extension ProfileViewReactor {
  
-    func getSection(_ section: ProfileFeedSectionModel) -> Int {
-        var index: Int = 0
-        
-        for i in 0 ..< self.currentState.feedSection.count where self.currentState.feedSection[i].getSectionType() == section.getSectionType() {
-            index = i
-        }
-        
-        return index
-    }
     
     func configureProfileOriginalS3URL(url: String) -> String {
         guard let range = url.range(of: #"[^&?]+"#, options: .regularExpression) else { return "" }

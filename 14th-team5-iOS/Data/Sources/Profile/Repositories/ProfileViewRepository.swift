@@ -34,24 +34,6 @@ extension ProfileViewRepository: ProfileViewInterface {
             .asObservable()
     }
     
-    public func fetchProfilePostItems(query: ProfilePostQuery, parameter: ProfilePostDefaultValue) -> Observable<ProfilePostResponse> {
-        
-        
-        let parameters: ProfilePostParameter = ProfilePostParameter(
-            page: query.page,
-            size: query.size,
-            date: parameter.date,
-            type: parameter.type,
-            memberId: parameter.memberId,
-            sort: parameter.sort
-        )
-        
-        
-        return profileAPIWorker.fetchProfilePost(accessToken: accessToken, parameter: parameters)
-            .compactMap { $0?.toDomain() }
-            .asObservable()
-    }
-    
     
     public func fetchProfileAlbumImageURL(parameter: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?> {
         return profileAPIWorker.createProfileImagePresingedURL(accessToken: accessToken, parameters: parameter)

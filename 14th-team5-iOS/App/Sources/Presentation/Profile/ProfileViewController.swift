@@ -35,22 +35,9 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     private lazy var profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 50)
     private let profileLineView: UIView = UIView()
     private lazy var profilePickerController: PHPickerViewController = PHPickerViewController(configuration: pickerConfiguration)
-    private let profileFeedCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
-    private lazy var profileFeedCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: profileFeedCollectionViewLayout)
-    private let profileFeedDataSources: RxCollectionViewSectionedReloadDataSource<ProfileFeedSectionModel> = .init { dataSources, collectionView, indexPath, sectionItem in
-        switch sectionItem {
-        case let .feedCategoryItem(cellReactor):
-            guard let profileFeedCell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProfileFeedCollectionViewCell", for: indexPath) as? ProfileFeedCollectionViewCell else { return UICollectionViewCell() }
-            profileFeedCell.reactor = cellReactor
-            return profileFeedCell
-            
-        case let .feedCateogryEmptyItem(cellReactor):
-            guard let profileFeedEmptyCell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProfileFeedEmptyCollectionViewCell", for: indexPath) as? ProfileFeedEmptyCollectionViewCell else { return UICollectionViewCell() }
-            profileFeedEmptyCell.reactor = cellReactor
-            return profileFeedEmptyCell
-        }
-    }
 
+    private lazy var profileFeedViewController: ProfileFeedPageViewController = ProfileFeedPageViewController()
+    
     
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -68,15 +55,13 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(profileView, profileLineView, profileSegementControl, profileFeedCollectionView, profileIndicatorView)
+        
+        addChild(profileFeedViewController)
+        view.addSubviews(profileView, profileLineView, profileFeedViewController.view, profileSegementControl, profileIndicatorView)
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
-        
-        profileFeedCollectionViewLayout.do {
-            $0.scrollDirection = .vertical
-        }
         
         profilePickerController.do {
             $0.delegate = self
@@ -90,13 +75,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             $0.setNavigationView(leftItem: .arrowLeft, centerItem: .label("활동"), rightItem: .setting)
         }
         
-        profileFeedCollectionView.do {
-            $0.register(ProfileFeedCollectionViewCell.self, forCellWithReuseIdentifier: "ProfileFeedCollectionViewCell")
-            $0.register(ProfileFeedEmptyCollectionViewCell.self, forCellWithReuseIdentifier: "ProfileFeedEmptyCollectionViewCell")
-            $0.showsVerticalScrollIndicator = true
-            $0.showsHorizontalScrollIndicator = false
-            $0.backgroundColor = .clear
-        }
     }
     
     public override func setupAutoLayout() {
@@ -120,12 +98,11 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             $0.width.equalTo(140)
             $0.centerX.equalTo(profileView)
         }
-       
-       profileFeedCollectionView.snp.makeConstraints {
-         $0.top.equalTo(profileSegementControl.snp.bottom).offset(20)
-         $0.left.right.bottom.equalToSuperview()
-       }
-      
+        
+        profileFeedViewController.view.snp.makeConstraints {
+            $0.top.equalTo(profileSegementControl.snp.bottom).offset(20)
+            $0.left.right.bottom.equalToSuperview()
+        }
         
         profileIndicatorView.snp.makeConstraints {
             $0.center.equalToSuperview()
@@ -145,11 +122,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         self.rx.viewWillAppear
             .map { _ in Reactor.Action.viewWillAppear }
             .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        
-        profileFeedCollectionView.rx
-            .setDelegate(self)
             .disposed(by: disposeBag)
         
         
@@ -183,11 +155,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .distinctUntilChanged()
             .asDriver(onErrorJustReturn: false)
             .drive(profileIndicatorView.rx.isHidden)
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$feedSection)
-            .asDriver(onErrorJustReturn: [])
-            .drive(profileFeedCollectionView.rx.items(dataSource: profileFeedDataSources))
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$profileMemberEntity)
@@ -226,8 +193,17 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .map { Reactor.Action.didTapSegementControl(.mission) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-      
-      
+        
+        reactor.state
+            .map { $0.memberId }
+            .bind(to: profileFeedViewController.rx.memberId)
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.feedType.rawValue }
+            .distinctUntilChanged()
+            .bind(to: profileFeedViewController.rx.currentPage)
+            .disposed(by: disposeBag)
       
       
         reactor
@@ -262,29 +238,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(to: profileView.profileDefaultLabel.rx.text)
             .disposed(by: disposeBag)
         
-        profileFeedCollectionView.rx.itemSelected
-            .withLatestFrom(reactor.pulse(\.$feedResultItem)) { indexPath, feedResultItem in
-                return (indexPath, feedResultItem)
-            }
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-            .map { Reactor.Action.didTapProfilePost($0.0, $0.1) }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        
-        Observable
-            .combineLatest(
-                reactor.pulse(\.$profileData),
-                reactor.pulse(\.$selectedIndexPath)
-            )
-            .withUnretained(self)
-            .filter { !$0.1.0.items.isEmpty }
-            .debounce(.milliseconds(300), scheduler: MainScheduler.instance)
-            .subscribe {
-                guard let indexPath = $0.1.1 else { return }
-                let postListViewController = PostListsDIContainer().makeViewController(postLists: $0.1.0, selectedIndex: indexPath)
-                $0.0.navigationController?.pushViewController(postListViewController, animated: true)
-            }.disposed(by: disposeBag)
 
         reactor.state
             .compactMap { $0.profileMemberEntity?.dayOfBirth }
@@ -293,12 +246,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(to: profileView.rx.isBirthDay)
             .disposed(by: disposeBag)
             
-        
-        reactor.state
-            .compactMap { $0.profilePostEntity?.results.isEmpty }
-            .map { !$0 }
-            .bind(to: profileFeedCollectionView.rx.isScrollEnabled)
-            .disposed(by: disposeBag)
         
         reactor.state
             .compactMap { $0.profileMemberEntity}
@@ -316,22 +263,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
                 owner.navigationController?.pushViewController(profileDetailViewController, animated: false)
             }.disposed(by: disposeBag)
         
-        profileFeedCollectionView.rx
-            .didScroll
-            .withLatestFrom(profileFeedCollectionView.rx.contentOffset)
-            .withUnretained(self)
-            .map {
-                let contentPadding = $0.0.profileFeedCollectionView.contentSize.height - $0.1.y
-                if contentPadding < UIScreen.main.bounds.height {
-                    return true
-                } else {
-                    return false
-                }
-            }
-            .distinctUntilChanged()
-            .map { Reactor.Action.fetchMorePostItems($0) }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
     
         navigationBarView.rx.rightButtonTap
             .withLatestFrom(reactor.state.map { $0.memberId })
@@ -341,34 +272,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
                 owner.navigationController?.pushViewController(privacyViewController, animated: true)
             }.disposed(by: disposeBag)
     }
-}
-
-
-extension ProfileViewController: UICollectionViewDelegateFlowLayout {
-    
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        
-        switch profileFeedDataSources[indexPath] {
-        case .feedCategoryItem:
-            return CGSize(width: (collectionView.frame.size.width / 2) - 4, height: 243)
-        case .feedCateogryEmptyItem:
-            return CGSize(width: collectionView.frame.size.width, height: collectionView.frame.size.height)
-        }
-        
-    }
-    
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-    }
-    
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 3
-    }
-    
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return 16
-    }
-    
 }
 
 // 기본 이미지가 true 이고 닉네임 변경 할 경우 redraw

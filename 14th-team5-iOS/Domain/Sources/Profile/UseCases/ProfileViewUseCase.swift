@@ -12,7 +12,6 @@ import RxSwift
 
 public protocol ProfileViewUsecaseProtocol {
     func executeProfileMemberItems(memberId: String) -> Observable<ProfileMemberResponse>
-    func executeProfilePostItems(query: ProfilePostQuery, parameters: ProfilePostDefaultValue) -> Observable<ProfilePostResponse>
     func executeProfileImageURLCreate(parameter: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?>
     func executeProfileImageToPresingedUpload(to url: String, data: Data) -> Observable<Bool>
     func executeReloadProfileImage(memberId: String, parameter: ProfileImageEditParameter) -> Observable<ProfileMemberResponse?>
@@ -29,10 +28,6 @@ public final class ProfileViewUseCase: ProfileViewUsecaseProtocol {
     
     public func executeProfileMemberItems(memberId: String) -> Observable<ProfileMemberResponse> {
         return profileViewRepository.fetchProfileMemberItems(memberId: memberId)
-    }
-    
-    public func executeProfilePostItems(query: ProfilePostQuery, parameters: ProfilePostDefaultValue) -> Observable<ProfilePostResponse> {
-        return profileViewRepository.fetchProfilePostItems(query: query, parameter: parameters)
     }
     
     public func executeProfileImageURLCreate(parameter: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?> {

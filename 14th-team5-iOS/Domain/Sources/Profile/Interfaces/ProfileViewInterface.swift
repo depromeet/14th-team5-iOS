@@ -28,7 +28,6 @@ public protocol ProfileViewInterface: AnyObject {
     var disposeBag: DisposeBag { get }
     
     func fetchProfileMemberItems(memberId: String) -> Observable<ProfileMemberResponse>
-    func fetchProfilePostItems(query: ProfilePostQuery, parameter: ProfilePostDefaultValue) -> Observable<ProfilePostResponse>
     func fetchProfileAlbumImageURL(parameter: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?>
     func uploadProfileImageToPresingedURL(to url: String, imageData: Data) -> Observable<Bool>
     func updataProfileImageToS3(memberId: String, parameter: ProfileImageEditParameter) -> Observable<ProfileMemberResponse?>

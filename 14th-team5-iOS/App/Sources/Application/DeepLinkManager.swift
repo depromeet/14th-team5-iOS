@@ -13,7 +13,26 @@ import Domain
 
 import RxSwift
 
-class DeepLinkManager {
+enum DeepLinkType {
+    /// 위젯 눌러 메인 진입
+    case Widget
+    /// 푸시알림으로 오늘 생존신고 피드로 진입
+    case TodaySurvival
+    /// 푸시알림으로 오늘 미션 피드로 진입
+    case TodayMission
+    
+    
+    case Comment
+    
+//    /// 푸시알림으로 오늘 생존신고 피드의 댓글까지 진입
+//    case TodaySurvivalComment
+//    /// 푸시알림으로 오늘 미션 피드의 댓글까지 진입
+//    case TodayMissionComment
+//    /// 푸시알림으로 오늘 아닌 날짜의 캘린더 피드까지 진입
+//    case SomedayPostComment
+}
+
+final class DeepLinkManager {
     static let shared = DeepLinkManager()
     
     // 이번 3차 끝나고, postdetailviewcontroller에서 post 불러오는 형태로 바꿔보겠습니다.
@@ -23,93 +42,111 @@ class DeepLinkManager {
     
     private init() {}
     
-    func handleDeepLink(_ deepLink: NotificationDeepLink) {
-    }
-    
-    func handlePostWidgetDeepLink(_ deepLink: WidgetDeepLink) {
-        let query = PostListQuery(date: DateFormatter.dashYyyyMMdd.string(from: Date()), type: .survival)
-        postUseCase.excute(query: query)
-            .subscribe(onSuccess: { [weak self] result in
-                guard let self = self, let result = result else { return }
-                
-                let items = result.postLists.map(PostSection.Item.main)
-                
-                items.enumerated().forEach { (index, item) in
-                    switch item {
-                    case .main(let postListData):
-                        if postListData.postId == deepLink.postId {
-                            let indexPath = IndexPath(row: index, section: 0)
-                            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                               let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow }),
-                               let navigationController = keyWindow.rootViewController as? UINavigationController {
-                                let viewController = PostListsDIContainer().makeViewController(
-                                    postLists: PostSection.Model(model: 0, items: items),
-                                    selectedIndex: IndexPath(row: index, section: 0)
-                                )
-                                navigationController.pushViewController(viewController, animated: true)
-                            }
-                        }
+    func handleWidgetDeepLink(data: WidgetDeepLink) {
+        fetchTodayPost(type: .survival) { result in
+            guard let result = result else { return }
+            let items = result.postLists.map(PostSection.Item.main)
+            
+            items.enumerated().forEach { (index, item) in
+                switch item {
+                case .main(let postListData):
+                    if postListData.postId == data.postId {
+                        let indexPath = IndexPath(row: index, section: 0)
+                        self.pushViewController(data: nil, index: indexPath, items: items)
                     }
                 }
-            }, onFailure: { error in
-                // 에러 처리
+            }
+        }
+    }
+    
+    func handleDeepLink(type: DeepLinkType, data: NotificationDeepLink) {
+        switch type {
+        case .TodaySurvival:
+            todayDeepLink(type: .survival, data: data)
+        case .TodayMission:
+            todayDeepLink(type: .mission, data: data)
+        case .Comment:
+            if data.dateOfPost == Date() {
+                todayCommentDeepLink(type: .survival, data: data)
+            } else {
+                pushCalendarViewController(data: data)
+            }
+        default:
+            fatalError("원하는 정보를 찾을 수 없습니다.")
+        }
+    }
+    
+    private func todayDeepLink(type: PostType, data: NotificationDeepLink) {
+        fetchTodayPost(type: type) { result in
+            guard let result = result else { return }
+            let items = result.postLists.map(PostSection.Item.main)
+            
+            items.enumerated().forEach { (index, item) in
+                switch item {
+                case .main(let postListData):
+                    if postListData.postId == data.postId {
+                        let indexPath = IndexPath(row: index, section: 0)
+                        self.pushViewController(data: nil, index: indexPath, items: items)
+                    }
+                }
+            }
+        }
+    }
+    
+    private func todayCommentDeepLink(type: PostType, data: NotificationDeepLink) {
+        fetchTodayPost(type: type) { result in
+            guard let result = result else { return }
+            let items = result.postLists.map(PostSection.Item.main)
+            
+            items.enumerated().forEach { (index, item) in
+                switch item {
+                case .main(let postListData):
+                    if postListData.postId == data.postId {
+                        let indexPath = IndexPath(row: index, section: 0)
+                        self.pushViewController(data: data, index: indexPath, items: items)
+                    }
+                }
+            }
+        }
+        
+    }
+}
+
+extension DeepLinkManager {
+    private func fetchTodayPost(type: PostType, completion: @escaping (PostListPage?) -> Void) {
+        let dateString = DateFormatter.dashYyyyMMdd.string(from: Date())
+        let query = PostListQuery(date: dateString, type: type)
+        
+        postUseCase.excute(query: query)
+            .subscribe(onSuccess: { result in
+                completion(result)
             })
             .disposed(by: disposeBag)
     }
-
     
-//    private func handlePostNotificationDeepLink(_ deepLink: NotificationDeepLink) {
-//        guard let reactor = reactor else { return }
-//        reactor.currentState.postSection.items.enumerated().forEach { (index, item) in
-//            switch item {
-//            case .main(let post):
-//                if post.postId == deepLink.postId {
-//                    let indexPath = IndexPath(row: index, section: 0)
-//                    self.navigationController?.pushViewController(
-//                        PostListsDIContainer().makeViewController(
-//                            postLists: reactor.currentState.postSection,
-//                            selectedIndex: indexPath),
-//                        animated: true
-//                    )
-//                }
-//            }
-//        }
-//    }
-//    
-//    private func handleCommentNotificationDeepLink(_ deepLink: NotificationDeepLink) {
-//        guard let reactor = reactor else { return }
-//        
-//        // 오늘 올린 피드에 댓글이 달렸다면
-//        if deepLink.dateOfPost.isToday {
-//            guard let selectedIndex = reactor.currentState.postSection.items.firstIndex(where: { postList in
-//                switch postList {
-//                case let .main(post):
-//                    post.postId == deepLink.postId
-//                }
-//            }) else { return }
-//            let indexPath = IndexPath(row: selectedIndex, section: 0)
-//            
-//            let postListViewController = PostListsDIContainer().makeViewController(
-//                postLists: reactor.currentState.postSection,
-//                selectedIndex: indexPath,
-//                notificationDeepLink: deepLink
-//            )
-//            
-//            navigationController?.pushViewController(
-//                postListViewController,
-//                animated: true
-//            )
-//            // 이전에 올린 피드에 댓글이 달렸다면
-//        } else {
-//            let calendarPostViewController = CalendarPostDIConatainer(
-//                selectedDate: deepLink.dateOfPost,
-//                notificationDeepLink: deepLink
-//            ).makeViewController()
-//            
-//            navigationController?.pushViewController(
-//                calendarPostViewController,
-//                animated: true
-//            )
-//        }
-//    }
+    private func pushViewController(data: NotificationDeepLink?, index: IndexPath, items: [PostSection.Item]) {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow }),
+           let navigationController = keyWindow.rootViewController as? UINavigationController {
+            let viewController = PostListsDIContainer().makeViewController(
+                postLists: PostSection.Model(model: 0, items: items),
+                selectedIndex: index,
+                notificationDeepLink: data
+            )
+            navigationController.pushViewController(viewController, animated: true)
+        }
+    }
+    
+    private func pushCalendarViewController(data: NotificationDeepLink) {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow }),
+           let navigationController = keyWindow.rootViewController as? UINavigationController {
+            let viewController = CalendarPostDIConatainer(
+                selectedDate: data.dateOfPost,
+                notificationDeepLink: data
+            ).makeViewController()
+            
+            navigationController.pushViewController(viewController, animated: true)
+        }
+    }
 }

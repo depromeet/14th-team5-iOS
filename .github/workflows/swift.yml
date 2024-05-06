@@ -69,7 +69,7 @@ jobs:
           PROJECT_PATH: ${{ secrets.PROJECT_PATH }}
           MATCH_PASSWORD: ${{secrets.MATCH_PASSWORD}}
           MATCH_PERSONAL_TOKEN: ${{ secrets.MATCH_PERSONAL_TOKEN}}
-          DEV_SCHEME: ${{secrets.DEV_SCHEME}}
+          PRD_SCHEME: ${{secrets.PRD_SCHEME}}
           BUNDLE_ID: ${{secrets.BUNDLE_ID}}
           SLACK_HOOK_URL: ${{secrets.SLACK_HOOK_URL}}
           WIDGET_BUNDLE_ID: ${{secrets.WIDGET_BUNDLE_ID}}
@@ -91,7 +91,7 @@ jobs:
           MATCH_PASSWORD: ${{secrets.MATCH_PASSWORD}}
           SLACK_HOOK_URL: ${{secrets.SLACK_HOOK_URL}}
           MATCH_PERSONAL_TOKEN: ${{ secrets.MATCH_PERSONAL_TOKEN}}
-          PRD_SCHEME: ${{secrets.PRD_SCHEME}}
+          DEV_SCHEME: ${{secrets.DEV_SCHEME}}
           BUNDLE_ID: ${{secrets.BUNDLE_ID}}
           WIDGET_BUNDLE_ID: ${{secrets.WIDGET_BUNDLE_ID}}
           PROFILE_PATH: ${{secrets.PROFILE_PATH}}

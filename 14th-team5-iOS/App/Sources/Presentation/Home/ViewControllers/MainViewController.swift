@@ -170,7 +170,8 @@ extension MainViewController {
             .bind(onNext: {
                 MPEvent.Home.cameraTapped.track(with: nil)
                 let cameraViewController = CameraDIContainer(cameraType: .survival).makeViewController()
-                $0.0.navigationController?.pushViewController(cameraViewController, animated: true)
+                //TODO: 임시 코드
+                $0.0.navigationController?.pushViewController(BaseCameraViewController(), animated: true)
             })
             .disposed(by: disposeBag)
     

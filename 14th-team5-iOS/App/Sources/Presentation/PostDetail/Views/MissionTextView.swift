@@ -20,7 +20,7 @@ final class MissionTextView: BaseView<MissionTextReactor> {
     private let containerView: UIView = UIView()
     private let missionStackView: UIStackView = UIStackView()
     private let missionImageView: UIImageView = UIImageView()
-    let missionLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .bibbiWhite)
+    let missionLabel: BibbiLabel = BibbiLabel(.body2Regular, textAlignment: .left, textColor: .bibbiWhite)
     
     // MARK: - Helpers
     override func bind(reactor: MissionTextReactor) {
@@ -48,6 +48,7 @@ final class MissionTextView: BaseView<MissionTextReactor> {
         
         containerView.snp.makeConstraints {
             $0.verticalEdges.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview()
         }
         containerView.addBlurEffect(style: .systemThinMaterialDark)
         
@@ -59,6 +60,11 @@ final class MissionTextView: BaseView<MissionTextReactor> {
         missionImageView.snp.makeConstraints {
             $0.width.equalTo(40)
             $0.height.equalTo(18)
+        }
+        
+        missionLabel.snp.makeConstraints {
+            $0.leading.equalTo(missionImageView.snp.trailing).offset(8)
+            $0.trailing.equalToSuperview().offset(-8)
         }
     }
     
@@ -86,5 +92,3 @@ final class MissionTextView: BaseView<MissionTextReactor> {
         }
     }
 }
-
-// TODO: - BlurEffect 집어넣기

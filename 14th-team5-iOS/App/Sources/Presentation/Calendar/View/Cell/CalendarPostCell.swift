@@ -77,14 +77,24 @@ final class CalendarPostCell: BaseCollectionViewCell<CalendarPostCellReactor> {
     }
     
     private func bindOutput(reactor: CalendarPostCellReactor) {
-        reactor.state.map { $0.post }
+        
+        let post = reactor.state.map { $0.post }
+            .asDriver(onErrorDriveWith: .empty())
+        
+        post
             .distinctUntilChanged()
-            .bind(with: self) { owner, post in
+            .drive(with: self) { owner, post in
                 owner.postImageView.kf.setImage(
                     with: URL(string: post.postImageUrl),
                     options: [.transition(.fade(0.15))]
                 )
             }
+            .disposed(by: disposeBag)
+        
+        post
+            .map { _ in /*$0.missionContent*/ "정신차려~" }
+            .distinctUntilChanged()
+            .drive(missionTextView.missionLabel.rx.text)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.authorName }
@@ -152,7 +162,6 @@ final class CalendarPostCell: BaseCollectionViewCell<CalendarPostCellReactor> {
             $0.horizontalEdges.equalToSuperview().inset(32)
             $0.height.equalTo(41)
         }
-        missionTextView.reactor = MissionTextReactor(text: "입고 있는 옷이 나오도록 사진을 찍어주세요!")
         
         postImageView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview()

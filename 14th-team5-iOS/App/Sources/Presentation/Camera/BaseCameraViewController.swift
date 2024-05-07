@@ -41,7 +41,7 @@ final class CameraConfigurationBuilder {
         captureSession = AVCaptureSession()
         captureSession.sessionPreset = .photo
         
-        setDeviceInput(position: .back)
+        setCaptureSession(position: .back)
         
         cameraOuputStream = AVCaptureVideoDataOutput()
         cameraOuputStream.connections.first?.videoOrientation = .portrait
@@ -102,18 +102,25 @@ final class CameraConfigurationBuilder {
     
     fileprivate func setPrewView(isSwap: Bool) {
         captureSession.beginConfiguration()
+        //TODO: AVCaptureDeviceInput issue Method를 Return 할지 고민
         if isSwap {
             captureSession.removeInput(backCameraInput)
-            
+            setCaptureSession(position: .front)
             captureSession.addInput(frontCameraInput)
+        } else {
+            captureSession.removeInput(frontCameraInput)
+            setCaptureSession(position: .back)
+            captureSession.addInput(backCameraInput)
         }
         
         captureSession.connections.first?.isVideoMirrored = !isSwap
         captureSession.commitConfiguration()
     }
     
-    private func setDeviceInput(position: AVCaptureDevice.Position) {
+    
+    private func setCaptureSession(position: AVCaptureDevice.Position) {
         //1. AVCaptureDevice 생성함
+        //TODO: setDeviceInput Method를 통해서 Postion에 따라 AVCaptureDeviceInput를 반환 하도록 하는 것을 고려해 본다.
         
         guard let cameraDevice = setDevice(position: position) else { fatalError("카메라가 없습니다.") }
         captureOutputStream = AVCapturePhotoOutput()
@@ -157,7 +164,8 @@ final class CameraConfigurationBuilder {
 }
 
 
-final class BaseCameraViewController: UIViewController {
+
+class BaseCameraViewController: UIViewController {
     //MARK: Proeprty
     fileprivate var previewLayer: AVCaptureVideoPreviewLayer!
     fileprivate var cameraBuilder: CameraConfigurationBuilder = CameraConfigurationBuilder()
@@ -169,7 +177,7 @@ final class BaseCameraViewController: UIViewController {
     private let cameraView: UIView = UIView()
     private let disposeBag: DisposeBag = DisposeBag()
     
-    private var isSwap: Bool = false {
+    public private(set) var isSwap: Bool = false {
         didSet {
             UIView.transition(with: cameraView, duration: 0.5, options: .transitionFlipFromLeft) { [weak self] in
                 guard let self = self else { return }
@@ -178,7 +186,7 @@ final class BaseCameraViewController: UIViewController {
         }
     }
     
-    private var isFlashMode: Bool = false {
+    public private(set) var isFlashMode: Bool = false {
         didSet {
             cameraBuilder.setFlashMode(isFlash: isFlashMode)
         }

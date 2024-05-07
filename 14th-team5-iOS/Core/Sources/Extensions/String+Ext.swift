@@ -36,6 +36,13 @@ extension String {
         guard let date = dateFormatter.date(from: self) else { return .now }
         return date
     }
+    
+    public func toDate() -> Date? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale.current
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        return dateFormatter.date(from: self)
+    }
 }
 
 extension String {

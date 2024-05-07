@@ -22,14 +22,8 @@ enum DeepLinkType {
     case TodayMission
     
     
-    case Comment
-    
-//    /// 푸시알림으로 오늘 생존신고 피드의 댓글까지 진입
-//    case TodaySurvivalComment
-//    /// 푸시알림으로 오늘 미션 피드의 댓글까지 진입
-//    case TodayMissionComment
-//    /// 푸시알림으로 오늘 아닌 날짜의 캘린더 피드까지 진입
-//    case SomedayPostComment
+    case TodayComment
+    case SomedayComment
 }
 
 final class DeepLinkManager {
@@ -41,40 +35,6 @@ final class DeepLinkManager {
     lazy var postUseCase: PostListUseCaseProtocol = PostListUseCase(postListRepository: postRepository)
     
     private init() {}
-    
-    func handleWidgetDeepLink(data: WidgetDeepLink) {
-        fetchTodayPost(type: .survival) { result in
-            guard let result = result else { return }
-            let items = result.postLists.map(PostSection.Item.main)
-            
-            items.enumerated().forEach { (index, item) in
-                switch item {
-                case .main(let postListData):
-                    if postListData.postId == data.postId {
-                        let indexPath = IndexPath(row: index, section: 0)
-                        self.pushViewController(data: nil, index: indexPath, items: items)
-                    }
-                }
-            }
-        }
-    }
-    
-    func handleDeepLink(type: DeepLinkType, data: NotificationDeepLink) {
-        switch type {
-        case .TodaySurvival:
-            todayDeepLink(type: .survival, data: data)
-        case .TodayMission:
-            todayDeepLink(type: .mission, data: data)
-        case .Comment:
-            if data.dateOfPost == Date() {
-                todayCommentDeepLink(type: .survival, data: data)
-            } else {
-                pushCalendarViewController(data: data)
-            }
-        default:
-            fatalError("원하는 정보를 찾을 수 없습니다.")
-        }
-    }
     
     private func todayDeepLink(type: PostType, data: NotificationDeepLink) {
         fetchTodayPost(type: type) { result in
@@ -110,11 +70,9 @@ final class DeepLinkManager {
         }
         
     }
-}
 
-extension DeepLinkManager {
     private func fetchTodayPost(type: PostType, completion: @escaping (PostListPage?) -> Void) {
-        let dateString = DateFormatter.dashYyyyMMdd.string(from: Date())
+        let dateString = Date().toFormatString(with: "yyyy-MM-dd")
         let query = PostListQuery(date: dateString, type: type)
         
         postUseCase.excute(query: query)
@@ -147,6 +105,79 @@ extension DeepLinkManager {
             ).makeViewController()
             
             navigationController.pushViewController(viewController, animated: true)
+        }
+    }
+}
+
+extension DeepLinkManager {
+    func handleWidgetDeepLink(data: WidgetDeepLink) {
+        fetchTodayPost(type: .survival) { result in
+            guard let result = result else { return }
+            let items = result.postLists.map(PostSection.Item.main)
+            
+            items.enumerated().forEach { (index, item) in
+                switch item {
+                case .main(let postListData):
+                    if postListData.postId == data.postId {
+                        let indexPath = IndexPath(row: index, section: 0)
+                        self.pushViewController(data: nil, index: indexPath, items: items)
+                    }
+                }
+            }
+        }
+    }
+    
+    func handleDeepLink(data: NotificationDeepLink) {
+        var type: DeepLinkType = .TodaySurvival
+        if data.openComment {
+            if data.dateOfPost.isToday {
+                type = .TodayComment
+            } else {
+                type = .SomedayComment
+            }
+        }
+        print(data)
+        
+        switch type {
+        case .TodaySurvival:
+            todayDeepLink(type: .survival, data: data)
+        case .TodayMission:
+            todayDeepLink(type: .mission, data: data)
+        case .TodayComment:
+            todayCommentDeepLink(type: .survival, data: data)
+        case .SomedayComment:
+            pushCalendarViewController(data: data)
+        default:
+            fatalError("원하는 정보를 찾을 수 없습니다.")
+        }
+    }
+    
+    func decodeRemoteNotificationDeepLink(_ userInfo: [AnyHashable: Any]) {
+        if let link = userInfo[AnyHashable("iosDeepLink")] as? String {
+            print(link)
+            let components = link.components(separatedBy: "?")
+            let parameters = components.last?.components(separatedBy: "&")
+
+            // PostID 구하기
+            let postId = components.first?.components(separatedBy: "/").last ?? ""
+
+            // OpenComment 구하기
+            let firstPart = parameters?.first
+            let openComment = firstPart?.components(separatedBy: "=").last == "true" ? true : false
+
+            // dateOfPost 구하기
+            let secondPart = parameters?.last
+            let dateOfPost = secondPart?.components(separatedBy: "=").last?.toDate() ?? Date()
+            
+            let deepLink = NotificationDeepLink(
+                postId: postId,
+                openComment: openComment,
+                dateOfPost: dateOfPost
+            )
+            
+            handleDeepLink(data: deepLink)
+        } else {
+            print("Error: Decoding Notification Request UserInfo")
         }
     }
 }

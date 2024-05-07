@@ -58,10 +58,6 @@ final class MainViewReactor: Reactor {
         
         case didTapSegmentControl(PostType)
         case pickConfirmButtonTapped(String, String)
-        
-        case pushWidgetPostDeepLink(WidgetDeepLink)
-        case pushNotificationPostDeepLink(NotificationDeepLink)
-        case pushNotificationCommentDeepLink(NotificationDeepLink)
     }
     
     enum Mutation {
@@ -77,10 +73,6 @@ final class MainViewReactor: Reactor {
         case setFailureToastMessage
         
         case setPickAlertView(String, String)
-        
-        case setWidgetPostDeepLink(WidgetDeepLink)
-        case setNotificationPostDeepLink(NotificationDeepLink)
-        case setNotificationCommentDeepLink(NotificationDeepLink)
     }
     
     struct State {
@@ -97,10 +89,6 @@ final class MainViewReactor: Reactor {
         var isMissionUnlocked: Bool = false
         
         @Pulse var familySection: [FamilySection.Item] = []
-        
-        @Pulse var widgetPostDeepLink: WidgetDeepLink?
-        @Pulse var notificationPostDeepLink: NotificationDeepLink?
-        @Pulse var notificationCommentDeepLink: NotificationDeepLink?
         
         @Pulse var shouldPresentPickAlert: (String, String)?
         @Pulse var shouldPresentPickSuccessToastMessage: String?
@@ -178,26 +166,11 @@ extension MainViewReactor {
                     }
                 
             }
-        case let .pushWidgetPostDeepLink(deepLink):
-            return Observable.concat(
-                Observable<Mutation>.just(.setWidgetPostDeepLink(deepLink)) // 다음 화면으로 이동하기
-            )
-            
-        case let .pushNotificationPostDeepLink(deepLink):
-            return Observable.concat(
-                Observable<Mutation>.just(.setNotificationPostDeepLink(deepLink)) // 다음 화면으로 이동하기
-            )
-            
-        case let .pushNotificationCommentDeepLink(deepLink):
-            return Observable.concat(
-                Observable<Mutation>.just(.setNotificationCommentDeepLink(deepLink)) // 다음 화면으로 이동하기
-            )
         case .didTapSegmentControl(let type):
             return Observable.concat(
                 Observable.just(.setPageIndex(type.getIndex())),
                 Observable.just(.setBalloonText),
                 Observable.just(.setDescriptionText))
-                
             
         case let .pickConfirmButtonTapped(name, id):
             return pickUseCase.executePickMember(memberId: id)
@@ -218,12 +191,6 @@ extension MainViewReactor {
         switch mutation {
         case .setInTime(let isInTime):
             newState.isInTime = isInTime
-        case let.setWidgetPostDeepLink(deepLink):
-            newState.widgetPostDeepLink = deepLink
-        case let .setNotificationPostDeepLink(deepLink):
-            newState.notificationPostDeepLink = deepLink
-        case let .setNotificationCommentDeepLink(deepLink):
-            newState.notificationCommentDeepLink = deepLink
         case .setCopySuccessToastMessage:
             newState.shouldPresentCopySuccessToastMessage = true
         case let .setPickSuccessToastMessage(name):

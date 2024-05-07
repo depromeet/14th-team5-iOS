@@ -36,8 +36,8 @@ extension CalendarRepository {
             .asObservable()
     }
     
-    public func fetchDailyCalendarResponse(yearMonth: String) -> Observable<ArrayResponseDailyCalendarEntity?> {
-        return calendarApiWorker.fetchDailyCalendar(yearMonth: yearMonth)
+    public func fetchDailyCalendarResponse(yearMonthDay: String) -> Observable<ArrayResponseDailyCalendarEntity?> {
+        return calendarApiWorker.fetchDailyCalendar(yearMonthDay: yearMonthDay)
             .asObservable()
     }
     

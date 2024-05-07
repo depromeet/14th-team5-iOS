@@ -25,7 +25,7 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
     )
     
     // MARK: - Properties
-    private lazy var dataSource: RxCollectionViewSectionedReloadDataSource<SectionOfMonthlyCalendar> = prepareDatasource()
+    private lazy var dataSource: RxCollectionViewSectionedReloadDataSource<MonthlyCalendarSectionModel> = prepareDatasource()
     
     // MARK: - Lifecycles
     public override func viewDidLoad() {
@@ -163,8 +163,8 @@ extension CalendarViewController {
 }
 
 extension CalendarViewController {
-    private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<SectionOfMonthlyCalendar> {
-        return RxCollectionViewSectionedReloadDataSource<SectionOfMonthlyCalendar> { datasource, collectionView, indexPath, yearMonth in
+    private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<MonthlyCalendarSectionModel> {
+        return RxCollectionViewSectionedReloadDataSource<MonthlyCalendarSectionModel> { datasource, collectionView, indexPath, yearMonth in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarPageCell.id, for: indexPath) as! CalendarPageCell
             cell.reactor = CalendarPageCellDIContainer(yearMonth: yearMonth).makeReactor()
             return cell

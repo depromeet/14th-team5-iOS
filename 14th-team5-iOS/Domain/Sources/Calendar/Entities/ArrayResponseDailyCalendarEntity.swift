@@ -55,3 +55,4 @@ public struct DailyCalendarEntity {
     }
 }
 
+extension DailyCalendarEntity: Equatable { }

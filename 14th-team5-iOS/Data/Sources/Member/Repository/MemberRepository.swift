@@ -14,11 +14,11 @@ public final class MemberRepository: MemberRepositoryProtocol {
 
 extension MemberRepository {
     public func fetchUserName(memberId: String) -> String {
-        return FamilyUserDefaults.loadMemberFromUserDefaults(memberId: memberId)?.name ?? .unknown
+        return FamilyUserDefaults.load(memberId: memberId)?.name ?? .unknown
     }
     
     public func fetchProfileImageUrlString(memberId: String) -> String {
-        return FamilyUserDefaults.loadMemberFromUserDefaults(memberId: memberId)?.profileImageURL ?? .unknown
+        return FamilyUserDefaults.load(memberId: memberId)?.profileImageURL ?? .unknown
     }
     
     public func checkIsMe(memberId: String) -> Bool {

@@ -34,8 +34,8 @@ extension ArrayResponseDailyCalendarResponseDTO {
         var type: String
         var postId: String
         var postImageUrl: String
-        var postContent: String
-        var missionContent: String
+        var postContent: String?
+        var missionContent: String?
         var authorId: String
         var commentCount: Int
         var emojiCount: Int
@@ -56,11 +56,11 @@ extension ArrayResponseDailyCalendarResponseDTO.DailyCalendarResponseDTO {
     func toDomain() -> DailyCalendarEntity {
         return DailyCalendarEntity(
             date: date.toDate(with: .dashYyyyMMdd),
-            type: .init(rawValue: type) ?? .survival,
+            type: PostType(rawValue: type) ?? .survival,
             postId: postId,
             postImageUrl: postImageUrl,
-            postContent: postContent,
-            missionContent: missionContent,
+            postContent: postContent ?? .none,
+            missionContent: missionContent ?? .none,
             authorId: authorId,
             commentCount: commentCount,
             emojiCount: emojiCount,

@@ -33,7 +33,7 @@ public final class CalendarViewReactor: Reactor {
         @Pulse var shouldPopCalendarVC: Bool
         @Pulse var shouldPushCalendarPostVC: Date?
         @Pulse var shouldPresnetInfoPopover: UIView?
-        @Pulse var displayCalendar: [SectionOfMonthlyCalendar]
+        @Pulse var displayCalendar: [MonthlyCalendarSectionModel]
     }
     
     // MARK: - Properties
@@ -46,7 +46,7 @@ public final class CalendarViewReactor: Reactor {
     init(calendarUseCase: CalendarUseCaseProtocol, provider: GlobalStateProviderProtocol) {
         self.initialState = State(
             shouldPopCalendarVC: false,
-            displayCalendar: [.init(items: [])]
+            displayCalendar: [.init(model: (), items: [])]
         )
         
         self.calendarUseCase = calendarUseCase
@@ -99,11 +99,11 @@ public final class CalendarViewReactor: Reactor {
             newState.shouldPresnetInfoPopover = sourceView
             
         case let .injectYearMonthItem(dateArray):
-            guard let datasource: SectionOfMonthlyCalendar = state.displayCalendar.first else {
+            guard let datasource: MonthlyCalendarSectionModel = state.displayCalendar.first else {
                 return state
             }
             
-            let newDatasource = SectionOfMonthlyCalendar(
+            let newDatasource = MonthlyCalendarSectionModel(
                 original: datasource,
                 items: dateArray
             )

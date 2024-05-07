@@ -29,13 +29,18 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         frame: .zero,
         collectionViewLayout: orthogonalCompositionalLayout
     )
-    private let reactionViewController: ReactionViewController = ReactionDIContainer().makeViewController(post: .init(postId: "", author: nil, commentCount: 0, emojiCount: 0, imageURL: "", content: nil, time: ""))
+    private let reactionViewController: ReactionViewController = ReactionDIContainer().makeViewController(
+        post: .init(
+            postId: "", author: nil, commentCount: 0, emojiCount: 0,
+            imageURL: "", content: nil, time: ""
+        )
+    )
     
     private let fireLottieView: LottieView = LottieView(with: .fire, contentMode: .scaleAspectFill)
     
     // MARK: - Properties
     private let visibleCellIndex: PublishRelay<Int> = PublishRelay<Int>()
-    private lazy var dataSource: RxCollectionViewSectionedReloadDataSource<PostListSectionModel> = prepareDatasource()
+    private lazy var dataSource = prepareDatasource()
     
     private let deepLinkRepo = DeepLinkRepository()
     
@@ -156,7 +161,6 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .disposed(by: disposeBag)
         
         postResponse
-            .distinctUntilChanged()
             .drive(with: self) {
                 guard let items = $1.first?.items else { return }
 
@@ -202,8 +206,18 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         
         reactor.state.compactMap { $0.visiblePost }
             .distinctUntilChanged()
-            .bind(with: self) {
-                $0.reactionViewController.postListData.accept($1)
+            .withUnretained(self)
+            .bind { owner, post in
+                let postListData = PostListData(
+                    postId: post.postId,
+                    author: ProfileData(memberId: post.authorId, name: ""),
+                    commentCount: post.commentCount,
+                    emojiCount: post.emojiCount,
+                    imageURL: post.postImageUrl,
+                    content: post.postContent,
+                    time: post.createdAt.toFormatString(with: .dashYyyyMMdd)
+                )
+                owner.reactionViewController.postListData.accept(postListData)
             }
             .disposed(by: disposeBag)
         
@@ -276,7 +290,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     }
     
     public override func setupUI() {
-//        super.setupUI()
+        super.setupUI()
         view.addSubviews(
             blurImageView, navigationBarView
         )
@@ -355,7 +369,10 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         postCollectionView.do {
             $0.isScrollEnabled = false
             $0.backgroundColor = UIColor.clear
-            $0.register(PostDetailCollectionViewCell.self, forCellWithReuseIdentifier: PostDetailCollectionViewCell.id)
+            $0.register(
+                CalendarPostCell.self,
+                forCellWithReuseIdentifier: CalendarPostCell.id
+            )
         }
         
         fireLottieView.do {
@@ -412,10 +429,13 @@ extension CalendarPostViewController {
 }
 
 extension CalendarPostViewController {
-    private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<PostListSectionModel> {
-        return RxCollectionViewSectionedReloadDataSource<PostListSectionModel> { datasource, collectionView, indexPath, post in
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostDetailCollectionViewCell.id, for: indexPath) as! PostDetailCollectionViewCell
-            cell.reactor = PostDetailCellDIContainer().makeReactor(type: .calendar, post: post)
+    private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<CalendarPostSectionModel> {
+        return RxCollectionViewSectionedReloadDataSource<CalendarPostSectionModel> { datasource, collectionView, indexPath, post in
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: CalendarPostCell.id,
+                for: indexPath
+            ) as! CalendarPostCell
+            cell.reactor = CalendarPostCellDIContainer(post: post).makeReactor()
             return cell
         }
     }

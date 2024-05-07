@@ -66,7 +66,7 @@ public class FamilyUserDefaults {
         }
     }
     
-    public static func loadMemberFromUserDefaults(memberId: String) -> ProfileData? {
+    public static func load(memberId: String) -> ProfileData? {
         if let data = UserDefaults.standard.data(forKey: memberId) {
             do {
                 let decoder = JSONDecoder()

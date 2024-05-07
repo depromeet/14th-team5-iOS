@@ -8,17 +8,6 @@
 import Domain
 import Foundation
 
-import RxDataSources
+import Differentiator
 
-public struct SectionOfMonthlyCalendar {
-    public var items: [Item]
-}
-
-extension SectionOfMonthlyCalendar: SectionModelType {
-    public typealias Item = String
-    
-    public init(original: SectionOfMonthlyCalendar, items: [Item]) {
-        self = original
-        self.items = items
-    }
-}
+typealias MonthlyCalendarSectionModel = SectionModel<Void, String>

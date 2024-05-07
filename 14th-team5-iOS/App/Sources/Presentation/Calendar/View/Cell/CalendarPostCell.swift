@@ -28,6 +28,7 @@ final class CalendarPostCell: BaseCollectionViewCell<CalendarPostCellReactor> {
     private let authorNameLabel: BibbiLabel = BibbiLabel(.caption, textColor: .gray200)
     private let authorFirstNameLabel: BibbiLabel = BibbiLabel(.caption, textColor: .bibbiWhite)
     private let postImageView: UIImageView = UIImageView()
+    private let missionTextView: MissionTextView = MissionTextView()
     private let contentCollectionView: UICollectionView = UICollectionView(
         frame: .zero,
         collectionViewLayout: UICollectionViewFlowLayout()
@@ -117,7 +118,7 @@ final class CalendarPostCell: BaseCollectionViewCell<CalendarPostCellReactor> {
         contentView.addSubviews(authorStackView, postImageView)
         authorImageContainerView.addSubviews(authorFirstNameLabel, authorImageView)
         authorStackView.addArrangedSubviews(authorImageContainerView, authorNameLabel)
-        postImageView.addSubview(contentCollectionView)
+        postImageView.addSubviews(contentCollectionView, missionTextView)
     }
     
     override func setupAutoLayout() {
@@ -145,6 +146,13 @@ final class CalendarPostCell: BaseCollectionViewCell<CalendarPostCellReactor> {
             $0.bottom.equalTo(postImageView.snp.bottom).offset(-20)
             $0.horizontalEdges.equalToSuperview()
         }
+        
+        missionTextView.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(16)
+            $0.horizontalEdges.equalToSuperview().inset(32)
+            $0.height.equalTo(41)
+        }
+        missionTextView.reactor = MissionTextReactor(text: "입고 있는 옷이 나오도록 사진을 찍어주세요!")
         
         postImageView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview()

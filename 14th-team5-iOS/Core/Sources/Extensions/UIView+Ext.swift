@@ -47,6 +47,6 @@ extension UIView {
         let blurEffect = UIBlurEffect(style: style)
         let visualEffectView = UIVisualEffectView(effect: blurEffect)
         visualEffectView.frame = self.frame
-        self.insertSubview(visualEffectView, at: 0)
+        self.addSubview(visualEffectView)
     }
 }

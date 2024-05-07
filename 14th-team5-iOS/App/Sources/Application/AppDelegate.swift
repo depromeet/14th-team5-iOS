@@ -163,46 +163,19 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         let userInfo = response.notification.request.content.userInfo
-        guard let deepLink = decodeRemoteNotificationDeepLink(userInfo) else {
-            completionHandler()
-            return
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            App.Repository.deepLink.notification.accept(deepLink)
-            DeepLinkManager.shared.handleDeepLink(deepLink)
-        }
-        
+//        guard let deepLink = decodeRemoteNotificationDeepLink(userInfo) else {
+//            completionHandler()
+//            return
+//        }
+//        
+        DeepLinkManager.shared.decodeRemoteNotificationDeepLink(userInfo)
         completionHandler()
-    }
-    
-    func decodeRemoteNotificationDeepLink(_ userInfo: [AnyHashable: Any]) -> NotificationDeepLink? {
-        if let link = userInfo[AnyHashable("iosDeepLink")] as? String {
-            let components = link.components(separatedBy: "?")
-            let parameters = components.last?.components(separatedBy: "&")
-
-            // PostID 구하기
-            let postId = components.first?.components(separatedBy: "/").last ?? ""
-
-            // OpenComment 구하기
-            let firstPart = parameters?.first
-            let openComment = firstPart?.components(separatedBy: "=").last == "true" ? true : false
-
-            // dateOfPost 구하기
-            let secondPart = parameters?.last
-            let dateOfPost = secondPart?.components(separatedBy: "=").last?.toDate(with: .dashYyyyMMdd) ?? Date()
-            
-            let deepLink = NotificationDeepLink(
-                postId: postId,
-                openComment: openComment,
-                dateOfPost: dateOfPost
-            )
-            debugPrint("Push Notification Request UserInfo: \(postId), \(openComment), \(dateOfPost)")
-            return deepLink
-        }
-        
-        print("Error: Decoding Notification Request UserInfo")
-        return nil
+//
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//            DeepLinkManager.shared.handleDeepLink(deepLink)
+//        }
+//        
+//        completionHandler()
     }
 }
 

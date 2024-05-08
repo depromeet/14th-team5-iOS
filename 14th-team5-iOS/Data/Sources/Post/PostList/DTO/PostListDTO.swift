@@ -31,7 +31,7 @@ struct PostListDTO: Codable {
 
 extension PostListDTO {
     func toDomain() -> PostListData {
-        let author = FamilyUserDefaults.loadMemberFromUserDefaults(memberId: authorId)
+        let author = FamilyUserDefaults.load(memberId: authorId)
         return .init(
             postId: postId, 
             missionId: missionId,

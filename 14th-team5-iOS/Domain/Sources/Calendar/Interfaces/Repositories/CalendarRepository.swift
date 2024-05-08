@@ -15,7 +15,7 @@ public protocol CalendarRepositoryProtocol {
     func fetchCalendarResponse(yearMonth: String) -> Observable<ArrayResponseCalendarEntity?>
     
     func fetchMonthyCalendarResponse(yearMonth: String) -> Observable<ArrayResponseMonthlyCalendarEntity?>
-    func fetchDailyCalendarResponse(yearMonth: String) -> Observable<ArrayResponseDailyCalendarEntity?>
+    func fetchDailyCalendarResponse(yearMonthDay: String) -> Observable<ArrayResponseDailyCalendarEntity?>
     func fetchStatisticsSummary(yearMonth: String) -> Observable<FamilyMonthlyStatisticsEntity?>
     func fetchCalendarBanner(yearMonth: String) -> Observable<BannerEntity?>
 }

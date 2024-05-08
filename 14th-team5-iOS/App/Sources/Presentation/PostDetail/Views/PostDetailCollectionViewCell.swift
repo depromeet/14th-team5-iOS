@@ -24,6 +24,7 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<PostDetailViewR
     private let firstNameLabel = BibbiLabel(.caption, textColor: .bibbiWhite)
     private let userNameLabel = BibbiLabel(.caption, textColor: .gray200)
     private let postImageView = UIImageView(image: DesignSystemAsset.emptyCaseGraphicEmoji.image)
+    private let missionTextView = MissionTextView()
     private let contentCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let collectionViewFlowLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     
@@ -60,7 +61,7 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<PostDetailViewR
         addSubviews(profileStackView, postImageView)
         containerView.addSubviews(firstNameLabel, profileImageView)
         profileStackView.addArrangedSubviews(containerView, userNameLabel)
-        postImageView.addSubview(contentCollectionView)
+        postImageView.addSubviews(contentCollectionView, missionTextView)
     }
 
     override func setupAutoLayout() {
@@ -94,6 +95,12 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<PostDetailViewR
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(postImageView.snp.width)
             $0.top.equalTo(profileStackView.snp.bottom).offset(8)
+        }
+        
+        missionTextView.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(16)
+            $0.horizontalEdges.equalToSuperview().inset(32)
+            $0.height.equalTo(41)
         }
     }
     
@@ -164,6 +171,12 @@ extension PostDetailCollectionViewCell {
             .map { Reactor.Action.didTapProfileImageView }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        // - MisstionText에 바로 바인딩하시면 됩니다~
+//        reactor.state.map { $0.missionContent }
+//            .distinctUntilChanged()
+//            .bind(to: missionTextView.missionLabel.rx.text)
+//            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: PostDetailViewReactor) {

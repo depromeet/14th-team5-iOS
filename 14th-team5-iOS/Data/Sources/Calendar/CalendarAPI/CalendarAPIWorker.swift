@@ -95,8 +95,8 @@ extension CalendarAPIWorker {
             .asSingle()
     }
     
-    public func fetchDailyCalendar(yearMonth: String) -> Single<ArrayResponseDailyCalendarEntity?> {
-        let spec = CalendarAPIs.monthlyCalendar(yearMonth).spec
+    public func fetchDailyCalendar(yearMonthDay: String) -> Single<ArrayResponseDailyCalendarEntity?> {
+        let spec = CalendarAPIs.dailyCalendar(yearMonthDay).spec
         
         return Observable<Void>.just(())
             .withLatestFrom(self._headers)

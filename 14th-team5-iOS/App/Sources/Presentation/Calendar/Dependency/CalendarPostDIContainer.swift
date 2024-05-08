@@ -41,16 +41,8 @@ public final class CalendarPostDIConatainer {
         return CalendarUseCase(calendarRepository: makeCalendarRepository())
     }
     
-    public func makePostListUseCase() -> PostListUseCaseProtocol {
-        return PostListUseCase(postListRepository: makePostListRepository())
-    }
-    
     public func makeCalendarRepository() -> CalendarRepositoryProtocol {
         return CalendarRepository()
-    }
-    
-    public func makePostListRepository() -> PostListRepositoryProtocol {
-        return PostListAPIWorker()
     }
     
     public func makeReactor() -> CalendarPostViewReactor {
@@ -58,7 +50,6 @@ public final class CalendarPostDIConatainer {
             selectedDate,
             notificationDeepLink: notificationDeepLink,
             calendarUseCase: makeCalendarUseCase(),
-            postListUseCase: makePostListUseCase(),
             provider: globalState
         )
     }

@@ -30,9 +30,9 @@ public final class CalendarPostViewReactor: Reactor {
     public enum Mutation {
         case setAllUploadedToastMessageView(Bool)
         case injectCalendarResponse(String, ArrayResponseCalendarEntity)
-        case injectPostResponse([PostListData])
+        case injectPostResponse([DailyCalendarEntity])
         case injectBlurImageIndex(Int)
-        case injectVisiblePost(PostListData)
+        case injectVisiblePost(DailyCalendarEntity)
         case renewPostCommentCount(Int)
         case pushProfileViewController(String)
         case popViewController
@@ -46,8 +46,8 @@ public final class CalendarPostViewReactor: Reactor {
         var notificationDeepLink: NotificationDeepLink? // 댓글 푸시 알림 체크 변수
         
         var blurImageUrlString: String?
-        var visiblePost: PostListData?
-        @Pulse var displayPostResponse: [PostListSectionModel]
+        var visiblePost: DailyCalendarEntity?
+        @Pulse var displayPostResponse: [CalendarPostSectionModel]
         @Pulse var displayCalendarResponse: [String: [CalendarEntity]]
         @Pulse var shouldPresentAllUploadedToastMessageView: Bool
         @Pulse var shouldGenerateSelectionHaptic: Bool
@@ -60,7 +60,6 @@ public final class CalendarPostViewReactor: Reactor {
     
     public let provider: GlobalStateProviderProtocol
     private let calendarUseCase: CalendarUseCaseProtocol
-    private let postListUseCase: PostListUseCaseProtocol
     
     private var hasReceivedPostEvent: Bool = false
     private var hasReceivedSelectionEvent: Bool = false
@@ -72,7 +71,6 @@ public final class CalendarPostViewReactor: Reactor {
         _ selection: Date,
         notificationDeepLink deepLink: NotificationDeepLink?,
         calendarUseCase: CalendarUseCaseProtocol,
-        postListUseCase: PostListUseCaseProtocol,
         provider: GlobalStateProviderProtocol
     ) {
         self.initialState = State(
@@ -87,7 +85,6 @@ public final class CalendarPostViewReactor: Reactor {
         )
         
         self.calendarUseCase = calendarUseCase
-        self.postListUseCase = postListUseCase
         self.provider = provider
     }
     
@@ -136,18 +133,15 @@ public final class CalendarPostViewReactor: Reactor {
             if !hasReceivedPostEvent || hasThumbnailImages.contains(date) {
                 hasReceivedPostEvent = true
                 // 가족이 게시한 포스트 가져오기
-                let date: String = date.toFormatString(with: .dashYyyyMMdd)
-                let postListQuery: PostListQuery = PostListQuery(date: date)
-                return postListUseCase.excute(query: postListQuery).asObservable()
-                    .withUnretained(self)
-                    .flatMap {
-                        guard let postResponse: [PostListData] = $0.1?.postLists,
-                              !postResponse.isEmpty else {
+                let yearMonthDay: String = date.toFormatString(with: .dashYyyyMMdd)
+                return calendarUseCase.executeFetchDailyCalendarResponse(yearMonthDay: yearMonthDay)
+                    .flatMap { entity in
+                        guard let posts: [DailyCalendarEntity] = entity?.results else {
                             return Observable<Mutation>.empty()
                         }
                         
                         return Observable.concat(
-                            Observable<Mutation>.just(.injectPostResponse(postResponse)),
+                            Observable<Mutation>.just(.injectPostResponse(posts)),
                             Observable<Mutation>.just(.injectBlurImageIndex(0)),
                             Observable<Mutation>.just(.clearNotificationDeepLink)
                         )
@@ -197,7 +191,7 @@ public final class CalendarPostViewReactor: Reactor {
             guard let items = newState.displayPostResponse.first?.items else {
                 return newState
             }
-            newState.blurImageUrlString = items[index].imageURL
+            newState.blurImageUrlString = items[index].postImageUrl
             
         case let .renewPostCommentCount(count):
             guard var posts = currentState.displayPostResponse.first?.items,
@@ -212,7 +206,7 @@ public final class CalendarPostViewReactor: Reactor {
             posts[index] = renewedPost
             
             newState.visiblePost = posts[index] // ReactionViewController 데이터 갱신하기
-            newState.displayPostResponse = [.init(model: .none, items: posts)] // PostColelctionView 데이터 갱신하기
+            newState.displayPostResponse = [.init(model: (), items: posts)] // PostColelctionView 데이터 갱신하기
             
         case let .setAllUploadedToastMessageView(uploaded):
             newState.shouldPresentAllUploadedToastMessageView = uploaded
@@ -221,7 +215,7 @@ public final class CalendarPostViewReactor: Reactor {
             newState.displayCalendarResponse[yearMonth] = arrayCalendarResponse.results
             
         case let .injectPostResponse(postResponse):
-            newState.displayPostResponse = [PostListSectionModel(model: .none, items: postResponse)]
+            newState.displayPostResponse = [CalendarPostSectionModel(model: (), items: postResponse)]
             
         case let .injectVisiblePost(post):
             newState.visiblePost = post

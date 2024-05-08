@@ -40,5 +40,13 @@ extension UIView {
                layer.render(in: rendererContext.cgContext)
            }
        }
-    
+}
+
+extension UIView {
+    public func addBlurEffect(style: UIBlurEffect.Style) {
+        let blurEffect = UIBlurEffect(style: style)
+        let visualEffectView = UIVisualEffectView(effect: blurEffect)
+        visualEffectView.frame = self.frame
+        self.addSubview(visualEffectView)
+    }
 }

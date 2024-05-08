@@ -11,6 +11,7 @@ import RxSwift
 
 public protocol CalendarUseCaseProtocol {
     func executeFetchCalednarResponse(yearMonth: String) -> Observable<ArrayResponseCalendarEntity?>
+    func executeFetchDailyCalendarResponse(yearMonthDay: String) -> Observable<ArrayResponseDailyCalendarEntity?>
     func executeFetchStatisticsSummary(yearMonth: String) -> Observable<FamilyMonthlyStatisticsEntity?>
     func executeFetchCalendarBenner(yearMonth: String) -> Observable<BannerEntity?>
 }
@@ -24,6 +25,10 @@ public final class CalendarUseCase: CalendarUseCaseProtocol {
 
     public func executeFetchCalednarResponse(yearMonth: String) -> Observable<ArrayResponseCalendarEntity?> {
         return calendarRepository.fetchCalendarResponse(yearMonth: yearMonth)
+    }
+    
+    public func executeFetchDailyCalendarResponse(yearMonthDay: String) -> Observable<ArrayResponseDailyCalendarEntity?> {
+        return calendarRepository.fetchDailyCalendarResponse(yearMonthDay: yearMonthDay)
     }
     
     public func executeFetchStatisticsSummary(yearMonth: String) -> Observable<FamilyMonthlyStatisticsEntity?> {

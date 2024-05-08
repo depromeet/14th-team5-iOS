@@ -31,7 +31,7 @@ final class KakaoSignInHelper: AccountSignInHelperType {
     
     func signIn(on window: UIWindow) -> Observable<APIResult> {
         if UserApi.isKakaoTalkLoginAvailable() {
-            return UserApi.shared.rx.loginWithKakaoTalk()
+            return UserApi.shared.rx.loginWithKakaoTalk(launchMethod: .CustomScheme)
                 .map { [weak self] response in
                     self?._signInState.accept(AccountSignInStateInfo(snsType: .kakao, snsToken: response.accessToken))
                     return .success

@@ -114,6 +114,7 @@ extension ContributorProfileView {
             countLabel.backgroundColor = .clear
             countLabel.text = "\(data.survivalCount)회"
             
+            questionView.isHidden = true
             imageView.layer.borderColor = reactor?.currentState.rank.borderColor.cgColor
             imageView.kf.setImage(with: URL(string: data.imageURL))
             
@@ -123,6 +124,7 @@ extension ContributorProfileView {
             countLabel.backgroundColor = .gray700
             
             imageView.layer.borderColor = UIColor.gray600.cgColor
+            questionView.isHidden = false
             questionView.image = DesignSystemAsset.question.image
             
             badgeView.image = reactor?.currentState.rank.grayBadgeImage

@@ -53,6 +53,7 @@ enum Description {
 final class MainViewReactor: Reactor {
     enum Action {
         case calculateTime
+        case setTimer(Bool, Int)
         case fetchMainUseCase
         case fetchMainNightUseCase
         
@@ -66,6 +67,7 @@ final class MainViewReactor: Reactor {
         
         case setInTime(Bool)
         case setPageIndex(Int)
+        case setCamerEnabled
         case setBalloonText
         case setDescriptionText
         
@@ -84,11 +86,14 @@ final class MainViewReactor: Reactor {
         var missionText: String = ""
         var balloonText: BalloonText = .survivalStandard
         var description: Description = .survivalNone
-
+        
         var isFamilySurvivalUploadedToday: Bool = false
         var isFamilyMissionUploadedToday: Bool = false
         var isMeSurvivalUploadedToday: Bool = false
+        var isMeMissionUploadedToday: Bool = false
         var isMissionUnlocked: Bool = false
+        
+        @Pulse var cameraEnabled: Bool = false
         
         @Pulse var contributor: FamilyRankData = FamilyRankData.empty
         @Pulse var familySection: [FamilySection.Item] = []
@@ -110,11 +115,11 @@ final class MainViewReactor: Reactor {
         fetchMainNightUseCase: FetchMainNightUseCaseProtocol,
         pickUseCase: PickUseCaseProtocol,
         provider: GlobalStateProviderProtocol) {
-        self.fetchMainUseCase = fetchMainUseCase
-        self.fetchMainNightUseCase = fetchMainNightUseCase
-        self.pickUseCase = pickUseCase
-        self.provider = provider
-    }
+            self.fetchMainUseCase = fetchMainUseCase
+            self.fetchMainNightUseCase = fetchMainNightUseCase
+            self.pickUseCase = pickUseCase
+            self.provider = provider
+        }
 }
 
 extension MainViewReactor {
@@ -151,7 +156,10 @@ extension MainViewReactor {
                     guard let data = result else {
                         return Observable.empty()
                     }
-                    return Observable.concat(Observable.just(.updateMainData(data)), Observable.just(.setBalloonText))
+                    return Observable.concat(Observable.just(
+                        .updateMainData(data)), Observable.just(.setBalloonText),
+                                             Observable.just(.setCamerEnabled)
+                    )
                 }
         case .fetchMainNightUseCase:
             return fetchMainNightUseCase.execute()
@@ -162,19 +170,8 @@ extension MainViewReactor {
                     }
                     return Observable.just(.updateMainNight(data))
                 }
-        case .calculateTime:
-            let (isInTime, time) = MainViewReactor.calculateRemainingTime()
-            
+        case .setTimer(let isInTime, let time):
             if isInTime {
-                return Observable<Int>
-                    .timer(.seconds(time), scheduler: MainScheduler.instance)
-                    .flatMap {_ in
-                        return Observable.concat([
-                            Observable.just(Mutation.setInTime(true)),
-                            self.mutate(action: .fetchMainUseCase)
-                        ])
-                    }
-            } else {
                 return Observable<Int>
                     .timer(.seconds(time), scheduler: MainScheduler.instance)
                     .flatMap {_ in
@@ -183,13 +180,40 @@ extension MainViewReactor {
                             self.mutate(action: .fetchMainNightUseCase)
                         ])
                     }
+            } else {
+                return Observable<Int>
+                    .timer(.seconds(time), scheduler: MainScheduler.instance)
+                    .flatMap {_ in
+                        return Observable.concat([
+                            Observable.just(Mutation.setInTime(true)),
+                            self.mutate(action: .fetchMainUseCase)
+                        ])
+                    }
+            }
+        case .calculateTime:
+            let (isInTime, time) = MainViewReactor.calculateRemainingTime()
+            
+            if isInTime {
+                return Observable.concat([
+                    Observable.just(Mutation.setInTime(true)),
+                    self.mutate(action: .fetchMainUseCase),
+                    self.mutate(action: .setTimer(isInTime, time))
+                ])
+            } else {
+                return Observable.concat([
+                    Observable.just(Mutation.setInTime(false)),
+                    self.mutate(action: .fetchMainNightUseCase),
+                    self.mutate(action: .setTimer(isInTime, time))
+                ])
                 
             }
         case .didTapSegmentControl(let type):
             return Observable.concat(
                 Observable.just(.setPageIndex(type.getIndex())),
                 Observable.just(.setBalloonText),
-                Observable.just(.setDescriptionText))
+                Observable.just(.setDescriptionText),
+                Observable.just(.setCamerEnabled)
+            )
             
         case let .pickConfirmButtonTapped(name, id):
             return pickUseCase.executePickMember(memberId: id)
@@ -221,6 +245,7 @@ extension MainViewReactor {
         case .updateMainData(let data):
             newState.isMissionUnlocked = data.isMissionUnlocked
             newState.isMeSurvivalUploadedToday = data.isMeSurvivalUploadedToday
+            newState.isMeMissionUploadedToday = data.isMeMissionUploadedToday
             newState.isFamilyMissionUploadedToday = data.isFamilyMissionUploadedToday
             newState.isFamilySurvivalUploadedToday = data.isFamilySurvivalUploadedToday
             newState.leftCount = data.leftUploadCountUntilMissionUnlock
@@ -238,6 +263,16 @@ extension MainViewReactor {
             newState.contributor = data.familyRankData
         case let .setPickAlertView(name, id):
             newState.shouldPresentPickAlert = (name, id)
+        case .setCamerEnabled:
+            if currentState.pageIndex == 0 {
+                newState.cameraEnabled = !currentState.isMeSurvivalUploadedToday
+            } else {
+                if currentState.isMeMissionUploadedToday || currentState.isMissionUnlocked {
+                    newState.cameraEnabled = false
+                } else {
+                    newState.cameraEnabled = true
+                }
+            }
         case .setBalloonText:
             if currentState.pageIndex == 0 {
                 newState.balloonText = .survivalStandard

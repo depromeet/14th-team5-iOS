@@ -10,7 +10,7 @@ import Foundation
 import Domain
 
 
-struct MissionContentResponse: Decodable {
+struct MissionContentDTO: Decodable {
     let missionId: String
     let missionContent: String
     
@@ -22,7 +22,7 @@ struct MissionContentResponse: Decodable {
 }
 
 
-extension MissionContentResponse {
+extension MissionContentDTO {
     func toDomain() -> MissionContentData {
         return .init(
             missionId: missionId,

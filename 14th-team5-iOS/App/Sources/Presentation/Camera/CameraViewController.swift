@@ -256,7 +256,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         Observable
             .zip(
                 reactor.state.compactMap { $0.feedImageData }.distinctUntilChanged(),
-                reactor.state.compactMap { $0.missionEnttiy?.missionContent },
+                reactor.state.compactMap { $0.missionEntity?.missionContent },
                 reactor.state.map { $0.cameraType.asPostType }
             )
             .withUnretained(self)
@@ -272,7 +272,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .bind(onNext: {$0.0.setupRealEmojiLayoutContent(isShow: !$0.1)})
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$missionEnttiy)
+        reactor.pulse(\.$missionEntity)
             .map { $0?.missionContent }
             .bind(to: missionView.missionTitleView.rx.text)
             .disposed(by: disposeBag)

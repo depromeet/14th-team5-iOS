@@ -61,7 +61,7 @@ extension MissionAPIWorker {
                     debugPrint("Mission Content Result: \(str)")
                 }
             }
-            .map(MissionContentResponse.self)
+            .map(MissionContentDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
             .asSingle()

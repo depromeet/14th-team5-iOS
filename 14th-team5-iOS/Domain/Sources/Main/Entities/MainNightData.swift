@@ -5,7 +5,43 @@
 //  Created by 마경미 on 07.05.24.
 //
 
-import Foundation
+import UIKit
+
+import DesignSystem
+
+public enum Rank {
+    case none
+    case first
+    case second
+    case third
+    
+    public var borderColor: UIColor {
+        switch self {
+        case .none: return .gray600
+        case .first: return .mainYellow
+        case .second: return .graphicGreen
+        case .third: return .graphicOrange
+        }
+    }
+    
+    public var badgeImage: UIImage {
+        switch self {
+        case .first: return DesignSystemAsset.rank1.image
+        case .second: return DesignSystemAsset.rank2.image
+        case .third: return DesignSystemAsset.rank3.image
+        default: fatalError("Rank Not Founded")
+        }
+    }
+    
+    public var grayBadgeImage: UIImage {
+        switch self {
+        case .first: return DesignSystemAsset.emptyRank1.image
+        case .second: return DesignSystemAsset.emptyRank2.image
+        case .third: return DesignSystemAsset.emptyRank3.image
+        default: fatalError("Rank Not Founded")
+        }
+    }
+}
 
 public struct RankerData {
     public let imageURL: String
@@ -32,6 +68,12 @@ public struct FamilyRankData {
         self.firstRanker = firstRanker
         self.secondRanker = secondRanker
         self.thirdRanker = thirdRanker
+    }
+}
+
+extension FamilyRankData {
+    public static var empty: FamilyRankData {
+        return .init(month: 0, recentPostDate: "", firstRanker: nil, secondRanker: nil, thirdRanker: nil)
     }
 }
 

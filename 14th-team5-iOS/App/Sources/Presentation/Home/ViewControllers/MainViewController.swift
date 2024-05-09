@@ -118,8 +118,8 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
 extension MainViewController {
     private func bindInput(reactor: MainViewReactor) {
         Observable.merge(
-            Observable.just(())
-                .map { Reactor.Action.calculateTime },
+            self.rx.viewWillAppear
+                .map { _ in Reactor.Action.calculateTime },
             NotificationCenter.default.rx.notification(UIScene.willEnterForegroundNotification)
                 .map { _ in Reactor.Action.calculateTime }
         )
@@ -188,6 +188,11 @@ extension MainViewController {
                 $0.0.pageViewController.indexRelay.accept($0.1)
                 $0.0.segmentControl.isSelected = ($0.1 == 0)
             })
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$cameraEnabled)
+            .distinctUntilChanged()
+            .bind(to: cameraButton.cameraEnabledRelay)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.balloonText }

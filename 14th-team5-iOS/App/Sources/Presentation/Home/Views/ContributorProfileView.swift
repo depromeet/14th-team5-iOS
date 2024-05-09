@@ -6,42 +6,45 @@
 //
 
 import UIKit
+
 import Core
 import Domain
+import DesignSystem
 
 import Kingfisher
+import RxCocoa
 import RxSwift
 
-final class ContributorProfileView: UIView {
+final class ContributorProfileView: BaseView<ContributorProfileReactor> {
     private let nameLabel = BibbiLabel(.body2Bold, textAlignment: .center, textColor: .gray200)
     private let countLabel = BibbiLabel(.body2Bold, textAlignment: .center, textColor: .gray300)
     private let imageView = UIImageView()
+    private let questionView = UIImageView()
     private let badgeView = UIImageView()
-
-    let rank: Int = 0
-    let count: Int = 0
-    let disposeBag = DisposeBag()
     
-    override init(frame: CGRect) {
-        super.init(frame: .zero)
-        setupUI()
-        setupAutoLayout()
-        setupAttributes()
+    let rankerRelay: BehaviorRelay<RankerData?> = BehaviorRelay(value: nil)
+    
+    override func bind(reactor: ContributorProfileReactor) {
+        bindInput(reactor: reactor)
+        bindOutput(reactor: reactor)
     }
     
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
+    override func setupUI() {
+        addSubviews(imageView, nameLabel, countLabel, 
+                    questionView, badgeView)
     }
     
-    private func setupUI() {
-        addSubviews(imageView, nameLabel, countLabel, badgeView)
-    }
-    
-    private func setupAutoLayout() {
+    override func setupAutoLayout() {
         imageView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview()
             $0.top.equalToSuperview()
             $0.height.equalTo(self.snp.width)
+        }
+        
+        questionView.snp.makeConstraints {
+            $0.center.equalTo(imageView)
+            $0.height.equalTo(26)
+            $0.width.equalTo(18)
         }
         
         badgeView.snp.makeConstraints {
@@ -52,24 +55,77 @@ final class ContributorProfileView: UIView {
         }
         
         nameLabel.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview()
-            $0.top.equalTo(imageView.snp.bottom).offset(7)
+            $0.horizontalEdges.equalToSuperview().inset(10)
+            $0.top.equalTo(badgeView.snp.bottom).offset(7)
             $0.height.equalTo(18)
         }
         
         countLabel.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(20)
             $0.top.equalTo(nameLabel.snp.bottom).offset(4)
             $0.height.equalTo(18)
         }
     }
     
-    private func setupAttributes() {
+    override func setupAttributes() {
         imageView.do {
             $0.clipsToBounds = true
-            $0.contentMode = .scaleAspectFill
-            $0.layer.cornerRadius = 64 / 2
             $0.layer.borderWidth = 4
+            $0.tintColor = .gray400
+            $0.contentMode = .scaleAspectFit
+        }
+        
+        nameLabel.do {
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = 4
+        }
+        
+        countLabel.do {
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = 4
+        }
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        imageView.layer.cornerRadius = self.frame.size.width / 2
+    }
+}
+
+extension ContributorProfileView {
+    private func bindInput(reactor: ContributorProfileReactor) {
+        rankerRelay.map { Reactor.Action.getRanker($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+    }
+    
+    private func bindOutput(reactor: ContributorProfileReactor) {
+        reactor.pulse(\.$ranker)
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: { $0.0.setProfile($0.1) })
+            .disposed(by: disposeBag)
+    }
+    
+    private func setProfile(_ data: RankerData?) {
+        if let data = data {
+            nameLabel.backgroundColor = .clear
+            nameLabel.text = data.name
+            countLabel.backgroundColor = .clear
+            countLabel.text = "\(data.survivalCount)회"
+            
+            imageView.layer.borderColor = reactor?.currentState.rank.borderColor.cgColor
+            imageView.kf.setImage(with: URL(string: data.imageURL))
+            
+            badgeView.image = reactor?.currentState.rank.badgeImage
+        } else {
+            nameLabel.backgroundColor = .gray600
+            countLabel.backgroundColor = .gray700
+            
+            imageView.layer.borderColor = UIColor.gray600.cgColor
+            questionView.image = DesignSystemAsset.question.image
+            
+            badgeView.image = reactor?.currentState.rank.grayBadgeImage
         }
     }
 }

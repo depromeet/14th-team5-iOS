@@ -18,18 +18,15 @@ import RxSwift
 final class MainViewController: BaseViewController<MainViewReactor>, UICollectionViewDelegateFlowLayout {
     private let familyViewController: MainFamilyViewController = MainFamilyViewDIContainer().makeViewController()
 
-    private let timerView: TimerView = TimerDIContainer().makeView()
+    private let timerView: TimerView = TimerView(reactor: TimerReactor())
     private let descriptionLabel: BibbiLabel = BibbiLabel(.body2Regular, textAlignment: .center, textColor: .gray300)
     private let imageView: UIImageView = UIImageView()
     
+    private let contributorView: ContributorView = ContributorView(reactor: ContributorReactor())
     private let segmentControl: BibbiSegmentedControl = BibbiSegmentedControl(isUpdated: true)
     private let pageViewController: SegmentPageViewController = SegmentPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
     
     private let cameraButton: MainCameraButtonView = MainCameraDIContainer().makeView()
-
-    private let memberRepo = App.Repository.member
-    private let deepLinkRepo = App.Repository.deepLink
-    
     private let alertConfirmRelay = PublishRelay<(String, String)>()
     
     override func viewDidLoad() {
@@ -52,7 +49,7 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
         
         view.addSubviews(familyViewController.view, timerView, descriptionLabel,
                          imageView, segmentControl, pageViewController.view,
-                         cameraButton)
+                         cameraButton, contributorView)
         
         familyViewController.didMove(toParent: self)
         pageViewController.didMove(toParent: self)
@@ -83,6 +80,12 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
             $0.top.equalTo(descriptionLabel)
             $0.size.equalTo(20)
             $0.leading.equalTo(descriptionLabel.snp.trailing).offset(2)
+        }
+        
+        contributorView.snp.makeConstraints {
+            $0.top.equalTo(descriptionLabel.snp.bottom).offset(20)
+            $0.horizontalEdges.equalToSuperview()
+            $0.bottom.equalToSuperview()
         }
         
         segmentControl.snp.makeConstraints {
@@ -116,9 +119,9 @@ extension MainViewController {
     private func bindInput(reactor: MainViewReactor) {
         Observable.merge(
             Observable.just(())
-                .map { Reactor.Action.fetchMainUseCase },
+                .map { Reactor.Action.calculateTime },
             NotificationCenter.default.rx.notification(UIScene.willEnterForegroundNotification)
-                .map { _ in Reactor.Action.fetchMainUseCase }
+                .map { _ in Reactor.Action.calculateTime }
         )
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
@@ -164,6 +167,13 @@ extension MainViewController {
     }
     
     private func bindOutput(reactor: MainViewReactor) {
+        reactor.state.map { $0.isInTime }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: { $0.0.setInTimeView($0.1) })
+            .disposed(by: disposeBag)
+        
         reactor.pulse(\.$familySection)
             .distinctUntilChanged()
             .observe(on: MainScheduler.instance)
@@ -193,6 +203,10 @@ extension MainViewController {
                 $0.0.descriptionLabel.text = $0.1.text
                 $0.0.imageView.image = $0.1.image
             })
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$contributor)
+            .bind(to: contributorView.contributorRelay)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentPickAlert)
@@ -233,5 +247,17 @@ extension MainViewController {
                 owner.makeErrorBibbiToastView()
             }
             .disposed(by: disposeBag)
+    }
+}
+
+extension MainViewController {
+    private func setInTimeView(_ isInTime: Bool) {
+        if isInTime {
+            contributorView.isHidden = true
+            segmentControl.isHidden = false
+        } else {
+            contributorView.isHidden = false
+            segmentControl.isHidden = true
+        }
     }
 }

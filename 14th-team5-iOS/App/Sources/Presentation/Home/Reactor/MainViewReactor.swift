@@ -51,10 +51,10 @@ enum Description {
 }
 
 final class MainViewReactor: Reactor {
-    
     enum Action {
         case calculateTime
         case fetchMainUseCase
+        case fetchMainNightUseCase
         
         case didTapSegmentControl(PostType)
         case pickConfirmButtonTapped(String, String)
@@ -62,6 +62,7 @@ final class MainViewReactor: Reactor {
     
     enum Mutation {
         case updateMainData(MainData)
+        case updateMainNight(MainNightData)
         
         case setInTime(Bool)
         case setPageIndex(Int)
@@ -76,9 +77,10 @@ final class MainViewReactor: Reactor {
     }
     
     struct State {
-        var isInTime: Bool
+        var isInTime: Bool = true
         var pageIndex: Int = 0
         var leftCount: Int = 0
+        
         var missionText: String = ""
         var balloonText: BalloonText = .survivalStandard
         var description: Description = .survivalNone
@@ -88,6 +90,7 @@ final class MainViewReactor: Reactor {
         var isMeSurvivalUploadedToday: Bool = false
         var isMissionUnlocked: Bool = false
         
+        @Pulse var contributor: FamilyRankData = FamilyRankData.empty
         @Pulse var familySection: [FamilySection.Item] = []
         
         @Pulse var shouldPresentPickAlert: (String, String)?
@@ -96,19 +99,19 @@ final class MainViewReactor: Reactor {
         @Pulse var shouldPresentFailureToastMessage: Bool = false
     }
     
-    let initialState: State
+    let initialState: State = State()
     let fetchMainUseCase: FetchMainUseCaseProtocol
+    let fetchMainNightUseCase: FetchMainNightUseCaseProtocol
     let pickUseCase: PickUseCaseProtocol
     let provider: GlobalStateProviderProtocol
     
     init(
-        initialState: State,
         fetchMainUseCase: FetchMainUseCaseProtocol,
+        fetchMainNightUseCase: FetchMainNightUseCaseProtocol,
         pickUseCase: PickUseCaseProtocol,
-        provider: GlobalStateProviderProtocol
-    ) {
-        self.initialState = initialState
+        provider: GlobalStateProviderProtocol) {
         self.fetchMainUseCase = fetchMainUseCase
+        self.fetchMainNightUseCase = fetchMainNightUseCase
         self.pickUseCase = pickUseCase
         self.provider = provider
     }
@@ -143,26 +146,42 @@ extension MainViewReactor {
         switch action {
         case .fetchMainUseCase:
             return fetchMainUseCase.execute()
+                .asObservable()
                 .flatMap { result -> Observable<MainViewReactor.Mutation> in
                     guard let data = result else {
                         return Observable.empty()
                     }
                     return Observable.concat(Observable.just(.updateMainData(data)), Observable.just(.setBalloonText))
                 }
+        case .fetchMainNightUseCase:
+            return fetchMainNightUseCase.execute()
+                .asObservable()
+                .flatMap { result -> Observable<MainViewReactor.Mutation> in
+                    guard let data = result else {
+                        return Observable.empty()
+                    }
+                    return Observable.just(.updateMainNight(data))
+                }
         case .calculateTime:
-            let (_, time) = MainViewReactor.calculateRemainingTime()
+            let (isInTime, time) = MainViewReactor.calculateRemainingTime()
             
-            if self.currentState.isInTime {
+            if isInTime {
                 return Observable<Int>
                     .timer(.seconds(time), scheduler: MainScheduler.instance)
                     .flatMap {_ in
-                        return Observable.concat([Observable.just(Mutation.setInTime(false))])
+                        return Observable.concat([
+                            Observable.just(Mutation.setInTime(true)),
+                            self.mutate(action: .fetchMainUseCase)
+                        ])
                     }
             } else {
                 return Observable<Int>
                     .timer(.seconds(time), scheduler: MainScheduler.instance)
                     .flatMap {_ in
-                        return Observable.concat([Observable.just(Mutation.setInTime(true))])
+                        return Observable.concat([
+                            Observable.just(Mutation.setInTime(false)),
+                            self.mutate(action: .fetchMainNightUseCase)
+                        ])
                     }
                 
             }
@@ -212,6 +231,11 @@ extension MainViewReactor {
                     .main(MainFamilyCellReactor($0, service: provider))
                 }
             ).items
+        case .updateMainNight(let data):
+            newState.familySection = FamilySection.Model(model: 0, items: data.mainFamilyProfileDatas.map {
+                .main(MainFamilyCellReactor($0, service: provider))
+            }).items
+            newState.contributor = data.familyRankData
         case let .setPickAlertView(name, id):
             newState.shouldPresentPickAlert = (name, id)
         case .setBalloonText:
@@ -255,7 +279,7 @@ extension MainViewReactor {
         
         let currentHour = calendar.component(.hour, from: currentTime)
         
-        if currentHour >= 12 {
+        if currentHour >= 10 {
             if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {
                 let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
                 return (true, max(0, timeDifference.second ?? 0))

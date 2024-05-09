@@ -23,4 +23,8 @@ extension MainRepository {
     public func fetchMain() -> Observable<MainData?> {
         return mainApiWorker.fetchMain().asObservable()
     }
+    
+    public func fetchMainNight() -> Observable<MainNightData?> {
+        return mainApiWorker.fetchMainNight().asObservable()
+    }
 }

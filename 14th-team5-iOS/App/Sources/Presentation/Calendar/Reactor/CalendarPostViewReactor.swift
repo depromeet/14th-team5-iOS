@@ -105,6 +105,8 @@ public final class CalendarPostViewReactor: Reactor {
                     return Observable<Mutation>.just(.pushProfileViewController(memberId))
                 case let .renewalPostCommentCount(count):
                     return Observable<Mutation>.just(.renewPostCommentCount(count))
+                default:
+                    return .empty()
                 }
             }
         

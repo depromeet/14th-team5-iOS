@@ -21,6 +21,7 @@ final class PostReactor: Reactor {
     enum Mutation {
         case setPop
         case setSelectedPostIndex(Int)
+        case setMissionContent(MissionContentData)
         case setPushProfileViewController(String)
     }
     
@@ -31,6 +32,7 @@ final class PostReactor: Reactor {
         var isPop: Bool = false
         var selectedPost: PostListData = .init(postId: "", author: .init(memberId: "", profileImageURL: "", name: ""), commentCount: 0, emojiCount: 0, imageURL: "", content: "", time: "")
         
+        @Pulse var missionContent: MissionContentData? = nil
         @Pulse var fetchedPost: PostData? = nil
         @Pulse var reactionMemberIds: [String] = []
         @Pulse var shouldPushProfileViewController: String?
@@ -42,6 +44,7 @@ final class PostReactor: Reactor {
     
     let realEmojiRepository: RealEmojiUseCaseProtocol
     let emojiRepository: EmojiUseCaseProtocol
+    let missionUseCase: MissionContentUseCaseProtocol
     let provider: GlobalStateProviderProtocol
     
     
@@ -49,11 +52,13 @@ final class PostReactor: Reactor {
         provider: GlobalStateProviderProtocol,
         realEmojiRepository: RealEmojiUseCaseProtocol,
         emojiRepository: EmojiUseCaseProtocol,
+        missionUseCase: MissionContentUseCaseProtocol,
         initialState: State
     ) {
         self.provider = provider
         self.realEmojiRepository = realEmojiRepository
         self.emojiRepository = emojiRepository
+        self.missionUseCase = missionUseCase
         self.initialState = initialState
     }
 }
@@ -76,7 +81,16 @@ extension PostReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case let .setPost(index):
-            return Observable.just(Mutation.setSelectedPostIndex(index))
+            guard case let .main(postEntity) = currentState.originPostLists.items[index],
+                  let missionId = postEntity.missionId else { return .empty() }
+            return missionUseCase.execute(missionId: missionId)
+                .flatMap { entity -> Observable<Mutation> in
+                    return .concat(
+                        .just(.setSelectedPostIndex(index)),
+                        .just(.setMissionContent(entity))
+                    )
+                    
+                }
         case .tapBackButton:
             return Observable.just(Mutation.setPop)
         }
@@ -94,6 +108,9 @@ extension PostReactor {
             
         case let .setPushProfileViewController(memberId):
             newState.shouldPushProfileViewController = memberId
+        case let .setMissionContent(missionContent):
+            provider.postGlobalState.missionContentText(missionContent.missionContent)
+            newState.missionContent = missionContent
         }
         return newState
     }

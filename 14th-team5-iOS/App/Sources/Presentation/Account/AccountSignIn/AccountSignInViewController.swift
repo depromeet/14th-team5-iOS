@@ -25,7 +25,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
         static let loginOffset: CGFloat = -10
         
         static let spacing: CGFloat = 12
-        static let inset: CGFloat = 16
+        static let inset: CGFloat = 20
     }
     
     private let bibbiImageView = UIImageView()

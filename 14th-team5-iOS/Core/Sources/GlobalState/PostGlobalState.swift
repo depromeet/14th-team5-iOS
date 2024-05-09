@@ -12,6 +12,7 @@ import RxSwift
 public enum PostEvent {
     case pushProfileViewController(String)
     case renewalPostCommentCount(Int)
+    case receiveMissionContent(String)
 }
 
 public protocol PostGlobalStateType {
@@ -27,6 +28,9 @@ public protocol PostGlobalStateType {
     
     @discardableResult
     func renewalPostCommentCount(_ count: Int) -> Observable<Int>
+    
+    @discardableResult
+    func missionContentText(_ content: String) -> Observable<String>
 }
 
 final public class PostGlobalState: BaseGlobalState, PostGlobalStateType {
@@ -50,5 +54,10 @@ final public class PostGlobalState: BaseGlobalState, PostGlobalStateType {
     
     public func clearCommentText() {
         input.onNext((.none, .none))
+    }
+    
+    public func missionContentText(_ content: String) -> Observable<String> {
+        event.onNext(.receiveMissionContent(content))
+        return Observable<String>.just(content)
     }
 }

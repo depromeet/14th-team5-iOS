@@ -51,4 +51,31 @@ extension MissionAPIWorker {
             .flatMap { $0.0.getTodayMission(headers: $0.1) }
             .asSingle()
     }
+    
+    
+    private func getMissionContent(spec: APISpec, headers: [APIHeader]?) -> Single<MissionContentData?> {
+        return request(spec: spec, headers: headers)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Mission Content Result: \(str)")
+                }
+            }
+            .map(MissionContentResponse.self)
+            .catchAndReturn(nil)
+            .map { $0?.toDomain() }
+            .asSingle()
+    }
+    
+    
+    func getMissionContent(missionId: String) -> Single<MissionContentData?> {
+        let spec = MissionAPIs.getMissionContent(missionId).spec
+        
+        return Observable<Void>.just(())
+            .withLatestFrom(self._headers)
+            .observe(on: Self.queue)
+            .withUnretained(self)
+            .flatMap { $0.0.getMissionContent(spec: spec, headers: $0.1)}
+            .asSingle()
+    }
 }

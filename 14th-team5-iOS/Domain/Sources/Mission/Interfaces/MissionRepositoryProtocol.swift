@@ -11,4 +11,5 @@ import RxSwift
 
 public protocol MissionRepositoryProtocol {
     func getTodayMission() -> Observable<TodayMissionData?>
+    func getMissionContent(missionId: String) -> Observable<MissionContentData?>
 }

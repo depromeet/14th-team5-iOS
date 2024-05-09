@@ -50,12 +50,4 @@ public struct MainData {
         self.isFamilySurvivalUploadedToday = survivalUploadCount == mainFamilyProfileDatas.count
         self.isFamilyMissionUploadedToday = missionUploadCount == mainFamilyProfileDatas.count
     }
-    
-    
-//    public init(mainFamilyProfileDatas: [ProfileData], isMissionUnlocked: Bool, isMeUploadedToday: Bool, pickers: [Picker]) {
-//        self.mainFamilyProfileDatas = mainFamilyProfileDatas.map(FamilySection.Item.main)
-//        self.isMissionUnlocked = isMissionUnlocked
-//        self.isMeUploadedToday = isMeUploadedToday
-//        self.pickers = pickers
-//    }
 }

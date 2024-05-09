@@ -29,7 +29,7 @@ public final class AccountSignUpViewController: BasePageViewController<AccountSi
         super.bind(reactor: reactor)
         
         navigationBarView.rx.leftButtonTap
-            .observe(on: Schedulers.main)
+            .observe(on: RxSchedulers.main)
             .withUnretained(self)
             .bind { $0.0.goToPrevPage() }
             .disposed(by: disposeBag)

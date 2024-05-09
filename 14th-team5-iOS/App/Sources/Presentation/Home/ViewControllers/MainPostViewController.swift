@@ -77,7 +77,7 @@ extension MainPostViewController {
             .disposed(by: disposeBag)
 
         postCollectionView.rx.itemSelected
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
             .withUnretained(self)
             .bind(onNext: {
                 $0.0.navigationController?.pushViewController(

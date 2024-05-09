@@ -78,7 +78,7 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
     private func bindInput(reactor: JoinFamilyReactor) {
         makeFamilyButton.rx.tap
             .do(onNext: { MPEvent.Account.creatGroup.track(with: nil) })
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind(onNext: { $0.0.newGroupAlertController()})
             .disposed(by: disposeBag)

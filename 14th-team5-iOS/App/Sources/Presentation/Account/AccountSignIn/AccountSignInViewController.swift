@@ -110,19 +110,19 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
     
     override public func bind(reactor: AccountSignInReactor) {
         kakaoLoginButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
             .map { Reactor.Action.kakaoLoginTapped(.kakao, self) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         appleLoginButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
             .map { Reactor.Action.appleLoginTapped(.apple, self) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         App.Repository.token.accessToken
-            .observe(on: Schedulers.main)
+            .observe(on: RxSchedulers.main)
             .skip(1)
             .withUnretained(self)
             .bind(onNext: { $0.0.showNextPage(token: $0.1) })

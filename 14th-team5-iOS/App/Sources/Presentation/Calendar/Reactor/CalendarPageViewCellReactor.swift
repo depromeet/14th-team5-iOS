@@ -13,41 +13,45 @@ import Domain
 import ReactorKit
 import RxSwift
 
-public final class CalendarPageCellReactor: Reactor {
+public final class CalendarCellReactor: Reactor {
     // MARK: - Action
     public enum Action {
-        case didSelectDate(Date)
-        case fetchCalendarBanner
-        case fetchStatisticsSummary
-        case fetchCalendarResponse
-        case didTapInfoButton(UIView)
+        case dateSelected(Date)
+        case requestBanner
+        case requestStatistics
+        case requestMonthlyCalendar
+        case infoButtonTapped(UIView)
     }
     
     // MARK: - Mutation
     public enum Mutation {
-        case injectCalendarBanner(BannerEntity)
-        case injectStatisticsSummary(FamilyMonthlyStatisticsEntity)
-        case injectCalendarResponse(ArrayResponseCalendarEntity)
+        case setBanner(BannerEntity)
+        case setStatistics(FamilyMonthlyStatisticsEntity)
+        case setMonthlyCalendar(ArrayResponseCalendarEntity)
     }
     
     // MARK: - State
     public struct State {
-        var yearMonthDate: Date
-        var displayCalendarBanner: BannerViewModel.State?
+        var yearMonth: String
+        var displayBanner: BannerViewModel.State?
         var displayMemoryCount: Int
-        var displayCalendarResponse: ArrayResponseCalendarEntity?
+        var displayMonthlyCalendar: ArrayResponseCalendarEntity?
     }
     
     // MARK: - Properties
     public var initialState: State
     
-    public let provider: GlobalStateProviderProtocol
     private let calendarUseCase: CalendarUseCaseProtocol
+    private let provider: GlobalStateProviderProtocol
     
     // MARK: - Intializer
-    init(_ yearMonth: String, calendarUseCase: CalendarUseCaseProtocol, provider: GlobalStateProviderProtocol) {
+    init(
+        yearMonth: String,
+        calendarUseCase: CalendarUseCaseProtocol,
+        provider: GlobalStateProviderProtocol
+    ) {
         self.initialState = State(
-            yearMonthDate: yearMonth.toDate(with: "yyyy-MM"),
+            yearMonth: yearMonth,
             displayMemoryCount: 0
         )
         
@@ -58,47 +62,45 @@ public final class CalendarPageCellReactor: Reactor {
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case let .didSelectDate(date):
+        case let .dateSelected(date):
             return provider.calendarGlabalState.pushCalendarPostVC(date)
                 .flatMap { _ in Observable<Mutation>.empty() }
             
-        case .fetchStatisticsSummary:
-            let yearMonthString = currentState.yearMonthDate.toFormatString()
+        case .requestStatistics:
+            let yearMonth = currentState.yearMonth
             
-            return calendarUseCase.executeFetchStatisticsSummary(yearMonth: yearMonthString)
+            return calendarUseCase.executeFetchStatisticsSummary(yearMonth: yearMonth)
                 .flatMap {
                     guard let statistics = $0 else {
                         return Observable<Mutation>.empty()
                     }
-                    return Observable<Mutation>.just(.injectStatisticsSummary(statistics))
+                    return Observable<Mutation>.just(.setStatistics(statistics))
                 }
             
-        case .fetchCalendarBanner:
-            let yearMonthString = currentState.yearMonthDate.toFormatString()
+        case .requestBanner:
+            let yearMonth = currentState.yearMonth
             
-            return calendarUseCase.executeFetchCalendarBenner(yearMonth: yearMonthString)
+            return calendarUseCase.executeFetchCalendarBenner(yearMonth: yearMonth)
                 .flatMap {
                     guard let banner = $0 else {
                         return Observable<Mutation>.empty()
                     }
-                    return Observable<Mutation>.just(.injectCalendarBanner(banner))
+                    return Observable<Mutation>.just(.setBanner(banner))
                 }
             
-        case .fetchCalendarResponse:
-            let yearMonthString = currentState.yearMonthDate.toFormatString()
+        case .requestMonthlyCalendar:
+            let yearMonth = currentState.yearMonth
             
-            return calendarUseCase.executeFetchCalednarResponse(yearMonth: yearMonthString)
+            return calendarUseCase.executeFetchCalednarResponse(yearMonth: yearMonth)
                 .map {
                     guard let arrayCalendarResponse = $0 else {
-                        return .injectCalendarResponse(.init(results: []))
+                        return .setMonthlyCalendar(.init(results: []))
                     }
-                    return .injectCalendarResponse(arrayCalendarResponse)
+                    return .setMonthlyCalendar(arrayCalendarResponse)
                 }
             
-        case let .didTapInfoButton(sourceView):
-            return provider.calendarGlabalState.didTapCalendarInfoButton(sourceView)
-                .flatMap { _ in Observable<Mutation>.empty() }
-            
+        case let .infoButtonTapped(sourceView): provider.calendarGlabalState.didTapCalendarInfoButton(sourceView)
+            return Observable<Mutation>.empty()
         }
     }
     
@@ -106,10 +108,10 @@ public final class CalendarPageCellReactor: Reactor {
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
-        case let .injectStatisticsSummary(statistics):
+        case let .setStatistics(statistics):
             newState.displayMemoryCount = statistics.totalImageCnt
             
-        case let .injectCalendarBanner(banner):
+        case let .setBanner(banner):
             let bannerState = BannerViewModel.State(
                 familyTopPercentage: banner.familyTopPercentage,
                 allFamilyMemberUploadedDays: banner.allFammilyMembersUploadedDays,
@@ -117,10 +119,10 @@ public final class CalendarPageCellReactor: Reactor {
                 bannerString: banner.bannerString,
                 bannerColor: banner.bannerColor
             )
-            newState.displayCalendarBanner = bannerState
+            newState.displayBanner = bannerState
             
-        case let .injectCalendarResponse(arrayCalendarResponse):
-            newState.displayCalendarResponse = arrayCalendarResponse
+        case let .setMonthlyCalendar(arrayCalendarResponse):
+            newState.displayMonthlyCalendar = arrayCalendarResponse
         }
         return newState
     }

@@ -136,15 +136,15 @@ extension MainViewController {
             .disposed(by: disposeBag)
         
         navigationBarView.rx.leftButtonTap
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind { $0.0.navigationController?.pushViewController( FamilyManagementDIContainer().makeViewController(), animated: true) }
             .disposed(by: disposeBag)
         
         navigationBarView.rx.rightButtonTap
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
             .withUnretained(self)
-            .bind { $0.0.navigationController?.pushViewController(CalendarDIConatainer().makeViewController(), animated: true) }
+            .bind { $0.0.navigationController?.pushViewController(MonthlyCalendarDIConatainer().makeViewController(), animated: true) }
             .disposed(by: disposeBag)
       
         alertConfirmRelay
@@ -153,7 +153,7 @@ extension MainViewController {
             .disposed(by: disposeBag)
         
         cameraButton.camerTapObservable
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind(onNext: {
                 MPEvent.Home.cameraTapped.track(with: nil)

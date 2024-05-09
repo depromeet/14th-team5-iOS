@@ -105,20 +105,20 @@ final class JoinedFamilyViewController: BaseViewController<JoinedFamilyReactor> 
         super.bind(reactor: reactor)
         
         showHomeButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
             .map { Reactor.Action.enterFamily }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         showJoinedFamilyButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
             .map { Reactor.Action.joinFamily }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         reactor.state
             .map { $0.isShowHome }
-            .observe(on: Schedulers.main)
+            .observe(on: RxSchedulers.main)
             .distinctUntilChanged()
             .withUnretained(self)
             .bind(onNext: { $0.0.showHomeViewController($0.1) })
@@ -126,7 +126,7 @@ final class JoinedFamilyViewController: BaseViewController<JoinedFamilyReactor> 
         
         reactor.state
             .map { $0.isShowJoinFamily }
-            .observe(on: Schedulers.main)
+            .observe(on: RxSchedulers.main)
             .withUnretained(self)
             .bind(onNext: { $0.0.showInputLinkViewController($0.1) })
             .disposed(by: disposeBag)

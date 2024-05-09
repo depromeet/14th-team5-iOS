@@ -67,7 +67,7 @@ public class TokenRepository: RxObject {
         super.bind()
         accessToken
             .distinctUntilChanged()
-            .subscribe(on: Schedulers.io)
+            .subscribe(on: RxSchedulers.io)
             .withUnretained(self)
             .subscribe {
                 guard let jsonData = try? JSONEncoder().encode($0.1),

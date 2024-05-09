@@ -88,7 +88,7 @@ extension ReactionViewController {
             .disposed(by: disposeBag)
         
         Observable.zip(reactionCollectionView.rx.itemSelected, reactionCollectionView.rx.modelSelected(ReactionSection.Item.self))
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
             .map { (indexPath, model) in
                 switch model {
                 case .main(let emojiData):

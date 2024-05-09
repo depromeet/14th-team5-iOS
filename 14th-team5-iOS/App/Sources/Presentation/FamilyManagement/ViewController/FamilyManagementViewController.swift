@@ -66,7 +66,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .disposed(by: disposeBag)
         
         shareContainerview.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
             .map { Reactor.Action.didTapShareContainer }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)

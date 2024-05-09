@@ -15,10 +15,10 @@ public final class CalendarPostCellReactor: Reactor {
     
     // MARK: - Action
     public enum Action {
-        case displayContent
+        case requestDisplayContent
         case requestAuthorName
         case requestAuthorImageUrl
-        case writerImageButtonTapped
+        case authorImageButtonTapped
     }
     
     // MARK: - Mutation
@@ -58,7 +58,7 @@ public final class CalendarPostCellReactor: Reactor {
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .displayContent:
+        case .requestDisplayContent:
             let content: String = currentState.post.postContent
             var sectionItem: [DisplayEditItemModel] = []
             content.forEach {
@@ -84,7 +84,7 @@ public final class CalendarPostCellReactor: Reactor {
             let authorImageUrl = meUseCase.executeProfileImageUrlString(memberId: authorId)
             return Observable<Mutation>.just(.setAuthorImageUrl(authorImageUrl))
             
-        case .writerImageButtonTapped:
+        case .authorImageButtonTapped:
             let authorId = initialState.post.authorId
             provider.postGlobalState.pushProfileViewController(authorId)
             return Observable<Mutation>.empty()

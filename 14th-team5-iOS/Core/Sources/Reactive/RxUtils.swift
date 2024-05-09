@@ -10,16 +10,16 @@ import Foundation
 import RxSwift
 
 public enum RxConst {
-    static public var throttleInterval: RxTimeInterval {
-        return .milliseconds(300)
+    static public var milliseconds100Interval: RxTimeInterval {
+        return .milliseconds(100)
     }
     
-    static public var smallDelayInterval: RxTimeInterval {
-        return .milliseconds(100)
+    static public var milliseconds300Interval: RxTimeInterval {
+        return .milliseconds(300)
     }
 }
 
-public enum Schedulers {
+public enum RxSchedulers {
     public static let main = {
         MainScheduler.instance
     }()

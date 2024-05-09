@@ -28,7 +28,7 @@ public final class DailyCalendarViewController: BaseViewController<DailyCalendar
         frame: .zero,
         collectionViewLayout: orthogonalCompositionalLayout
     )
-    private let reactionViewController: ReactionViewController = ReactionDIContainer().makeViewController(
+    private let reactionViewController: ReactionViewController = ReactionDIContainer(type: .calendar).makeViewController(
         post: .init(
             postId: "", author: nil, commentCount: 0, emojiCount: 0,
             imageURL: "", content: nil, time: ""
@@ -259,7 +259,7 @@ public final class DailyCalendarViewController: BaseViewController<DailyCalendar
             .filter { $0.openComment }
             .bind(with: self) { owner, deepLink in
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    let postCommentViewController = PostCommentDIContainer(
+                    let postCommentViewController = CommentDIContainer(
                         postId: deepLink.postId
                     ).makeViewController()
                     

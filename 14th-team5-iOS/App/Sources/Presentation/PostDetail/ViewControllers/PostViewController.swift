@@ -19,7 +19,7 @@ final class PostViewController: BaseViewController<PostReactor> {
     private var navigationView: PostNavigationView = PostNavigationView()
     private let collectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let collectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
-    private let reactionViewController: ReactionViewController = ReactionDIContainer().makeViewController(post: .init(postId: "", author: nil, commentCount: 0, emojiCount: 0, imageURL: "", content: nil, time: ""))
+    private let reactionViewController: ReactionViewController = ReactionDIContainer(type: .post).makeViewController(post: .init(postId: "", author: nil, commentCount: 0, emojiCount: 0, imageURL: "", content: nil, time: ""))
     
     // MARK: - Properties
     private let deepLinkRepo = DeepLinkRepository()
@@ -131,7 +131,7 @@ final class PostViewController: BaseViewController<PostReactor> {
                     }) {
                         switch postList {
                         case let .main(post):
-                            let postCommentViewController = PostCommentDIContainer(
+                            let postCommentViewController = CommentDIContainer(
                                 postId: post.postId
                             ).makeViewController()
                             

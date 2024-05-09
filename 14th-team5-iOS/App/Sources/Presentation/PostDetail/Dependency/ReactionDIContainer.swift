@@ -10,7 +10,18 @@ import Data
 import Domain
 import UIKit
 
+enum ReactionType {
+    case post
+    case calendar
+}
+
 final class ReactionDIContainer {
+    var type: ReactionType
+    
+    init(type: ReactionType) {
+        self.type = type
+    }
+    
     private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             return GlobalStateProvider()
@@ -19,7 +30,7 @@ final class ReactionDIContainer {
     }
     
     private func makeReactor(post: PostListData) -> ReactionViewReactor {
-        return ReactionViewReactor(provider: globalState, initialState: .init(postListData: post), emojiRepository: makeEmojiUseCase(), realEmojiRepository: makeRealEmojiUseCase())
+        return ReactionViewReactor(provider: globalState, initialState: .init(type: type, postListData: post), emojiRepository: makeEmojiUseCase(), realEmojiRepository: makeRealEmojiUseCase())
     }
     
     func makeViewController(post: PostListData) -> ReactionViewController {

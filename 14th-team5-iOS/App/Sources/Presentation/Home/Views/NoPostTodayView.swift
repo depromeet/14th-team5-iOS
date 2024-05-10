@@ -6,6 +6,8 @@
 //
 
 import UIKit
+
+import Domain
 import DesignSystem
 
 import SnapKit
@@ -14,9 +16,11 @@ import Then
 final class NoPostTodayView: UIView {
     typealias Layout = HomeAutoLayout.NoPostTodayView
     
+    let type: PostType
     private let imageView: UIImageView = UIImageView()
     
-    override init(frame: CGRect) {
+    init(type: PostType, frame: CGRect) {
+        self.type = type
         super.init(frame: frame)
         setupUI()
         setupAutoLayout()
@@ -35,13 +39,13 @@ final class NoPostTodayView: UIView {
         imageView.snp.makeConstraints {
             $0.size.equalTo(Layout.ImageView.size)
             $0.centerX.equalToSuperview()
-            $0.top.equalToSuperview().inset(Layout.ImageView.topInset)
+            $0.top.equalToSuperview().inset(12)
         }
     }
     
     private func setupAttributes() {
         imageView.do {
-            $0.image = DesignSystemAsset.emptyCaseGraphicEmoji.image
+            $0.image = type == .survival ? DesignSystemAsset.emptyCaseGraphicEmoji.image: DesignSystemAsset.missionEmptyCase.image
             $0.contentMode = .scaleAspectFill
         }
     }

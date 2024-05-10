@@ -124,6 +124,10 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        self.rx.viewDidDisappear
+            .map { _ in Reactor.Action.viewDidDisappear }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
         profileView.circleButton
             .rx.tap
@@ -163,8 +167,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .withUnretained(self)
             .bind(onNext: { $0.0.setupProfileButton(title: $0.1)})
             .disposed(by: disposeBag)
-        
-        
         
         profileView.profileNickNameButton
             .rx.tap

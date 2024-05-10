@@ -18,7 +18,7 @@ final class ContributorView: BaseView<ContributorReactor> {
     private let containerView: UIView = UIView()
     
     private let titleLabel: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
-    private let infoButton: UIButton = UIButton()
+    let infoButton: UIButton = UIButton()
     private let subTitleLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray300)
     
     private let firstProfileView: ContributorProfileView = ContributorProfileView(reactor: ContributorProfileReactor(initialState: .init(rank: .first)))
@@ -28,6 +28,10 @@ final class ContributorView: BaseView<ContributorReactor> {
     private let nextButton: BibbiButton = BibbiButton()
     
     let contributorRelay: BehaviorRelay<FamilyRankData> = .init(value: FamilyRankData.empty)
+    
+    var nextButtonTapEvent: ControlEvent<Void> {
+        return nextButton.rx.tap
+    }
     
     override func bind(reactor: ContributorReactor) {
         bindInput(reactor: reactor)

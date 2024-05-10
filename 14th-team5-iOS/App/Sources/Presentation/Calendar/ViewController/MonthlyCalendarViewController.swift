@@ -90,7 +90,7 @@ public final class MonthlyCalendarViewController: BaseViewController<MonthlyCale
                     $0.0,
                     sourceView: $0.1,
                     text: _Str.infoText,
-                    popoverSize: CGSize(width: 280, height: 72),
+                    popoverSize: CGSize(width: 260, height: 62),
                     permittedArrowDrections: [.up]
                 )
             }
@@ -178,7 +178,7 @@ extension MonthlyCalendarViewController {
     
     private func pushWeeklyCalendarViewController(_ date: Date) {
         navigationController?.pushViewController(
-            weeklyCalendarDIConatainer(
+            WeeklyCalendarDIConatainer(
                 date: date
             ).makeViewController(),
             animated: true

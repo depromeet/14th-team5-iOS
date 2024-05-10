@@ -11,7 +11,7 @@ import Data
 import Domain
 import UIKit
 
-public final class weeklyCalendarDIConatainer {
+public final class WeeklyCalendarDIConatainer {
     // MARK: - Properties
     let date: Date
     

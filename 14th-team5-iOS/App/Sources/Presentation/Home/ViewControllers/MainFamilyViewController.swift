@@ -19,7 +19,7 @@ final class MainFamilyViewController: BaseViewController<MainFamilyViewReactor> 
     private let inviteFamilyView: InviteFamilyView = InviteFamilyView(openType: .makeUrl)
     private let familyCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
-    let familySectionRelay: BehaviorRelay<[FamilySection.Item]> = BehaviorRelay(value: .init())
+    let familySectionRelay: PublishSubject<[FamilySection.Item]> = PublishSubject()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -74,6 +74,7 @@ final class MainFamilyViewController: BaseViewController<MainFamilyViewReactor> 
 extension MainFamilyViewController {
     private func bindInput(reactor: MainFamilyViewReactor) {
         familySectionRelay
+            .skip(1)
             .map { Reactor.Action.updateFamilySection($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -106,17 +107,19 @@ extension MainFamilyViewController {
             .bind(to: familyCollectionView.rx.items(dataSource: createFamilyDataSource()))
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.isShowingInviteFamilyView}
+        reactor.pulse(\.$isShowingInviteFamilyView)
             .observe(on: MainScheduler.instance)
-            .distinctUntilChanged()
             .map { !$0 }
+            .distinctUntilChanged()
+            .debug("가족 없을 때 ")
             .bind(to: inviteFamilyView.rx.isHidden)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.isShowingInviteFamilyView}
+        reactor.pulse(\.$isShowingInviteFamilyView)
             .observe(on: MainScheduler.instance)
-            .distinctUntilChanged()
             .map { $0 }
+            .distinctUntilChanged()
+            .debug("가족 있을 때")
             .bind(to: familyCollectionView.rx.isHidden)
             .disposed(by: disposeBag)
         

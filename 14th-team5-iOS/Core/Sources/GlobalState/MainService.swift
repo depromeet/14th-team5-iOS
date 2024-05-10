@@ -9,22 +9,25 @@ import Foundation
 
 import RxSwift
 
-public enum HomeEvent {
+public enum MainEvent {
     case presentPickAlert(String, String)
     case showPickButton(Bool, String)
+    case refreshMain
 }
 
-public protocol HomeServiceType {
-    var event: PublishSubject<HomeEvent> { get }
+public protocol MainServiceType {
+    var event: PublishSubject<MainEvent> { get }
     
     @discardableResult
     func pickButtonTapped(name: String, memberId id: String) -> Observable<Void>
     @discardableResult
     func showPickButton(_ show: Bool, memberId id: String) -> Observable<Bool>
+    @discardableResult
+    func refreshMain() -> Observable<Void>
 }
 
-final public class HomeService: BaseGlobalState, HomeServiceType {
-    public var event = PublishSubject<HomeEvent>()
+final public class MainService: BaseGlobalState, MainServiceType {
+    public var event = PublishSubject<MainEvent>()
     
     @discardableResult
     public func pickButtonTapped(name: String, memberId id: String) -> Observable<Void> {
@@ -38,4 +41,9 @@ final public class HomeService: BaseGlobalState, HomeServiceType {
         return Observable<Bool>.just(show)
     }
     
+    @discardableResult
+    public func refreshMain() -> Observable<Void> {
+        event.onNext(.refreshMain)
+        return Observable<Void>.just(())
+    }
 }

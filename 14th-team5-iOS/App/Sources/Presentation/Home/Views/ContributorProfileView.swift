@@ -18,6 +18,7 @@ import RxSwift
 final class ContributorProfileView: BaseView<ContributorProfileReactor> {
     private let nameLabel = BibbiLabel(.body2Bold, textAlignment: .center, textColor: .gray200)
     private let countLabel = BibbiLabel(.body2Regular, textAlignment: .center, textColor: .gray300)
+    private let defaultNameLabel = BibbiLabel(.head1, textAlignment: .center, textColor: .gray200)
     private let imageView = UIImageView()
     private let questionView = UIImageView()
     private let badgeView = UIImageView()
@@ -31,7 +32,7 @@ final class ContributorProfileView: BaseView<ContributorProfileReactor> {
     
     override func setupUI() {
         addSubviews(imageView, nameLabel, countLabel, 
-                    questionView, badgeView)
+                    defaultNameLabel, questionView, badgeView)
     }
     
     override func setupAutoLayout() {
@@ -45,6 +46,10 @@ final class ContributorProfileView: BaseView<ContributorProfileReactor> {
             $0.center.equalTo(imageView)
             $0.height.equalTo(26)
             $0.width.equalTo(18)
+        }
+        
+        defaultNameLabel.snp.makeConstraints {
+            $0.edges.equalTo(questionView)
         }
         
         badgeView.snp.makeConstraints {
@@ -72,7 +77,7 @@ final class ContributorProfileView: BaseView<ContributorProfileReactor> {
             $0.clipsToBounds = true
             $0.layer.borderWidth = 4
             $0.tintColor = .gray400
-            $0.contentMode = .scaleAspectFit
+            $0.contentMode = .scaleAspectFill
         }
         
         nameLabel.do {
@@ -116,9 +121,15 @@ extension ContributorProfileView {
             
             questionView.isHidden = true
             imageView.layer.borderColor = reactor?.currentState.rank.borderColor.cgColor
-            imageView.kf.setImage(with: URL(string: data.imageURL))
             
             badgeView.image = reactor?.currentState.rank.badgeImage
+            
+            guard let url = data.imageURL else {
+                imageView.image = nil
+                defaultNameLabel.text = "\(data.name.first ?? "알")"
+                return
+            }
+            imageView.kf.setImage(with: URL(string: url))
         } else {
             nameLabel.backgroundColor = .gray600
             countLabel.backgroundColor = .gray700

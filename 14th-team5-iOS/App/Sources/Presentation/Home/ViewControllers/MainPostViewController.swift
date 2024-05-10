@@ -18,7 +18,8 @@ final class MainPostViewController: BaseViewController<MainPostViewReactor>, UIC
     private let postCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
     private let refreshControl: UIRefreshControl = UIRefreshControl()
-    private let noPostView: NoPostTodayView = NoPostTodayView()
+    
+    lazy var noPostView: NoPostTodayView = NoPostTodayView(type: reactor?.currentState.type ?? .survival, frame: .init())
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,7 +49,9 @@ final class MainPostViewController: BaseViewController<MainPostViewReactor>, UIC
         }
         
         noPostView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.width.equalTo(220)
+            $0.height.equalTo(180)
+            $0.top.centerX.equalTo(postCollectionView)
         }
     }
     
@@ -63,6 +66,10 @@ final class MainPostViewController: BaseViewController<MainPostViewReactor>, UIC
             $0.refreshControl?.tintColor = UIColor.bibbiWhite
             $0.register(MainPostCollectionViewCell.self, forCellWithReuseIdentifier: MainPostCollectionViewCell.id)
         }
+        
+        noPostView.do {
+            $0.isUserInteractionEnabled = false
+        }
     }
 }
 
@@ -71,7 +78,7 @@ extension MainPostViewController {
         postCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
-        self.rx.viewWillAppear
+        Observable.just(())
             .map { _ in Reactor.Action.fetchPost }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -118,13 +125,6 @@ extension MainPostViewController {
             .map { !$0 }
             .bind(to: noPostView.rx.isHidden)
             .disposed(by: disposeBag)
-//
-//        reactor.pulse(\.$postSection)
-//            .withUnretained(self)
-//            .bind(onNext: {
-//                $0.0.timerView.reactor = TimerDIContainer().makeReactor(isSelfUploaded: reactor.currentState.isSelfUploaded, isAllUploaded: reactor.currentState.isAllFamilyMembersUploaded)
-//            })
-//            .disposed(by: disposeBag)
     }
 }
 

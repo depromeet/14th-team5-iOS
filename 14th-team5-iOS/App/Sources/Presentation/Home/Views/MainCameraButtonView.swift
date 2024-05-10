@@ -21,7 +21,7 @@ final class MainCameraButtonView: BaseView<MainCameraReactor> {
     let textRelay: BehaviorRelay<BalloonText> = BehaviorRelay(value: .survivalStandard)
     let cameraEnabledRelay: BehaviorRelay<Bool> = BehaviorRelay(value: false)
     
-    var camerTapObservable: ControlEvent<Void> {
+    var camerTapEvent: ControlEvent<Void> {
         return cameraButton.rx.tap
     }
     
@@ -66,14 +66,7 @@ extension MainCameraButtonView {
             .bind(to: balloonView.text)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.balloonText }
-            .map { (text) -> BalloonType in
-                switch text {
-                case .picker(let picker): return .picks([picker])
-                case .pickers(let pickers): return .picks(pickers)
-                default: return .normal
-                }
-            }
+        reactor.state.map { $0.balloonText.balloonType }
             .bind(to: balloonView.balloonTypeRelay)
             .disposed(by: disposeBag)
         

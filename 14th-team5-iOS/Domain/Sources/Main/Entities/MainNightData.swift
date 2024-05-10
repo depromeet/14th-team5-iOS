@@ -44,11 +44,11 @@ public enum Rank {
 }
 
 public struct RankerData {
-    public let imageURL: String
+    public let imageURL: String?
     public let name: String
     public let survivalCount: Int
     
-    public init(imageURL: String, name: String, survivalCount: Int) {
+    public init(imageURL: String?, name: String, survivalCount: Int) {
         self.imageURL = imageURL
         self.name = name
         self.survivalCount = survivalCount

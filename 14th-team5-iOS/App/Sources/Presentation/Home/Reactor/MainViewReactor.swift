@@ -15,41 +15,6 @@ import ReactorKit
 import RxDataSources
 import Kingfisher
 
-
-enum Description {
-    case survivalNone
-    case survivalFull
-    case missionNone(Int)
-    case mission(String)
-    case missionFull
-    
-    var text: String {
-        switch self {
-        case .survivalNone:
-            return "매일 12-24시에 사진 한 장을 올려요"
-        case .survivalFull:
-            return "우리 가족 모두가 사진을 올린 날"
-        case .missionNone(let count):
-            return "가족 중 \(count)명만 더 올리면 미션 열쇠를 받아요!"
-        case .mission(let string):
-            return string
-        case .missionFull:
-            return "우리 가족 모두가 미션을 성공한 날"
-        }
-    }
-    
-    var image: UIImage {
-        switch self {
-        case .survivalNone, .mission:
-            return DesignSystemAsset.smile.image
-        case .missionFull, .survivalFull:
-            return DesignSystemAsset.congratulation.image
-        case .missionNone:
-            return DesignSystemAsset.missionKeyGraphic.image
-        }
-    }
-}
-
 final class MainViewReactor: Reactor {
     enum Action {
         case calculateTime
@@ -106,10 +71,10 @@ final class MainViewReactor: Reactor {
     }
     
     let initialState: State = State()
-    let fetchMainUseCase: FetchMainUseCaseProtocol
-    let fetchMainNightUseCase: FetchMainNightUseCaseProtocol
-    let pickUseCase: PickUseCaseProtocol
-    let provider: GlobalStateProviderProtocol
+    private let fetchMainUseCase: FetchMainUseCaseProtocol
+    private let fetchMainNightUseCase: FetchMainNightUseCaseProtocol
+    private let pickUseCase: PickUseCaseProtocol
+    private let provider: GlobalStateProviderProtocol
     
     init(
         fetchMainUseCase: FetchMainUseCaseProtocol,
@@ -125,11 +90,13 @@ final class MainViewReactor: Reactor {
 
 extension MainViewReactor {
     func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
-        let homeMutation = provider.homeService.event
+        let homeMutation = provider.mainService.event
             .flatMap { event in
                 switch event {
                 case let .presentPickAlert(name, id):
                     return Observable<Mutation>.just(.setPickAlertView(name, id))
+                case .refreshMain:
+                    return self.mutate(action: .calculateTime)
                 default:
                     return Observable<Mutation>.empty()
                 }
@@ -224,8 +191,11 @@ extension MainViewReactor {
                           response.success else {
                         return Observable<Mutation>.just(.setFailureToastMessage)
                     }
-                    self.provider.homeService.showPickButton(false, memberId: id)
-                    return Observable<Mutation>.just(.setPickSuccessToastMessage(name))
+                    self.provider.mainService.showPickButton(false, memberId: id)
+                    return Observable.concat(
+                        Observable<Mutation>.just(.setPickSuccessToastMessage(name)),
+                        self.mutate(action: .calculateTime)
+                    )
                 }
         }
     }
@@ -270,10 +240,10 @@ extension MainViewReactor {
             if currentState.pageIndex == 0 {
                 newState.cameraEnabled = !currentState.isMeSurvivalUploadedToday
             } else {
-                if currentState.isMeMissionUploadedToday || currentState.isMissionUnlocked {
-                    newState.cameraEnabled = false
-                } else {
+                if currentState.isMeMissionUploadedToday && currentState.isMissionUnlocked {
                     newState.cameraEnabled = true
+                } else {
+                    newState.cameraEnabled = false
                 }
             }
         case .setBalloonText:
@@ -288,7 +258,9 @@ extension MainViewReactor {
                     newState.balloonText = .survivalStandard
                 }
             } else {
-                if currentState.isMissionUnlocked || !currentState.isMeSurvivalUploadedToday {
+                if !currentState.isMissionUnlocked {
+                    newState.balloonText = .missionLocked
+                } else if !currentState.isMeMissionUploadedToday {
                     newState.balloonText = .cantMission
                 } else {
                     newState.balloonText = .canMission
@@ -302,7 +274,7 @@ extension MainViewReactor {
                     newState.description = .survivalNone
                 }
             } else {
-                if currentState.isMissionUnlocked {
+                if !currentState.isMissionUnlocked {
                     newState.description = .missionNone(currentState.leftCount)
                 } else {
                     if currentState.isFamilyMissionUploadedToday {
@@ -320,24 +292,24 @@ extension MainViewReactor {
 
 extension MainViewReactor {
     private static func calculateRemainingTime() -> (Bool, Int) {
-        let calendar = Calendar.current
-        let currentTime = Date()
+//        let calendar = Calendar.current
+//        let currentTime = Date()
+//        
+//        let currentHour = calendar.component(.hour, from: currentTime)
+//        
+//        if currentHour >= 10 {
+//            if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {
+//                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
+//                return (true, max(0, timeDifference.second ?? 0))
+//            }
+//        } else {
+//            if let nextMidnight = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: currentTime) {
+//                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
+//                return (false, max(0, timeDifference.second ?? 0))
+//            }
+//        }
         
-        let currentHour = calendar.component(.hour, from: currentTime)
-        
-        if currentHour >= 10 {
-            if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {
-                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
-                return (true, max(0, timeDifference.second ?? 0))
-            }
-        } else {
-            if let nextMidnight = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: currentTime) {
-                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
-                return (false, max(0, timeDifference.second ?? 0))
-            }
-        }
-        
-        return (false, 0)
+        return (true, 1000)
     }
     
 }

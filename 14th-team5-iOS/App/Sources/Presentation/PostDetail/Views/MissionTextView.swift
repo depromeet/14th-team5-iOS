@@ -14,7 +14,7 @@ import Then
 import RxSwift
 import RxCocoa
 
-final class MissionTextView: BaseView<MissionTextReactor> {
+final class MissionTextView: UIView {
     
     // MARK: - Views
     private let containerView: UIView = UIView()
@@ -23,28 +23,26 @@ final class MissionTextView: BaseView<MissionTextReactor> {
     let missionLabel: BibbiLabel = BibbiLabel(.body2Regular, textAlignment: .left, textColor: .bibbiWhite)
     
     // MARK: - Helpers
-    override func bind(reactor: MissionTextReactor) {
-        super.bind(reactor: reactor)
-        bindOutput(reactor: reactor)
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupUI()
+        setupAttributes()
+        setupAutoLayout()
     }
     
-    private func bindOutput(reactor: MissionTextReactor) {
-        reactor.state.map { $0.text }
-            .distinctUntilChanged()
-            .bind(to: missionLabel.rx.text)
-            .disposed(by: disposeBag)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
-    override func setupUI() {
-        super.setupUI()
+    private func setupUI() {
         
         self.addSubviews(containerView)
         containerView.addSubview(missionStackView)
         missionStackView.addArrangedSubviews(missionImageView, missionLabel)
     }
     
-    override func setupAutoLayout() {
-        super.setupAutoLayout()
+    private func setupAutoLayout() {
         
         containerView.snp.makeConstraints {
             $0.verticalEdges.equalToSuperview()
@@ -68,8 +66,7 @@ final class MissionTextView: BaseView<MissionTextReactor> {
         }
     }
     
-    override func setupAttributes() {
-        super.setupAttributes()
+    private func setupAttributes() {
         
         containerView.do {
             $0.backgroundColor = UIColor.gray800

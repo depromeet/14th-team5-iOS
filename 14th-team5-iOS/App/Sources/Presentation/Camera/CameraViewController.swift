@@ -226,7 +226,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
                 guard let userInfo = notification.userInfo else { return nil }
                 return userInfo["photo"] as? Data
             }
-            .debug("Notification didTapShutter Button")
+            .distinctUntilChanged()
             .map { Reactor.Action.didTapShutterButton($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -239,11 +239,16 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             }.disposed(by: disposeBag)
         
         
-        reactor.pulse(\.$feedImageData)
-            .compactMap { $0 }
+        
+        Observable
+            .zip(
+                reactor.state.compactMap { $0.feedImageData }.distinctUntilChanged(),
+                reactor.state.compactMap { $0.cameraType }
+            )
+            .filter { $0.1.asPostType == .survival }
             .withUnretained(self)
             .bind {
-                let cameraDisplayViewController = CameraDisplayDIContainer(displayData: $0.1).makeViewController()
+                let cameraDisplayViewController = CameraDisplayDIContainer(displayData: $0.1.0).makeViewController()
                 $0.0.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
             }.disposed(by: disposeBag)
         
@@ -251,7 +256,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         Observable
             .zip(
                 reactor.state.compactMap { $0.feedImageData }.distinctUntilChanged(),
-                reactor.state.compactMap { $0.missionEnttiy?.missionContent}.distinctUntilChanged(),
+                reactor.state.compactMap { $0.missionEntity?.missionContent },
                 reactor.state.map { $0.cameraType.asPostType }
             )
             .withUnretained(self)
@@ -267,7 +272,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .bind(onNext: {$0.0.setupRealEmojiLayoutContent(isShow: !$0.1)})
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$missionEnttiy)
+        reactor.pulse(\.$missionEntity)
             .map { $0?.missionContent }
             .bind(to: missionView.missionTitleView.rx.text)
             .disposed(by: disposeBag)
@@ -372,7 +377,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         shutterButton
             .rx.tap
-            .throttle(.seconds(4), scheduler: MainScheduler.asyncInstance)
+            .throttle(.seconds(4), scheduler: MainScheduler.instance)
             .do { _ in Haptic.selection() }
             .withUnretained(self)
             .subscribe { owner, _ in

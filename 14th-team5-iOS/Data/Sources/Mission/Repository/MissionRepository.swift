@@ -25,4 +25,10 @@ extension MissionRepository {
         return missionAPIWorker.getTodayMission()
             .asObservable()
     }
+    
+    public func getMissionContent(missionId: String) -> Observable<MissionContentData?> {
+        return missionAPIWorker.getMissionContent(missionId: missionId)
+            .asObservable()
+    }
+    
 }

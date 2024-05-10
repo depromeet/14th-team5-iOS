@@ -108,6 +108,8 @@ public final class DailyCalendarViewReactor: Reactor {
                     return Observable<Mutation>.just(.pushProfileViewController(memberId))
                 case let .renewalPostCommentCount(count):
                     return Observable<Mutation>.just(.renewCommentCount(count))
+                default:
+                    return .empty()
                 }
             }
         

@@ -61,7 +61,7 @@ public final class CameraViewReactor: Reactor {
         @Pulse var realEmojiURLEntity: CameraRealEmojiPreSignedResponse?
         @Pulse var realEmojiCreateEntity: CameraCreateRealEmojiResponse?
         @Pulse var realEmojiEntity: [CameraRealEmojiImageItemResponse?]
-        @Pulse var missionEnttiy: CameraTodayMissionResponse?
+        @Pulse var missionEntity: CameraTodayMissionResponse?
         @Pulse var realEmojiSection: [EmojiSectionModel]
         @Pulse var zoomScale: CGFloat
         @Pulse var pinchZoomScale: CGFloat
@@ -94,7 +94,7 @@ public final class CameraViewReactor: Reactor {
             realEmojiURLEntity: nil,
             realEmojiCreateEntity: nil,
             realEmojiEntity: [],
-            missionEnttiy: nil,
+            missionEntity: nil,
             realEmojiSection: [.realEmoji([])],
             zoomScale: 1.0,
             pinchZoomScale: 1.0,
@@ -183,7 +183,7 @@ public final class CameraViewReactor: Reactor {
         case let .setFeedImageData(feedImage):
             newState.feedImageData = feedImage
         case let .setMissionResponse(missionEntity):
-            newState.missionEnttiy = missionEntity
+            newState.missionEntity = missionEntity
         }
         
         return newState

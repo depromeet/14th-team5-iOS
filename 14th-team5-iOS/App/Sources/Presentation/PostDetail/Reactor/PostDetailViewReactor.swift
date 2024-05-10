@@ -24,11 +24,13 @@ final class PostDetailViewReactor: Reactor {
     
     enum Mutation {
         case injectDisplayContent([DisplayEditItemModel])
+        case setMissionContent(String)
     }
     
     struct State {
         let type: CellType
         let post: PostListData
+        @Pulse var missionContent: String? = nil
         
         var isShowingSelectableEmojiStackView: Bool = false
         var fetchedDisplayContent: [DisplayEditSectionModel] = [.displayKeyword([])]
@@ -43,6 +45,20 @@ final class PostDetailViewReactor: Reactor {
         self.provider = provider
         self.memberUseCase = memberUserCase
         self.initialState = initialState
+    }
+    
+    func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+        let missionMutation = provider.postGlobalState.event
+            .flatMap { event -> Observable<Mutation> in
+                switch event {
+                case let .receiveMissionContent(content):
+                    return .just(.setMissionContent(content))
+                default:
+                    return .empty()
+                }
+            }
+        return .merge(mutation, missionMutation)
+        
     }
 }
 
@@ -72,6 +88,8 @@ extension PostDetailViewReactor {
         switch mutation {
         case let .injectDisplayContent(section):
             newState.fetchedDisplayContent = [.displayKeyword(section)]
+        case let .setMissionContent(missionContent):
+            newState.missionContent = missionContent
         }
         return newState
     }

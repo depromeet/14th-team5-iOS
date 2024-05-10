@@ -56,6 +56,14 @@ final class PostListsDIContainer {
         return RealEmojiAPIS.Worker()
     }
     
+    func makeMissionRepository() -> MissionRepositoryProtocol {
+        return MissionRepository()
+    }
+    
+    func makeMissionUseCase() -> MissionContentUseCaseProtocol {
+        return MissionContentUseCase(missionContentRepository: makeMissionRepository())
+    }
+    
     func makeEmojiUseCase() -> EmojiUseCaseProtocol {
         return EmojiUseCase(emojiRepository: makeEmojiRepository())
     }
@@ -73,6 +81,7 @@ final class PostListsDIContainer {
             provider: globalState,
             realEmojiRepository: makeRealEmojiUseCase(),
             emojiRepository: makeEmojiUseCase(),
+            missionUseCase: makeMissionUseCase(),
             initialState: PostReactor.State(
                 selectedIndex: selectedIndex,
                 originPostLists: postLists,

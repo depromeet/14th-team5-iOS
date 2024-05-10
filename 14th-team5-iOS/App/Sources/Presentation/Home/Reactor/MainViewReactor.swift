@@ -292,24 +292,24 @@ extension MainViewReactor {
 
 extension MainViewReactor {
     private static func calculateRemainingTime() -> (Bool, Int) {
-//        let calendar = Calendar.current
-//        let currentTime = Date()
-//        
-//        let currentHour = calendar.component(.hour, from: currentTime)
-//        
-//        if currentHour >= 10 {
-//            if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {
-//                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
-//                return (true, max(0, timeDifference.second ?? 0))
-//            }
-//        } else {
-//            if let nextMidnight = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: currentTime) {
-//                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
-//                return (false, max(0, timeDifference.second ?? 0))
-//            }
-//        }
+        let calendar = Calendar.current
+        let currentTime = Date()
         
-        return (true, 1000)
+        let currentHour = calendar.component(.hour, from: currentTime)
+        
+        if currentHour >= 10 {
+            if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {
+                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
+                return (true, max(0, timeDifference.second ?? 0))
+            }
+        } else {
+            if let nextMidnight = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: currentTime) {
+                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
+                return (false, max(0, timeDifference.second ?? 0))
+            }
+        }
+        
+        return (false, 0)
     }
     
 }

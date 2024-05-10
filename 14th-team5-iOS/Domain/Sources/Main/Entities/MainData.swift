@@ -8,12 +8,10 @@
 import Foundation
 
 public struct Picker {
-    let memberId: String
-    let imageUrl: String
-    let displayName: String
+    public let imageUrl: String
+    public let displayName: String
     
-    public init(memberId: String, imageUrl: String, displayName: String) {
-        self.memberId = memberId
+    public init(imageUrl: String, displayName: String) {
         self.imageUrl = imageUrl
         self.displayName = displayName
     }
@@ -45,7 +43,7 @@ public struct MainData {
         self.isMissionUnlocked = isMissionUnlocked
         self.isMeSurvivalUploadedToday = isMeSurvivalUploadedToday
         self.isMeMissionUploadedToday = isMeMissionUploadedToday
-        self.pickers = pickers
+        self.pickers = isMeSurvivalUploadedToday ? []: pickers
         self.dailyMissionContent = dailyMissionContent
         self.isFamilySurvivalUploadedToday = survivalUploadCount == mainFamilyProfileDatas.count
         self.isFamilyMissionUploadedToday = missionUploadCount == mainFamilyProfileDatas.count

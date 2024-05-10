@@ -51,7 +51,7 @@ struct Picker: Codable {
     let displayName: String
     
     func toDomain() -> Domain.Picker {
-        return .init(memberId: memberId, imageUrl: imageUrl, displayName: displayName)
+        return .init(imageUrl: imageUrl, displayName: displayName)
     }
 }
 

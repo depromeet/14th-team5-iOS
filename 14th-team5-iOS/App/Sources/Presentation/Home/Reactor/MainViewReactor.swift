@@ -95,6 +95,7 @@ final class MainViewReactor: Reactor {
         
         @Pulse var cameraEnabled: Bool = false
         
+        @Pulse var pickers: [Picker] = []
         @Pulse var contributor: FamilyRankData = FamilyRankData.empty
         @Pulse var familySection: [FamilySection.Item] = []
         
@@ -156,9 +157,10 @@ extension MainViewReactor {
                     guard let data = result else {
                         return Observable.empty()
                     }
-                    return Observable.concat(Observable.just(
-                        .updateMainData(data)), Observable.just(.setBalloonText),
-                                             Observable.just(.setCamerEnabled)
+                    return Observable.concat(
+                        Observable.just(.updateMainData(data)),
+                        Observable.just(.setBalloonText),
+                        Observable.just(.setCamerEnabled)
                     )
                 }
         case .fetchMainNightUseCase:
@@ -250,6 +252,7 @@ extension MainViewReactor {
             newState.isFamilySurvivalUploadedToday = data.isFamilySurvivalUploadedToday
             newState.leftCount = data.leftUploadCountUntilMissionUnlock
             newState.missionText = data.dailyMissionContent
+            newState.pickers = data.pickers
             newState.familySection = FamilySection.Model(
                 model: 0,
                 items: data.mainFamilyProfileDatas.map {
@@ -275,9 +278,17 @@ extension MainViewReactor {
             }
         case .setBalloonText:
             if currentState.pageIndex == 0 {
-                newState.balloonText = .survivalStandard
+                if !currentState.isMeSurvivalUploadedToday && !currentState.pickers.isEmpty {
+                    if currentState.pickers.count <= 1 {
+                        newState.balloonText = .picker(currentState.pickers[0])
+                    } else {
+                        newState.balloonText = .pickers(currentState.pickers)
+                    }
+                } else {
+                    newState.balloonText = .survivalStandard
+                }
             } else {
-                if currentState.isMissionUnlocked {
+                if currentState.isMissionUnlocked || !currentState.isMeSurvivalUploadedToday {
                     newState.balloonText = .cantMission
                 } else {
                     newState.balloonText = .canMission

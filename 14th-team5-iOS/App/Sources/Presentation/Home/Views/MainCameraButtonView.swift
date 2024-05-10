@@ -8,13 +8,14 @@
 import UIKit
 
 import Core
+import Domain
 import DesignSystem
 
 import RxSwift
 import RxCocoa
 
 final class MainCameraButtonView: BaseView<MainCameraReactor> {
-    private let balloonView: BalloonView = BalloonView()
+    private let balloonView: BalloonView = BalloonView(reactor: BalloonReactor())
     private let cameraButton: UIButton = UIButton()
     
     let textRelay: BehaviorRelay<BalloonText> = BehaviorRelay(value: .survivalStandard)
@@ -55,17 +56,25 @@ final class MainCameraButtonView: BaseView<MainCameraReactor> {
 
 extension MainCameraButtonView {
     private func bindInput(reactor: MainCameraReactor) {
-        textRelay
-            .map { Reactor.Action.setText($0) }
+        textRelay.map { Reactor.Action.setText($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: MainCameraReactor) {
-        reactor.state.map { $0.balloonText.rawValue }
-            .distinctUntilChanged()
-            .observe(on: MainScheduler.instance)
+        reactor.state.map { $0.balloonText.message }
             .bind(to: balloonView.text)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.balloonText }
+            .map { (text) -> BalloonType in
+                switch text {
+                case .picker(let picker): return .picks([picker])
+                case .pickers(let pickers): return .picks(pickers)
+                default: return .normal
+                }
+            }
+            .bind(to: balloonView.balloonTypeRelay)
             .disposed(by: disposeBag)
         
         cameraEnabledRelay

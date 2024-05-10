@@ -27,7 +27,7 @@ extension MainAPIs {
 }
 
 extension MainAPIWorker {
-    public func fetchMain() -> Single<MainData?> {
+    func fetchMain() -> Single<MainData?> {
         return Observable.just(())
             .withLatestFrom(self._headers)
             .withUnretained(self)
@@ -45,6 +45,29 @@ extension MainAPIWorker {
                 }
             }
             .map(MainResponseDTO.self)
+            .catchAndReturn(nil)
+            .map { $0?.toDomain() }
+            .asSingle()
+    }
+    
+    func fetchMainNight() -> Single<MainNightData?> {
+        return Observable.just(())
+            .withLatestFrom(self._headers)
+            .withUnretained(self)
+            .flatMap { $0.0.fetchMainNight(headers: $0.1) }
+            .asSingle()
+    }
+    
+    private func fetchMainNight(headers: [APIHeader]?) -> Single<MainNightData?> {
+        let spec = MainAPIs.fetchMainNight.spec
+        return request(spec: spec, headers: headers)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Main Night Fetch Result: \(str)")
+                }
+            }
+            .map(MainNightResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
             .asSingle()

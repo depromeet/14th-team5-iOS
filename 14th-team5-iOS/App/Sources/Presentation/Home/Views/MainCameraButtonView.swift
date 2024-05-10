@@ -18,6 +18,8 @@ final class MainCameraButtonView: BaseView<MainCameraReactor> {
     private let cameraButton: UIButton = UIButton()
     
     let textRelay: BehaviorRelay<BalloonText> = BehaviorRelay(value: .survivalStandard)
+    let cameraEnabledRelay: BehaviorRelay<Bool> = BehaviorRelay(value: false)
+    
     var camerTapObservable: ControlEvent<Void> {
         return cameraButton.rx.tap
     }
@@ -64,6 +66,15 @@ extension MainCameraButtonView {
             .distinctUntilChanged()
             .observe(on: MainScheduler.instance)
             .bind(to: balloonView.text)
+            .disposed(by: disposeBag)
+        
+        cameraEnabledRelay
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: {
+                $0.0.alpha = $0.1 ? 1 : 0.5
+                $0.0.isUserInteractionEnabled = $0.1
+            })
             .disposed(by: disposeBag)
     }
 }

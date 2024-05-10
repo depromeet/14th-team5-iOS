@@ -61,7 +61,7 @@ final public class PostCommentViewController: BaseViewController<CommentViewReac
             commentTableView.rx.tap.asObservable(),
             noCommentLabel.rx.tap.asObservable()
         )
-        .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+        .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
         .withUnretained(self)
         .subscribe { $0.0.commentTextField.resignFirstResponder() }
         .disposed(by: disposeBag)
@@ -73,7 +73,7 @@ final public class PostCommentViewController: BaseViewController<CommentViewReac
             .disposed(by: disposeBag)
         
         createCommentButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
             .withUnretained(self)
             .do(onNext: { _ in Haptic.impact(style: .rigid) })
             .map { Reactor.Action.createPostComment($0.0.commentTextField.text) }
@@ -81,7 +81,7 @@ final public class PostCommentViewController: BaseViewController<CommentViewReac
             .disposed(by: disposeBag)
         
         commentTextField.rx.controlEvent(.editingDidEndOnExit)
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
             .withUnretained(self)
             .map { Reactor.Action.createPostComment($0.0.commentTextField.text) }
             .bind(to: reactor.action)
@@ -167,7 +167,7 @@ final public class PostCommentViewController: BaseViewController<CommentViewReac
         
         reactor.pulse(\.$shouldPresentCommentFetchFailureTaostMessageView)
             .filter { $0 }
-            .delay(RxConst.smallDelayInterval, scheduler: Schedulers.main)
+            .delay(RxConst.milliseconds100Interval, scheduler: RxSchedulers.main)
             .withUnretained(self)
             .subscribe {
                 $0.0.makeBibbiToastView(

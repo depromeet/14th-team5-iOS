@@ -356,14 +356,14 @@ extension Reactive where Base: BibbiNavigationBarView {
         let source = base.leftBarButton.rx.tap
             .withUnretained(base)
             .map { $0.0.leftBarItem }
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
         
         return ControlEvent(events: source)
     }
     
     public var rightButtonTap: ControlEvent<Void> {
         let source = base.rightBarButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
 
         return ControlEvent(events: source)
     }

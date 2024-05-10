@@ -54,7 +54,7 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
             .disposed(by: disposeBag)
         
         nextButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
             .map { Reactor.Action.didTapNicknameNextButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -66,7 +66,7 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
                 nextButton.rx.tap.asObservable()
             ).filter { $0.0 == .profile }
             .withLatestFrom(inputFielView.rx.text.orEmpty.distinctUntilChanged())
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
             .map { Reactor.Action.didTapNickNameButton($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -75,13 +75,13 @@ public final class AccountNicknameViewController: BaseViewController<AccountSign
     private func bindOutput(reactor: AccountSignUpReactor) {
         reactor.state.map { $0.isValidNickname }
             .withUnretained(self)
-            .observe(on: Schedulers.main)
+            .observe(on: RxSchedulers.main)
             .bind(onNext: { $0.0.validationNickname($0.1) })
             .disposed(by: self.disposeBag)
         
         reactor.state.map { $0.isValidNicknameButton }
             .withUnretained(self)
-            .observe(on: Schedulers.main)
+            .observe(on: RxSchedulers.main)
             .bind(onNext: { $0.0.validationButton($0.1) })
             .disposed(by: disposeBag)
         

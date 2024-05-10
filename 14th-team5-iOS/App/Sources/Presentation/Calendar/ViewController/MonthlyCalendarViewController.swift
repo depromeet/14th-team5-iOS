@@ -17,7 +17,7 @@ import SnapKit
 import Then
 
 fileprivate typealias _Str = CalendarStrings
-public final class CalendarViewController: BaseViewController<CalendarViewReactor> {
+public final class MonthlyCalendarViewController: BaseViewController<MonthlyCalendarViewReactor> {
     // MARK: - Views
     private lazy var calendarCollectionView: UICollectionView = UICollectionView(
         frame: .zero,
@@ -33,19 +33,18 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
     }
     
     // MARK: - Helpers
-    public override func bind(reactor: CalendarViewReactor) {
+    public override func bind(reactor: MonthlyCalendarViewReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: CalendarViewReactor) {
+    private func bindInput(reactor: MonthlyCalendarViewReactor) {
         Observable<Void>.just(())
-            .delay(RxConst.smallDelayInterval, scheduler: Schedulers.main)
-            .withUnretained(self)
-            .subscribe {
+            .delay(RxConst.milliseconds100Interval, scheduler: RxSchedulers.main)
+            .bind(with: self) { owner, _ in
                 UIView.transition(
-                    with: $0.0.calendarCollectionView,
+                    with: owner.calendarCollectionView,
                     duration: 0.15,
                     options: .transitionCrossDissolve
                 ) { [weak self] in
@@ -58,12 +57,12 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
             .withUnretained(self)
             .map {
                 guard let createdAt = $0.1 else {
-                    let _20230101 = Date.for20230101
+                    let _20230101 = Date._20230101
                     return $0.0.createCalendarItems(from: _20230101)
                 }
                 return $0.0.createCalendarItems(from: createdAt)
             }
-            .map { Reactor.Action.addCalendarItem($0)}
+            .map { Reactor.Action.addCalendarItems($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
          
@@ -74,14 +73,14 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
             .disposed(by: disposeBag)
     }
     
-    private func bindOutput(reactor: CalendarViewReactor) {
+    private func bindOutput(reactor: MonthlyCalendarViewReactor) {
         reactor.pulse(\.$displayCalendar)
             .bind(to: calendarCollectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldPushCalendarPostVC).compactMap { $0 }
+        reactor.pulse(\.$shouldPushDailyCalendarViewController).compactMap { $0 }
             .withUnretained(self)
-            .subscribe { $0.0.pushCalendarPostView($0.1) }
+            .subscribe { $0.0.pushWeeklyCalendarViewController($0.1) }
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresnetInfoPopover)
@@ -117,21 +116,25 @@ public final class CalendarViewController: BaseViewController<CalendarViewReacto
         super.setupAttributes()
         
         navigationBarView.do {
-            $0.setNavigationView(leftItem: .arrowLeft, centerItem: .label(_Str.mainTitle), rightItem: .empty)
+            $0.setNavigationView(
+                leftItem: .arrowLeft,
+                centerItem: .label(_Str.mainTitle),
+                rightItem: .empty
+            )
         }
         
         calendarCollectionView.do {
             $0.isHidden = true
             $0.isScrollEnabled = false
             $0.backgroundColor = UIColor.clear
-            $0.register(CalendarPageCell.self, forCellWithReuseIdentifier: CalendarPageCell.id)
+            $0.register(CalendarCell.self, forCellWithReuseIdentifier: CalendarCell.id)
         }
         scrollToLastIndexPath()
     }
 }
 
 // MARK: - Extensions
-extension CalendarViewController {
+extension MonthlyCalendarViewController {
     private var orthogonalCompositionalLayout: UICollectionViewCompositionalLayout {
         // item
         let itemSize: NSCollectionLayoutSize = NSCollectionLayoutSize(
@@ -162,18 +165,22 @@ extension CalendarViewController {
     }
 }
 
-extension CalendarViewController {
+extension MonthlyCalendarViewController {
     private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<MonthlyCalendarSectionModel> {
         return RxCollectionViewSectionedReloadDataSource<MonthlyCalendarSectionModel> { datasource, collectionView, indexPath, yearMonth in
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarPageCell.id, for: indexPath) as! CalendarPageCell
-            cell.reactor = CalendarPageCellDIContainer(yearMonth: yearMonth).makeReactor()
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarCell.id, for: indexPath) as! CalendarCell
+            cell.reactor = CalendarCellDIContainer(
+                yearMonth: yearMonth
+            ).makeReactor()
             return cell
         }
     }
     
-    private func pushCalendarPostView(_ date: Date) {
+    private func pushWeeklyCalendarViewController(_ date: Date) {
         navigationController?.pushViewController(
-            CalendarPostDIConatainer(selectedDate: date).makeViewController(),
+            weeklyCalendarDIConatainer(
+                date: date
+            ).makeViewController(),
             animated: true
         )
     }
@@ -192,12 +199,13 @@ extension CalendarViewController {
     }
 }
 
-extension CalendarViewController {
+extension MonthlyCalendarViewController {
+    // TODO: - Item 생성 로직을 다른 곳으로 이동하기
     private func createCalendarItems(from startDate: Date, to endDate: Date = Date()) -> [String] {
         var items: [String] = []
         let calendar: Calendar = Calendar.current
         
-        let monthInterval: Int = monthBetween(from: startDate, to: endDate)
+        let monthInterval: Int = getMonthInterval(from: startDate, to: endDate)
         
         for value in 0...monthInterval {
             if let date = calendar.date(byAdding: .month, value: value, to: startDate) {
@@ -209,7 +217,7 @@ extension CalendarViewController {
         return items
     }
     
-    private func monthBetween(from startDate: Date, to endDate: Date) -> Int {
+    private func getMonthInterval(from startDate: Date, to endDate: Date) -> Int {
         let calendar: Calendar = Calendar.current
         
         let startComponents = calendar.dateComponents([.year, .month], from: startDate)
@@ -223,7 +231,7 @@ extension CalendarViewController {
     }
 }
 
-extension CalendarViewController: UIPopoverPresentationControllerDelegate {
+extension MonthlyCalendarViewController: UIPopoverPresentationControllerDelegate {
     public func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
         return .none
     }

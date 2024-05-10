@@ -15,8 +15,8 @@ enum CalendarAPIs: API {
     
     case monthlyCalendar(String)
     case dailyCalendar(String)
-    case statisticsSummary(String)
-    case calendarBenner(String)
+    case statistics(String)
+    case banner(String)
     
     var spec: APISpec {
         switch self {
@@ -25,11 +25,11 @@ enum CalendarAPIs: API {
             
         case let .monthlyCalendar(yearMonth):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar/monthly?yearMonth=\(yearMonth)")
-        case let .dailyCalendar(yearMonth):
-            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar/daily?yearMonthDay=\(yearMonth)")
-        case let .statisticsSummary(yearMonth):
+        case let .dailyCalendar(yearMonthDay):
+            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar/daily?yearMonthDay=\(yearMonthDay)")
+        case let .statistics(yearMonth):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar/summary?yearMonth=\(yearMonth)")
-        case let .calendarBenner(yearMonth):
+        case let .banner(yearMonth):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar/banner?yearMonth=\(yearMonth)")
         }
     }

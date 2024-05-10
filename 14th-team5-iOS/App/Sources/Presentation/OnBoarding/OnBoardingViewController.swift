@@ -110,7 +110,7 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
         currentPage
             .distinctUntilChanged()
             .withUnretained(self)
-            .observe(on: Schedulers.main)
+            .observe(on: RxSchedulers.main)
             .bind(onNext: {
                 $0.0.validationButtion(for: $0.1)
                 $0.0.pageControl.currentPage = $0.1
@@ -118,14 +118,14 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
             .disposed(by: disposeBag)
         
         nextButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
             .map { Reactor.Action.permissionTapped }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.permissionTappedFinish }
             .distinctUntilChanged()
-            .observe(on: Schedulers.main)
+            .observe(on: RxSchedulers.main)
             .withUnretained(self)
             .bind(onNext: {
                 UserDefaults.standard.finishTutorial = $0.1

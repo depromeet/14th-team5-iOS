@@ -17,13 +17,13 @@ import RxSwift
 
 final class MainViewController: BaseViewController<MainViewReactor>, UICollectionViewDelegateFlowLayout {
     private let familyViewController: MainFamilyViewController = MainFamilyViewDIContainer().makeViewController()
-
+    
     private let timerView: TimerView = TimerView(reactor: TimerReactor())
     private let descriptionLabel: BibbiLabel = BibbiLabel(.body2Regular, textAlignment: .center, textColor: .gray300)
     private let imageView: UIImageView = UIImageView()
     
     private let contributorView: ContributorView = ContributorView(reactor: ContributorReactor())
-    private let segmentControl: BibbiSegmentedControl = BibbiSegmentedControl(isUpdated: true)
+    private let segmentControl: BibbiSegmentedControl = BibbiSegmentedControl(isUpdated: false)
     private let pageViewController: SegmentPageViewController = SegmentPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
     
     private let cameraButton: MainCameraButtonView = MainCameraDIContainer().makeView()
@@ -75,7 +75,7 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
             $0.height.equalTo(20)
             $0.centerX.equalToSuperview()
         }
-
+        
         imageView.snp.makeConstraints {
             $0.top.equalTo(descriptionLabel)
             $0.size.equalTo(20)
@@ -96,7 +96,7 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
         }
         
         pageViewController.view.snp.makeConstraints {
-            $0.top.equalTo(segmentControl.snp.bottom)
+            $0.top.equalTo(segmentControl.snp.bottom).offset(40)
             $0.horizontalEdges.bottom.equalToSuperview()
         }
         
@@ -112,26 +112,30 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
         navigationBarView.do {
             $0.setNavigationView(leftItem: .family, centerItem: .logo, rightItem: .calendar)
         }
+        
+        contributorView.do {
+            $0.isHidden = true
+        }
     }
 }
 
 extension MainViewController {
     private func bindInput(reactor: MainViewReactor) {
         Observable.merge(
-            self.rx.viewWillAppear
+            Observable.just(())
                 .map { _ in Reactor.Action.calculateTime },
             NotificationCenter.default.rx.notification(UIScene.willEnterForegroundNotification)
                 .map { _ in Reactor.Action.calculateTime }
         )
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
-
+        
         segmentControl.survivalButton.rx.tap
             .throttle(.milliseconds(1000), scheduler: MainScheduler.instance)
             .map { Reactor.Action.didTapSegmentControl(.survival) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-      
+        
         segmentControl.missionButton.rx.tap
             .throttle(.milliseconds(1000), scheduler: MainScheduler.instance)
             .map { Reactor.Action.didTapSegmentControl(.mission) }
@@ -149,19 +153,44 @@ extension MainViewController {
             .withUnretained(self)
             .bind { $0.0.navigationController?.pushViewController(MonthlyCalendarDIConatainer().makeViewController(), animated: true) }
             .disposed(by: disposeBag)
-      
+        
         alertConfirmRelay
             .map { Reactor.Action.pickConfirmButtonTapped($0.0, $0.1) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        cameraButton.camerTapObservable
+        cameraButton.camerTapEvent
             .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind(onNext: {
                 MPEvent.Home.cameraTapped.track(with: nil)
-                let cameraViewController = CameraDIContainer(cameraType: .survival).makeViewController()
+                let cameraViewController = CameraDIContainer(
+                    cameraType: reactor.currentState.pageIndex == 0 ? .survival : .mission).makeViewController()
                 $0.0.navigationController?.pushViewController(cameraViewController, animated: true)
+            })
+            .disposed(by: disposeBag)
+        
+        contributorView.infoButton.rx.tap
+            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: {
+                $0.0.makeDescriptionPopoverView(
+                    $0.0,
+                    sourceView: $0.0.contributorView.infoButton,
+                    text: "생존신고 횟수가 동일한 경우\n이모지, 댓글 수를 합산해서 등수를 정해요",
+                    popoverSize: CGSize(width: 260, height: 62),
+                    permittedArrowDrections: [.up]
+                )
+            })
+            .disposed(by: disposeBag)
+        
+        contributorView.nextButtonTapEvent
+            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: { [weak self] _ in
+                guard let self else { return }
+                let calendarViewController = WeeklyCalendarDIConatainer(date: reactor.currentState.contributor.recentPostDate.toDate()).makeViewController()
+                self.navigationController?.pushViewController(calendarViewController, animated: true)
             })
             .disposed(by: disposeBag)
     }
@@ -196,7 +225,7 @@ extension MainViewController {
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.balloonText }
-            .debug("balloonText")
+            .distinctUntilChanged { $0.message }
             .bind(to: cameraButton.textRelay)
             .disposed(by: disposeBag)
         
@@ -204,10 +233,14 @@ extension MainViewController {
             .distinctUntilChanged { $0.text }
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
-            .bind(onNext: {
-                $0.0.descriptionLabel.text = $0.1.text
-                $0.0.imageView.image = $0.1.image
-            })
+            .bind(onNext: { $0.0.setDescription($0.1) })
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.isMissionUnlocked }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: { $0.0.segmentControl.isUpdated = $0.1 })
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$contributor)
@@ -264,5 +297,23 @@ extension MainViewController {
             contributorView.isHidden = false
             segmentControl.isHidden = true
         }
+    }
+    
+    private func setDescription(_ description: Description) {
+        if case let .missionNone(number) = description {
+            let attributedString = NSMutableAttributedString(string: description.text)
+            let range = (description.text as NSString).range(of: "\(number)명")
+            attributedString.addAttribute(.foregroundColor, value: UIColor.mainYellow, range: range)
+            descriptionLabel.attributedText = attributedString
+        } else {
+            descriptionLabel.text = description.text
+        }
+        imageView.image = description.image
+    }
+}
+
+extension MainViewController: UIPopoverPresentationControllerDelegate {
+    public func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return .none
     }
 }

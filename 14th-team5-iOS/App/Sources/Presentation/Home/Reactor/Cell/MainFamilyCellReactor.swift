@@ -53,7 +53,7 @@ final class MainFamilyCellReactor: Reactor {
     
     // MARK: - Transofrm
     func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
-        let homeMutation = provider.homeService.event
+        let homeMutation = provider.mainService.event
             .flatMap { event in
                 switch event {
                 case let .showPickButton(show, id):
@@ -77,7 +77,7 @@ final class MainFamilyCellReactor: Reactor {
             return Observable.just(.setData)
             
         case .pickButtonTapped:
-            provider.homeService.pickButtonTapped(
+            provider.mainService.pickButtonTapped(
                 name: currentState.profileData.name,
                 memberId: currentState.profileData.memberId
             )

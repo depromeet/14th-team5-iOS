@@ -13,8 +13,9 @@ import ReactorKit
 import Core
 
 public final class CameraDisplayViewReactor: Reactor {
-
+    
     public var initialState: State
+    private let provider: GlobalStateProviderProtocol
     private var cameraDisplayUseCase: CameraDisplayViewUseCaseProtocol
     
     public enum Action {
@@ -53,11 +54,13 @@ public final class CameraDisplayViewReactor: Reactor {
     
     
     init(
-      cameraDisplayUseCase: CameraDisplayViewUseCaseProtocol,
-      displayData: Data,
-      missionTitle: String,
-      cameraType: PostType = .survival
+        provider: GlobalStateProviderProtocol,
+        cameraDisplayUseCase: CameraDisplayViewUseCaseProtocol,
+        displayData: Data,
+        missionTitle: String,
+        cameraType: PostType = .survival
     ) {
+        self.provider = provider
         self.cameraDisplayUseCase = cameraDisplayUseCase
         self.initialState = State(
             isLoading: true,
@@ -140,7 +143,7 @@ public final class CameraDisplayViewReactor: Reactor {
         case .didTapConfirmButton:
             
             MPEvent.Camera.uploadPhoto.track(with: nil)
-
+            
             guard let presingedURL = currentState.displayEntity?.imageURL else { return .just(.setError(true)) }
             let originURL = configureOriginalS3URL(url: presingedURL)
             let cameraQuery = CameraMissionFeedQuery(type: currentState.cameraType.rawValue, isUploded: true)
@@ -162,7 +165,9 @@ public final class CameraDisplayViewReactor: Reactor {
                             .just(.setLoading(false)),
                             .just(.setPostEntity(entity)),
                             .just(.setLoading(true)),
-                            .just(.setError(false))
+                            .just(.setError(false)),
+                            self.provider.mainService.refreshMain()
+                                .flatMap { _ in Observable<Mutation>.empty() }
                         )
                     }
                 }

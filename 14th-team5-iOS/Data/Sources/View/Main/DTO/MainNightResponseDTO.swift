@@ -10,7 +10,7 @@ import Foundation
 import Domain
 
 struct Ranker: Codable {
-    let profileImageUrl: String
+    let profileImageUrl: String?
     let name: String
     let survivalCount: Int
     

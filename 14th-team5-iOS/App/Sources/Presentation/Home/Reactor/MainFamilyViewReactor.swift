@@ -33,7 +33,7 @@ final class MainFamilyViewReactor: Reactor {
         @Pulse var shouldPresentFetchFailureToastMessageView: Bool = false
         @Pulse var familySection: FamilySection.Model = FamilySection.Model(model: 0, items: [])
         
-        var isShowingInviteFamilyView: Bool = false
+        @Pulse var isShowingInviteFamilyView: Bool = false
     }
     
     let initialState: State = State()

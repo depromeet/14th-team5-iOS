@@ -8,10 +8,10 @@
 import Foundation
 
 public struct Picker {
-    public let imageUrl: String
+    public let imageUrl: String?
     public let displayName: String
     
-    public init(imageUrl: String, displayName: String) {
+    public init(imageUrl: String?, displayName: String) {
         self.imageUrl = imageUrl
         self.displayName = displayName
     }

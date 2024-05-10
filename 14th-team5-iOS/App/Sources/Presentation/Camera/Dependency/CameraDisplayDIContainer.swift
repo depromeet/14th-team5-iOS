@@ -5,7 +5,7 @@
 //  Created by Kim dohyun on 12/11/23.
 //
 
-import Foundation
+import UIKit
 
 import Core
 import Data
@@ -21,6 +21,13 @@ public final class CameraDisplayDIContainer: BaseDIContainer {
     fileprivate var displayData: Data
     fileprivate var missionTitle: String
     fileprivate var cameraDisplayType: PostType
+    
+    private var globalState: GlobalStateProviderProtocol {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return GlobalStateProvider()
+        }
+        return appDelegate.globalStateProvider
+    }
   
     public init(displayData: Data, missionTitle: String = "", cameraDisplayType: PostType = .survival) {
         self.displayData = displayData
@@ -41,7 +48,7 @@ public final class CameraDisplayDIContainer: BaseDIContainer {
     }
     
     public func makeReactor() -> Reactor {
-        return CameraDisplayViewReactor(cameraDisplayUseCase: makeUseCase(), displayData: displayData, missionTitle: missionTitle, cameraType: cameraDisplayType)
+        return CameraDisplayViewReactor(provider: globalState, cameraDisplayUseCase: makeUseCase(), displayData: displayData, missionTitle: missionTitle, cameraType: cameraDisplayType)
     }
     
 }

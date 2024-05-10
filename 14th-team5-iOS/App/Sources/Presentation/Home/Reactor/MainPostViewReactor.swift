@@ -20,6 +20,7 @@ final class MainPostViewReactor: Reactor {
     }
     
     enum Mutation {
+        case updateRefreshEnd(Bool)
         case setNoPostTodayView(Bool)
         case updatePostDataSource([PostSection.Item])
     }
@@ -33,10 +34,12 @@ final class MainPostViewReactor: Reactor {
     }
     
     let initialState: State
+    private let provider: GlobalStateProviderProtocol
     private let postUseCase: PostListUseCaseProtocol
     
-    init(initialState: State, postUseCase: PostListUseCaseProtocol) {
+    init(initialState: State, provider: GlobalStateProviderProtocol, postUseCase: PostListUseCaseProtocol) {
         self.initialState = initialState
+        self.provider = provider
         self.postUseCase = postUseCase
     }
 }
@@ -45,7 +48,11 @@ extension MainPostViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .refresh:
-            return self.mutate(action: .fetchPost)
+            return Observable.concat([
+                provider.mainService.refreshMain()
+                    .flatMap { _ in Observable<Mutation>.empty() },
+                self.mutate(action: .fetchPost)
+                ])
         case .fetchPost:
             let query = PostListQuery(date: DateFormatter.dashYyyyMMdd.string(from: Date()), type: currentState.type)
             return postUseCase.excute(query: query)
@@ -53,13 +60,17 @@ extension MainPostViewReactor {
                 .flatMap { (postList) -> Observable<Mutation> in
                     guard let postList = postList,
                           !postList.postLists.isEmpty else {
-                        return Observable.from([Mutation.setNoPostTodayView(true)])
+                        return Observable.from([
+                            Mutation.setNoPostTodayView(true),
+                            Mutation.updateRefreshEnd(true)
+                        ])
                     }
     
                     let postSectionItem = postList.postLists.map(PostSection.Item.main)
                     let mutations = [
                         Mutation.updatePostDataSource(postSectionItem),
-                        Mutation.setNoPostTodayView(false)
+                        Mutation.setNoPostTodayView(false),
+                        Mutation.updateRefreshEnd(true)
                     ]
                     
                     return Observable.from(mutations)
@@ -77,6 +88,8 @@ extension MainPostViewReactor {
             App.Repository.member.postId.accept(UserDefaults.standard.postId)
         case .setNoPostTodayView(let isShow):
             newState.isShowingNoPostTodayView = isShow
+        case .updateRefreshEnd(let status):
+            newState.isRefreshEnd = status
         }
         
         return newState

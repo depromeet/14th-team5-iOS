@@ -47,7 +47,7 @@ struct MissionFeed: Codable {
 
 struct Picker: Codable {
     let memberId: String
-    let imageUrl: String
+    let imageUrl: String?
     let displayName: String
     
     func toDomain() -> Domain.Picker {

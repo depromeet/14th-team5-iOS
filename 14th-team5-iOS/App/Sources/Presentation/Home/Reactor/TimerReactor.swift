@@ -81,7 +81,7 @@ extension TimerReactor {
         let calendar = Calendar.current
         let currentTime = Date()
         
-        let isAfterNoon = calendar.component(.hour, from: currentTime) >= 12
+        let isAfterNoon = calendar.component(.hour, from: currentTime) >= 10
         
         if isAfterNoon {
             if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {

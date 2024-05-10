@@ -99,7 +99,7 @@ final class DeepLinkManager {
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow }),
            let navigationController = keyWindow.rootViewController as? UINavigationController {
-            let viewController = weeklyCalendarDIConatainer(
+            let viewController = WeeklyCalendarDIConatainer(
                 date: data.dateOfPost,
                 deepLink: data
             ).makeViewController()

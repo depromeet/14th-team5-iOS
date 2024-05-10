@@ -12,22 +12,6 @@ import Domain
 
 import ReactorKit
 
-enum BalloonType: Equatable {
-    static func == (lhs: BalloonType, rhs: BalloonType) -> Bool {
-        switch (lhs, rhs) {
-        case (.normal, .normal):
-            return true
-        case (.picks, .picks):
-            return true
-        default:
-            return false
-        }
-    }
-    
-    case normal
-    case picks([Picker])
-}
-
 final class BalloonReactor: Reactor {
     enum Action {
         case setType(BalloonType)

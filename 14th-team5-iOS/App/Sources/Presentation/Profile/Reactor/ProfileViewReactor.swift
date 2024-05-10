@@ -21,10 +21,12 @@ public final class ProfileViewReactor: Reactor {
     private let profileUseCase: ProfileViewUsecaseProtocol
     private let memberId: String
     private let isUser: Bool
+    private let provider: GlobalStateProviderProtocol
     
     public enum Action {
         case viewDidLoad
         case viewWillAppear
+        case viewDidDisappear
         case updateNickNameProfile(Data)
         case didSelectPHAssetsImage(Data)
         case didTapInitProfile
@@ -60,8 +62,6 @@ public final class ProfileViewReactor: Reactor {
         
         self.provider = provider
     }
-    
-    private var provider: GlobalStateProviderProtocol
     
     public func mutate(action: Action) -> Observable<Mutation> {
         //TODO: Keychain, UserDefaults 추가
@@ -178,6 +178,9 @@ public final class ProfileViewReactor: Reactor {
             
         case let .didTapSegementControl(feedType):
             return .just(.setProfileFeedType(feedType))
+        case .viewDidDisappear:
+            return provider.mainService.refreshMain()
+                .flatMap { _ in Observable<Mutation>.empty() }
         }
     }
     

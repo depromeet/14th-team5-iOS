@@ -52,7 +52,7 @@ final class BalloonView: BaseView<BalloonReactor> {
         stackView.snp.makeConstraints {
             $0.leading.equalToSuperview().inset(16)
             $0.width.equalTo(0)
-            $0.height.equalTo(20)
+            $0.height.equalTo(24)
             $0.centerY.equalToSuperview()
         }
         
@@ -113,7 +113,7 @@ extension BalloonView {
             textLabel.textColor = .bibbiBlack
             
             stackView.snp.updateConstraints {
-                $0.width.equalTo(pickers.count <= 1 ? 20 : 16 * pickers.count)
+                $0.width.equalTo(pickers.count <= 1 ? 24 : 20 * pickers.count)
             }
             
             textLabel.snp.updateConstraints {
@@ -121,30 +121,49 @@ extension BalloonView {
             }
             
             pickers.forEach {
-                let imageView = UIImageView(frame: .init(x: 0, y: 0, width: 20, height: 20))
-                imageView.contentMode = .scaleAspectFill
-                imageView.layer.borderColor = UIColor.mainYellow.cgColor
-                imageView.layer.borderWidth = 2
-                imageView.clipsToBounds = true
-                imageView.layer.cornerRadius = 10
-                imageView.kf.setImage(with: URL(string: $0.imageUrl))
+                if let url = $0.imageUrl {
+                    makeImageView(url: url)
+                } else {
+                    makeLabel(name: $0.displayName)
+                }
                 
-                stackView.addArrangedSubview(imageView)
             }
-          } else {
-              containerView.backgroundColor = .gray700
-              polygonImageView.image = DesignSystemAsset.polygonGray.image
-              textLabel.textColor = .white
-              
-              stackView.snp.updateConstraints {
-                  $0.width.equalTo(0)
-              }
-              
-              textLabel.snp.updateConstraints {
-                  $0.leading.equalTo(stackView.snp.trailing).offset(0)
-              }
-              
-              stackView.removeAllArrangedSubviews()
-          }
+        } else {
+            containerView.backgroundColor = .gray700
+            polygonImageView.image = DesignSystemAsset.polygonGray.image
+            textLabel.textColor = .white
+            
+            stackView.snp.updateConstraints {
+                $0.width.equalTo(0)
+            }
+            
+            textLabel.snp.updateConstraints {
+                $0.leading.equalTo(stackView.snp.trailing).offset(0)
+            }
+            
+            stackView.removeAllArrangedSubviews()
+        }
+    }
+    
+    private func makeImageView(url: String) {
+        let imageView = UIImageView(frame: .init(x: 0, y: 0, width: 20, height: 20))
+        imageView.contentMode = .scaleAspectFill
+        imageView.layer.borderColor = UIColor.mainYellow.cgColor
+        imageView.layer.borderWidth = 2
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 12
+        imageView.kf.setImage(with: URL(string: url))
+        stackView.addArrangedSubview(imageView)
+    }
+    
+    private func makeLabel(name: String){
+        let label = BibbiLabel(.caption2, textAlignment: .center, textColor: .gray200)
+        label.backgroundColor = .gray800
+        label.layer.borderWidth = 2
+        label.layer.borderColor = UIColor.mainYellow.cgColor
+        label.clipsToBounds = true
+        label.layer.cornerRadius = 12
+        label.text = "\(name.first ?? "알")"
+        stackView.addArrangedSubview(label)
     }
 }

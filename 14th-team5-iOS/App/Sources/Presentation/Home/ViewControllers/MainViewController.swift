@@ -196,7 +196,7 @@ extension MainViewController {
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.balloonText }
-            .distinctUntilChanged()
+            .debug("balloonText")
             .bind(to: cameraButton.textRelay)
             .disposed(by: disposeBag)
         

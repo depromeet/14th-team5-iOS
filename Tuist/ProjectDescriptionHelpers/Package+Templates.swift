@@ -19,7 +19,7 @@ extension Package {
     public static let rxSwift = Package.remote(repo: "ReactiveX/RxSwift", version: "6.6.0")
     public static let snapkit = Package.remote(repo: "SnapKit/SnapKit", version: "5.6.0")
     public static let then = Package.remote(repo: "devxoul/Then", version: "3.0.0")
-    public static let firebase = Package.remote(repo: "firebase/firebase-ios-sdk", version: "10.18.0")
+    public static let firebase = Package.remote(repo: "firebase/firebase-ios-sdk", version: "10.24.0")
     public static let rxDatasources = Package.remote(repo: "RxSwiftCommunity/RxDataSources", version: "5.0.0")
     public static let kakaoSDK = Package.remote(repo: "kakao/kakao-ios-sdk", version: "2.22.0")
     public static let kakaoSDKRx = Package.remote(repo: "kakao/kakao-ios-sdk-rx", version: "2.22.0")

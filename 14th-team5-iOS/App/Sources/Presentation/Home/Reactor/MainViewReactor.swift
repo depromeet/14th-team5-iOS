@@ -248,7 +248,9 @@ extension MainViewReactor {
             }
         case .setBalloonText:
             if currentState.pageIndex == 0 {
-                if !currentState.isMeSurvivalUploadedToday && !currentState.pickers.isEmpty {
+                if currentState.isMeSurvivalUploadedToday {
+                    newState.balloonText = .survivalDone
+                } else if !currentState.pickers.isEmpty {
                     if currentState.pickers.count <= 1 {
                         newState.balloonText = .picker(currentState.pickers[0])
                     } else {
@@ -260,10 +262,14 @@ extension MainViewReactor {
             } else {
                 if !currentState.isMissionUnlocked {
                     newState.balloonText = .missionLocked
-                } else if !currentState.isMeMissionUploadedToday {
-                    newState.balloonText = .cantMission
                 } else {
-                    newState.balloonText = .canMission
+                    if !currentState.isMeSurvivalUploadedToday {
+                        newState.balloonText = .cantMission
+                    } else if currentState.isMeMissionUploadedToday {
+                        newState.balloonText = .missionDone
+                    } else {
+                        newState.balloonText = .canMission
+                    }
                 }
             }
         case .setDescriptionText:

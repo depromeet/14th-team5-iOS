@@ -8,7 +8,7 @@
 import Core
 import SwiftUI
 
-public final class BannerViewModel: BaseViewModel<CalendarPageCellReactor, BannerViewModel.State> {
+public final class BannerViewModel: BaseViewModel<CalendarCellReactor, BannerViewModel.State> {
     public struct State: ViewModelState {
         var familyTopPercentage: Int = 0
         var allFamilyMemberUploadedDays: Int = 0
@@ -17,7 +17,7 @@ public final class BannerViewModel: BaseViewModel<CalendarPageCellReactor, Banne
         var bannerColor: UIColor?
     }
     
-    func onEvent(action: CalendarPageCellReactor.Action) {
+    func onEvent(action: CalendarCellReactor.Action) {
         reactor?.action.onNext(action)
     }
     

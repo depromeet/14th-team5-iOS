@@ -79,13 +79,13 @@ extension MainFamilyViewController {
             .disposed(by: disposeBag)
         
         inviteFamilyView.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
             .map { Reactor.Action.tapInviteFamily }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         familyCollectionView.rx.modelSelected(FamilySection.Item.self)
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
             .compactMap { item -> ProfileData? in
                 switch item {
                 case let .main(reactor): return reactor.currentState.profileData
@@ -121,7 +121,7 @@ extension MainFamilyViewController {
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$familyInvitationLink)
-            .observe(on: Schedulers.main)
+            .observe(on: RxSchedulers.main)
             .withUnretained(self)
             .bind(onNext: {
                 $0.0.makeInvitationUrlSharePanel(

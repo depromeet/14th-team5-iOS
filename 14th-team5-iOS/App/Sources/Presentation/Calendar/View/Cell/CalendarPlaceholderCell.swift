@@ -16,9 +16,9 @@ import RxSwift
 import SnapKit
 import Then
 
-final class PlaceholderCalendarCell: FSCalendarCell {
+final class CalendarPlaceholderCell: FSCalendarCell {
     // MARK: - Properties
-    static let id: String = "PlaceholderCalendarCell"
+    static let id: String = "CalendarPlaceholderCell"
     
     // MARK: - Intializer
     override init(frame: CGRect) {

@@ -57,7 +57,7 @@ extension TimerView {
     private func bindOutput(reactor: TimerReactor) {
         reactor.pulse(\.$time)
             .distinctUntilChanged()
-            .observe(on: Schedulers.main)
+            .observe(on: RxSchedulers.main)
             .map { $0.setTimerFormat() }
             .bind(to: timerLabel.rx.text)
             .disposed(by: disposeBag)

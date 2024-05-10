@@ -10,7 +10,7 @@ import Data
 import Domain
 import UIKit
 
-public final class PostCommentDIContainer {
+public final class CommentDIContainer {
     // MARK: - Properties
     private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {

@@ -20,22 +20,20 @@ import SnapKit
 import Then
 
 fileprivate typealias _Str = CalendarStrings
-public final class CalendarPostViewController: BaseViewController<CalendarPostViewReactor> {
+public final class DailyCalendarViewController: BaseViewController<DailyCalendarViewReactor> {
     // MARK: - Views
-    private let blurImageView: UIImageView = UIImageView()
-
+    private let imageView: UIImageView = UIImageView()
     private let calendarView: FSCalendar = FSCalendar()
     private lazy var postCollectionView: UICollectionView = UICollectionView(
         frame: .zero,
         collectionViewLayout: orthogonalCompositionalLayout
     )
-    private let reactionViewController: ReactionViewController = ReactionDIContainer().makeViewController(
+    private let reactionViewController: ReactionViewController = ReactionDIContainer(type: .calendar).makeViewController(
         post: .init(
             postId: "", author: nil, commentCount: 0, emojiCount: 0,
             imageURL: "", content: nil, time: ""
         )
     )
-    
     private let fireLottieView: LottieView = LottieView(with: .fire, contentMode: .scaleAspectFill)
     
     // MARK: - Properties
@@ -51,33 +49,30 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     
     public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        // HomeViewController는 notification이 nil일 때만
-        // ViewWillAppear시 가족과 피드를 불러오므로, nil 항목 전달이 필수임
         App.Repository.deepLink.notification.accept(nil)
     }
 
     // MARK: - Helpers
-    public override func bind(reactor: CalendarPostViewReactor) {
+    public override func bind(reactor: DailyCalendarViewReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: CalendarPostViewReactor) {
-        let selectedDate: Date = reactor.currentState.selectedDate
-        Observable<Date>.just(selectedDate)
+    private func bindInput(reactor: DailyCalendarViewReactor) {
+        Observable<Date>.just(reactor.initialState.date)
             .flatMap {
                 Observable.merge(
-                    Observable.just(Reactor.Action.didSelectDate($0)),
-                    Observable.just(Reactor.Action.fetchPostList($0))
+                    Observable.just(Reactor.Action.dateSelected($0)),
+                    Observable.just(Reactor.Action.requestDailyCalendar($0))
                 )
             }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        let previousNextMonths: [String] = reactor.currentState.selectedDate.createPreviousNextDateStringArray()
+        let previousNextMonths: [String] = reactor.currentState.date.makePreviousNextMonth()
         Observable<String>.from(previousNextMonths)
-            .map { Reactor.Action.fetchCalendarResponse($0) }
+            .map { Reactor.Action.requestMonthlyCalendar($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -90,8 +85,8 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .distinctUntilChanged()
             .flatMap {
                 Observable.merge(
-                    Observable.just(Reactor.Action.didSelectDate($0)),
-                    Observable.just(Reactor.Action.fetchPostList($0))
+                    Observable.just(Reactor.Action.dateSelected($0)),
+                    Observable.just(Reactor.Action.requestDailyCalendar($0))
                 )
             }
             .bind(to: reactor.action)
@@ -109,7 +104,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .distinctUntilChanged()
             .flatMap {
                 Observable<String>.from($0)
-                    .map { Reactor.Action.fetchCalendarResponse($0) }
+                    .map { Reactor.Action.requestMonthlyCalendar($0) }
             }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -120,21 +115,11 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .subscribe { $0.0.updateCalendarViewConstraints($0.1) }
             .disposed(by: disposeBag)
         
-//        postCollectionView.rx.willBeginDragging
-//            .observe(on: MainScheduler.instance)
-//            .bind(onNext: { [weak self] _ in
-//                guard let self = self else { return }
-//                UIView.animate(withDuration: 0.3) {
-//                    self.reactionViewController.view.alpha = 0
-//                }
-//            })
-//            .disposed(by: disposeBag)
-        
         visibleCellIndex
             .flatMap {
                 Observable.merge(
-                    Observable.just(Reactor.Action.setBlurImageIndex($0)),
-                    Observable.just(Reactor.Action.sendPostToReaction($0))
+                    Observable.just(Reactor.Action.imageIndex($0)),
+                    Observable.just(Reactor.Action.renewEmoji($0))
                 )
             }
             .bind(to: reactor.action)
@@ -142,19 +127,19 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         
     }
     
-    private func bindOutput(reactor: CalendarPostViewReactor) {
-        reactor.state.map { $0.selectedDate }
+    private func bindOutput(reactor: DailyCalendarViewReactor) {
+        reactor.state.map { $0.date }
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe { $0.0.calendarView.select($0.1, scrollToDate: true) }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$displayCalendarResponse)
+        reactor.pulse(\.$displayMonthlyCalendar)
             .withUnretained(self)
             .subscribe { $0.0.calendarView.reloadData() }
             .disposed(by: disposeBag)
 
-        let postResponse = reactor.pulse(\.$displayPostResponse).asDriver(onErrorJustReturn: [])
+        let postResponse = reactor.pulse(\.$displayDailyCalendar).asDriver(onErrorJustReturn: [])
         
         postResponse
             .drive(postCollectionView.rx.items(dataSource: dataSource))
@@ -183,7 +168,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             }
             .disposed(by: disposeBag)
         
-        reactor.state.compactMap { $0.blurImageUrlString }
+        reactor.state.compactMap { $0.imageUrl }
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
@@ -192,10 +177,10 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
                     switch result {
                     case let .success(value):
                         UIView.transition(
-                            with: self.blurImageView,
+                            with: self.imageView,
                             duration: 0.15,
                             options: [.transitionCrossDissolve, .allowUserInteraction]) {
-                                self.blurImageView.image = value.image
+                                self.imageView.image = value.image
                             }
                     case .failure:
                         print("Kingfisher RetrieveImage Error")
@@ -222,7 +207,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPushProfileViewController)
-            .delay(.milliseconds(500), scheduler: Schedulers.main)
+            .delay(.milliseconds(500), scheduler: RxSchedulers.main)
             .compactMap { $0 }
             .bind(with: self) { owner, id in
                 owner.pushProfileViewController(memberId: id)
@@ -234,7 +219,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         
         allUploadedToastMessageView
             .filter { $0 }
-            .delay(RxConst.smallDelayInterval)
+            .delay(RxConst.milliseconds100Interval)
             .drive(with: self, onNext: { owner, _ in
                 owner.makeBibbiToastView(
                     text: _Str.allFamilyUploadedText,
@@ -245,7 +230,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
         
         allUploadedToastMessageView
             .filter { $0 }
-            .delay(RxConst.smallDelayInterval)
+            .delay(RxConst.milliseconds100Interval)
             .drive(with: self, onNext: { owner, _ in
                 // 애니메이션 중이 아니라면
                 if !owner.fireLottieView.isPlay {
@@ -274,7 +259,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             .filter { $0.openComment }
             .bind(with: self) { owner, deepLink in
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    let postCommentViewController = PostCommentDIContainer(
+                    let postCommentViewController = CommentDIContainer(
                         postId: deepLink.postId
                     ).makeViewController()
                     
@@ -292,21 +277,21 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     public override func setupUI() {
         super.setupUI()
         view.addSubviews(
-            blurImageView, navigationBarView
+            imageView, navigationBarView
         )
-        blurImageView.addSubviews(
+        imageView.addSubviews(
             calendarView, postCollectionView
         )
         view.addSubview(fireLottieView)
         
         addChild(reactionViewController)
-        blurImageView.addSubview(reactionViewController.view)
+        imageView.addSubview(reactionViewController.view)
         reactionViewController.didMove(toParent: self)
     }
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
-        blurImageView.snp.makeConstraints {
+        imageView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
         
@@ -335,7 +320,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
     
     public override func setupAttributes() {
         super.setupAttributes()
-        blurImageView.do {
+        imageView.do {
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
             $0.isUserInteractionEnabled = true
@@ -360,8 +345,8 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
             $0.appearance.titleSelectionColor = UIColor.bibbiWhite
             
             $0.backgroundColor = UIColor.clear
-            $0.register(ImageCalendarCell.self, forCellReuseIdentifier: ImageCalendarCell.id)
-            $0.register(PlaceholderCalendarCell.self, forCellReuseIdentifier: PlaceholderCalendarCell.id)
+            $0.register(CalendarImageCell.self, forCellReuseIdentifier: CalendarImageCell.id)
+            $0.register(CalendarPlaceholderCell.self, forCellReuseIdentifier: CalendarPlaceholderCell.id)
             
             $0.dataSource = self
         }
@@ -386,7 +371,7 @@ public final class CalendarPostViewController: BaseViewController<CalendarPostVi
 }
 
 // MARK: - Extensions
-extension CalendarPostViewController {
+extension DailyCalendarViewController {
     private var orthogonalCompositionalLayout: UICollectionViewCompositionalLayout {
         // item
         let itemSize: NSCollectionLayoutSize = NSCollectionLayoutSize(
@@ -428,9 +413,9 @@ extension CalendarPostViewController {
     }
 }
 
-extension CalendarPostViewController {
-    private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<CalendarPostSectionModel> {
-        return RxCollectionViewSectionedReloadDataSource<CalendarPostSectionModel> { datasource, collectionView, indexPath, post in
+extension DailyCalendarViewController {
+    private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<DailyCalendarSectionModel> {
+        return RxCollectionViewSectionedReloadDataSource<DailyCalendarSectionModel> { datasource, collectionView, indexPath, post in
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: CalendarPostCell.id,
                 for: indexPath
@@ -444,7 +429,7 @@ extension CalendarPostViewController {
         let blurEffect = UIBlurEffect(style: .systemThinMaterialDark)
         let visualEffectView = UIVisualEffectView(effect: blurEffect)
         visualEffectView.frame = view.frame
-        blurImageView.insertSubview(visualEffectView, at: 0)
+        imageView.insertSubview(visualEffectView, at: 0)
     }
     
     private func setupNavigationTitle(_ date: Date) {
@@ -481,7 +466,7 @@ extension CalendarPostViewController {
     }
 }
 
-extension CalendarPostViewController {
+extension DailyCalendarViewController {
     private func didTapCameraButtonNotifcationHandler() {
         NotificationCenter.default
             .rx.notification(.didTapSelectableCameraButton)
@@ -493,36 +478,36 @@ extension CalendarPostViewController {
     }
 }
 
-extension CalendarPostViewController: FSCalendarDataSource {
+extension DailyCalendarViewController: FSCalendarDataSource {
     public func calendar(_ calendar: FSCalendar, cellFor date: Date, at position: FSCalendarMonthPosition) -> FSCalendarCell {
         let cell = calendar.dequeueReusableCell(
-            withIdentifier: ImageCalendarCell.id,
+            withIdentifier: CalendarImageCell.id,
             for: date,
             at: position
-        ) as! ImageCalendarCell
+        ) as! CalendarImageCell
         
         // 해당 일에 불러온 데이터가 없다면
-        let yyyyMM: String = date.toFormatString()
+        let yearMonth: String = date.toFormatString(with: .dashYyyyMM)
         guard let currentState = reactor?.currentState,
-              let dayResponse = currentState.displayCalendarResponse[yyyyMM]?.filter({ $0.date.isEqual(with: date) }).first
+              let monthlyEntity = currentState.displayMonthlyCalendar[yearMonth]?.filter({ $0.date.isEqual(with: date) }).first
         else {
-            let emptyResponse = CalendarEntity(
+            let emptyEntity = CalendarEntity(
                 date: date,
                 representativePostId: .none,
                 representativeThumbnailUrl: .none,
                 allFamilyMemebersUploaded: false
             )
-            cell.reactor = ImageCalendarCellDIContainer(
-                .week,
-                dayResponse: emptyResponse
+            cell.reactor = CalendarImageCellDIContainer(
+                type: .week,
+                monthlyEntity: emptyEntity
             ).makeReactor()
             return cell
         }
         
-        cell.reactor = ImageCalendarCellDIContainer(
-            .week,
-            isSelected: currentState.selectedDate.isEqual(with: date),
-            dayResponse: dayResponse
+        cell.reactor = CalendarImageCellDIContainer(
+            type: .week,
+            monthlyEntity: monthlyEntity, 
+            isSelected: currentState.date.isEqual(with: date)
         ).makeReactor()
         return cell
     }

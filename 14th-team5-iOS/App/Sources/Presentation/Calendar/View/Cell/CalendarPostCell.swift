@@ -61,7 +61,7 @@ final class CalendarPostCell: BaseCollectionViewCell<CalendarPostCellReactor> {
         Observable<Void>.just(())
             .flatMap { _ in
                 Observable<Reactor.Action>.concat(
-                    Observable<Reactor.Action>.just(.displayContent),
+                    Observable<Reactor.Action>.just(.requestDisplayContent),
                     Observable<Reactor.Action>.just(.requestAuthorName),
                     Observable<Reactor.Action>.just(.requestAuthorImageUrl)
                 )
@@ -70,8 +70,8 @@ final class CalendarPostCell: BaseCollectionViewCell<CalendarPostCellReactor> {
             .disposed(by: disposeBag)
         
         authorImageContainerView.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
-            .map { Reactor.Action.writerImageButtonTapped }
+            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
+            .map { Reactor.Action.authorImageButtonTapped }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
@@ -92,9 +92,15 @@ final class CalendarPostCell: BaseCollectionViewCell<CalendarPostCellReactor> {
             .disposed(by: disposeBag)
         
         post
-            .map { _ in /*$0.missionContent*/ "정신차려~" }
+            .map { $0.missionContent}
             .distinctUntilChanged()
             .drive(missionTextView.missionLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        post
+            .map { $0.missionContent.isEmpty }
+            .distinctUntilChanged()
+            .drive(missionTextView.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.authorName }
@@ -103,9 +109,8 @@ final class CalendarPostCell: BaseCollectionViewCell<CalendarPostCellReactor> {
             .disposed(by: disposeBag)
 
         reactor.state.compactMap { $0.authorName }
-            .map { String($0.first ?? Character(" ")) }
             .distinctUntilChanged()
-            .bind(to: authorFirstNameLabel.rx.text)
+            .bind(to: authorFirstNameLabel.rx.firtNameText)
             .disposed(by: disposeBag)
         
         reactor.state.compactMap { $0.authorImageUrl }

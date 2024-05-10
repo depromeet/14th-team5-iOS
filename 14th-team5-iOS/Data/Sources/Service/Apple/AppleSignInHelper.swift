@@ -39,7 +39,7 @@ class AppleSignInHelper: NSObject, AccountSignInHelperType {
         return Observable.create { observer in
             ASAuthorizationAppleIDProvider().rx.signIn(on: window)
                 .asSingle()
-                .observe(on: Schedulers.utility)
+                .observe(on: RxSchedulers.utility)
                 .subscribe(
                     onSuccess: { [weak self] response in
                         self?._signInState.accept(response)

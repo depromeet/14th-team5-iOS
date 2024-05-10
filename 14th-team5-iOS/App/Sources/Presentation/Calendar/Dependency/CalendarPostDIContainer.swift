@@ -11,18 +11,19 @@ import Data
 import Domain
 import UIKit
 
-public final class CalendarPostDIConatainer {
+public final class weeklyCalendarDIConatainer {
     // MARK: - Properties
-    let selectedDate: Date
-    let notificationDeepLink: NotificationDeepLink? // 댓글 푸시 알림 체크 변수
+    let date: Date
+    
+    let deepLink: NotificationDeepLink? // 댓글 푸시 알림 체크 변수
     
     // MARK: - Intializer
     init(
-        selectedDate selection: Date,
-        notificationDeepLink: NotificationDeepLink? = nil
+        date: Date,
+        deepLink: NotificationDeepLink? = nil
     ) {
-        self.selectedDate = selection
-        self.notificationDeepLink = notificationDeepLink
+        self.date = date
+        self.deepLink = deepLink
     }
     
     private var globalState: GlobalStateProviderProtocol {
@@ -33,8 +34,8 @@ public final class CalendarPostDIConatainer {
     }
     
     // MARK: - Make
-    public func makeViewController() -> CalendarPostViewController {
-        return CalendarPostViewController(reactor: makeReactor())
+    public func makeViewController() -> DailyCalendarViewController {
+        return DailyCalendarViewController(reactor: makeReactor())
     }
     
     public func makeCalendarUseCase() -> CalendarUseCaseProtocol {
@@ -45,10 +46,10 @@ public final class CalendarPostDIConatainer {
         return CalendarRepository()
     }
     
-    public func makeReactor() -> CalendarPostViewReactor {
-        return CalendarPostViewReactor(
-            selectedDate,
-            notificationDeepLink: notificationDeepLink,
+    public func makeReactor() -> DailyCalendarViewReactor {
+        return DailyCalendarViewReactor(
+            date: date,
+            notificationDeepLink: deepLink,
             calendarUseCase: makeCalendarUseCase(),
             provider: globalState
         )

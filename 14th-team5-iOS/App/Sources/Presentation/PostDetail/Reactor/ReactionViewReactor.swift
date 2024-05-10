@@ -36,6 +36,7 @@ final class ReactionViewReactor: Reactor {
     }
     
     struct State {
+        let type: ReactionType
         var postListData: PostListData
         
         var deSelectedReactionIndicies: [Int] = []
@@ -55,7 +56,12 @@ final class ReactionViewReactor: Reactor {
     let emojiRepository: EmojiUseCaseProtocol
     let realEmojiRepository: RealEmojiUseCaseProtocol
     
-    init(provider: GlobalStateProviderProtocol, initialState: State, emojiRepository: EmojiUseCaseProtocol, realEmojiRepository: RealEmojiUseCaseProtocol) {
+    init(
+        provider: GlobalStateProviderProtocol,
+        initialState: State,
+        emojiRepository: EmojiUseCaseProtocol,
+        realEmojiRepository: RealEmojiUseCaseProtocol
+    ) {
         self.initialState = initialState
         self.provider = provider
         self.emojiRepository = emojiRepository

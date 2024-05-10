@@ -17,7 +17,10 @@ import RxSwift
 import SnapKit
 import Then
 
-final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {    
+final public class CalendarImageCell: FSCalendarCell, ReactorKit.View {   
+    // MARK: - Id
+    static let id: String = "ImageCalendarCell"
+    
     // MARK: - Views
     private let dayLabel: BibbiLabel = BibbiLabel(.body1Regular, textAlignment: .center)
     private let containerView: UIView = UIView()
@@ -27,8 +30,6 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
     
     // MARK: - Properties
     public var disposeBag: RxSwift.DisposeBag = DisposeBag()
-    
-    static let id: String = "ImageCalendarCell"
     
     // MARK: - Intializer
     public override init!(frame: CGRect) {
@@ -42,6 +43,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - LifeCycles
     public override func prepareForReuse() {
         dayLabel.textColor = UIColor.bibbiWhite
         thumbnailView.image = nil
@@ -52,14 +54,14 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
     }
     
     // MARK: - Helpers
-    public func bind(reactor: ImageCalendarCellReactor) {
+    public func bind(reactor: CalendarImageCellReactor) {
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: ImageCalendarCellReactor) { }
+    private func bindInput(reactor: CalendarImageCellReactor) { }
     
-    private func bindOutput(reactor: ImageCalendarCellReactor) {
+    private func bindOutput(reactor: CalendarImageCellReactor) {
         reactor.state.map { "\($0.date.day)" }
             .distinctUntilChanged()
             .bind(to: dayLabel.rx.text)
@@ -183,7 +185,7 @@ final public class ImageCalendarCell: FSCalendarCell, ReactorKit.View {
 }
 
 // MARK: - Extensions
-extension ImageCalendarCell {
+extension CalendarImageCell {
     var hasThumbnailImage: Bool {
         return thumbnailView.image != nil ? true : false
     }

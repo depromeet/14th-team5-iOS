@@ -10,4 +10,4 @@ import Foundation
 
 import Differentiator
 
-typealias CalendarPostSectionModel = SectionModel<Void, DailyCalendarEntity>
+typealias DailyCalendarSectionModel = SectionModel<Void, DailyCalendarEntity>

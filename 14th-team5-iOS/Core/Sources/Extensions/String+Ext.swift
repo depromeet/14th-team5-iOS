@@ -19,8 +19,9 @@ extension String {
         }
         return false
     }
-    
-    
+}
+
+extension String {
     public func toDate(with format: String = "yyyy-MM-dd") -> Date {
         let dateFormatter = DateFormatter.withFormat(format)
         guard let date = dateFormatter.date(from: self) else { return .now }

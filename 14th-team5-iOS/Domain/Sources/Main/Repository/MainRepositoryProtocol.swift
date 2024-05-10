@@ -11,4 +11,5 @@ import RxSwift
 
 public protocol MainRepositoryProtocol {
     func fetchMain() -> Observable<MainData?>
+    func fetchMainNight() -> Observable<MainNightData?>
 }

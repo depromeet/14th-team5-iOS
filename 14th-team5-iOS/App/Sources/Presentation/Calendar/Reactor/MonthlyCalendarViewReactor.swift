@@ -13,25 +13,25 @@ import Domain
 import ReactorKit
 import RxSwift
 
-public final class CalendarViewReactor: Reactor {
+public final class MonthlyCalendarViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case popViewController
-        case addCalendarItem([String])
+        case addCalendarItems([String])
     }
     
     // MARK: - Mutation
     public enum Mutation {
         case popViewController
-        case pushCalendarPostVC(Date)
-        case makeCalendarPopoverVC(UIView)
-        case injectYearMonthItem([String])
+        case pushDailyCalendarViewController(Date)
+        case setInfoPopover(UIView)
+        case setCalendarItems([String])
     }
     
     // MARK: - State
     public struct State {
-        @Pulse var shouldPopCalendarVC: Bool
-        @Pulse var shouldPushCalendarPostVC: Date?
+        @Pulse var shouldPopViewController: Bool
+        @Pulse var shouldPushDailyCalendarViewController: Date?
         @Pulse var shouldPresnetInfoPopover: UIView?
         @Pulse var displayCalendar: [MonthlyCalendarSectionModel]
     }
@@ -43,9 +43,12 @@ public final class CalendarViewReactor: Reactor {
     private let calendarUseCase: CalendarUseCaseProtocol
     
     // MARK: - Intializer
-    init(calendarUseCase: CalendarUseCaseProtocol, provider: GlobalStateProviderProtocol) {
+    init(
+        calendarUseCase: CalendarUseCaseProtocol,
+        provider: GlobalStateProviderProtocol
+    ) {
         self.initialState = State(
-            shouldPopCalendarVC: false,
+            shouldPopViewController: false,
             displayCalendar: [.init(model: (), items: [])]
         )
         
@@ -59,10 +62,10 @@ public final class CalendarViewReactor: Reactor {
             .flatMap { event -> Observable<Mutation> in
                 switch event {
                 case let .pushCalendarPostVC(date):
-                    return Observable<Mutation>.just(.pushCalendarPostVC(date))
+                    return Observable<Mutation>.just(.pushDailyCalendarViewController(date))
                     
                 case let .didTapInfoButton(sourceView):
-                    return Observable<Mutation>.just(.makeCalendarPopoverVC(sourceView))
+                    return Observable<Mutation>.just(.setInfoPopover(sourceView))
                     
                 default:
                     return Observable<Mutation>.empty()
@@ -79,8 +82,8 @@ public final class CalendarViewReactor: Reactor {
             provider.toastGlobalState.clearLastSelectedDate()
             return Observable<Mutation>.just(.popViewController)
             
-        case let .addCalendarItem(yearMonth):
-            return Observable<Mutation>.just(.injectYearMonthItem(yearMonth))
+        case let .addCalendarItems(items):
+            return Observable<Mutation>.just(.setCalendarItems(items))
             
         }
     }
@@ -90,22 +93,18 @@ public final class CalendarViewReactor: Reactor {
         var newState = state
         switch mutation {
         case .popViewController:
-            newState.shouldPopCalendarVC = true
+            newState.shouldPopViewController = true
             
-        case let .pushCalendarPostVC(date):
-            newState.shouldPushCalendarPostVC = date
+        case let .pushDailyCalendarViewController(date):
+            newState.shouldPushDailyCalendarViewController = date
             
-        case let .makeCalendarPopoverVC(sourceView):
+        case let .setInfoPopover(sourceView):
             newState.shouldPresnetInfoPopover = sourceView
             
-        case let .injectYearMonthItem(dateArray):
-            guard let datasource: MonthlyCalendarSectionModel = state.displayCalendar.first else {
-                return state
-            }
-            
+        case let .setCalendarItems(items):
             let newDatasource = MonthlyCalendarSectionModel(
-                original: datasource,
-                items: dateArray
+                model: (),
+                items: items
             )
             newState.displayCalendar = [newDatasource]
         }

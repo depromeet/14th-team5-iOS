@@ -29,8 +29,8 @@ final class MainViewDIContainer {
 extension MainViewDIContainer {
     private func makeReactor() -> MainViewReactor {
         return MainViewReactor(
-            initialState: .init(isInTime: false),
-            fetchMainUseCase: makeFetchMainUseCase(),
+            fetchMainUseCase: makeFetchMainUseCase(), 
+            fetchMainNightUseCase: makeFetchMainNightUseCase(),
             pickUseCase: makePickUseCase(),
             provider: globalState
         )
@@ -50,5 +50,9 @@ extension MainViewDIContainer {
     
     private func makeFetchMainUseCase() -> FetchMainUseCaseProtocol {
         return FetchMainUseCase(mainRepository: makeMainRepository())
+    }
+    
+    private func makeFetchMainNightUseCase() -> FetchMainNightUseCaseProtocol {
+        return FetchMainNightUseCase(mainRepository: makeMainRepository())
     }
 }

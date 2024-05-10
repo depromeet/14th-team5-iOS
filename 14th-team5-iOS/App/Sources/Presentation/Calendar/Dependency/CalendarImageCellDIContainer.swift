@@ -11,11 +11,11 @@ import Core
 import Data
 import Domain
 
-final public class ImageCalendarCellDIContainer {
+final public class CalendarImageCellDIContainer {
     // MARK: - Properties
-    public let type: ImageCalendarCellReactor.CalendarType
+    public let type: CalendarImageCellReactor.CalendarType
+    public let monthlyEntity: CalendarEntity
     public let isSelected: Bool
-    public let dayResponse: CalendarEntity
     
     private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
@@ -26,13 +26,13 @@ final public class ImageCalendarCellDIContainer {
     
     // MARK: - Intializer
     public init(
-        _ type: ImageCalendarCellReactor.CalendarType,
-        isSelected: Bool = false,
-        dayResponse: CalendarEntity
+        type: CalendarImageCellReactor.CalendarType,
+        monthlyEntity: CalendarEntity,
+        isSelected: Bool = false
     ) {
         self.type = type
         self.isSelected = isSelected
-        self.dayResponse = dayResponse
+        self.monthlyEntity = monthlyEntity
     }
     
     // MARK: - Make
@@ -44,11 +44,11 @@ final public class ImageCalendarCellDIContainer {
         return CalendarRepository()
     }
     
-    public func makeReactor() -> ImageCalendarCellReactor {
-        return ImageCalendarCellReactor(
-            type,
+    public func makeReactor() -> CalendarImageCellReactor {
+        return CalendarImageCellReactor(
+            type: type,
+            monthlyEntity: monthlyEntity,
             isSelected: isSelected,
-            dayResponse: dayResponse,
             calendarUseCase: makeUseCase(),
             provider: globalState
         )

@@ -51,14 +51,14 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
         
         
         nextButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
             .map { _ in Reactor.Action.didTapCompletehButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         
         profileButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind(onNext: { $0.0.createAlertController(owner: $0.0) })
             .disposed(by: disposeBag)
@@ -81,7 +81,7 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
     private func bindOutput(reactor: AccountSignUpReactor) {
         reactor.state.map { $0.nickname }
             .withUnretained(self)
-            .observe(on: Schedulers.main)
+            .observe(on: RxSchedulers.main)
             .bind(onNext: { $0.0.setProfilewView(with: $0.1) })
             .disposed(by: disposeBag)
         
@@ -93,7 +93,7 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
         
         reactor.state.map { $0.didTapCompletehButtonFinish }
             .withUnretained(self)
-            .observe(on: Schedulers.main)
+            .observe(on: RxSchedulers.main)
             .bind(onNext: { $0.0.showNextPage(accessToken: $0.1) })
             .disposed(by: disposeBag)
         

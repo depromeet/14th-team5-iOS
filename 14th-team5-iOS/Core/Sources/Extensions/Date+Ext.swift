@@ -85,8 +85,20 @@ extension Date {
 
         return dateFormatter.string(from: self)
     }
+}
+
+extension Date {
+    public func toFormatString(with format: String = "yyyy-MM") -> String {
+        let dateFormatter = DateFormatter.withFormat(format)
+        return dateFormatter.string(from: self)
+    }
     
-    
+    public func toFormatString(with format: DateFormatter.Format) -> String {
+        return toFormatString(with: format.type)
+    }
+}
+
+extension Date {
     public func isEqual(
         _ components: Set<Calendar.Component> = [.year, .month, .day],
         with date: Date
@@ -117,43 +129,25 @@ extension Date {
 }
 
 extension Date {
-    public func toFormatString(with format: String = "yyyy-MM") -> String {
-        let dateFormatter = DateFormatter.withFormat(format)
-        return dateFormatter.string(from: self)
-    }
-    
-    public func toFormatString(with format: DateFormatter.Format) -> String {
-        return toFormatString(with: format.type)
-    }
-}
-
-extension Date {
-    static func + (date: Date, interval: TimeInterval) -> Date {
-        return date.addingTimeInterval(interval)
-    }
-    
-    static func - (date: Date, interval: TimeInterval) -> Date {
-        return date.addingTimeInterval(interval)
-    }
-}
-
-extension Date {
-    public func createPreviousNextDateStringArray() -> [String] {
-        var dateArray: [String] = []
+    public func makePreviousNextMonth() -> [String] {
+        let monthsToSubtract = -1
+        let monthsToAdd = 1
         
-        for month in -1...1 {
-            if let date = calendar.date(byAdding: .month, value: month, to: self) {
-                let yyyyMM = date.toFormatString(with: .dashYyyyMM)
-                dateArray.append(yyyyMM)
+        var dateStrings: [String] = []
+        
+        for monthOffset in monthsToSubtract...monthsToAdd {
+            if let calculatedDate = calendar.date(byAdding: .month, value: monthOffset, to: self) {
+                let formattedDateString = calculatedDate.toFormatString(with: .dashYyyyMM)
+                dateStrings.append(formattedDateString)
             }
         }
         
-        return dateArray
+        return dateStrings
     }
 }
 
 extension Date {
-    public static var for20230101: Date {
+    public static var _20230101: Date {
         let calendar: Calendar = Calendar.current
         let dateComponents: DateComponents = DateComponents(
             year: 2023,
@@ -163,7 +157,7 @@ extension Date {
         return calendar.date(from: dateComponents) ?? Date()
     }
     
-    public static var for20240101: Date {
+    public static var _20240101: Date {
         let calendar: Calendar = Calendar.current
         let dateComonents: DateComponents = DateComponents(
             year: 2024,

@@ -122,7 +122,7 @@ extension CalendarAPIWorker {
     }
     
     public func fetchStatisticsSummary(yearMonth: String) -> Single<FamilyMonthlyStatisticsEntity?> {
-        let spec = CalendarAPIs.statisticsSummary(yearMonth).spec
+        let spec = CalendarAPIs.statistics(yearMonth).spec
         
         return Observable<Void>.just(())
             .withLatestFrom(self._headers)
@@ -147,7 +147,7 @@ extension CalendarAPIWorker {
     }
     
     public func fetchCalendarBanner(yearMonth: String) -> Single<BannerEntity?> {
-        let spec = CalendarAPIs.calendarBenner(yearMonth).spec
+        let spec = CalendarAPIs.banner(yearMonth).spec
         
         return Observable<Void>.just(())
             .withLatestFrom(self._headers)

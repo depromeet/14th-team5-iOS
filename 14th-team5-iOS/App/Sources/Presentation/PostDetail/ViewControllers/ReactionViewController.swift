@@ -88,7 +88,7 @@ extension ReactionViewController {
             .disposed(by: disposeBag)
         
         Observable.zip(reactionCollectionView.rx.itemSelected, reactionCollectionView.rx.modelSelected(ReactionSection.Item.self))
-            .throttle(RxConst.throttleInterval, scheduler: MainScheduler.instance)
+            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
             .map { (indexPath, model) in
                 switch model {
                 case .main(let emojiData):
@@ -150,14 +150,21 @@ extension ReactionViewController {
             .withLatestFrom(postListData)
             .withUnretained(self) { ($0, $1) }
             .bind(onNext: {
-                let postCommentViewController = PostCommentDIContainer(
+                let commentViewController = CommentDIContainer(
                     postId: $1.postId
                 ).makeViewController()
                 
-                $0.presentPostCommentSheet(
-                    postCommentViewController,
-                    from: .post
-                )
+                if case .post = reactor.initialState.type {
+                    $0.presentPostCommentSheet(
+                        commentViewController,
+                        from: .post
+                    )
+                } else {
+                    $0.presentPostCommentSheet(
+                        commentViewController,
+                        from: .calendar
+                    )
+                }
             })
             .disposed(by: disposeBag)
     }

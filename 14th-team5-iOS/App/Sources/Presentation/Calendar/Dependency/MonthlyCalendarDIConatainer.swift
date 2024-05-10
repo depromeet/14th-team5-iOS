@@ -11,7 +11,7 @@ import Core
 import Data
 import Domain
 
-public final class CalendarDIConatainer {
+public final class MonthlyCalendarDIConatainer {
     // MARK: - Properties
     private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
@@ -21,8 +21,8 @@ public final class CalendarDIConatainer {
     }
     
     // MARK: - Make
-    public func makeViewController() -> CalendarViewController {
-        return CalendarViewController(reactor: makeReactor())
+    public func makeViewController() -> MonthlyCalendarViewController {
+        return MonthlyCalendarViewController(reactor: makeReactor())
     }
     
     public func makeCalendarUseCase() -> CalendarUseCaseProtocol {
@@ -33,8 +33,8 @@ public final class CalendarDIConatainer {
         return CalendarRepository()
     }
     
-    public func makeReactor() -> CalendarViewReactor {
-        return CalendarViewReactor(
+    public func makeReactor() -> MonthlyCalendarViewReactor {
+        return MonthlyCalendarViewReactor(
             calendarUseCase: makeCalendarUseCase(),
             provider: globalState
         )

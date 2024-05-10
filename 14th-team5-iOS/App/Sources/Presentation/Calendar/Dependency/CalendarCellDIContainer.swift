@@ -11,7 +11,7 @@ import Core
 import Data
 import Domain
 
-public final class CalendarPageCellDIContainer {
+public final class CalendarCellDIContainer {
     // MARK: - Properties
     public let yearMonth: String
     
@@ -36,7 +36,11 @@ public final class CalendarPageCellDIContainer {
         return CalendarRepository()
     }
     
-    public func makeReactor() -> CalendarPageCellReactor {
-        return CalendarPageCellReactor(yearMonth, calendarUseCase: makeUseCase(), provider: globalState)
+    public func makeReactor() -> CalendarCellReactor {
+        return CalendarCellReactor(
+            yearMonth: yearMonth,
+            calendarUseCase: makeUseCase(),
+            provider: globalState
+        )
     }
 }

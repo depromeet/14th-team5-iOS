@@ -65,7 +65,7 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         .disposed(by: disposeBag)
         
         profileButton.rx.tap
-            .throttle(RxConst.throttleInterval, scheduler: Schedulers.main)
+            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
             .map { Reactor.Action.didTapProfileButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)

@@ -51,10 +51,11 @@ enum Description {
 }
 
 final class MainViewReactor: Reactor {
-    
     enum Action {
         case calculateTime
+        case setTimer(Bool, Int)
         case fetchMainUseCase
+        case fetchMainNightUseCase
         
         case didTapSegmentControl(PostType)
         case pickConfirmButtonTapped(String, String)
@@ -62,9 +63,11 @@ final class MainViewReactor: Reactor {
     
     enum Mutation {
         case updateMainData(MainData)
+        case updateMainNight(MainNightData)
         
         case setInTime(Bool)
         case setPageIndex(Int)
+        case setCamerEnabled
         case setBalloonText
         case setDescriptionText
         
@@ -76,18 +79,23 @@ final class MainViewReactor: Reactor {
     }
     
     struct State {
-        var isInTime: Bool
+        var isInTime: Bool = true
         var pageIndex: Int = 0
         var leftCount: Int = 0
+        
         var missionText: String = ""
         var balloonText: BalloonText = .survivalStandard
         var description: Description = .survivalNone
-
+        
         var isFamilySurvivalUploadedToday: Bool = false
         var isFamilyMissionUploadedToday: Bool = false
         var isMeSurvivalUploadedToday: Bool = false
+        var isMeMissionUploadedToday: Bool = false
         var isMissionUnlocked: Bool = false
         
+        @Pulse var cameraEnabled: Bool = false
+        
+        @Pulse var contributor: FamilyRankData = FamilyRankData.empty
         @Pulse var familySection: [FamilySection.Item] = []
         
         @Pulse var shouldPresentPickAlert: (String, String)?
@@ -96,22 +104,22 @@ final class MainViewReactor: Reactor {
         @Pulse var shouldPresentFailureToastMessage: Bool = false
     }
     
-    let initialState: State
+    let initialState: State = State()
     let fetchMainUseCase: FetchMainUseCaseProtocol
+    let fetchMainNightUseCase: FetchMainNightUseCaseProtocol
     let pickUseCase: PickUseCaseProtocol
     let provider: GlobalStateProviderProtocol
     
     init(
-        initialState: State,
         fetchMainUseCase: FetchMainUseCaseProtocol,
+        fetchMainNightUseCase: FetchMainNightUseCaseProtocol,
         pickUseCase: PickUseCaseProtocol,
-        provider: GlobalStateProviderProtocol
-    ) {
-        self.initialState = initialState
-        self.fetchMainUseCase = fetchMainUseCase
-        self.pickUseCase = pickUseCase
-        self.provider = provider
-    }
+        provider: GlobalStateProviderProtocol) {
+            self.fetchMainUseCase = fetchMainUseCase
+            self.fetchMainNightUseCase = fetchMainNightUseCase
+            self.pickUseCase = pickUseCase
+            self.provider = provider
+        }
 }
 
 extension MainViewReactor {
@@ -143,34 +151,69 @@ extension MainViewReactor {
         switch action {
         case .fetchMainUseCase:
             return fetchMainUseCase.execute()
+                .asObservable()
                 .flatMap { result -> Observable<MainViewReactor.Mutation> in
                     guard let data = result else {
                         return Observable.empty()
                     }
-                    return Observable.concat(Observable.just(.updateMainData(data)), Observable.just(.setBalloonText))
+                    return Observable.concat(Observable.just(
+                        .updateMainData(data)), Observable.just(.setBalloonText),
+                                             Observable.just(.setCamerEnabled)
+                    )
                 }
-        case .calculateTime:
-            let (_, time) = MainViewReactor.calculateRemainingTime()
-            
-            if self.currentState.isInTime {
+        case .fetchMainNightUseCase:
+            return fetchMainNightUseCase.execute()
+                .asObservable()
+                .flatMap { result -> Observable<MainViewReactor.Mutation> in
+                    guard let data = result else {
+                        return Observable.empty()
+                    }
+                    return Observable.just(.updateMainNight(data))
+                }
+        case .setTimer(let isInTime, let time):
+            if isInTime {
                 return Observable<Int>
                     .timer(.seconds(time), scheduler: MainScheduler.instance)
                     .flatMap {_ in
-                        return Observable.concat([Observable.just(Mutation.setInTime(false))])
+                        return Observable.concat([
+                            Observable.just(Mutation.setInTime(false)),
+                            self.mutate(action: .fetchMainNightUseCase)
+                        ])
                     }
             } else {
                 return Observable<Int>
                     .timer(.seconds(time), scheduler: MainScheduler.instance)
                     .flatMap {_ in
-                        return Observable.concat([Observable.just(Mutation.setInTime(true))])
+                        return Observable.concat([
+                            Observable.just(Mutation.setInTime(true)),
+                            self.mutate(action: .fetchMainUseCase)
+                        ])
                     }
+            }
+        case .calculateTime:
+            let (isInTime, time) = MainViewReactor.calculateRemainingTime()
+            
+            if isInTime {
+                return Observable.concat([
+                    Observable.just(Mutation.setInTime(true)),
+                    self.mutate(action: .fetchMainUseCase),
+                    self.mutate(action: .setTimer(isInTime, time))
+                ])
+            } else {
+                return Observable.concat([
+                    Observable.just(Mutation.setInTime(false)),
+                    self.mutate(action: .fetchMainNightUseCase),
+                    self.mutate(action: .setTimer(isInTime, time))
+                ])
                 
             }
         case .didTapSegmentControl(let type):
             return Observable.concat(
                 Observable.just(.setPageIndex(type.getIndex())),
                 Observable.just(.setBalloonText),
-                Observable.just(.setDescriptionText))
+                Observable.just(.setDescriptionText),
+                Observable.just(.setCamerEnabled)
+            )
             
         case let .pickConfirmButtonTapped(name, id):
             return pickUseCase.executePickMember(memberId: id)
@@ -202,6 +245,7 @@ extension MainViewReactor {
         case .updateMainData(let data):
             newState.isMissionUnlocked = data.isMissionUnlocked
             newState.isMeSurvivalUploadedToday = data.isMeSurvivalUploadedToday
+            newState.isMeMissionUploadedToday = data.isMeMissionUploadedToday
             newState.isFamilyMissionUploadedToday = data.isFamilyMissionUploadedToday
             newState.isFamilySurvivalUploadedToday = data.isFamilySurvivalUploadedToday
             newState.leftCount = data.leftUploadCountUntilMissionUnlock
@@ -212,8 +256,23 @@ extension MainViewReactor {
                     .main(MainFamilyCellReactor($0, service: provider))
                 }
             ).items
+        case .updateMainNight(let data):
+            newState.familySection = FamilySection.Model(model: 0, items: data.mainFamilyProfileDatas.map {
+                .main(MainFamilyCellReactor($0, service: provider))
+            }).items
+            newState.contributor = data.familyRankData
         case let .setPickAlertView(name, id):
             newState.shouldPresentPickAlert = (name, id)
+        case .setCamerEnabled:
+            if currentState.pageIndex == 0 {
+                newState.cameraEnabled = !currentState.isMeSurvivalUploadedToday
+            } else {
+                if currentState.isMeMissionUploadedToday || currentState.isMissionUnlocked {
+                    newState.cameraEnabled = false
+                } else {
+                    newState.cameraEnabled = true
+                }
+            }
         case .setBalloonText:
             if currentState.pageIndex == 0 {
                 newState.balloonText = .survivalStandard
@@ -255,7 +314,7 @@ extension MainViewReactor {
         
         let currentHour = calendar.component(.hour, from: currentTime)
         
-        if currentHour >= 12 {
+        if currentHour >= 10 {
             if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {
                 let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
                 return (true, max(0, timeDifference.second ?? 0))

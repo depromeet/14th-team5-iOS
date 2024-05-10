@@ -71,7 +71,7 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
         reactor.pulse(\.$memberInfo)
             .skip(1)
             .withUnretained(self)
-            .observe(on: Schedulers.main)
+            .observe(on: RxSchedulers.main)
             .bind(onNext: { $0.0.showNextPage(with: $0.1)})
             .disposed(by: disposeBag)
         
@@ -79,7 +79,7 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
             .skip(1)
             .filter { $0 == nil }
             .withUnretained(self)
-            .observe(on: Schedulers.main)
+            .observe(on: RxSchedulers.main)
             .bind(onNext: { $0.0.showUpdateAlert($0.1) })
             .disposed(by: disposeBag)
     }

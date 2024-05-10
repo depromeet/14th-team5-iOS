@@ -99,9 +99,9 @@ final class DeepLinkManager {
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow }),
            let navigationController = keyWindow.rootViewController as? UINavigationController {
-            let viewController = CalendarPostDIConatainer(
-                selectedDate: data.dateOfPost,
-                notificationDeepLink: data
+            let viewController = weeklyCalendarDIConatainer(
+                date: data.dateOfPost,
+                deepLink: data
             ).makeViewController()
             
             navigationController.pushViewController(viewController, animated: true)

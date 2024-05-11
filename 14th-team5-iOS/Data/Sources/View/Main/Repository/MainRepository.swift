@@ -21,10 +21,15 @@ public final class MainRepository: MainRepositoryProtocol {
 
 extension MainRepository {
     public func fetchMain() -> Observable<MainData?> {
-        return mainApiWorker.fetchMain().asObservable()
+        return mainApiWorker.fetchMain()
+            .do(onSuccess: { FamilyUserDefaults.saveFamilyMembers($0?.mainFamilyProfileDatas ?? []) })
+            .asObservable()
+
     }
     
     public func fetchMainNight() -> Observable<MainNightData?> {
-        return mainApiWorker.fetchMainNight().asObservable()
+        return mainApiWorker.fetchMainNight()
+            .do(onSuccess: { FamilyUserDefaults.saveFamilyMembers($0?.mainFamilyProfileDatas ?? []) })
+            .asObservable()
     }
 }

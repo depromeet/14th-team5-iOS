@@ -20,7 +20,7 @@ final class MainPostCollectionViewCell: BaseCollectionViewCell<MainPostCellReact
     
     private let imageView: UIImageView = UIImageView(image: DesignSystemAsset.emptyCaseGraphicEmoji.image)
     private let indicator: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
-    private let missionBadge: UIImageView = UIImageView(image: DesignSystemAsset.mission.image)
+    private let missionBadge: UIImageView = UIImageView(image: DesignSystemAsset.missionBadge.image)
     private let stackView: UIStackView = UIStackView()
     private let nameLabel: BibbiLabel = BibbiLabel(.body2Regular, textAlignment: .left, textColor: .gray200)
     private let timeLabel: BibbiLabel = BibbiLabel(.caption, textAlignment: .right, textColor: .gray400)

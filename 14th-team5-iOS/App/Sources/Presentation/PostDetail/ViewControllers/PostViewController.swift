@@ -21,9 +21,6 @@ final class PostViewController: BaseViewController<PostReactor> {
     private let collectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     private let reactionViewController: ReactionViewController = ReactionDIContainer(type: .post).makeViewController(post: .init(postId: "", author: nil, commentCount: 0, emojiCount: 0, imageURL: "", content: nil, time: ""))
     
-    // MARK: - Properties
-    private let deepLinkRepo = DeepLinkRepository()
-    
     convenience init(reactor: Reactor? = nil) {
         self.init()
         self.reactor = reactor
@@ -34,15 +31,7 @@ final class PostViewController: BaseViewController<PostReactor> {
         super.viewDidLoad()
         self.navigationController?.navigationBar.isHidden = true
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        // HomeViewController는 notification이 nil일 때만
-        // ViewWillAppear시 가족과 피드를 불러오므로, nil 항목 전달이 필수임
-        App.Repository.deepLink.widget.accept(nil)
-        App.Repository.deepLink.notification.accept(nil)
-    }
-    
+
     override func bind(reactor: PostReactor) {
         collectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)

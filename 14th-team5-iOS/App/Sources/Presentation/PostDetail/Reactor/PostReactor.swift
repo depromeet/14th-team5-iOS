@@ -82,7 +82,7 @@ extension PostReactor {
         switch action {
         case let .setPost(index):
             guard case let .main(postEntity) = currentState.originPostLists.items[index],
-                  let missionId = postEntity.missionId else { return .empty() }
+                  let missionId = postEntity.missionId else { return Observable<Mutation>.just(.setSelectedPostIndex(index)) }
             return missionUseCase.execute(missionId: missionId)
                 .flatMap { entity -> Observable<Mutation> in
                     return .concat(

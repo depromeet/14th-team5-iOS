@@ -42,11 +42,10 @@ final class PostNavigationView: BaseView<PostReactor> {
         
         reactor.state
             .map { $0.selectedPost }
+            .debug("selectedPost")
             .asObservable()
             .withUnretained(self)
-            .bind(onNext: {
-                $0.0.setData(data: $0.1)
-            })
+            .bind(onNext: { $0.0.setData(data: $0.1) })
             .disposed(by: disposeBag)
     }
     

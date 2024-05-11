@@ -78,7 +78,7 @@ extension MainPostViewController {
         postCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
-        Observable.just(())
+        self.rx.viewWillAppear
             .map { _ in Reactor.Action.fetchPost }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)

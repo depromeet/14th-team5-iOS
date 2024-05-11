@@ -16,7 +16,7 @@ public class FamilyUserDefaults {
     /// familyId - memberId를 배열로 저장
     /// 각 memberId - familymember 객체 저장
 
-    private let familyIdKey = "familyId"
+    private static let familyIdKey = "familyId"
     private static let myMemberIdKey = "memberId"
     private static let memberIdsKey = "memberIds"
     private static let dayOfBirths = "dayOfBirths"
@@ -33,15 +33,20 @@ public class FamilyUserDefaults {
         return UserDefaults.standard.string(forKey: myMemberIdKey) ?? ""
     }
 
-    func removeFamilyMembers() {
-         UserDefaults.standard.removeObject(forKey: familyIdKey)
+    public static func removeFamilyMembers() {
+        UserDefaults.standard.stringArray(forKey: memberIdsKey)?.forEach {
+            UserDefaults.standard.removeObject(forKey: $0)
+            print($0)
+        }
+        
+         UserDefaults.standard.removeObject(forKey: memberIdsKey)
      }
     
-    static func saveMyMemberId(memberId: String) {
+    public static func saveMyMemberId(memberId: String) {
         UserDefaults.standard.setValue(memberId, forKey: myMemberIdKey)
     }
     
-    static func getMyMemberId() -> String {
+    public static func getMyMemberId() -> String {
         return UserDefaults.standard.string(forKey: myMemberIdKey) ?? ""
     }
     
@@ -59,11 +64,10 @@ public class FamilyUserDefaults {
     }
     
     public static func saveFamilyMembers(_ familyMembers: [ProfileData]) {
+        removeFamilyMembers()
         saveMemberIdToUserDefaults(memberIds: familyMembers.map { $0.memberId })
         saveDayOfBirths(dateOfBirths: familyMembers.map { $0.dayOfBirth ?? Date() })
-        familyMembers.forEach {
-            saveMemberToUserDefaults(familyMember: $0)
-        }
+        familyMembers.forEach { saveMemberToUserDefaults(familyMember: $0) }
     }
     
     public static func load(memberId: String) -> ProfileData? {

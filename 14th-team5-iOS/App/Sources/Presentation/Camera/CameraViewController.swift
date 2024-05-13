@@ -363,7 +363,6 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         realEmojiCollectionView
             .rx.itemSelected
-            .debug("Tap item Select")
             .map { Reactor.Action.didTapRealEmojiPad($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)

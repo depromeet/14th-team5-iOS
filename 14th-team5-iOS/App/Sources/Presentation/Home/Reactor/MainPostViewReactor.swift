@@ -62,7 +62,7 @@ extension MainPostViewReactor {
                           !postList.postLists.isEmpty else {
                         return Observable.from([
                             Mutation.setNoPostTodayView(true),
-                            Mutation.updateRefreshEnd(true)
+                            Mutation.updateRefreshEnd(true),
                         ])
                     }
     

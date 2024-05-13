@@ -35,9 +35,11 @@ extension FamilyRepository {
     public func joinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyResponse?> {
         let body = JoinFamilyRequestDTO(inviteCode: body.inviteCode)
         return familyApiWorker.joinFamily(body: body)
-            .do(onSuccess: { 
-                App.Repository.member.familyId.accept($0?.familyId)
-                App.Repository.member.familyCreatedAt.accept($0?.createdAt)
+            .do(onSuccess: { [weak self] response in
+                guard let self else { return }
+                App.Repository.member.familyId.accept(response?.familyId)
+                App.Repository.member.familyCreatedAt.accept(response?.createdAt)
+                fetchPaginationFamilyMembers(query: .init())
             })
             .asObservable()
     }

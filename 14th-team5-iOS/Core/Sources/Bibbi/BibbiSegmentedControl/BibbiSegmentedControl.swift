@@ -8,6 +8,9 @@
 import UIKit
 
 import DesignSystem
+
+import RxCocoa
+import RxSwift
 import SnapKit
 import Then
 
@@ -21,7 +24,7 @@ public enum BibbiSegmentedType: String {
 public final class BibbiSegmentedControl: UIView {
     
     //MARK: Property
-    public var isUpdated: Bool
+    public var isUpdatedRelay: BehaviorSubject<Bool> = BehaviorSubject(value: true)
     public let survivalButton: UIButton = UIButton()
     public let missionButton: UIButton = UIButton()
     public var isSelected: Bool = true {
@@ -30,13 +33,20 @@ public final class BibbiSegmentedControl: UIView {
       }
     }
     
-    public init(isUpdated: Bool) {
-        self.isUpdated = isUpdated
-        super.init(frame: .zero)
+    private let disposeBag = DisposeBag()
+    
+    public override init(frame: CGRect) {
+        super.init(frame: frame)
         
         setupUI()
         setupAttributes()
         setupAutoLayout()
+        
+        isUpdatedRelay
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: { $0.0.missionButton.configuration?.image = $0.1 ? DesignSystemAsset.mission.image : nil })
+            .disposed(by: disposeBag)
     }
     
     required init?(coder: NSCoder) {
@@ -69,7 +79,7 @@ public final class BibbiSegmentedControl: UIView {
             
             $0.configurationUpdateHandler = { [weak self] in
                 guard let self = self else { return }
-                $0.configuration?.image = self.isUpdated ? nil : DesignSystemAsset.mission.image
+                $0.configuration?.image = nil
             }
             $0.configuration?.imagePlacement = .trailing
             $0.configuration?.imagePadding = 4

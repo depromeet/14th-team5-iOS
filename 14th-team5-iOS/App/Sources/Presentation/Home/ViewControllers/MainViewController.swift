@@ -23,7 +23,7 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
     private let imageView: UIImageView = UIImageView()
     
     private let contributorView: ContributorView = ContributorView(reactor: ContributorReactor())
-    private let segmentControl: BibbiSegmentedControl = BibbiSegmentedControl(isUpdated: false)
+    private let segmentControl: BibbiSegmentedControl = BibbiSegmentedControl()
     private let pageViewController: SegmentPageViewController = SegmentPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
     
     private let cameraButton: MainCameraButtonView = MainCameraDIContainer().makeView()
@@ -218,10 +218,11 @@ extension MainViewController {
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.isMissionUnlocked }
+            .debug("냐밍")
             .distinctUntilChanged()
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
-            .bind(onNext: { $0.0.segmentControl.isUpdated = $0.1 })
+            .bind(onNext: { $0.0.segmentControl.isUpdatedRelay })
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$contributor)

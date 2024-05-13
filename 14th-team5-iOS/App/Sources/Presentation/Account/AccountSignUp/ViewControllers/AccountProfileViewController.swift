@@ -87,7 +87,6 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
         
         reactor.state.compactMap { $0.profileImage }
             .map { UIImage(data: $0) }
-            .debug("ProfileView Account Bind")
             .bind(to: profileView.rx.image)
             .disposed(by: disposeBag)
         

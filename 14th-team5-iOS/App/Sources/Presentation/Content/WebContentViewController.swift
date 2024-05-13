@@ -73,7 +73,6 @@ public class WebContentViewController: BaseViewController<WebContentViewReactor>
         
         reactor.state
             .compactMap { $0.url?.lastPathComponent == "privacy" ? "개인정보처리방침" : "이용 약관" }
-            .debug("navigationTitle")
             .distinctUntilChanged()
             .withUnretained(self)
             .bind(onNext: { $0.0.navigationBarView.setNavigationTitle(title: $0.1) })

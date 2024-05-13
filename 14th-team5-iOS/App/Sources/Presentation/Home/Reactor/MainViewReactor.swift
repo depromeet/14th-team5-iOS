@@ -240,7 +240,8 @@ extension MainViewReactor {
             if currentState.pageIndex == 0 {
                 newState.cameraEnabled = !currentState.isMeSurvivalUploadedToday
             } else {
-                if !currentState.isMeMissionUploadedToday && currentState.isMissionUnlocked {
+
+                    if currentState.isMeSurvivalUploadedToday && (!currentState.isMeMissionUploadedToday) && currentState.isMissionUnlocked {
                     newState.cameraEnabled = true
                 } else {
                     newState.cameraEnabled = false

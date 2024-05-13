@@ -130,16 +130,20 @@ extension MainViewController {
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
         
-        segmentControl.survivalButton.rx.tap
-            .throttle(.milliseconds(1000), scheduler: MainScheduler.instance)
-            .map { Reactor.Action.didTapSegmentControl(.survival) }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
+        Observable.merge(
+            segmentControl.survivalButton.rx.tap.map { Reactor.Action.didTapSegmentControl(.survival) },
+            segmentControl.missionButton.rx.tap.map { Reactor.Action.didTapSegmentControl(.mission) },
+            pageViewController.indexRelay.filter { $0.way == .scroll }.map { $0.index }.map { Reactor.Action.didTapSegmentControl($0 == 0 ? .survival : .mission)}
+        )
+        .observe(on: MainScheduler.instance)
+        .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+        .bind(to: reactor.action)
+        .disposed(by: disposeBag)
         
-        segmentControl.missionButton.rx.tap
-            .throttle(.milliseconds(1000), scheduler: MainScheduler.instance)
-            .map { Reactor.Action.didTapSegmentControl(.mission) }
-            .bind(to: reactor.action)
+        pageViewController.segmentEnabled
+            .distinctUntilChanged()
+            .observe(on: MainScheduler.instance)
+            .bind(to: segmentControl.rx.isUserInteractionEnabled)
             .disposed(by: disposeBag)
         
         navigationBarView.rx.leftButtonTap
@@ -154,8 +158,7 @@ extension MainViewController {
             .bind { $0.0.navigationController?.pushViewController(MonthlyCalendarDIConatainer().makeViewController(), animated: true) }
             .disposed(by: disposeBag)
         
-        alertConfirmRelay
-            .map { Reactor.Action.pickConfirmButtonTapped($0.0, $0.1) }
+        alertConfirmRelay.map { Reactor.Action.pickConfirmButtonTapped($0.0, $0.1) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -214,7 +217,7 @@ extension MainViewController {
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .bind(onNext: {
-                $0.0.pageViewController.indexRelay.accept($0.1)
+                $0.0.pageViewController.indexRelay.accept(.init(way: .segmentTap, index: $0.1))
                 $0.0.segmentControl.isSelected = ($0.1 == 0)
             })
             .disposed(by: disposeBag)

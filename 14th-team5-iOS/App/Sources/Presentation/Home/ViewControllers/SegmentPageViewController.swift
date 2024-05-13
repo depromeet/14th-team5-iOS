@@ -12,6 +12,16 @@ import Domain
 import RxSwift
 import RxCocoa
 
+enum PageChangeWay {
+    case scroll
+    case segmentTap
+}
+
+struct PageRelay {
+    let way: PageChangeWay
+    let index: Int
+}
+
 final class SegmentPageViewController: UIPageViewController {
     private let survivalViewController: MainPostViewController = MainPostViewDIContainer().makeViewController(type: .survival)
     private let missionViewController: MainPostViewController = MainPostViewDIContainer().makeViewController(type: .mission)
@@ -19,7 +29,8 @@ final class SegmentPageViewController: UIPageViewController {
     
     private lazy var pages: [UIViewController] = [survivalViewController, missionViewController]
     
-    let indexRelay: BehaviorRelay<Int> = BehaviorRelay(value: 0)
+    let indexRelay: BehaviorRelay<PageRelay> = BehaviorRelay(value: .init(way: .segmentTap, index: 0))
+    let segmentEnabled: BehaviorRelay<Bool> = BehaviorRelay(value: true)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,14 +43,19 @@ final class SegmentPageViewController: UIPageViewController {
     }
     
     private func bind() {
-        indexRelay
+        indexRelay.filter { $0.way == .segmentTap }.map { $0.index }
+            .distinctUntilChanged()
             .withUnretained(self)
+            .observe(on: MainScheduler.instance)
             .bind(onNext: {
+                $0.0.isPagingEnabled = false
                 switch $0.1 {
-                case 0:
-                    $0.0.setViewControllers([$0.0.survivalViewController], direction: .reverse, animated: true)
-                case 1:
-                    $0.0.setViewControllers([$0.0.missionViewController], direction: .forward, animated: true)
+                case 0: $0.0.setViewControllers([$0.0.survivalViewController], direction: .reverse, animated: true) { [weak self] _ in
+                    self?.isPagingEnabled = true
+                }
+                case 1: $0.0.setViewControllers([$0.0.missionViewController], direction: .forward, animated: true) { [weak self] _ in
+                    self?.isPagingEnabled = true
+                }
                 default:
                     fatalError("INDEX OUT OF RANGE")
                 }
@@ -50,20 +66,32 @@ final class SegmentPageViewController: UIPageViewController {
 }
 
 extension SegmentPageViewController: UIPageViewControllerDelegate, UIPageViewControllerDataSource {
+    func pageViewController(_ pageViewController: UIPageViewController, willTransitionTo pendingViewControllers: [UIViewController]) {
+        segmentEnabled.accept(false)
+    }
+    
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
-        return nil
+        guard let index = pages.firstIndex(of: viewController),
+              index - 1 >= 0 else { return nil }
+        
+        return pages[index - 1]
     }
     
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
-        return nil
+        guard let index = pages.firstIndex(of: viewController),
+              index + 1 != pages.count else { return nil }
+        
+        return pages[index + 1]
     }
     
-//    func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
-//        if completed {
-//            if let currentViewController = pageViewController.viewControllers?.first,
-//               let currentIndex = pages.firstIndex(of: currentViewController) {
-//                print("현재 페이지: \(currentIndex)")
-//            }
-//        }
-//    }
+    func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+        if let currentViewController = pageViewController.viewControllers?.first,
+           let currentIndex = pages.firstIndex(of: currentViewController) {
+            indexRelay.accept(.init(way: .scroll, index: currentIndex))
+        }
+        
+        if completed && finished {
+            segmentEnabled.accept(true)
+        }
+    }
 }

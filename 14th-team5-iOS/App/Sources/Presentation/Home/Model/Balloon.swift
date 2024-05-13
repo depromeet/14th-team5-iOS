@@ -38,7 +38,7 @@ enum BalloonText {
     var message: String {
         switch self {
         case .survivalStandard:
-            return "하루에 한번 사진을 올릴 수 있어요"
+            return "하루에 한 번 사진을 올릴 수 있어요"
         case .survivalDone:
             return "오늘의 생존신고는 완료되었어요"
         case .missionLocked:

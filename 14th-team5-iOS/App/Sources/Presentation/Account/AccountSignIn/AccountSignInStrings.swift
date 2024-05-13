@@ -13,5 +13,5 @@ extension String {
 }
 
 extension AccountSignInStrings {
-    static let mainTitle: String = "하루 한번, 가족에게 보내는 생존 신고"
+    static let mainTitle: String = "하루 한 번, 가족에게 보내는 생존 신고"
 }

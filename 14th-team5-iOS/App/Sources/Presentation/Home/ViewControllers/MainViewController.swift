@@ -27,7 +27,7 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
     private let pageViewController: SegmentPageViewController = SegmentPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
     
     private let cameraButton: MainCameraButtonView = MainCameraDIContainer().makeView()
-    private let alertConfirmRelay = PublishRelay<(String, String)>()
+    private let alertConfirmRelay: PublishRelay<(String, String)> = PublishRelay<(String, String)>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -140,37 +140,25 @@ extension MainViewController {
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
         
+        Observable.merge(
+            contributorView.nextButtonTapEvent.map { Reactor.Action.openNextViewController(.contributorNextButtonTap)},
+            cameraButton.camerTapEvent.map { Reactor.Action.openNextViewController(.cameraButtonTap )},
+            navigationBarView.rx.rightButtonTap.map { Reactor.Action.openNextViewController(.navigationRightButtonTap)},
+            navigationBarView.rx.leftButtonTap.map { _ in Reactor.Action.openNextViewController(.navigationLeftButtonTap)}
+        )
+        .observe(on: MainScheduler.instance)
+        .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
+        .bind(to: reactor.action)
+        .disposed(by: disposeBag)
+        
         pageViewController.segmentEnabled
             .distinctUntilChanged()
             .observe(on: MainScheduler.instance)
             .bind(to: segmentControl.rx.isUserInteractionEnabled)
             .disposed(by: disposeBag)
         
-        navigationBarView.rx.leftButtonTap
-            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind { $0.0.navigationController?.pushViewController( FamilyManagementDIContainer().makeViewController(), animated: true) }
-            .disposed(by: disposeBag)
-        
-        navigationBarView.rx.rightButtonTap
-            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind { $0.0.navigationController?.pushViewController(MonthlyCalendarDIConatainer().makeViewController(), animated: true) }
-            .disposed(by: disposeBag)
-        
         alertConfirmRelay.map { Reactor.Action.pickConfirmButtonTapped($0.0, $0.1) }
             .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        cameraButton.camerTapEvent
-            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind(onNext: {
-                MPEvent.Home.cameraTapped.track(with: nil)
-                let cameraViewController = CameraDIContainer(
-                    cameraType: reactor.currentState.pageIndex == 0 ? .survival : .mission).makeViewController()
-                $0.0.navigationController?.pushViewController(cameraViewController, animated: true)
-            })
             .disposed(by: disposeBag)
         
         contributorView.infoButton.rx.tap
@@ -184,16 +172,6 @@ extension MainViewController {
                     popoverSize: CGSize(width: 260, height: 62),
                     permittedArrowDrections: [.up]
                 )
-            })
-            .disposed(by: disposeBag)
-        
-        contributorView.nextButtonTapEvent
-            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
-            .observe(on: MainScheduler.instance)
-            .bind(onNext: { [weak self] _ in
-                guard let self else { return }
-                let calendarViewController = WeeklyCalendarDIConatainer(date: reactor.currentState.contributor.recentPostDate.toDate()).makeViewController()
-                self.navigationController?.pushViewController(calendarViewController, animated: true)
             })
             .disposed(by: disposeBag)
     }
@@ -250,16 +228,10 @@ extension MainViewController {
             .bind(to: contributorView.contributorRelay)
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$shouldPresentPickAlert)
-            .compactMap { $0 }
-            .bind(with: self) { owner, profile in
-                BibbiAlertBuilder(owner)
-                    .alertStyle(.pickMember(profile.0))
-                    .setConfirmAction {
-                        owner.alertConfirmRelay.accept((profile.0, profile.1))
-                    }
-                    .present()
-            }
+        reactor.pulse(\.$openNextView).compactMap { $0 }
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: { $0.0.pushViewController(type: $0.1) })
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentPickSuccessToastMessage)
@@ -312,6 +284,36 @@ extension MainViewController {
             descriptionLabel.text = description.text
         }
         imageView.image = description.image
+    }
+    
+    private func pushViewController(type: MainViewReactor.OpenType) {
+        switch type {
+        case .monthlyCalendarViewController:
+            navigationController?.pushViewController(MonthlyCalendarDIConatainer().makeViewController(), animated: true)
+        case .familyManagementViewController:
+            navigationController?.pushViewController(FamilyManagementDIContainer().makeViewController(), animated: true)
+        case .weeklycalendarViewController(let date):
+            navigationController?.pushViewController(WeeklyCalendarDIConatainer(date: date.toDate()).makeViewController(), animated: true)
+        case .cameraViewController(let type):
+            MPEvent.Home.cameraTapped.track(with: nil)
+                navigationController?.pushViewController(CameraDIContainer(cameraType: type).makeViewController(), animated: true)
+        case .survivalAlert:
+            BibbiAlertBuilder(self)
+                .alertStyle(.takeSurvival)
+                .setConfirmAction { [weak self] in
+                    guard let self else { return }
+                    self.navigationController?.pushViewController(CameraDIContainer(cameraType: .survival).makeViewController(), animated: true)
+                }
+                .present()
+        case .pickAlert(let name, let id):
+            BibbiAlertBuilder(self)
+                .alertStyle(.pickMember(name))
+                .setConfirmAction {  [weak self] in 
+                    guard let self else { return }
+                    self.alertConfirmRelay.accept((name, id)) }
+                .present()
+        }
+
     }
 }
 

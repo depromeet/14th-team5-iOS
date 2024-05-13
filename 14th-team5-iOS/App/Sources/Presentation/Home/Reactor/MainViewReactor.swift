@@ -16,12 +16,29 @@ import RxDataSources
 import Kingfisher
 
 final class MainViewReactor: Reactor {
+    enum TapAction {
+        case cameraButtonTap
+        case navigationRightButtonTap
+        case navigationLeftButtonTap
+        case contributorNextButtonTap
+    }
+    
+    enum OpenType {
+        case cameraViewController(UploadLocation)
+        case survivalAlert
+        case pickAlert(String, String)
+        case weeklycalendarViewController(String)
+        case familyManagementViewController
+        case monthlyCalendarViewController
+    }
+    
     enum Action {
         case calculateTime
         case setTimer(Bool, Int)
         case fetchMainUseCase
         case fetchMainNightUseCase
         
+        case openNextViewController(TapAction)
         case didTapSegmentControl(PostType)
         case pickConfirmButtonTapped(String, String)
     }
@@ -40,7 +57,7 @@ final class MainViewReactor: Reactor {
         case setCopySuccessToastMessage
         case setFailureToastMessage
         
-        case setPickAlertView(String, String)
+        case showNextView(OpenType)
     }
     
     struct State {
@@ -58,13 +75,13 @@ final class MainViewReactor: Reactor {
         var isMeMissionUploadedToday: Bool = false
         var isMissionUnlocked: Bool = false
         
+        @Pulse var openNextView: OpenType? = nil
         @Pulse var cameraEnabled: Bool = false
         
         @Pulse var pickers: [Picker] = []
         @Pulse var contributor: FamilyRankData = FamilyRankData.empty
         @Pulse var familySection: [FamilySection.Item] = []
         
-        @Pulse var shouldPresentPickAlert: (String, String)?
         @Pulse var shouldPresentPickSuccessToastMessage: String?
         @Pulse var shouldPresentCopySuccessToastMessage: Bool = false
         @Pulse var shouldPresentFailureToastMessage: Bool = false
@@ -94,7 +111,7 @@ extension MainViewReactor {
             .flatMap { event in
                 switch event {
                 case let .presentPickAlert(name, id):
-                    return Observable<Mutation>.just(.setPickAlertView(name, id))
+                    return Observable<Mutation>.just(.showNextView(.pickAlert(name, id)))
                 case .refreshMain:
                     return self.mutate(action: .calculateTime)
                 default:
@@ -160,7 +177,7 @@ extension MainViewReactor {
                     }
             }
         case .calculateTime:
-            let (isInTime, time) = MainViewReactor.calculateRemainingTime()
+            let (isInTime, time) = self.calculateRemainingTime()
             
             if isInTime {
                 return Observable.concat([
@@ -197,6 +214,25 @@ extension MainViewReactor {
                         self.mutate(action: .calculateTime)
                     )
                 }
+        case .openNextViewController(let type):
+            switch type {
+            case .cameraButtonTap:
+                if currentState.pageIndex == 0 {
+                    return Observable<Mutation>.just(.showNextView(.cameraViewController(.survival)))
+                } else {
+                    if currentState.isMeSurvivalUploadedToday {
+                        return Observable<Mutation>.just(.showNextView(.cameraViewController(.mission)))
+                    } else {
+                        return Observable<Mutation>.just(.showNextView(.survivalAlert))
+                    }
+                }
+            case .navigationRightButtonTap:
+                return Observable<Mutation>.just(.showNextView(.monthlyCalendarViewController))
+            case .navigationLeftButtonTap:
+                return Observable<Mutation>.just(.showNextView(.familyManagementViewController))
+            case .contributorNextButtonTap:
+                return Observable<Mutation>.just(.showNextView(.weeklycalendarViewController(currentState.contributor.recentPostDate)))
+            }
         }
     }
     
@@ -215,82 +251,20 @@ extension MainViewReactor {
         case .setPageIndex(let index):
             newState.pageIndex = index
         case .updateMainData(let data):
-            newState.isMissionUnlocked = data.isMissionUnlocked
-            newState.isMeSurvivalUploadedToday = data.isMeSurvivalUploadedToday
-            newState.isMeMissionUploadedToday = data.isMeMissionUploadedToday
-            newState.isFamilyMissionUploadedToday = data.isFamilyMissionUploadedToday
-            newState.isFamilySurvivalUploadedToday = data.isFamilySurvivalUploadedToday
-            newState.leftCount = data.leftUploadCountUntilMissionUnlock
-            newState.missionText = data.dailyMissionContent
-            newState.pickers = data.pickers
-            newState.familySection = FamilySection.Model(
-                model: 0,
-                items: data.mainFamilyProfileDatas.map {
-                    .main(MainFamilyCellReactor($0, service: provider))
-                }
-            ).items
+            newState = updateMainData(newState, data)
         case .updateMainNight(let data):
             newState.familySection = FamilySection.Model(model: 0, items: data.mainFamilyProfileDatas.map {
                 .main(MainFamilyCellReactor($0, service: provider))
             }).items
             newState.contributor = data.familyRankData
-        case let .setPickAlertView(name, id):
-            newState.shouldPresentPickAlert = (name, id)
         case .setCamerEnabled:
-            if currentState.pageIndex == 0 {
-                newState.cameraEnabled = !currentState.isMeSurvivalUploadedToday
-            } else {
-
-                    if currentState.isMeSurvivalUploadedToday && (!currentState.isMeMissionUploadedToday) && currentState.isMissionUnlocked {
-                    newState.cameraEnabled = true
-                } else {
-                    newState.cameraEnabled = false
-                }
-            }
+            newState = setCameraEnabled(newState)
         case .setBalloonText:
-            if currentState.pageIndex == 0 {
-                if currentState.isMeSurvivalUploadedToday {
-                    newState.balloonText = .survivalDone
-                } else if !currentState.pickers.isEmpty {
-                    if currentState.pickers.count <= 1 {
-                        newState.balloonText = .picker(currentState.pickers[0])
-                    } else {
-                        newState.balloonText = .pickers(currentState.pickers)
-                    }
-                } else {
-                    newState.balloonText = .survivalStandard
-                }
-            } else {
-                if !currentState.isMissionUnlocked {
-                    newState.balloonText = .missionLocked
-                } else {
-                    if !currentState.isMeSurvivalUploadedToday {
-                        newState.balloonText = .cantMission
-                    } else if currentState.isMeMissionUploadedToday {
-                        newState.balloonText = .missionDone
-                    } else {
-                        newState.balloonText = .canMission
-                    }
-                }
-            }
+            newState = setBalloonText(newState)
         case .setDescriptionText:
-            if currentState.pageIndex == 0 {
-                if currentState.isFamilySurvivalUploadedToday {
-                    newState.description = .survivalFull
-                } else {
-                    newState.description = .survivalNone
-                }
-            } else {
-                if !currentState.isMissionUnlocked {
-                    newState.description = .missionNone(currentState.leftCount)
-                } else {
-                    if currentState.isFamilyMissionUploadedToday {
-                        newState.description = .missionFull
-                    } else {
-                        newState.description = .mission(currentState.missionText)
-                    }
-                }
-            }
+            newState = setDescriptionText(newState)
+        case .showNextView(let type):
+            newState.openNextView = type
         }
         
         return newState
@@ -298,7 +272,99 @@ extension MainViewReactor {
 }
 
 extension MainViewReactor {
-    private static func calculateRemainingTime() -> (Bool, Int) {
+    private func updateMainData(_ state: State, _ data: MainData) -> State {
+        var newState = state
+        newState.isMissionUnlocked = data.isMissionUnlocked
+        newState.isMeSurvivalUploadedToday = data.isMeSurvivalUploadedToday
+        newState.isMeMissionUploadedToday = data.isMeMissionUploadedToday
+        newState.isFamilyMissionUploadedToday = data.isFamilyMissionUploadedToday
+        newState.isFamilySurvivalUploadedToday = data.isFamilySurvivalUploadedToday
+        newState.leftCount = data.leftUploadCountUntilMissionUnlock
+        newState.missionText = data.dailyMissionContent
+        newState.pickers = data.pickers
+        newState.familySection = FamilySection.Model(
+            model: 0,
+            items: data.mainFamilyProfileDatas.map {
+                .main(MainFamilyCellReactor($0, service: provider))
+            }
+        ).items
+        
+        return newState
+    }
+    
+    private func setCameraEnabled(_ state: State) -> State {
+        var newState = state
+        
+        if currentState.pageIndex == 0 {
+            newState.cameraEnabled = !currentState.isMeSurvivalUploadedToday
+        } else {
+                if (!currentState.isMeMissionUploadedToday) && currentState.isMissionUnlocked {
+                newState.cameraEnabled = true
+            } else {
+                newState.cameraEnabled = false
+            }
+        }
+        
+        return newState
+    }
+    
+    private func setBalloonText(_ state: State) -> State {
+        var newState = state
+        
+        if currentState.pageIndex == 0 {
+            if currentState.isMeSurvivalUploadedToday {
+                newState.balloonText = .survivalDone
+            } else if !currentState.pickers.isEmpty {
+                if currentState.pickers.count <= 1 {
+                    newState.balloonText = .picker(currentState.pickers[0])
+                } else {
+                    newState.balloonText = .pickers(currentState.pickers)
+                }
+            } else {
+                newState.balloonText = .survivalStandard
+            }
+        } else {
+            if !currentState.isMissionUnlocked {
+                newState.balloonText = .missionLocked
+            } else {
+                if !currentState.isMeSurvivalUploadedToday {
+                    newState.balloonText = .cantMission
+                } else if currentState.isMeMissionUploadedToday {
+                    newState.balloonText = .missionDone
+                } else {
+                    newState.balloonText = .canMission
+                }
+            }
+        }
+        
+        return newState
+    }
+    
+    private func setDescriptionText(_ state: State) -> State {
+        var newState = state
+        
+        if currentState.pageIndex == 0 {
+            if currentState.isFamilySurvivalUploadedToday {
+                newState.description = .survivalFull
+            } else {
+                newState.description = .survivalNone
+            }
+        } else {
+            if !currentState.isMissionUnlocked {
+                newState.description = .missionNone(currentState.leftCount)
+            } else {
+                if currentState.isFamilyMissionUploadedToday {
+                    newState.description = .missionFull
+                } else {
+                    newState.description = .mission(currentState.missionText)
+                }
+            }
+        }
+        
+        return newState
+    }
+    
+    private func calculateRemainingTime() -> (Bool, Int) {
         let calendar = Calendar.current
         let currentTime = Date()
         

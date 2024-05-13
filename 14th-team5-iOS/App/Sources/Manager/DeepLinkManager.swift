@@ -136,7 +136,6 @@ extension DeepLinkManager {
                 type = .SomedayComment
             }
         }
-        print(data)
         
         switch type {
         case .TodaySurvival:
@@ -154,7 +153,6 @@ extension DeepLinkManager {
     
     func decodeRemoteNotificationDeepLink(_ userInfo: [AnyHashable: Any]) {
         if let link = userInfo[AnyHashable("iosDeepLink")] as? String {
-            print(link)
             let components = link.components(separatedBy: "?")
             let parameters = components.last?.components(separatedBy: "&")
 

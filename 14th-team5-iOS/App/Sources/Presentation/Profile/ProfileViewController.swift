@@ -23,7 +23,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
 
     
     //MARK: Views
-  private lazy var profileSegementControl: BibbiSegmentedControl = BibbiSegmentedControl(isUpdated: true)
+  private lazy var profileSegementControl: BibbiSegmentedControl = BibbiSegmentedControl()
     private var pickerConfiguration: PHPickerConfiguration = {
         var configuration: PHPickerConfiguration = PHPickerConfiguration()
         configuration.filter = .images

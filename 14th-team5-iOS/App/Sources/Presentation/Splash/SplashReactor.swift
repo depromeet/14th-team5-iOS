@@ -16,6 +16,7 @@ public final class SplashViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case viewDidLoad
+        case fetchFamily
     }
     
     // MARK: - Mutation
@@ -81,6 +82,10 @@ public final class SplashViewReactor: Reactor {
                                 }
                         ])
                     }
+        case .fetchFamily:
+            return familyUseCase.executeFetchPaginationFamilyMembers(query: .init())
+                .asObservable()
+                .flatMap { _ in return Observable<Mutation>.empty() }
         }
     }
     

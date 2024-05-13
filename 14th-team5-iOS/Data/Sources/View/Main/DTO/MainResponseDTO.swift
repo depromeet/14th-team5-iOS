@@ -13,7 +13,7 @@ struct TopBarElement: Codable {
     let memberId: String
     let imageUrl: String?
     let noImageLetter: String
-    let displayName: String
+    let displayName: String?
     let displayRank: Int?
     let shouldShowBirthdayMark: Bool
     let shouldShowPickIcon: Bool
@@ -22,7 +22,7 @@ struct TopBarElement: Codable {
         return .init(
             memberId: memberId,
             profileImageURL: imageUrl,
-            name: displayName,
+            name: displayName ?? "알 수 없음",
             dayOfBirth: nil,
             isShowBirthdayMark: shouldShowBirthdayMark,
             isShowPickIcon: shouldShowPickIcon,
@@ -34,24 +34,24 @@ struct TopBarElement: Codable {
 struct SurvivalFeed: Codable {
     let postId: String
     let imageUrl: String
-    let authorName: String
+    let authorName: String?
     let createdAt: String
 }
 
 struct MissionFeed: Codable {
     let postId: String
     let imageUrl: String
-    let authorName: String
+    let authorName: String?
     let createdAt: String
 }
 
 struct Picker: Codable {
     let memberId: String
     let imageUrl: String?
-    let displayName: String
+    let displayName: String?
     
     func toDomain() -> Domain.Picker {
-        return .init(imageUrl: imageUrl, displayName: displayName)
+        return .init(imageUrl: imageUrl, displayName: displayName ?? "알 수 없음")
     }
 }
 

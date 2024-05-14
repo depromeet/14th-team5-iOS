@@ -40,6 +40,8 @@ final class ProfileFeedPageViewController: UIPageViewController {
         super.viewDidLoad()
         
         setupUI()
+        self.delegate = self
+        self.dataSource = self
     }
     
     private func setupUI() {
@@ -62,3 +64,15 @@ final class ProfileFeedPageViewController: UIPageViewController {
 
 
 
+
+extension ProfileFeedPageViewController: UIPageViewControllerDelegate, UIPageViewControllerDataSource {
+    func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
+        return nil
+    }
+    
+    func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
+        return nil
+    }
+    
+    
+}

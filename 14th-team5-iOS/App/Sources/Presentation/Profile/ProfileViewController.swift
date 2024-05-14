@@ -58,6 +58,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         
         addChild(profileFeedViewController)
         view.addSubviews(profileView, profileLineView, profileFeedViewController.view, profileSegementControl, profileIndicatorView)
+        profileFeedViewController.didMove(toParent: self)
     }
     
     public override func setupAttributes() {
@@ -157,7 +158,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         reactor.state
             .map { $0.isLoading }
             .distinctUntilChanged()
-            .asDriver(onErrorJustReturn: false)
+            .asDriver(onErrorJustReturn: true)
             .drive(profileIndicatorView.rx.isHidden)
             .disposed(by: disposeBag)
         

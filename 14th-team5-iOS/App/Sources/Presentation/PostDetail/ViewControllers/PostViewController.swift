@@ -53,6 +53,7 @@ final class PostViewController: BaseViewController<PostReactor> {
 
         reactor.state.map { $0.originPostLists }
             .map(Array.init(with:))
+            .distinctUntilChanged()
             .bind(to: collectionView.rx.items(dataSource: createDataSource()))
             .disposed(by: disposeBag)
         

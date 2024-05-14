@@ -30,7 +30,8 @@ final class PostDetailViewReactor: Reactor {
     struct State {
         let type: CellType
         let post: PostListData
-        @Pulse var missionContent: String? = nil
+        
+        var missionContent: String = ""
         
         var isShowingSelectableEmojiStackView: Bool = false
         var fetchedDisplayContent: [DisplayEditSectionModel] = [.displayKeyword([])]

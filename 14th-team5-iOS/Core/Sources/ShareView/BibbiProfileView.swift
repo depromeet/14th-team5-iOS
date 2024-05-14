@@ -77,7 +77,7 @@ public class BibbiProfileView: UIView {
         }
         
         birthDayView.do {
-            $0.isHidden = false
+            $0.isHidden = true
             $0.contentMode = .scaleAspectFill
             $0.image = DesignSystemAsset.birthday.image
         }

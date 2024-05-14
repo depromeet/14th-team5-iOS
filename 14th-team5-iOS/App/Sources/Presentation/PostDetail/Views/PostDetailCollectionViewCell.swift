@@ -172,21 +172,20 @@ extension PostDetailCollectionViewCell {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        reactor.state.compactMap { $0.missionContent }
-            .distinctUntilChanged()
-            .debug("Mission Content Title: ")
-            .bind(to: missionTextView.missionLabel.rx.text)
-            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: PostDetailViewReactor) {
         
-        reactor.state.map { $0.post.missionType == "survival" }
-            .debug("Post Detail Mission Type")
+        reactor.state.map { $0.missionContent }
             .distinctUntilChanged()
-            .bind(to: missionTextView.rx.isHidden)
+            .bind(to: missionTextView.missionLabel.rx.text)
             .disposed(by: disposeBag)
-            
+        
+        reactor.state.map { $0.missionContent.isEmpty }
+            .distinctUntilChanged()
+            .asDriver(onErrorDriveWith: .empty())
+            .drive(missionTextView.rx.isHidden)
+            .disposed(by: disposeBag)
         
         reactor.state.map { $0.post }
             .distinctUntilChanged()

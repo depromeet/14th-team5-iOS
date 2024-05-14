@@ -54,7 +54,7 @@ public final class ProfileViewReactor: Reactor {
         self.memberId = memberId
         self.isUser = isUser
         self.initialState = State(
-            isLoading: false,
+            isLoading: true,
             memberId: memberId,
             isUser: isUser,
             feedType: .survival
@@ -67,17 +67,11 @@ public final class ProfileViewReactor: Reactor {
         //TODO: Keychain, UserDefaults 추가
         switch action {
         case .viewDidLoad:
-            return .concat(
-                .just(.setLoading(false)),
-                profileUseCase.executeProfileMemberItems(memberId: currentState.memberId)
-                    .asObservable()
-                    .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
-                        return .concat(
-                            .just(.setProfileMemberItems(entity)),
-                            .just(.setLoading(true))
-                        )
-                }
-            )
+            return profileUseCase.executeProfileMemberItems(memberId: currentState.memberId)
+                .asObservable()
+                .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
+                    .just(.setProfileMemberItems(entity))
+            }
         case let .updateNickNameProfile(nickNameFileData):
             let nickNameProfileImage: String = "\(nickNameFileData.hashValue).jpg"
             let nickNameImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: nickNameProfileImage)

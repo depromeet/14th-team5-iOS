@@ -84,7 +84,7 @@ final class MissionTextView: UIView {
         }
         
         missionImageView.do {
-            $0.image = DesignSystemAsset.mission1.image
+            $0.image = DesignSystemAsset.missionTitleBadge.image
             $0.contentMode = .scaleAspectFit
         }
     }

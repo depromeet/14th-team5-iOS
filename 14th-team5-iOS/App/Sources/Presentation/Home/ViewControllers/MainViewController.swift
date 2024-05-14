@@ -177,7 +177,8 @@ extension MainViewController {
     }
     
     private func bindOutput(reactor: MainViewReactor) {
-        reactor.state.map { $0.isInTime }
+        reactor.state.map { $0.isInTime }.compactMap { $0 }
+            .debug("isInTime")
             .distinctUntilChanged()
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
@@ -218,11 +219,9 @@ extension MainViewController {
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.isMissionUnlocked }
-            .debug("냐밍")
             .distinctUntilChanged()
-            .withUnretained(self)
             .observe(on: MainScheduler.instance)
-            .bind(onNext: { $0.0.segmentControl.isUpdatedRelay })
+            .bind(to: segmentControl.isUpdatedRelay)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$contributor)
@@ -268,9 +267,11 @@ extension MainViewController {
     private func setInTimeView(_ isInTime: Bool) {
         if isInTime {
             contributorView.isHidden = true
+            pageViewController.view.isHidden = false
             segmentControl.isHidden = false
         } else {
             contributorView.isHidden = false
+            pageViewController.view.isHidden = true
             segmentControl.isHidden = true
         }
     }

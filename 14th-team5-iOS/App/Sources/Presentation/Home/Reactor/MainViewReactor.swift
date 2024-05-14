@@ -61,7 +61,7 @@ final class MainViewReactor: Reactor {
     }
     
     struct State {
-        var isInTime: Bool = true
+        var isInTime: Bool?
         var pageIndex: Int = 0
         var leftCount: Int = 0
         
@@ -382,7 +382,7 @@ extension MainViewReactor {
             }
         }
         
-        return (false, 0)
+        return (false, 1000)
     }
     
 }

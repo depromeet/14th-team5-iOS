@@ -111,7 +111,6 @@ extension MainFamilyViewController {
             .observe(on: MainScheduler.instance)
             .map { !$0 }
             .distinctUntilChanged()
-            .debug("가족 없을 때 ")
             .bind(to: inviteFamilyView.rx.isHidden)
             .disposed(by: disposeBag)
         
@@ -119,7 +118,6 @@ extension MainFamilyViewController {
             .observe(on: MainScheduler.instance)
             .map { $0 }
             .distinctUntilChanged()
-            .debug("가족 있을 때")
             .bind(to: familyCollectionView.rx.isHidden)
             .disposed(by: disposeBag)
         

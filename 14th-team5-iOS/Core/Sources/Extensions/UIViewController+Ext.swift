@@ -165,7 +165,7 @@ extension UIViewController {
     public func makeInvitationUrlSharePanel(_ url: URL?, provider globalState: GlobalStateProviderProtocol? = nil) {
         guard let url = url else { return }
         let itemSource = UrlActivityItemSource(
-            title: "삐삐! 가족에게 보내는 하루 한번 생존 신고",
+            title: "삐삐! 가족에게 보내는 하루 한 번 생존 신고",
             url: url
         )
         let copyToPastboard = CopyInvitationUrlActivity(url, provider: globalState)

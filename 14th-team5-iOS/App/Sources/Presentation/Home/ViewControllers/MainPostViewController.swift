@@ -111,12 +111,7 @@ extension MainPostViewController {
         reactor.pulse(\.$isRefreshEnd)
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
-            .withUnretained(self)
-            .bind(onNext: { owner, _ in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    owner.refreshControl.endRefreshing()
-                }
-            })
+            .bind(onNext: { $0.0.refreshControl.endRefreshing() })
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.isShowingNoPostTodayView }

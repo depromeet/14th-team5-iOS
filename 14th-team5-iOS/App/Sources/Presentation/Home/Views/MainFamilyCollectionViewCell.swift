@@ -39,7 +39,7 @@ final class MainFamilyCollectionViewCell: BaseCollectionViewCell<MainFamilyCellR
         rankBadge.image = nil
         birthdayBadge.image = nil
         imageView.layer.borderWidth = 0
-        imageView.layer.borderColor = nil
+        imageView.layer.borderColor = UIColor.clear.cgColor
     }
 
     override func setupAutoLayout() {

@@ -14,12 +14,13 @@ import RxCocoa
 final class ProfileFeedPageViewController: UIPageViewController {
 
     
-    public var currentPage: Int = 0 {
+    public var currentPageRelay: BehaviorRelay<Int> = .init(value: 0) {
         didSet {
-            setViewController(index: currentPage)
+            setViewController(index: currentPageRelay.value)
         }
     }
     
+    private lazy var feedViewControllers:[UIViewController] = [profileFeedSurivalViewController, profileFeedMissionViewController]
     public var memberId: String = ""
     
     private lazy var profileFeedSurivalViewController: ProfileFeedViewController = ProfileFeedDIContainer(postType: .survival, memberId: memberId).makeViewController()
@@ -45,16 +46,20 @@ final class ProfileFeedPageViewController: UIPageViewController {
     }
     
     private func setupUI() {
-        setViewController(index: currentPage)
+        setViewController(index: currentPageRelay.value)
     }
     
     
     private func setViewController(index: Int) {
         switch index {
         case 0:
-            setViewControllers([profileFeedSurivalViewController], direction: .reverse, animated: true)
+            setViewControllers([profileFeedSurivalViewController], direction: .reverse, animated: true) { [weak self] _ in
+                self?.isPagingEnabled = true
+            }
         case 1:
-            setViewControllers([profileFeedMissionViewController], direction: .forward, animated: true)
+            setViewControllers([profileFeedMissionViewController], direction: .forward, animated: true) { [weak self] _ in
+                self?.isPagingEnabled = true
+            }
         default:
             break
         }
@@ -67,12 +72,23 @@ final class ProfileFeedPageViewController: UIPageViewController {
 
 extension ProfileFeedPageViewController: UIPageViewControllerDelegate, UIPageViewControllerDataSource {
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
-        return nil
+        guard let index = feedViewControllers.firstIndex(of: viewController),
+                      index - 1 >= 0 else { return nil }
+        return feedViewControllers[index - 1]
     }
     
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
-        return nil
+        guard let index = feedViewControllers.firstIndex(of: viewController),
+                      index + 1 != feedViewControllers.count else { return nil }
+        return feedViewControllers[index + 1]
     }
     
+    
+    func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+        if let currentViewController = pageViewController.viewControllers?.first,
+           let currentIndex = feedViewControllers.firstIndex(of: currentViewController) {
+            currentPageRelay.accept(currentIndex)
+        }
+    }
     
 }

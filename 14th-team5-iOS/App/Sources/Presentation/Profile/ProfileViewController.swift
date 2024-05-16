@@ -182,33 +182,27 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .distinctUntilChanged()
             .bind(to: profileView.rx.isSetting)
             .disposed(by: disposeBag)
-      
-        profileSegementControl
-            .survivalButton.rx.tap
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-            .map { Reactor.Action.didTapSegementControl(.survival) }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-      
-        profileSegementControl
-            .missionButton.rx.tap
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-            .map { Reactor.Action.didTapSegementControl(.mission) }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
+        
         
         reactor.state
             .map { $0.memberId }
             .bind(to: profileFeedViewController.rx.memberId)
             .disposed(by: disposeBag)
         
+        Observable.merge(
+            profileFeedViewController.currentPageRelay.map { $0 == 0 ? BibbiFeedType.survival : BibbiFeedType.mission }.map { Reactor.Action.didTapSegementControl($0) },
+            profileSegementControl.missionButton.rx.tap.map { Reactor.Action.didTapSegementControl(.mission)},
+            profileSegementControl.survivalButton.rx.tap.map { Reactor.Action.didTapSegementControl(.survival)}
+        )
+        .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+        .bind(to: reactor.action)
+        .disposed(by: disposeBag)
+        
         reactor.state
-            .map { $0.feedType.rawValue }
-            .distinctUntilChanged()
-            .bind(to: profileFeedViewController.rx.currentPage)
+            .map { $0.feedType == .survival ? 0 : 1 }
+            .bind(to: profileFeedViewController.currentPageRelay)
             .disposed(by: disposeBag)
-      
-      
+        
         reactor
           .state.map { $0.feedType == .survival ? true : false }
           .distinctUntilChanged()

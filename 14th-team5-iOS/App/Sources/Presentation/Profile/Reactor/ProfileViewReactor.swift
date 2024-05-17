@@ -11,10 +11,6 @@ import Core
 import Domain
 import ReactorKit
 
-public enum BibbiFeedType: Int {
-    case survival = 0
-    case mission = 1
-}
 
 public final class ProfileViewReactor: Reactor {
     public var initialState: State
@@ -62,6 +58,20 @@ public final class ProfileViewReactor: Reactor {
         
         self.provider = provider
     }
+    
+    public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+        let segmentedUpdateMutation = provider.profilePageGlobalState.event
+            .flatMap { event -> Observable<Mutation> in
+                switch event {
+                case let .didReceiveMemberId(type):
+                    return .just(.setProfileFeedType(type))
+                default:
+                    return .empty()
+                }
+            }
+        return .merge(mutation, segmentedUpdateMutation)
+    }
+    
     
     public func mutate(action: Action) -> Observable<Mutation> {
         //TODO: Keychain, UserDefaults 추가
@@ -171,6 +181,7 @@ public final class ProfileViewReactor: Reactor {
                 }
             
         case let .didTapSegementControl(feedType):
+            provider.profilePageGlobalState.didTapSegmentedPageType(type: feedType)
             return .just(.setProfileFeedType(feedType))
         case .viewDidDisappear:
             return provider.mainService.refreshMain()

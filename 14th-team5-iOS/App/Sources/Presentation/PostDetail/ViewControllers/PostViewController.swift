@@ -49,8 +49,18 @@ final class PostViewController: BaseViewController<PostReactor> {
                 owner.navigationController?.pushViewController(cameraViewController, animated: true)
             }.disposed(by: disposeBag)
         
-            
-
+        
+        Observable.zip(
+            collectionView.rx.didEndDisplayingCell.map { $0.at.item }.distinctUntilChanged(),
+            reactor.state.map { $0.selectedIndex }.distinctUntilChanged()
+        )
+        .debug("포스트 뷰 ZIP 옵저버블 :")
+        .filter { $0.0 == $0.1 }
+        .withUnretained(self)
+        .subscribe { owner, indexPath in
+            owner.collectionView.reloadItems(at: [.init(row: indexPath.1, section: 0)])
+        }.disposed(by: disposeBag)
+        
         reactor.state.map { $0.originPostLists }
             .map(Array.init(with:))
             .distinctUntilChanged()

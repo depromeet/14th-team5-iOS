@@ -15,6 +15,7 @@ public protocol GlobalStateProviderProtocol: AnyObject {
     var profileGlobalState: ProfileGlobalStateType { get }
     var timerGlobalState: TimerGlobalStateType { get }
     var realEmojiGlobalState: RealEmojiGlobalStateType { get }
+    var profilePageGlobalState: ProfileFeedGlobalStateType { get }
     var mainService: MainServiceType { get }
 }
 
@@ -27,6 +28,7 @@ final public class GlobalStateProvider: GlobalStateProviderProtocol {
     
     public lazy var timerGlobalState: TimerGlobalStateType = TimerGlobalState(provider: self)
     public lazy var realEmojiGlobalState: RealEmojiGlobalStateType = RealEmojiGlobalState(provider: self)
+    public lazy var profilePageGlobalState: ProfileFeedGlobalStateType = ProfileFeedGlobalState(provider: self)
     
     public lazy var mainService: MainServiceType = MainService(provider: self)
     

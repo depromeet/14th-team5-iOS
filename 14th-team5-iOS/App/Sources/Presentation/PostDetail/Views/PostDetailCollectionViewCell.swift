@@ -34,6 +34,7 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<PostDetailViewR
         self.init(frame: .zero)
         self.reactor = reacter
     }
+
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -178,18 +179,13 @@ extension PostDetailCollectionViewCell {
         
         reactor.state.map { $0.missionContent }
             .distinctUntilChanged()
-            .debug("미션 컨텐츠 뷰 타이틀")
-            .observe(on: MainScheduler.instance)
             .bind(to: missionTextView.missionLabel.rx.text)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.missionContent.isEmpty }
             .distinctUntilChanged()
-            .debug("미션 컨텐츠 뷰 히든 :")
-            .asDriver(onErrorDriveWith: .empty())
-            .drive(missionTextView.rx.isHidden)
+            .bind(to: missionTextView.rx.isHidden)
             .disposed(by: disposeBag)
-
         
         reactor.state.map { $0.post }
             .distinctUntilChanged()

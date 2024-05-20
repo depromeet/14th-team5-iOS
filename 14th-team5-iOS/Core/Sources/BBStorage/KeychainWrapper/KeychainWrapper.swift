@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class KeychainWrapper {
+final public class KeychainWrapper {
     
     // MARK: - Properties
     public static let standard = KeychainWrapper()

@@ -9,13 +9,13 @@ import Foundation
 
 import RxSwift
 import RxCocoa
-import SwiftKeychainWrapper
+//import SwiftKeychainWrapper
 
-public extension KeychainWrapper.Key {
-    static let fcmToken: KeychainWrapper.Key = "FCMToken"
-    static let accessToken: KeychainWrapper.Key = "accessToken"
-    static let refreshToken: KeychainWrapper.Key = "refreshToken"
-}
+//public extension KeychainWrapper.Key {
+//    static let fcmToken: KeychainWrapper.Key = "FCMToken"
+//    static let accessToken: KeychainWrapper.Key = "accessToken"
+//    static let refreshToken: KeychainWrapper.Key = "refreshToken"
+//}
 
 public struct AccessToken: Codable, Equatable {
     public var accessToken: String?

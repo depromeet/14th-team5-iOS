@@ -183,3 +183,10 @@ final public class CalendarImageCell: FSCalendarCell, ReactorKit.View {
         }
     }
 }
+
+// MARK: - Extensions
+extension CalendarImageCell {
+    var hasThumbnailImage: Bool {
+        return thumbnailView.image != nil ? true : false
+    }
+}

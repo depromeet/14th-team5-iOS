@@ -114,13 +114,13 @@ public extension UserDefaultsWrapper {
     
     struct Key: Hashable, RawRepresentable, ExpressibleByStringLiteral {
         
-        var rawValue: String
+        public var rawValue: String
         
-        init(rawValue: RawValue) {
+        public init(rawValue: RawValue) {
             self.rawValue = rawValue
         }
         
-        init(stringLiteral value: String) {
+        public init(stringLiteral value: String) {
             self.rawValue = value
         }
         

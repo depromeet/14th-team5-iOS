@@ -33,6 +33,7 @@ final class ReactionViewReactor: Reactor {
         case setPost(PostListData)
         case setPostCommentCount(Int)
         case setInitialDataSource
+        case setSelectionHapticFeedback
     }
     
     struct State {
@@ -49,6 +50,7 @@ final class ReactionViewReactor: Reactor {
         @Pulse var reactionMemberSheetEmoji: FetchedEmojiData? = nil
         @Pulse var isShowingCommentSheet: Bool = false
         @Pulse var isShowingEmojiSheet: Bool = false
+        @Pulse var selectionHapticFeedback: Bool = false
     }
     
     let initialState: State
@@ -88,7 +90,10 @@ extension ReactionViewReactor {
         case .emptyAction:
             return Observable.empty()
         case .tapComment:
-            return Observable.just(Mutation.setCommentSheet)
+            return Observable.merge(
+                Observable<Mutation>.just(.setSelectionHapticFeedback),
+                Observable<Mutation>.just(.setCommentSheet)
+            )
         case .tapAddEmoji:
             return Observable.just(Mutation.setEmojiSheet)
         case .longPressEmoji(let indexPath):
@@ -143,7 +148,9 @@ extension ReactionViewReactor {
                 switch item {
                 case .addComment(var currentCount):
                     currentCount = count
-                    newState.reactionSections = ReactionSection.Model(model: newState.reactionSections.model, items: [.addComment(currentCount)] + newState.reactionSections.items.filter { item in
+                    newState.reactionSections = ReactionSection.Model(
+                        model: newState.reactionSections.model,
+                        items: [.addComment(currentCount)] + newState.reactionSections.items.filter { item in
                         if case .addReaction = item {
                             return true
                         } else {
@@ -154,7 +161,8 @@ extension ReactionViewReactor {
                     break
                 }
             }
-
+        case .setSelectionHapticFeedback:
+            newState.selectionHapticFeedback = true
         }
         return newState
     }

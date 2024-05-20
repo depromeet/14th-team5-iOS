@@ -167,6 +167,13 @@ extension ReactionViewController {
                 }
             })
             .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$selectionHapticFeedback)
+            .filter { $0 }
+            .bind { _ in
+                Haptic.selection()
+            }
+            .disposed(by: disposeBag)
     }
     
     private func presentCustomSheetViewController<T: UIViewController>(

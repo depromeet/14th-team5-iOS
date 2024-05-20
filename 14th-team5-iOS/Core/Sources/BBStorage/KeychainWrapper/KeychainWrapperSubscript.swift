@@ -25,7 +25,7 @@ public extension KeychainWrapper {
         }
     }
     
-    public subscript(key: Key) -> Double? {
+    subscript(key: Key) -> Double? {
         get { double(forKey: key) }
         set {
             guard let value = newValue else { return }

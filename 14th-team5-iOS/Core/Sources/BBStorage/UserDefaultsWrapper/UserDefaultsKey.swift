@@ -9,6 +9,7 @@ import Foundation
 
 public extension UserDefaultsWrapper.Key {
     
-    static let name: Self  = "name"
+    static let familyId: Self = "FamilyId"
+    static let familyCreatedAt: Self = "FamilyCreatedAt"
     
 }

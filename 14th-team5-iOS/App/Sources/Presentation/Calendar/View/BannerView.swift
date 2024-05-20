@@ -29,7 +29,6 @@ struct BannerView: View {
     // MARK: - Intializer
     init(viewModel: BannerViewModel) {
         self.viewModel = viewModel
-        print("isPhoneSE: \(UIScreen.isPhoneSE)")
     }
     
     // MARK: - Body
@@ -38,12 +37,15 @@ struct BannerView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background { bannerImage }
             .background(
-                Color(uiColor: viewModel.state.bannerColor ?? UIColor.gray500),
+                Color(
+                    uiColor: viewModel.state.bannerColor ?? UIColor.gray500),
                 in: RoundedRectangle(
                     cornerRadius: 24,
                     style: .circular
                 )
             )
+            .shimmering(active: viewModel.shimmeringActive)
+            .animation(.default, value: viewModel.shimmeringActive)
             .clipped()
     }
 }

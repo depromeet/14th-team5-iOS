@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-struct Shimmer: ViewModifier {
+public struct Shimmer: ViewModifier {
     private let animation: Animation
     private let gradient: Gradient
     private let min, max: CGFloat
@@ -26,9 +26,9 @@ struct Shimmer: ViewModifier {
         self.max = 1 + bandSize
     }
     
-    static let defaultAnimation = Animation.linear(duration: 1.5).delay(0.25).repeatForever(autoreverses: false)
+    public static let defaultAnimation = Animation.linear(duration: 1.5).delay(0.25).repeatForever(autoreverses: false)
     
-    static let defaultGradient = Gradient(colors: [
+    public static let defaultGradient = Gradient(colors: [
         Color.black.opacity(0.3),
         Color.black,
         Color.black.opacity(0.3)
@@ -70,7 +70,7 @@ struct Shimmer: ViewModifier {
         }
     }
     
-    func body(content: Content) -> some View {
+    public func body(content: Content) -> some View {
         content
             .mask(LinearGradient(gradient: gradient, startPoint: startPoint, endPoint: endPoint))
             .animation(animation, value: isIntialState)
@@ -83,7 +83,7 @@ struct Shimmer: ViewModifier {
 }
 
 // MARK: - Extensions
-extension View {
+public extension View {
     @ViewBuilder
     func shimmering(
         active: Bool = true,

@@ -8,18 +8,20 @@
 import ProjectDescription
 
 
+
 public struct ModularFactory {
     var name: ModuleLayer.RawValue
     var platform: Platform
     var products: ProductsType
+    var destionation: Destinations = .iOS
     var dependencies: [TargetDependency]
     var bundleId: String
-    var deploymentTarget: DeploymentTarget?
+    var deploymentTarget: DeploymentTargets?
     var infoPlist: InfoPlist?
     var sources: SourceFilesList?
     var resources: ResourceFileElements?
     var settings: Settings?
-    var entitlements:  ProjectDescription.Path?
+    var entitlements: Entitlements?
     
     
     public init(
@@ -28,12 +30,12 @@ public struct ModularFactory {
         products: ProductsType = .framework(.static),
         dependencies: [TargetDependency] = [],
         bundleId: String = "",
-        deploymentTarget: DeploymentTarget? = .defualt,
+        deploymentTarget: DeploymentTargets? = .defualt,
         infoPlist: InfoPlist? = .default,
         sources: SourceFilesList? = .default,
         resources: ResourceFileElements? = .default,
         settings: Settings? = nil,
-        entitlements:  ProjectDescription.Path? = nil
+        entitlements: Entitlements? = .file(path: .relativeToRoot("WidgetExtension.entitlements"))
     ) {
         self.name = name
         self.platform = platform
@@ -54,18 +56,19 @@ extension Target {
     public static func makeModular(extenions layer: ExtensionsLayer, factory: ModularFactory) -> Target {
         switch layer {
         case .Widget:
-            return Target(
-                name: layer.rawValue + "Extension",
-                platform: factory.platform,
-                product: factory.products.isExtensions ? .appExtension : .app,
-                bundleId: factory.bundleId.lowercased(),
-                deploymentTarget: factory.deploymentTarget,
-                infoPlist: factory.infoPlist,
-                sources: factory.products.isExtensions ? .widgetExtensionSources : .default,
-                resources: factory.products.isExtensions ? .widgetExtensionResources : .default,
-                entitlements: factory.entitlements, 
-                dependencies: factory.dependencies,
-                settings: factory.settings
+          return Target
+            .target(
+              name: layer.rawValue + "Extension",
+              destinations: factory.destionation,
+              product: factory.products.isExtensions ? .appExtension : .app,
+              bundleId: factory.bundleId.lowercased(),
+              infoPlist: factory.infoPlist,
+              sources: factory.products.isExtensions ? .widgetExtensionSources : .default,
+              resources: factory.products.isExtensions ? .widgetExtensionResources : .default,
+              entitlements: factory.entitlements,
+              dependencies: factory.dependencies,
+              settings: factory.settings
+
             )
         }
     }
@@ -74,75 +77,80 @@ extension Target {
         
         switch layer {
         case .App:
-            return Target(
-                name: layer.rawValue,
-                platform: factory.platform,
-                product: factory.products.isApp ? .app : .staticFramework,
-                bundleId: factory.bundleId.lowercased(),
-                deploymentTarget: factory.deploymentTarget,
-                infoPlist: factory.infoPlist,
-                sources: factory.sources,
-                resources: factory.resources,
-                entitlements: factory.entitlements,
-                dependencies: factory.dependencies,
-                settings: factory.settings
-            )
+            return Target
+                .target(
+                    name: layer.rawValue,
+                    destinations: factory.destionation,
+                    product: factory.products.isApp ? .app : .staticLibrary,
+                    bundleId: factory.bundleId.lowercased(),
+                    deploymentTargets: factory.deploymentTarget,
+                    infoPlist: factory.infoPlist,
+                    sources: factory.sources,
+                    resources: factory.resources,
+                    entitlements: factory.entitlements,
+                    dependencies: factory.dependencies,
+                    settings: factory.settings
+                )
         case .Data:
-            return Target(
-                name: layer.rawValue,
-                platform: factory.platform,
-                product: factory.products.isLibrary ? .staticFramework : .framework,
-                bundleId: "com.\(layer.rawValue).project".lowercased(),
-                deploymentTarget: factory.deploymentTarget,
-                infoPlist: factory.infoPlist,
-                sources: factory.sources,
-                resources: factory.resources,
-                entitlements: factory.entitlements,
-                dependencies: factory.dependencies,
-                settings: factory.settings
-            )
+            return Target
+                .target(
+                    name: layer.rawValue,
+                    destinations: factory.destionation,
+                    product: factory.products.isExtensions ? .staticFramework : .framework,
+                    bundleId: factory.bundleId.lowercased(),
+                    deploymentTargets: factory.deploymentTarget,
+                    infoPlist: factory.infoPlist,
+                    sources: factory.sources,
+                    resources: factory.resources,
+                    entitlements: .none,
+                    dependencies: factory.dependencies,
+                    settings: factory.settings
+                )
         case .Domain:
-            return Target(
-                name: layer.rawValue,
-                platform: factory.platform,
-                product: factory.products.isFramework ? .staticFramework : .framework,
-                bundleId: "com.\(layer.rawValue).project".lowercased(),
-                deploymentTarget: factory.deploymentTarget,
-                infoPlist: factory.infoPlist,
-                sources: factory.sources,
-                resources: factory.resources,
-                entitlements: factory.entitlements,
-                dependencies: factory.dependencies,
-                settings: factory.settings
-            )
+            return Target
+                .target(
+                    name: layer.rawValue,
+                    destinations: factory.destionation,
+                    product: factory.products.isExtensions ? .staticFramework : .framework,
+                    bundleId: factory.bundleId.lowercased(),
+                    deploymentTargets: factory.deploymentTarget,
+                    infoPlist: factory.infoPlist,
+                    sources: factory.sources,
+                    resources: factory.resources,
+                    entitlements: .none,
+                    dependencies: factory.dependencies,
+                    settings: factory.settings
+                )
         case .Core:
-            return Target(
-                name: layer.rawValue,
-                platform: factory.platform,
-                product: factory.products.isLibrary ? .framework : .staticFramework,
-                bundleId: "com.\(layer.rawValue).project".lowercased(),
-                deploymentTarget: factory.deploymentTarget,
-                infoPlist: factory.infoPlist,
-                sources: factory.sources,
-                resources: factory.resources,
-                entitlements: factory.entitlements,
-                dependencies: factory.dependencies,
-                settings: factory.settings
-            )
+            return Target
+                .target(
+                    name: layer.rawValue,
+                    destinations: factory.destionation,
+                    product: factory.products.isExtensions ? .framework : .staticFramework,
+                    bundleId: factory.bundleId.lowercased(),
+                    deploymentTargets: factory.deploymentTarget,
+                    infoPlist: factory.infoPlist,
+                    sources: factory.sources,
+                    resources: factory.resources,
+                    entitlements: .none,
+                    dependencies: factory.dependencies,
+                    settings: factory.settings
+                )
         case .DesignSystem:
-            return Target(
-                name: layer.rawValue,
-                platform: factory.platform,
-                product: factory.products.isFramework ? .staticFramework : .framework,
-                bundleId: "com.\(layer.rawValue).project".lowercased(),
-                deploymentTarget: factory.deploymentTarget,
-                infoPlist: factory.infoPlist,
-                sources: factory.sources,
-                resources: factory.resources,
-                entitlements: factory.entitlements,
-                dependencies: factory.dependencies,
-                settings: factory.settings
-            )
+            return Target
+                .target(
+                    name: layer.rawValue,
+                    destinations: factory.destionation,
+                    product: factory.products.isExtensions ? .staticFramework : .framework,
+                    bundleId: factory.bundleId.lowercased(),
+                    deploymentTargets: factory.deploymentTarget,
+                    infoPlist: factory.infoPlist,
+                    sources: factory.sources,
+                    resources: factory.resources,
+                    entitlements: .none,
+                    dependencies: factory.dependencies,
+                    settings: factory.settings
+                )
         }
         
     }

@@ -20,4 +20,4 @@ private let targets: [Target] = [
     )
 ]
 
-private let data = Project.makeApp(name: ModuleLayer.Data.rawValue, target: targets)
+private let data = Project.makeFrameWork(name: ModuleLayer.Data.rawValue, target: targets)

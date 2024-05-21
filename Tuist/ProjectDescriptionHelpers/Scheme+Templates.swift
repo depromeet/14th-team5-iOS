@@ -13,32 +13,41 @@ extension Scheme {
         let buildName = type.rawValue
         switch type {
         case .dev:
-            return Scheme(
-                name: "\(name)-\(buildName.uppercased())",
-                buildAction: BuildAction(targets: ["\(name)"]),
-                runAction: .runAction(configuration: type.configurationName),
-                archiveAction: .archiveAction(configuration: type.configurationName),
-                profileAction: .profileAction(configuration: type.configurationName),
-                analyzeAction: .analyzeAction(configuration: type.configurationName)
-            )
+            return Scheme
+                .scheme(
+                    name: "\(name)-\(buildName.uppercased())",
+                    shared: true,
+                    hidden: false,
+                    buildAction: BuildAction.buildAction(targets:  ["\(name)"]),
+                    runAction: .runAction(configuration: type.configurationName),
+                    archiveAction: .archiveAction(configuration: type.configurationName),
+                    profileAction: .profileAction(configuration: type.configurationName),
+                    analyzeAction: .analyzeAction(configuration: type.configurationName)
+                )
         case .prd:
-            return Scheme(
-                name: "\(name)-\(buildName.uppercased())",
-                buildAction: BuildAction(targets: ["\(name)"]),
-                runAction: .runAction(configuration: type.configurationName),
-                archiveAction: .archiveAction(configuration: type.configurationName),
-                profileAction: .profileAction(configuration: type.configurationName),
-                analyzeAction: .analyzeAction(configuration: type.configurationName)
-            )
+            return Scheme
+                .scheme(
+                    name: "\(name)-\(buildName.uppercased())",
+                    shared: true,
+                    hidden: false,
+                    buildAction: BuildAction.buildAction(targets:  ["\(name)"]),
+                    runAction: .runAction(configuration: type.configurationName),
+                    archiveAction: .archiveAction(configuration: type.configurationName),
+                    profileAction: .profileAction(configuration: type.configurationName),
+                    analyzeAction: .analyzeAction(configuration: type.configurationName)
+                )
         case .stg:
-            return Scheme(
-                name: "\(name)-\(buildName.uppercased())",
-                buildAction: BuildAction(targets: ["\(name)"]),
-                runAction: .runAction(configuration: type.configurationName),
-                archiveAction: .archiveAction(configuration: type.configurationName),
-                profileAction: .profileAction(configuration: type.configurationName),
-                analyzeAction: .analyzeAction(configuration: type.configurationName)
-            )
+            return Scheme
+                .scheme(
+                    name: "\(name)-\(buildName.uppercased())",
+                    shared: true,
+                    hidden: false,
+                    buildAction: BuildAction.buildAction(targets:  ["\(name)"]),
+                    runAction: .runAction(configuration: type.configurationName),
+                    archiveAction: .archiveAction(configuration: type.configurationName),
+                    profileAction: .profileAction(configuration: type.configurationName),
+                    analyzeAction: .analyzeAction(configuration: type.configurationName)
+                )
         }
     }
 }

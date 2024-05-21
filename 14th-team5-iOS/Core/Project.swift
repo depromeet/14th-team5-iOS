@@ -19,5 +19,5 @@ private let targets: [Target] = [
 ]
 
 
-private let core = Project.makeApp(name: ModuleLayer.Core.rawValue, target: targets)
+private let core = Project.makeFrameWork(name: ModuleLayer.Core.rawValue, target: targets)
 

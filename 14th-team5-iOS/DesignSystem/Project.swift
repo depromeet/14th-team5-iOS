@@ -18,6 +18,5 @@ private let targets: [Target] = [
     )
 ]
 
-private let designSystem = Project.makeApp(name: ModuleLayer.DesignSystem.rawValue, target: targets)
-
+private let designSystem = Project.makeFrameWork(name: ModuleLayer.DesignSystem.rawValue, target: targets)
 

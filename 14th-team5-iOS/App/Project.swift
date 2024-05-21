@@ -58,7 +58,7 @@ private let targets: [Target] = [
                     .build(.prd, name: "PRD"),
                     .build(.stg, name: "STG")
                 ]),
-            entitlements: .relativeToRoot("App.entitlements")
+            entitlements: .file(path: .relativeToRoot("App.entitlements"))
         )
     ),
     .makeModular(extenions: .Widget, factory: .init(
@@ -83,7 +83,7 @@ private let targets: [Target] = [
                 .build(.prd, name: "PRD"),
                 .build(.stg, name: "STG")
             ]),
-        entitlements: .relativeToRoot("WidgetExtension.entitlements")
+        entitlements: .file(path: .relativeToRoot("WidgetExtension.entitlements"))
     )
 )
 ]

@@ -134,7 +134,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         }
         
         flashButton.do {
-            $0.setImage(DesignSystemAsset.flash.image, for: .normal)
+            $0.setImage(DesignSystemAsset.flashOff.image, for: .normal)
             $0.backgroundColor = .darkGray
         }
         
@@ -219,17 +219,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .distinctUntilChanged()
             .bind(to: cameraIndicatorView.rx.isHidden)
             .disposed(by: disposeBag)
-        
-        
-        NotificationCenter.default.rx.notification(.AVCapturePhotoOutputDidFinishProcessingPhotoNotification)
-            .compactMap { notification -> Data? in
-                guard let userInfo = notification.userInfo else { return nil }
-                return userInfo["photo"] as? Data
-            }
-            .distinctUntilChanged()
-            .map { Reactor.Action.didTapShutterButton($0) }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
+            
         
         NotificationCenter.default
             .rx.notification(.didTapBibbiToastTranstionButton)
@@ -363,6 +353,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         realEmojiCollectionView
             .rx.itemSelected
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .map { Reactor.Action.didTapRealEmojiPad($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -378,9 +369,11 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .rx.tap
             .throttle(.seconds(4), scheduler: MainScheduler.instance)
             .do { _ in Haptic.selection() }
+            .withLatestFrom(reactor.state.map { $0.isFlashMode })
             .withUnretained(self)
-            .subscribe { owner, _ in
+            .bind { owner, isFlash in
                 let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
+                settings.flashMode = isFlash == true ? .on : .off
                 owner.captureOutputStream.capturePhoto(with: settings, delegate: owner)
             }.disposed(by: disposeBag)
         
@@ -413,9 +406,8 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$isFlashMode)
-            .skip(1)
-            .withUnretained(self)
-            .bind(onNext: { $0.0.setupFlashMode(isFlash: $0.1) })
+            .map { $0 == true ? DesignSystemAsset.flashOn.image : DesignSystemAsset.flashOff.image }
+            .bind(to: flashButton.rx.image())
             .disposed(by: disposeBag)
         
     }
@@ -552,22 +544,6 @@ extension CameraViewController {
     }
     
     
-    private func setupFlashMode(isFlash: Bool) {
-        do {
-            try backCamera.lockForConfiguration()
-            try backCamera.setTorchModeOn(level: 1.0)
-            
-            if isFlash {
-                backCamera.torchMode = .on
-            } else {
-                backCamera.torchMode = .off
-            }
-            backCamera.unlockForConfiguration()
-        } catch {
-            print(error.localizedDescription)
-        }
-    }
-    
     private func setupImageScale(scale: CGFloat, camera: AVCaptureDevice) {
         do {
             
@@ -650,7 +626,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
     public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         guard let photoData = photo.fileDataRepresentation(),
               let imageData = UIImage(data: photoData)?.asPhoto else { return }
-        output.photoOutputDidFinshProcessing(photo: imageData, error: error)
+        reactor?.action.onNext(.didTapShutterButton(imageData))
     }
     
     public func photoOutput(_ output: AVCapturePhotoOutput, willCapturePhotoFor resolvedSettings: AVCaptureResolvedPhotoSettings) {

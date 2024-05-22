@@ -24,7 +24,6 @@ final class ProfileFeedViewReactor: Reactor {
     }
     
     enum Mutation {
-        case setLoading(Bool)
         case setFeedSectionItems([ProfileFeedSectionItem])
         case setFeedItemPage(Int)
         case setFeedPaginationItems([PostListData])
@@ -33,7 +32,6 @@ final class ProfileFeedViewReactor: Reactor {
     }
     
     struct State {
-        var isLoading: Bool
         var memberId: String
         @Pulse var selectedIndex: IndexPath?
         @Pulse var feedDetailItem: PostSection.Model
@@ -47,7 +45,6 @@ final class ProfileFeedViewReactor: Reactor {
     init(feedUseCase: ProfileFeedUseCaseProtocol, type: PostType, memberId: String) {
         self.feedUseCase = feedUseCase
         self.initialState = State(
-            isLoading: false,
             memberId: memberId,
             selectedIndex: nil,
             feedDetailItem: .init(model: 0, items: []),
@@ -98,11 +95,9 @@ final class ProfileFeedViewReactor: Reactor {
                         }
                     }
                     return .concat(
-                        .just(.setLoading(false)),
                         .just(.setFeedPaginationItems(entity.postLists)),
                         .just(.setFeedItems(entity)),
-                        .just(.setFeedSectionItems(sectionItem)),
-                        .just(.setLoading(true))
+                        .just(.setFeedSectionItems(sectionItem))
                     )
                 }
         case .fetchMoreFeedItems:
@@ -134,11 +129,9 @@ final class ProfileFeedViewReactor: Reactor {
                     }
                     
                     return .concat(
-                        .just(.setLoading(false)),
                         .just(.setFeedPaginationItems(feedItems)),
                         .just(.setFeedItemPage(updatePage)),
-                        .just(.setFeedSectionItems(sectionItem)),
-                        .just(.setLoading(true))
+                        .just(.setFeedSectionItems(sectionItem))
                     )
                 }
         case let .didTapProfileFeedItem(indexPath, feedItems):
@@ -176,8 +169,6 @@ final class ProfileFeedViewReactor: Reactor {
         var newState = state
         
         switch mutation {
-        case let .setLoading(isLoading):
-            newState.isLoading = isLoading
         case let .setFeedItems(feedItems):
             newState.feedItems = feedItems
         case let .setFeedSectionItems(section):

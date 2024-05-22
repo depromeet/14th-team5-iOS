@@ -7,6 +7,11 @@
 
 import UIKit
 
+public enum BibbiFeedType: Int {
+    case survival = 0
+    case mission = 1
+}
+
 
 public enum URLTypes {
     case settings

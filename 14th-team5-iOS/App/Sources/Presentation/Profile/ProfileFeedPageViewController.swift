@@ -9,26 +9,25 @@ import UIKit
 
 import Core
 import RxSwift
+import ReactorKit
 import RxCocoa
 
 final class ProfileFeedPageViewController: UIPageViewController {
-
+    var disposeBag: DisposeBag = DisposeBag()
     
-    public var currentPage: Int = 0 {
-        didSet {
-            setViewController(index: currentPage)
-        }
-    }
     
-    public var memberId: String = ""
+    private lazy var feedViewControllers:[UIViewController] = [profileFeedSurivalViewController, profileFeedMissionViewController]
+    public var memberId: String
     
     private lazy var profileFeedSurivalViewController: ProfileFeedViewController = ProfileFeedDIContainer(postType: .survival, memberId: memberId).makeViewController()
     private lazy var profileFeedMissionViewController: ProfileFeedViewController = ProfileFeedDIContainer(postType: .mission, memberId: memberId).makeViewController()
     
 
     
-    override init(transitionStyle style: UIPageViewController.TransitionStyle, navigationOrientation: UIPageViewController.NavigationOrientation, options: [UIPageViewController.OptionsKey : Any]? = nil) {
+    init(reactor: ProfileFeedPageViewReactor, memberId: String) {
+        self.memberId = memberId
         super.init(transitionStyle: .scroll, navigationOrientation: .horizontal)
+        self.reactor = reactor
     }
     
     required init?(coder: NSCoder) {
@@ -38,21 +37,26 @@ final class ProfileFeedPageViewController: UIPageViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        self.delegate = self
+        self.dataSource = self
         setupUI()
     }
     
     private func setupUI() {
-        setViewController(index: currentPage)
+        setViewController(index: 0)
     }
     
     
     private func setViewController(index: Int) {
         switch index {
         case 0:
-            setViewControllers([profileFeedSurivalViewController], direction: .reverse, animated: true)
+            setViewControllers([profileFeedSurivalViewController], direction: .reverse, animated: true) { [weak self] _ in
+                self?.isPagingEnabled = true
+            }
         case 1:
-            setViewControllers([profileFeedMissionViewController], direction: .forward, animated: true)
+            setViewControllers([profileFeedMissionViewController], direction: .forward, animated: true) { [weak self] _ in
+                self?.isPagingEnabled = true
+            }
         default:
             break
         }
@@ -61,4 +65,42 @@ final class ProfileFeedPageViewController: UIPageViewController {
 
 
 
+extension ProfileFeedPageViewController: ReactorKit.View {
+    
+    func bind(reactor: ProfileFeedPageViewReactor) {
+        reactor.state
+            .map { $0.pageType == .survival ? 0 : 1 }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind { owner, index in
+                owner.setViewController(index: index)
+            }.disposed(by: disposeBag)
+    }
+}
 
+
+
+extension ProfileFeedPageViewController: UIPageViewControllerDelegate, UIPageViewControllerDataSource {
+    func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
+        guard let index = feedViewControllers.firstIndex(of: viewController),
+                      index - 1 >= 0 else { return nil }
+        return feedViewControllers[index - 1]
+    }
+    
+    func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
+        guard let index = feedViewControllers.firstIndex(of: viewController),
+                      index + 1 != feedViewControllers.count else { return nil }
+
+        return feedViewControllers[index + 1]
+    }
+    
+    
+    func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+        
+        guard let currentViewController = pageViewController.viewControllers?.first,
+              let currentIndex = feedViewControllers.firstIndex(of: currentViewController) else { return }
+        reactor?.action.onNext(.updatePageViewController(currentIndex))
+    }
+    
+}

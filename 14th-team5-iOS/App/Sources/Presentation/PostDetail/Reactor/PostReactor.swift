@@ -26,7 +26,7 @@ final class PostReactor: Reactor {
     }
     
     struct State {
-        let selectedIndex: Int
+        var selectedIndex: Int
         let originPostLists: PostSection.Model
         
         var isPop: Bool = false
@@ -103,6 +103,7 @@ extension PostReactor {
             if case let .main(postData) = newState.originPostLists.items[index] {
                 newState.selectedPost = postData
             }
+            newState.selectedIndex = index
         case .setPop:
             newState.isPop = true
             

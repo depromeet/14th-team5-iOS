@@ -10,6 +10,7 @@ import Foundation
 import AVFoundation
 
 
+@available(*, deprecated, message: "중복 이벤트 문제로 ReactorKit을 사용해주세요")
 extension AVCapturePhotoOutput {
     public func photoOutputDidFinshProcessing(photo: Data, error: Error?) {
         let userInfo: [AnyHashable: Any] = ["photo": photo, "error": error as Any]

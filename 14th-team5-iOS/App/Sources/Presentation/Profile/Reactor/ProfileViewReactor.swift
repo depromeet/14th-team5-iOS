@@ -11,10 +11,6 @@ import Core
 import Domain
 import ReactorKit
 
-public enum BibbiFeedType: Int {
-    case survival = 0
-    case mission = 1
-}
 
 public final class ProfileViewReactor: Reactor {
     public var initialState: State
@@ -54,7 +50,7 @@ public final class ProfileViewReactor: Reactor {
         self.memberId = memberId
         self.isUser = isUser
         self.initialState = State(
-            isLoading: false,
+            isLoading: true,
             memberId: memberId,
             isUser: isUser,
             feedType: .survival
@@ -63,21 +59,29 @@ public final class ProfileViewReactor: Reactor {
         self.provider = provider
     }
     
+    public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+        let segmentedUpdateMutation = provider.profilePageGlobalState.event
+            .flatMap { event -> Observable<Mutation> in
+                switch event {
+                case let .didReceiveMemberId(type):
+                    return .just(.setProfileFeedType(type))
+                default:
+                    return .empty()
+                }
+            }
+        return .merge(mutation, segmentedUpdateMutation)
+    }
+    
+    
     public func mutate(action: Action) -> Observable<Mutation> {
         //TODO: Keychain, UserDefaults 추가
         switch action {
         case .viewDidLoad:
-            return .concat(
-                .just(.setLoading(false)),
-                profileUseCase.executeProfileMemberItems(memberId: currentState.memberId)
-                    .asObservable()
-                    .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
-                        return .concat(
-                            .just(.setProfileMemberItems(entity)),
-                            .just(.setLoading(true))
-                        )
-                }
-            )
+            return profileUseCase.executeProfileMemberItems(memberId: currentState.memberId)
+                .asObservable()
+                .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
+                    .just(.setProfileMemberItems(entity))
+            }
         case let .updateNickNameProfile(nickNameFileData):
             let nickNameProfileImage: String = "\(nickNameFileData.hashValue).jpg"
             let nickNameImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: nickNameProfileImage)
@@ -177,6 +181,7 @@ public final class ProfileViewReactor: Reactor {
                 }
             
         case let .didTapSegementControl(feedType):
+            provider.profilePageGlobalState.didTapSegmentedPageType(type: feedType)
             return .just(.setProfileFeedType(feedType))
         case .viewDidDisappear:
             return provider.mainService.refreshMain()

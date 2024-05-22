@@ -36,7 +36,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     private let profileLineView: UIView = UIView()
     private lazy var profilePickerController: PHPickerViewController = PHPickerViewController(configuration: pickerConfiguration)
 
-    private lazy var profileFeedViewController: ProfileFeedPageViewController = ProfileFeedPageViewController()
+    private lazy var profileFeedViewController: ProfileFeedPageViewController = ProfileFeedPageDIContainer(memberId: reactor?.currentState.memberId ?? "").makeViewController()
     
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -58,6 +58,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         
         addChild(profileFeedViewController)
         view.addSubviews(profileView, profileLineView, profileFeedViewController.view, profileSegementControl, profileIndicatorView)
+        profileFeedViewController.didMove(toParent: self)
     }
     
     public override func setupAttributes() {
@@ -157,7 +158,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         reactor.state
             .map { $0.isLoading }
             .distinctUntilChanged()
-            .asDriver(onErrorJustReturn: false)
+            .asDriver(onErrorJustReturn: true)
             .drive(profileIndicatorView.rx.isHidden)
             .disposed(by: disposeBag)
         
@@ -181,40 +182,27 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .distinctUntilChanged()
             .bind(to: profileView.rx.isSetting)
             .disposed(by: disposeBag)
-      
-        profileSegementControl
-            .survivalButton.rx.tap
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-            .map { Reactor.Action.didTapSegementControl(.survival) }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-      
-        profileSegementControl
-            .missionButton.rx.tap
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-            .map { Reactor.Action.didTapSegementControl(.mission) }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
         
-        reactor.state
-            .map { $0.memberId }
-            .bind(to: profileFeedViewController.rx.memberId)
-            .disposed(by: disposeBag)
-        
-        reactor.state
-            .map { $0.feedType.rawValue }
-            .distinctUntilChanged()
-            .bind(to: profileFeedViewController.rx.currentPage)
-            .disposed(by: disposeBag)
-      
-      
         reactor
           .state.map { $0.feedType == .survival ? true : false }
           .distinctUntilChanged()
           .observe(on: MainScheduler.instance)
           .bind(to: profileSegementControl.rx.isSelected)
           .disposed(by: disposeBag)
-      
+        
+        profileSegementControl
+            .missionButton.rx.tap
+            .throttle(.milliseconds(100), scheduler: MainScheduler.instance)
+            .map { Reactor.Action.didTapSegementControl(.mission) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        profileSegementControl
+            .survivalButton.rx.tap
+            .throttle(.milliseconds(100), scheduler: MainScheduler.instance)
+            .map { Reactor.Action.didTapSegementControl(.survival) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
       
         
         

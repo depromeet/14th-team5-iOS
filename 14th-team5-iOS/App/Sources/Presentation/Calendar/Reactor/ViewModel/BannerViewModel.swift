@@ -9,6 +9,11 @@ import Core
 import SwiftUI
 
 public final class BannerViewModel: BaseViewModel<CalendarCellReactor, BannerViewModel.State> {
+    
+    // MARK: - Properties
+    @Published var shimmeringActive: Bool = true
+    
+    // MARK: - State
     public struct State: ViewModelState {
         var familyTopPercentage: Int = 0
         var allFamilyMemberUploadedDays: Int = 0
@@ -17,11 +22,13 @@ public final class BannerViewModel: BaseViewModel<CalendarCellReactor, BannerVie
         var bannerColor: UIColor?
     }
     
+    // MARK: - Action
     func onEvent(action: CalendarCellReactor.Action) {
         reactor?.action.onNext(action)
     }
     
     func updateState(state: State) {
         self.state = state
+        self.shimmeringActive = false
     }
 }

@@ -69,9 +69,6 @@
                      location = "group:SnapKit/SnapKit.xcodeproj">
                   </FileRef>
                   <FileRef
-                     location = "group:SwiftKeychainWrapper/SwiftKeychainWrapper.xcodeproj">
-                  </FileRef>
-                  <FileRef
                      location = "group:Then/Then.xcodeproj">
                   </FileRef>
                   <FileRef

@@ -21,7 +21,6 @@ let dependencies = Dependencies(
         .kakaoSDKRx,
         .kingFisher,
         .fsCalendar,
-        .keyChainWrapper,
         .mixPanel,
         .lottie
     ], productTypes: [

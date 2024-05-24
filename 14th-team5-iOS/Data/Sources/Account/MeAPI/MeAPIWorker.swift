@@ -9,7 +9,6 @@ import Foundation
 import Domain
 import Core
 
-import SwiftKeychainWrapper
 import RxSwift
 import Alamofire
 

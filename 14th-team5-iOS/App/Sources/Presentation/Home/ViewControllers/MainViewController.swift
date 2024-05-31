@@ -151,12 +151,6 @@ extension MainViewController {
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
         
-        pageViewController.segmentEnabled
-            .distinctUntilChanged()
-            .observe(on: MainScheduler.instance)
-            .bind(to: segmentControl.rx.isUserInteractionEnabled)
-            .disposed(by: disposeBag)
-        
         alertConfirmRelay.map { Reactor.Action.pickConfirmButtonTapped($0.0, $0.1) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)

@@ -30,7 +30,6 @@ final class SegmentPageViewController: UIPageViewController {
     private lazy var pages: [UIViewController] = [survivalViewController, missionViewController]
     
     let indexRelay: BehaviorRelay<PageRelay> = BehaviorRelay(value: .init(way: .segmentTap, index: 0))
-    let segmentEnabled: BehaviorRelay<Bool> = BehaviorRelay(value: true)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,7 +47,6 @@ final class SegmentPageViewController: UIPageViewController {
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .bind(onNext: {
-                $0.0.isPagingEnabled = false
                 switch $0.1 {
                 case 0: $0.0.setViewControllers([$0.0.survivalViewController], direction: .reverse, animated: true) { [weak self] _ in
                     self?.isPagingEnabled = true
@@ -66,10 +64,6 @@ final class SegmentPageViewController: UIPageViewController {
 }
 
 extension SegmentPageViewController: UIPageViewControllerDelegate, UIPageViewControllerDataSource {
-    func pageViewController(_ pageViewController: UIPageViewController, willTransitionTo pendingViewControllers: [UIViewController]) {
-        segmentEnabled.accept(false)
-    }
-    
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         guard let index = pages.firstIndex(of: viewController),
               index - 1 >= 0 else { return nil }
@@ -88,10 +82,6 @@ extension SegmentPageViewController: UIPageViewControllerDelegate, UIPageViewCon
         if let currentViewController = pageViewController.viewControllers?.first,
            let currentIndex = pages.firstIndex(of: currentViewController) {
             indexRelay.accept(.init(way: .scroll, index: currentIndex))
-        }
-        
-        if completed && finished {
-            segmentEnabled.accept(true)
         }
     }
 }

@@ -148,6 +148,7 @@ extension AppDelegate: MessagingDelegate {
         
         debugPrint("Firebase registration token: \(token)")
         
+        // TODO: - UseCase, APIWorker 삭제하기
         let useCase = FCMUseCase(FCMRepository: MeAPIs.Worker())
         useCase.executeSavingFCMToken(token: .init(fcmToken: token))
             .asObservable()

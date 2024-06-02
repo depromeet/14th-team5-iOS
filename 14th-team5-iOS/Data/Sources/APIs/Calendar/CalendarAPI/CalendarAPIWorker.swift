@@ -26,7 +26,11 @@ extension CalendarAPIs {
 }
 
 // MARK: - Extensions
+
 extension CalendarAPIWorker {
+    
+    
+    // MARK: - Fetch Calendar
     
     @available(*, deprecated)
     private func fetchCalendarResponse(spec: APISpec, headers: [APIHeader]?) -> Single<ArrayResponseCalendarEntity?> {
@@ -55,6 +59,21 @@ extension CalendarAPIWorker {
             .asSingle()
     }
     
+    
+    
+    // MARK: - Fetch Statistics Summary
+    
+    public func fetchStatisticsSummary(yearMonth: String) -> Single<FamilyMonthlyStatisticsEntity?> {
+        let spec = CalendarAPIs.fetchStatisticsSummary(yearMonth).spec
+        
+        return Observable<Void>.just(())
+            .withLatestFrom(self._headers)
+            .observe(on: Self.queue)
+            .withUnretained(self)
+            .flatMap { $0.0.fetchStatisticsSummary(spec: spec, headers: $0.1) }
+            .asSingle()
+    }
+    
     private func fetchStatisticsSummary(spec: APISpec, headers: [APIHeader]?) -> Single<FamilyMonthlyStatisticsEntity?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
@@ -69,8 +88,12 @@ extension CalendarAPIWorker {
             .asSingle()
     }
     
+    
+    
+    // MARK: - Fetch Monthly Calendar
+    
     public func fetchMonthlyCalendar(yearMonth: String) -> Single<ArrayResponseMonthlyCalendarEntity?> {
-        let spec = CalendarAPIs.monthlyCalendar(yearMonth).spec
+        let spec = CalendarAPIs.fetchMonthlyCalendar(yearMonth).spec
         
         return Observable<Void>.just(())
             .withLatestFrom(self._headers)
@@ -95,8 +118,12 @@ extension CalendarAPIWorker {
             .asSingle()
     }
     
+    
+    
+    // MARK: - Fetch Daily Calendar
+    
     public func fetchDailyCalendar(yearMonthDay: String) -> Single<ArrayResponseDailyCalendarEntity?> {
-        let spec = CalendarAPIs.dailyCalendar(yearMonthDay).spec
+        let spec = CalendarAPIs.fetchDailyCalendar(yearMonthDay).spec
         
         return Observable<Void>.just(())
             .withLatestFrom(self._headers)
@@ -121,16 +148,10 @@ extension CalendarAPIWorker {
             .asSingle()
     }
     
-    public func fetchStatisticsSummary(yearMonth: String) -> Single<FamilyMonthlyStatisticsEntity?> {
-        let spec = CalendarAPIs.statistics(yearMonth).spec
-        
-        return Observable<Void>.just(())
-            .withLatestFrom(self._headers)
-            .observe(on: Self.queue)
-            .withUnretained(self)
-            .flatMap { $0.0.fetchStatisticsSummary(spec: spec, headers: $0.1) }
-            .asSingle()
-    }
+    
+    
+    
+    // MARK: - Fetch Banner
     
     private func fetchCalendarBanner(spec: APISpec, headers: [APIHeader]?) -> Single<BannerEntity?> {
         return request(spec: spec, headers: headers)
@@ -147,7 +168,7 @@ extension CalendarAPIWorker {
     }
     
     public func fetchCalendarBanner(yearMonth: String) -> Single<BannerEntity?> {
-        let spec = CalendarAPIs.banner(yearMonth).spec
+        let spec = CalendarAPIs.fetchBanner(yearMonth).spec
         
         return Observable<Void>.just(())
             .withLatestFrom(self._headers)
@@ -156,4 +177,6 @@ extension CalendarAPIWorker {
             .flatMap { $0.0.fetchCalendarBanner(spec: spec, headers: $0.1) }
             .asSingle()
     }
+    
+    
 }

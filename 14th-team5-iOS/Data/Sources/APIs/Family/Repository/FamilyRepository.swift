@@ -18,17 +18,16 @@ public final class FamilyRepository: FamilyRepositoryProtocol {
     
     private var familyId: String = App.Repository.member.familyId.value ?? ""
     
-    public init() { 
-        bind()
-    }
     
-    private func bind() {
-        App.Repository.member.familyId
-            .compactMap { $0 }
-            .withUnretained(self)
-            .bind(onNext: { $0.0.familyId = $0.1 })
-            .disposed(by: disposeBag)
-    }
+    // NOTE: - 예시 코드
+    private var inMemory = InMemoryWrapper.standard
+    private var userDefaults = UserDefaultsWrapper.standard
+    private var keychain = KeychainWrapper.standard
+    
+    
+    
+    
+    public init() { }
 }
 
 extension FamilyRepository {

@@ -25,7 +25,13 @@ extension PickAPIs {
     }
 }
 
+
+// MARK: - Extensions
+
 extension PickAPIWorker {
+    
+    
+    // MARK: - Pick Member
     
     private func pickMember(spec: APISpec, headers: [APIHeader]?) -> Single<PickResponse?> {
         return request(spec: spec, headers: headers)
@@ -53,6 +59,9 @@ extension PickAPIWorker {
     }
     
     
+    
+    // MARK: - Who Did I Pick?
+    
     private func fetchWhoDidIPickMember(spec: APISpec, headers: [APIHeader]?) -> Single<PickMemberListResponse?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
@@ -77,6 +86,10 @@ extension PickAPIWorker {
             .flatMap { $0.0.fetchWhoDidIPickMember(spec: spec, headers: $0.1) }
             .asSingle()
     }
+    
+    
+    
+    // MARK: - Who Picked Me?
     
     private func fetchWhoPickedMeMember(spec: APISpec, headers: [APIHeader]?) -> Single<PickMemberListResponse?> {
         return request(spec: spec, headers: headers)

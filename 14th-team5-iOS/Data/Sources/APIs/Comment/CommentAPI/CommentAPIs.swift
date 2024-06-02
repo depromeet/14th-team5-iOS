@@ -1,5 +1,5 @@
 //
-//  PostCommentAPIs.swift
+//  CommentAPIs.swift
 //  Data
 //
 //  Created by 김건우 on 1/17/24.
@@ -9,7 +9,7 @@ import Foundation
 
 import Domain
 
-enum PostCommentAPIs: API {
+enum CommentAPIs: API {
     case fetchPostComment(String, Int, Int, String)
     case createPostComment(String)
     case updatePostComment(String, String)

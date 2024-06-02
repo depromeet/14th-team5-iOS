@@ -13,23 +13,23 @@ enum CalendarAPIs: API {
     @available(*, deprecated)
     case calendarResponse(String)
     
-    case monthlyCalendar(String)
-    case dailyCalendar(String)
-    case statistics(String)
-    case banner(String)
+    case fetchMonthlyCalendar(String)
+    case fetchDailyCalendar(String)
+    case fetchStatisticsSummary(String)
+    case fetchBanner(String)
     
     var spec: APISpec {
         switch self {
         case let .calendarResponse(yearMonth):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar?type=MONTHLY&yearMonth=\(yearMonth)")
             
-        case let .monthlyCalendar(yearMonth):
+        case let .fetchMonthlyCalendar(yearMonth):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar/monthly?yearMonth=\(yearMonth)")
-        case let .dailyCalendar(yearMonthDay):
+        case let .fetchDailyCalendar(yearMonthDay):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar/daily?yearMonthDay=\(yearMonthDay)")
-        case let .statistics(yearMonth):
+        case let .fetchStatisticsSummary(yearMonth):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar/summary?yearMonth=\(yearMonth)")
-        case let .banner(yearMonth):
+        case let .fetchBanner(yearMonth):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar/banner?yearMonth=\(yearMonth)")
         }
     }

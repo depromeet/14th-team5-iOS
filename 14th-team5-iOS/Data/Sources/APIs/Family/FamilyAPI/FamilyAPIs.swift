@@ -17,7 +17,7 @@ public enum FamilyAPIs: API {
     case fetchFamilyCreatedAt(String)
     case fetchPaginationFamilyMembers(Int, Int)
 
-    var spec: APISpec {
+    public var spec: APISpec {
         switch self {
         case .joinFamily:
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/me/join-family")

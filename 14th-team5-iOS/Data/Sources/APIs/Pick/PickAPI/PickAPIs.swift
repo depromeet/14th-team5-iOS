@@ -5,6 +5,7 @@
 //  Created by 김건우 on 4/15/24.
 //
 
+import Core
 import Foundation
 
 enum PickAPIs: API {
@@ -12,7 +13,7 @@ enum PickAPIs: API {
     case whoDidIPick(String)
     case whoPickedMe(String)
     
-    var spec: APISpec {
+    public var spec: APISpec {
         switch self {
         case let .pick(memberId):
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/members/\(memberId)/pick")

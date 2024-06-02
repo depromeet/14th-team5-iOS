@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import Core
 import Domain
 
 enum CalendarAPIs: API {
@@ -18,7 +18,7 @@ enum CalendarAPIs: API {
     case fetchStatisticsSummary(String)
     case fetchBanner(String)
     
-    var spec: APISpec {
+    public var spec: APISpec {
         switch self {
         case let .calendarResponse(yearMonth):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar?type=MONTHLY&yearMonth=\(yearMonth)")

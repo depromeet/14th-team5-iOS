@@ -62,7 +62,7 @@ extension MPEvent {
 }
 
 // MARK: Extensions
-extension Encodable {
+public extension Encodable {
     func asDictionary() -> [String: Any]? {
         do {
             let data = try JSONEncoder().encode(self)

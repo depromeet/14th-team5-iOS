@@ -5,6 +5,7 @@
 //  Created by geonhui Yu on 1/3/24.
 //
 
+import Core
 import Foundation
 import Domain
 
@@ -15,7 +16,7 @@ public enum MeAPIs: API {
     case joinFamily
     case appVersion
     
-    var spec: APISpec {
+    public var spec: APISpec {
         switch self {
         case .saveFcmToken:
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/me/fcm")

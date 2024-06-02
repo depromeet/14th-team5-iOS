@@ -12,7 +12,7 @@ public enum PostListAPIs: API {
     case fetchPostList
     case fetchPostDetail(PostRequestDTO)
     
-    var spec: APISpec {
+    public var spec: APISpec {
         switch self {
         case .fetchPostList:
             let urlString = "\(BibbiAPI.hostApi)/posts"

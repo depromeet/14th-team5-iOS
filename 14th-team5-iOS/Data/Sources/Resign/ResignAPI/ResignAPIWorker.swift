@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import Core
 import Alamofire
 import Domain
 import RxSwift

@@ -6,22 +6,23 @@
 //
 
 import Foundation
-import Core
+
 
 // MARK: APIs of AFP
-typealias BibbiHeader = BibbiAPI.Header
-typealias BibbiResponse = BibbiAPI.Response
-typealias BibbiNoResponse = BibbiAPI.NoResponse
-typealias BibbiBoolResponse = BibbiAPI.BoolResponse
-typealias BibbiCodableResponse = BibbiAPI.CodableResponse
+public typealias BibbiHeader = BibbiAPI.Header
+public typealias BibbiResponse = BibbiAPI.Response
+public typealias BibbiNoResponse = BibbiAPI.NoResponse
+public typealias BibbiBoolResponse = BibbiAPI.BoolResponse
+public typealias BibbiCodableResponse = BibbiAPI.CodableResponse
 
 
-enum BibbiAPI {
+public enum BibbiAPI {
     private static let _config: BibbiAPIConfigType = BibbiAPIConfig()
-    static let hostApi: String = _config.hostApi
+    public static let hostApi: String = _config.hostApi
+    public static let xAppKey: String = _config.xAppKey
     
     // MARK: Common Headers
-    enum Header: APIHeader {
+    public enum Header: APIHeader {
         case auth(String)
         case xAppKey
         case xAuthToken(String)
@@ -33,7 +34,7 @@ enum BibbiAPI {
         case xAppVersion
         case xUserID
         
-        var key: String {
+        public var key: String {
             switch self {
             case .auth: return "Authorization"
             case .xAppKey: return "X-APP-KEY"
@@ -48,10 +49,10 @@ enum BibbiAPI {
             }
         }
         
-        var value: String {
+        public var value: String {
             switch self {
             case .auth(let value): return "Bearer \(value)"
-            case .xAppKey: return "7c5aaa36-570e-491f-b18a-26a1a0b72959"
+            case .xAppKey: return "\(BibbiAPI.xAppKey)"
             case .xAuthToken(let value): return "\(value)"
             case .contentForm: return "application/x-www-form-urlencoded"
             case .contentJson: return "application/json"
@@ -63,12 +64,12 @@ enum BibbiAPI {
             }
         }
         
-        static var baseHeaders: [Self] {
+        public static var baseHeaders: [Self] {
             return [.xAppKey, .xAppVersion, .xUserPlatform, .xUserID]
         }
     }
     
-    struct Response: Codable {
+    public struct Response: Codable {
         let status: String?
         let code: Int?
         let errorCode: String?
@@ -77,20 +78,20 @@ enum BibbiAPI {
         }
     }
     
-    struct NoResponse: Codable {
+    public struct NoResponse: Codable {
 //        var status: String?
 //        var code: Int?
 //        var errorCode: String?
     }
     
-    struct BoolResponse: Codable {
+    public struct BoolResponse: Codable {
         var status: String?
         var code: Int?
         var errorCode: String?
         var result: Bool?
     }
     
-    struct CodableResponse<T: Codable>: Codable {
+    public struct CodableResponse<T: Codable>: Codable {
 //        var status: String?
 //        var code: String?
 //        var message: String?

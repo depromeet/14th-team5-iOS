@@ -27,7 +27,11 @@ final public class KeychainWrapper {
     private(set) public var accessGroup: String?
     
     private static let defaultServiceName: String = {
-        return Bundle.main.bundleIdentifier ?? "KeychainWrapper"
+        return "Bibbi"
+    }()
+    
+    private static let defaultAccessGroupName: String = {
+        return "P9P4WJ623F.com.5ing.bibbi"
     }()
     
     // MARK: - Intializer
@@ -40,7 +44,10 @@ final public class KeychainWrapper {
     }
     
     private convenience init() {
-        self.init(serviceName: KeychainWrapper.defaultServiceName)
+        self.init(
+            serviceName: KeychainWrapper.defaultServiceName,
+            accessGroup: KeychainWrapper.defaultAccessGroupName
+        )
     }
     
     

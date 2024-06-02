@@ -5,8 +5,8 @@
 //  Created by 김건우 on 1/26/24.
 //
 
-import DesignSystem
 import Domain
+import DesignSystem
 import UIKit
 
 public struct BannerResponseDTO: Decodable {

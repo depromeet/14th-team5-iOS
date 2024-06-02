@@ -5,11 +5,9 @@
 //  Created by 김건우 on 12/20/23.
 //
 
+import Domain
 import Foundation
 
-import Domain
-
-// MARK: - Data Transfer Object (DTO)
 public struct PaginationResponseFamilyMemberProfileDTO: Decodable {
     private enum CodingKeys: String, CodingKey {
         case currentPage

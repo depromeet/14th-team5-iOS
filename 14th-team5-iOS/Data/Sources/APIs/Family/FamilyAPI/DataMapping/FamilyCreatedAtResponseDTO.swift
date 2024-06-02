@@ -8,7 +8,6 @@
 import Domain
 import Foundation
 
-// MARK: - Data Transfer Object (DTO)
 public struct FamilyCreatedAtResponseDTO: Decodable {
     private enum CodingKeys: String, CodingKey {
         case familyId

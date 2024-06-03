@@ -62,19 +62,19 @@ extension MPEvent {
 }
 
 // MARK: Extensions
-extension Encodable {
-    func asDictionary() -> [String: Any]? {
-        do {
-            let data = try JSONEncoder().encode(self)
-            guard let dict = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] else { return nil }
-            
-            return dict
-        } catch let error {
-            print(error)
-            return nil
-        }
-    }
-}
+//extension Encodable {
+//    func asDictionary() -> [String: Any]? {
+//        do {
+//            let data = try JSONEncoder().encode(self)
+//            guard let dict = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] else { return nil }
+//            
+//            return dict
+//        } catch let error {
+//            print(error)
+//            return nil
+//        }
+//    }
+//}
 
 extension Encodable {
     func asMixpanelDictionary() -> [String: MixpanelType]? {

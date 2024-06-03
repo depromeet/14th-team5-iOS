@@ -5,9 +5,8 @@
 //  Created by 김건우 on 12/21/23.
 //
 
+import Core
 import Foundation
-
-import Domain
 
 enum CalendarAPIs: API {
     @available(*, deprecated)

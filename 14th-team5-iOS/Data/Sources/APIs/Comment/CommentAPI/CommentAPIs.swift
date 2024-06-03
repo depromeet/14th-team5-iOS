@@ -5,9 +5,8 @@
 //  Created by 김건우 on 1/17/24.
 //
 
+import Core
 import Foundation
-
-import Domain
 
 enum CommentAPIs: API {
     case fetchPostComment(String, Int, Int, String)

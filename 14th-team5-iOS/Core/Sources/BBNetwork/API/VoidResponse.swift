@@ -7,10 +7,10 @@
 
 import Foundation
 
-struct VoidResponse: Codable {
-    let success: Bool
+public struct VoidResponse: Codable {
+    public let success: Bool
     
-    func toDomain() -> Void {
+    public func toDomain() -> Void {
         return ()
     }
 }

@@ -5,10 +5,11 @@
 //  Created by Kim dohyun on 1/2/24.
 //
 
+import Core
 import Foundation
 
 
-public enum ResignAPIs: API {
+enum ResignAPIs: API {
     case accountResign(String)
     case accountFcmResign(String)
     

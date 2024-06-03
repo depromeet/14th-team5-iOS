@@ -12,27 +12,27 @@ import RxSwift
 
 // MARK: Data Decodable (Data to Decodable)
 public extension Data {
-    func decode<T>(_ type: T.Type, using decoder: JSONDecoder? = nil) -> T? where T: Decodable {
-        
-        let decoder = decoder ?? JSONDecoder()
-        
-        var res: T? = nil
-        do {
-            res = try decoder.decode(type, from: self)
-        } catch {
-            debugPrint("\(T.self) Data Parsing Error: \(error)")
-        }
-        
-        return res
-    }
+//    func decode<T>(_ type: T.Type, using decoder: JSONDecoder? = nil) -> T? where T: Decodable {
+//        
+//        let decoder = decoder ?? JSONDecoder()
+//        
+//        var res: T? = nil
+//        do {
+//            res = try decoder.decode(type, from: self)
+//        } catch {
+//            debugPrint("\(T.self) Data Parsing Error: \(error)")
+//        }
+//        
+//        return res
+//    }
 }
 
 // MARK: String Decodable (String to Decodable)
 public extension String {
-    func decode<T>(_ type: T.Type, using decoder: JSONDecoder? = nil) -> T? where T: Decodable {
-        
-        return self.data(using: .utf8)?.decode(type, using: decoder)
-    }
+//    func decode<T>(_ type: T.Type, using decoder: JSONDecoder? = nil) -> T? where T: Decodable {
+//        
+//        return self.data(using: .utf8)?.decode(type, using: decoder)
+//    }
 }
 
 // MARK: Dictionary([String : Any]) Decodable
@@ -102,7 +102,7 @@ public extension PrimitiveSequenceType where Trait == SingleTrait, Element == (H
     }
 }
 
-extension Encodable {
+public extension Encodable {
     
     func asDictionary() -> [String: Any]? {
         do {

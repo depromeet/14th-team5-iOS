@@ -1,17 +1,17 @@
 //
-//  BaseAPIWorker.swift
+//  APIWorker.swift
 //  Data
 //
-//  Created by geonhui Yu on 12/17/23.
+//  Created by 김건우 on 6/3/24.
 //
 
+import Core
+import Domain
 import Foundation
 
 import Alamofire
-import RxSwift
 import RxCocoa
-import Core
-import Domain
+import RxSwift
 
 protocol BibbiRouterInterface {
     func httpHeaders(_ headers: [APIHeader]?) -> HTTPHeaders
@@ -208,3 +208,4 @@ public class APIWorker: NSObject, BibbiRouterInterface {
         
     }
 }
+

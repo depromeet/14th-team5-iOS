@@ -6,17 +6,18 @@
 //
 
 
-import Foundation
 import UIKit
-import Data
+
 import Core
+import Data
+import Domain
 
 import ReactorKit
 
 public final class OnBoardingReactor: Reactor {
     
-    public var initialState: State
-    private var accountRepository: AccountImpl
+    public var initialState: State = State()
+    private var familyUseCase: FamilyUseCaseProtocol
     
     public enum Action {
         case permissionTapped
@@ -30,8 +31,8 @@ public final class OnBoardingReactor: Reactor {
         var permissionTappedFinish: Bool = false
     }
     
-    init(accountRepository: AccountRepository) {
-        self.accountRepository = accountRepository
+    init(familyUseCase: FamilyUseCaseProtocol) {
+        self.familyUseCase = familyUseCase
         self.initialState = State()
     }
 }
@@ -40,18 +41,31 @@ extension OnBoardingReactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .permissionTapped:
-            return Observable.create { observer in
-                MPEvent.Account.invitedGroupFinished.track(with: nil)
-                UNUserNotificationCenter.current().requestAuthorization(
-                    options: [.alert, .badge, .sound],
-                    completionHandler: { granted, error in
-                        if granted { MPEvent.Account.allowNotification.track(with: nil) }
-                        observer.onNext(Mutation.permissionTapped)
-                        observer.onCompleted()
-                    }
-                )
-                return Disposables.create()
+            return Observable.zip(
+                Observable.create { observer in
+                    MPEvent.Account.invitedGroupFinished.track(with: nil)
+                    UNUserNotificationCenter.current().requestAuthorization(
+                        options: [.alert, .badge, .sound],
+                        completionHandler: { granted, error in
+                            if granted {
+                                MPEvent.Account.allowNotification.track(with: nil)
+                            }
+                            observer.onNext(granted)
+                            observer.onCompleted()
+                        }
+                    )
+                    return Disposables.create()
+                },
+                familyUseCase.executeFetchPaginationFamilyMembers(query: .init())
+            )
+            .flatMap { (granted: Bool, _) -> Observable<Mutation> in
+                if granted {
+                    return Observable.just(.permissionTapped)
+                } else {
+                    return Observable<Mutation>.empty()
+                }
             }
+
         }
     }
     

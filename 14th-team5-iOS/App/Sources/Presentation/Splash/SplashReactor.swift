@@ -74,9 +74,6 @@ public final class SplashViewReactor: Reactor {
                                             
                                             return Observable.concat([
                                                 Observable.just(Mutation.setMemberInfo(memberInfo)),
-                                                
-                                                owner.familyUseCase.executeFetchCreatedAtFamily(familyId)
-                                                    .flatMap { _ in Observable<Mutation>.empty() }
                                             ])
                                         }
                                 }

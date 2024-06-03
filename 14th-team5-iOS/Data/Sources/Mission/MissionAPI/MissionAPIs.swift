@@ -14,7 +14,7 @@ public enum MissionAPIs: API {
     case getTodayMission
     case getMissionContent(String)
 
-    public var spec: APISpec {
+    var spec: APISpec {
         switch self {
         case .getTodayMission:
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/missions/today")

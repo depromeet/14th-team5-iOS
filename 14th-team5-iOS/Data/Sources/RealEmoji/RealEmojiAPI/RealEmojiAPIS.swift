@@ -14,7 +14,7 @@ public enum RealEmojiAPIS: API {
     case addRealEmoji(AddRealEmojiParameters)
     case removeRealEmoji(RemoveRealEmojiParameters)
     
-    public var spec: APISpec {
+    var spec: APISpec {
         switch self {
         case .addRealEmoji(let parameter):
             let urlString = "\(BibbiAPI.hostApi)/posts/\(parameter.postId)/real-emoji"

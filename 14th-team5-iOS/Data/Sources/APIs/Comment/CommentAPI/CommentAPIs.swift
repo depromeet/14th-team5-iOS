@@ -5,9 +5,9 @@
 //  Created by 김건우 on 1/17/24.
 //
 
-import Core
-import Domain
 import Foundation
+
+import Domain
 
 enum CommentAPIs: API {
     case fetchPostComment(String, Int, Int, String)
@@ -15,7 +15,7 @@ enum CommentAPIs: API {
     case updatePostComment(String, String)
     case deletePostComment(String, String)
     
-    public var spec: APISpec {
+    var spec: APISpec {
         switch self {
         case let .fetchPostComment(postId, page, size, sort):
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/posts/\(postId)/comments?page=\(page)&size=\(size)&sort=\(sort)")

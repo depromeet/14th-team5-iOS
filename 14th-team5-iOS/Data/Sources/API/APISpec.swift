@@ -11,29 +11,29 @@ import RxSwift
 
 // MARK: API Protocol
 typealias BaseAPI = API
-public protocol API {
+protocol API {
     var spec: APISpec { get }
 }
 
 // MARK: API Constants
-public enum APIConst {
+enum APIConst {
     static let boundary = UUID().uuidString
 }
 
 // MARK: API Header Protocol
-public protocol APIHeader {
+protocol APIHeader {
     var key: String { get }
     var value: String { get }
 }
 
 // MARK: API Prameter Protocol
-public protocol APIParameter {
+protocol APIParameter {
     var key: String { get }
     var value: Any? { get }
 }
 
 // MARK: API Media Prameter
-public struct APIMediaParameter {
+struct APIMediaParameter {
     let name: String
     let fileName: String
     let mimeType: String
@@ -42,7 +42,7 @@ public struct APIMediaParameter {
 }
 
 // MARK: API Result Type
-public typealias APIRes = APIResult
+typealias APIRes = APIResult
 public enum APIResult {
     static let ok: Int = 200
     case success
@@ -50,14 +50,14 @@ public enum APIResult {
 }
 
 // MARK: API Error Protocol
-public protocol APIError: CustomNSError, Equatable {}
+protocol APIError: CustomNSError, Equatable {}
 
 // MARK: API Specification
-public struct APISpec {
-    public let method: HTTPMethod
-    public let url: String
+struct APISpec {
+    let method: HTTPMethod
+    let url: String
     
-    public init(method: HTTPMethod, url: String) {
+    init(method: HTTPMethod, url: String) {
         self.method = method
         self.url = url
     }

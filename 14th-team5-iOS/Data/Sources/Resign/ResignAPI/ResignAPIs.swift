@@ -5,7 +5,6 @@
 //  Created by Kim dohyun on 1/2/24.
 //
 
-import Core
 import Foundation
 
 
@@ -13,7 +12,7 @@ public enum ResignAPIs: API {
     case accountResign(String)
     case accountFcmResign(String)
     
-    public var spec: APISpec {
+    var spec: APISpec {
         switch self {
         case let .accountResign(memeberId):
             return APISpec(method: .delete, url: "\(BibbiAPI.hostApi)/members/\(memeberId)")

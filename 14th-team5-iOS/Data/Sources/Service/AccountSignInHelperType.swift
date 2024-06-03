@@ -7,7 +7,6 @@
 
 import UIKit
 import Domain
-import Core
 
 import RxSwift
 

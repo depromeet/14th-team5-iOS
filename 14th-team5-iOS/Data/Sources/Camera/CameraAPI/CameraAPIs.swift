@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import Core
+
 import Domain
 
 public enum CameraAPIs: API {
@@ -21,7 +21,7 @@ public enum CameraAPIs: API {
     case modifyRealEmojiImage(String, String)
     case fetchMissionToday
     
-    public var spec: APISpec {
+    var spec: APISpec {
         switch self {
         case .uploadProfileImageURL:
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/members/image-upload-request")

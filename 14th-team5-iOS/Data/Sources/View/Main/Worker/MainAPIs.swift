@@ -13,7 +13,7 @@ public enum MainAPIs: API {
     case fetchMain
     case fetchMainNight
     
-    public var spec: APISpec {
+    var spec: APISpec {
         switch self {
         case .fetchMain:
             let urlString = "\(BibbiAPI.hostApi)/view/main/daytime-page"

@@ -6,14 +6,14 @@
 //
 
 import Foundation
-import Core
+
 
 
 public enum PrivacyAPIs: API {
     case bibbiAppInfo
     case accountFamilyResign
     
-    public var spec: APISpec {
+    var spec: APISpec {
         switch self {
         case .bibbiAppInfo:
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/me/app-version")

@@ -5,6 +5,7 @@
 //  Created by geonhui Yu on 12/18/23.
 //
 
+import Core
 import Foundation
 import Domain
 
@@ -15,7 +16,7 @@ enum AccountAPIs: API {
     case signIn(SNS)
     case profileNickNameEdit(String)
     
-    var spec: APISpec {
+    public var spec: APISpec {
         switch self {
         case .forceToken(let id):
             return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/auth/force-token/\(id)")

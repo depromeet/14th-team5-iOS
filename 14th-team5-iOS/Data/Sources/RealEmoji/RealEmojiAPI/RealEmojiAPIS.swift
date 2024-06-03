@@ -5,8 +5,8 @@
 //  Created by 마경미 on 22.01.24.
 //
 
-import Foundation
 import Core
+import Foundation
 
 public enum RealEmojiAPIS: API {
     case fetchRealEmojiList(FetchRealEmojiListParameter)
@@ -14,7 +14,7 @@ public enum RealEmojiAPIS: API {
     case addRealEmoji(AddRealEmojiParameters)
     case removeRealEmoji(RemoveRealEmojiParameters)
     
-    var spec: APISpec {
+    public var spec: APISpec {
         switch self {
         case .addRealEmoji(let parameter):
             let urlString = "\(BibbiAPI.hostApi)/posts/\(parameter.postId)/real-emoji"

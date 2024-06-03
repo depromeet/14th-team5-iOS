@@ -5,11 +5,12 @@
 //  Created by Kim dohyun on 12/21/23.
 //
 
+import Core
+import Domain
 import Foundation
 
-import Domain
 
-public enum CameraAPIs: API {
+enum CameraAPIs: API {
     case uploadImageURL
     case presignedURL(String)
     case updateImage(CameraMissionFeedQuery)

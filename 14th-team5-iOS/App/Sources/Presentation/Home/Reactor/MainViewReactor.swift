@@ -27,6 +27,7 @@ final class MainViewReactor: Reactor {
         case cameraViewController(UploadLocation)
         case survivalAlert
         case pickAlert(String, String)
+        case missionUnlockedAlert
         case weeklycalendarViewController(String)
         case familyManagementViewController
         case monthlyCalendarViewController
@@ -38,6 +39,7 @@ final class MainViewReactor: Reactor {
         case fetchMainUseCase
         case fetchMainNightUseCase
         
+        case checkMissionAlert(Bool, Bool)
         case openNextViewController(TapAction)
         case didTapSegmentControl(PostType)
         case pickConfirmButtonTapped(String, String)
@@ -91,18 +93,20 @@ final class MainViewReactor: Reactor {
     private let fetchMainUseCase: FetchMainUseCaseProtocol
     private let fetchMainNightUseCase: FetchMainNightUseCaseProtocol
     private let pickUseCase: PickUseCaseProtocol
+    private let checkMissionAlertShowUseCase: CheckMissionAlertShowUseCaseProtocol
     private let provider: GlobalStateProviderProtocol
     
-    init(
-        fetchMainUseCase: FetchMainUseCaseProtocol,
-        fetchMainNightUseCase: FetchMainNightUseCaseProtocol,
-        pickUseCase: PickUseCaseProtocol,
-        provider: GlobalStateProviderProtocol) {
-            self.fetchMainUseCase = fetchMainUseCase
-            self.fetchMainNightUseCase = fetchMainNightUseCase
-            self.pickUseCase = pickUseCase
-            self.provider = provider
-        }
+    init(fetchMainUseCase: FetchMainUseCaseProtocol,
+         fetchMainNightUseCase: FetchMainNightUseCaseProtocol,
+         pickUseCase: PickUseCaseProtocol,
+         checkMissionAlertShowUseCase: CheckMissionAlertShowUseCaseProtocol,
+         provider: GlobalStateProviderProtocol) {
+        self.fetchMainUseCase = fetchMainUseCase
+        self.fetchMainNightUseCase = fetchMainNightUseCase
+        self.pickUseCase = pickUseCase
+        self.checkMissionAlertShowUseCase = checkMissionAlertShowUseCase
+        self.provider = provider
+    }
 }
 
 extension MainViewReactor {
@@ -144,7 +148,8 @@ extension MainViewReactor {
                     return Observable.concat(
                         Observable.just(.updateMainData(data)),
                         Observable.just(.setBalloonText),
-                        Observable.just(.setCamerEnabled)
+                        Observable.just(.setCamerEnabled),
+                        self.mutate(action: .checkMissionAlert(data.isMissionUnlocked, data.isMeSurvivalUploadedToday))
                     )
                 }
         case .fetchMainNightUseCase:
@@ -163,7 +168,8 @@ extension MainViewReactor {
                     .flatMap {_ in
                         return Observable.concat([
                             Observable.just(Mutation.setInTime(false)),
-                            self.mutate(action: .fetchMainNightUseCase)
+                            self.mutate(action: .fetchMainNightUseCase),
+                            Observable.just(Mutation.setDescriptionText)
                         ])
                     }
             } else {
@@ -233,6 +239,19 @@ extension MainViewReactor {
             case .contributorNextButtonTap:
                 return Observable<Mutation>.just(.showNextView(.weeklycalendarViewController(currentState.contributor.recentPostDate)))
             }
+        case .checkMissionAlert(let isUnlocked, let isMeSurvivalUploadedToday):
+            if isUnlocked && isMeSurvivalUploadedToday {
+                return checkMissionAlertShowUseCase.execute()
+                    .flatMap { isAlreadyShown in
+                        if !isAlreadyShown {
+                            return Observable<Mutation>.just(.showNextView(.missionUnlockedAlert))
+                        } else {
+                            return Observable<Mutation>.empty()
+                        }
+                    }
+            } else {
+                return Observable<Mutation>.empty()
+            }
         }
     }
     
@@ -298,7 +317,7 @@ extension MainViewReactor {
         if currentState.pageIndex == 0 {
             newState.cameraEnabled = !currentState.isMeSurvivalUploadedToday
         } else {
-                if (!currentState.isMeMissionUploadedToday) && currentState.isMissionUnlocked {
+            if (!currentState.isMeMissionUploadedToday) && currentState.isMissionUnlocked {
                 newState.cameraEnabled = true
             } else {
                 newState.cameraEnabled = false
@@ -342,6 +361,12 @@ extension MainViewReactor {
     
     private func setDescriptionText(_ state: State) -> State {
         var newState = state
+        
+        guard let inTime = currentState.isInTime,
+            inTime else {
+            newState.description = .survivalNone
+            return newState
+        }
         
         if currentState.pageIndex == 0 {
             if currentState.isFamilySurvivalUploadedToday {

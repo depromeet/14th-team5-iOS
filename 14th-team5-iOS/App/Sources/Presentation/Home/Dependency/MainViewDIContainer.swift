@@ -32,6 +32,7 @@ extension MainViewDIContainer {
             fetchMainUseCase: makeFetchMainUseCase(), 
             fetchMainNightUseCase: makeFetchMainNightUseCase(),
             pickUseCase: makePickUseCase(),
+            checkMissionAlertShowUseCase: makeCheckMissionAlertShowUseCase(),
             provider: globalState
         )
     }
@@ -48,11 +49,19 @@ extension MainViewDIContainer {
         return MainRepository()
     }
     
+    private func makeMissionUserDefaultsRepository() -> MissionUserDefaultsRepository {
+        return MissionUserDefaultsRepository()
+    }
+    
     private func makeFetchMainUseCase() -> FetchMainUseCaseProtocol {
         return FetchMainUseCase(mainRepository: makeMainRepository())
     }
     
     private func makeFetchMainNightUseCase() -> FetchMainNightUseCaseProtocol {
         return FetchMainNightUseCase(mainRepository: makeMainRepository())
+    }
+    
+    private func makeCheckMissionAlertShowUseCase() -> CheckMissionAlertShowUseCaseProtocol {
+        return CheckMissionAlertShowUseCase(missionUserDefaultsRepository: makeMissionUserDefaultsRepository())
     }
 }

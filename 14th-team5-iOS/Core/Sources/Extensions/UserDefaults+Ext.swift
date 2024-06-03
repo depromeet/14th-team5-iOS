@@ -8,6 +8,8 @@
 import Foundation
 
 extension UserDefaults {
+    
+    @available(*, deprecated, message: "UserDefaultsWrpper를 사용하세요.")
     public enum Key: String, CaseIterable {
         case isFirstLaunch
         case chekcPermission

@@ -6,102 +6,181 @@
 //
 
 import Core
-import Domain
 import Foundation
 
 import Alamofire
+import RxAlamofire
 import RxCocoa
 import RxSwift
 
-protocol BibbiRouterInterface {
-    func httpHeaders(_ headers: [APIHeader]?) -> HTTPHeaders
-}
 
-extension BibbiRouterInterface {
-    public func httpHeaders(_ headers: [APIHeader]?) -> HTTPHeaders {
-        var result: [String: String] = [:]
-        guard let headers = headers, !headers.isEmpty else { return HTTPHeaders() }
-        
-        for header in headers {
-            result[header.key] = header.value
-        }
-        
-        return HTTPHeaders(result)
-    }
-}
+// MARK: - Base API Worker
 
-public final class BibbiRequestInterceptor: RequestInterceptor, BibbiRouterInterface {
+public class APIWorker: NSObject {
     
-    //TODO: Test용 KeychainWrapper 코드 다 제거하기
-    private let accountAPIWorker: AccountAPIWorker = AccountAPIWorker()
-    private let disposeBag: DisposeBag = DisposeBag()
+    // MARK: - Identifier
     
-    var retryCount: Int = 0
-    var retryLimit: Int = 3
+    var id: String = "APIWorker"
     
-    public func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) {
-        var urlRequest = urlRequest
+    
+    
+    // MARK: - Request
+    
+    func request(
+        spec: APISpec,
+        headers: [APIHeader]? = nil,
+        parameters: [APIParameter]? = nil,
+        encoding: ParameterEncoding? = URLEncoding.default
+    ) -> Observable<(HTTPURLResponse, Data)> {
         
-        guard urlRequest.url?.absoluteString.hasPrefix(BibbiAPI.hostApi) == true else {
-            completion(.success(urlRequest))
-            return
-        }
-        guard let accessToken = App.Repository.token.accessToken.value?.accessToken else {
-            completion(.success(urlRequest))
-            return
-        }
+        let headers = self.httpHeaders(headers)
+        let parameters = self.parameters(parameters)
         
-        urlRequest.setValue(accessToken, forHTTPHeaderField: "X-AUTH-TOKEN")
-        completion(.success(urlRequest))
+        return AF.rx.request(
+            spec.method,
+            spec.url,
+            parameters: parameters,
+            encoding: encoding!,
+            headers: headers,
+            interceptor: NetworkInterceptor()
+        )
+        .validate(statusCode: 200..<300)
+        .responseData()
+        .debug("API Worker has received data from \"\(spec.url)\"")
     }
     
-    public func retry(_ request: Request, for session: Session, dueTo error: Error, completion: @escaping (RetryResult) -> Void) {
+    func request(
+        spec: APISpec,
+        headers: [APIHeader]? = nil,
+        parameters: Encodable,
+        encoding: ParameterEncoding? = URLEncoding.default
+    ) -> Observable<(HTTPURLResponse, Data)> {
         
-        guard let response = request.task?.response as? HTTPURLResponse, response.statusCode == 401 else {
-            completion(.doNotRetryWithError(error))
-            return
-        }
-      
-        if retryCount < retryLimit {
-            retryCount += 1
-            let parameter = AccountRefreshParameter(refreshToken: App.Repository.token.accessToken.value?.refreshToken ?? "")
-            
-            accountAPIWorker.accountRefreshToken(parameter: parameter)
-                .compactMap { $0?.toDomain() }
-                .asObservable()
-                .subscribe(onNext: { [weak self] entity in
-                    let refreshToken = AccessToken(accessToken: entity.accessToken, refreshToken: entity.refreshToken, isTemporaryToken: entity.isTemporaryToken)
-                    App.Repository.token.accessToken.accept(refreshToken)
-                    self?.retryCount = 0
-                    completion(.retry)
-                }, onError: { error in
-                    completion(.doNotRetryWithError(error))
-                })
-                .disposed(by: disposeBag)
-        }
+        let headers = self.httpHeaders(headers)
+        let parameters = parameters.asDictionary()
+        
+        return AF.rx.request(
+            spec.method,
+            spec.url,
+            parameters: parameters,
+            encoding: encoding!,
+            headers: headers,
+            interceptor: NetworkInterceptor()
+        )
+        .validate(statusCode: 200..<300)
+        .responseData()
+        .debug("API Worker has received data from \"\(spec.url)\"")
     }
-}
-
-// MARK: API Worker
-public class APIWorker: NSObject, BibbiRouterInterface {
     
-    // MARK: - Headers
-    var _headers: Observable<[APIHeader]?> {
-        return App.Repository.token.accessToken
-            .map {
-                guard let token = $0, let accessToken = token.accessToken, !accessToken.isEmpty else { return [] }
-                return [BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(accessToken)]
+    private func refreshRequest(
+        spec: APISpec,
+        headers: [APIHeader]? = nil,
+        jsonData: Data
+    ) -> Observable<(HTTPURLResponse, Data)> {
+        
+        let headers = self.httpHeaders(headers)
+        guard let url = URL(string: spec.url) else {
+            return Observable.error(AFError.explicitlyCancelled)
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = spec.method.rawValue
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.headers = headers
+        request.httpBody = jsonData
+        print("interCepter call with name \(url)")
+        
+        return AF.rx.request(urlRequest: request)
+            .retry(5)
+            .validate(statusCode: 200..<300)
+            .responseData()
+            .debug("API Worker has received data from \"\(spec.url)\"")
+    }
+    
+    private func request(
+        spec: APISpec,
+        headers: [APIHeader]? = nil,
+        jsonData: Data
+    ) -> Observable<(HTTPURLResponse, Data)> {
+        
+        let headers = self.httpHeaders(headers)
+        guard let url = URL(string: spec.url) else {
+            return Observable.error(AFError.explicitlyCancelled)
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = spec.method.rawValue
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.headers = headers
+        request.httpBody = jsonData
+        print("interCepter call with name \(url)")
+        
+        return AF.rx.request(
+            urlRequest: request,
+            interceptor: NetworkInterceptor()
+        )
+        .validate(statusCode: 200..<300)
+        .responseData()
+        .debug("API Worker has received data from \"\(spec.url)\"")
+    }
+    
+    func request(
+        spec: APISpec,
+        headers: [APIHeader]? = nil,
+        jsonEncodable: Encodable
+    ) -> Observable<(HTTPURLResponse, Data)> {
+        guard let jsonData = jsonEncodable.encodeData() else {
+            return Observable.error(AFError.explicitlyCancelled)
+        }
+        
+        return self.refreshRequest(spec: spec, headers: headers, jsonData: jsonData)
+    }
+    
+    
+    
+    // MARK: - Upload
+    
+    func upload(
+        spec: APISpec,
+        headers: [APIHeader]? = nil,
+        image: Data
+    ) -> Single<Bool> {
+        
+        let headers = self.httpHeaders(headers)
+        guard let url = URL(string: spec.url) else {
+            return Single.error(AFError.explicitlyCancelled)
+        }
+        
+        var request = URLRequest(url: url)
+        request.headers = headers
+        
+        return Single.create { single -> Disposable in
+            AF.upload(
+                image,
+                to: url,
+                method: spec.method,
+                headers: headers,
+                interceptor: NetworkInterceptor()
+            )
+            .validate(statusCode: [200, 204, 205])
+            .responseData(emptyResponseCodes: [200, 204, 205]) { response in
+                switch response.result {
+                case .success(_):
+                    single(.success(true))
+                case let .failure(failure):
+                    single(.failure(failure))
+                }
             }
-    }
-    
-    private func appendCommonHeaders(to headers: [APIHeader]?) -> [APIHeader] {
-        var result: [APIHeader] = BibbiAPI.Header.baseHeaders
-        guard let headers = headers else { return result }
+            return Disposables.create()
+        }
         
-        result.append(contentsOf: headers)
-        
-        return result
     }
+}
+
+
+// MARK: - Extensions
+
+extension APIWorker {
     
     private func parameters(_ parameters: [APIParameter]?) -> Parameters? {
         guard let kvs = parameters else { return nil }
@@ -114,98 +193,38 @@ public class APIWorker: NSObject, BibbiRouterInterface {
         return result.isEmpty ? nil: result
     }
     
-    // MARK: Identifier
-    var id: String = "APIWorker"
-    
-    // MARK: Request
-    func request(spec: APISpec, headers: [APIHeader]? = nil, parameters: [APIParameter]? = nil, encoding: ParameterEncoding? = URLEncoding.default) -> Observable<(HTTPURLResponse, Data)> {
-        let params = self.parameters(parameters)
-        let hds = self.httpHeaders(self.appendCommonHeaders(to: headers))
-        return AF.rx.request(spec.method, spec.url, parameters: params, encoding: encoding!, headers: hds, interceptor: BibbiRequestInterceptor())
-            .validate(statusCode: 200..<300)
-            .responseData()
-            .debug("API Worker has received data from \"\(spec.url)\"")
-    }
-    
-    func request(spec: APISpec, headers: [APIHeader]? = nil, parameters: Encodable, encoding: ParameterEncoding? = URLEncoding.default) -> Observable<(HTTPURLResponse, Data)> {
-        let params = parameters.asDictionary()
-        let hds = self.httpHeaders(self.appendCommonHeaders(to: headers))
+    private func httpHeaders(_ headers: [APIHeader]?) -> HTTPHeaders {
+        var result: [String: String] = [:]
+        guard let headers = headers, !headers.isEmpty else { return HTTPHeaders() }
         
-        return AF.rx.request(spec.method, spec.url, parameters: params, encoding: encoding!, headers: hds, interceptor: BibbiRequestInterceptor())
-            .validate(statusCode: 200..<300)
-            .responseData()
-            .debug("API Worker has received data from \"\(spec.url)\"")
-    }
-    
-    private func refreshRequest(spec: APISpec, headers: [APIHeader]? = nil, jsonData: Data) -> Observable<(HTTPURLResponse, Data)> {
-        let hds = self.httpHeaders(self.appendCommonHeaders(to: headers))
-        guard let url = URL(string: spec.url) else {
-            return Observable.error(AFError.explicitlyCancelled)
+        for header in headers {
+            result[header.key] = header.value
         }
         
-        var request = URLRequest(url: url)
-        request.httpMethod = spec.method.rawValue
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = jsonData
-        request.headers = hds
-        print("interCepter call with name \(url)")
-        return AF.rx.request(urlRequest: request)
-            .retry(5)
-            .validate(statusCode: 200..<300)
-            .responseData()
-            .debug("API Worker has received data from \"\(spec.url)\"")
+        return HTTPHeaders(result)
     }
     
-    private func request(spec: APISpec, headers: [APIHeader]? = nil, jsonData: Data) -> Observable<(HTTPURLResponse, Data)> {
-        let hds = self.httpHeaders(self.appendCommonHeaders(to: headers))
-        guard let url = URL(string: spec.url) else {
-            return Observable.error(AFError.explicitlyCancelled)
-        }
+
+    
+    
+    @available(*, deprecated)
+    private func appendCommonHeaders(to headers: [APIHeader]?) -> [APIHeader] {
+        var result: [APIHeader] = BibbiAPI.Header.baseHeaders
+        guard let headers = headers else { return result }
         
-        var request = URLRequest(url: url)
-        request.httpMethod = spec.method.rawValue
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = jsonData
-        request.headers = hds
-        print("interCepter call with name \(url)")
-        return AF.rx.request(urlRequest: request, interceptor: BibbiRequestInterceptor())
-            .validate(statusCode: 200..<300)
-            .responseData()
-            .debug("API Worker has received data from \"\(spec.url)\"")
+        result.append(contentsOf: headers)
+        
+        return result
     }
     
-    func request(spec: APISpec, headers: [APIHeader]? = nil, jsonEncodable: Encodable) -> Observable<(HTTPURLResponse, Data)> {
-        guard let jsonData = jsonEncodable.encodeData() else {
-            return Observable.error(AFError.explicitlyCancelled)
-        }
-        
-        return self.refreshRequest(spec: spec, headers: headers, jsonData: jsonData)
+    @available(*, deprecated, message: "Intercepter에서 필요한 헤더가 자동으로 추가됩니다.")
+    var _headers: Observable<[APIHeader]?> {
+        return App.Repository.token.accessToken
+            .map {
+                guard let token = $0, let accessToken = token.accessToken, !accessToken.isEmpty else { return [] }
+                return [BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(accessToken)]
+            }
     }
     
-    func upload(spec: APISpec, headers: [APIHeader]? = nil, image: Data) -> Single<Bool> {
-        
-        let hds = self.httpHeaders(self.appendCommonHeaders(to: headers))
-        guard let url = URL(string: spec.url) else {
-            return Single.error(AFError.explicitlyCancelled)
-        }
-        
-        var request = URLRequest(url: url)
-        request.headers = hds
-        
-        return Single.create { single -> Disposable in
-            AF.upload(image, to: url, method: spec.method, headers: hds, interceptor: BibbiRequestInterceptor())
-                .validate(statusCode: [200, 204, 205])
-                .responseData(emptyResponseCodes: [200, 204, 205]) { response in
-                    switch response.result {
-                    case .success(_):
-                        single(.success(true))
-                    case let .failure(failure):
-                        single(.failure(failure))
-                    }
-                }
-            return Disposables.create()
-        }
-        
-    }
 }
 

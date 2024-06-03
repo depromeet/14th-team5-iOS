@@ -26,7 +26,14 @@ extension FamilyAPIs {
     }
 }
 
+
+// MARK: - Extensions
+
 extension FamilyAPIWorker {
+    
+    
+    // MARK: - Join Family
+    
     private func joinFamily(headers: [APIHeader]?, jsonEncodable body: JoinFamilyRequestDTO) -> Single<JoinFamilyResponse?> {
         let spec = MeAPIs.joinFamily.spec
         
@@ -52,6 +59,10 @@ extension FamilyAPIWorker {
             .asSingle()
     }
     
+    
+    
+    // MARK: - ResignFamily
+    
     private func resignFamily(spec: APISpec, headers: [APIHeader]?) -> Single<AccountFamilyResignResponse?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
@@ -74,6 +85,10 @@ extension FamilyAPIWorker {
             .flatMap { $0.0.resignFamily(spec: spec, headers: $0.1) }
             .asSingle()
     }
+    
+    
+    
+    // MARK: - CreateFamily
     
     private func createFamily(spec: APISpec, headers: [APIHeader]?) -> Single<CreateFamilyResponse?> {
         return request(spec: spec, headers: headers)
@@ -100,6 +115,10 @@ extension FamilyAPIWorker {
             .asSingle()
     }
     
+    
+    
+    // MARK: - Fetch Invititaion URL
+    
     private func fetchInvitationUrl(spec: APISpec, headers: [APIHeader]?) -> Single<FamilyInvitationLinkResponse?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
@@ -125,6 +144,10 @@ extension FamilyAPIWorker {
             .asSingle()
     }
     
+    
+    
+    // MARK: - Fetch FamilyCreatedAt
+    
     private func fetchFamilyCreatedAt(spec: APISpec, headers: [APIHeader]?) -> Single<FamilyCreatedAtResponse?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
@@ -149,6 +172,10 @@ extension FamilyAPIWorker {
             .flatMap { $0.0.fetchFamilyCreatedAt(spec: spec, headers: $0.1) }
             .asSingle()
     }
+    
+    
+    
+    // MARK: - Fetch Family Member
     
     private func fetchPaginationFamilyMember(spec: APISpec, headers: [APIHeader]?) -> Single<PaginationResponseFamilyMemberProfile?> {
         return request(spec: spec, headers: headers)

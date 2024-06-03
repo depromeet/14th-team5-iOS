@@ -63,6 +63,17 @@ public enum BibbiAPI {
             }
         }
         
+        public static func commonHeaders(_ accessToken: String) -> [Self] {
+            return [
+                .xAppKey,
+                .xAppVersion,
+                .xUserPlatform,
+                .xUserID,
+                .xAuthToken(accessToken)
+            ]
+        }
+        
+        @available(*, deprecated, renamed: "commonHeaders(_:)")
         public static var baseHeaders: [Self] {
             return [.xAppKey, .xAppVersion, .xUserPlatform, .xUserID]
         }

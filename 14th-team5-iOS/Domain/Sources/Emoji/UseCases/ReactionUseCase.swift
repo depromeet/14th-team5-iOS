@@ -13,7 +13,7 @@ protocol EmojiProtocol {
 }
 
 
-public protocol EmojiUseCaseProtocol {
+public protocol ReactionUseCaseProtocol {
     /// Add Reactions
     func executeAddEmoji(query: AddEmojiQuery, body: AddEmojiBody) -> Single<Void?>
     /// Remove Reactions
@@ -22,22 +22,22 @@ public protocol EmojiUseCaseProtocol {
     func execute(query: FetchEmojiQuery) -> Single<[FetchedEmojiData]?>
 }
 
-public class EmojiUseCase: EmojiUseCaseProtocol {
-    private let emojiRepository: ReactionRepositoryProtocol
+public class ReactionUseCase: ReactionUseCaseProtocol {
+    private let reactionRepository: ReactionRepositoryProtocol
     
-    public init(emojiRepository: ReactionRepositoryProtocol) {
-        self.emojiRepository = emojiRepository
+    public init(reactionRepository: ReactionRepositoryProtocol) {
+        self.reactionRepository = reactionRepository
     }
     
     public func executeAddEmoji(query: AddEmojiQuery, body: AddEmojiBody) -> Single<Void?> {
-        return emojiRepository.addReaction(query: query, body: body)
+        return reactionRepository.addReaction(query: query, body: body)
     }
     
     public func excuteRemoveEmoji(query: RemoveEmojiQuery, body: RemoveEmojiBody) -> Single<Void?> {
-        return emojiRepository.removeEmoji(query: query, body: body)
+        return reactionRepository.removeReaction(query: query, body: body)
     }
     
     public func execute(query: FetchEmojiQuery) -> Single<[FetchedEmojiData]?> {
-        return emojiRepository.fetchReaction(query: query)
+        return reactionRepository.fetchReaction(query: query)
     }
 }

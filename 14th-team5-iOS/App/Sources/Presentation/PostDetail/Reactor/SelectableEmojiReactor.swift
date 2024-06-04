@@ -36,11 +36,11 @@ final class SelectableEmojiReactor: Reactor {
     }
     
     let postId: String
-    let emojiRepository: EmojiUseCaseProtocol
+    let emojiRepository: ReactionUseCaseProtocol
     let realEmojiRepository: RealEmojiUseCaseProtocol
     var initialState: State = State()
     
-    init(postId: String, emojiRepository: EmojiUseCaseProtocol, realEmojiRepository: RealEmojiUseCaseProtocol) {
+    init(postId: String, emojiRepository: ReactionUseCaseProtocol, realEmojiRepository: RealEmojiUseCaseProtocol) {
         self.postId = postId
         self.emojiRepository = emojiRepository
         self.realEmojiRepository = realEmojiRepository
@@ -56,6 +56,7 @@ extension SelectableEmojiReactor {
         case let .selectStandard(emoji):
             let query = AddEmojiQuery(postId: self.postId)
             let body = AddEmojiBody(content: emoji.emojiString)
+            
             return emojiRepository.executeAddEmoji(query: query, body: body)
                 .asObservable()
                 .flatMap {_ in 

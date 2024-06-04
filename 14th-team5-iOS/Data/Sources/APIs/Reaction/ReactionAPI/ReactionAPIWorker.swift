@@ -12,7 +12,7 @@ import Domain
 
 import RxSwift
 
-public typealias ReactionAPIWorker = ReactionAPIs.Worker
+typealias ReactionAPIWorker = ReactionAPIs.Worker
 extension ReactionAPIs {
     public final class Worker: APIWorker {
         static let queue = {
@@ -23,6 +23,18 @@ extension ReactionAPIs {
             super.init()
             self.id = "ReactionAPIWorker"
         }
+        
+        var headers: [APIHeader] {
+            var headers: [any APIHeader] = []
+
+            _headers.subscribe(onNext: { result in
+                if let unwrappedHeaders = result {
+                    headers = unwrappedHeaders
+                }
+            }).dispose()
+
+            return headers
+        }
     }
 }
 
@@ -30,25 +42,25 @@ extension ReactionAPIWorker {
     func fetchReaction(query: Domain.FetchEmojiQuery) -> RxSwift.Single<[FetchedEmojiData]?> {
         let query = FetchReactionRequestDTO(postId: query.postId)
         let spec = ReactionAPIs.fetchReactions(query).spec
-        return request(spec: spec)
-        .subscribe(on: Self.queue)
-        .do {
-            if let str = String(data: $0.1, encoding: .utf8) {
-                debugPrint("Fetch Reaction Result: \(str)")
+        return request(spec: spec, headers: headers)
+            .subscribe(on: Self.queue)
+            .do {
+                if let str = String(data: $0.1, encoding: .utf8) {
+                    debugPrint("Fetch Reaction Result: \(str)")
+                }
             }
-        }
-        .map(FetchReactionResponseDTO.self)
-        .catchAndReturn(nil)
-        .map {
-            $0?.toDomain()
-        }
-        .asSingle()
+            .map(FetchReactionResponseDTO.self)
+            .catchAndReturn(nil)
+            .map {
+                $0?.toDomain()
+            }
+            .asSingle()
     }
     
     func addReaction(query: Domain.AddEmojiQuery, body: Domain.AddEmojiBody) -> RxSwift.Single<Void?> {
         let requestDTO = AddReactionRequestDTO(content: body.emojiId)
         let spec = ReactionAPIs.addReactions(query.postId).spec
-        return request(spec: spec, jsonEncodable: requestDTO)
+        return request(spec: spec, headers: headers, jsonEncodable: requestDTO)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -64,7 +76,7 @@ extension ReactionAPIWorker {
     func removeReaction(query: Domain.RemoveEmojiQuery, body: Domain.RemoveEmojiBody) -> RxSwift.Single<Void?> {
         let requestDTO = RemoveReactionRequestDTO(content: body.content.emojiString)
         let spec = ReactionAPIs.removeReactions(query.postId).spec
-        return request(spec: spec, jsonEncodable: requestDTO)
+        return request(spec: spec, headers: headers, jsonEncodable: requestDTO)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {

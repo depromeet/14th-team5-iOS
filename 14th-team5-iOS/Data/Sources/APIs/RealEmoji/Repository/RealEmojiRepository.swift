@@ -19,7 +19,7 @@ public final class RealEmojiRepository: RealEmojiRepositoryProtocol {
     public init () { }
     
     public func fetchMyRealEmoji() -> RxSwift.Single<[Domain.MyRealEmoji?]> {
-        realEmojiAPIWorker.loadMyRealEmoji()
+        realEmojiAPIWorker.fetchMyRealEmoji()
     }
     
     public func addRealEmoji(query: Domain.AddEmojiQuery, body: Domain.AddEmojiBody) -> RxSwift.Single<Void?> {
@@ -33,6 +33,4 @@ public final class RealEmojiRepository: RealEmojiRepositoryProtocol {
     public func removeRealEmoji(query: Domain.RemoveRealEmojiQuery) -> RxSwift.Single<Void?> {
         realEmojiAPIWorker.removeRealEmoji(query: query)
     }
-    
-    
 }

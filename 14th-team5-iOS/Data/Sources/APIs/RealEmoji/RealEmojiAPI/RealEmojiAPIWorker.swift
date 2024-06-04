@@ -13,7 +13,7 @@ import Domain
 import Alamofire
 import RxSwift
 
-public typealias RealEmojiAPIWorker = RealEmojiAPIS.Worker
+typealias RealEmojiAPIWorker = RealEmojiAPIS.Worker
 extension RealEmojiAPIS {
     public final class Worker: APIWorker {
         static let queue = {
@@ -24,6 +24,18 @@ extension RealEmojiAPIS {
             super.init()
             self.id = "RealEmojiAPIWorker"
         }
+        
+        var headers: [APIHeader] {
+            var headers: [any APIHeader] = []
+
+            _headers.subscribe(onNext: { result in
+                if let unwrappedHeaders = result {
+                    headers = unwrappedHeaders
+                }
+            }).dispose()
+
+            return headers
+        }
     }
 }
 
@@ -33,7 +45,7 @@ extension RealEmojiAPIWorker {
         let query = FetchRealEmojiListParameter(postId: query.postId)
         let spec = RealEmojiAPIS.fetchRealEmojiList(query).spec
         
-        return request(spec: spec)
+        return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -48,10 +60,10 @@ extension RealEmojiAPIWorker {
             .asSingle()
     }
     
-    func loadMyRealEmoji() -> Single<[MyRealEmoji?]> {
-        let spec = RealEmojiAPIS.loadMyRealEmoji.spec
+    func fetchMyRealEmoji() -> Single<[MyRealEmoji?]> {
+        let spec = RealEmojiAPIS.fetchMyRealEmoji.spec
         
-        return request(spec: spec)
+        return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -70,7 +82,7 @@ extension RealEmojiAPIWorker {
         let spec = RealEmojiAPIS.addRealEmoji(.init(postId: query.postId)).spec
         let body = AddRealEmojiRequestDTO(realEmojiId: body.emojiId)
         
-        return request(spec: spec, jsonEncodable: body)
+        return request(spec: spec, headers: headers, jsonEncodable: body)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -88,7 +100,7 @@ extension RealEmojiAPIWorker {
     func removeRealEmoji(query: RemoveRealEmojiQuery) -> Single<Void?> {
         let spec = RealEmojiAPIS.removeRealEmoji(.init(postId: query.postId, realEmojiId: query.realEmojiId)).spec
         
-        return request(spec: spec)
+        return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {

@@ -49,11 +49,11 @@ final class PostListsDIContainer {
     }
     
     func makeEmojiRepository() -> ReactionRepositoryProtocol {
-        return ReactionAPIs.Worker()
+        return ReactionRepository()
     }
     
     func makeRealEmojiRepository() -> RealEmojiRepositoryProtocol {
-        return RealEmojiAPIS.Worker()
+        return RealEmojiRepository()
     }
     
     func makeMissionRepository() -> MissionRepositoryProtocol {
@@ -64,8 +64,8 @@ final class PostListsDIContainer {
         return MissionContentUseCase(missionContentRepository: makeMissionRepository())
     }
     
-    func makeEmojiUseCase() -> EmojiUseCaseProtocol {
-        return EmojiUseCase(emojiRepository: makeEmojiRepository())
+    func makeEmojiUseCase() -> ReactionUseCaseProtocol {
+        return ReactionUseCase(reactionRepository: makeEmojiRepository())
     }
     
     func makeRealEmojiUseCase() -> RealEmojiUseCaseProtocol {

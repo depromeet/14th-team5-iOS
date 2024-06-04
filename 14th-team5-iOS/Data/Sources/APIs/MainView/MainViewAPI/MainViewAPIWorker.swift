@@ -23,13 +23,25 @@ extension MainViewAPIs {
             super.init()
             self.id = "MainAPIWorker"
         }
+        
+        var headers: [APIHeader] {
+            var headers: [any APIHeader] = []
+
+            _headers.subscribe(onNext: { result in
+                if let unwrappedHeaders = result {
+                    headers = unwrappedHeaders
+                }
+            }).dispose()
+
+            return headers
+        }
     }
 }
 
 extension MainAPIWorker {
     func fetchMain() -> Single<MainData?> {
         let spec = MainViewAPIs.fetchMain.spec
-        return request(spec: spec)
+        return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -44,7 +56,7 @@ extension MainAPIWorker {
     
     func fetchMainNight() -> Single<MainNightData?> {
         let spec = MainViewAPIs.fetchMainNight.spec
-        return request(spec: spec)
+        return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {

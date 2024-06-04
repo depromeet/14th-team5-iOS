@@ -11,7 +11,7 @@ import Domain
 
 import RxSwift
 
-public final class MainRepository: MainRepositoryProtocol {
+public final class MainViewRepository: MainRepositoryProtocol {
     public let disposeBag: DisposeBag = DisposeBag()
     
     private let mainApiWorker: MainAPIWorker = MainAPIWorker()
@@ -19,7 +19,7 @@ public final class MainRepository: MainRepositoryProtocol {
     public init() { }
 }
 
-extension MainRepository {
+extension MainViewRepository {
     public func fetchMain() -> Observable<MainData?> {
         return mainApiWorker.fetchMain()
             .asObservable()

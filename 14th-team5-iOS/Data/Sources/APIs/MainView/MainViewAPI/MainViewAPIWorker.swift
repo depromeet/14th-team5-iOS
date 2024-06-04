@@ -12,8 +12,8 @@ import Domain
 
 import RxSwift
 
-typealias MainAPIWorker = MainAPIs.Worker
-extension MainAPIs {
+typealias MainAPIWorker = MainViewAPIs.Worker
+extension MainViewAPIs {
     final class Worker: APIWorker {
         static let queue = {
             ConcurrentDispatchQueueScheduler(queue: DispatchQueue(label: "MainAPIWorker", qos: .utility))
@@ -28,16 +28,8 @@ extension MainAPIs {
 
 extension MainAPIWorker {
     func fetchMain() -> Single<MainData?> {
-        return Observable.just(())
-            .withLatestFrom(self._headers)
-            .withUnretained(self)
-            .flatMap { $0.0.fetchMain(headers: $0.1) }
-            .asSingle()
-    }
-    
-    private func fetchMain(headers: [APIHeader]?) -> Single<MainData?> {
-        let spec = MainAPIs.fetchMain.spec
-        return request(spec: spec, headers: headers)
+        let spec = MainViewAPIs.fetchMain.spec
+        return request(spec: spec)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -51,16 +43,8 @@ extension MainAPIWorker {
     }
     
     func fetchMainNight() -> Single<MainNightData?> {
-        return Observable.just(())
-            .withLatestFrom(self._headers)
-            .withUnretained(self)
-            .flatMap { $0.0.fetchMainNight(headers: $0.1) }
-            .asSingle()
-    }
-    
-    private func fetchMainNight(headers: [APIHeader]?) -> Single<MainNightData?> {
-        let spec = MainAPIs.fetchMainNight.spec
-        return request(spec: spec, headers: headers)
+        let spec = MainViewAPIs.fetchMainNight.spec
+        return request(spec: spec)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {

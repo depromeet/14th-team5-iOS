@@ -10,12 +10,17 @@ import Foundation
 import Core
 import Domain
 
-public struct FetchRealEmojiListParameter: Codable {
+struct RealEmojiListResult: Codable {
+    let postRealEmojiId: String
     let postId: String
+    let memberId: String
+    let realEmojiId: String
+    let emojiImageUrl: String
+    let emojiType: String
 }
 
-public struct FetchRealEmojiListResponseDTO: Codable {
-    let results: [RealEmojiDTO]
+struct FetchRealEmojiListResponseDTO: Codable {
+    let results: [RealEmojiListResult]
     
     func toDomain() -> [FetchedEmojiData]? {
         let myMemberId = FamilyUserDefaults.returnMyMemberId()
@@ -43,13 +48,4 @@ public struct FetchRealEmojiListResponseDTO: Codable {
 
         return fetchedEmojiDataArray
     }
-}
-
-public struct RealEmojiDTO: Codable {
-    let postRealEmojiId: String
-    let postId: String
-    let memberId: String
-    let realEmojiId: String
-    let emojiImageUrl: String
-    let emojiType: String
 }

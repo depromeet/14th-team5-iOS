@@ -8,10 +8,10 @@
 import Core
 import Foundation
 
-public enum EmojiAPIs: API {
+public enum ReactionAPIs: API {
     case addReactions(String)
     case removeReactions(String)
-    case fetchReactions(FetchEmojiRequestDTO)
+    case fetchReactions(FetchReactionRequestDTO)
     
     public var spec: APISpec {
         switch self {

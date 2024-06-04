@@ -8,7 +8,7 @@
 import Core
 import Foundation
 
-enum MainAPIs: API {
+enum MainViewAPIs: API {
     case fetchMain
     case fetchMainNight
     

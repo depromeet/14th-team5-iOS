@@ -48,11 +48,11 @@ final class PostListsDIContainer {
         return PostListUseCase(postListRepository: makePostRepository())
     }
     
-    func makeEmojiRepository() -> EmojiRepository {
-        return EmojiAPIs.Worker()
+    func makeEmojiRepository() -> ReactionRepositoryProtocol {
+        return ReactionAPIs.Worker()
     }
     
-    func makeRealEmojiRepository() -> RealEmojiRepository {
+    func makeRealEmojiRepository() -> RealEmojiRepositoryProtocol {
         return RealEmojiAPIS.Worker()
     }
     

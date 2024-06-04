@@ -7,12 +7,7 @@
 
 import Foundation
 
-public struct RemoveRealEmojiParameters: Codable {
-    let postId: String
-    let realEmojiId: String
-}
-
-public struct RemoveRealEmojiResponse: Codable {
+public struct RemoveRealEmojiResponseDTO: Codable {
     let success: Bool
     
     func toDomain() -> Void {

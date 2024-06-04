@@ -23,14 +23,14 @@ public protocol EmojiUseCaseProtocol {
 }
 
 public class EmojiUseCase: EmojiUseCaseProtocol {
-    private let emojiRepository: EmojiRepository
+    private let emojiRepository: ReactionRepositoryProtocol
     
-    public init(emojiRepository: EmojiRepository) {
+    public init(emojiRepository: ReactionRepositoryProtocol) {
         self.emojiRepository = emojiRepository
     }
     
     public func executeAddEmoji(query: AddEmojiQuery, body: AddEmojiBody) -> Single<Void?> {
-        return emojiRepository.addEmoji(query: query, body: body)
+        return emojiRepository.addReaction(query: query, body: body)
     }
     
     public func excuteRemoveEmoji(query: RemoveEmojiQuery, body: RemoveEmojiBody) -> Single<Void?> {
@@ -38,6 +38,6 @@ public class EmojiUseCase: EmojiUseCaseProtocol {
     }
     
     public func execute(query: FetchEmojiQuery) -> Single<[FetchedEmojiData]?> {
-        return emojiRepository.fetchEmoji(query: query)
+        return emojiRepository.fetchReaction(query: query)
     }
 }

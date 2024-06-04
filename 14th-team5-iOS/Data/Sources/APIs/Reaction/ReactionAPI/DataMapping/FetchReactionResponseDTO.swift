@@ -10,11 +10,7 @@ import Foundation
 import Core
 import Domain
 
-public struct FetchEmojiRequestDTO: Codable {
-    let postId: String
-}
-
-struct FetchEmojiResponse: Codable {
+struct FetchReactionResult: Codable {
     let reactionId: String
     let postId: String
     let memberId: String
@@ -26,8 +22,8 @@ struct FetchEmojiResponse: Codable {
     }
 }
 
-struct FetchEmojiResponseDTO: Codable {
-    let results: [FetchEmojiResponse]
+struct FetchReactionResponseDTO: Codable {
+    let results: [FetchReactionResult]
     
     func toDomain() -> [FetchedEmojiData] {
         let myMemberId = FamilyUserDefaults.returnMyMemberId()

@@ -45,8 +45,8 @@ extension MainViewDIContainer {
         return PickUseCase(pickRepository: makePickReposiotry())
     }
     
-    private func makeMainRepository() -> MainRepository {
-        return MainRepository()
+    private func makeMainRepository() -> MainViewRepository {
+        return MainViewRepository()
     }
     
     private func makeMissionUserDefaultsRepository() -> MissionUserDefaultsRepository {

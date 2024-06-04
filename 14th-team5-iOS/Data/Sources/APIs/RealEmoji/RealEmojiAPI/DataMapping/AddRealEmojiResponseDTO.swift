@@ -1,19 +1,11 @@
 //
-//  AddRealEmojiDTO.swift
+//  AddRealEmojiResponseDTO.swift
 //  Data
 //
-//  Created by 마경미 on 28.01.24.
+//  Created by 마경미 on 04.06.24.
 //
 
 import Foundation
-
-public struct AddRealEmojiParameters: Codable {
-    let postId: String
-}
-
-public struct AddRealEmojiRequestDTO: Codable {
-    let realEmojiId: String
-}
 
 struct AddRealEmojiResponseDTO: Codable {
     let postRealEmojiId: String

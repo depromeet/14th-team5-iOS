@@ -24,7 +24,7 @@ final class SelectableEmojiDIContainer {
 }
 
 extension SelectableEmojiDIContainer {
-    private func makeRealEmojiRepository() -> RealEmojiRepository {
+    private func makeRealEmojiRepository() -> RealEmojiRepositoryProtocol {
         return RealEmojiAPIWorker()
     }
     
@@ -34,8 +34,8 @@ extension SelectableEmojiDIContainer {
 }
 
 extension SelectableEmojiDIContainer {
-    private func makeEmojiRepository() -> EmojiRepository {
-        return EmojiAPIWorker()
+    private func makeEmojiRepository() -> ReactionRepositoryProtocol {
+        return ReactionAPIWorker()
     }
     
     private func makeEmojiUseCase() -> EmojiUseCaseProtocol {

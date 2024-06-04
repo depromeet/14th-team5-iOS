@@ -27,19 +27,13 @@ extension RealEmojiAPIS {
     }
 }
 
-extension RealEmojiAPIWorker: RealEmojiRepository {
-    public func fetchRealEmoji(query: FetchRealEmojiQuery) -> Single<[FetchedEmojiData]?> {
-        return Observable.just(())
-            .withLatestFrom(self._headers)
-            .withUnretained(self)
-            .flatMap { $0.0.fetchRealEmoji(headers: $0.1, query: query)}
-            .asSingle()
-    }
+extension RealEmojiAPIWorker {
     
-    private func fetchRealEmoji(headers: [APIHeader]?, query: FetchRealEmojiQuery) -> Single<[FetchedEmojiData]?> {
+    func fetchRealEmoji(query: FetchRealEmojiQuery) -> Single<[FetchedEmojiData]?> {
         let query = FetchRealEmojiListParameter(postId: query.postId)
         let spec = RealEmojiAPIS.fetchRealEmojiList(query).spec
-        return request(spec: spec, headers: headers)
+        
+        return request(spec: spec)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -54,25 +48,17 @@ extension RealEmojiAPIWorker: RealEmojiRepository {
             .asSingle()
     }
     
-    public func loadMyRealEmoji() -> Single<[MyRealEmoji?]> {
-        return Observable.just(())
-            .withLatestFrom(self._headers)
-            .withUnretained(self)
-            .flatMap { $0.0.loadMyRealEmoji(headers: $0.1)}
-            .asSingle()
-    }
-    
-    private func loadMyRealEmoji(headers: [APIHeader]?) -> Single<[MyRealEmoji?]> {
+    func loadMyRealEmoji() -> Single<[MyRealEmoji?]> {
         let spec = RealEmojiAPIS.loadMyRealEmoji.spec
         
-        return request(spec: spec, headers: headers)
+        return request(spec: spec)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
                     debugPrint("Real Emoji Items Result: \(str)")
                 }
             }
-            .map(MyRealEmojiListResponse.self)
+            .map(MyRealEmojiResponseDTO.self)
             .catchAndReturn(nil)
             .map {
                 return $0?.toDomain() ?? Array(repeating: nil, count: 5)
@@ -80,19 +66,11 @@ extension RealEmojiAPIWorker: RealEmojiRepository {
             .asSingle()
     }
     
-    public func addRealEmoji(query: AddEmojiQuery, body: AddEmojiBody) -> Single<Void?> {
-        return Observable.just(())
-            .withLatestFrom(self._headers)
-            .withUnretained(self)
-            .flatMap { $0.0.addRealEmoji(headers: $0.1, query: query, body: body)}
-            .asSingle()
-    }
-    
-    private func addRealEmoji(headers: [APIHeader]?, query: AddEmojiQuery, body: AddEmojiBody) -> Single<Void?> {
+    func addRealEmoji(query: AddEmojiQuery, body: AddEmojiBody) -> Single<Void?> {
         let spec = RealEmojiAPIS.addRealEmoji(.init(postId: query.postId)).spec
         let body = AddRealEmojiRequestDTO(realEmojiId: body.emojiId)
         
-        return request(spec: spec, headers: headers, jsonEncodable: body)
+        return request(spec: spec, jsonEncodable: body)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -107,25 +85,17 @@ extension RealEmojiAPIWorker: RealEmojiRepository {
             .asSingle()
     }
     
-    public func removeRealEmoji(query: RemoveRealEmojiQuery) -> Single<Void?> {
-        return Observable.just(())
-            .withLatestFrom(self._headers)
-            .withUnretained(self)
-            .flatMap { $0.0.removeRealEmoji(headers: $0.1, query: query)}
-            .asSingle()
-    }
-    
-    private func removeRealEmoji(headers: [APIHeader]?, query: RemoveRealEmojiQuery) -> Single<Void?> {
+    func removeRealEmoji(query: RemoveRealEmojiQuery) -> Single<Void?> {
         let spec = RealEmojiAPIS.removeRealEmoji(.init(postId: query.postId, realEmojiId: query.realEmojiId)).spec
         
-        return request(spec: spec, headers: headers)
+        return request(spec: spec)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
                     debugPrint("Remove Real Emoji Result: \(str)")
                 }
             }
-            .map(RemoveRealEmojiResponse.self)
+            .map(RemoveRealEmojiResponseDTO.self)
             .catchAndReturn(nil)
             .map {
                 return $0?.toDomain()

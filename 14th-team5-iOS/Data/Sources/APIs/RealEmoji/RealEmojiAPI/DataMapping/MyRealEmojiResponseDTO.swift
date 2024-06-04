@@ -10,11 +10,19 @@ import Foundation
 import Core
 import Domain
 
-public struct MyRealEmojiListResponse: Codable {
-    let myRealEmojiList: [MyRealEmojiList]
+struct MyRealEmojiList: Codable {
+    let realEmojiId: String
+    let type: String
+    let imageUrl: String
+
+    func toDomain() -> MyRealEmoji {
+        return .init(realEmojiId: realEmojiId, type: Emojis.emoji(forString: type), imageUrl: imageUrl)
+    }
 }
 
-extension MyRealEmojiListResponse {
+struct MyRealEmojiResponseDTO: Codable {
+    let myRealEmojiList: [MyRealEmojiList]
+    
     func toDomain() -> [MyRealEmoji?] {
         var arr: [MyRealEmoji?] = [nil, nil, nil, nil, nil]
         myRealEmojiList.forEach {
@@ -24,17 +32,5 @@ extension MyRealEmojiListResponse {
             arr[(Int(String(chr)) ?? 1) - 1] = $0.toDomain()
         }
         return arr
-    }
-}
-
-struct MyRealEmojiList: Codable {
-    let realEmojiId: String
-    let type: String
-    let imageUrl: String
-}
-
-extension MyRealEmojiList {
-    func toDomain() -> MyRealEmoji {
-        return .init(realEmojiId: realEmojiId, type: Emojis.emoji(forString: type), imageUrl: imageUrl)
     }
 }

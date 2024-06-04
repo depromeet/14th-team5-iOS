@@ -39,7 +39,7 @@ final class ReactionDIContainer {
 }
 
 extension ReactionDIContainer {
-    private func makeRealEmojiRepository() -> RealEmojiRepository {
+    private func makeRealEmojiRepository() -> RealEmojiRepositoryProtocol {
         return RealEmojiAPIWorker()
     }
     
@@ -49,8 +49,8 @@ extension ReactionDIContainer {
 }
 
 extension ReactionDIContainer {
-    private func makeEmojiRepository() -> EmojiRepository {
-        return EmojiAPIWorker()
+    private func makeEmojiRepository() -> ReactionRepositoryProtocol {
+        return ReactionAPIWorker()
     }
     
     private func makeEmojiUseCase() -> EmojiUseCaseProtocol {

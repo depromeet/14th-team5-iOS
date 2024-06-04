@@ -21,14 +21,14 @@ public protocol RealEmojiUseCaseProtocol {
 
 public class RealEmojiUseCase: RealEmojiUseCaseProtocol {
     
-    private let realEmojiRepository: RealEmojiRepository
+    private let realEmojiRepository: RealEmojiRepositoryProtocol
     
-    public init(realEmojiRepository: RealEmojiRepository) {
+    public init(realEmojiRepository: RealEmojiRepositoryProtocol) {
         self.realEmojiRepository = realEmojiRepository
     }
     
     public func execute() -> Single<[MyRealEmoji?]> {
-        return realEmojiRepository.loadMyRealEmoji()
+        return realEmojiRepository.fetchMyRealEmoji()
     }
     
     public func execute(query: FetchRealEmojiQuery) -> Single<[FetchedEmojiData]?> {

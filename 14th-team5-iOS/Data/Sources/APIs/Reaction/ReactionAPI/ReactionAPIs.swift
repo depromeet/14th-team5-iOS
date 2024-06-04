@@ -8,12 +8,12 @@
 import Core
 import Foundation
 
-public enum ReactionAPIs: API {
+enum ReactionAPIs: API {
     case addReactions(String)
     case removeReactions(String)
     case fetchReactions(FetchReactionRequestDTO)
     
-    public var spec: APISpec {
+    var spec: APISpec {
         switch self {
         case let .addReactions(postId):
             let urlString = "\(BibbiAPI.hostApi)/posts/\(postId)/reactions"

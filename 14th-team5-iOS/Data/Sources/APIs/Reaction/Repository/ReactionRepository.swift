@@ -13,20 +13,20 @@ import RxSwift
 
 public final class ReactionRepository: ReactionRepositoryProtocol {
     
-    public let disposeBag: DisposeBag = DisposeBag()
+    private let disposeBag: DisposeBag = DisposeBag()
     private let reactionAPIWorker: ReactionAPIWorker = ReactionAPIWorker()
     
     public init () { }
     
     public func addReaction(query: Domain.AddEmojiQuery, body: Domain.AddEmojiBody) -> RxSwift.Single<Void?> {
-        reactionAPIWorker.addReaction(query: query, body: body)
+        return reactionAPIWorker.addReaction(query: query, body: body)
     }
     
     public func removeReaction(query: Domain.RemoveEmojiQuery, body: Domain.RemoveEmojiBody) -> RxSwift.Single<Void?> {
-        reactionAPIWorker.removeReaction(query: query, body: body)
+        return reactionAPIWorker.removeReaction(query: query, body: body)
     }
     
     public func fetchReaction(query: Domain.FetchEmojiQuery) -> RxSwift.Single<[Domain.FetchedEmojiData]?> {
-        reactionAPIWorker.fetchReaction(query: query)
+        return reactionAPIWorker.fetchReaction(query: query)
     }
 }

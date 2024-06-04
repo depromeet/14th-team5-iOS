@@ -55,13 +55,13 @@ final class ReactionViewReactor: Reactor {
     
     let initialState: State
     let provider: GlobalStateProviderProtocol
-    let emojiRepository: EmojiUseCaseProtocol
+    let emojiRepository: ReactionUseCaseProtocol
     let realEmojiRepository: RealEmojiUseCaseProtocol
     
     init(
         provider: GlobalStateProviderProtocol,
         initialState: State,
-        emojiRepository: EmojiUseCaseProtocol,
+        emojiRepository: ReactionUseCaseProtocol,
         realEmojiRepository: RealEmojiUseCaseProtocol
     ) {
         self.initialState = initialState

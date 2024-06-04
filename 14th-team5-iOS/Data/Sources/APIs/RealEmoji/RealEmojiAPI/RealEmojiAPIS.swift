@@ -8,9 +8,9 @@
 import Core
 import Foundation
 
-public enum RealEmojiAPIS: API {
+enum RealEmojiAPIS: API {
     case fetchRealEmojiList(FetchRealEmojiListParameter)
-    case loadMyRealEmoji
+    case fetchMyRealEmoji
     case addRealEmoji(AddRealEmojiParameters)
     case removeRealEmoji(RemoveRealEmojiParameters)
     
@@ -22,7 +22,7 @@ public enum RealEmojiAPIS: API {
         case .fetchRealEmojiList(let parameter):
             let urlString = "\(BibbiAPI.hostApi)/posts/\(parameter.postId)/real-emoji"
             return APISpec(method: .get, url: urlString)
-        case .loadMyRealEmoji:
+        case .fetchMyRealEmoji:
             let memberId = App.Repository.member.memberID.value
             let urlString = "\(BibbiAPI.hostApi)/members/\(memberId ?? "")/real-emoji"
             return APISpec(method: .get, url: urlString)

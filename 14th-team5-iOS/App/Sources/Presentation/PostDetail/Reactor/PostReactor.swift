@@ -43,7 +43,7 @@ final class PostReactor: Reactor {
     let initialState: State
     
     let realEmojiRepository: RealEmojiUseCaseProtocol
-    let emojiRepository: EmojiUseCaseProtocol
+    let emojiRepository: ReactionUseCaseProtocol
     let missionUseCase: MissionContentUseCaseProtocol
     let provider: GlobalStateProviderProtocol
     
@@ -51,7 +51,7 @@ final class PostReactor: Reactor {
     init(
         provider: GlobalStateProviderProtocol,
         realEmojiRepository: RealEmojiUseCaseProtocol,
-        emojiRepository: EmojiUseCaseProtocol,
+        emojiRepository: ReactionUseCaseProtocol,
         missionUseCase: MissionContentUseCaseProtocol,
         initialState: State
     ) {

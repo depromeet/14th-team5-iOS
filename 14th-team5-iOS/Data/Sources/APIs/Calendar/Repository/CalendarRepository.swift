@@ -12,13 +12,23 @@ import Foundation
 import RxSwift
 
 public final class CalendarRepository: CalendarRepositoryProtocol {
-    // MARK: - Properties
-    public let disposeBag: DisposeBag = DisposeBag()
     
-    private let calendarApiWorker: CalendarAPIWorker = CalendarAPIWorker()
+    // MARK: - Properties
+    public let disposeBag = DisposeBag()
+    
+    // MARK: - API EndPoint
+    private let calendarApiWorker = CalendarAPIWorker()
+    
+    // MARK: - Persistent Storage
     
     // MARK: - Intializer
-    public init() { }
+    public init(
+        keychain: KeychainType? = nil,
+        userDefaults: UserDefaultsType? = nil,
+        inMemory: InMemoryType? = nil
+    ) {
+        
+    }
 }
 
 // MARK: - Extensions

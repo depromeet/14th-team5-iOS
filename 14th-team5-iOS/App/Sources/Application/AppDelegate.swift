@@ -37,7 +37,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         setupUserNotificationCenter(application)
         removeKeychainAtFirstLaunch()
         bindRepositories()
-        App.indicator.bind()
+        App.indicator.bind() // TODO: - Data 지우기
+        
+        
+        let containers: [DIContainer] = [
+            CalendarDIContainer()
+        ]
+        containers.forEach {
+            $0.registerDependencies()
+        }
+        
         
         return true
     }

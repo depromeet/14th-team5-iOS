@@ -5,9 +5,11 @@
 //  Created by 김건우 on 1/22/24.
 //
 
+import Core
 import Foundation
 
 import RxSwift
+
 
 public protocol PostCommentUseCaseProtocol {
     func executeFetchPostComment(postId: String, query: PostCommentPaginationQuery) -> Observable<PaginationResponsePostCommentResponse?>
@@ -18,7 +20,9 @@ public protocol PostCommentUseCaseProtocol {
 public final class PostCommentUseCase: PostCommentUseCaseProtocol {
     private let postCommentRepository: PostCommentRepositoryProtocol
     
-    public init(postCommentRepository: PostCommentRepositoryProtocol) {
+    public init(
+        postCommentRepository: PostCommentRepositoryProtocol
+    ) {
         self.postCommentRepository = postCommentRepository
     }
     
@@ -33,4 +37,13 @@ public final class PostCommentUseCase: PostCommentUseCaseProtocol {
     public func executeDeletePostComment(postId: String, commentId: String) -> Observable<PostCommentDeleteResponse?> {
         return postCommentRepository.deletePostComment(postId: postId, commentId: commentId)
     }
+}
+
+
+public extension InjectIdentifier {
+    
+    static var commentUseCase: InjectIdentifier<PostCommentUseCaseProtocol> {
+        .by(type: PostCommentUseCaseProtocol.self)
+    }
+    
 }

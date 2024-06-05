@@ -14,9 +14,9 @@ import Domain
 
 public final class ProfileDIContainer: BaseDIContainer {
     public typealias ViewContrller = ProfileViewController
-    public typealias Repository = ProfileViewInterface
+    public typealias Repository = MembersRepositoryProtocol
     public typealias Reactor = ProfileViewReactor
-    public typealias UseCase = ProfileViewUsecaseProtocol
+    public typealias UseCase = MembersUseCaseProtocol
     
     private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
@@ -38,15 +38,15 @@ public final class ProfileDIContainer: BaseDIContainer {
     }
     
     public func makeUseCase() -> UseCase {
-        return ProfileViewUseCase(profileViewRepository: makeRepository())
+        return MembersUseCase(membersRepository: makeRepository())
     }
     
     public func makeRepository() -> Repository {
-        return ProfileViewRepository()
+        return MembersRepository()
     }
     
     public func makeReactor() -> ProfileViewReactor {
-        return ProfileViewReactor(profileUseCase: makeUseCase(), provider: globalState, memberId: memberId, isUser: isUser)
+        return ProfileViewReactor(membersUseCase: makeUseCase(), provider: globalState, memberId: memberId, isUser: isUser)
     }
     
     

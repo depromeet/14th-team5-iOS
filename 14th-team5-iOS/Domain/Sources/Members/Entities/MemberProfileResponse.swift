@@ -1,21 +1,21 @@
 //
-//  ProfileMemberResponse.swift
+//  MemberProfileResponse.swift
 //  Domain
 //
-//  Created by Kim dohyun on 12/25/23.
+//  Created by Kim dohyun on 6/3/24.
 //
 
 import Foundation
 
 
-public struct ProfileMemberResponse {
+public struct MembersProfileResponse {
+    public let memberId: String
+    public let memberName: String
+    public let memberImage: URL
+    public let dayOfBirth: Date
+    public let familyJoinAt: String
     
-    public var memberId: String
-    public var memberName: String
-    public var memberImage: URL
-    public var dayOfBirth: Date
-    public var familyJoinAt: String
-    
+ 
     public init(memberId: String, memberName: String, memberImage: URL, dayOfBirth: Date, familyJoinAt: String) {
         self.memberId = memberId
         self.memberName = memberName

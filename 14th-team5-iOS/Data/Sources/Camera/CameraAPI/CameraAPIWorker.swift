@@ -66,7 +66,7 @@ extension CameraAPIWorker {
             .asSingle()
     }
     
-    public func editProfileImageToS3(accessToken: String, memberId: String, parameters: Encodable) -> Single<ProfileMemberDTO?>   {
+    public func editProfileImageToS3(accessToken: String, memberId: String, parameters: Encodable) -> Single<MembersProfileResponseDTO?>   {
         let spec = CameraAPIs.editProfileImage(memberId).spec
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
             .subscribe(on: Self.queue)
@@ -75,7 +75,7 @@ extension CameraAPIWorker {
                     debugPrint("editProfile Image Upload Result: \(str)")
                 }
             }
-            .map(ProfileMemberDTO.self)
+            .map(MembersProfileResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
     }

@@ -21,7 +21,7 @@ final class PostReactor: Reactor {
     enum Mutation {
         case setPop
         case setSelectedPostIndex(Int)
-        case setMissionContent(MissionContentData)
+        case setMissionContent(MissionContentResponse)
         case setPushProfileViewController(String)
     }
     
@@ -32,7 +32,7 @@ final class PostReactor: Reactor {
         var isPop: Bool = false
         var selectedPost: PostListData = .init(postId: "", author: .init(memberId: "", profileImageURL: "", name: ""), commentCount: 0, emojiCount: 0, imageURL: "", content: "", time: "")
         
-        @Pulse var missionContent: MissionContentData? = nil
+        @Pulse var missionContent: MissionContentResponse? = nil
         @Pulse var fetchedPost: PostData? = nil
         @Pulse var reactionMemberIds: [String] = []
         @Pulse var shouldPushProfileViewController: String?

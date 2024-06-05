@@ -21,12 +21,12 @@ public final class MissionRepository: MissionRepositoryProtocol {
 }
 
 extension MissionRepository {
-    public func getTodayMission() -> Observable<TodayMissionData?> {
+    public func getTodayMission() -> Observable<TodayMissionResponse?> {
         return missionAPIWorker.getTodayMission()
             .asObservable()
     }
     
-    public func getMissionContent(missionId: String) -> Observable<MissionContentData?> {
+    public func getMissionContent(missionId: String) -> Observable<MissionContentResponse?> {
         return missionAPIWorker.getMissionContent(missionId: missionId)
             .asObservable()
     }

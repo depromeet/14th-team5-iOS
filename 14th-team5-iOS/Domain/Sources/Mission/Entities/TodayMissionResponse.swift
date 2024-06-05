@@ -1,13 +1,13 @@
 //
-//  MissionData.swift
+//  TodayMissionResponse.swift
 //  Domain
 //
-//  Created by 마경미 on 21.04.24.
+//  Created by Kim dohyun on 6/5/24.
 //
 
 import Foundation
 
-public struct TodayMissionData {
+public struct TodayMissionResponse {
     let id: String
     public let content: String
     

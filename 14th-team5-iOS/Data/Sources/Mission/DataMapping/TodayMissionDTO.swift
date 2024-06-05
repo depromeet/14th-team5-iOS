@@ -14,7 +14,7 @@ struct GetTodayMissionResponse: Codable {
     let id: String
     let content: String
     
-    func toDomain() -> TodayMissionData {
+    func toDomain() -> TodayMissionResponse {
         return .init(id: id, content: content)
     }
 }

@@ -10,5 +10,5 @@ import Foundation
 import RxSwift
 
 public protocol GetTodayMissionUseCaseProtocol {
-    func execute() -> Observable<TodayMissionData?>
+    func execute() -> Observable<TodayMissionResponse?>
 }

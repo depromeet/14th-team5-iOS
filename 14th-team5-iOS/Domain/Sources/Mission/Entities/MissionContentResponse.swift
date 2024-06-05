@@ -1,14 +1,13 @@
 //
-//  MissionContentData.swift
+//  MissionContentResponse.swift
 //  Domain
 //
-//  Created by Kim dohyun on 5/8/24.
+//  Created by Kim dohyun on 6/5/24.
 //
 
 import Foundation
 
-
-public struct MissionContentData {
+public struct MissionContentResponse {
     public let missionId: String
     public let missionContent: String
     
@@ -16,5 +15,4 @@ public struct MissionContentData {
         self.missionId = missionId
         self.missionContent = missionContent
     }
-    
 }

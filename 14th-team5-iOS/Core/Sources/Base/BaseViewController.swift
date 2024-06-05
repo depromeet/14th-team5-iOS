@@ -11,6 +11,7 @@ import DesignSystem
 import ReactorKit
 import RxSwift
 
+@available(*, deprecated, renamed: "ReactorViewController")
 open class BaseViewController<R>: UIViewController, ReactorKit.View where R: Reactor {
     public typealias Reactor = R
 

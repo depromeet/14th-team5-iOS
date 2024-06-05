@@ -5,6 +5,7 @@
 //  Created by 김건우 on 12/29/23.
 //
 
+import Core
 import Foundation
 
 import RxSwift
@@ -37,5 +38,12 @@ public final class CalendarUseCase: CalendarUseCaseProtocol {
     
     public func executeFetchCalendarBenner(yearMonth: String) -> Observable<BannerEntity?> {
         return calendarRepository.fetchCalendarBanner(yearMonth: yearMonth)
+    }
+}
+
+
+public extension InjectIdentifier {
+    static var calendarUseCase: InjectIdentifier<CalendarUseCaseProtocol> {
+        .by(type: CalendarUseCaseProtocol.self)
     }
 }

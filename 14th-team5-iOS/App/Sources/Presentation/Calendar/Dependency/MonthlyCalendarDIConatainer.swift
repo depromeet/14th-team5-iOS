@@ -13,12 +13,12 @@ import Domain
 
 public final class MonthlyCalendarDIConatainer {
     // MARK: - Properties
-//    private var globalState: GlobalStateProviderProtocol {
-//        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-//            return GlobalStateProvider()
-//        }
-//        return appDelegate.globalStateProvider
-//    }
+    private var globalState: GlobalStateProviderProtocol {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return GlobalStateProvider()
+        }
+        return appDelegate.globalStateProvider
+    }
     
     // MARK: - Make
     public func makeViewController() -> MonthlyCalendarViewController {

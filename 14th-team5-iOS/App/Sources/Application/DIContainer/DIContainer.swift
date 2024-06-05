@@ -16,6 +16,11 @@ class DIContainer {
         Container.standard
     }()
     
+    // MARK: - API Workers
+    enum API {
+        static let calendar = CalendarAPIWorker()
+    }
+    
     // MARK: - Persistent Storage
     enum Storage {
         enum Keychain {

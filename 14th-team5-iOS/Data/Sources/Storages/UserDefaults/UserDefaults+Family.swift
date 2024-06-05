@@ -11,7 +11,13 @@ import Foundation
 
 // NOTE: - 예시 코드
 
-final public class MemberUserDefaults: UserDefaultsType {
+public protocol MemberUserDefaultsType: UserDefaultsType {
+    func save(_ memberId: String)
+    func loadMemberId() -> String?
+}
+
+
+final public class MemberUserDefaults: MemberUserDefaultsType {
  
     // MARK: - Intializer
     public init() { }

@@ -47,7 +47,11 @@ final class CalendarDIContainer: DIContainer {
         
         // NOTE: - 등록하면 @Injected로 편하게 의존성을 받아올 수 있습니다.
         // - (MonthlyCalendarViewReactor.swift 참조)
-        container.register(type: CalendarUseCaseProtocol.self) { _ in makeUseCase() }
+        container.register(
+            type: CalendarUseCaseProtocol.self
+        ) { [unowned self] _ in
+            self.makeUseCase()
+        }
     }
     
     

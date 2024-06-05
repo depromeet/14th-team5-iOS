@@ -5,11 +5,10 @@
 //  Created by 마경미 on 20.04.24.
 //
 
+import Core
 import Foundation
 
-import Core
-
-public enum MainAPIs: API {
+enum MainAPIs: API {
     case fetchMain
     case fetchMainNight
     

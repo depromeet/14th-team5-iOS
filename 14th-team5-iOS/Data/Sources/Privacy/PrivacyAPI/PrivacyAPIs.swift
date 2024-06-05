@@ -5,11 +5,12 @@
 //  Created by Kim dohyun on 1/1/24.
 //
 
+import Core
 import Foundation
 
 
 
-public enum PrivacyAPIs: API {
+enum PrivacyAPIs: API {
     case bibbiAppInfo
     case accountFamilyResign
     

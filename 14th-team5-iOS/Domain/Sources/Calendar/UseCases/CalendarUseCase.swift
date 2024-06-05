@@ -10,6 +10,7 @@ import Foundation
 
 import RxSwift
 
+@available(*, deprecated)
 public protocol CalendarUseCaseProtocol {
     func executeFetchCalednarResponse(yearMonth: String) -> Observable<ArrayResponseCalendarEntity?>
     func executeFetchDailyCalendarResponse(yearMonthDay: String) -> Observable<ArrayResponseDailyCalendarEntity?>
@@ -17,6 +18,8 @@ public protocol CalendarUseCaseProtocol {
     func executeFetchCalendarBenner(yearMonth: String) -> Observable<BannerEntity?>
 }
 
+
+@available(*, deprecated)
 public final class CalendarUseCase: CalendarUseCaseProtocol {
     private let calendarRepository: CalendarRepositoryProtocol
     
@@ -38,12 +41,5 @@ public final class CalendarUseCase: CalendarUseCaseProtocol {
     
     public func executeFetchCalendarBenner(yearMonth: String) -> Observable<BannerEntity?> {
         return calendarRepository.fetchCalendarBanner(yearMonth: yearMonth)
-    }
-}
-
-
-public extension InjectIdentifier {
-    static var calendarUseCase: InjectIdentifier<CalendarUseCaseProtocol> {
-        .by(type: CalendarUseCaseProtocol.self)
     }
 }

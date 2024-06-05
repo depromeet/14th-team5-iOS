@@ -18,24 +18,24 @@ public protocol PostCommentUseCaseProtocol {
 }
 
 public final class PostCommentUseCase: PostCommentUseCaseProtocol {
-    private let postCommentRepository: PostCommentRepositoryProtocol
+    private let commentRepository: CommentRepositoryProtocol
     
     public init(
-        postCommentRepository: PostCommentRepositoryProtocol
+        commentRepository: CommentRepositoryProtocol
     ) {
-        self.postCommentRepository = postCommentRepository
+        self.commentRepository = commentRepository
     }
     
     public func executeFetchPostComment(postId: String, query: PostCommentPaginationQuery) -> Observable<PaginationResponsePostCommentResponse?> {
-        return postCommentRepository.fetchPostComment(postId: postId, query: query)
+        return commentRepository.fetchPostComment(postId: postId, query: query)
     }
     
     public func executeCreatePostComment(postId: String, body: CreatePostCommentRequest) -> Observable<PostCommentResponse?> {
-        return postCommentRepository.createPostComment(postId: postId, body: body)
+        return commentRepository.createPostComment(postId: postId, body: body)
     }
     
     public func executeDeletePostComment(postId: String, commentId: String) -> Observable<PostCommentDeleteResponse?> {
-        return postCommentRepository.deletePostComment(postId: postId, commentId: commentId)
+        return commentRepository.deletePostComment(postId: postId, commentId: commentId)
     }
 }
 

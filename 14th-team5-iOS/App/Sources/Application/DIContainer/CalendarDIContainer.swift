@@ -18,13 +18,39 @@ final class CalendarDIContainer: DIContainer {
     
     // MARK: - Make UseCase
     
+    func makeFetchCalendarBannerUseCase() -> FetchCalendarBannerUseCaseProtocol {
+        FetchCalendarBannerUseCase(
+            calendarRepository: makeCalendarRepository()
+        )
+    }
+    
+    func makeFetchStatisticsSummaryUseCase() -> FetchStatisticsSummaryUseCaseProtocol {
+        FetchStatisticsSummaryUseCase(
+            calendarRepository: makeCalendarRepository()
+        )
+    }
+    
+    func makeFetchDailyCalendarUseCase() -> FetchDailyCalendarUseCaseProtocol {
+        FetchDailyCalendarUseCase(
+            calendarRepository: makeCalendarRepository()
+        )
+    }
+    
+    func makeFetchMonthlyCalendarUseCase() -> FetchMonthlyCalendarUseCaseProtocol {
+        FetchMonthlyCalendarUseCase(
+            calendarRepository: makeCalendarRepository()
+        )
+    }
+    
+    // NOTE: - 추후 UseCase 리팩토링하면 make() 메서드가 더 많아지겠죠?
+    
+    
     func makeUseCase() -> CalendarUseCaseProtocol {
         return CalendarUseCase(
             calendarRepository: makeCalendarRepository()
         )
     }
     
-    // NOTE: - 추후 UseCase 리팩토링하면 make() 메서드가 더 많아지겠죠?
     
     
     // MARK: - Make Repository
@@ -47,11 +73,30 @@ final class CalendarDIContainer: DIContainer {
         
         // NOTE: - 등록하면 @Injected로 편하게 의존성을 받아올 수 있습니다.
         // - (MonthlyCalendarViewReactor.swift 참조)
-        container.register(
-            type: CalendarUseCaseProtocol.self
-        ) { [unowned self] _ in
+        
+        container.register(type: FetchCalendarBannerUseCaseProtocol.self) { [unowned self] _ in
+            self.makeFetchCalendarBannerUseCase()
+        }
+        
+        container.register(type: FetchStatisticsSummaryUseCaseProtocol.self) { [unowned self] _ in
+            self.makeFetchStatisticsSummaryUseCase()
+        }
+        
+        container.register(type: FetchDailyCalendarUseCaseProtocol.self) { [unowned self] _ in
+            self.makeFetchDailyCalendarUseCase()
+        }
+        
+        container.register(type: FetchMonthlyCalendarUseCaseProtocol.self) { [unowned self] _ in
+            self.makeFetchMonthlyCalendarUseCase()
+        }
+        
+        
+        // ...
+        
+        container.register(type: CalendarUseCaseProtocol.self) { [unowned self] _ in
             self.makeUseCase()
         }
+        
     }
     
     

@@ -37,7 +37,7 @@ public final class AccountRepository: AccountImpl {
     
     let signInHelper = AccountSignInHelper()
     private let apiWorker = AccountAPIWorker()
-    private let profileWorker = ProfileAPIWorker()
+    private let profileWorker = MembersAPIWorker()
     private let meApiWorekr = MeAPIWorker()
     
     private let fetchMemberInfo = PublishRelay<Void>()

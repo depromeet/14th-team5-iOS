@@ -16,7 +16,7 @@ public protocol CameraViewUseCaseProtocol {
     func executeToggleCameraFlash(_ isState: Bool) -> Observable<Bool>
     func executeProfileImageURL(parameter: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?>
     func executeUploadToS3(toURL url: String, imageData: Data) -> Observable<Bool>
-    func executeEditProfileImage(memberId: String, parameter: ProfileImageEditParameter) -> Observable<ProfileMemberResponse?>
+    func executeEditProfileImage(memberId: String, parameter: ProfileImageEditParameter) -> Observable<MembersProfileResponse?>
     func executeRealEmojiImageURL(memberId: String, parameter: CameraRealEmojiParameters) -> Observable<CameraRealEmojiPreSignedResponse?>
     func executeRealEmojiUploadToS3(memberId: String, parameter: CameraCreateRealEmojiParameters) -> Observable<CameraCreateRealEmojiResponse?>
     func executeRealEmojiItems(memberId: String) -> Observable<[CameraRealEmojiImageItemResponse?]>
@@ -50,7 +50,7 @@ public final class CameraViewUseCase: CameraViewUseCaseProtocol {
         return cameraViewRepository.uploadImageToS3(toURL: url, imageData: imageData)
     }
 
-    public func executeEditProfileImage(memberId: String, parameter: ProfileImageEditParameter) -> Observable<ProfileMemberResponse?> {
+    public func executeEditProfileImage(memberId: String, parameter: ProfileImageEditParameter) -> Observable<MembersProfileResponse?> {
         return cameraViewRepository.editProfleImageToS3(memberId: memberId, parameter: parameter)
     }
     

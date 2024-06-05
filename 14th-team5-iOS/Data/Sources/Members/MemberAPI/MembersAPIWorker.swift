@@ -1,8 +1,8 @@
 //
-//  ProfileAPIWorker.swift
+//  MembersAPIWorker.swift
 //  Data
 //
-//  Created by Kim dohyun on 12/25/23.
+//  Created by Kim dohyun on 6/5/24.
 //
 
 import Core
@@ -13,9 +13,9 @@ import Domain
 import RxSwift
 
 
-typealias ProfileAPIWorker = ProfileAPIs.Worker
+typealias MembersAPIWorker = MembersAPIs.Worker
 
-extension ProfileAPIs {
+extension MembersAPIs {
     final class Worker: APIWorker {
         
         static let queue = {
@@ -31,11 +31,10 @@ extension ProfileAPIs {
 }
 
 
-extension ProfileAPIWorker {
+extension MembersAPIWorker {
     
-    
-    public func fetchProfileMember(accessToken: String, memberId: String) -> Single<ProfileMemberDTO?> {
-        let spec = ProfileAPIs.profileMember(memberId).spec
+    public func fetchProfileMember(accessToken: String, memberId: String) -> Single<MembersProfileResponseDTO?> {
+        let spec = MembersAPIs.profileMember(memberId).spec
 
         return request(spec: spec, headers: [BibbiAPI.Header.xAppVersion, BibbiAPI.Header.xUserPlatform, BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)])
             .subscribe(on: Self.queue)
@@ -44,14 +43,14 @@ extension ProfileAPIWorker {
                     debugPrint("fetch Profile Member Result: \(str)")
                 }
             }
-            .map(ProfileMemberDTO.self)
+            .map(MembersProfileResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
         
     }
     
     public func createProfileImagePresingedURL(accessToken: String, parameters: Encodable) -> Single<CameraDisplayImageDTO?> {
-        let spec = ProfileAPIs.profileAlbumUploadImageURL.spec
+        let spec = MembersAPIs.profileAlbumUploadImageURL.spec
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppVersion, BibbiAPI.Header.xUserPlatform, BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
             .subscribe(on: Self.queue)
@@ -66,7 +65,7 @@ extension ProfileAPIWorker {
     }
     
     public func uploadToProfilePresingedURL(accessToken: String, toURL url: String, with imageData: Data) -> Single<Bool> {
-        let spec = ProfileAPIs.profileUploadToPreSignedURL(url).spec
+        let spec = MembersAPIs.profileUploadToPreSignedURL(url).spec
         
         return upload(spec: spec, headers: [BibbiAPI.Header.xAppVersion, BibbiAPI.Header.xUserPlatform, BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(accessToken)], image: imageData)
             .subscribe(on: Self.queue)
@@ -75,8 +74,8 @@ extension ProfileAPIWorker {
             .map { _ in true }
     }
     
-    public func updateProfileAlbumImageToS3(accessToken: String, memberId: String, parameter: Encodable) -> Single<ProfileMemberDTO?> {
-        let spec = ProfileAPIs.profileEditImage(memberId).spec
+    public func updateProfileAlbumImageToS3(accessToken: String, memberId: String, parameter: Encodable) -> Single<MembersProfileResponseDTO?> {
+        let spec = MembersAPIs.profileEditImage(memberId).spec
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppVersion, BibbiAPI.Header.xUserPlatform, BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameter)
             .subscribe(on: Self.queue)
@@ -85,13 +84,13 @@ extension ProfileAPIWorker {
                     debugPrint("updateProfile Image Result: \(str)")
                 }
             }
-            .map(ProfileMemberDTO.self)
+            .map(MembersProfileResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
     }
     
-    public func deleteProfileImageToS3(accessToken: String, memberId: String) -> Single<ProfileMemberDTO?> {
-        let spec = ProfileAPIs.profileDeleteImage(memberId).spec
+    public func deleteProfileImageToS3(accessToken: String, memberId: String) -> Single<MembersProfileResponseDTO?> {
+        let spec = MembersAPIs.profileDeleteImage(memberId).spec
         
         return request(spec: spec,headers: [BibbiAPI.Header.xAppVersion, BibbiAPI.Header.xUserPlatform, BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson])
             .subscribe(on: Self.queue)
@@ -100,7 +99,7 @@ extension ProfileAPIWorker {
                     debugPrint("delete Profile Image Result: \(str)")
                 }
             }
-            .map(ProfileMemberDTO.self)
+            .map(MembersProfileResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
     }

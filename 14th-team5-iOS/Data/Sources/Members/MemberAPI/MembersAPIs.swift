@@ -1,16 +1,15 @@
 //
-//  ProfileAPIs.swift
+//  MembersAPIs.swift
 //  Data
 //
-//  Created by Kim dohyun on 12/25/23.
+//  Created by Kim dohyun on 6/5/24.
 //
 
 import Foundation
 
 import Core
 
-
-enum ProfileAPIs: API {
+enum MembersAPIs: API {
     case profileMember(String)
     case profilePost
     case profileAlbumUploadImageURL
@@ -38,3 +37,4 @@ enum ProfileAPIs: API {
     
     
 }
+

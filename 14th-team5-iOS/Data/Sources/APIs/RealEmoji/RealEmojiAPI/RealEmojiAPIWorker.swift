@@ -13,8 +13,8 @@ import Domain
 import Alamofire
 import RxSwift
 
-typealias RealEmojiAPIWorker = RealEmojiAPIS.Worker
-extension RealEmojiAPIS {
+typealias RealEmojiAPIWorker = RealEmojiAPIs.Worker
+extension RealEmojiAPIs {
     public final class Worker: APIWorker {
         static let queue = {
             ConcurrentDispatchQueueScheduler(queue: DispatchQueue(label: "RealEmojiAPIQueue", qos: .utility))
@@ -43,7 +43,7 @@ extension RealEmojiAPIWorker {
     
     func fetchRealEmoji(query: FetchRealEmojiQuery) -> Single<[FetchedEmojiData]?> {
         let query = FetchRealEmojiListParameter(postId: query.postId)
-        let spec = RealEmojiAPIS.fetchRealEmojiList(query).spec
+        let spec = RealEmojiAPIs.fetchRealEmojiList(query).spec
         
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
@@ -61,7 +61,7 @@ extension RealEmojiAPIWorker {
     }
     
     func fetchMyRealEmoji() -> Single<[MyRealEmoji?]> {
-        let spec = RealEmojiAPIS.fetchMyRealEmoji.spec
+        let spec = RealEmojiAPIs.fetchMyRealEmoji.spec
         
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
@@ -79,7 +79,7 @@ extension RealEmojiAPIWorker {
     }
     
     func addRealEmoji(query: AddEmojiQuery, body: AddEmojiBody) -> Single<Void?> {
-        let spec = RealEmojiAPIS.addRealEmoji(.init(postId: query.postId)).spec
+        let spec = RealEmojiAPIs.addRealEmoji(.init(postId: query.postId)).spec
         let body = AddRealEmojiRequestDTO(realEmojiId: body.emojiId)
         
         return request(spec: spec, headers: headers, jsonEncodable: body)
@@ -98,7 +98,7 @@ extension RealEmojiAPIWorker {
     }
     
     func removeRealEmoji(query: RemoveRealEmojiQuery) -> Single<Void?> {
-        let spec = RealEmojiAPIS.removeRealEmoji(.init(postId: query.postId, realEmojiId: query.realEmojiId)).spec
+        let spec = RealEmojiAPIs.removeRealEmoji(.init(postId: query.postId, realEmojiId: query.realEmojiId)).spec
         
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)

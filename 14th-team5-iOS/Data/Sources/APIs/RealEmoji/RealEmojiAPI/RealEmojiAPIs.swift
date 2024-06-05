@@ -8,7 +8,7 @@
 import Core
 import Foundation
 
-enum RealEmojiAPIS: API {
+enum RealEmojiAPIs: API {
     case fetchRealEmojiList(FetchRealEmojiListParameter)
     case fetchMyRealEmoji
     case addRealEmoji(AddRealEmojiParameters)

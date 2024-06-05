@@ -18,7 +18,9 @@ public enum ExtensionsLayer: String, ModuleType {
         switch self {
         case .Widget:
             return [
-                .with(.Core)
+                .with(.Core),
+                .with(.Domain),
+                .with(.Data)
             ]
         }
     }

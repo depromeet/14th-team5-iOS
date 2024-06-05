@@ -49,7 +49,7 @@ extension TitleStyle {
 
 extension TopBarButtonStyle {
     
-    var barButtonImage: UIImage? {
+    var image: UIImage? {
         switch self {
         case .addPerson:
             return DesignSystemAsset.addPerson.image

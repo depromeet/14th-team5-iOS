@@ -14,6 +14,7 @@ import SnapKit
 import RxSwift
 import RxCocoa
 
+///. 삐삐 스타일의 NavigationBar가 구현된 View입니다.
 public final class BBNavigationBarView: UIView {
     
     // MARK: - Views
@@ -28,6 +29,9 @@ public final class BBNavigationBarView: UIView {
     // MARK: - Properties
     public weak var delegate: BBNavigationBarViewDelegate?
     
+    
+    /// NavigationBar의 Title을 바꿉니다.
+    /// Title을 적용하면 Image가 사라집니다.
     public var navigationTitle: String? {
         didSet {
             navigationImageView.isHidden = true
@@ -37,71 +41,82 @@ public final class BBNavigationBarView: UIView {
         }
     }
     
-    public var navigationImage: UIImage.TopBarImageType? {
+    /// NavigationBar의 Image를 바꿉니다.
+    /// Image를 적용하면 Title이 사라집니다.
+    public var navigationImage: TopBarButtonStyle? {
         didSet {
             navigationImageView.isHidden = false
             navigationTitleLabel.isHidden = true
             
-            navigationImageView.image = navigationImage?.barImage
+            navigationImageView.image = navigationImage?.image
         }
     }
     
-    public var leftBarButtonItem: UIImage.TopBarIconType?   {
+    /// 왼쪽 버튼의 스타일을 설정합니다.
+    public var leftBarButtonItem: TopBarButtonStyle?   {
         didSet {
             leftBarButton.setImage(
-                leftBarButtonItem?.barButtonImage,
+                leftBarButtonItem?.image,
                 for: .normal
             )
             setupButtonBackground(leftBarButton, type: leftBarButtonItem)
         }
     }
     
-    public var rightBarButtonItem: UIImage.TopBarIconType? {
+    // 오른쪽 버튼의 스타일을 설정합니다.
+    public var rightBarButtonItem: TopBarButtonStyle? {
         didSet {
             rightBarButton.setImage(
-                rightBarButtonItem?.barButtonImage,
+                rightBarButtonItem?.image,
                 for: .normal
             )
             setupButtonBackground(rightBarButton, type: leftBarButtonItem)
         }
     }
     
+    // Navigation Image의 크기를 설정합니다. 기본값은 1.0입니다.
     public var navigationImageScale: CGFloat = 1.0 {
         didSet {
             setupNavigationImageScale(navigationImageScale)
         }
     }
     
+    // 왼쪽 버튼 이미지의 크기를 설정합니다. 기본값은 1.0입니다.
     public var leftBarButtonItemScale: CGFloat = 1.0 {
         didSet {
             setupLeftButtonImageScale(leftBarButtonItemScale)
         }
     }
     
+    // 오른쪽 버튼 이미지의 크기를 설정합니다. 기본값은 1.0입니다.
     public var rightBarButtonItemScale: CGFloat = 1.0 {
         didSet {
             setupRightButtonImageScale(rightBarButtonItemScale)
         }
     }
     
+    // Navigation Title의 색상을 설정합니다.
     public var navigationTitleTextColor: UIColor = UIColor.gray200 {
         didSet {
             navigationTitleLabel.textColor = navigationTitleTextColor
         }
     }
     
+    // 왼쪽 버튼의 강조 색상을 설정합니다.
     public var leftBarButtonItemTintColor: UIColor = UIColor.gray300 {
         didSet {
             leftBarButton.tintColor = leftBarButtonItemTintColor
         }
     }
     
+    // 오른쪽 버튼의 강조 색상을 설정합니다.
     public var rightBarButtonItemTintColor: UIColor = UIColor.gray300 {
         didSet {
             rightBarButton.tintColor = rightBarButtonItemTintColor
         }
     }
     
+    // 왼쪽 버튼이 leading으로부터 얼마나 떨어져 있는지 설정합니다.
     public var leftBarButtonItemYOffset: CGFloat = 0.0 {
         didSet {
             leftBarButton.snp.updateConstraints {
@@ -110,6 +125,7 @@ public final class BBNavigationBarView: UIView {
         }
     }
     
+    // 오른쪽 버튼이 leading으로부터 얼마나 떨어져 있는지 설정합니다.
     public var rightBarButtonItemYOffset: CGFloat = 0.0 {
         didSet {
             rightBarButton.snp.updateConstraints {
@@ -229,7 +245,7 @@ extension BBNavigationBarView {
         )
     }
 
-    private func setupButtonBackground(_ button: UIButton, type: UIImage.TopBarIconType?) {
+    private func setupButtonBackground(_ button: UIButton, type: TopBarButtonStyle?) {
         if type == .arrowLeft || type == .xmark {
             button.backgroundColor = .gray900
         } else {

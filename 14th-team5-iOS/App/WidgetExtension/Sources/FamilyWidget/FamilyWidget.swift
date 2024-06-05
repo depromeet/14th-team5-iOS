@@ -14,7 +14,7 @@ struct FamilyWidget: Widget {
     let kind: String = "FamilyWidget"
     
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: FamilyWidgetTimelineProvider()) { entry in
+        StaticConfiguration(kind: kind, provider: FamilyWidgetDIContainer().makeProvider()) { entry in
             if #available(iOSApplicationExtension 17.0, *) {
                 FamilyWidgetView(entry: entry)
                     .containerBackground(for: .widget) {}

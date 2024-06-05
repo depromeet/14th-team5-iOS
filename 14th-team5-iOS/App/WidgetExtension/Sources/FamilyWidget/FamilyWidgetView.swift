@@ -9,6 +9,7 @@ import SwiftUI
 import DesignSystem
 import WidgetKit
 import Core
+import Domain
 
 struct FamilyWidgetView: View {
     @Environment(\.widgetFamily) var family: WidgetFamily
@@ -152,7 +153,7 @@ struct FamilyWidgetView: View {
     }
     
     // MARK: 가족중 일부가 사진을 올렸을 때 뷰
-    private func getPhotoView(info: Family) -> some View {
+    private func getPhotoView(info: RecentFamilyPostData) -> some View {
         ZStack {
             if let postImageUrl = info.postImageUrl {
                 

@@ -6,8 +6,9 @@
 //
 
 import WidgetKit
+import Domain
 
 struct FamilyWidgetEntry: TimelineEntry {
     let date: Date
-    let family: Family?
+    let family: RecentFamilyPostData?
 }

@@ -37,7 +37,7 @@ extension MissionAPIWorker {
                     debugPrint("Join Family Result: \(str)")
                 }
             }
-            .map(GetTodayMissionResponse.self)
+            .map(GetTodayMissionResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
             .asSingle()
@@ -61,7 +61,7 @@ extension MissionAPIWorker {
                     debugPrint("Mission Content Result: \(str)")
                 }
             }
-            .map(MissionContentDTO.self)
+            .map(MissionContentResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
             .asSingle()

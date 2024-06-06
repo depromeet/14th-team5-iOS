@@ -35,7 +35,7 @@ public final class AccountRepository: AccountImpl {
     private let accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
     private let keychain = KeychainWrapper(serviceName: "Bibbi", accessGroup: "P9P4WJ623F.com.5ing.bibbi")
     
-    let signInHelper = AccountSignInHelper()
+    let signInHelper = SignInHelper()
     private let apiWorker = AccountAPIWorker()
     private let profileWorker = ProfileAPIWorker()
     private let meApiWorekr = MeAPIWorker()

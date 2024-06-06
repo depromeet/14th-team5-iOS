@@ -1,22 +1,12 @@
 //
-//  PostDTO.swift
+//  PostResponseDTO.swift
 //  Data
 //
-//  Created by 마경미 on 30.12.23.
+//  Created by Kim dohyun on 6/6/24.
 //
 
 import Foundation
 import Domain
-
-public struct PostRequestDTO: Codable {
-    let postId: String
-}
-
-extension PostRequestDTO {
-    func toDomain() -> PostQuery {
-        return .init(postId: postId)
-    }
-}
 
 struct PostResponseDTO: Codable {
     let postId: String

@@ -1,23 +1,15 @@
 //
-//  PostListDTO.swift
+//  PostListResponseDTO.swift
 //  Data
 //
-//  Created by 마경미 on 25.12.23.
+//  Created by Kim dohyun on 6/6/24.
 //
 
 import Foundation
+
 import Domain
 
-public struct PostListRequestDTO: Codable {
-    let page: Int
-    let size: Int
-    let date: String
-    let memberId: String?
-    let sort: String
-    let type: String
-}
-
-struct PostListDTO: Codable {
+struct PostListResultsDTO: Codable {
     let postId: String
     let authorId: String
     let type: String
@@ -29,11 +21,11 @@ struct PostListDTO: Codable {
     let createdAt: String
 }
 
-extension PostListDTO {
+extension PostListResultsDTO {
     func toDomain() -> PostListData {
         let author = FamilyUserDefaults.load(memberId: authorId)
         return .init(
-            postId: postId, 
+            postId: postId,
             missionId: missionId,
             missionType: type,
             author: author,
@@ -51,7 +43,7 @@ struct PostListResponseDTO: Codable {
     let totalPage: Int
     let itemPerPage: Int
     let hasNext: Bool
-    let results: [PostListDTO]
+    let results: [PostListResultsDTO]
 }
 
 extension PostListResponseDTO {

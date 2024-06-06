@@ -11,9 +11,9 @@ import Foundation
 
 import RxSwift
 
-typealias OAuthAPIWorker = OAuthAPIs.Worker
+public typealias OAuthAPIWorker = OAuthAPIs.Worker
 extension OAuthAPIs {
-    final class Worker: APIWorker {
+    final public class Worker: APIWorker {
         static let queue = {
             ConcurrentDispatchQueueScheduler(queue: DispatchQueue(label: "OAuthAPIQueue", qos: .utility))
         }()
@@ -27,7 +27,7 @@ extension OAuthAPIs {
 
 // MARK: - Extensions
 
-extension CalendarAPIWorker {
+extension OAuthAPIWorker {
     
     // MARK: - Refresh Access Token
     
@@ -69,8 +69,8 @@ extension CalendarAPIWorker {
     
     // MARK: - Sign In With SNS
     
-    public func signIn(_ with: SignInType, body: NativeSocialLoginRequestDTO) -> Single<AuthResultEntity?> {
-        let spec = OAuthAPIs.signIn(with).spec
+    public func signIn(_ type: SignInType, body: NativeSocialLoginRequestDTO) -> Single<AuthResultEntity?> {
+        let spec = OAuthAPIs.signIn(type).spec
         
         return request(spec: spec, jsonEncodable: body)
             .subscribe(on: Self.queue)
@@ -87,7 +87,7 @@ extension CalendarAPIWorker {
     
     
     
-    // MARK: - Regieter FCM Token
+    // MARK: - Register FCM Token
     
     public func registerNewFCMToken(body: AddFCMTokenRequestDTO) -> Single<DefaultResponseEntity?> {
         let spec = OAuthAPIs.registerFCMToken.spec

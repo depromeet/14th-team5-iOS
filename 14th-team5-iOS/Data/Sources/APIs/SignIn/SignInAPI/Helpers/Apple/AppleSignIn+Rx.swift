@@ -12,10 +12,13 @@ import AuthenticationServices
 import RxCocoa
 import RxSwift
 
+// 참조: https://gist.github.com/iamchiwon/20aa57d4e8f6110bc3f79742c2fb6cc5
+
 class RxASAuthorizationControllerDelegateProxy: DelegateProxy<ASAuthorizationController, ASAuthorizationControllerDelegate>, DelegateProxyType, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
     
     private let disposeBag = DisposeBag()
     
+    // 애플 로그인 창을 띄울 윈도우
     var presentationWindow: UIWindow = UIWindow()
     
     public init(controller: ASAuthorizationController) {
@@ -26,12 +29,17 @@ class RxASAuthorizationControllerDelegateProxy: DelegateProxy<ASAuthorizationCon
         register { RxASAuthorizationControllerDelegateProxy(controller: $0) }
     }
     
+    // 로그인이 끝나면 SNSType과 토큰을 담아 스트림 흘려보내는 용도
     internal lazy var didComplete = PublishSubject<AccountSignInStateInfo>()
+    
+    
     
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
         return presentationWindow
     }
     
+    
+    // 로그인이 정상적으로 끝내면 Apple IDToken값을 알려주는 델리게이트 메서드
     func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
         
         switch authorization.credential {
@@ -49,6 +57,8 @@ class RxASAuthorizationControllerDelegateProxy: DelegateProxy<ASAuthorizationCon
         }
     }
     
+    
+    // 로그인 중 에러 발생시 호출되는 델리게이트 메서드
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
         
         guard let err = error as? ASAuthorizationError else {
@@ -69,6 +79,7 @@ class RxASAuthorizationControllerDelegateProxy: DelegateProxy<ASAuthorizationCon
         case .unknown:
             debugPrint("Apple auth unknown!!!")
             
+            // 무슨 코드인지 확인 필요
             ASAuthorizationAppleIDProvider().rx.signIn(on: self.presentationWindow)
                 .withUnretained(self)
                 .subscribe(onNext: { _self, result in

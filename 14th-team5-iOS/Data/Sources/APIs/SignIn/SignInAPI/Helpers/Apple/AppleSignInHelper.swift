@@ -19,6 +19,7 @@ final class AppleSignInHelper: SignInHelperType {
     
     private var disposeBag = DisposeBag()
     
+    // 간접적으로 스트림 넘기지 말고, 그냥 메서드에서 토큰값 반환하기
     private let _signInState = PublishRelay<AccountSignInStateInfo>() // ?
     var signInState: Observable<AccountSignInStateInfo> {
         self._signInState.asObservable()
@@ -27,6 +28,7 @@ final class AppleSignInHelper: SignInHelperType {
     
     // MARK: - Sign In
     
+    // Apple 로그인 결과로 IdToken을 리턴하는 코드
     func signIn(on window: UIWindow) -> Observable<APIResult> { // 그냥 바로 AccessToken 리턴하게 만들기
         guard #available(iOS 13.0, *) else {
             self._signInState.accept(AccountSignInStateInfo(snsType: .apple))

@@ -27,7 +27,7 @@ extension PostListAPIs {
     }
 }
 
-extension PostListAPIWorker: PostListRepositoryProtocol {
+extension PostListAPIWorker {
     public func fetchPostDetail(query: PostQuery) -> Single<PostData?> {
         return Observable.just(())
             .withLatestFrom(self._headers)

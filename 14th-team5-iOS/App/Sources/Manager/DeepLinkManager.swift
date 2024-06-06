@@ -31,7 +31,7 @@ final class DeepLinkManager {
     
     // 이번 3차 끝나고, postdetailviewcontroller에서 post 불러오는 형태로 바꿔보겠습니다.
     let disposeBag: DisposeBag = DisposeBag()
-    let postRepository: PostListRepositoryProtocol = PostListAPIs.Worker()
+    let postRepository: PostListRepositoryProtocol = PostRepository()
     lazy var postUseCase: PostListUseCaseProtocol = PostListUseCase(postListRepository: postRepository)
     
     private init() {}

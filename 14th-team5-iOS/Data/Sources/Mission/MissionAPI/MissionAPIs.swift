@@ -10,7 +10,7 @@ import Foundation
 import Core
 import Domain
 
-public enum MissionAPIs: API {
+enum MissionAPIs: API {
     case getTodayMission
     case getMissionContent(String)
 

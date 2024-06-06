@@ -7,22 +7,25 @@
 
 import Foundation
 
-import Data
 import Core
+import Data
+import Domain
 
-public final class OnBoardingDIContainer: BaseDIContainer {
+public final class OnBoardingDIContainer {
     
-    public typealias ViewContrller = OnBoardingViewController
-    public typealias Repository = AccountImpl
-    public typealias Reactor = OnBoardingReactor
-    
-    public func makeViewController() -> ViewContrller {
+    public func makeViewController() -> OnBoardingViewController {
         return OnBoardingViewController(reactor: makeReactor())
     }
-    public func makeRepository() -> Repository {
-        return AccountRepository()
+    
+    public func makeUseCase() -> FamilyUseCaseProtocol {
+        return FamilyUseCase(familyRepository: makeRepository())
     }
-    public func makeReactor() -> Reactor {
-        return OnBoardingReactor(accountRepository: AccountRepository())
+    
+    public func makeRepository() -> FamilyRepositoryProtocol {
+        return FamilyRepository()
+    }
+    
+    public func makeReactor() -> OnBoardingReactor {
+        return OnBoardingReactor(familyUseCase: makeUseCase())
     }
 }

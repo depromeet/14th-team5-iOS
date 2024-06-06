@@ -7,15 +7,8 @@
 
 import Foundation
 
-import RxSwift
 import RxCocoa
-//import SwiftKeychainWrapper
-
-//public extension KeychainWrapper.Key {
-//    static let fcmToken: KeychainWrapper.Key = "FCMToken"
-//    static let accessToken: KeychainWrapper.Key = "accessToken"
-//    static let refreshToken: KeychainWrapper.Key = "refreshToken"
-//}
+import RxSwift
 
 public struct AccessToken: Codable, Equatable {
     public var accessToken: String?
@@ -26,30 +19,6 @@ public struct AccessToken: Codable, Equatable {
         self.accessToken = accessToken
         self.refreshToken = refreshToken
         self.isTemporaryToken = isTemporaryToken
-    }
-}
-
-public extension Data {
-
-    func decode<T>(_ type: T.Type, using decoder: JSONDecoder? = nil) -> T? where T: Decodable {
-        
-        let decoder = decoder ?? JSONDecoder()
-        
-        var res: T? = nil
-        do {
-            res = try decoder.decode(type, from: self)
-        } catch {
-            debugPrint("\(T.self) Data Parsing Error: \(error)")
-        }
-        
-        return res
-    }
-}
-
-public extension String {
-    
-    func decode<T>(_ type: T.Type, using decoder: JSONDecoder? = nil) -> T? where T: Decodable {
-        return self.data(using: .utf8)?.decode(type, using: decoder)
     }
 }
 

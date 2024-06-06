@@ -308,6 +308,14 @@ extension MainViewController {
                     guard let self else { return }
                     self.alertConfirmRelay.accept((name, id)) }
                 .present()
+        case .missionUnlockedAlert:
+            BibbiAlertBuilder(self)
+                .alertStyle(.missionKey)
+                .setConfirmAction { [weak self] in
+                    guard let self else { return }
+                    self.navigationController?.pushViewController(CameraDIContainer(cameraType: .mission).makeViewController(), animated: true)
+                }
+                .present()
         }
 
     }

@@ -19,7 +19,7 @@ public protocol CameraViewInterface: AnyObject {
     func toggleCameraFlash(_ isState: Bool) -> Observable<Bool>
     func fetchProfileImageURL(parameters: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?>
     func uploadImageToS3(toURL url: String, imageData: Data) -> Observable<Bool>
-    func editProfleImageToS3(memberId: String, parameter: ProfileImageEditParameter) -> Observable<ProfileMemberResponse?>
+    func editProfleImageToS3(memberId: String, parameter: ProfileImageEditParameter) -> Observable<MembersProfileResponse?>
     func fetchRealEmojiImageURL(memberId: String, parameters: CameraRealEmojiParameters) -> Observable<CameraRealEmojiPreSignedResponse?>
     func uploadRealEmojiImageToS3(memberId: String, parameters: CameraCreateRealEmojiParameters) -> Observable<CameraCreateRealEmojiResponse?>
     func fetchRealEmojiItems(memberId: String) -> Observable<[CameraRealEmojiImageItemResponse?]>

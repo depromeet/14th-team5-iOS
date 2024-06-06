@@ -5,6 +5,7 @@
 //  Created by 마경미 on 01.01.24.
 //
 
+import Core
 import Foundation
 
 public enum EmojiAPIs: API {
@@ -12,7 +13,7 @@ public enum EmojiAPIs: API {
     case removeReactions(String)
     case fetchReactions(FetchEmojiRequestDTO)
     
-    var spec: APISpec {
+    public var spec: APISpec {
         switch self {
         case let .addReactions(postId):
             let urlString = "\(BibbiAPI.hostApi)/posts/\(postId)/reactions"

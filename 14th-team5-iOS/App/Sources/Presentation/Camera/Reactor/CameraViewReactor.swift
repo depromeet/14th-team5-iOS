@@ -41,7 +41,7 @@ public final class CameraViewReactor: Reactor {
         case setPinchZoomScale(CGFloat)
         case setZoomScale(CGFloat)
         case setProfileImageURLResponse(CameraDisplayImageResponse?)
-        case setProfileMemberResponse(ProfileMemberResponse?)
+        case setProfileMemberResponse(MembersProfileResponse?)
         case setRealEmojiImageURLResponse(CameraRealEmojiPreSignedResponse?)
         case setRealEmojiImageCreateResponse(CameraCreateRealEmojiResponse?)
         case setRealEmojiItems([CameraRealEmojiImageItemResponse?])
@@ -73,7 +73,7 @@ public final class CameraViewReactor: Reactor {
         var memberId: String
         var isUpload: Bool
         @Pulse var isError: Bool
-        @Pulse var profileMemberEntity: ProfileMemberResponse?
+        @Pulse var profileMemberEntity: MembersProfileResponse?
     }
     
     init(cameraUseCase: CameraViewUseCaseProtocol,

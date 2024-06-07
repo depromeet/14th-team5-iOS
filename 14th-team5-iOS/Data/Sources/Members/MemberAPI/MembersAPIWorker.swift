@@ -49,7 +49,7 @@ extension MembersAPIWorker {
         
     }
     
-    public func createProfileImagePresingedURL(accessToken: String, parameters: Encodable) -> Single<CameraDisplayImageDTO?> {
+    public func createProfileImagePresingedURL(accessToken: String, parameters: Encodable) -> Single<CameraDisplayImageResponseDTO?> {
         let spec = MembersAPIs.profileAlbumUploadImageURL.spec
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppVersion, BibbiAPI.Header.xUserPlatform, BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
@@ -59,7 +59,7 @@ extension MembersAPIWorker {
                     debugPrint("createPresinged URL \(str)")
                 }
             }
-            .map(CameraDisplayImageDTO.self)
+            .map(CameraDisplayImageResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
     }

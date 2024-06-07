@@ -15,7 +15,7 @@ import UIKit
 public final class CameraDIContainer: BaseDIContainer {
         
     public typealias ViewContrller = CameraViewController
-    public typealias Repository = CameraViewInterface
+    public typealias Repository = CameraRepositoryProtocol
     public typealias Reactor = CameraViewReactor
     public typealias UseCase = CameraViewUseCaseProtocol
     
@@ -43,12 +43,12 @@ public final class CameraDIContainer: BaseDIContainer {
     }
     
     public func makeUseCase() -> UseCase {
-        return CameraViewUseCase(cameraViewRepository: makeRepository())
+        return CameraViewUseCase(cameraRepository: makeRepository())
     }
     
     
     public func makeRepository() -> Repository {
-        return CameraViewRepository()
+        return CameraRepository()
     }
     
     public func makeReactor() -> Reactor {

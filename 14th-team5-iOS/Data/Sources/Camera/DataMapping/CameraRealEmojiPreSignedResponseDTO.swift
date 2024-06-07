@@ -1,15 +1,17 @@
 //
-//  CameraRealEmojiPreSignedDTO.swift
-//  Domain
+//  CameraRealEmojiPreSignedResponseDTO.swift
+//  Data
 //
-//  Created by Kim dohyun on 1/22/24.
+//  Created by Kim dohyun on 6/7/24.
 //
 
 import Foundation
 
+import Core
 import Domain
 
-public struct CameraRealEmojiPreSignedDTO: Decodable {
+
+public struct CameraRealEmojiPreSignedResponseDTO: Decodable {
     public var imageURL: String
     
     public enum CodingKeys: String, CodingKey {
@@ -18,7 +20,7 @@ public struct CameraRealEmojiPreSignedDTO: Decodable {
 }
 
 
-extension CameraRealEmojiPreSignedDTO {
+extension CameraRealEmojiPreSignedResponseDTO {
     
     public func toDomain() -> CameraRealEmojiPreSignedResponse {
         return .init(imageURL: imageURL)

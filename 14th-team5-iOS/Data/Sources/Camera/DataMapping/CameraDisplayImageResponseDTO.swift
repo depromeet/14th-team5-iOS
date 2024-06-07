@@ -1,16 +1,17 @@
 //
-//  CameraDisplayImageDTO.swift
-//  Domain
+//  CameraDisplayImageResponseDTO.swift
+//  Data
 //
-//  Created by Kim dohyun on 12/21/23.
+//  Created by Kim dohyun on 6/7/24.
 //
 
 import Foundation
+
 import Domain
 
 
 
-public struct CameraDisplayImageDTO: Decodable {
+public struct CameraDisplayImageResponseDTO: Decodable {
     public var imageURL: String?
     
     public enum CodingKeys: String, CodingKey {
@@ -19,7 +20,7 @@ public struct CameraDisplayImageDTO: Decodable {
 }
 
 
-extension CameraDisplayImageDTO {
+extension CameraDisplayImageResponseDTO {
     
     public func toDomain() -> CameraDisplayImageResponse? {
         return .init(imageURL: imageURL ?? "")

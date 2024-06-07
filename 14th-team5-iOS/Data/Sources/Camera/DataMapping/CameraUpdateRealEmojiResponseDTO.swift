@@ -1,15 +1,15 @@
 //
-//  CameraUpdateRealEmojiDTO.swift
+//  CameraUpdateRealEmojiResponseDTO.swift
 //  Data
 //
-//  Created by Kim dohyun on 1/24/24.
+//  Created by Kim dohyun on 6/7/24.
 //
 
 import Foundation
 
 import Domain
 
-public struct CameraUpdateRealEmojiDTO: Decodable {
+public struct CameraUpdateRealEmojiResponseDTO: Decodable {
     
     public var realEmojiId: String
     public var realEmojiType: String
@@ -24,7 +24,7 @@ public struct CameraUpdateRealEmojiDTO: Decodable {
     
 }
 
-extension CameraUpdateRealEmojiDTO {
+extension CameraUpdateRealEmojiResponseDTO {
     public func toDomain() -> CameraUpdateRealEmojiResponse {
         return .init(
             realEmojiId: realEmojiId,

@@ -1,8 +1,8 @@
 //
-//  CameraViewRepository.swift
+//  CameraRepository.swift
 //  Data
 //
-//  Created by Kim dohyun on 12/6/23.
+//  Created by Kim dohyun on 6/7/24.
 //
 
 import Foundation
@@ -13,9 +13,7 @@ import RxCocoa
 import RxSwift
 
 
-
-
-public final class CameraViewRepository {
+public final class CameraRepository {
 
     public var disposeBag: DisposeBag = DisposeBag()
     private let cameraAPIWorker: CameraAPIWorker = CameraAPIWorker()
@@ -26,9 +24,8 @@ public final class CameraViewRepository {
         
 }
 
-
-extension CameraViewRepository: CameraViewInterface {
-        
+extension CameraRepository: CameraRepositoryProtocol {
+    
     public func toggleCameraPosition(_ isState: Bool) -> Observable<Bool> {
         return Observable<Bool>
             .create { observer in
@@ -47,13 +44,20 @@ extension CameraViewRepository: CameraViewInterface {
             }
     }
     
+    public func combineWithTextImage(parameters: CameraDisplayPostParameters, query:CameraMissionFeedQuery) -> Observable<CameraDisplayPostResponse?> {
+        return cameraAPIWorker.combineWithTextImageUpload(accessToken: accessToken, parameters: parameters, query: query)
+            .map { $0?.toDomain() }
+            .catchAndReturn(nil)
+            .asObservable()
+    }
     
-    public func fetchProfileImageURL(parameters: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?> {
-        
+    public func fetchPresignedeImageURL(parameters: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?> {
         return cameraAPIWorker.createProfilePresignedURL(accessToken: accessToken, parameters: parameters)
             .compactMap { $0?.toDomain() }
             .asObservable()
     }
+    
+    
         
     public func uploadImageToS3(toURL url: String, imageData: Data) -> Observable<Bool> {
         return cameraAPIWorker.uploadImageToPresignedURL(accessToken: accessToken, toURL: url, withImageData: imageData)
@@ -99,4 +103,5 @@ extension CameraViewRepository: CameraViewInterface {
         .compactMap { $0?.toDomain() }
         .asObservable()
   }
+    
 }

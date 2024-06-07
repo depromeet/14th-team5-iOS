@@ -1,15 +1,15 @@
 //
-//  CameraTodayMissionDTO.swift
+//  CameraTodayMissionResponseDTO.swift
 //  Data
 //
-//  Created by Kim dohyun on 4/30/24.
+//  Created by Kim dohyun on 6/7/24.
 //
 
 import Foundation
+
 import Domain
 
-
-public struct CameraTodayMissionDTO: Decodable {
+public struct CameraTodayMissionResponseDTO: Decodable {
   
   public var missionDate: String
   public var missionId: String
@@ -24,7 +24,7 @@ public struct CameraTodayMissionDTO: Decodable {
 }
 
 
-extension CameraTodayMissionDTO {
+extension CameraTodayMissionResponseDTO {
   func toDomain() -> CameraTodayMissionResponse {
     return .init(
       missionDate: missionDate.toDate(with: "yyyy-MM-dd"),
@@ -34,3 +34,4 @@ extension CameraTodayMissionDTO {
   }
   
 }
+

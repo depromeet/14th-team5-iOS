@@ -1,5 +1,5 @@
 //
-//  PostListAPIWorker.swift
+//  PostAPIWorker.swift
 //  Data
 //
 //  Created by 마경미 on 25.12.23.
@@ -13,8 +13,8 @@ import Domain
 import Alamofire
 import RxSwift
 
-public typealias PostListAPIWorker = PostListAPIs.Worker
-extension PostListAPIs {
+public typealias PostAPIWorker = PostAPIs.Worker
+extension PostAPIs {
     public final class Worker: APIWorker {
         static let queue = {
             ConcurrentDispatchQueueScheduler(queue: DispatchQueue(label: "PostListAPIQueue", qos: .utility))
@@ -27,19 +27,11 @@ extension PostListAPIs {
     }
 }
 
-extension PostListAPIWorker: PostListRepositoryProtocol {
-    public func fetchPostDetail(query: PostQuery) -> Single<PostData?> {
-        return Observable.just(())
-            .withLatestFrom(self._headers)
-            .withUnretained(self)
-            .flatMap { $0.0.fetchPostDetail(headers: $0.1, query: query) }
-            .asSingle()
-    }
-    
-    private func fetchPostDetail(headers: [APIHeader]?, query: Domain.PostQuery) -> RxSwift.Single<Domain.PostData?> {
+extension PostAPIWorker {
+    public func fetchPostDetail(query: Domain.PostQuery) -> RxSwift.Single<Domain.PostData?> {
         let requestDTO = PostRequestDTO(postId: query.postId)
-        let spec = PostListAPIs.fetchPostDetail(requestDTO).spec
-        return request(spec: spec, headers: headers)
+        let spec = PostAPIs.fetchPostDetail(requestDTO).spec
+        return request(spec: spec)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -52,18 +44,10 @@ extension PostListAPIWorker: PostListRepositoryProtocol {
             .asSingle()
     }
     
-    public func fetchTodayPostList(query: PostListQuery) -> Single<PostListPage?> {
-        return Observable.just(())
-            .withLatestFrom(self._headers)
-            .withUnretained(self)
-            .flatMap { $0.0.fetchTodayPostList(headers: $0.1, query: query) }
-            .asSingle()
-    }
-    
-    private func fetchTodayPostList(headers: [APIHeader]?, query: Domain.PostListQuery) -> RxSwift.Single<Domain.PostListPage?> {
+    public func fetchTodayPostList(query: Domain.PostListQuery) -> RxSwift.Single<Domain.PostListPage?> {
         let requestDTO = PostListRequestDTO(page: query.page, size: query.size, date: query.date, memberId: query.memberId, sort: query.sort, type: query.type.rawValue)
-        let spec = PostListAPIs.fetchPostList.spec
-        return request(spec: spec, headers: headers, parameters: requestDTO)
+        let spec = PostAPIs.fetchPostList.spec
+        return request(spec: spec, parameters: requestDTO)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {

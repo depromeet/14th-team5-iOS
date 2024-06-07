@@ -31,7 +31,7 @@ final class MainPostViewDIContainer {
 
 extension MainPostViewDIContainer {
     private func makePostRepository() -> PostListRepositoryProtocol {
-        return PostListAPIs.Worker()
+        return PostRepository()
     }
     
     func makeUploadPostRepository() -> UploadPostRepositoryProtocol {

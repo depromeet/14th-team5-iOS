@@ -1,5 +1,5 @@
 //
-//  PostListAPIs.swift
+//  PostAPIs.swift
 //  Data
 //
 //  Created by 마경미 on 25.12.23.
@@ -8,7 +8,7 @@
 import Core
 import Foundation
 
-public enum PostListAPIs: API {
+public enum PostAPIs: API {
     case fetchPostList
     case fetchPostDetail(PostRequestDTO)
     

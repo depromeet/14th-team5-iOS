@@ -63,7 +63,7 @@ public final class BBNavigationBarView: UIView {
         }
     }
     
-    // 오른쪽 버튼의 스타일을 설정합니다.
+    /// 오른쪽 버튼의 스타일을 설정합니다.
     public var rightBarButtonItem: TopBarButtonStyle? {
         didSet {
             rightBarButton.setImage(
@@ -74,49 +74,49 @@ public final class BBNavigationBarView: UIView {
         }
     }
     
-    // Navigation Image의 크기를 설정합니다. 기본값은 1.0입니다.
+    /// Navigation Image의 크기를 설정합니다. 기본값은 1.0입니다.
     public var navigationImageScale: CGFloat = 1.0 {
         didSet {
             setupNavigationImageScale(navigationImageScale)
         }
     }
     
-    // 왼쪽 버튼 이미지의 크기를 설정합니다. 기본값은 1.0입니다.
+    /// 왼쪽 버튼 이미지의 크기를 설정합니다. 기본값은 1.0입니다.
     public var leftBarButtonItemScale: CGFloat = 1.0 {
         didSet {
             setupLeftButtonImageScale(leftBarButtonItemScale)
         }
     }
     
-    // 오른쪽 버튼 이미지의 크기를 설정합니다. 기본값은 1.0입니다.
+    /// 오른쪽 버튼 이미지의 크기를 설정합니다. 기본값은 1.0입니다.
     public var rightBarButtonItemScale: CGFloat = 1.0 {
         didSet {
             setupRightButtonImageScale(rightBarButtonItemScale)
         }
     }
     
-    // Navigation Title의 색상을 설정합니다.
+    /// Navigation Title의 색상을 설정합니다.
     public var navigationTitleTextColor: UIColor = UIColor.gray200 {
         didSet {
             navigationTitleLabel.textColor = navigationTitleTextColor
         }
     }
     
-    // 왼쪽 버튼의 강조 색상을 설정합니다.
+    /// 왼쪽 버튼의 강조 색상을 설정합니다.
     public var leftBarButtonItemTintColor: UIColor = UIColor.gray300 {
         didSet {
             leftBarButton.tintColor = leftBarButtonItemTintColor
         }
     }
     
-    // 오른쪽 버튼의 강조 색상을 설정합니다.
+    /// 오른쪽 버튼의 강조 색상을 설정합니다.
     public var rightBarButtonItemTintColor: UIColor = UIColor.gray300 {
         didSet {
             rightBarButton.tintColor = rightBarButtonItemTintColor
         }
     }
     
-    // 왼쪽 버튼이 leading으로부터 얼마나 떨어져 있는지 설정합니다.
+    /// 왼쪽 버튼이 leading으로부터 얼마나 떨어져 있는지 설정합니다.
     public var leftBarButtonItemYOffset: CGFloat = 0.0 {
         didSet {
             leftBarButton.snp.updateConstraints {
@@ -125,7 +125,7 @@ public final class BBNavigationBarView: UIView {
         }
     }
     
-    // 오른쪽 버튼이 leading으로부터 얼마나 떨어져 있는지 설정합니다.
+    /// 오른쪽 버튼이 leading으로부터 얼마나 떨어져 있는지 설정합니다.
     public var rightBarButtonItemYOffset: CGFloat = 0.0 {
         didSet {
             rightBarButton.snp.updateConstraints {

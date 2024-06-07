@@ -17,8 +17,8 @@ import ReactorKit
 /// 이 ViewController를 상속하는 ViewController는 `View`가 아닌 `ContentView`에 UI를 배치해야 합니다. 
 /// `ContentView`는 NavigationBar 영역을 제외한 나머지 공간을 차지하는 View입니다. 이 View는 NavigationBar의 높이에 따라 동적으로 변합니다.
 ///
-/// 삐삐 스타일의 NavigationBar의 UI나 스타일을 변경해야 한다면, 직접 해당 NavigationBar에 정의되어 있는 메서드나 프로퍼티를 통해 변경할 수 있습니다. 
-/// 가령, NavigationBar의 높이를 바꿔야 한다면. `setHeight(_:)` 메서드를 호출하면 됩니다.
+/// 삐삐 스타일의 NavigationBar의 UI나 스타일을 변경해야 한다면, 직접 관련 메서드나 프로퍼티를 통해 변경할 수 있습니다.
+/// 가령, NavigationBar의 높이를 바꿔야 한다면. `setNavigationBarHeight(_:)` 메서드를 호출하면 됩니다.
 ///
 /// LeftBarButton의 타입이 .arrowLeft나 .xmark라면 popViewController() 구현이 기본으로 제공됩니다. 
 /// 왼쪽, 오른쪽 버튼의 동작을 정의하고 싶다면 `navigationBarView.rx.didTapRightButton`과 같이 정의하면 됩니다.
@@ -76,7 +76,7 @@ open class BBNavigationViewController<R>: ReactorViewController<R> where R: Reac
         navigationBarView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(52)
+            $0.height.equalTo(42) // 내비게이션 바 기본 높이 42
         }
         
         contentView.snp.makeConstraints {
@@ -99,7 +99,7 @@ open class BBNavigationViewController<R>: ReactorViewController<R> where R: Reac
 extension BBNavigationViewController {
     
     /// NavigationBar의 높이를 바꿉니다.
-    public func setHeight(_ height: CGFloat) {
+    public func setNavigationBarHeight(_ height: CGFloat) {
         navigationBarView.snp.updateConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview()

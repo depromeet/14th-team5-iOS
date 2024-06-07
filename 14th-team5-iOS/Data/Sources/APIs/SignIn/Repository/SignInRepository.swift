@@ -11,7 +11,7 @@ import UIKit
 
 import RxSwift
 
-final class SignInRepository {
+final class SignInRepository: SignInRepositoryProtocol {
     
     // MARK: - Properties
     public var disposeBag = DisposeBag()
@@ -42,11 +42,14 @@ extension SignInRepository {
     
     // MARK: - Sign Out
     
-    public func signOut(
-        with type: SignInType
-    ) -> Completable {
-        signInApiWorker.signOut(with: type)
+    public func signOut() -> Completable {
+        guard
+            let type = tokenKeychainStorage.loadSignInType()
+        else { return .error(NSError()) } // TODO: - Error 타입 정의하기
+        
+        return signInApiWorker.signOut(with: type)
             .observe(on: RxSchedulers.main)
+            .do(onCompleted: { KeychainWrapper.standard.removeAllKeys() })
     }
     
     

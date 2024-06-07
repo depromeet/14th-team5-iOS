@@ -22,8 +22,8 @@ final class AccountSignInHelper: NSObject {
     // MARK: - Properties
     private(set) var disposeBag = DisposeBag()
 
-    private let _config = SignInAPIConfig()
-    private lazy var helpers: [String: SignInHelperType] = {
+    private let _config = AccountSignInAPIConfig()
+    private lazy var helpers: [String: AccountSignInHelperType] = {
         _config.helpers
     }()
     

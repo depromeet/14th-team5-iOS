@@ -6,10 +6,11 @@
 //
 
 import UIKit
+import Domain
 
 import RxSwift
 
 protocol SignInHelperType {
-    func signIn(on window: UIWindow) -> Single<>
-    func signOut()
+    func signIn(on window: UIWindow?) -> Single<TokenResultEntity?>
+    func signOut() -> Completable
 }

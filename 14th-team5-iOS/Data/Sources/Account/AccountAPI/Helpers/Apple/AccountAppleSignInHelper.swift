@@ -13,7 +13,7 @@ import AuthenticationServices
 import RxSwift
 import RxCocoa
 
-final class AccountAppleSignInHelper: SignInHelperType {
+final class AccountAppleSignInHelper: AccountSignInHelperType {
     
     // MARK: - Properties
     

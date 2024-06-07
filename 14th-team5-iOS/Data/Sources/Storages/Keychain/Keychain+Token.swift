@@ -6,11 +6,15 @@
 //
 
 import Core
+import Domain
 import Foundation
 
 public protocol TokenKeychainType: KeychainType {
     func saveIdToken(_ idToken: String?)
     func loadIdToken() -> String?
+    
+    func saveSignInType(_ type: SignInType?)
+    func loadSignInType() -> SignInType?
     
     func saveAccessToken(_ accessToken: String?)
     func loadAccessToken() -> String?
@@ -35,6 +39,20 @@ final public class TokenKeychain: TokenKeychainType {
     
     public func loadIdToken() -> String? {
         keychain[.idToken]
+    }
+    
+    
+    // MARK: - SignInType
+    public func saveSignInType(_ type: SignInType?) {
+        keychain[.signInType] = type?.rawValue
+    }
+    
+    public func loadSignInType() -> SignInType? {
+        guard
+            let sign: String = keychain[.signInType],
+            let type = SignInType(rawValue: sign)
+        else { return nil }
+        return type
     }
     
     

@@ -17,7 +17,7 @@ import RxKakaoSDKUser
 import KakaoSDKAuth
 import KakaoSDKUser
 
-final class AccountKakaoSignInHelper: SignInHelperType {
+final class AccountKakaoSignInHelper: AccountSignInHelperType {
     
     // MARK: - Properties
     

@@ -11,7 +11,7 @@ import UIKit
 
 import RxSwift
 
-public protocol SignInHelperType: AnyObject {
+public protocol AccountSignInHelperType: AnyObject {
     var signInState: Observable<AccountSignInStateInfo> { get }  // ?
     
     func signIn(on window: UIWindow) -> Observable<APIResult>

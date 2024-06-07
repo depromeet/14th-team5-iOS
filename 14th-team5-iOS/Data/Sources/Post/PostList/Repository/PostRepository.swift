@@ -13,15 +13,15 @@ import RxSwift
 public final class PostRepository: PostListRepositoryProtocol {
     
     private let disposeBag: DisposeBag = DisposeBag()
-    private let postListsAPIWorker: PostListAPIWorker = PostListAPIWorker()
+    private let postAPIWorker: PostAPIWorker = PostAPIWorker()
     
     public init() { }
     
     public func fetchPostDetail(query: Domain.PostQuery) -> RxSwift.Single<Domain.PostData?> {
-        return postListsAPIWorker.fetchPostDetail(query: query)
+        return postAPIWorker.fetchPostDetail(query: query)
     }
     
     public func fetchTodayPostList(query: Domain.PostListQuery) -> RxSwift.Single<Domain.PostListPage?> {
-        return postListsAPIWorker.fetchTodayPostList(query: query)
+        return postAPIWorker.fetchTodayPostList(query: query)
     }
 }

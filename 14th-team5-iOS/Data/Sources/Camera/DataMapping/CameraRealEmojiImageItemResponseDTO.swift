@@ -1,8 +1,8 @@
 //
-//  CameraRealEmojiImageItemDTO.swift
+//  CameraRealEmojiImageItemResponseDTO.swift
 //  Data
 //
-//  Created by Kim dohyun on 1/22/24.
+//  Created by Kim dohyun on 6/7/24.
 //
 
 import Foundation
@@ -11,8 +11,8 @@ import Core
 import Domain
 
 
-public struct CameraRealEmojiImageItemDTO: Decodable {
-    public var realEmojiItems: [CameraRealEmojiInfoDTO]
+public struct CameraRealEmojiImageItemResponseDTO: Decodable {
+    public var realEmojiItems: [CameraRealEmojiInfoResponseDTO]
     
     public enum CodingKeys: String, CodingKey {
         case realEmojiItems = "myRealEmojiList"
@@ -21,8 +21,8 @@ public struct CameraRealEmojiImageItemDTO: Decodable {
     
 }
 
-extension CameraRealEmojiImageItemDTO {
-    public struct CameraRealEmojiInfoDTO: Decodable {
+extension CameraRealEmojiImageItemResponseDTO {
+    public struct CameraRealEmojiInfoResponseDTO: Decodable {
         public var realEmojiId: String
         public var realEmojiType: String
         public var realEmojiImageURL: String
@@ -36,7 +36,7 @@ extension CameraRealEmojiImageItemDTO {
 }
 
 
-extension CameraRealEmojiImageItemDTO {
+extension CameraRealEmojiImageItemResponseDTO {
     func toDomain() -> [CameraRealEmojiImageItemResponse?] {
         var items: [CameraRealEmojiImageItemResponse?] = Array(repeating: nil, count: 5)
         
@@ -50,7 +50,7 @@ extension CameraRealEmojiImageItemDTO {
     }
 }
 
-extension CameraRealEmojiImageItemDTO.CameraRealEmojiInfoDTO {
+extension CameraRealEmojiImageItemResponseDTO.CameraRealEmojiInfoResponseDTO {
     func toDomain() -> CameraRealEmojiImageItemResponse {
         return .init(
             realEmojiId: realEmojiId,

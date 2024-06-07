@@ -12,7 +12,6 @@ import RxCocoa
 
 
 public protocol CameraDisplayViewUseCaseProtocol {
-    func executeDescrptionItems(with keyword: String) -> Observable<Array<String>>
     func executeDisplayImageURL(parameters: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?>
     func executeUploadToS3(toURL url: String, imageData: Data) -> Observable<Bool>
     func executeCombineWithTextImage(parameters: CameraDisplayPostParameters, query: CameraMissionFeedQuery) -> Observable<CameraDisplayPostResponse?>
@@ -22,18 +21,14 @@ public protocol CameraDisplayViewUseCaseProtocol {
 
 public final class CameraDisplayViewUseCase: CameraDisplayViewUseCaseProtocol {
 
-    private let cameraDisplayViewRepository: CameraDisplayViewInterface
+    private let cameraDisplayViewRepository: CameraRepositoryProtocol
     
-    public init(cameraDisplayViewRepository: CameraDisplayViewInterface) {
+    public init(cameraDisplayViewRepository: CameraRepositoryProtocol) {
         self.cameraDisplayViewRepository = cameraDisplayViewRepository
     }
     
-    public func executeDescrptionItems(with keyword: String) -> Observable<Array<String>> {
-        return cameraDisplayViewRepository.generateDescrption(with: keyword)
-    }
-    
     public func executeDisplayImageURL(parameters: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?> {
-        return cameraDisplayViewRepository.fetchFeedImageURL(parameters: parameters)
+        return cameraDisplayViewRepository.fetchPresignedeImageURL(parameters: parameters)
     }
     
     public func executeUploadToS3(toURL url: String, imageData: Data) -> Observable<Bool> {

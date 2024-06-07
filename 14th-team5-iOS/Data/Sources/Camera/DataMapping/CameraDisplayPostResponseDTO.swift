@@ -1,15 +1,15 @@
 //
-//  CameraDisplayPostDTO.swift
-//  Domain
+//  CameraDisplayPostResponseDTO.swift
+//  Data
 //
-//  Created by Kim dohyun on 12/22/23.
+//  Created by Kim dohyun on 6/7/24.
 //
 
 import Foundation
 
 import Domain
 
-public struct CameraDisplayPostDTO: Decodable {
+public struct CameraDisplayPostResponseDTO: Decodable {
     
     public var postId: String?
     public var authorId: String?
@@ -24,7 +24,7 @@ public struct CameraDisplayPostDTO: Decodable {
 }
 
 
-extension CameraDisplayPostDTO {
+extension CameraDisplayPostResponseDTO {
     
     public func toDomain() -> CameraDisplayPostResponse {
         

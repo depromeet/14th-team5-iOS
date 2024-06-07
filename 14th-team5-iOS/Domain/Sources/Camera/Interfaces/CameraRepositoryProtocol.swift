@@ -1,14 +1,14 @@
 //
-//  CameraDisplayViewInterface.swift
+//  CameraRepositoryProtocol.swift
 //  Domain
 //
-//  Created by Kim dohyun on 12/26/23.
+//  Created by Kim dohyun on 6/7/24.
 //
 
 import Foundation
 
-import RxCocoa
 import RxSwift
+import RxCocoa
 
 public enum UploadLocation {
     case survival
@@ -63,11 +63,21 @@ public enum UploadLocation {
 }
 
 
-public protocol CameraDisplayViewInterface: AnyObject {
+
+public protocol CameraRepositoryProtocol {
     var disposeBag: DisposeBag { get }
-    func generateDescrption(with keyword: String) -> Observable<Array<String>>
-    func fetchFeedImageURL(parameters: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?>
-    func uploadImageToS3(toURL url: String, imageData: Data) -> Observable<Bool>
-    func combineWithTextImage(parameters: CameraDisplayPostParameters, query: CameraMissionFeedQuery) -> Observable<CameraDisplayPostResponse?>
     
+    var accessToken: String { get }
+
+    func toggleCameraPosition(_ isState: Bool) -> Observable<Bool>
+    func toggleCameraFlash(_ isState: Bool) -> Observable<Bool>
+    func fetchPresignedeImageURL(parameters: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?>
+    func uploadImageToS3(toURL url: String, imageData: Data) -> Observable<Bool>
+    func editProfleImageToS3(memberId: String, parameter: ProfileImageEditParameter) -> Observable<MembersProfileResponse?>
+    func fetchRealEmojiImageURL(memberId: String, parameters: CameraRealEmojiParameters) -> Observable<CameraRealEmojiPreSignedResponse?>
+    func uploadRealEmojiImageToS3(memberId: String, parameters: CameraCreateRealEmojiParameters) -> Observable<CameraCreateRealEmojiResponse?>
+    func fetchRealEmojiItems(memberId: String) -> Observable<[CameraRealEmojiImageItemResponse?]>
+    func updateRealEmojiImage(memberId: String, realEmojiId: String, parameters: CameraUpdateRealEmojiParameters) -> Observable<CameraUpdateRealEmojiResponse?>
+    func fetchTodayMissionItem() -> Observable<CameraTodayMissionResponse?>
+    func combineWithTextImage(parameters: CameraDisplayPostParameters, query: CameraMissionFeedQuery) -> Observable<CameraDisplayPostResponse?>
 }

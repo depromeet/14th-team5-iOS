@@ -1,19 +1,15 @@
 //
-//  AccountSignInHelperType.swift
-//  Domain
+//  SignInHelperType.swift
+//  Data
 //
-//  Created by geonhui Yu on 12/6/23.
+//  Created by 김건우 on 6/7/24.
 //
 
-import Core
-import Domain
 import UIKit
 
 import RxSwift
 
-public protocol SignInHelperType: AnyObject {
-    var signInState: Observable<AccountSignInStateInfo> { get }  // ?
-    
-    func signIn(on window: UIWindow) -> Observable<APIResult>
+protocol SignInHelperType {
+    func signIn(on window: UIWindow) -> Single<>
     func signOut()
 }

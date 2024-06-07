@@ -17,7 +17,7 @@ import RxSwift
 
 // TODO: - SignInAPIWorker로 코드 이동, Deprecated 처리
 
-final class SignInHelper: NSObject {
+final class AccountSignInHelper: NSObject {
     
     // MARK: - Properties
     private(set) var disposeBag = DisposeBag()
@@ -58,7 +58,7 @@ final class SignInHelper: NSObject {
 }
 
 // MARK: SignIn Functions
-extension SignInHelper {
+extension AccountSignInHelper {
     
     // 소셜 로그인을 호출해서 소셜 Token을 받아오는 코드
     func trySignInWith(sns: SNS, window: UIWindow?) -> Observable<APIResult> {

@@ -51,11 +51,19 @@ public final class NetworkInterceptor: RequestInterceptor {
         guard
             let accessToken = App.Repository.token.accessToken.value?.accessToken
         else {
+            urlRequest.setHeaders(BibbiHeader.commonHeaders())
             completion(.success(urlRequest))
             return
         }
         
-        urlRequest.setHeaders(BibbiHeader.commonHeaders(accessToken))
+        // TODO: - MemberID를 UserDefaults에서 가져오기
+        
+        urlRequest.setHeaders(
+            BibbiHeader.commonHeaders(
+                // userId: <#T##String?#>,
+                accessToken: accessToken
+            )
+        )
         completion(.success(urlRequest))
     }
     

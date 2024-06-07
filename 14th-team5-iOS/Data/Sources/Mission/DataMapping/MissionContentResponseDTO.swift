@@ -1,16 +1,15 @@
 //
-//  MissionContentDTO.swift
+//  MissionContentResponseDTO.swift
 //  Data
 //
-//  Created by Kim dohyun on 5/8/24.
+//  Created by Kim dohyun on 6/6/24.
 //
 
 import Foundation
 
 import Domain
 
-
-struct MissionContentDTO: Decodable {
+struct MissionContentResponseDTO: Decodable {
     let missionId: String
     let missionContent: String
     
@@ -21,9 +20,8 @@ struct MissionContentDTO: Decodable {
     }
 }
 
-
-extension MissionContentDTO {
-    func toDomain() -> MissionContentData {
+extension MissionContentResponseDTO {
+    func toDomain() -> MissionContentResponse {
         return .init(
             missionId: missionId,
             missionContent: missionContent

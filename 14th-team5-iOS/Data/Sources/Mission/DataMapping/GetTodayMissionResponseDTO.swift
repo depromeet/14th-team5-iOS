@@ -1,20 +1,20 @@
 //
-//  TodayMissionRequestDTO.swift
+//  GetTodayMissionResponseDTO.swift
 //  Data
 //
-//  Created by 마경미 on 21.04.24.
+//  Created by Kim dohyun on 6/6/24.
 //
 
 import Foundation
 
 import Domain
 
-struct GetTodayMissionResponse: Codable {
+struct GetTodayMissionResponseDTO: Codable {
     let date: String
     let id: String
     let content: String
     
-    func toDomain() -> TodayMissionData {
+    func toDomain() -> TodayMissionResponse {
         return .init(id: id, content: content)
     }
 }

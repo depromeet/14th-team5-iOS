@@ -39,7 +39,7 @@ extension ReactionAPIs {
 }
 
 extension ReactionAPIWorker {
-    func fetchReaction(query: Domain.FetchEmojiQuery) -> RxSwift.Single<[FetchedEmojiData]?> {
+    func fetchReaction(query: Domain.FetchReactionQuery) -> RxSwift.Single<[RealEmojiEntity]?> {
         let query = FetchReactionRequestDTO(postId: query.postId)
         let spec = ReactionAPIs.fetchReactions(query).spec
         return request(spec: spec, headers: headers)
@@ -57,7 +57,7 @@ extension ReactionAPIWorker {
             .asSingle()
     }
     
-    func addReaction(query: Domain.AddEmojiQuery, body: Domain.AddEmojiBody) -> RxSwift.Single<Void?> {
+    func addReaction(query: Domain.CreateReactionQuery, body: Domain.CreateReactionRequest) -> RxSwift.Single<Void?> {
         let requestDTO = AddReactionRequestDTO(content: body.emojiId)
         let spec = ReactionAPIs.addReactions(query.postId).spec
         return request(spec: spec, headers: headers, jsonEncodable: requestDTO)
@@ -73,7 +73,7 @@ extension ReactionAPIWorker {
             .asSingle()
     }
     
-    func removeReaction(query: Domain.RemoveEmojiQuery, body: Domain.RemoveEmojiBody) -> RxSwift.Single<Void?> {
+    func removeReaction(query: Domain.RemoveReactionQuery, body: Domain.RemoveReactionRequest) -> RxSwift.Single<Void?> {
         let requestDTO = RemoveReactionRequestDTO(content: body.content.emojiString)
         let spec = ReactionAPIs.removeReactions(query.postId).spec
         return request(spec: spec, headers: headers, jsonEncodable: requestDTO)

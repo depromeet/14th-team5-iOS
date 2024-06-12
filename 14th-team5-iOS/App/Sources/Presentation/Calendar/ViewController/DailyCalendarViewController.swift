@@ -193,7 +193,7 @@ public final class DailyCalendarViewController: BBNavigationViewController<Daily
             .distinctUntilChanged()
             .withUnretained(self)
             .bind { owner, post in
-                let postListData = PostListData(
+                let postListData = PostEntity(
                     postId: post.postId,
                     author: ProfileData(memberId: post.authorId, name: ""),
                     commentCount: post.commentCount,

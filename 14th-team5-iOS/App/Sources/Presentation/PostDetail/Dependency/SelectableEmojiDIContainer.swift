@@ -15,7 +15,11 @@ import RxSwift
 
 final class SelectableEmojiDIContainer {
     private func makeReactor(postId: String) -> SelectableEmojiReactor {
-        return SelectableEmojiReactor(postId: postId, emojiRepository: makeEmojiUseCase(), realEmojiRepository: makeRealEmojiUseCase())
+        return SelectableEmojiReactor(
+            postId: postId,
+            createReactionUseCase: makeCreateReactionUseCase(),
+            createRealEmojiUseCase: makeCreateRealEmojiUseCase(),
+            fetchMyRealEmojiUseCase: makeFetchMyRealEmojiUseCase())
     }
     
     func makeViewController(postId: String, subject: PublishSubject<Void>) -> SelectableEmojiViewController {
@@ -28,8 +32,12 @@ extension SelectableEmojiDIContainer {
         return RealEmojiRepository()
     }
     
-    private func makeRealEmojiUseCase() -> RealEmojiUseCaseProtocol {
-        return RealEmojiUseCase(realEmojiRepository: makeRealEmojiRepository())
+    private func makeCreateRealEmojiUseCase() -> CreateRealEmojiUseCaseProtocol {
+        return CreateRealEmojiUseCase(realEmojiRepository: makeRealEmojiRepository())
+    }
+                                            
+    private func makeFetchMyRealEmojiUseCase() -> FetchMyRealEmojiUseCaseProtocol {
+        return FetchMyRealEmojiUseCase(realEmojiRepository: makeRealEmojiRepository())
     }
 }
 
@@ -38,7 +46,7 @@ extension SelectableEmojiDIContainer {
         return ReactionRepository()
     }
     
-    private func makeEmojiUseCase() -> ReactionUseCaseProtocol {
-        return ReactionUseCase(reactionRepository: makeReactionRepository())
+    private func makeCreateReactionUseCase() -> CreateReactionUseCaseProtocol {
+        return CreateReactionUseCase(reactionRepository: makeReactionRepository())
     }
 }

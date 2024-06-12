@@ -46,8 +46,8 @@ final class MainViewReactor: Reactor {
     }
     
     enum Mutation {
-        case updateMainData(MainData)
-        case updateMainNight(MainNightData)
+        case updateMainData(MainViewEntity)
+        case updateMainNight(NightMainViewEntity)
         
         case setInTime(Bool)
         case setPageIndex(Int)
@@ -91,13 +91,13 @@ final class MainViewReactor: Reactor {
     
     let initialState: State = State()
     private let fetchMainUseCase: FetchMainUseCaseProtocol
-    private let fetchMainNightUseCase: FetchMainNightUseCaseProtocol
+    private let fetchMainNightUseCase: FetchNightMainViewUseCaseProtocol
     private let pickUseCase: PickUseCaseProtocol
     private let checkMissionAlertShowUseCase: CheckMissionAlertShowUseCaseProtocol
     private let provider: GlobalStateProviderProtocol
     
     init(fetchMainUseCase: FetchMainUseCaseProtocol,
-         fetchMainNightUseCase: FetchMainNightUseCaseProtocol,
+         fetchMainNightUseCase: FetchNightMainViewUseCaseProtocol,
          pickUseCase: PickUseCaseProtocol,
          checkMissionAlertShowUseCase: CheckMissionAlertShowUseCaseProtocol,
          provider: GlobalStateProviderProtocol) {
@@ -291,7 +291,7 @@ extension MainViewReactor {
 }
 
 extension MainViewReactor {
-    private func updateMainData(_ state: State, _ data: MainData) -> State {
+    private func updateMainData(_ state: State, _ data: MainViewEntity) -> State {
         var newState = state
         newState.isMissionUnlocked = data.isMissionUnlocked
         newState.isMeSurvivalUploadedToday = data.isMeSurvivalUploadedToday

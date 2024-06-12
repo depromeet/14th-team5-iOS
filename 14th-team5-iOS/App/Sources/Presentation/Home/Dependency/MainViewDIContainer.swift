@@ -57,8 +57,8 @@ extension MainViewDIContainer {
         return FetchMainUseCase(mainRepository: makeMainRepository())
     }
     
-    private func makeFetchMainNightUseCase() -> FetchMainNightUseCaseProtocol {
-        return FetchMainNightUseCase(mainRepository: makeMainRepository())
+    private func makeFetchMainNightUseCase() -> FetchNightMainViewUseCaseProtocol {
+        return FetchNightMainViewUseCase(mainRepository: makeMainRepository())
     }
     
     private func makeCheckMissionAlertShowUseCase() -> CheckMissionAlertShowUseCaseProtocol {

@@ -66,7 +66,7 @@ struct MainResponseDTO: Codable {
     let missionFeeds: [MissionFeed]
     let pickers: [Picker]
     
-    func toDomain() -> MainData {
+    func toDomain() -> MainViewEntity {
         return .init(
             mainFamilyProfileDatas: topBarElements.map { $0.toDomain() },
             leftUploadCountUntilMissionUnlock: leftUploadCountUntilMissionUnlock,

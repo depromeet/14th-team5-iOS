@@ -1,5 +1,5 @@
 //
-//  FetchMainNightUseCase.swift
+//  FetchMainNightUseCaseProtocol.swift
 //  Domain
 //
 //  Created by 마경미 on 07.05.24.
@@ -9,15 +9,18 @@ import Foundation
 
 import RxSwift
 
-public final class FetchMainNightUseCase: FetchMainNightUseCaseProtocol {
+public protocol FetchNightMainViewUseCaseProtocol {
+    func execute() -> Observable<NightMainViewEntity?>
+}
+
+public final class FetchNightMainViewUseCase: FetchNightMainViewUseCaseProtocol {
     private let mainRepository: MainRepositoryProtocol
     
     public init(mainRepository: MainRepositoryProtocol) {
         self.mainRepository = mainRepository
     }
     
-    public func execute() -> Observable<MainNightData?> {
+    public func execute() -> Observable<NightMainViewEntity?> {
         return mainRepository.fetchMainNight()
     }
 }
-

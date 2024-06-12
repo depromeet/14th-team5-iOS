@@ -25,19 +25,19 @@ struct FetchReactionResult: Codable {
 struct FetchReactionResponseDTO: Codable {
     let results: [FetchReactionResult]
     
-    func toDomain() -> [FetchedEmojiData] {
+    func toDomain() -> [RealEmojiEntity] {
         let myMemberId = FamilyUserDefaults.returnMyMemberId()
         let groupedByEmojiType = Dictionary(grouping: results, by: { $0.emojiType })
 
         let fetchedEmojiDataArray = groupedByEmojiType.map { (emojiType, responses) in
             guard let minReactionIdResponse = responses.min(by: { $0.reactionId < $1.reactionId }) else {
-                return FetchedEmojiData(isStandard: true, isSelfSelected: false, postEmojiId: "", emojiType: .emoji1, count: 0, realEmojiId: "", realEmojiImageURL: "", memberIds: [])
+                return RealEmojiEntity(isStandard: true, isSelfSelected: false, postEmojiId: "", emojiType: .emoji1, count: 0, realEmojiId: "", realEmojiImageURL: "", memberIds: [])
             }
             
             let selfSelected = responses.contains { $0.memberId == myMemberId }
             let count = responses.count
 
-            return FetchedEmojiData(
+            return RealEmojiEntity(
                 isStandard: true,
                 isSelfSelected: selfSelected,
                 postEmojiId: minReactionIdResponse.reactionId,

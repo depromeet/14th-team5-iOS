@@ -18,10 +18,10 @@ struct PostResponseDTO: Codable {
     let createdAt: String
 }
 
-extension PostResponseDTO {
-    func toDomain() -> PostData {
-        let writer = FamilyUserDefaults.load(memberId: authorId)
-        
-        return .init(writer: writer, time: createdAt, imageURL: imageUrl, imageText: content, emojis: [])
-    }
-}
+//extension PostResponseDTO {
+//    func toDomain() -> BriefPostEntity {
+//        let writer = FamilyUserDefaults.load(memberId: authorId)
+//        
+//        return .init(writer: writer, time: createdAt, imageURL: imageUrl, imageText: content, emojis: [])
+//    }
+//}

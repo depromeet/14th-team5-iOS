@@ -11,7 +11,7 @@ import Domain
 
 import RxSwift
 
-public final class PostUserDefaultsRepository: UploadPostRepositoryProtocol {
+public final class PostUserDefaultsRepository {
     private let lastPostUploadDateId = "lastPostUploadDateId"
     
     public init() {

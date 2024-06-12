@@ -22,7 +22,7 @@ struct PostListResultsDTO: Codable {
 }
 
 extension PostListResultsDTO {
-    func toDomain() -> PostListData {
+    func toDomain() -> PostEntity {
         let author = FamilyUserDefaults.load(memberId: authorId)
         return .init(
             postId: postId,

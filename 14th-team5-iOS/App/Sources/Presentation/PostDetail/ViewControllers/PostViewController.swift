@@ -217,7 +217,7 @@ final class PostViewController: BaseViewController<PostReactor> {
 }
 
 extension PostViewController {
-    private func setBackgroundView(data: PostListData) {
+    private func setBackgroundView(data: PostEntity) {
         guard let url = URL(string: data.imageURL) else {
             return
         }

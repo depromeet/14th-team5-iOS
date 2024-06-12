@@ -33,12 +33,8 @@ extension MainPostViewDIContainer {
     private func makePostRepository() -> PostListRepositoryProtocol {
         return PostRepository()
     }
-    
-    func makeUploadPostRepository() -> UploadPostRepositoryProtocol {
-        return PostUserDefaultsRepository()
-    }
 
-    func makePostUseCase() -> PostListUseCaseProtocol {
-        return PostListUseCase(postListRepository: makePostRepository(), uploadePostRepository: makeUploadPostRepository())
+    func makePostUseCase() -> FetchPostListUseCaseProtocol {
+        return FetchPostListUseCase(postListRepository: makePostRepository())
     }
 }

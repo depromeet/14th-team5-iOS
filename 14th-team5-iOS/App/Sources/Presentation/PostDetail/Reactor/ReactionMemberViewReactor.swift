@@ -22,7 +22,7 @@ final class ReactionMemberViewReactor: Reactor {
     }
     
     struct State {
-        let emojiData: FetchedEmojiData
+        let emojiData: RealEmojiEntity
         var memberDataSource: [FamilyMemberProfileSectionModel] = []
     }
     

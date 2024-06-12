@@ -12,7 +12,7 @@ public struct PostSection {
     public typealias Model = SectionModel<Int, Item>
     
     public enum Item {
-        case main(PostListData)
+        case main(PostEntity)
     }
 }
 

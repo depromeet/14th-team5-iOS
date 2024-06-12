@@ -35,9 +35,9 @@ final class MainPostViewReactor: Reactor {
     
     let initialState: State
     private let provider: GlobalStateProviderProtocol
-    private let postUseCase: PostListUseCaseProtocol
+    private let postUseCase: FetchPostListUseCaseProtocol
     
-    init(initialState: State, provider: GlobalStateProviderProtocol, postUseCase: PostListUseCaseProtocol) {
+    init(initialState: State, provider: GlobalStateProviderProtocol, postUseCase: FetchPostListUseCaseProtocol) {
         self.initialState = initialState
         self.provider = provider
         self.postUseCase = postUseCase

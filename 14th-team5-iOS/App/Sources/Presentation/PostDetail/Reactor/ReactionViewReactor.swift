@@ -18,19 +18,19 @@ final class ReactionViewReactor: Reactor {
         case tapComment
         case tapAddEmoji
         case longPressEmoji(IndexPath)
-        case selectCell(IndexPath, FetchedEmojiData)
-        case acceptPostListData(PostListData)
+        case selectCell(IndexPath, RealEmojiEntity)
+        case acceptPostListData(PostEntity)
         case fetchReactionList(String)
     }
     
     enum Mutation {
-        case setSpecificCell(IndexPath, FetchedEmojiData)
+        case setSpecificCell(IndexPath, RealEmojiEntity)
         case setSelectedReactionIndices([Int])
         case setCommentSheet
         case setEmojiSheet
-        case setReactionMemberSheetEmoji(FetchedEmojiData)
+        case setReactionMemberSheetEmoji(RealEmojiEntity)
         case updateDataSource([ReactionSection.Item])
-        case setPost(PostListData)
+        case setPost(PostEntity)
         case setPostCommentCount(Int)
         case setInitialDataSource
         case setSelectionHapticFeedback
@@ -38,7 +38,7 @@ final class ReactionViewReactor: Reactor {
     
     struct State {
         let type: ReactionType
-        var postListData: PostListData
+        var postListData: PostEntity
         
         var deSelectedReactionIndicies: [Int] = []
         var selectedReactionIndicies: [Int] = []
@@ -47,7 +47,7 @@ final class ReactionViewReactor: Reactor {
             .addReaction,
         ])
         
-        @Pulse var reactionMemberSheetEmoji: FetchedEmojiData? = nil
+        @Pulse var reactionMemberSheetEmoji: RealEmojiEntity? = nil
         @Pulse var isShowingCommentSheet: Bool = false
         @Pulse var isShowingEmojiSheet: Bool = false
         @Pulse var selectionHapticFeedback: Bool = false
@@ -55,19 +55,28 @@ final class ReactionViewReactor: Reactor {
     
     let initialState: State
     let provider: GlobalStateProviderProtocol
-    let emojiRepository: ReactionUseCaseProtocol
-    let realEmojiRepository: RealEmojiUseCaseProtocol
+    let fetchReactionListUseCase: FetchReactionListUseCaseProtocol
+    let createReactionUseCase: CreateReactionUseCaseProtocol
+    let removeReactionUseCase: RemoveReactionUseCaseProtocol
+    let fetchRealEmojiListUseCase: FetchRealEmojiListUseCaseProtocol
+    let createRealEmojiUseCase: CreateRealEmojiUseCaseProtocol
+    let removeRealEmojiUseCase: RemoveRealEmojiUseCaseProtocol
     
-    init(
-        provider: GlobalStateProviderProtocol,
-        initialState: State,
-        emojiRepository: ReactionUseCaseProtocol,
-        realEmojiRepository: RealEmojiUseCaseProtocol
-    ) {
+    init(initialState: State, provider: GlobalStateProviderProtocol, 
+         fetchReactionUseCase: FetchReactionListUseCaseProtocol,
+         createReactionUseCase: CreateReactionUseCaseProtocol,
+         removeReactionUseCase: RemoveReactionUseCaseProtocol,
+         fetchRealEmojiListUseCase: FetchRealEmojiListUseCaseProtocol,
+         createRealEmojiUseCase: CreateRealEmojiUseCaseProtocol,
+         removeRealEmojiUseCase: RemoveRealEmojiUseCaseProtocol) {
         self.initialState = initialState
         self.provider = provider
-        self.emojiRepository = emojiRepository
-        self.realEmojiRepository = realEmojiRepository
+        self.fetchReactionListUseCase = fetchReactionUseCase
+        self.createReactionUseCase = createReactionUseCase
+        self.removeReactionUseCase = removeReactionUseCase
+        self.fetchRealEmojiListUseCase = fetchRealEmojiListUseCase
+        self.createRealEmojiUseCase = createRealEmojiUseCase
+        self.removeRealEmojiUseCase = removeRealEmojiUseCase
     }
 }
 
@@ -75,8 +84,8 @@ extension ReactionViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .fetchReactionList(let postId):
-            let repository1 = emojiRepository.execute(query: .init(postId: postId)).asObservable()
-            let repository2 = realEmojiRepository.execute(query: .init(postId: postId)).asObservable()
+            let repository1 = fetchReactionListUseCase.execute(query: .init(postId: postId)).asObservable()
+            let repository2 = fetchRealEmojiListUseCase.execute(query: .init(postId: postId)).asObservable()
 
             return Observable.combineLatest(repository1, repository2)
                 .flatMap { response1, response2 in
@@ -169,20 +178,20 @@ extension ReactionViewReactor {
 }
 
 extension ReactionViewReactor {
-    func handleSelectCell(postId: String, indexPath: IndexPath, data: FetchedEmojiData, isAdd: Bool) -> Observable<Mutation> {
+    func handleSelectCell(postId: String, indexPath: IndexPath, data: RealEmojiEntity, isAdd: Bool) -> Observable<Mutation> {
         let executeObservable: Observable<Void?>
 
         if data.isStandard {
             if data.isSelfSelected {
-                executeObservable = emojiRepository.excuteRemoveEmoji(query: .init(postId: postId), body: .init(content: data.emojiType)).asObservable()
+                executeObservable = removeReactionUseCase.execute(query: .init(postId: postId), body: .init(content: data.emojiType)).asObservable()
             } else {
-                executeObservable = emojiRepository.executeAddEmoji(query: .init(postId: postId), body: .init(content: data.emojiType.emojiString)).asObservable()
+                executeObservable = createReactionUseCase.execute(query: .init(postId: postId), body: .init(content: data.emojiType.emojiString)).asObservable()
             }
         } else {
             if data.isSelfSelected {
-                executeObservable = realEmojiRepository.execute(query: .init(postId: postId, realEmojiId: data.realEmojiId)).asObservable()
+                executeObservable = removeRealEmojiUseCase.execute(query: .init(postId: postId, realEmojiId: data.realEmojiId)).asObservable()
             } else {
-                executeObservable = realEmojiRepository.execute(query: .init(postId: postId), body: .init(content: data.realEmojiId)).asObservable()
+                executeObservable = createRealEmojiUseCase.execute(query: .init(postId: postId), body: .init(content: data.realEmojiId)).asObservable()
             }
         }
 

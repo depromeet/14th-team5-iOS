@@ -40,12 +40,8 @@ final class PostListsDIContainer {
         return PostRepository()
     }
     
-    func makeUploadPostRepository() -> UploadPostRepositoryProtocol {
-        return PostUserDefaultsRepository()
-    }
-    
-    func makePostUseCase() -> PostListUseCaseProtocol {
-        return PostListUseCase(postListRepository: makePostRepository())
+    func makePostUseCase() -> FetchPostListUseCaseProtocol {
+        return FetchPostListUseCase(postListRepository: makePostRepository())
     }
     
     func makeEmojiRepository() -> ReactionRepositoryProtocol {
@@ -64,14 +60,6 @@ final class PostListsDIContainer {
         return MissionContentUseCase(missionContentRepository: makeMissionRepository())
     }
     
-    func makeEmojiUseCase() -> ReactionUseCaseProtocol {
-        return ReactionUseCase(reactionRepository: makeEmojiRepository())
-    }
-    
-    func makeRealEmojiUseCase() -> RealEmojiUseCaseProtocol {
-        return RealEmojiUseCase(realEmojiRepository: makeRealEmojiRepository())
-    }
-    
     func makeReactor(
         postLists: PostSection.Model,
         selectedIndex: Int,
@@ -79,8 +67,6 @@ final class PostListsDIContainer {
     ) -> Reactor {
         return PostReactor(
             provider: globalState,
-            realEmojiRepository: makeRealEmojiUseCase(),
-            emojiRepository: makeEmojiUseCase(),
             missionUseCase: makeMissionUseCase(),
             initialState: PostReactor.State(
                 selectedIndex: selectedIndex,

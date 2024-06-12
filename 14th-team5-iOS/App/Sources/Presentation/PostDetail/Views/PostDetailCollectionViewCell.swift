@@ -226,7 +226,7 @@ extension PostDetailCollectionViewCell {
 }
 
 extension PostDetailCollectionViewCell {
-    private func setupProfileNameAndImage(post: PostListData) {
+    private func setupProfileNameAndImage(post: PostEntity) {
         postImageView.kf.setImage(
             with: URL(string: post.imageURL),
             options: [
@@ -283,7 +283,7 @@ extension PostDetailCollectionViewCell: UICollectionViewDelegateFlowLayout {
 
 
 extension PostDetailCollectionViewCell {
-    func setCell(data: PostListData) {
+    func setCell(data: PostEntity) {
         postImageView.kf.setImage(with: URL(string: data.imageURL))
     }
 }

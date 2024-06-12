@@ -77,7 +77,7 @@ extension FamilyRankData {
     }
 }
 
-public struct MainNightData {
+public struct NightMainViewEntity {
     public let mainFamilyProfileDatas: [ProfileData]
     public let familyRankData: FamilyRankData
     

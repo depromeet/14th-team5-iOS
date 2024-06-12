@@ -39,7 +39,7 @@ extension MainViewAPIs {
 }
 
 extension MainAPIWorker {
-    func fetchMain() -> Single<MainData?> {
+    func fetchMain() -> Single<MainViewEntity?> {
         let spec = MainViewAPIs.fetchMain.spec
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
@@ -54,7 +54,7 @@ extension MainAPIWorker {
             .asSingle()
     }
     
-    func fetchMainNight() -> Single<MainNightData?> {
+    func fetchMainNight() -> Single<NightMainViewEntity?> {
         let spec = MainViewAPIs.fetchMainNight.spec
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)

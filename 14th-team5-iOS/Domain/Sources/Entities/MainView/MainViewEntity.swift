@@ -17,7 +17,7 @@ public struct Picker {
     }
 }
 
-public struct MainData {
+public struct MainViewEntity {
     public let mainFamilyProfileDatas: [ProfileData]
     public let leftUploadCountUntilMissionUnlock: Int
     public let isFamilySurvivalUploadedToday: Bool

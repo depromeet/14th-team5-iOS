@@ -15,7 +15,7 @@ struct MyRealEmojiList: Codable {
     let type: String
     let imageUrl: String
 
-    func toDomain() -> MyRealEmoji {
+    func toDomain() -> MyRealEmojiEntity {
         return .init(realEmojiId: realEmojiId, type: Emojis.emoji(forString: type), imageUrl: imageUrl)
     }
 }
@@ -23,8 +23,8 @@ struct MyRealEmojiList: Codable {
 struct MyRealEmojiResponseDTO: Codable {
     let myRealEmojiList: [MyRealEmojiList]
     
-    func toDomain() -> [MyRealEmoji?] {
-        var arr: [MyRealEmoji?] = [nil, nil, nil, nil, nil]
+    func toDomain() -> [MyRealEmojiEntity?] {
+        var arr: [MyRealEmojiEntity?] = [nil, nil, nil, nil, nil]
         myRealEmojiList.forEach {
             guard let chr = $0.type.last else {
                 return

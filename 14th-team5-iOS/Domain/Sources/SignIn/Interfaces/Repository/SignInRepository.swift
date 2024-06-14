@@ -10,6 +10,6 @@ import UIKit
 import RxSwift
 
 public protocol SignInRepositoryProtocol {
-    func signIn(with type: SignInType, on window: UIWindow?) -> Single<TokenResultEntity?>
+    func signIn(with type: SignInType, on window: AnyObject?) -> Single<TokenResultEntity?>
     func signOut() -> Completable
 }

@@ -7,7 +7,6 @@
 
 import Core
 import Domain
-import UIKit
 
 import RxSwift
 
@@ -29,7 +28,7 @@ extension SignInRepository {
     
     public func signIn(
         with type: SignInType,
-        on window: UIWindow?
+        on window: AnyObject?
     ) -> Single<TokenResultEntity?> {
         signInApiWorker.signIn(with: type, on: window)
             .observe(on: RxSchedulers.main)
@@ -45,7 +44,7 @@ extension SignInRepository {
     public func signOut() -> Completable {
         guard
             let type = tokenKeychainStorage.loadSignInType()
-        else { return .error(NSError()) } // TODO: - Error 타입 정의하기
+        else { return .error(RxError.unknown) } // TODO: - Error 타입 정의하기
         
         return signInApiWorker.signOut(with: type)
             .observe(on: RxSchedulers.main)

@@ -20,7 +20,7 @@ public final class KakaoSignInHelper: SignInHelperType {
     
     // MARK: - Sign In
     
-    public func signIn(on window: UIWindow?) -> Single<TokenResultEntity?> {
+    public func signIn(on window: AnyObject?) -> Single<TokenResultEntity?> {
         if UserApi.isKakaoTalkLoginAvailable() {
             return signInWithKakaoTalk()
         } else {

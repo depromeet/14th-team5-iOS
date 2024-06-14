@@ -7,9 +7,10 @@
 
 import AuthenticationServices
 import Domain
+import UIKit
+
 import RxCocoa
 import RxSwift
-import UIKit
 
 final class RxSIWAAuthorizationControllerDelegateProxy: DelegateProxy<ASAuthorizationController, ASAuthorizationControllerDelegate>, DelegateProxyType, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
     
@@ -75,7 +76,7 @@ extension Reactive where Base: ASAuthorizationAppleIDProvider {
     
     public func signIn(
         scope: [ASAuthorization.Scope]? = nil,
-        on window: UIWindow?
+        on window: AnyObject?
     ) -> Single<TokenResultEntity?> {
         let request = base.createRequest()
         request.requestedScopes = scope
@@ -83,7 +84,7 @@ extension Reactive where Base: ASAuthorizationAppleIDProvider {
         let controller = ASAuthorizationController(authorizationRequests: [request])
         
         let proxy = RxSIWAAuthorizationControllerDelegateProxy(controller: controller)
-        proxy.window = window!
+        proxy.window = window as! UIWindow // 형변환 실패 시 앱 죽이기
         
         controller.presentationContextProvider = proxy
         controller.performRequests()

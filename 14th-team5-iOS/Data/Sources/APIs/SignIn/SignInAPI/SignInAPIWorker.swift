@@ -6,7 +6,6 @@
 //
 
 import Domain
-import UIKit
 
 import RxSwift
 
@@ -28,7 +27,7 @@ extension SignInAPIWorker {
     
     public func signIn(
         with type: SignInType,
-        on window: UIWindow?
+        on window: AnyObject?
     ) -> Single<TokenResultEntity?> {
         return getHelper(type).signIn(on: window)
     }

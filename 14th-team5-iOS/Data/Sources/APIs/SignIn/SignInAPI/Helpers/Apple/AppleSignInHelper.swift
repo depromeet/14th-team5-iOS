@@ -13,7 +13,7 @@ import RxSwift
 
 public final class AppleSignInHelper: SignInHelperType {
     
-    public func signIn(on window: UIWindow?) -> Single<TokenResultEntity?> {
+    public func signIn(on window: AnyObject?) -> Single<TokenResultEntity?> {
         ASAuthorizationAppleIDProvider().rx.signIn(on: window)
     }
     

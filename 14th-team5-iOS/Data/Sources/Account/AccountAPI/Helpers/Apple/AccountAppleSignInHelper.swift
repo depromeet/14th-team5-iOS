@@ -5,32 +5,31 @@
 //  Created by geonhui Yu on 12/20/23.
 //
 
-import UIKit
-import AuthenticationServices
-import Domain
 import Core
+import UIKit
+import Domain
+import AuthenticationServices
 
 import RxSwift
 import RxCocoa
 
-// MARK: Apple SignIn Helper
-class AppleSignInHelper: NSObject, AccountSignInHelperType {
+final class AccountAppleSignInHelper: AccountSignInHelperType {
+    
+    // MARK: - Properties
     
     private var disposeBag = DisposeBag()
     
-    private let _signInState = PublishRelay<AccountSignInStateInfo>()
-    let signInState: Observable<AccountSignInStateInfo>
+    // 간접적으로 스트림 넘기지 말고, 그냥 메서드에서 토큰값 반환하기
+    private let _signInState = PublishRelay<AccountSignInStateInfo>() // ?
+    var signInState: Observable<AccountSignInStateInfo> {
+        self._signInState.asObservable()
+    } // ?
     
-    override init() {
-        self.signInState = self._signInState.asObservable()
-        super.init()
-    }
     
-    deinit {
-        self.disposeBag = DisposeBag()
-    }
+    // MARK: - Sign In
     
-    func signIn(on window: UIWindow) -> Observable<APIResult> {
+    // Apple 로그인 결과로 IdToken을 리턴하는 코드
+    func signIn(on window: UIWindow) -> Observable<APIResult> { // 그냥 바로 AccessToken 리턴하게 만들기
         guard #available(iOS 13.0, *) else {
             self._signInState.accept(AccountSignInStateInfo(snsType: .apple))
             return Observable.just(.failed)
@@ -59,7 +58,16 @@ class AppleSignInHelper: NSObject, AccountSignInHelperType {
         
     }
     
+    
+    // MARK: - Sign Out
+    
     func signOut() {
         debugPrint("Apple AuthenticationServices does not support signOut!")
     }
+    
+    
+    // MARK: - Deinitializer
+    
+    deinit { self.disposeBag = DisposeBag() }
+    
 }

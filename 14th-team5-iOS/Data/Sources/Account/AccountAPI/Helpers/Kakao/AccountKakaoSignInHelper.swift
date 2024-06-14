@@ -5,31 +5,33 @@
 //  Created by geonhui Yu on 12/6/23.
 //
 
-import UIKit
-import Domain
 import Core
-import RxSwift
-import RxCocoa
-import RxKakaoSDKCommon
-import KakaoSDKAuth
-import RxKakaoSDKAuth
-import KakaoSDKUser
-import RxKakaoSDKUser
+import Domain
+import UIKit
 
-final class KakaoSignInHelper: AccountSignInHelperType {
+import RxCocoa
+import RxSwift
+import RxKakaoSDKAuth
+import RxKakaoSDKCommon
+import RxKakaoSDKUser
+import KakaoSDKAuth
+import KakaoSDKUser
+
+final class AccountKakaoSignInHelper: AccountSignInHelperType {
+    
+    // MARK: - Properties
     
     private var disposeBag = DisposeBag()
     
-    private let _signInState = PublishRelay<AccountSignInStateInfo>()
+    private let _signInState = PublishRelay<AccountSignInStateInfo>() // ?
     var signInState: Observable<AccountSignInStateInfo> {
         self._signInState.asObservable()
-    }
+    } // ?
     
-    deinit {
-        self.disposeBag = DisposeBag()
-    }
     
-    func signIn(on window: UIWindow) -> Observable<APIResult> {
+    // MARK: - Sign In
+    
+    func signIn(on window: UIWindow) -> Observable<APIResult> { // 그냥 바로 AccessToken 리턴하게 만들기
         if UserApi.isKakaoTalkLoginAvailable() {
             return UserApi.shared.rx.loginWithKakaoTalk(launchMethod: .CustomScheme)
                 .map { [weak self] response in
@@ -53,6 +55,9 @@ final class KakaoSignInHelper: AccountSignInHelperType {
         }
     }
     
+    
+    // MARK: - Sign Out
+    
     func signOut() {
         UserApi.shared.rx.logout()
             .subscribe(onCompleted: {
@@ -64,4 +69,11 @@ final class KakaoSignInHelper: AccountSignInHelperType {
             })
             .disposed(by: self.disposeBag)
     }
+    
+    
+    
+    
+    // MARK: - Deinitalizer
+    
+    deinit { self.disposeBag = DisposeBag() }
 }

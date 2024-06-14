@@ -50,27 +50,37 @@ public enum BibbiAPI {
         
         public var value: String {
             switch self {
-            case .auth(let value): return "Bearer \(value)"
-            case .xAppKey: return "7c5aaa36-570e-491f-b18a-26a1a0b72959"
-            case .xAuthToken(let value): return "\(value)"
+            case let .auth(token): return "Bearer \(token)"
+            case .xAppKey: return "7c5aaa36-570e-491f-b18a-26a1a0b72959" // TODO: - 번들에서 가져오기
+            case let .xAuthToken(token): return "\(token)"
             case .contentForm: return "application/x-www-form-urlencoded"
             case .contentJson: return "application/json"
             case .contentMulti: return "multipart/form-data; boundary=\(APIConst.boundary)"
             case .acceptJson: return "application/json"
             case .xUserPlatform: return "iOS"
             case .xAppVersion: return "\(Bundle.main.appVersion)"
-            case .xUserID: return "\(App.Repository.member.memberID.value ?? "송영민짱")"
+            case .xUserID: return "\(App.Repository.member.memberID.value ?? "송영민짱")" // TODO: - 연관값 Value를 받도록 바꾸기
             }
         }
         
-        public static func commonHeaders(_ accessToken: String) -> [Self] {
-            return [
+        public static func commonHeaders(
+            userId: String? = nil,
+            accessToken: String? = nil
+        ) -> [Self] {
+            var header: [BibbiHeader] = [
                 .xAppKey,
                 .xAppVersion,
-                .xUserPlatform,
-                .xUserID,
-                .xAuthToken(accessToken)
+                .xUserPlatform
             ]
+            if let userId = userId {
+                header.append(.xUserID)
+            } else {
+                header.append(.xUserID)
+            }
+            if let accessToken = accessToken {
+                header.append(.xAuthToken(accessToken))
+            }
+            return header
         }
         
         @available(*, deprecated, renamed: "commonHeaders(_:)")

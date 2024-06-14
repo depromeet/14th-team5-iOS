@@ -17,7 +17,7 @@ import SnapKit
 import Then
 
 fileprivate typealias _Str = CalendarStrings
-public final class MonthlyCalendarViewController: BaseViewController<MonthlyCalendarViewReactor> {
+public final class MonthlyCalendarViewController: BaseViewController<CalendarViewReactor> {
     // MARK: - Views
     private lazy var calendarCollectionView: UICollectionView = UICollectionView(
         frame: .zero,
@@ -33,13 +33,13 @@ public final class MonthlyCalendarViewController: BaseViewController<MonthlyCale
     }
     
     // MARK: - Helpers
-    public override func bind(reactor: MonthlyCalendarViewReactor) {
+    public override func bind(reactor: CalendarViewReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: MonthlyCalendarViewReactor) {
+    private func bindInput(reactor: CalendarViewReactor) {
         Observable<Void>.just(())
             .delay(RxConst.milliseconds100Interval, scheduler: RxSchedulers.main)
             .bind(with: self) { owner, _ in
@@ -73,7 +73,7 @@ public final class MonthlyCalendarViewController: BaseViewController<MonthlyCale
             .disposed(by: disposeBag)
     }
     
-    private func bindOutput(reactor: MonthlyCalendarViewReactor) {
+    private func bindOutput(reactor: CalendarViewReactor) {
         reactor.pulse(\.$displayCalendar)
             .bind(to: calendarCollectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)

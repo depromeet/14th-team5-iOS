@@ -52,7 +52,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         App.indicator.bind() // TODO: - Data 지우기
         
         
-        let containers: [DIContainer] = [
+        let containers: [BaseContainer] = [
+            AppDIContainer(),
             CalendarDIContainer()
         ]
         containers.forEach {

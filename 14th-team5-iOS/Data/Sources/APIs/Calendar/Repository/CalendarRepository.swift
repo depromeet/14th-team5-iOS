@@ -22,13 +22,7 @@ public final class CalendarRepository: CalendarRepositoryProtocol {
     // MARK: - Persistent Storage
     
     // MARK: - Intializer
-    public init(
-        keychain: KeychainType? = nil,
-        userDefaults: UserDefaultsType? = nil,
-        inMemory: InMemoryType? = nil
-    ) {
-        
-    }
+    public init() { }
 }
 
 // MARK: - Extensions

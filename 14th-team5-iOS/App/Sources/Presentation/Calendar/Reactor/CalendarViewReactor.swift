@@ -13,7 +13,7 @@ import Domain
 import ReactorKit
 import RxSwift
 
-public final class MonthlyCalendarViewReactor: Reactor {
+public final class CalendarViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case popViewController
@@ -36,27 +36,19 @@ public final class MonthlyCalendarViewReactor: Reactor {
         @Pulse var displayCalendar: [MonthlyCalendarSectionModel]
     }
     
-    @Injected var provider: GlobalStateProviderProtocol
-    @Injected var calendarUseCase: CalendarUseCaseProtocol
     
     // MARK: - Properties
     public var initialState: State
     
-//    public let provider: GlobalStateProviderProtocol
-//    private let calendarUseCase: CalendarUseCaseProtocol
+    @Injected var provider: GlobalStateProviderProtocol
+    @Injected var calendarUseCase: CalendarUseCaseProtocol
     
     // MARK: - Intializer
-    init(
-//        calendarUseCase: CalendarUseCaseProtocol,
-//        provider: GlobalStateProviderProtocol
-    ) {
+    init() {
         self.initialState = State(
             shouldPopViewController: false,
             displayCalendar: [.init(model: (), items: [])]
         )
-        
-//        self.calendarUseCase = calendarUseCase
-//        self.provider = provider
     }
     
     // MARK: - Transform

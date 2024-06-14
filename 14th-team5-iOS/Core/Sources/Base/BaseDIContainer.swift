@@ -7,7 +7,7 @@
 
 import Foundation
 
-
+@available(*, deprecated, renamed: "BaseContainer")
 public protocol BaseDIContainer {
     
     associatedtype ViewContrller

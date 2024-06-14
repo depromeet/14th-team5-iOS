@@ -5,10 +5,12 @@
 //  Created by 김건우 on 12/29/23.
 //
 
+import Core
 import Foundation
 
 import RxSwift
 
+@available(*, deprecated)
 public protocol CalendarUseCaseProtocol {
     func executeFetchCalednarResponse(yearMonth: String) -> Observable<ArrayResponseCalendarEntity?>
     func executeFetchDailyCalendarResponse(yearMonthDay: String) -> Observable<ArrayResponseDailyCalendarEntity?>
@@ -16,6 +18,8 @@ public protocol CalendarUseCaseProtocol {
     func executeFetchCalendarBenner(yearMonth: String) -> Observable<BannerEntity?>
 }
 
+
+@available(*, deprecated)
 public final class CalendarUseCase: CalendarUseCaseProtocol {
     private let calendarRepository: CalendarRepositoryProtocol
     

@@ -10,34 +10,34 @@ import Foundation
 
 import RxSwift
 
-public final class PostCommentRepository: PostCommentRepositoryProtocol {
+public final class CommentRepository: CommentRepositoryProtocol {
     public let disposeBag: DisposeBag = DisposeBag()
     
-    private let postCommentApiWorker: CommentAPIWorker = CommentAPIWorker()
+    private let commentApiWorker: CommentAPIWorker = CommentAPIWorker()
     
     public init() { }
 }
 
-extension PostCommentRepository {
+extension CommentRepository {
     public func fetchPostComment(postId: String, query: PostCommentPaginationQuery) -> Observable<PaginationResponsePostCommentResponse?> {
-        return postCommentApiWorker.fetchComment(postId: postId, query: query)
+        return commentApiWorker.fetchComment(postId: postId, query: query)
             .asObservable()
     }
     
     public func createPostComment(postId: String, body: CreatePostCommentRequest) -> Observable<PostCommentResponse?> {
         let body = CreatePostCommentReqeustDTO(content: body.content)
-        return postCommentApiWorker.createComment(postId: postId, body: body)
+        return commentApiWorker.createComment(postId: postId, body: body)
             .asObservable()
     }
     
     public func updatePostComment(postId: String, commentId: String, body: UpdatePostCommentRequest) -> Observable<PostCommentResponse?> {
         let body = UpdatePostCommentReqeustDTO(content: body.content)
-        return postCommentApiWorker.updateComment(postId: postId, commentId: commentId, body: body)
+        return commentApiWorker.updateComment(postId: postId, commentId: commentId, body: body)
             .asObservable()
     }
     
     public func deletePostComment(postId: String, commentId: String) -> Observable<PostCommentDeleteResponse?> {
-        return postCommentApiWorker.deleteComment(postId: postId, commentId: commentId)
+        return commentApiWorker.deleteComment(postId: postId, commentId: commentId)
             .asObservable()
     }
 }

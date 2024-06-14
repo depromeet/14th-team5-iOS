@@ -38,9 +38,9 @@ public final class CalendarCellDIContainer {
     
     public func makeReactor() -> CalendarCellReactor {
         return CalendarCellReactor(
-            yearMonth: yearMonth,
-            calendarUseCase: makeUseCase(),
-            provider: globalState
+            yearMonth: yearMonth
+//            calendarUseCase: makeUseCase(),
+//            provider: globalState
         )
     }
 }

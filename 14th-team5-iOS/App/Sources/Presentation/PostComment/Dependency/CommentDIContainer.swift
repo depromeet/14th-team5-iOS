@@ -35,8 +35,8 @@ public final class CommentDIContainer {
         return MemberRepository()
     }
     
-    public func makePostCommentRespository() -> PostCommentRepositoryProtocol {
-        return PostCommentRepository()
+    public func makePostCommentRespository() -> CommentRepositoryProtocol {
+        return CommentRepository()
     }
     
     public func makeMemberUseCase() -> MemberUseCaseProtocol {
@@ -44,7 +44,7 @@ public final class CommentDIContainer {
     }
     
     public func makePostCommentUseCase() -> PostCommentUseCaseProtocol {
-        return PostCommentUseCase(postCommentRepository: makePostCommentRespository())
+        return PostCommentUseCase(commentRepository: makePostCommentRespository())
     }
     
     public func makeReactor() -> CommentViewReactor {

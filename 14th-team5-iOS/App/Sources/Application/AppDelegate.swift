@@ -21,12 +21,24 @@ import RxKakaoSDKCommon
 import RxSwift
 import Mixpanel
 
+
+
+// MARK: - AppDelegate
+
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
-    let disposeBag = DisposeBag()
+    // MARK: - Properties
+    
     var window: UIWindow?
+    let disposeBag = DisposeBag()
+    
+    @available(*, deprecated, message: "@Injected var provider: ServiceProviderProtocol")
     let globalStateProvider: GlobalStateProviderProtocol = GlobalStateProvider()
+    
+    
+    
+    // MARK: - DidFinishLaunchingWithOptions
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         kakaoApp(application, didFinishLauchingWithOptions: launchOptions)
@@ -37,10 +49,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         setupUserNotificationCenter(application)
         removeKeychainAtFirstLaunch()
         bindRepositories()
-        App.indicator.bind()
+        App.indicator.bind() // TODO: - Data 지우기
+        
+        
+        let containers: [BaseContainer] = [
+            AppDIContainer(),
+            CalendarDIContainer()
+        ]
+        containers.forEach {
+            $0.registerDependencies()
+        }
+        
         
         return true
     }
+    
+    
+    // MARK: - Open Url
     
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
         if self.kakaoApp(app, open: url, options: options) {
@@ -49,6 +74,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         return false
     }
+    
+    
+    // MARK: - WillTerminate
     
     func applicationWillTerminate(_ application: UIApplication) {
         unbindRepositories()
@@ -75,8 +103,13 @@ extension AppDelegate {
     }
 }
 
+
+// MARK: - Kakao
+
 extension AppDelegate {
+    
     func kakaoApp(_ app: UIApplication, didFinishLauchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) {
+        // TODO: - Bundle+Ext로 보내기
         guard let kakaoLoginAPIKey = Bundle.main.object(forInfoDictionaryKey: "KAKAO_LOGIN_API_KEY") as? String else {
             return
         }
@@ -100,6 +133,9 @@ extension AppDelegate {
     }
 }
 
+
+// MARK: - MixPanel
+
 extension AppDelegate: MixpanelDelegate {
     
     func mixpanelApp(_ app: UIApplication, didFinishLaunchingWithOptions launchOption: [UIApplication.LaunchOptionsKey: Any]?) {
@@ -113,6 +149,9 @@ extension AppDelegate: MixpanelDelegate {
         return true
     }
 }
+
+
+// MARK: - Apple
 
 extension AppDelegate {
     func appleApp(_ app: UIApplication, didFinishLauchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) {
@@ -142,6 +181,9 @@ extension AppDelegate {
     }
 }
 
+
+// MARK: - FCM Token
+
 extension AppDelegate: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         guard let token = fcmToken else { return }
@@ -156,6 +198,9 @@ extension AppDelegate: MessagingDelegate {
             .disposed(by: disposeBag)
     }
 }
+
+
+// MARK: - UNUserNotification
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
@@ -179,6 +224,10 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 //        completionHandler()
     }
 }
+
+
+
+
 
 extension AppDelegate {
     func bindRepositories() {

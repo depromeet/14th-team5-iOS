@@ -9,7 +9,7 @@ import Foundation
 
 import RxSwift
 
-public protocol PostCommentRepositoryProtocol {
+public protocol CommentRepositoryProtocol {
     var disposeBag: DisposeBag { get }
     
     func fetchPostComment(postId: String, query: PostCommentPaginationQuery) -> Observable<PaginationResponsePostCommentResponse?>

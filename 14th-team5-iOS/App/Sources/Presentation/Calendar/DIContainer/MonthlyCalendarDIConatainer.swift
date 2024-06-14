@@ -33,10 +33,10 @@ public final class MonthlyCalendarDIConatainer {
         return CalendarRepository()
     }
     
-    public func makeReactor() -> MonthlyCalendarViewReactor {
-        return MonthlyCalendarViewReactor(
-            calendarUseCase: makeCalendarUseCase(),
-            provider: globalState
+    public func makeReactor() -> CalendarViewReactor {
+        return CalendarViewReactor(
+//            calendarUseCase: makeCalendarUseCase()
+//            provider: globalState
         )
     }
 }

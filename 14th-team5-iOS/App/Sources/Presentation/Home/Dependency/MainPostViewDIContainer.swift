@@ -31,14 +31,10 @@ final class MainPostViewDIContainer {
 
 extension MainPostViewDIContainer {
     private func makePostRepository() -> PostListRepositoryProtocol {
-        return PostListAPIs.Worker()
-    }
-    
-    func makeUploadPostRepository() -> UploadPostRepositoryProtocol {
-        return PostUserDefaultsRepository()
+        return PostRepository()
     }
 
-    func makePostUseCase() -> PostListUseCaseProtocol {
-        return PostListUseCase(postListRepository: makePostRepository(), uploadePostRepository: makeUploadPostRepository())
+    func makePostUseCase() -> FetchPostListUseCaseProtocol {
+        return FetchPostListUseCase(postListRepository: makePostRepository())
     }
 }

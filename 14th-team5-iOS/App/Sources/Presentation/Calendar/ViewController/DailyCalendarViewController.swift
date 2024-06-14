@@ -20,7 +20,7 @@ import SnapKit
 import Then
 
 fileprivate typealias _Str = CalendarStrings
-public final class DailyCalendarViewController: BaseViewController<DailyCalendarViewReactor> {
+public final class DailyCalendarViewController: BBNavigationViewController<DailyCalendarViewReactor> {
     // MARK: - Views
     private let imageView: UIImageView = UIImageView()
     private let calendarView: FSCalendar = FSCalendar()
@@ -76,7 +76,7 @@ public final class DailyCalendarViewController: BaseViewController<DailyCalendar
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        navigationBarView.rx.leftButtonTap
+        navigationBarView.rx.didTapLeftBarButton
             .map { _ in Reactor.Action.popViewController }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -193,7 +193,7 @@ public final class DailyCalendarViewController: BaseViewController<DailyCalendar
             .distinctUntilChanged()
             .withUnretained(self)
             .bind { owner, post in
-                let postListData = PostListData(
+                let postListData = PostEntity(
                     postId: post.postId,
                     author: ProfileData(memberId: post.authorId, name: ""),
                     commentCount: post.commentCount,
@@ -247,13 +247,7 @@ public final class DailyCalendarViewController: BaseViewController<DailyCalendar
             .subscribe(onNext: { _ in Haptic.selection() })
             .disposed(by: disposeBag)
         
-//        reactor.pulse(\.$shouldPopViewController)
-//            .filter { $0 }
-//            .withUnretained(self)
-//            .subscribe { $0.0.navigationController?.popViewController(animated: true) }
-//            .disposed(by: disposeBag)
-        
-        // 댓글 노티피케이션 딥링크 코드
+        // TODO: - 딥링크 코드 개선하기
         reactor.state.compactMap { $0.notificationDeepLink }
             .distinctUntilChanged(at: \.postId)
             .filter { $0.openComment }
@@ -276,12 +270,8 @@ public final class DailyCalendarViewController: BaseViewController<DailyCalendar
     
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(
-            imageView, navigationBarView
-        )
-        imageView.addSubviews(
-            calendarView, postCollectionView
-        )
+        view.addSubviews(imageView)
+        imageView.addSubviews(calendarView, postCollectionView)
         view.addSubview(fireLottieView)
         
         addChild(reactionViewController)
@@ -316,6 +306,8 @@ public final class DailyCalendarViewController: BaseViewController<DailyCalendar
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalToSuperview()
         }
+        
+        bringNavigationBarViewToFront()
     }
     
     public override func setupAttributes() {
@@ -327,7 +319,7 @@ public final class DailyCalendarViewController: BaseViewController<DailyCalendar
         }
         
         navigationBarView.do {
-            $0.setNavigationView(leftItem: .arrowLeft, rightItem: .empty)
+            $0.leftBarButtonItem = .arrowLeft
         }
         
         calendarView.do {
@@ -433,7 +425,7 @@ extension DailyCalendarViewController {
     }
     
     private func setupNavigationTitle(_ date: Date) {
-        navigationBarView.setNavigationTitle(title: date.toFormatString(with: .yyyyM))
+        navigationBarView.navigationTitle = date.toFormatString(with: .yyyyM)
     }
     
     private func updateCalendarViewConstraints(_ bounds: CGRect) {

@@ -29,31 +29,55 @@ final class ReactionDIContainer {
         return appDelegate.globalStateProvider
     }
     
-    private func makeReactor(post: PostListData) -> ReactionViewReactor {
-        return ReactionViewReactor(provider: globalState, initialState: .init(type: type, postListData: post), emojiRepository: makeEmojiUseCase(), realEmojiRepository: makeRealEmojiUseCase())
+    private func makeReactor(post: PostEntity) -> ReactionViewReactor {
+        return ReactionViewReactor(
+            initialState: .init(type: type, postListData: post),
+            provider: globalState,
+            fetchReactionUseCase: makeFetchReactionListUseCase(),
+            createReactionUseCase: makeCreateReactionUseCase(),
+            removeReactionUseCase: makeRemoveReactionUseCase(),
+            fetchRealEmojiListUseCase: makeFetchRealEmojiListUseCase(),
+            createRealEmojiUseCase: makeCreateRealEmojiUseCase(),
+            removeRealEmojiUseCase: makeRemoveRealEmojiUseCase())
     }
     
-    func makeViewController(post: PostListData) -> ReactionViewController {
+    func makeViewController(post: PostEntity) -> ReactionViewController {
         return ReactionViewController(reactor: makeReactor(post: post))
     }
 }
 
 extension ReactionDIContainer {
-    private func makeRealEmojiRepository() -> RealEmojiRepository {
-        return RealEmojiAPIWorker()
+    private func makeRealEmojiRepository() -> RealEmojiRepositoryProtocol {
+        return RealEmojiRepository()
     }
     
-    private func makeRealEmojiUseCase() -> RealEmojiUseCaseProtocol {
-        return RealEmojiUseCase(realEmojiRepository: makeRealEmojiRepository())
+    private func makeCreateRealEmojiUseCase() -> CreateRealEmojiUseCaseProtocol {
+        return CreateRealEmojiUseCase(realEmojiRepository: makeRealEmojiRepository())
+    }
+    
+    private func makeRemoveRealEmojiUseCase() -> RemoveRealEmojiUseCaseProtocol {
+        return RemoveRealEmojiUseCase(realEmojiRepository: makeRealEmojiRepository())
+    }
+    
+    private func makeFetchRealEmojiListUseCase() -> FetchRealEmojiListUseCaseProtocol {
+        return FetchRealEmojiListUseCase(realEmojiRepository: makeRealEmojiRepository())
     }
 }
 
 extension ReactionDIContainer {
-    private func makeEmojiRepository() -> EmojiRepository {
-        return EmojiAPIWorker()
+    private func makeReactionRepository() -> ReactionRepositoryProtocol {
+        return ReactionRepository()
     }
     
-    private func makeEmojiUseCase() -> EmojiUseCaseProtocol {
-        return EmojiUseCase(emojiRepository: makeEmojiRepository())
+    private func makeCreateReactionUseCase() -> CreateReactionUseCaseProtocol {
+        return CreateReactionUseCase(reactionRepository: makeReactionRepository())
+    }
+    
+    private func makeRemoveReactionUseCase() -> RemoveReactionUseCaseProtocol {
+        return RemoveReactionUseCase(reactionRepository: makeReactionRepository())
+    }
+    
+    private func makeFetchReactionListUseCase() -> FetchReactionListUseCaseProtocol {
+        return FetchReactionListUseCase(reactionRepository: makeReactionRepository())
     }
 }

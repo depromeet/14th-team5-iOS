@@ -32,7 +32,7 @@ extension CameraAPIs {
 
 
 extension CameraAPIWorker {
-    public func createProfilePresignedURL(accessToken: String, parameters: Encodable) -> Single<CameraDisplayImageDTO?> {
+    public func createProfilePresignedURL(accessToken: String, parameters: Encodable) -> Single<CameraDisplayImageResponseDTO?> {
         
         let spec = CameraAPIs.uploadProfileImageURL.spec
         
@@ -43,14 +43,14 @@ extension CameraAPIWorker {
                     debugPrint("upload Profile Image URL Fetch Reuslt: \(str)")
                 }
             }
-            .map(CameraDisplayImageDTO.self)
+            .map(CameraDisplayImageResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
     }
     
     
     
-    public func createFeedPresignedURL(accessToken: String, parameters: Encodable) -> Single<CameraDisplayImageDTO?> {
+    public func createFeedPresignedURL(accessToken: String, parameters: Encodable) -> Single<CameraDisplayImageResponseDTO?> {
         let spec = CameraAPIs.uploadImageURL.spec
         
         
@@ -61,12 +61,12 @@ extension CameraAPIWorker {
                     debugPrint("uploadImage Fetch Reuslt: \(str)")
                 }
             }
-            .map(CameraDisplayImageDTO.self)
+            .map(CameraDisplayImageResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
     }
     
-    public func editProfileImageToS3(accessToken: String, memberId: String, parameters: Encodable) -> Single<ProfileMemberDTO?>   {
+    public func editProfileImageToS3(accessToken: String, memberId: String, parameters: Encodable) -> Single<MembersProfileResponseDTO?>   {
         let spec = CameraAPIs.editProfileImage(memberId).spec
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
             .subscribe(on: Self.queue)
@@ -75,7 +75,7 @@ extension CameraAPIWorker {
                     debugPrint("editProfile Image Upload Result: \(str)")
                 }
             }
-            .map(ProfileMemberDTO.self)
+            .map(MembersProfileResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
     }
@@ -89,7 +89,7 @@ extension CameraAPIWorker {
             .map { $0 }
     }
     
-    public func combineWithTextImageUpload(accessToken: String, parameters: Encodable, query: CameraMissionFeedQuery)  -> Single<CameraDisplayPostDTO?> {
+    public func combineWithTextImageUpload(accessToken: String, parameters: Encodable, query: CameraMissionFeedQuery)  -> Single<CameraDisplayPostResponseDTO?> {
         let spec = CameraAPIs.updateImage(query).spec
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
@@ -99,7 +99,7 @@ extension CameraAPIWorker {
                     debugPrint("editProfile Image Upload Result: \(str)")
                 }
             }
-            .map(CameraDisplayPostDTO.self)
+            .map(CameraDisplayPostResponseDTO.self)
             .map { dto in
                 guard let dto = dto else { return nil }
                 let repository = PostUserDefaultsRepository()
@@ -111,9 +111,7 @@ extension CameraAPIWorker {
         
     }
     
-    
-    // TODO: Real Emoji API 추가
-    public func createRealEmojiPresignedURL(accessToken: String, memberId: String, parameters: Encodable) -> Single<CameraRealEmojiPreSignedDTO?> {
+    public func createRealEmojiPresignedURL(accessToken: String, memberId: String, parameters: Encodable) -> Single<CameraRealEmojiPreSignedResponseDTO?> {
         let spec = CameraAPIs.uploadRealEmojiURL(memberId).spec
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
@@ -123,13 +121,13 @@ extension CameraAPIWorker {
                     debugPrint("RealEmoji Image Presigned URL Reuslt: \(str)")
                 }
             }
-            .map(CameraRealEmojiPreSignedDTO.self)
+            .map(CameraRealEmojiPreSignedResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
         
     }
     
-    public func uploadRealEmojiImageToS3(accessToken: String, memberId: String, parameters: Encodable) -> Single<CameraCreateRealEmojiDTO?> {
+    public func uploadRealEmojiImageToS3(accessToken: String, memberId: String, parameters: Encodable) -> Single<CameraCreateRealEmojiResponseDTO?> {
         let spec = CameraAPIs.updateRealEmojiImage(memberId).spec
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
@@ -139,12 +137,12 @@ extension CameraAPIWorker {
                     debugPrint("Real Image upload to S3 Result: \(str)")
                 }
             }
-            .map(CameraCreateRealEmojiDTO.self)
+            .map(CameraCreateRealEmojiResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
     }
     
-    public func loadRealEmojiImage(accessToken: String, memberId: String) -> Single<CameraRealEmojiImageItemDTO?> {
+    public func loadRealEmojiImage(accessToken: String, memberId: String) -> Single<CameraRealEmojiImageItemResponseDTO?> {
         let spec = CameraAPIs.reloadRealEmoji(memberId).spec
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)])
@@ -154,12 +152,12 @@ extension CameraAPIWorker {
                     debugPrint("Real Emoji Items Result: \(str)")
                 }
             }
-            .map(CameraRealEmojiImageItemDTO.self)
+            .map(CameraRealEmojiImageItemResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
     }
     
-    public func updateRealEmojiImage(accessToken: String, memberId: String, realEmojiId: String, parameters: Encodable) -> Single<CameraUpdateRealEmojiDTO?> {
+    public func updateRealEmojiImage(accessToken: String, memberId: String, realEmojiId: String, parameters: Encodable) -> Single<CameraUpdateRealEmojiResponseDTO?> {
         let spec = CameraAPIs.modifyRealEmojiImage(memberId, realEmojiId).spec
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
             .subscribe(on: Self.queue)
@@ -168,12 +166,12 @@ extension CameraAPIWorker {
                     debugPrint("Real Emoji Modify Result: \(str)")
                 }
             }
-            .map(CameraUpdateRealEmojiDTO.self)
+            .map(CameraUpdateRealEmojiResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
     }
   
-  public func fetchMissionItems(accessToken: String) -> Single<CameraTodayMissionDTO?> {
+  public func fetchMissionItems(accessToken: String) -> Single<CameraTodayMissionResponseDTO?> {
     let spec = CameraAPIs.fetchMissionToday.spec
     return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)])
       .subscribe(on: Self.queue)
@@ -182,7 +180,7 @@ extension CameraAPIWorker {
           debugPrint("Fetch Today Mission Items : \(str)")
         }
       }
-      .map(CameraTodayMissionDTO.self)
+      .map(CameraTodayMissionResponseDTO.self)
       .catchAndReturn(nil)
       .asSingle()
   }

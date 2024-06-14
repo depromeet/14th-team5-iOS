@@ -22,11 +22,11 @@ final class ReactionMemberDIContainer {
         return FamilyUseCase(familyRepository: makeFamilyRepository())
     }
     
-    func makeReactionMemberReactor(emojiData: FetchedEmojiData) -> ReactionMemberViewReactor {
+    func makeReactionMemberReactor(emojiData: RealEmojiEntity) -> ReactionMemberViewReactor {
         return ReactionMemberViewReactor(initialState: .init(emojiData: emojiData), familyUseCase: makeFamilyUseCase())
     }
     
-    func makeViewController(emojiData: FetchedEmojiData) -> ReactionMembersViewController {
+    func makeViewController(emojiData: RealEmojiEntity) -> ReactionMembersViewController {
         return ReactionMembersViewController(reactor: makeReactionMemberReactor(emojiData: emojiData))
     }
 }

@@ -41,22 +41,25 @@ public final class CalendarCellReactor: Reactor {
     // MARK: - Properties
     public var initialState: State
     
-    private let calendarUseCase: CalendarUseCaseProtocol
-    private let provider: GlobalStateProviderProtocol
+    @Injected var calendarUseCase: CalendarUseCaseProtocol
+    @Injected var provider: GlobalStateProviderProtocol
+    
+//    private let calendarUseCase: CalendarUseCaseProtocol
+//    private let provider: GlobalStateProviderProtocol
     
     // MARK: - Intializer
     init(
-        yearMonth: String,
-        calendarUseCase: CalendarUseCaseProtocol,
-        provider: GlobalStateProviderProtocol
+        yearMonth: String
+//        calendarUseCase: CalendarUseCaseProtocol,
+//        provider: GlobalStateProviderProtocol
     ) {
         self.initialState = State(
             yearMonth: yearMonth,
             displayMemoryCount: 0
         )
         
-        self.calendarUseCase = calendarUseCase
-        self.provider = provider
+//        self.calendarUseCase = calendarUseCase
+//        self.provider = provider
     }
     
     // MARK: - Mutate

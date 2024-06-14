@@ -119,15 +119,16 @@ public final class CameraDisplayViewReactor: Reactor {
             )
         case let .fetchDisplayImage(description):
             return .concat(
-                cameraDisplayUseCase.executeDescrptionItems(with: description)
-                    .asObservable()
+                Observable.of(Array(description))
+                    .map { String($0) }
                     .flatMap { items -> Observable<CameraDisplayViewReactor.Mutation> in
                         var sectionItem: [DisplayEditItemModel] = []
+                        
                         items.forEach {
-                            sectionItem.append(.fetchDisplayItem(DisplayEditCellReactor(title: $0, radius: 8, font: .head1)))
+                            sectionItem.append(.fetchDisplayItem(DisplayEditCellReactor(title: String($0), radius: 8, font: .head1)))
                         }
                         
-                        return Observable.concat(
+                        return .concat(
                             .just(.setDisplayEditSection(sectionItem)),
                             .just(.setDescription(description))
                         )

@@ -8,8 +8,16 @@
 import WidgetKit
 import UIKit
 
-struct FamilyWidgetTimelineProvider: TimelineProvider {
+import Domain
+
+final class FamilyWidgetTimelineProvider: TimelineProvider {
     typealias Entry = FamilyWidgetEntry
+    
+    let repository: WidgetRepositoryProtocol
+    
+    init(repository: WidgetRepositoryProtocol) {
+        self.repository = repository
+    }
     
     func placeholder(in context: Context) -> FamilyWidgetEntry {
         return FamilyWidgetEntry(date: Date(), family: nil)
@@ -21,7 +29,8 @@ struct FamilyWidgetTimelineProvider: TimelineProvider {
         let currentDate = Date()
         let refreshDate = Calendar.current.date(byAdding: .minute, value: 5, to: currentDate)!
         
-        FamilyService().fetchInfo { result in
+        
+        repository.fetchRecentFamilyPost { result in
             var entry: FamilyWidgetEntry
             switch result {
             case .success(let family):

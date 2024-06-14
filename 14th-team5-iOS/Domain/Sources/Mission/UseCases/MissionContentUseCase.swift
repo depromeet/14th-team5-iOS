@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol MissionContentUseCaseProtocol {
-    func execute(missionId: String) -> Observable<MissionContentData>
+    func execute(missionId: String) -> Observable<MissionContentResponse>
 }
 
 
@@ -22,7 +22,7 @@ public class MissionContentUseCase: MissionContentUseCaseProtocol {
         self.missionContentRepository = missionContentRepository
     }
     
-    public func execute(missionId: String) -> Observable<MissionContentData> {
+    public func execute(missionId: String) -> Observable<MissionContentResponse> {
         return missionContentRepository.getMissionContent(missionId: missionId)
             .compactMap { $0 }
             .asObservable()

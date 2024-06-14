@@ -14,7 +14,7 @@ import Domain
 
 public final class CameraDisplayDIContainer: BaseDIContainer {
     public typealias ViewContrller = CameraDisplayViewController
-    public typealias Repository = CameraDisplayViewInterface
+    public typealias Repository = CameraRepositoryProtocol
     public typealias Reactor = CameraDisplayViewReactor
     public typealias UseCase = CameraDisplayViewUseCaseProtocol
     
@@ -40,7 +40,7 @@ public final class CameraDisplayDIContainer: BaseDIContainer {
     }
     
     public func makeRepository() -> Repository {
-        return CameraDisplayViewRepository()
+        return CameraRepository()
     }
     
     public func makeUseCase() -> UseCase {

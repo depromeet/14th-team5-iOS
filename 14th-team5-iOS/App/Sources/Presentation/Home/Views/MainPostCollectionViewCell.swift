@@ -92,7 +92,7 @@ extension MainPostCollectionViewCell {
 }
 
 extension MainPostCollectionViewCell {
-    private func setCell(_ data: PostListData) {
+    private func setCell(_ data: PostEntity) {
         if let url = URL(string: data.imageURL ) {
             imageView.kf.setImage(with: url)
             indicator.stopAnimating()

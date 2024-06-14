@@ -10,6 +10,6 @@ import Foundation
 import RxSwift
 
 public protocol MissionRepositoryProtocol {
-    func getTodayMission() -> Observable<TodayMissionData?>
-    func getMissionContent(missionId: String) -> Observable<MissionContentData?>
+    func getTodayMission() -> Observable<TodayMissionResponse?>
+    func getMissionContent(missionId: String) -> Observable<MissionContentResponse?>
 }

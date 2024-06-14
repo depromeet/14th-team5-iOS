@@ -15,7 +15,11 @@ import RxSwift
 
 final class SelectableEmojiDIContainer {
     private func makeReactor(postId: String) -> SelectableEmojiReactor {
-        return SelectableEmojiReactor(postId: postId, emojiRepository: makeEmojiUseCase(), realEmojiRepository: makeRealEmojiUseCase())
+        return SelectableEmojiReactor(
+            postId: postId,
+            createReactionUseCase: makeCreateReactionUseCase(),
+            createRealEmojiUseCase: makeCreateRealEmojiUseCase(),
+            fetchMyRealEmojiUseCase: makeFetchMyRealEmojiUseCase())
     }
     
     func makeViewController(postId: String, subject: PublishSubject<Void>) -> SelectableEmojiViewController {
@@ -24,21 +28,25 @@ final class SelectableEmojiDIContainer {
 }
 
 extension SelectableEmojiDIContainer {
-    private func makeRealEmojiRepository() -> RealEmojiRepository {
-        return RealEmojiAPIWorker()
+    private func makeRealEmojiRepository() -> RealEmojiRepositoryProtocol {
+        return RealEmojiRepository()
     }
     
-    private func makeRealEmojiUseCase() -> RealEmojiUseCaseProtocol {
-        return RealEmojiUseCase(realEmojiRepository: makeRealEmojiRepository())
+    private func makeCreateRealEmojiUseCase() -> CreateRealEmojiUseCaseProtocol {
+        return CreateRealEmojiUseCase(realEmojiRepository: makeRealEmojiRepository())
+    }
+                                            
+    private func makeFetchMyRealEmojiUseCase() -> FetchMyRealEmojiUseCaseProtocol {
+        return FetchMyRealEmojiUseCase(realEmojiRepository: makeRealEmojiRepository())
     }
 }
 
 extension SelectableEmojiDIContainer {
-    private func makeEmojiRepository() -> EmojiRepository {
-        return EmojiAPIWorker()
+    private func makeReactionRepository() -> ReactionRepositoryProtocol {
+        return ReactionRepository()
     }
     
-    private func makeEmojiUseCase() -> EmojiUseCaseProtocol {
-        return EmojiUseCase(emojiRepository: makeEmojiRepository())
+    private func makeCreateReactionUseCase() -> CreateReactionUseCaseProtocol {
+        return CreateReactionUseCase(reactionRepository: makeReactionRepository())
     }
 }

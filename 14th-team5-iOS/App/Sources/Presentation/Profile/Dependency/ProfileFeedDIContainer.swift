@@ -40,7 +40,7 @@ final class ProfileFeedDIContainer {
     }
     
     func makeRepository() -> Repository {
-        return PostListAPIs.Worker()
+        return PostRepository()
     }
     
     

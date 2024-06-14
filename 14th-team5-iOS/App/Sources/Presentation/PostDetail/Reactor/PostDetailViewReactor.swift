@@ -29,7 +29,7 @@ final class PostDetailViewReactor: Reactor {
     
     struct State {
         let type: CellType
-        let post: PostListData
+        let post: PostEntity
         
         var missionContent: String = ""
         

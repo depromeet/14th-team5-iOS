@@ -8,7 +8,7 @@
 import Domain
 import Foundation
 
-struct ArrayResponseDailyCalendarResponseDTO: Decodable {
+public struct ArrayResponseDailyCalendarResponseDTO: Decodable {
     enum CodingKeys: String, CodingKey {
         case results
     }

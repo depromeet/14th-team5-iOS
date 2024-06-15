@@ -12,6 +12,7 @@ import RxSwift
 public protocol CalendarRepositoryProtocol {
     var disposeBag: DisposeBag { get }
     
+    @available(*, deprecated, renamed: "fetchMonthlyCalendarResponse")
     func fetchCalendarResponse(yearMonth: String) -> Observable<ArrayResponseCalendarEntity?>
     
     func fetchMonthyCalendarResponse(yearMonth: String) -> Observable<ArrayResponseMonthlyCalendarEntity?>

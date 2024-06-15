@@ -14,9 +14,9 @@ public protocol FetchNightMainViewUseCaseProtocol {
 }
 
 public final class FetchNightMainViewUseCase: FetchNightMainViewUseCaseProtocol {
-    private let mainRepository: MainRepositoryProtocol
+    private let mainRepository: MainViewRepositoryProtocol
     
-    public init(mainRepository: MainRepositoryProtocol) {
+    public init(mainRepository: MainViewRepositoryProtocol) {
         self.mainRepository = mainRepository
     }
     

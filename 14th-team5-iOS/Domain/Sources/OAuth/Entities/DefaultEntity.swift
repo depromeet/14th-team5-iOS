@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct DefaultResponseEntity {
+public struct DefaultEntity {
     public var success: Bool
     
     public init(success: Bool) {

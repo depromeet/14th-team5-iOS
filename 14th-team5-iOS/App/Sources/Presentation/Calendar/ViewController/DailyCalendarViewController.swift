@@ -195,7 +195,7 @@ public final class DailyCalendarViewController: BBNavigationViewController<Daily
             .bind { owner, post in
                 let postListData = PostEntity(
                     postId: post.postId,
-                    author: ProfileData(memberId: post.authorId, name: ""),
+                    author: FamilyMemberProfileEntity(memberId: post.authorId, name: ""),
                     commentCount: post.commentCount,
                     emojiCount: post.emojiCount,
                     imageURL: post.postImageUrl,

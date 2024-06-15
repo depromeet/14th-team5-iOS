@@ -89,7 +89,7 @@ extension OAuthAPIWorker {
     
     // MARK: - Register FCM Token
     
-    public func registerNewFCMToken(body: AddFCMTokenRequestDTO) -> Single<DefaultResponseEntity?> {
+    public func registerNewFCMToken(body: AddFCMTokenRequestDTO) -> Single<DefaultEntity?> {
         let spec = OAuthAPIs.registerFCMToken.spec
         
         return request(spec: spec, jsonEncodable: body)
@@ -108,7 +108,7 @@ extension OAuthAPIWorker {
     
     // MARK: - Delete FCM Token
     
-    public func deleteFCMToken(fcmToken token: String) -> Single<DefaultResponseEntity?> {
+    public func deleteFCMToken(fcmToken token: String) -> Single<DefaultEntity?> {
         let spec = OAuthAPIs.deleteFCMToken(token).spec
         
         return request(spec: spec)

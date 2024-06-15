@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct FamilyCreatedAtResponse {
+public struct FamilyCreatedAtEntity {
     public var createdAt: Date
     
     public init(createdAt: Date) {

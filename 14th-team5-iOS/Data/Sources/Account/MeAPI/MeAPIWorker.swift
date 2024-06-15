@@ -89,7 +89,7 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository, FCMRepository
     }
     
     @available(*, deprecated, renamed: "joinFamily")
-    private func joinFamily(headers: [APIHeader]?, body: Domain.JoinFamilyRequest) -> RxSwift.Single<JoinFamilyResponse?> {
+    private func joinFamily(headers: [APIHeader]?, body: Domain.JoinFamilyRequest) -> RxSwift.Single<JoinFamilyEntity?> {
         let spec = MeAPIs.joinFamily.spec
         let requestDTO: JoinFamilyRequestDTO = JoinFamilyRequestDTO(inviteCode: body.inviteCode)
         
@@ -172,7 +172,7 @@ extension MeAPIWorker {
     }
     
     @available(*, deprecated, renamed: "joinFamily")
-    public func joinFamily(body: JoinFamilyRequest) -> Single<JoinFamilyResponse?> {
+    public func joinFamily(body: JoinFamilyRequest) -> Single<JoinFamilyEntity?> {
         return Observable.just(())
             .withLatestFrom(self._headers)
             .withUnretained(self)

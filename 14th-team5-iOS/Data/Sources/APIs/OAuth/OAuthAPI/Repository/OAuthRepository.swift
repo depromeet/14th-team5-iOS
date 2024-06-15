@@ -86,7 +86,7 @@ extension OAuthRepository {
     
     // MARK: - Register FCM Token
     
-    public func registerNewFCMToken(body: AddFCMTokenRequest) -> Observable<DefaultResponseEntity?> {
+    public func registerNewFCMToken(body: AddFCMTokenRequest) -> Observable<DefaultEntity?> {
         let body = AddFCMTokenRequestDTO(
             fcmToken: body.fcmToken
         )
@@ -98,7 +98,7 @@ extension OAuthRepository {
     
     // MARK: - Delete FCM Token
     
-    public func deleteFCMToken(fcmToken token: String) -> Observable<DefaultResponseEntity?> {
+    public func deleteFCMToken(fcmToken token: String) -> Observable<DefaultEntity?> {
         return oAuthApiWorker.deleteFCMToken(fcmToken: token)
             .observe(on: RxSchedulers.main)
             .asObservable()

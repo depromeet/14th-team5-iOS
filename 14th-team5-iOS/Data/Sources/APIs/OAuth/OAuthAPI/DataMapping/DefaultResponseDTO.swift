@@ -16,7 +16,7 @@ public struct DefaultResponseDTO: Decodable {
 }
 
 extension DefaultResponseDTO {
-    func toDomain() -> DefaultResponseEntity {
+    func toDomain() -> DefaultEntity {
         return .init(success: self.success)
     }
 }

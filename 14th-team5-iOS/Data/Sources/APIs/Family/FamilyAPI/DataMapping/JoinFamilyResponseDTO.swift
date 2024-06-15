@@ -8,13 +8,13 @@
 import Domain
 import Foundation
 
-struct JoinFamilyResponseDTO: Decodable {
+public struct JoinFamilyResponseDTO: Decodable {
     let familyId: String
     let createdAt: String
 }
 
 extension JoinFamilyResponseDTO {
-    func toDomain() -> JoinFamilyResponse {
+    func toDomain() -> JoinFamilyEntity {
         return .init(
             familyId: familyId,
             createdAt: createdAt.iso8601ToDate()

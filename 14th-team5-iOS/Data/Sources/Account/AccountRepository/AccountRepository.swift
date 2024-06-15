@@ -143,7 +143,7 @@ public final class AccountRepository: AccountImpl {
         App.Repository.member.familyId.accept(memberInfo.familyId)
         App.Repository.member.nickname.accept(memberInfo.name)
         
-        let member: ProfileData = ProfileData(memberId: memberInfo.memberId, profileImageURL: memberInfo.imageUrl, name: memberInfo.name)
+        let member: FamilyMemberProfileEntity = FamilyMemberProfileEntity(memberId: memberInfo.memberId, profileImageURL: memberInfo.imageUrl, name: memberInfo.name)
         FamilyUserDefaults.saveMyMemberId(memberId: memberInfo.memberId)
         FamilyUserDefaults.saveMemberToUserDefaults(familyMember: member)
     }

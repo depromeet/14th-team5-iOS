@@ -7,15 +7,15 @@
 
 import Foundation
 
-public struct PaginationResponseFamilyMemberProfile {
-    public var results: [ProfileData]
+public struct PaginationResponseFamilyMemberProfileEntity {
+    public var results: [FamilyMemberProfileEntity]
     
-    public init(results: [ProfileData]) {
+    public init(results: [FamilyMemberProfileEntity]) {
         self.results = results
     }
 }
 
-public struct ProfileData: Equatable, Hashable, Codable {
+public struct FamilyMemberProfileEntity: Equatable, Hashable, Codable {
     public let memberId: String
     public let profileImageURL: String?
     public let name: String

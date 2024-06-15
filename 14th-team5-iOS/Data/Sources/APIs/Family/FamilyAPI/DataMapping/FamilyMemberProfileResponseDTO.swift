@@ -39,7 +39,7 @@ extension PaginationResponseFamilyMemberProfileDTO {
 }
 
 extension PaginationResponseFamilyMemberProfileDTO {
-    func toDomain() -> PaginationResponseFamilyMemberProfile {
+    func toDomain() -> PaginationResponseFamilyMemberProfileEntity {
         return .init(
             results: results.map { $0.toDomain() }
         )
@@ -47,7 +47,7 @@ extension PaginationResponseFamilyMemberProfileDTO {
 }
 
 extension PaginationResponseFamilyMemberProfileDTO.FamilyMemberProfileResponseDTO {
-    func toDomain() -> ProfileData {
+    func toDomain() -> FamilyMemberProfileEntity {
         return .init(
             memberId: memberId,
             profileImageURL: imageUrl,

@@ -63,18 +63,18 @@ public class FamilyUserDefaults {
         return UserDefaults.standard.stringArray(forKey: myMemberIdKey)?.count ?? 0
     }
     
-    public static func saveFamilyMembers(_ familyMembers: [ProfileData]) {
+    public static func saveFamilyMembers(_ familyMembers: [FamilyMemberProfileEntity]) {
         removeFamilyMembers()
         saveMemberIdToUserDefaults(memberIds: familyMembers.map { $0.memberId })
         saveDayOfBirths(dateOfBirths: familyMembers.map { $0.dayOfBirth ?? Date() })
         familyMembers.forEach { saveMemberToUserDefaults(familyMember: $0) }
     }
     
-    public static func load(memberId: String) -> ProfileData? {
+    public static func load(memberId: String) -> FamilyMemberProfileEntity? {
         if let data = UserDefaults.standard.data(forKey: memberId) {
             do {
                 let decoder = JSONDecoder()
-                let person = try decoder.decode(ProfileData.self, from: data)
+                let person = try decoder.decode(FamilyMemberProfileEntity.self, from: data)
                 return person
             } catch {
                 print("Error decoding person: \(error.localizedDescription)")
@@ -89,7 +89,7 @@ public class FamilyUserDefaults {
 }
 
 extension FamilyUserDefaults {
-    public static func saveMemberToUserDefaults(familyMember: ProfileData) {
+    public static func saveMemberToUserDefaults(familyMember: FamilyMemberProfileEntity) {
         do {
             let encoder = JSONEncoder()
             let data = try encoder.encode(familyMember)
@@ -108,13 +108,13 @@ extension FamilyUserDefaults {
         userDefaults.setValue(dateOfBirths, forKey: self.dayOfBirths)
     }
 
-    static func loadMembersFromUserDefaults(memberIds: [String]) -> [ProfileData] {
-        var datas: [ProfileData] = []
+    static func loadMembersFromUserDefaults(memberIds: [String]) -> [FamilyMemberProfileEntity] {
+        var datas: [FamilyMemberProfileEntity] = []
         memberIds.forEach {
             if let data = UserDefaults.standard.data(forKey: $0) {
                 do {
                     let decoder = JSONDecoder()
-                    let data = try decoder.decode(ProfileData.self, from: data)
+                    let data = try decoder.decode(FamilyMemberProfileEntity.self, from: data)
                     return datas.append(data)
                 } catch {
                     print("Error decoding person: \(error.localizedDescription)")

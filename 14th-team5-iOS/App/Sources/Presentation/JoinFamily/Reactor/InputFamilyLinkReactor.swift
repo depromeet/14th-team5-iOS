@@ -60,7 +60,7 @@ extension InputFamilyLinkReactor {
             let code = currentState.linkString
             let body = JoinFamilyRequest(inviteCode: String(code))
             
-            let commonLogic: (JoinFamilyResponse) -> Observable<InputFamilyLinkReactor.Mutation> = { joinFamilyData in
+            let commonLogic: (JoinFamilyEntity) -> Observable<InputFamilyLinkReactor.Mutation> = { joinFamilyData in
 //                App.Repository.member.familyId.accept(joinFamilyData.familyId)
 //                App.Repository.member.familyCreatedAt.accept(joinFamilyData.createdAt)
                 return Observable.just(Mutation.setShowHome(true))

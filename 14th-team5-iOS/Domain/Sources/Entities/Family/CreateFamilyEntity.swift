@@ -1,13 +1,13 @@
 //
-//  JoinFamilyData.swift
+//  FamilyResponse.swift
 //  Domain
 //
-//  Created by 마경미 on 13.01.24.
+//  Created by 김건우 on 1/10/24.
 //
 
 import Foundation
 
-public struct JoinFamilyResponse {
+public struct CreateFamilyEntity {
     public var familyId: String
     public var createdAt: Date
     

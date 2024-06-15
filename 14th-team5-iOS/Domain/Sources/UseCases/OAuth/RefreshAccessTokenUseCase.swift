@@ -13,7 +13,7 @@ public protocol RefreshAccessTokenUseCaseProtocol {
     func execute(body: RefreshAccessTokenRequest) -> Observable<AuthResultEntity?>
 }
 
-public class RefreshAccessTokenUseCase: RefreshAccessTokenUseCaseProtocol {
+public final class RefreshAccessTokenUseCase: RefreshAccessTokenUseCaseProtocol {
     
     // MARK: - Repositories
     private var oauthRepository: OAuthRepositoryProtocol

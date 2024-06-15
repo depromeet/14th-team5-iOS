@@ -10,8 +10,6 @@ import Foundation
 import RxSwift
 
 public protocol FamilyRepositoryProtocol {
-    var disposeBag: DisposeBag { get }
-    
     func joinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyEntity?>
     func resignFamily() -> Observable<DefaultEntity?>
     func createFamily() -> Observable<CreateFamilyEntity?>

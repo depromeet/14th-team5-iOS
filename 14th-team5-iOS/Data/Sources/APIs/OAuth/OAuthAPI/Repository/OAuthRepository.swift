@@ -19,6 +19,7 @@ public final class OAuthRepository: OAuthRepositoryProtocol {
     public var oAuthApiWorker = OAuthAPIWorker()
     public var tokenKeychainStorage = TokenKeychain()
     
+    // MARK: - Intializer
     public init() { }
     
 }
@@ -98,10 +99,18 @@ extension OAuthRepository {
     
     // MARK: - Delete FCM Token
     
-    public func deleteFCMToken(fcmToken token: String) -> Observable<DefaultEntity?> {
-        return oAuthApiWorker.deleteFCMToken(fcmToken: token)
+    public func deleteFCMToken() -> Observable<DefaultEntity?> {
+        
+        guard
+            let fcmToken = tokenKeychainStorage.loadFCMToken()
+        else {
+            return Observable.just(DefaultEntity(success: false))
+        }
+        
+        return oAuthApiWorker.deleteFCMToken(fcmToken: fcmToken)
             .observe(on: RxSchedulers.main)
             .asObservable()
+        
     }
     
 }

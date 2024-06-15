@@ -10,9 +10,9 @@ import Foundation
 import RxSwift
 
 public protocol PickUseCaseProtocol {
-    func executePickMember(memberId: String) -> Observable<PickResponse?>
-    func executeFetchWhoDidIPickMember(memberId: String) -> Observable<PickMemberListResponse?>
-    func executeFetchWhoPickedMeMember(memberId: String) -> Observable<PickMemberListResponse?>
+    func executePickMember(memberId: String) -> Observable<PickEntity?>
+    func executeFetchWhoDidIPickMember(memberId: String) -> Observable<PickMemberListEntity?>
+    func executeFetchWhoPickedMeMember(memberId: String) -> Observable<PickMemberListEntity?>
 }
 
 public final class PickUseCase: PickUseCaseProtocol {
@@ -22,15 +22,15 @@ public final class PickUseCase: PickUseCaseProtocol {
         self.pickRepository = pickRepository
     }
     
-    public func executePickMember(memberId: String) -> Observable<PickResponse?> {
+    public func executePickMember(memberId: String) -> Observable<PickEntity?> {
         return pickRepository.pickMember(memberId: memberId)
     }
     
-    public func executeFetchWhoDidIPickMember(memberId: String) -> Observable<PickMemberListResponse?> {
+    public func executeFetchWhoDidIPickMember(memberId: String) -> Observable<PickMemberListEntity?> {
         return pickRepository.whoDidIPickMember(memberId: memberId)
     }
     
-    public func executeFetchWhoPickedMeMember(memberId: String) -> Observable<PickMemberListResponse?> {
+    public func executeFetchWhoPickedMeMember(memberId: String) -> Observable<PickMemberListEntity?> {
         return pickRepository.whoPickedMeMember(memberId: memberId)
     }
 }

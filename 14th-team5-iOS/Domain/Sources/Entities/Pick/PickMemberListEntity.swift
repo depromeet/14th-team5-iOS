@@ -7,15 +7,15 @@
 
 import Foundation
 
-public struct PickMemberListResponse {
-    public var results: [PickMember]
+public struct PickMemberListEntity {
+    public var results: [PickMemberEntity]
     
-    public init(results: [PickMember]) {
+    public init(results: [PickMemberEntity]) {
         self.results = results
     }
 }
 
-public struct PickMember {
+public struct PickMemberEntity {
     public var memberId: String
     public var name: String
     public var imageUrl: String

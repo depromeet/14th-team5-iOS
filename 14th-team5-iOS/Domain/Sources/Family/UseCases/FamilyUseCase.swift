@@ -9,6 +9,7 @@ import Foundation
 
 import RxSwift
 
+@available(*, deprecated)
 public protocol FamilyUseCaseProtocol {
     func executeJoinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyEntity?>
     func executeResignFamily() -> Observable<DefaultEntity?>
@@ -19,6 +20,7 @@ public protocol FamilyUseCaseProtocol {
     func executeFetchPaginationFamilyMembers(memberIds: [String]) -> [FamilyMemberProfileEntity]
 }
 
+@available(*, deprecated)
 public final class FamilyUseCase: FamilyUseCaseProtocol {
     private let familyRepository: FamilyRepositoryProtocol
     

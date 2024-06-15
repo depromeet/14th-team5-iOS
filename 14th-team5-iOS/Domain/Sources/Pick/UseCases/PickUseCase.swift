@@ -9,12 +9,14 @@ import Foundation
 
 import RxSwift
 
+@available(*, deprecated)
 public protocol PickUseCaseProtocol {
     func executePickMember(memberId: String) -> Observable<PickEntity?>
     func executeFetchWhoDidIPickMember(memberId: String) -> Observable<PickMemberListEntity?>
     func executeFetchWhoPickedMeMember(memberId: String) -> Observable<PickMemberListEntity?>
 }
 
+@available(*, deprecated)
 public final class PickUseCase: PickUseCaseProtocol {
     private let pickRepository: PickRepositoryProtocol
     

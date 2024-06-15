@@ -24,7 +24,7 @@ public struct PostCommentResponseDTO: Decodable {
 }
 
 extension PostCommentResponseDTO {
-    func toDomain() -> PostCommentResponse {
+    func toDomain() -> PostCommentEntity {
         return .init(
             commentId: commentId,
             postId: postId,

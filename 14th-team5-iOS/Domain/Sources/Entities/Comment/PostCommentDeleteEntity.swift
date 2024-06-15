@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct PostCommentDeleteResponse {
+public struct PostCommentDeleteEntity {
     public var success: Bool
     
     public init(success: Bool) {

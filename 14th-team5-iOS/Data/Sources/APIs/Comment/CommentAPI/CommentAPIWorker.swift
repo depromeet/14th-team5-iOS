@@ -33,22 +33,16 @@ extension CommentAPIWorker {
     
     // MARK: - Fetch Comment
     
-    public func fetchComment(postId: String, query: PostCommentPaginationQuery) -> Single<PaginationResponsePostCommentResponse?> {
+    public func fetchComment(
+        postId: String,
+        query: PostCommentPaginationQuery
+    ) -> Single<PaginationResponsePostCommentResponseDTO?> {
         let page = query.page
         let size = query.size
         let sort = query.sort.rawValue
         let spec = CommentAPIs.fetchPostComment(postId, page, size, sort).spec
         
-        return Observable<Void>.just(())
-            .withLatestFrom(self._headers)
-            .observe(on: Self.queue)
-            .withUnretained(self)
-            .flatMap { $0.0.fetchComment(spec: spec, headers: $0.1) }
-            .asSingle()
-    }
-    
-    private func fetchComment(spec: APISpec, headers: [APIHeader]?) -> Single<PaginationResponsePostCommentResponse?> {
-        return request(spec: spec, headers: headers)
+        return request(spec: spec)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -57,27 +51,19 @@ extension CommentAPIWorker {
             }
             .map(PaginationResponsePostCommentResponseDTO.self)
             .catchAndReturn(nil)
-            .map { $0?.toDomain() }
             .asSingle()
     }
-    
     
     
     // MARK: - Create Comment
     
-    public func createComment(postId: String, body: CreatePostCommentReqeustDTO) -> Single<PostCommentResponse?> {
+    public func createComment(
+        postId: String,
+        body: CreatePostCommentReqeustDTO
+    ) -> Single<PostCommentResponseDTO?> {
         let spec = CommentAPIs.createPostComment(postId).spec
         
-        return Observable<Void>.just(())
-            .withLatestFrom(self._headers)
-            .observe(on: Self.queue)
-            .withUnretained(self)
-            .flatMap { $0.0.createComment(spec: spec, headers: $0.1, jsonEncodable: body) }
-            .asSingle()
-    }
-    
-    private func createComment(spec: APISpec, headers: [APIHeader]?, jsonEncodable body: Encodable) -> Single<PostCommentResponse?> {
-        return request(spec: spec, headers: headers, jsonEncodable: body)
+        return request(spec: spec, jsonEncodable: body)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -86,27 +72,20 @@ extension CommentAPIWorker {
             }
             .map(PostCommentResponseDTO.self)
             .catchAndReturn(nil)
-            .map { $0?.toDomain() }
             .asSingle()
     }
-    
     
     
     // MARK: - Update Comment
     
-    public func updateComment(postId: String, commentId: String, body: UpdatePostCommentReqeustDTO) -> Single<PostCommentResponse?> {
+    public func updateComment(
+        postId: String,
+        commentId: String,
+        body: UpdatePostCommentReqeustDTO
+    ) -> Single<PostCommentResponseDTO?> {
         let spec = CommentAPIs.updatePostComment(postId, commentId).spec
         
-        return Observable<Void>.just(())
-            .withLatestFrom(self._headers)
-            .observe(on: Self.queue)
-            .withUnretained(self)
-            .flatMap { $0.0.updateComment(spec: spec, headers: $0.1, jsonEncodable: body) }
-            .asSingle()
-    }
-    
-    private func updateComment(spec: APISpec, headers: [APIHeader]?, jsonEncodable body: Encodable) -> Single<PostCommentResponse?> {
-        return request(spec: spec, headers: headers, jsonEncodable: body)
+        return request(spec: spec, jsonEncodable: body)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -115,28 +94,19 @@ extension CommentAPIWorker {
             }
             .map(PostCommentResponseDTO.self)
             .catchAndReturn(nil)
-            .map { $0?.toDomain() }
             .asSingle()
     }
     
     
+    // MARK: - Delete Comment
     
-    
-    // MARK: - Delete Commen
-    
-    public func deleteComment(postId: String, commentId: String) -> Single<PostCommentDeleteResponse?> {
+    public func deleteComment(
+        postId: String,
+        commentId: String
+    ) -> Single<PostCommentDeleteResponseDTO?> {
         let spec = CommentAPIs.deletePostComment(postId, commentId).spec
         
-        return Observable<Void>.just(())
-            .withLatestFrom(self._headers)
-            .observe(on: Self.queue)
-            .withUnretained(self)
-            .flatMap { $0.0.deleteComment(spec: spec, headers: $0.1) }
-            .asSingle()
-    }
-    
-    private func deleteComment(spec: APISpec, headers: [APIHeader]?) -> Single<PostCommentDeleteResponse?> {
-        return request(spec: spec, headers: headers)
+        return request(spec: spec)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -145,7 +115,7 @@ extension CommentAPIWorker {
             }
             .map(PostCommentDeleteResponseDTO.self)
             .catchAndReturn(nil)
-            .map { $0?.toDomain() }
             .asSingle()
     }
+    
 }

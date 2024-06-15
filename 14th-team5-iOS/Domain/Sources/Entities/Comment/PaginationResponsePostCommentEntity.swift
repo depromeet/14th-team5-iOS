@@ -7,19 +7,19 @@
 
 import Foundation
 
-public struct PaginationResponsePostCommentResponse {
+public struct PaginationResponsePostCommentEntity {
     public var currentPage: Int
     public var totalPage: Int
     public var itemPerPage: Int
     public var hasNext: Bool
-    public var results: [PostCommentResponse]
+    public var results: [PostCommentEntity]
     
     public init(
         currentPage: Int,
         totalPage: Int,
         itemPerPage: Int,
         hasNext: Bool,
-        results: [PostCommentResponse]
+        results: [PostCommentEntity]
     ) {
         self.currentPage = currentPage
         self.totalPage = totalPage
@@ -29,7 +29,7 @@ public struct PaginationResponsePostCommentResponse {
     }
 }
 
-public struct PostCommentResponse {
+public struct PostCommentEntity {
     public var commentId: String
     public var postId: String
     public var memberId: String

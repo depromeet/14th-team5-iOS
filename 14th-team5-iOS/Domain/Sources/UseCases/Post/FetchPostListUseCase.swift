@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 public protocol FetchPostListUseCaseProtocol {
-    func excute(query: PostListQuery) -> Single<PostListPageEntity?>
+    func execute(query: PostListQuery) -> Single<PostListPageEntity?>
 }
 
 public class FetchPostListUseCase: FetchPostListUseCaseProtocol {
@@ -19,7 +19,7 @@ public class FetchPostListUseCase: FetchPostListUseCaseProtocol {
         self.postListRepository = postListRepository
     }
     
-    public func excute(query: PostListQuery) -> Single<PostListPageEntity?> {
+    public func execute(query: PostListQuery) -> Single<PostListPageEntity?> {
         return postListRepository.fetchTodayPostList(query: query)
     }
 }

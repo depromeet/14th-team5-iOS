@@ -75,7 +75,7 @@ final class DeepLinkManager {
         let dateString = Date().toFormatString(with: "yyyy-MM-dd")
         let query = PostListQuery(date: dateString, type: type)
         
-        postUseCase.excute(query: query)
+        postUseCase.execute(query: query)
             .subscribe(onSuccess: { result in
                 completion(result)
             })

@@ -24,13 +24,13 @@ final class TempCellReactor: Reactor {
     }
     
     struct State {
-        var cellData: FetchedEmojiData?
+        var cellData: RealEmojiEntity?
     }
     
     let initialState: State = State()
-    let items: FetchedEmojiData
+    let items: RealEmojiEntity
     
-    init(items: FetchedEmojiData) {
+    init(items: RealEmojiEntity) {
         self.items = items
     }
 }

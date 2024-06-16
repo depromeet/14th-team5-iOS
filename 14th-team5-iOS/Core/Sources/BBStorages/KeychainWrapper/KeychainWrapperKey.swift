@@ -9,6 +9,11 @@ import Foundation
 
 public extension KeychainWrapper.Key {
     
+    // MARK: - SignIn
+    static let signInType: Self = "signInType"
+    static let idToken: Self = "idToken" // 소셜 로그인의 AccessToken
+    
+    // MARK: - OAuth
     static let accessToken: Self = "accessToken"
     static let refreshToken: Self = "refreshToken"
     static let fcmToken: Self = "fcmToken"

@@ -16,34 +16,39 @@ final class SelectableEmojiReactor: Reactor {
     enum Action {
         case loadMyRealEmoji
         case selectStandard(Emojis)
-        case selectRealEmoji(IndexPath, MyRealEmoji?)
+        case selectRealEmoji(IndexPath, MyRealEmojiEntity?)
     }
     
     enum Mutation {
         case setSelectedStandard(Emojis)
-        case setSelectedRealEmoji(MyRealEmoji)
+        case setSelectedRealEmoji(MyRealEmojiEntity)
         case setStandardSection([Emojis])
-        case setRealEmojiSection([MyRealEmoji?])
+        case setRealEmojiSection([MyRealEmojiEntity?])
         case showCamera(Int)
     }
     
     struct State {
         var reactionSections: [SelectableReactionSection.Model] = []
         var selectedStandard: Set<Emojis> = []
-        var selectedRealEmoji: Set<MyRealEmoji> = []
+        var selectedRealEmoji: Set<MyRealEmojiEntity> = []
         
         @Pulse var isShowingCamera: Int = 0
     }
     
     let postId: String
-    let emojiRepository: ReactionUseCaseProtocol
-    let realEmojiRepository: RealEmojiUseCaseProtocol
-    var initialState: State = State()
+    var initialState: State
+    let createReactionUseCase: CreateReactionUseCaseProtocol
+    let createRealEmojiUseCase: CreateRealEmojiUseCaseProtocol
+    let fetchMyRealEmojiUseCase: FetchMyRealEmojiUseCaseProtocol
     
-    init(postId: String, emojiRepository: ReactionUseCaseProtocol, realEmojiRepository: RealEmojiUseCaseProtocol) {
+    init(postId: String,
+         createReactionUseCase: CreateReactionUseCaseProtocol,
+         createRealEmojiUseCase: CreateRealEmojiUseCaseProtocol, 
+         fetchMyRealEmojiUseCase: FetchMyRealEmojiUseCaseProtocol) {
         self.postId = postId
-        self.emojiRepository = emojiRepository
-        self.realEmojiRepository = realEmojiRepository
+        self.createReactionUseCase = createReactionUseCase
+        self.createRealEmojiUseCase = createRealEmojiUseCase
+        self.fetchMyRealEmojiUseCase = fetchMyRealEmojiUseCase
         let section1 = SelectableReactionSection.Model(model: 0, items: [])
         let section2 = SelectableReactionSection.Model(model: 1, items: [])
         self.initialState = State(reactionSections: [section1, section2])
@@ -54,29 +59,29 @@ extension SelectableEmojiReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case let .selectStandard(emoji):
-            let query = AddEmojiQuery(postId: self.postId)
-            let body = AddEmojiBody(content: emoji.emojiString)
+            let query = CreateReactionQuery(postId: self.postId)
+            let body = CreateReactionRequest(content: emoji.emojiString)
             
-            return emojiRepository.executeAddEmoji(query: query, body: body)
+            return createReactionUseCase.execute(query: query, body: body)
                 .asObservable()
                 .flatMap {_ in 
                     return Observable.just(Mutation.setSelectedStandard(emoji))
                 }
         case let .selectRealEmoji(indexPath, emoji):
             guard let emoji else { return Observable.just(Mutation.showCamera(indexPath.row)) }
-            let query = AddEmojiQuery(postId: self.postId)
-            let body = AddEmojiBody(content: emoji.realEmojiId)
-            return realEmojiRepository.execute(query: query, body: body)
+            let query = CreateReactionQuery(postId: self.postId)
+            let body = CreateReactionRequest(content: emoji.realEmojiId)
+            return createRealEmojiUseCase.execute(query: query, body: body)
                 .asObservable()
                 .flatMap {_ in 
                     return Observable.just(Mutation.setSelectedRealEmoji(emoji))
                 }
         case .loadMyRealEmoji:
             let standardData: [Emojis] = Emojis.allEmojis
-            return realEmojiRepository.execute()
+            return fetchMyRealEmojiUseCase.execute()
                 .asObservable()
                 .flatMap { response in
-                    let realEmojiData: [MyRealEmoji?] = response
+                    let realEmojiData: [MyRealEmojiEntity?] = response
                     return Observable.concat([
                         Observable.just(Mutation.setStandardSection(standardData)),
                         Observable.just(Mutation.setRealEmojiSection(realEmojiData))

@@ -23,7 +23,7 @@ final class MainPostCellReactor: Reactor {
     }
     
     struct State {
-        let postListData: PostListData
+        let postListData: PostEntity
         var fetchedDisplayContent: [DisplayEditSectionModel] = [.displayKeyword([])]
     }
     

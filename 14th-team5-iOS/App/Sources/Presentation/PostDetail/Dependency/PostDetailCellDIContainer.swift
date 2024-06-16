@@ -29,7 +29,7 @@ final class PostDetailCellDIContainer {
         return MemberUseCase(memberRepository: makeMemberRepository())
     }
     
-    func makeReactor(type: PostDetailViewReactor.CellType = .home, post: PostListData) -> PostDetailViewReactor {
+    func makeReactor(type: PostDetailViewReactor.CellType = .home, post: PostEntity) -> PostDetailViewReactor {
         return PostDetailViewReactor(
             provider: globalState,
             memberUserCase: makeMemberUseCase(),

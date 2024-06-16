@@ -18,15 +18,15 @@ public final class ReactionRepository: ReactionRepositoryProtocol {
     
     public init () { }
     
-    public func addReaction(query: Domain.AddEmojiQuery, body: Domain.AddEmojiBody) -> RxSwift.Single<Void?> {
+    public func addReaction(query: Domain.CreateReactionQuery, body: Domain.CreateReactionRequest) -> RxSwift.Single<Void?> {
         return reactionAPIWorker.addReaction(query: query, body: body)
     }
     
-    public func removeReaction(query: Domain.RemoveEmojiQuery, body: Domain.RemoveEmojiBody) -> RxSwift.Single<Void?> {
+    public func removeReaction(query: Domain.RemoveReactionQuery, body: Domain.RemoveReactionRequest) -> RxSwift.Single<Void?> {
         return reactionAPIWorker.removeReaction(query: query, body: body)
     }
     
-    public func fetchReaction(query: Domain.FetchEmojiQuery) -> RxSwift.Single<[Domain.FetchedEmojiData]?> {
+    public func fetchReaction(query: Domain.FetchReactionQuery) -> RxSwift.Single<[Domain.RealEmojiEntity]?> {
         return reactionAPIWorker.fetchReaction(query: query)
     }
 }

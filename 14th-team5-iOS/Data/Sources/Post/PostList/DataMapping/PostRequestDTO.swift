@@ -13,8 +13,8 @@ public struct PostRequestDTO: Codable {
     let postId: String
 }
 
-extension PostRequestDTO {
-    func toDomain() -> PostQuery {
-        return .init(postId: postId)
-    }
-}
+//extension PostRequestDTO {
+//    func toDomain() -> BrieftPostQuery {
+//        return .init(postId: postId)
+//    }
+//}

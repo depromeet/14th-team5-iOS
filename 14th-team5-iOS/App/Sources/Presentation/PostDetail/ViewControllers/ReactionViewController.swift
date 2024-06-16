@@ -15,7 +15,7 @@ import RxCocoa
 import RxDataSources
 
 final class ReactionViewController: BaseViewController<ReactionViewReactor>, UICollectionViewDelegateFlowLayout {
-    let postListData: BehaviorRelay<PostListData> = BehaviorRelay<PostListData>(value: .init(postId: "", author: nil, commentCount: 0, emojiCount: 0, imageURL: "", content: nil, time: ""))
+    let postListData: BehaviorRelay<PostEntity> = BehaviorRelay<PostEntity>(value: .init(postId: "", author: nil, commentCount: 0, emojiCount: 0, imageURL: "", content: nil, time: ""))
     
     private let selectedReactionSubject: PublishSubject<Void> = PublishSubject<Void>()
     

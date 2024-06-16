@@ -100,7 +100,7 @@ final class PostNavigationView: BaseView<PostReactor> {
 }
 
 extension PostNavigationView {
-    private func setData(data: PostListData) {
+    private func setData(data: PostEntity) {
         if let author = data.author,
            let profileImageURL = author.profileImageURL,
            let url = URL(string: profileImageURL), !profileImageURL.isEmpty {

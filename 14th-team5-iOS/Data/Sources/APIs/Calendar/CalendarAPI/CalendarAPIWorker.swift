@@ -11,14 +11,14 @@ import Foundation
 
 import RxSwift
 
-typealias CalendarAPIWorker = CalendarAPIs.Worker
+public typealias CalendarAPIWorker = CalendarAPIs.Worker
 extension CalendarAPIs {
-    final class Worker: APIWorker {
+    public final class Worker: APIWorker {
         static let queue = {
             ConcurrentDispatchQueueScheduler(queue: DispatchQueue(label: "CalendarAPIQueue", qos: .utility))
         }()
         
-        override init() {
+        public override init() {
             super.init()
             self.id = "CalendarAPIWorker"
         }

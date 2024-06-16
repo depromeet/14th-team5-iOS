@@ -17,10 +17,6 @@ public final class PostRepository: PostListRepositoryProtocol {
     
     public init() { }
     
-    public func fetchPostDetail(query: Domain.PostQuery) -> RxSwift.Single<Domain.PostData?> {
-        return postAPIWorker.fetchPostDetail(query: query)
-    }
-    
     public func fetchTodayPostList(query: Domain.PostListQuery) -> RxSwift.Single<Domain.PostListPage?> {
         return postAPIWorker.fetchTodayPostList(query: query)
     }

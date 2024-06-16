@@ -5,9 +5,11 @@
 //  Created by 김건우 on 1/22/24.
 //
 
+import Core
 import Foundation
 
 import RxSwift
+
 
 public protocol PostCommentUseCaseProtocol {
     func executeFetchPostComment(postId: String, query: PostCommentPaginationQuery) -> Observable<PaginationResponsePostCommentResponse?>
@@ -16,21 +18,32 @@ public protocol PostCommentUseCaseProtocol {
 }
 
 public final class PostCommentUseCase: PostCommentUseCaseProtocol {
-    private let postCommentRepository: PostCommentRepositoryProtocol
+    private let commentRepository: CommentRepositoryProtocol
     
-    public init(postCommentRepository: PostCommentRepositoryProtocol) {
-        self.postCommentRepository = postCommentRepository
+    public init(
+        commentRepository: CommentRepositoryProtocol
+    ) {
+        self.commentRepository = commentRepository
     }
     
     public func executeFetchPostComment(postId: String, query: PostCommentPaginationQuery) -> Observable<PaginationResponsePostCommentResponse?> {
-        return postCommentRepository.fetchPostComment(postId: postId, query: query)
+        return commentRepository.fetchPostComment(postId: postId, query: query)
     }
     
     public func executeCreatePostComment(postId: String, body: CreatePostCommentRequest) -> Observable<PostCommentResponse?> {
-        return postCommentRepository.createPostComment(postId: postId, body: body)
+        return commentRepository.createPostComment(postId: postId, body: body)
     }
     
     public func executeDeletePostComment(postId: String, commentId: String) -> Observable<PostCommentDeleteResponse?> {
-        return postCommentRepository.deletePostComment(postId: postId, commentId: commentId)
+        return commentRepository.deletePostComment(postId: postId, commentId: commentId)
     }
+}
+
+
+public extension InjectIdentifier {
+    
+    static var commentUseCase: InjectIdentifier<PostCommentUseCaseProtocol> {
+        .by(type: PostCommentUseCaseProtocol.self)
+    }
+    
 }

@@ -27,33 +27,7 @@ extension MissionAPIs {
 }
 
 extension MissionAPIWorker {
-    private func getTodayMission(headers: [APIHeader]?) -> Single<TodayMissionResponse?> {
-        let spec = MissionAPIs.getTodayMission.spec
-        
-        return request(spec: spec, headers: headers)
-            .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Join Family Result: \(str)")
-                }
-            }
-            .map(GetTodayMissionResponseDTO.self)
-            .catchAndReturn(nil)
-            .map { $0?.toDomain() }
-            .asSingle()
-    }
-    
-    func getTodayMission() -> Single<TodayMissionResponse?> {
-        return Observable.just(())
-            .withLatestFrom(self._headers)
-            .observe(on: Self.queue)
-            .withUnretained(self)
-            .flatMap { $0.0.getTodayMission(headers: $0.1) }
-            .asSingle()
-    }
-    
-    
-    private func getMissionContent(spec: APISpec, headers: [APIHeader]?) -> Single<MissionContentResponse?> {
+    private func getMissionContent(spec: APISpec, headers: [APIHeader]?) -> Single<MissionContentEntity?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .do {
@@ -68,7 +42,7 @@ extension MissionAPIWorker {
     }
     
     
-    func getMissionContent(missionId: String) -> Single<MissionContentResponse?> {
+    func getMissionContent(missionId: String) -> Single<MissionContentEntity?> {
         let spec = MissionAPIs.getMissionContent(missionId).spec
         
         return Observable<Void>.just(())

@@ -47,7 +47,7 @@ struct PostListResponseDTO: Codable {
 }
 
 extension PostListResponseDTO {
-    func toDomain() -> PostListPage {
+    func toDomain() -> PostListPageEntity {
         return .init(isLast: !hasNext, postLists: results.map { $0.toDomain() })
     }
 }

@@ -10,26 +10,26 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-
-public protocol ProfileFeedUseCaseProtocol {
-    func execute(query: PostListQuery) -> Observable<PostListPage?>
-}
-
-
-
-public final class ProfileFeedUseCase: ProfileFeedUseCaseProtocol {
-    
-    private let missionFeedRepository: PostListRepositoryProtocol
-    
-    public init(missionFeedRepository: PostListRepositoryProtocol) {
-        self.missionFeedRepository = missionFeedRepository
-    }
-    
-    public func execute(query: PostListQuery) -> RxSwift.Observable<PostListPage?> {
-        return missionFeedRepository.fetchTodayPostList(query: query)
-            .asObservable()
-    }
-    
-    
-    
-}
+//
+//public protocol ProfileFeedUseCaseProtocol {
+//    func execute(query: PostListQuery) -> Observable<PostEntity?>
+//}
+//
+//
+//
+//public final class ProfileFeedUseCase: ProfileFeedUseCaseProtocol {
+//    
+//    private let missionFeedRepository: PostListRepositoryProtocol
+//    
+//    public init(missionFeedRepository: PostListRepositoryProtocol) {
+//        self.missionFeedRepository = missionFeedRepository
+//    }
+//    
+//    public func execute(query: PostListQuery) -> RxSwift.Observable<PostEntity?> {
+//        return missionFeedRepository.fetchTodayPostList(query: query)
+//            .asObservable()
+//    }
+//    
+//    
+//    
+//}

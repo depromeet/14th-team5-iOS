@@ -56,8 +56,8 @@ final class PostListsDIContainer {
         return MissionRepository()
     }
     
-    func makeMissionUseCase() -> MissionContentUseCaseProtocol {
-        return MissionContentUseCase(missionContentRepository: makeMissionRepository())
+    func makeMissionUseCase() -> FetchMissionContentUseCaseProtocol {
+        return FetchMissionContentUseCase(missionRepository: makeMissionRepository())
     }
     
     func makeReactor(
@@ -67,7 +67,7 @@ final class PostListsDIContainer {
     ) -> Reactor {
         return PostReactor(
             provider: globalState,
-            missionUseCase: makeMissionUseCase(),
+            fetchMissionUseCase: makeMissionUseCase(),
             initialState: PostReactor.State(
                 selectedIndex: selectedIndex,
                 originPostLists: postLists,

@@ -49,8 +49,8 @@ extension MainViewDIContainer {
         return MainViewRepository()
     }
     
-    private func makeMissionUserDefaultsRepository() -> MissionUserDefaultsRepository {
-        return MissionUserDefaultsRepository()
+    private func makeMissionRepository() -> MissionRepositoryProtocol {
+        return MissionRepository()
     }
     
     private func makeFetchMainUseCase() -> FetchMainUseCaseProtocol {
@@ -62,6 +62,6 @@ extension MainViewDIContainer {
     }
     
     private func makeCheckMissionAlertShowUseCase() -> CheckMissionAlertShowUseCaseProtocol {
-        return CheckMissionAlertShowUseCase(missionUserDefaultsRepository: makeMissionUserDefaultsRepository())
+        return CheckMissionAlertShowUseCase(missionRepository: makeMissionRepository())
     }
 }

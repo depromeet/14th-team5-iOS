@@ -109,7 +109,6 @@ public final class ProfileViewReactor: Reactor {
                     .asObservable()
                     .withUnretained(self)
                     .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
-                    .asObservable()
                     .flatMap { owner, entity -> Observable<ProfileViewReactor.Mutation> in
                         guard let profilePresingedURL = entity?.imageURL else { return .empty() }
                         return owner.uploadProfileImageUseCase.execute(to: profilePresingedURL, from: nickNameFileData)

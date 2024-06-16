@@ -15,7 +15,7 @@ import ReactorKit
 
 final class ProfileFeedViewReactor: Reactor {
     var initialState: State
-    private let feedUseCase: ProfileFeedUseCaseProtocol
+    private let feedUseCase: FetchMembersPostListUseCaseProtocol
     
     enum Action {
         case reloadFeedItems
@@ -27,7 +27,7 @@ final class ProfileFeedViewReactor: Reactor {
         case setFeedSectionItems([ProfileFeedSectionItem])
         case setFeedItemPage(Int)
         case setFeedPaginationItems([PostEntity])
-        case setFeedItems(PostListPage)
+        case setFeedItems(PostListPageEntity)
         case setFeedDetailItem(PostSection.Model, IndexPath)
     }
     
@@ -38,11 +38,15 @@ final class ProfileFeedViewReactor: Reactor {
         @Pulse var feedPaginationItems: [PostEntity]
         @Pulse var feedPage: Int
         @Pulse var type: PostType
-        @Pulse var feedItems: PostListPage?
+        @Pulse var feedItems: PostListPageEntity?
         @Pulse var feedSection: [ProfileFeedSectionModel]
     }
     
-    init(feedUseCase: ProfileFeedUseCaseProtocol, type: PostType, memberId: String) {
+    init(
+        feedUseCase: FetchMembersPostListUseCaseProtocol,
+        type: PostType,
+        memberId: String
+    ) {
         self.feedUseCase = feedUseCase
         self.initialState = State(
             memberId: memberId,

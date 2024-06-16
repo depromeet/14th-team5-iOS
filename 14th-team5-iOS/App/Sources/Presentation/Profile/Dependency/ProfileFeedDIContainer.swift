@@ -16,7 +16,7 @@ final class ProfileFeedDIContainer {
     typealias ViewController = ProfileFeedViewController
     typealias Reactor = ProfileFeedViewReactor
     typealias Repository = PostListRepositoryProtocol
-    typealias UseCase = ProfileFeedUseCaseProtocol
+    typealias UseCase = FetchMembersPostListUseCaseProtocol
     
     private let postType: PostType
     private let memberId: String
@@ -36,7 +36,7 @@ final class ProfileFeedDIContainer {
     }
     
     func makeUseCase() -> UseCase {
-        return ProfileFeedUseCase(missionFeedRepository: makeRepository())
+        return FetchMembersPostListUseCase(postListRepository: makeRepository())
     }
     
     func makeRepository() -> Repository {

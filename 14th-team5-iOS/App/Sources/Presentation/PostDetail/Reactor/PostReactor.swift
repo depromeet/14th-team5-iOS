@@ -21,7 +21,7 @@ final class PostReactor: Reactor {
     enum Mutation {
         case setPop
         case setSelectedPostIndex(Int)
-        case setMissionContent(MissionContentResponse)
+        case setMissionContent(MissionContentEntity)
         case setPushProfileViewController(String)
     }
     
@@ -32,7 +32,7 @@ final class PostReactor: Reactor {
         var isPop: Bool = false
         var selectedPost: PostEntity = .init(postId: "", author: .init(memberId: "", profileImageURL: "", name: ""), commentCount: 0, emojiCount: 0, imageURL: "", content: "", time: "")
         
-        @Pulse var missionContent: MissionContentResponse? = nil
+        @Pulse var missionContent: MissionContentEntity? = nil
         @Pulse var reactionMemberIds: [String] = []
         @Pulse var shouldPushProfileViewController: String?
         
@@ -41,17 +41,17 @@ final class PostReactor: Reactor {
     
     let initialState: State
     
-    let missionUseCase: MissionContentUseCaseProtocol
+    let fetchMissionUseCase: FetchMissionContentUseCaseProtocol
     let provider: GlobalStateProviderProtocol
     
     
     init(
         provider: GlobalStateProviderProtocol,
-        missionUseCase: MissionContentUseCaseProtocol,
+        fetchMissionUseCase: FetchMissionContentUseCaseProtocol,
         initialState: State
     ) {
         self.provider = provider
-        self.missionUseCase = missionUseCase
+        self.fetchMissionUseCase = fetchMissionUseCase
         self.initialState = initialState
     }
 }
@@ -76,11 +76,13 @@ extension PostReactor {
         case let .setPost(index):
             guard case let .main(postEntity) = currentState.originPostLists.items[index],
                   let missionId = postEntity.missionId else { return Observable<Mutation>.just(.setSelectedPostIndex(index)) }
-            return missionUseCase.execute(missionId: missionId)
+            return fetchMissionUseCase.execute(missionId: missionId)
+                .asObservable()
                 .flatMap { entity -> Observable<Mutation> in
+                    guard let originEntity = entity else { return .empty() }
                     return .concat(
                         .just(.setSelectedPostIndex(index)),
-                        .just(.setMissionContent(entity))
+                        .just(.setMissionContent(originEntity))
                     )
                     
                 }

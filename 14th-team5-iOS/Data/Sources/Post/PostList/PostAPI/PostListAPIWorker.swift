@@ -28,7 +28,7 @@ extension PostAPIs {
 }
 
 extension PostAPIWorker {
-    public func fetchTodayPostList(query: Domain.PostListQuery) -> RxSwift.Single<Domain.PostListPage?> {
+    public func fetchTodayPostList(query: Domain.PostListQuery) -> RxSwift.Single<Domain.PostListPageEntity?> {
         let requestDTO = PostListRequestDTO(page: query.page, size: query.size, date: query.date, memberId: query.memberId, sort: query.sort, type: query.type.rawValue)
         let spec = PostAPIs.fetchPostList.spec
         return request(spec: spec, parameters: requestDTO)

@@ -314,7 +314,6 @@ extension CameraViewReactor {
                     .asObservable()
                     .withUnretained(self)
                     .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
-                    .asObservable()
                     .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
                         //TODO: 추후 오류 Alert 추가
                         guard let presingedURL = entity?.imageURL else {
@@ -378,7 +377,6 @@ extension CameraViewReactor {
                         .asObservable()
                         .withUnretained(self)
                         .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
-                        .asObservable()
                         .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
                             guard let presingedURL = entity?.imageURL else { return .just(.setErrorAlert(true))}
                             
@@ -427,7 +425,6 @@ extension CameraViewReactor {
                         .asObservable()
                         .withUnretained(self)
                         .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
-                        .asObservable()
                         .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
                             guard let presingedURL = entity?.imageURL else { return .just(.setErrorAlert(true))}
                             let originalURL = owner.configureProfileOriginalS3URL(url: presingedURL, with: .realEmoji)

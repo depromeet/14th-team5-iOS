@@ -9,14 +9,19 @@ import Foundation
 
 import RxSwift
 
+public protocol CheckMissionAlertShowUseCaseProtocol {
+    func execute() -> Observable<Bool>
+}
+
+
 public class CheckMissionAlertShowUseCase: CheckMissionAlertShowUseCaseProtocol {
-    private let missionUserDefaultsRepository: MissionUserdefaultsRepositoryProtocol
+    private let missionRepository: any MissionRepositoryProtocol
     
-    public init(missionUserDefaultsRepository: MissionUserdefaultsRepositoryProtocol) {
-        self.missionUserDefaultsRepository = missionUserDefaultsRepository
+    public init(missionRepository: any MissionRepositoryProtocol) {
+        self.missionRepository = missionRepository
     }
     
     public func execute() -> Observable<Bool> {
-        return missionUserDefaultsRepository.isAlreadyShowMissionAlert().asObservable()
+        return missionRepository.isAlreadyShowMissionAlert()
     }
 }

@@ -71,7 +71,7 @@ final class DeepLinkManager {
         
     }
 
-    private func fetchTodayPost(type: PostType, completion: @escaping (PostListPage?) -> Void) {
+    private func fetchTodayPost(type: PostType, completion: @escaping (PostListPageEntity?) -> Void) {
         let dateString = Date().toFormatString(with: "yyyy-MM-dd")
         let query = PostListQuery(date: dateString, type: type)
         

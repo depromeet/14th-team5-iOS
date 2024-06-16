@@ -26,7 +26,7 @@ public struct CameraCreateRealEmojiResponseDTO: Decodable {
 
 
 extension CameraCreateRealEmojiResponseDTO {
-    public func toDomain() -> CameraCreateRealEmojiResponse  {
+    public func toDomain() -> CameraCreateRealEmojiEntity  {
         return .init(
             realEmojiId: realEmojiId,
             realEmojiType: realEmojiType,

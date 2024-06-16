@@ -25,7 +25,7 @@ public protocol AccountImpl: AnyObject {
     func appleLogin(with snsType: SNS, vc: UIViewController) -> Observable<APIResult>
     func executeNicknameUpdate(memberId: String, parameter: AccountNickNameEditParameter) -> Observable<AccountNickNameEditResponse>
     func signUp(name: String, date: String, photoURL: String?) -> Observable<AccessTokenResponse?>
-    func executePresignedImageURLCreate(parameter: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?>
+    func executePresignedImageURLCreate(parameter: CameraDisplayImageParameters) -> Observable<CameraPreSignedEntity?>
     func executeProfileImageUpload(to url: String, data: Data) -> Observable<Bool>
 }
 
@@ -124,7 +124,7 @@ public final class AccountRepository: AccountImpl {
             .asObservable()
     }
     
-    public func executePresignedImageURLCreate(parameter: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?> {
+    public func executePresignedImageURLCreate(parameter: CameraDisplayImageParameters) -> Observable<CameraPreSignedEntity?> {
         return profileWorker.createProfileImagePresingedURL(accessToken: accessToken, parameters: parameter)
             .compactMap { $0?.toDomain() }
             .asObservable()

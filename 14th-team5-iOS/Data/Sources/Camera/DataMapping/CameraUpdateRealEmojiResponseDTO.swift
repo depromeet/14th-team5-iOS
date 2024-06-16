@@ -25,7 +25,7 @@ public struct CameraUpdateRealEmojiResponseDTO: Decodable {
 }
 
 extension CameraUpdateRealEmojiResponseDTO {
-    public func toDomain() -> CameraUpdateRealEmojiResponse {
+    public func toDomain() -> CameraUpdateRealEmojiEntity {
         return .init(
             realEmojiId: realEmojiId,
             realEmojiType: realEmojiType,

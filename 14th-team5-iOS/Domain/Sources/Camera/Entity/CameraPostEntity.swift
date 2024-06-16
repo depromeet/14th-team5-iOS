@@ -1,23 +1,22 @@
 //
-//  CameraDisplayPostResponse.swift
+//  CameraPostEntity.swift
 //  Domain
 //
-//  Created by Kim dohyun on 12/22/23.
+//  Created by Kim dohyun on 6/14/24.
 //
 
 import Foundation
 
-
-public struct CameraDisplayPostResponse {
-    public var postId: String
-    public var authorId: String
-    public var commentCount: Int
-    public var missionType: String
-    public var missionId: String
-    public var emojiCount: Int
-    public var imageURL: String
-    public var content: String
-    public var createdAt: String
+public struct CameraPostEntity {
+    public let postId: String
+    public let authorId: String
+    public let commentCount: Int
+    public let missionType: String
+    public let missionId: String
+    public let emojiCount: Int
+    public let imageURL: String
+    public let content: String
+    public let createdAt: String
     
     public init(
         postId: String,
@@ -40,5 +39,4 @@ public struct CameraDisplayPostResponse {
         self.content = content
         self.createdAt = createdAt
     }
-    
 }

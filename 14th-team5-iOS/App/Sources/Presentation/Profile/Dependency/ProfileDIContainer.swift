@@ -16,7 +16,6 @@ public final class ProfileDIContainer: BaseDIContainer {
     public typealias ViewContrller = ProfileViewController
     public typealias Repository = MembersRepositoryProtocol
     public typealias Reactor = ProfileViewReactor
-    public typealias UseCase = MembersUseCaseProtocol
     
     private var globalState: GlobalStateProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
@@ -37,17 +36,23 @@ public final class ProfileDIContainer: BaseDIContainer {
         return ProfileViewController(reactor: makeReactor())
     }
     
-    public func makeUseCase() -> UseCase {
-        return MembersUseCase(membersRepository: makeRepository())
-    }
-    
     public func makeRepository() -> Repository {
         return MembersRepository()
     }
     
-    public func makeReactor() -> ProfileViewReactor {
-        return ProfileViewReactor(membersUseCase: makeUseCase(), provider: globalState, memberId: memberId, isUser: isUser)
+    private func makeCameraRepository() -> CameraRepository {
+        return CameraRepository()
     }
     
-    
+    public func makeReactor() -> ProfileViewReactor {
+        return ProfileViewReactor(
+            fetchMembersProfileUseCase: FetchMembersProfileUseCase(membersRepository: makeRepository()),
+            createProfilePresignedUseCase: CreateCameraUseCase(cameraRepository: makeCameraRepository()),
+            uploadProfileImageUseCase: FetchCameraUploadImageUseCase(cameraRepository: makeCameraRepository()),
+            updateProfileUseCase: UpdateMembersProfileUseCase(membersRepository: makeRepository()),
+            provider: globalState,
+            memberId: memberId,
+            isUser: isUser
+        )
+    }
 }

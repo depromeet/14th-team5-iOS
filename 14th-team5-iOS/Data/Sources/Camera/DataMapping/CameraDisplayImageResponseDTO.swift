@@ -22,7 +22,7 @@ public struct CameraDisplayImageResponseDTO: Decodable {
 
 extension CameraDisplayImageResponseDTO {
     
-    public func toDomain() -> CameraDisplayImageResponse? {
+    public func toDomain() -> CameraPreSignedEntity? {
         return .init(imageURL: imageURL ?? "")
     }
 }

@@ -17,7 +17,6 @@ public final class CameraDIContainer: BaseDIContainer {
     public typealias ViewContrller = CameraViewController
     public typealias Repository = CameraRepositoryProtocol
     public typealias Reactor = CameraViewReactor
-    public typealias UseCase = CameraViewUseCaseProtocol
     
     
     private let cameraType: UploadLocation
@@ -42,18 +41,22 @@ public final class CameraDIContainer: BaseDIContainer {
         return CameraViewController(reactor: makeReactor())
     }
     
-    public func makeUseCase() -> UseCase {
-        return CameraViewUseCase(cameraRepository: makeRepository())
-    }
-    
     
     public func makeRepository() -> Repository {
         return CameraRepository()
     }
     
     public func makeReactor() -> Reactor {
+        
         return CameraViewReactor(
-            cameraUseCase: makeUseCase(),
+            createProfileImageUseCase: CreateCameraUseCase(cameraRepository: makeRepository()),
+            uploadImageUseCase: FetchCameraUploadImageUseCase(cameraRepository: makeRepository()),
+            fetchMissionUseCase: FetchCameraTodayMissionUseCase(cameraRepository: makeRepository()),
+            fetchRealEmojiUpdateUseCase: FetchCameraRealEmojiUpdateUseCase(cameraRepostiroy: makeRepository()),
+            editProfileImageUseCase: EditCameraProfileImageUseCase(cameraRepository: makeRepository()),
+            fetchRealEmojiCreateUseCase: FetchCameraRealEmojiUploadUseCase(cameraRepository: makeRepository()),
+            fetchRealEmojiListUseCase: FetchCameraRealEmojiListUseCase(cameraRepository: makeRepository()),
+            fetchRealEmojiPreSignedUseCase: FetchCameraRealEmojiUseCase(cameraRepository: makeRepository()),
             provider: globalState,
             cameraType: cameraType,
             memberId: memberId,

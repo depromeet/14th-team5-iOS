@@ -22,7 +22,7 @@ public struct CameraRealEmojiPreSignedResponseDTO: Decodable {
 
 extension CameraRealEmojiPreSignedResponseDTO {
     
-    public func toDomain() -> CameraRealEmojiPreSignedResponse {
+    public func toDomain() -> CameraRealEmojiPreSignedEntity {
         return .init(imageURL: imageURL)
     }
 }

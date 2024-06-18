@@ -21,7 +21,7 @@ struct MembersProfileResponseDTO: Decodable {
 
 extension MembersProfileResponseDTO {
     //MARK: 프로필 정보 Entity
-    func toDomain() -> MembersProfileResponse {
+    func toDomain() -> MembersProfileEntity {
         return .init(
             memberId: memberId,
             memberName: name,

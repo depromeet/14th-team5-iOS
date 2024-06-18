@@ -21,7 +21,7 @@ struct MissionContentResponseDTO: Decodable {
 }
 
 extension MissionContentResponseDTO {
-    func toDomain() -> MissionContentResponse {
+    func toDomain() -> MissionContentEntity {
         return .init(
             missionId: missionId,
             missionContent: missionContent

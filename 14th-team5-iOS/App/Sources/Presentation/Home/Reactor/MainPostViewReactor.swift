@@ -55,7 +55,7 @@ extension MainPostViewReactor {
                 ])
         case .fetchPost:
             let query = PostListQuery(date: DateFormatter.dashYyyyMMdd.string(from: Date()), type: currentState.type)
-            return postUseCase.excute(query: query)
+            return postUseCase.execute(query: query)
                 .asObservable()
                 .flatMap { (postList) -> Observable<Mutation> in
                     guard let postList = postList,

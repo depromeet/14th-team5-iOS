@@ -68,16 +68,14 @@ public protocol CameraRepositoryProtocol {
     var disposeBag: DisposeBag { get }
     
     var accessToken: String { get }
-
-    func toggleCameraPosition(_ isState: Bool) -> Observable<Bool>
-    func toggleCameraFlash(_ isState: Bool) -> Observable<Bool>
-    func fetchPresignedeImageURL(parameters: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?>
-    func uploadImageToS3(toURL url: String, imageData: Data) -> Observable<Bool>
-    func editProfleImageToS3(memberId: String, parameter: ProfileImageEditParameter) -> Observable<MembersProfileResponse?>
-    func fetchRealEmojiImageURL(memberId: String, parameters: CameraRealEmojiParameters) -> Observable<CameraRealEmojiPreSignedResponse?>
-    func uploadRealEmojiImageToS3(memberId: String, parameters: CameraCreateRealEmojiParameters) -> Observable<CameraCreateRealEmojiResponse?>
-    func fetchRealEmojiItems(memberId: String) -> Observable<[CameraRealEmojiImageItemResponse?]>
-    func updateRealEmojiImage(memberId: String, realEmojiId: String, parameters: CameraUpdateRealEmojiParameters) -> Observable<CameraUpdateRealEmojiResponse?>
-    func fetchTodayMissionItem() -> Observable<CameraTodayMissionResponse?>
-    func combineWithTextImage(parameters: CameraDisplayPostParameters, query: CameraMissionFeedQuery) -> Observable<CameraDisplayPostResponse?>
+    
+    func addPresignedeImageURL(parameters: CameraDisplayImageParameters) -> Single<CameraPreSignedEntity?>
+    func uploadImageToS3(to url: String, from image: Data) -> Single<Bool>
+    func editProfleImageToS3(memberId: String, parameter: ProfileImageEditParameter) -> Single<MembersProfileEntity?>
+    func fetchRealEmojiImageURL(memberId: String, parameters: CameraRealEmojiParameters) -> Single<CameraRealEmojiPreSignedEntity?>
+    func uploadRealEmojiImageToS3(memberId: String, parameters: CameraCreateRealEmojiParameters) -> Single<CameraCreateRealEmojiEntity?>
+    func fetchRealEmojiItems(memberId: String) -> Single<[CameraRealEmojiImageItemEntity?]>
+    func updateRealEmojiImage(memberId: String, realEmojiId: String, parameters: CameraUpdateRealEmojiParameters) -> Single<CameraUpdateRealEmojiEntity?>
+    func fetchTodayMissionItem() -> Single<CameraTodayMssionEntity?>
+    func combineWithTextImage(parameters: CameraDisplayPostParameters, query: CameraMissionFeedQuery) -> Single<CameraPostEntity?>
 }

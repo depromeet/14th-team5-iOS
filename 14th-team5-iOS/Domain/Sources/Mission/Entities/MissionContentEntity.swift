@@ -1,13 +1,14 @@
 //
-//  MissionContentResponse.swift
+//  MissionContentEntity.swift
 //  Domain
 //
-//  Created by Kim dohyun on 6/5/24.
+//  Created by Kim dohyun on 6/16/24.
 //
 
 import Foundation
 
-public struct MissionContentResponse {
+
+public struct MissionContentEntity {
     public let missionId: String
     public let missionContent: String
     

@@ -26,82 +26,56 @@ public final class CameraRepository {
 
 extension CameraRepository: CameraRepositoryProtocol {
     
-    public func toggleCameraPosition(_ isState: Bool) -> Observable<Bool> {
-        return Observable<Bool>
-            .create { observer in
-                observer.onNext(!isState)
-                
-                return Disposables.create()
-        }
-    }
     
-    
-    public func toggleCameraFlash(_ isState: Bool) -> Observable<Bool> {
-        return Observable<Bool>
-            .create { observer in
-                observer.onNext(!isState)
-                return Disposables.create()
-            }
-    }
-    
-    public func combineWithTextImage(parameters: CameraDisplayPostParameters, query:CameraMissionFeedQuery) -> Observable<CameraDisplayPostResponse?> {
+    public func combineWithTextImage(parameters: CameraDisplayPostParameters, query:CameraMissionFeedQuery) -> Single<CameraPostEntity?> {
         return cameraAPIWorker.combineWithTextImageUpload(accessToken: accessToken, parameters: parameters, query: query)
             .map { $0?.toDomain() }
             .catchAndReturn(nil)
-            .asObservable()
     }
     
-    public func fetchPresignedeImageURL(parameters: CameraDisplayImageParameters) -> Observable<CameraDisplayImageResponse?> {
+    public func addPresignedeImageURL(parameters: CameraDisplayImageParameters) -> Single<CameraPreSignedEntity?> {
         return cameraAPIWorker.createProfilePresignedURL(accessToken: accessToken, parameters: parameters)
-            .compactMap { $0?.toDomain() }
-            .asObservable()
+            .map { $0?.toDomain() }
     }
     
     
         
-    public func uploadImageToS3(toURL url: String, imageData: Data) -> Observable<Bool> {
+    public func uploadImageToS3(to url: String, from imageData: Data) -> Single<Bool> {
         return cameraAPIWorker.uploadImageToPresignedURL(accessToken: accessToken, toURL: url, withImageData: imageData)
-            .asObservable()
     }
     
-    public func editProfleImageToS3(memberId: String, parameter: ProfileImageEditParameter) -> Observable<MembersProfileResponse?> {
+    public func editProfleImageToS3(memberId: String, parameter: ProfileImageEditParameter) -> Single<MembersProfileEntity?> {
         return cameraAPIWorker.editProfileImageToS3(accessToken: accessToken, memberId: memberId, parameters: parameter)
             .do {
                 guard let userEntity = $0?.toProfileEntity() else { return }
                 FamilyUserDefaults.saveMemberToUserDefaults(familyMember: userEntity)
             }
-            .compactMap { $0?.toDomain() }
-            .asObservable()
+            .map { $0?.toDomain() }
     }
     
-    public func fetchRealEmojiImageURL(memberId: String, parameters: CameraRealEmojiParameters) -> Observable<CameraRealEmojiPreSignedResponse?> {
+    public func fetchRealEmojiImageURL(memberId: String, parameters: CameraRealEmojiParameters) -> Single<CameraRealEmojiPreSignedEntity?> {
         return cameraAPIWorker.createRealEmojiPresignedURL(accessToken: accessToken, memberId: memberId, parameters: parameters)
-            .compactMap { $0?.toDomain() }
-            .asObservable()
+            .map { $0?.toDomain() }
     }
     
-    public func uploadRealEmojiImageToS3(memberId: String, parameters: CameraCreateRealEmojiParameters) -> Observable<CameraCreateRealEmojiResponse?> {
+    public func uploadRealEmojiImageToS3(memberId: String, parameters: CameraCreateRealEmojiParameters) -> Single<CameraCreateRealEmojiEntity?> {
         return cameraAPIWorker.uploadRealEmojiImageToS3(accessToken: accessToken, memberId: memberId, parameters: parameters)
-            .compactMap { $0?.toDomain() }
-            .asObservable()
+            .map { $0?.toDomain() }
     }
     
-    public func fetchRealEmojiItems(memberId: String) -> Observable<[CameraRealEmojiImageItemResponse?]> {
+    public func fetchRealEmojiItems(memberId: String) -> Single<[CameraRealEmojiImageItemEntity?]> {
         return cameraAPIWorker.loadRealEmojiImage(accessToken: accessToken, memberId: memberId)
-            .compactMap { $0?.toDomain() }
-            .asObservable()
+            .map { $0?.toDomain() ?? [] }
     }
     
-    public func updateRealEmojiImage(memberId: String, realEmojiId: String, parameters: CameraUpdateRealEmojiParameters) -> Observable<CameraUpdateRealEmojiResponse?> {
+    public func updateRealEmojiImage(memberId: String, realEmojiId: String, parameters: CameraUpdateRealEmojiParameters) -> Single<CameraUpdateRealEmojiEntity?> {
         return cameraAPIWorker.updateRealEmojiImage(accessToken: accessToken, memberId: memberId, realEmojiId: realEmojiId, parameters: parameters)
-            .compactMap { $0?.toDomain() }
-            .asObservable()
+            .map { $0?.toDomain() }
     }
   
-  public func fetchTodayMissionItem() -> Observable<CameraTodayMissionResponse?> {
+  public func fetchTodayMissionItem() -> Single<CameraTodayMssionEntity?> {
       return cameraAPIWorker.fetchMissionItems(accessToken: accessToken)
-        .compactMap { $0?.toDomain() }
-        .asObservable()
+          .map { $0?.toDomain() }
   }
     
 }

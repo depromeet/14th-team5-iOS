@@ -16,7 +16,9 @@ public final class CameraDisplayViewReactor: Reactor {
     
     public var initialState: State
     private let provider: GlobalStateProviderProtocol
-    private var cameraDisplayUseCase: CameraDisplayViewUseCaseProtocol
+    private let createPresignedCameraUseCase: CreateCameraUseCaseProtocol
+    private let uploadImageUseCase: FetchCameraUploadImageUseCaseProtocol
+    private let fetchCameraImageUseCase: CreateCameraImageUseCaseProtocol
     
     public enum Action {
         case viewDidLoad
@@ -33,9 +35,9 @@ public final class CameraDisplayViewReactor: Reactor {
         case setRenderImage(Data)
         case saveDeviceimage(Data)
         case setDescription(String)
-        case setDisplayEntity(CameraDisplayImageResponse?)
+        case setDisplayEntity(CameraPreSignedEntity?)
         case setDisplayOriginalEntity(Bool)
-        case setPostEntity(CameraDisplayPostResponse?)
+        case setPostEntity(CameraPostEntity?)
     }
     
     public struct State {
@@ -46,22 +48,27 @@ public final class CameraDisplayViewReactor: Reactor {
         @Pulse var displayData: Data
         @Pulse var missionTitle: String
         @Pulse var displaySection: [DisplayEditSectionModel]
-        @Pulse var displayEntity: CameraDisplayImageResponse?
+        @Pulse var displayEntity: CameraPreSignedEntity?
         @Pulse var displayOringalEntity: Bool
-        @Pulse var displayPostEntity: CameraDisplayPostResponse?
+        @Pulse var displayPostEntity: CameraPostEntity?
     }
     
     
     
     init(
         provider: GlobalStateProviderProtocol,
-        cameraDisplayUseCase: CameraDisplayViewUseCaseProtocol,
+        createPresignedCameraUseCase: CreateCameraUseCaseProtocol,
+        uploadImageUseCase: FetchCameraUploadImageUseCaseProtocol,
+        fetchCameraImageUseCase: CreateCameraImageUseCaseProtocol,
         displayData: Data,
         missionTitle: String,
         cameraType: PostType = .survival
     ) {
         self.provider = provider
-        self.cameraDisplayUseCase = cameraDisplayUseCase
+        self.createPresignedCameraUseCase = createPresignedCameraUseCase
+        self.uploadImageUseCase = uploadImageUseCase
+        self.fetchCameraImageUseCase = fetchCameraImageUseCase
+        
         self.initialState = State(
             isLoading: true,
             displayDescrption: "",
@@ -86,7 +93,8 @@ public final class CameraDisplayViewReactor: Reactor {
                 .just(.setLoading(false)),
                 .just(.setError(false)),
                 .just(.setRenderImage(currentState.displayData)),
-                cameraDisplayUseCase.executeDisplayImageURL(parameters: parameters)
+                createPresignedCameraUseCase.execute(parameter: parameters)
+                    .asObservable()
                     .withUnretained(self)
                     .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                     .asObservable()
@@ -97,7 +105,7 @@ public final class CameraDisplayViewReactor: Reactor {
                                 .just(.setError(true))
                             )
                         }
-                        return owner.cameraDisplayUseCase.executeUploadToS3(toURL: originalURL, imageData: owner.currentState.displayData)
+                        return owner.uploadImageUseCase.execute(to: originalURL, from: owner.currentState.displayData)
                             .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                             .asObservable()
                             .flatMap { isSuccess -> Observable<CameraDisplayViewReactor.Mutation> in
@@ -155,7 +163,7 @@ public final class CameraDisplayViewReactor: Reactor {
                 uploadTime: DateFormatter.yyyyMMddTHHmmssXXX.string(from: Date())
             )
             
-            return cameraDisplayUseCase.executeCombineWithTextImage(parameters: parameters, query: cameraQuery)
+            return fetchCameraImageUseCase.execute(parameter: parameters, query: cameraQuery)
                 .asObservable()
                 .catchAndReturn(nil)
                 .flatMap { entity -> Observable<CameraDisplayViewReactor.Mutation> in

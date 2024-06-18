@@ -15,20 +15,39 @@ import RxSwift
 public final class MissionRepository: MissionRepositoryProtocol {
     public let disposeBag: DisposeBag = DisposeBag()
     
+    private let lastMissionUploadDateId = "lastMissionUploadDateId"
     private let missionAPIWorker: MissionAPIWorker = MissionAPIWorker()
     
     public init() { }
 }
 
 extension MissionRepository {
-    public func getTodayMission() -> Observable<TodayMissionResponse?> {
-        return missionAPIWorker.getTodayMission()
-            .asObservable()
-    }
-    
-    public func getMissionContent(missionId: String) -> Observable<MissionContentResponse?> {
+
+    public func getMissionContent(missionId: String) -> Single<MissionContentEntity?> {
         return missionAPIWorker.getMissionContent(missionId: missionId)
-            .asObservable()
     }
     
+    public func isAlreadyShowMissionAlert() -> Observable<Bool> {
+        guard let lastDate = UserDefaults.standard.string(forKey: lastMissionUploadDateId) else {
+            saveMissionUploadDate()
+            return .just(false)
+        }
+        
+        if lastDate == Date().toFormatString(with: "yyyy-MM-dd") {
+            return .just(true)
+        } else {
+            saveMissionUploadDate()
+            return .just(false)
+        }
+    }
+    
+    private func saveMissionUploadDate() {
+        let isoDateFormatter = ISO8601DateFormatter()
+        isoDateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let extractedDate = dateFormatter.string(from: Date())
+        UserDefaults.standard.set(extractedDate, forKey: lastMissionUploadDateId)
+    }
 }

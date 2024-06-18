@@ -1,18 +1,18 @@
 //
-//  CameraRealEmojiImageItemResponse.swift
+//  CameraCreateRealEmojiEntity.swift
 //  Domain
 //
-//  Created by Kim dohyun on 1/22/24.
+//  Created by Kim dohyun on 6/14/24.
 //
 
 import Foundation
 
-import Core
 
-public struct CameraRealEmojiImageItemResponse: Hashable {
-    public var realEmojiId: String
-    public var realEmojiType: String
-    public var realEmojiImageURL: URL
+public struct CameraCreateRealEmojiEntity {
+    public let realEmojiId: String
+    public let realEmojiType: String
+    public let realEmojiImageURL: URL
+    
     
     public init(realEmojiId: String, realEmojiType: String, realEmojiImageURL: URL) {
         self.realEmojiId = realEmojiId

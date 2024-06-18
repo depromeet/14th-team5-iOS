@@ -25,7 +25,7 @@ public struct CameraTodayMissionResponseDTO: Decodable {
 
 
 extension CameraTodayMissionResponseDTO {
-  func toDomain() -> CameraTodayMissionResponse {
+  func toDomain() -> CameraTodayMssionEntity {
     return .init(
       missionDate: missionDate.toDate(with: "yyyy-MM-dd"),
       missionId: missionId,

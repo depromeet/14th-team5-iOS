@@ -16,7 +16,6 @@ public final class CameraDisplayDIContainer: BaseDIContainer {
     public typealias ViewContrller = CameraDisplayViewController
     public typealias Repository = CameraRepositoryProtocol
     public typealias Reactor = CameraDisplayViewReactor
-    public typealias UseCase = CameraDisplayViewUseCaseProtocol
     
     fileprivate var displayData: Data
     fileprivate var missionTitle: String
@@ -43,12 +42,15 @@ public final class CameraDisplayDIContainer: BaseDIContainer {
         return CameraRepository()
     }
     
-    public func makeUseCase() -> UseCase {
-        return CameraDisplayViewUseCase(cameraDisplayViewRepository: makeRepository())
-    }
-    
     public func makeReactor() -> Reactor {
-        return CameraDisplayViewReactor(provider: globalState, cameraDisplayUseCase: makeUseCase(), displayData: displayData, missionTitle: missionTitle, cameraType: cameraDisplayType)
+        return CameraDisplayViewReactor(
+            provider: globalState,
+            createPresignedCameraUseCase: CreateCameraUseCase(cameraRepository: makeRepository()),
+            uploadImageUseCase: FetchCameraUploadImageUseCase(cameraRepository: makeRepository()),
+            fetchCameraImageUseCase: CreateCameraImageUseCase(cameraRepository: makeRepository()),
+            displayData: displayData,
+            missionTitle: missionTitle,
+            cameraType: cameraDisplayType
+        )
     }
-    
 }

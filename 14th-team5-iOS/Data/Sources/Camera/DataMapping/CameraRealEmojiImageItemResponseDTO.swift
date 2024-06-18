@@ -37,8 +37,8 @@ extension CameraRealEmojiImageItemResponseDTO {
 
 
 extension CameraRealEmojiImageItemResponseDTO {
-    func toDomain() -> [CameraRealEmojiImageItemResponse?] {
-        var items: [CameraRealEmojiImageItemResponse?] = Array(repeating: nil, count: 5)
+    func toDomain() -> [CameraRealEmojiImageItemEntity?] {
+        var items: [CameraRealEmojiImageItemEntity?] = Array(repeating: nil, count: 5)
         
         realEmojiItems.forEach {
             guard let emojiType = $0.realEmojiType.last else {
@@ -51,7 +51,7 @@ extension CameraRealEmojiImageItemResponseDTO {
 }
 
 extension CameraRealEmojiImageItemResponseDTO.CameraRealEmojiInfoResponseDTO {
-    func toDomain() -> CameraRealEmojiImageItemResponse {
+    func toDomain() -> CameraRealEmojiImageItemEntity {
         return .init(
             realEmojiId: realEmojiId,
             realEmojiType: realEmojiType,

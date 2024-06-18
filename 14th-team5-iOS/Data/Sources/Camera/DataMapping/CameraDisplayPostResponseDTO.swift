@@ -26,8 +26,7 @@ public struct CameraDisplayPostResponseDTO: Decodable {
 
 extension CameraDisplayPostResponseDTO {
     
-    public func toDomain() -> CameraDisplayPostResponse {
-        
+    public func toDomain() -> CameraPostEntity {
         return .init(
             postId: postId ?? "",
             authorId: authorId ?? "",
@@ -39,6 +38,5 @@ extension CameraDisplayPostResponseDTO {
             content: content ?? "",
             createdAt: createdAt
         )
-        
     }
 }

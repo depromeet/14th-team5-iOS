@@ -31,7 +31,7 @@ public struct PostEntity: Equatable, Hashable {
     }
 }
 
-public struct PostListPage: Equatable {
+public struct PostListPageEntity: Equatable {
     public let isLast: Bool
     public let postLists: [PostEntity]
     

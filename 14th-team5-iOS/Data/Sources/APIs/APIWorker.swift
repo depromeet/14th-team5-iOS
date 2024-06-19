@@ -90,10 +90,7 @@ public class APIWorker: NSObject {
         request.httpBody = jsonData
         print("interCepter call with name \(url)")
         
-        return AF.rx.request(
-            urlRequest: request,
-            interceptor: NetworkInterceptor()
-        )
+        return AF.rx.request(urlRequest: request)
             .retry(5)
             .validate(statusCode: 200..<300)
             .responseData()

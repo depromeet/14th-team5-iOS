@@ -34,12 +34,17 @@ extension OAuthRepository {
         )
         return oAuthApiWorker.refreshAccessToken(body: body)
             .observe(on: RxSchedulers.main)
+            .map { $0?.toDomain() }
             .do(onSuccess: { [weak self] in
                 guard
                     let keychain = self?.tokenKeychainStorage
                 else { return }
-                keychain.saveAccessToken($0?.accessToken)
-                keychain.saveRefreshToken($0?.refreshToken)
+                let accessToken = AccessToken(
+                    accessToken: $0?.accessToken,
+                    refreshToken: $0?.refreshToken,
+                    isTemporaryToken: $0?.isTemporaryToken
+                )
+                keychain.saveOldAccessToken(accessToken)
             })
             .asObservable()
     }
@@ -55,12 +60,17 @@ extension OAuthRepository {
         )
         return oAuthApiWorker.registerNewMember(body: body)
             .observe(on: RxSchedulers.main)
+            .map { $0?.toDomain() }
             .do(onSuccess: { [weak self] in
                 guard
                     let keychain = self?.tokenKeychainStorage
                 else { return }
-                keychain.saveAccessToken($0?.accessToken)
-                keychain.saveRefreshToken($0?.refreshToken)
+                let accessToken = AccessToken(
+                    accessToken: $0?.accessToken,
+                    refreshToken: $0?.refreshToken,
+                    isTemporaryToken: $0?.isTemporaryToken
+                )
+                keychain.saveOldAccessToken(accessToken)
             })
             .asObservable()
     }
@@ -74,12 +84,17 @@ extension OAuthRepository {
         )
         return oAuthApiWorker.signIn(type, body: body)
             .observe(on: RxSchedulers.main)
+            .map { $0?.toDomain() }
             .do(onSuccess: { [weak self] in
                 guard
                     let keychain = self?.tokenKeychainStorage
                 else { return }
-                keychain.saveAccessToken($0?.accessToken)
-                keychain.saveRefreshToken($0?.refreshToken)
+                let accessToken = AccessToken(
+                    accessToken: $0?.accessToken,
+                    refreshToken: $0?.refreshToken,
+                    isTemporaryToken: $0?.isTemporaryToken
+                )
+                keychain.saveOldAccessToken(accessToken)
             })
             .asObservable()
     }
@@ -93,6 +108,7 @@ extension OAuthRepository {
         )
         return oAuthApiWorker.registerNewFCMToken(body: body)
             .observe(on: RxSchedulers.main)
+            .map { $0?.toDomain() }
             .asObservable()
     }
     
@@ -109,6 +125,7 @@ extension OAuthRepository {
         
         return oAuthApiWorker.deleteFCMToken(fcmToken: fcmToken)
             .observe(on: RxSchedulers.main)
+            .map { $0?.toDomain() }
             .asObservable()
         
     }

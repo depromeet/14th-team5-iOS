@@ -41,7 +41,7 @@ extension PaginationResponsePostCommentResponseDTO {
 }
 
 extension PaginationResponsePostCommentResponseDTO {
-    func toDomain() -> PaginationResponsePostCommentResponse {
+    func toDomain() -> PaginationResponsePostCommentEntity {
         return .init(
             currentPage: currentPage,
             totalPage: totalPage,
@@ -53,7 +53,7 @@ extension PaginationResponsePostCommentResponseDTO {
 }
 
 extension PaginationResponsePostCommentResponseDTO.PostCommentResponseDTO {
-    func toDomain() -> PostCommentResponse {
+    func toDomain() -> PostCommentEntity {
         return .init(
             commentId: commentId,
             postId: postId,

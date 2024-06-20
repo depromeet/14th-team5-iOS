@@ -147,7 +147,7 @@ final class ProfileFeedViewReactor: Reactor {
                         postId: $0.postId,
                         missionId: $0.missionId,
                         missionType: $0.missionType,
-                        author: ProfileData(
+                        author: FamilyMemberProfileEntity(
                             memberId: currentState.memberId,
                             profileImageURL: $0.author?.profileImageURL,
                             name: $0.author?.name ?? ""),

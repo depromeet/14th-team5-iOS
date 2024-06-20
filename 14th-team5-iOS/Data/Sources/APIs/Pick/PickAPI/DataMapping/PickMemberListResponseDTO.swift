@@ -35,13 +35,13 @@ extension PickMemberListResponseDTO {
 }
 
 extension PickMemberListResponseDTO {
-    func toDomain() -> PickMemberListResponse {
+    func toDomain() -> PickMemberListEntity {
         return .init(results: results.map { $0.toDomain() })
     }
 }
 
 extension PickMemberListResponseDTO.PickMemberDTO {
-    func toDomain() -> PickMember {
+    func toDomain() -> PickMemberEntity {
         return .init(
             memberId: memberId,
             name: name,

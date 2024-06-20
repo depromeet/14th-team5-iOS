@@ -14,8 +14,13 @@ public extension KeychainWrapper.Key {
     static let idToken: Self = "idToken" // 소셜 로그인의 AccessToken
     
     // MARK: - OAuth
+    static let newAccessToken: Self = "newAccessToken"
+    static let newRefreshToken: Self = "newRefreshToken"
+    static let newFcmToken: Self = "newFcmToken"
+    
+    
+    // MARK: - Old OAuth Key
     static let accessToken: Self = "accessToken"
-    static let refreshToken: Self = "refreshToken"
     static let fcmToken: Self = "fcmToken"
     
 }

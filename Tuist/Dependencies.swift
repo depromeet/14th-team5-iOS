@@ -22,7 +22,8 @@ let dependencies = Dependencies(
         .kingFisher,
         .fsCalendar,
         .mixPanel,
-        .lottie
+        .lottie,
+        .googleUtilities
     ], productTypes: [
         "FSCalendar": .framework,
         "Firebase": .framework,

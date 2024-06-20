@@ -48,7 +48,7 @@ final public class CommentCellReactor: Reactor {
     
     // MARK: - Intializer
     public init(
-        _ commentResponse: PostCommentResponse,
+        _ commentResponse: PostCommentEntity,
         memberUseCase: MemberUseCaseProtocol,
         postCommentUseCase: PostCommentUseCaseProtocol,
         provider: GlobalStateProviderProtocol

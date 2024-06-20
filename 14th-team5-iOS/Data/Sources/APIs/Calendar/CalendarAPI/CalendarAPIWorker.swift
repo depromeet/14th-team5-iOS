@@ -31,10 +31,12 @@ extension CalendarAPIWorker {
     
     
     // MARK: - Fetch Calendar
-    
+
     @available(*, deprecated)
-    private func fetchCalendarResponse(spec: APISpec, headers: [APIHeader]?) -> Single<ArrayResponseCalendarEntity?> {
-        return request(spec: spec, headers: headers)
+    public func fetchCalendarResponse(yearMonth: String) -> Single<ArrayResponseCalendarResponseDTO?> {
+        let spec = CalendarAPIs.calendarResponse(yearMonth).spec
+        
+        return request(spec: spec)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -43,19 +45,6 @@ extension CalendarAPIWorker {
             }
             .map(ArrayResponseCalendarResponseDTO.self)
             .catchAndReturn(nil)
-            .map { $0?.toDomain() }
-            .asSingle()
-    }
-    
-    @available(*, deprecated)
-    public func fetchCalendarResponse(yearMonth: String) -> Single<ArrayResponseCalendarEntity?> {
-        let spec = CalendarAPIs.calendarResponse(yearMonth).spec
-        
-        return Observable<Void>.just(())
-            .withLatestFrom(self._headers)
-            .observe(on: Self.queue)
-            .withUnretained(self)
-            .flatMap { $0.0.fetchCalendarResponse(spec: spec, headers: $0.1) }
             .asSingle()
     }
     
@@ -63,19 +52,10 @@ extension CalendarAPIWorker {
     
     // MARK: - Fetch Statistics Summary
     
-    public func fetchStatisticsSummary(yearMonth: String) -> Single<FamilyMonthlyStatisticsEntity?> {
+    public func fetchStatisticsSummary(yearMonth: String) -> Single<FamilyMonthlyStatisticsResponseDTO?> {
         let spec = CalendarAPIs.fetchStatisticsSummary(yearMonth).spec
         
-        return Observable<Void>.just(())
-            .withLatestFrom(self._headers)
-            .observe(on: Self.queue)
-            .withUnretained(self)
-            .flatMap { $0.0.fetchStatisticsSummary(spec: spec, headers: $0.1) }
-            .asSingle()
-    }
-    
-    private func fetchStatisticsSummary(spec: APISpec, headers: [APIHeader]?) -> Single<FamilyMonthlyStatisticsEntity?> {
-        return request(spec: spec, headers: headers)
+        return request(spec: spec)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -84,7 +64,6 @@ extension CalendarAPIWorker {
             }
             .map(FamilyMonthlyStatisticsResponseDTO.self)
             .catchAndReturn(nil)
-            .map { $0?.toDomain() }
             .asSingle()
     }
     
@@ -92,20 +71,10 @@ extension CalendarAPIWorker {
     
     // MARK: - Fetch Monthly Calendar
     
-    public func fetchMonthlyCalendar(yearMonth: String) -> Single<ArrayResponseMonthlyCalendarEntity?> {
+    public func fetchMonthlyCalendar(yearMonth: String) -> Single<ArrayResponseMonthlyCalendarResponseDTO?> {
         let spec = CalendarAPIs.fetchMonthlyCalendar(yearMonth).spec
         
-        return Observable<Void>.just(())
-            .withLatestFrom(self._headers)
-            .observe(on: Self.queue)
-            .withUnretained(self)
-            .flatMap { $0.0.fetchMonthlyCalendar(spec: spec, headers: $0.1) }
-            .asSingle()
-    }
-    
-    
-    private func fetchMonthlyCalendar(spec: APISpec, headers: [APIHeader]?) -> Single<ArrayResponseMonthlyCalendarEntity?> {
-        return request(spec: spec, headers: headers)
+        return request(spec: spec)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -114,7 +83,6 @@ extension CalendarAPIWorker {
             }
             .map(ArrayResponseMonthlyCalendarResponseDTO.self)
             .catchAndReturn(nil)
-            .map { $0?.toDomain() }
             .asSingle()
     }
     
@@ -122,20 +90,10 @@ extension CalendarAPIWorker {
     
     // MARK: - Fetch Daily Calendar
     
-    public func fetchDailyCalendar(yearMonthDay: String) -> Single<ArrayResponseDailyCalendarEntity?> {
+    public func fetchDailyCalendar(yearMonthDay: String) -> Single<ArrayResponseDailyCalendarResponseDTO?> {
         let spec = CalendarAPIs.fetchDailyCalendar(yearMonthDay).spec
         
-        return Observable<Void>.just(())
-            .withLatestFrom(self._headers)
-            .observe(on: Self.queue)
-            .withUnretained(self)
-            .flatMap { $0.0.fetchDailyCalendar(spec: spec, headers: $0.1) }
-            .asSingle()
-    }
-    
-    
-    private func fetchDailyCalendar(spec: APISpec, headers: [APIHeader]?) -> Single<ArrayResponseDailyCalendarEntity?> {
-        return request(spec: spec, headers: headers)
+        return request(spec: spec)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -144,7 +102,6 @@ extension CalendarAPIWorker {
             }
             .map(ArrayResponseDailyCalendarResponseDTO.self)
             .catchAndReturn(nil)
-            .map { $0?.toDomain() }
             .asSingle()
     }
     
@@ -153,8 +110,10 @@ extension CalendarAPIWorker {
     
     // MARK: - Fetch Banner
     
-    private func fetchCalendarBanner(spec: APISpec, headers: [APIHeader]?) -> Single<BannerEntity?> {
-        return request(spec: spec, headers: headers)
+    public func fetchCalendarBanner(yearMonth: String) -> Single<BannerResponseDTO?> {
+        let spec = CalendarAPIs.fetchBanner(yearMonth).spec
+        
+        return request(spec: spec)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -163,20 +122,7 @@ extension CalendarAPIWorker {
             }
             .map(BannerResponseDTO.self)
             .catchAndReturn(nil)
-            .map { $0?.toDomain() }
             .asSingle()
     }
-    
-    public func fetchCalendarBanner(yearMonth: String) -> Single<BannerEntity?> {
-        let spec = CalendarAPIs.fetchBanner(yearMonth).spec
-        
-        return Observable<Void>.just(())
-            .withLatestFrom(self._headers)
-            .observe(on: Self.queue)
-            .withUnretained(self)
-            .flatMap { $0.0.fetchCalendarBanner(spec: spec, headers: $0.1) }
-            .asSingle()
-    }
-    
     
 }

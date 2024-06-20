@@ -27,4 +27,5 @@ extension Package {
     public static let fsCalendar = Package.remote(repo: "WenchaoD/FSCalendar", version: "2.8.3")
     public static let mixPanel = Package.remote(repo: "mixpanel/mixpanel-swift", version: "4.2.0")
     public static let lottie = Package.remote(repo: "airbnb/lottie-ios", version: "4.4.0")
+    public static let googleUtilities = Package.remote(repo: "google/GoogleUtilities", version: "7.13.2")
 }

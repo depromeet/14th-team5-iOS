@@ -18,7 +18,7 @@ struct TopBarElement: Codable {
     let shouldShowBirthdayMark: Bool
     let shouldShowPickIcon: Bool
     
-    func toDomain() -> ProfileData {
+    func toDomain() -> FamilyMemberProfileEntity {
         return .init(
             memberId: memberId,
             profileImageURL: imageUrl,

@@ -9,11 +9,11 @@ import Foundation
 
 import RxSwift
 
-public protocol WhoPickedMeMemberUseCaseProtocol {
+public protocol WhoPickedMeUseCaseProtocol {
     func execute(memberId: String) -> Observable<PickMemberListEntity?>
 }
 
-public final class WhoPickedMeUseCase: WhoPickedMeMemberUseCaseProtocol {
+public final class WhoPickedMeUseCase: WhoPickedMeUseCaseProtocol {
     
     // MARK: - Repositories
     private var pickRepository: PickRepositoryProtocol

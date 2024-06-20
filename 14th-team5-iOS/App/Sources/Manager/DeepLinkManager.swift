@@ -86,11 +86,10 @@ final class DeepLinkManager {
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow }),
            let navigationController = keyWindow.rootViewController as? UINavigationController {
-            let viewController = PostListsDIContainer().makeViewController(
-                postLists: PostSection.Model(model: 0, items: items),
-                selectedIndex: index,
-                notificationDeepLink: data
-            )
+            let viewController = PostDetailViewControllerWrapper(
+                selectedIndex: index.row,
+                originPostLists: PostSection.Model(model: 0, items: items)
+            ).makeViewController()
             navigationController.pushViewController(viewController, animated: true)
         }
     }

@@ -16,7 +16,7 @@ import RxCocoa
 import RxSwift
 
 final class MainViewController: BaseViewController<MainViewReactor>, UICollectionViewDelegateFlowLayout {
-    private let familyViewController: MainFamilyViewController = MainFamilyViewDIContainer().makeViewController()
+    private let familyViewController: MainFamilyViewController = MainFamilyViewControllerWrapper().makeViewController()
     
     private let timerView: TimerView = TimerView(reactor: TimerReactor())
     private let descriptionLabel: BibbiLabel = BibbiLabel(.body2Regular, textAlignment: .center, textColor: .gray300)
@@ -26,7 +26,7 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
     private let segmentControl: BibbiSegmentedControl = BibbiSegmentedControl()
     private let pageViewController: SegmentPageViewController = SegmentPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
     
-    private let cameraButton: MainCameraButtonView = MainCameraDIContainer().makeView()
+    private let cameraButton: MainCameraButtonView = MainCameraButtonView(reactor: MainCameraReactor())
     private let alertConfirmRelay: PublishRelay<(String, String)> = PublishRelay<(String, String)>()
     
     override func viewDidLoad() {

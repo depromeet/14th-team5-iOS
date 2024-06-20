@@ -12,30 +12,20 @@ import Core
 import Data
 import Domain
 
-final class MainFamilyViewDIContainer {
-    private var globalState: GlobalStateProviderProtocol {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return GlobalStateProvider()
-        }
-        return appDelegate.globalStateProvider
-    }
-    
-    
-    func makeViewController() -> MainFamilyViewController {
-        return MainFamilyViewController(reactor: makeReactor())
-    }
-    
-    private func makeReactor() -> MainFamilyViewReactor {
-        return MainFamilyViewReactor(provider: globalState, familyUseCase: makeInviteFamilyUseCase())
-    }
-}
-
-extension MainFamilyViewDIContainer {
+final class MainFamilyViewDIContainer: BaseContainer {
     private func makeInviteFamilyRepository() -> FamilyRepositoryProtocol {
         return FamilyRepository()
     }
     
     private func makeInviteFamilyUseCase() -> FamilyUseCaseProtocol {
         return FamilyUseCase(familyRepository: makeInviteFamilyRepository())
+    }
+}
+
+extension MainFamilyViewDIContainer {
+    func registerDependencies() {
+        container.register(type: FamilyUseCaseProtocol.self) { _ in
+            self.makeInviteFamilyUseCase()
+        }
     }
 }

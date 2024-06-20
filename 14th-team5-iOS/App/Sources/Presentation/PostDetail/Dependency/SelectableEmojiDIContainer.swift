@@ -13,21 +13,7 @@ import Domain
 
 import RxSwift
 
-final class SelectableEmojiDIContainer {
-    private func makeReactor(postId: String) -> SelectableEmojiReactor {
-        return SelectableEmojiReactor(
-            postId: postId,
-            createReactionUseCase: makeCreateReactionUseCase(),
-            createRealEmojiUseCase: makeCreateRealEmojiUseCase(),
-            fetchMyRealEmojiUseCase: makeFetchMyRealEmojiUseCase())
-    }
-    
-    func makeViewController(postId: String, subject: PublishSubject<Void>) -> SelectableEmojiViewController {
-        return SelectableEmojiViewController(reactor: makeReactor(postId: postId), selectedReactionSubject: subject)
-    }
-}
-
-extension SelectableEmojiDIContainer {
+final class SelectableEmojiDIContainer: BaseContainer {
     private func makeRealEmojiRepository() -> RealEmojiRepositoryProtocol {
         return RealEmojiRepository()
     }
@@ -39,14 +25,28 @@ extension SelectableEmojiDIContainer {
     private func makeFetchMyRealEmojiUseCase() -> FetchMyRealEmojiUseCaseProtocol {
         return FetchMyRealEmojiUseCase(realEmojiRepository: makeRealEmojiRepository())
     }
-}
-
-extension SelectableEmojiDIContainer {
+    
     private func makeReactionRepository() -> ReactionRepositoryProtocol {
         return ReactionRepository()
     }
     
     private func makeCreateReactionUseCase() -> CreateReactionUseCaseProtocol {
         return CreateReactionUseCase(reactionRepository: makeReactionRepository())
+    }
+}
+
+extension SelectableEmojiDIContainer {
+    func registerDependencies() {
+        container.register(type: CreateRealEmojiUseCaseProtocol.self) { _ in
+            self.makeCreateRealEmojiUseCase()
+        }
+        
+        container.register(type: FetchMyRealEmojiUseCaseProtocol.self) { _ in
+            self.makeFetchMyRealEmojiUseCase()
+        }
+        
+        container.register(type: CreateReactionUseCaseProtocol.self) { _ in
+            self.makeCreateReactionUseCase()
+        }
     }
 }

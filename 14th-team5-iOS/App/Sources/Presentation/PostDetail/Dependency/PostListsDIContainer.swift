@@ -13,46 +13,9 @@ import Domain
 
 import RxDataSources
 
-final class PostListsDIContainer {
-    typealias ViewContrller = PostViewController
-    typealias Reactor = PostReactor
+final class PostListsDIContainer: BaseContainer {
     
-    private var globalState: GlobalStateProviderProtocol {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return GlobalStateProvider()
-        }
-        return appDelegate.globalStateProvider
-    }
-    
-    func makeViewController(
-        postLists: PostSection.Model,
-        selectedIndex: IndexPath,
-        notificationDeepLink: NotificationDeepLink? = nil
-    ) -> ViewContrller {
-        return PostViewController(reactor: makeReactor(
-            postLists: postLists,
-            selectedIndex: selectedIndex.row,
-            notificationDeepLink: notificationDeepLink)
-        )
-    }
-    
-    func makePostRepository() -> PostListRepositoryProtocol {
-        return PostRepository()
-    }
-    
-    func makePostUseCase() -> FetchPostListUseCaseProtocol {
-        return FetchPostListUseCase(postListRepository: makePostRepository())
-    }
-    
-    func makeEmojiRepository() -> ReactionRepositoryProtocol {
-        return ReactionRepository()
-    }
-    
-    func makeRealEmojiRepository() -> RealEmojiRepositoryProtocol {
-        return RealEmojiRepository()
-    }
-    
-    func makeMissionRepository() -> MissionRepositoryProtocol {
+    private func makeMissionRepository() -> MissionRepositoryProtocol {
         return MissionRepository()
     }
     
@@ -60,19 +23,9 @@ final class PostListsDIContainer {
         return FetchMissionContentUseCase(missionRepository: makeMissionRepository())
     }
     
-    func makeReactor(
-        postLists: PostSection.Model,
-        selectedIndex: Int,
-        notificationDeepLink: NotificationDeepLink?
-    ) -> Reactor {
-        return PostReactor(
-            provider: globalState,
-            fetchMissionUseCase: makeMissionUseCase(),
-            initialState: PostReactor.State(
-                selectedIndex: selectedIndex,
-                originPostLists: postLists,
-                notificationDeepLink: notificationDeepLink
-            )
-        )
+    func registerDependencies() {
+        container.register(type: FetchMissionContentUseCaseProtocol.self) { _ in
+            self.makeMissionUseCase()
+        }
     }
 }

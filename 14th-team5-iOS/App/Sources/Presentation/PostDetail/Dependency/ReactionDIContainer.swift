@@ -15,38 +15,7 @@ enum ReactionType {
     case calendar
 }
 
-final class ReactionDIContainer {
-    var type: ReactionType
-    
-    init(type: ReactionType) {
-        self.type = type
-    }
-    
-    private var globalState: GlobalStateProviderProtocol {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return GlobalStateProvider()
-        }
-        return appDelegate.globalStateProvider
-    }
-    
-    private func makeReactor(post: PostEntity) -> ReactionViewReactor {
-        return ReactionViewReactor(
-            initialState: .init(type: type, postListData: post),
-            provider: globalState,
-            fetchReactionUseCase: makeFetchReactionListUseCase(),
-            createReactionUseCase: makeCreateReactionUseCase(),
-            removeReactionUseCase: makeRemoveReactionUseCase(),
-            fetchRealEmojiListUseCase: makeFetchRealEmojiListUseCase(),
-            createRealEmojiUseCase: makeCreateRealEmojiUseCase(),
-            removeRealEmojiUseCase: makeRemoveRealEmojiUseCase())
-    }
-    
-    func makeViewController(post: PostEntity) -> ReactionViewController {
-        return ReactionViewController(reactor: makeReactor(post: post))
-    }
-}
-
-extension ReactionDIContainer {
+final class ReactionDIContainer: BaseContainer {
     private func makeRealEmojiRepository() -> RealEmojiRepositoryProtocol {
         return RealEmojiRepository()
     }
@@ -62,9 +31,7 @@ extension ReactionDIContainer {
     private func makeFetchRealEmojiListUseCase() -> FetchRealEmojiListUseCaseProtocol {
         return FetchRealEmojiListUseCase(realEmojiRepository: makeRealEmojiRepository())
     }
-}
-
-extension ReactionDIContainer {
+    
     private func makeReactionRepository() -> ReactionRepositoryProtocol {
         return ReactionRepository()
     }
@@ -79,5 +46,33 @@ extension ReactionDIContainer {
     
     private func makeFetchReactionListUseCase() -> FetchReactionListUseCaseProtocol {
         return FetchReactionListUseCase(reactionRepository: makeReactionRepository())
+    }
+}
+
+extension ReactionDIContainer {
+    func registerDependencies() {
+        container.register(type: CreateRealEmojiUseCaseProtocol.self) { _ in
+            self.makeCreateRealEmojiUseCase()
+        }
+        
+        container.register(type: RemoveRealEmojiUseCaseProtocol.self) { _ in
+            self.makeRemoveRealEmojiUseCase()
+        }
+        
+        container.register(type: FetchRealEmojiListUseCaseProtocol.self) { _ in
+            self.makeFetchRealEmojiListUseCase()
+        }
+        
+        container.register(type: CreateReactionUseCaseProtocol.self) { _ in
+            self.makeCreateReactionUseCase()
+        }
+        
+        container.register(type: RemoveReactionUseCaseProtocol.self) { _ in
+            self.makeRemoveReactionUseCase()
+        }
+        
+        container.register(type: FetchReactionListUseCaseProtocol.self) { _ in
+            self.makeFetchReactionListUseCase()
+        }
     }
 }

@@ -29,6 +29,10 @@ public struct PostEntity: Equatable, Hashable {
         self.content = content
         self.time = time
     }
+    
+    public static var empty: PostEntity {
+        return .init(postId: "", author: nil, commentCount: 0, emojiCount: 0, imageURL: "", content: nil, time: "")
+    }
 }
 
 public struct PostListPageEntity: Equatable {

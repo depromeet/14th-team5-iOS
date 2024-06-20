@@ -26,7 +26,7 @@ public final class ReactionRepository: ReactionRepositoryProtocol {
         return reactionAPIWorker.removeReaction(query: query, body: body)
     }
     
-    public func fetchReaction(query: Domain.FetchReactionQuery) -> RxSwift.Single<[Domain.RealEmojiEntity]?> {
+    public func fetchReaction(query: Domain.FetchReactionQuery) -> RxSwift.Single<[Domain.EmojiEntity]?> {
         return reactionAPIWorker.fetchReaction(query: query)
     }
 }

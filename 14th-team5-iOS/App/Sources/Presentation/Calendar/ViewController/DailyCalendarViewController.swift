@@ -28,12 +28,7 @@ public final class DailyCalendarViewController: BBNavigationViewController<Daily
         frame: .zero,
         collectionViewLayout: orthogonalCompositionalLayout
     )
-    private let reactionViewController: ReactionViewController = ReactionDIContainer(type: .calendar).makeViewController(
-        post: .init(
-            postId: "", author: nil, commentCount: 0, emojiCount: 0,
-            imageURL: "", content: nil, time: ""
-        )
-    )
+    private let reactionViewController: ReactionViewController = ReactionViewControllerWrapper(type: .calendar, postListData: .empty).makeViewController()
     private let fireLottieView: LottieView = LottieView(with: .fire, contentMode: .scaleAspectFill)
     
     // MARK: - Properties

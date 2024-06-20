@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol FetchReactionListUseCaseProtocol {
-    func execute(query: FetchReactionQuery) -> Single<[RealEmojiEntity]?>
+    func execute(query: FetchReactionQuery) -> Single<[EmojiEntity]?>
 }
 
 public final class FetchReactionListUseCase: FetchReactionListUseCaseProtocol {
@@ -20,7 +20,7 @@ public final class FetchReactionListUseCase: FetchReactionListUseCaseProtocol {
         self.reactionRepository = reactionRepository
     }
     
-    public func execute(query: FetchReactionQuery) -> Single<[RealEmojiEntity]?> {
+    public func execute(query: FetchReactionQuery) -> Single<[EmojiEntity]?> {
         return reactionRepository.fetchReaction(query: query)
     }
 }

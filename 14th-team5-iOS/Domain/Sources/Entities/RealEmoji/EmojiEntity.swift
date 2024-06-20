@@ -8,7 +8,7 @@
 import Foundation
 import Core
 
-public struct RealEmojiEntity {
+public struct EmojiEntity {
     public let isStandard: Bool
     public var isSelfSelected: Bool
     public let postEmojiId: String

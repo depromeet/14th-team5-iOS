@@ -87,7 +87,6 @@ public extension Injectable {
         self.register(.by(type: type, key: key), resolve)
     }
     
-    
     // MARK: - Remove
     
     func remove<V>(_ identifier: InjectIdentifier<V>) {

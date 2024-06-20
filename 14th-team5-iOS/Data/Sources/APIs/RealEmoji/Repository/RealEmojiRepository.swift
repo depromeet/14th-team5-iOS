@@ -26,7 +26,7 @@ public final class RealEmojiRepository: RealEmojiRepositoryProtocol {
         realEmojiAPIWorker.addRealEmoji(query: query, body: body)
     }
     
-    public func fetchRealEmoji(query: Domain.FetchRealEmojiQuery) -> RxSwift.Single<[Domain.RealEmojiEntity]?> {
+    public func fetchRealEmoji(query: Domain.FetchRealEmojiQuery) -> RxSwift.Single<[Domain.EmojiEntity]?> {
         realEmojiAPIWorker.fetchRealEmoji(query: query)
     }
     

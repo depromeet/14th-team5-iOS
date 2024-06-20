@@ -13,20 +13,20 @@ import Domain
 
 import RxDataSources
 
-final class ReactionMemberDIContainer {
-    func makeFamilyRepository() -> FamilyRepositoryProtocol {
+final class ReactionMemberDIContainer: BaseContainer {
+    private func makeFamilyRepository() -> FamilyRepositoryProtocol {
         return FamilyRepository()
     }
     
-    func makeFamilyUseCase() -> FamilyUseCaseProtocol {
+    private func makeFamilyUseCase() -> FamilyUseCaseProtocol {
         return FamilyUseCase(familyRepository: makeFamilyRepository())
     }
-    
-    func makeReactionMemberReactor(emojiData: RealEmojiEntity) -> ReactionMemberViewReactor {
-        return ReactionMemberViewReactor(initialState: .init(emojiData: emojiData), familyUseCase: makeFamilyUseCase())
-    }
-    
-    func makeViewController(emojiData: RealEmojiEntity) -> ReactionMembersViewController {
-        return ReactionMembersViewController(reactor: makeReactionMemberReactor(emojiData: emojiData))
+}
+
+extension ReactionMemberDIContainer {
+    func registerDependencies() {
+        container.register(type: FamilyUseCaseProtocol.self) { _ in
+            self.makeFamilyUseCase()
+        }
     }
 }

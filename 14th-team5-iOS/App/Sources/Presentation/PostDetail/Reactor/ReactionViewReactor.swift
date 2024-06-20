@@ -18,17 +18,17 @@ final class ReactionViewReactor: Reactor {
         case tapComment
         case tapAddEmoji
         case longPressEmoji(IndexPath)
-        case selectCell(IndexPath, RealEmojiEntity)
+        case selectCell(IndexPath, EmojiEntity)
         case acceptPostListData(PostEntity)
         case fetchReactionList(String)
     }
     
     enum Mutation {
-        case setSpecificCell(IndexPath, RealEmojiEntity)
+        case setSpecificCell(IndexPath, EmojiEntity)
         case setSelectedReactionIndices([Int])
         case setCommentSheet
         case setEmojiSheet
-        case setReactionMemberSheetEmoji(RealEmojiEntity)
+        case setReactionMemberSheetEmoji(EmojiEntity)
         case updateDataSource([ReactionSection.Item])
         case setPost(PostEntity)
         case setPostCommentCount(Int)
@@ -47,36 +47,23 @@ final class ReactionViewReactor: Reactor {
             .addReaction,
         ])
         
-        @Pulse var reactionMemberSheetEmoji: RealEmojiEntity? = nil
+        @Pulse var reactionMemberSheetEmoji: EmojiEntity? = nil
         @Pulse var isShowingCommentSheet: Bool = false
         @Pulse var isShowingEmojiSheet: Bool = false
         @Pulse var selectionHapticFeedback: Bool = false
     }
     
     let initialState: State
-    let provider: GlobalStateProviderProtocol
-    let fetchReactionListUseCase: FetchReactionListUseCaseProtocol
-    let createReactionUseCase: CreateReactionUseCaseProtocol
-    let removeReactionUseCase: RemoveReactionUseCaseProtocol
-    let fetchRealEmojiListUseCase: FetchRealEmojiListUseCaseProtocol
-    let createRealEmojiUseCase: CreateRealEmojiUseCaseProtocol
-    let removeRealEmojiUseCase: RemoveRealEmojiUseCaseProtocol
+    @Injected var provider: GlobalStateProviderProtocol
+    @Injected var fetchReactionListUseCase: FetchReactionListUseCaseProtocol
+    @Injected var createReactionUseCase: CreateReactionUseCaseProtocol
+    @Injected var removeReactionUseCase: RemoveReactionUseCaseProtocol
+    @Injected var fetchRealEmojiListUseCase: FetchRealEmojiListUseCaseProtocol
+    @Injected var createRealEmojiUseCase: CreateRealEmojiUseCaseProtocol
+    @Injected var removeRealEmojiUseCase: RemoveRealEmojiUseCaseProtocol
     
-    init(initialState: State, provider: GlobalStateProviderProtocol, 
-         fetchReactionUseCase: FetchReactionListUseCaseProtocol,
-         createReactionUseCase: CreateReactionUseCaseProtocol,
-         removeReactionUseCase: RemoveReactionUseCaseProtocol,
-         fetchRealEmojiListUseCase: FetchRealEmojiListUseCaseProtocol,
-         createRealEmojiUseCase: CreateRealEmojiUseCaseProtocol,
-         removeRealEmojiUseCase: RemoveRealEmojiUseCaseProtocol) {
+    init(initialState: State) {
         self.initialState = initialState
-        self.provider = provider
-        self.fetchReactionListUseCase = fetchReactionUseCase
-        self.createReactionUseCase = createReactionUseCase
-        self.removeReactionUseCase = removeReactionUseCase
-        self.fetchRealEmojiListUseCase = fetchRealEmojiListUseCase
-        self.createRealEmojiUseCase = createRealEmojiUseCase
-        self.removeRealEmojiUseCase = removeRealEmojiUseCase
     }
 }
 
@@ -178,7 +165,7 @@ extension ReactionViewReactor {
 }
 
 extension ReactionViewReactor {
-    func handleSelectCell(postId: String, indexPath: IndexPath, data: RealEmojiEntity, isAdd: Bool) -> Observable<Mutation> {
+    func handleSelectCell(postId: String, indexPath: IndexPath, data: EmojiEntity, isAdd: Bool) -> Observable<Mutation> {
         let executeObservable: Observable<Void?>
 
         if data.isStandard {

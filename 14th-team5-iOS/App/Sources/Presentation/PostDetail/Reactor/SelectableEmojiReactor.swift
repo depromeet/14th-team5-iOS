@@ -37,18 +37,12 @@ final class SelectableEmojiReactor: Reactor {
     
     let postId: String
     var initialState: State
-    let createReactionUseCase: CreateReactionUseCaseProtocol
-    let createRealEmojiUseCase: CreateRealEmojiUseCaseProtocol
-    let fetchMyRealEmojiUseCase: FetchMyRealEmojiUseCaseProtocol
+    @Injected var createReactionUseCase: CreateReactionUseCaseProtocol
+    @Injected var createRealEmojiUseCase: CreateRealEmojiUseCaseProtocol
+    @Injected var fetchMyRealEmojiUseCase: FetchMyRealEmojiUseCaseProtocol
     
-    init(postId: String,
-         createReactionUseCase: CreateReactionUseCaseProtocol,
-         createRealEmojiUseCase: CreateRealEmojiUseCaseProtocol, 
-         fetchMyRealEmojiUseCase: FetchMyRealEmojiUseCaseProtocol) {
+    init(postId: String) {
         self.postId = postId
-        self.createReactionUseCase = createReactionUseCase
-        self.createRealEmojiUseCase = createRealEmojiUseCase
-        self.fetchMyRealEmojiUseCase = fetchMyRealEmojiUseCase
         let section1 = SelectableReactionSection.Model(model: 0, items: [])
         let section2 = SelectableReactionSection.Model(model: 1, items: [])
         self.initialState = State(reactionSections: [section1, section2])

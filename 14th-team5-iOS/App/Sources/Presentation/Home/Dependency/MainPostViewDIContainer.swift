@@ -12,29 +12,20 @@ import Data
 import Domain
 
 
-final class MainPostViewDIContainer {
-    private var globalState: GlobalStateProviderProtocol {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return GlobalStateProvider()
-        }
-        return appDelegate.globalStateProvider
-    }
-    
-    func makeViewController(type: PostType) -> MainPostViewController {
-        return MainPostViewController(reactor: makeReactor(type: type))
-    }
-    
-    private func makeReactor(type: PostType) -> MainPostViewReactor {
-        return MainPostViewReactor(initialState: .init(type: type), provider: globalState, postUseCase: makePostUseCase())
-    }
-}
-
-extension MainPostViewDIContainer {
+final class MainPostViewDIContainer: BaseContainer {
     private func makePostRepository() -> PostListRepositoryProtocol {
         return PostRepository()
     }
 
-    func makePostUseCase() -> FetchPostListUseCaseProtocol {
+    private func makePostUseCase() -> FetchPostListUseCaseProtocol {
         return FetchPostListUseCase(postListRepository: makePostRepository())
+    }
+}
+
+extension MainPostViewDIContainer {
+    func registerDependencies() {
+        container.register(type: FetchPostListUseCaseProtocol.self) { _ in
+            self.makePostUseCase()
+        }
     }
 }

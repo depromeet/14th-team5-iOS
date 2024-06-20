@@ -12,5 +12,5 @@ import RxSwift
 public protocol ReactionRepositoryProtocol {
     func addReaction(query: CreateReactionQuery, body: CreateReactionRequest) -> Single<Void?>
     func removeReaction(query: RemoveReactionQuery, body: RemoveReactionRequest) -> Single<Void?>
-    func fetchReaction(query: FetchReactionQuery) -> Single<[RealEmojiEntity]?>
+    func fetchReaction(query: FetchReactionQuery) -> Single<[EmojiEntity]?>
 }

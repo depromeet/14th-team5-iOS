@@ -22,16 +22,15 @@ final class ReactionMemberViewReactor: Reactor {
     }
     
     struct State {
-        let emojiData: RealEmojiEntity
+        let emojiData: EmojiEntity
         var memberDataSource: [FamilyMemberProfileSectionModel] = []
     }
     
     let initialState: State
-    let familyUseCase: FamilyUseCaseProtocol
+    @Injected var familyUseCase: FamilyUseCaseProtocol
     
-    init(initialState: State, familyUseCase: FamilyUseCaseProtocol) {
+    init(initialState: State) {
         self.initialState = initialState
-        self.familyUseCase = familyUseCase
     }
 }
 

@@ -41,7 +41,7 @@ extension RealEmojiAPIs {
 
 extension RealEmojiAPIWorker {
     
-    func fetchRealEmoji(query: FetchRealEmojiQuery) -> Single<[RealEmojiEntity]?> {
+    func fetchRealEmoji(query: FetchRealEmojiQuery) -> Single<[EmojiEntity]?> {
         let query = FetchRealEmojiListParameter(postId: query.postId)
         let spec = RealEmojiAPIs.fetchRealEmojiList(query).spec
         

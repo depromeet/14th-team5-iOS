@@ -54,7 +54,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let containers: [BaseContainer] = [
             AppDIContainer(),
-            CalendarDIContainer()
+            CalendarDIContainer(),
+            MainFamilyViewDIContainer(),
+            MainPostViewDIContainer(),
+            MainViewDIContainer(),
+            PostDetailCellDIContainer(),
+            PostListsDIContainer(),
+            ReactionDIContainer(),
+            ReactionMemberDIContainer(),
+            SelectableEmojiDIContainer()
         ]
         containers.forEach {
             $0.registerDependencies()

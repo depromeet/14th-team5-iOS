@@ -12,31 +12,7 @@ import Domain
 import Core
 
 
-final class MainViewDIContainer {
-    private var globalState: GlobalStateProviderProtocol {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return GlobalStateProvider()
-        }
-        return appDelegate.globalStateProvider
-    }
-    
-    
-    func makeViewController() -> MainViewController {
-        return MainViewController(reactor: makeReactor())
-    }
-}
-
-extension MainViewDIContainer {
-    private func makeReactor() -> MainViewReactor {
-        return MainViewReactor(
-            fetchMainUseCase: makeFetchMainUseCase(), 
-            fetchMainNightUseCase: makeFetchMainNightUseCase(),
-            pickUseCase: makePickUseCase(),
-            checkMissionAlertShowUseCase: makeCheckMissionAlertShowUseCase(),
-            provider: globalState
-        )
-    }
-    
+final class MainViewDIContainer: BaseContainer {
     private func makePickReposiotry() -> PickRepositoryProtocol {
         return PickRepository()
     }
@@ -63,5 +39,25 @@ extension MainViewDIContainer {
     
     private func makeCheckMissionAlertShowUseCase() -> CheckMissionAlertShowUseCaseProtocol {
         return CheckMissionAlertShowUseCase(missionRepository: makeMissionRepository())
+    }
+}
+
+extension MainViewDIContainer {
+    func registerDependencies() {
+        container.register(type: PickUseCaseProtocol.self) { _ in
+            self.makePickUseCase()
+        }
+        
+        container.register(type: FetchMainUseCaseProtocol.self) { _ in
+            self.makeFetchMainUseCase()
+        }
+        
+        container.register(type: FetchNightMainViewUseCaseProtocol.self) { _ in
+            self.makeFetchMainNightUseCase()
+        }
+        
+        container.register(type: CheckMissionAlertShowUseCaseProtocol.self) {_ in
+            self.makeCheckMissionAlertShowUseCase()
+        }
     }
 }

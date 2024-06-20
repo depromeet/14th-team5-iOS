@@ -35,23 +35,14 @@ final class PostReactor: Reactor {
         @Pulse var missionContent: MissionContentEntity? = nil
         @Pulse var reactionMemberIds: [String] = []
         @Pulse var shouldPushProfileViewController: String?
-        
-        var notificationDeepLink: NotificationDeepLink?
     }
     
     let initialState: State
+    @Injected var fetchMissionUseCase: FetchMissionContentUseCaseProtocol
+    @Injected var provider: GlobalStateProviderProtocol
     
-    let fetchMissionUseCase: FetchMissionContentUseCaseProtocol
-    let provider: GlobalStateProviderProtocol
     
-    
-    init(
-        provider: GlobalStateProviderProtocol,
-        fetchMissionUseCase: FetchMissionContentUseCaseProtocol,
-        initialState: State
-    ) {
-        self.provider = provider
-        self.fetchMissionUseCase = fetchMissionUseCase
+    init(initialState: State) {
         self.initialState = initialState
     }
 }

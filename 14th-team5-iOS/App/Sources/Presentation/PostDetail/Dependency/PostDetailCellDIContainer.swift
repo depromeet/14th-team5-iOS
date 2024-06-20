@@ -13,27 +13,20 @@ import Domain
 
 import RxDataSources
 
-final class PostDetailCellDIContainer {
-    private var globalState: GlobalStateProviderProtocol {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return GlobalStateProvider()
-        }
-        return appDelegate.globalStateProvider
-    }
-
-    func makeMemberRepository() -> MemberRepositoryProtocol {
+final class PostDetailCellDIContainer: BaseContainer {
+    private func makeMemberRepository() -> MemberRepositoryProtocol {
         return MemberRepository()
     }
     
-    func makeMemberUseCase() -> MemberUseCaseProtocol {
+    private func makeMemberUseCase() -> MemberUseCaseProtocol {
         return MemberUseCase(memberRepository: makeMemberRepository())
     }
-    
-    func makeReactor(type: PostDetailViewReactor.CellType = .home, post: PostEntity) -> PostDetailViewReactor {
-        return PostDetailViewReactor(
-            provider: globalState,
-            memberUserCase: makeMemberUseCase(),
-            initialState: .init(type: type, post: post)
-        )
+}
+
+extension PostDetailCellDIContainer {
+    func registerDependencies() {
+        container.register(type: MemberUseCaseProtocol.self) { _ in
+            self.makeMemberUseCase()
+        }
     }
 }

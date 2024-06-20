@@ -39,7 +39,7 @@ extension ReactionAPIs {
 }
 
 extension ReactionAPIWorker {
-    func fetchReaction(query: Domain.FetchReactionQuery) -> RxSwift.Single<[RealEmojiEntity]?> {
+    func fetchReaction(query: Domain.FetchReactionQuery) -> RxSwift.Single<[EmojiEntity]?> {
         let query = FetchReactionRequestDTO(postId: query.postId)
         let spec = ReactionAPIs.fetchReactions(query).spec
         return request(spec: spec, headers: headers)

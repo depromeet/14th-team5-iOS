@@ -39,12 +39,10 @@ final class PostDetailViewReactor: Reactor {
     }
     
     let initialState: State
-    let provider: GlobalStateProviderProtocol
-    let memberUseCase: MemberUseCaseProtocol
+    @Injected var provider: GlobalStateProviderProtocol
+    @Injected var memberUseCase: MemberUseCaseProtocol
     
-    init(provider: GlobalStateProviderProtocol, memberUserCase: MemberUseCaseProtocol, initialState: State) {
-        self.provider = provider
-        self.memberUseCase = memberUserCase
+    init(initialState: State) {
         self.initialState = initialState
     }
     

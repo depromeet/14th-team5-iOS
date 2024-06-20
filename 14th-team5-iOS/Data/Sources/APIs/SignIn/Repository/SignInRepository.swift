@@ -10,7 +10,7 @@ import Domain
 
 import RxSwift
 
-final class SignInRepository: SignInRepositoryProtocol {
+public final class SignInRepository: SignInRepositoryProtocol {
     
     // MARK: - Properties
     public var disposeBag = DisposeBag()

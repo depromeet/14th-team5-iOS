@@ -55,7 +55,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let containers: [BaseContainer] = [
             AppDIContainer(),
             CalendarDIContainer(),
-            OAuthDIContainer()
+            OAuthDIContainer(),
+            SignInDIContainer()
         ]
         containers.forEach {
             $0.registerDependencies()

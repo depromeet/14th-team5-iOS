@@ -131,7 +131,7 @@ final class PostViewController: BaseViewController<PostReactor> {
                     }) {
                         switch postList {
                         case let .main(post):
-                            let postCommentViewController = CommentDIContainer(
+                            let postCommentViewController = PostCommentDIContainer(
                                 postId: post.postId
                             ).makeViewController()
                             

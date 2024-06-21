@@ -57,17 +57,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             CalendarDIContainer(),
             CommentDIContainer(),
             FamilyDIContainer(),
-            PickDIContainer(),
             OAuthDIContainer(),
-            SignInDIContainer()
-            MainFamilyViewDIContainer(),
-            MainPostViewDIContainer(),
+            SignInDIContainer(),
+            FamilyDIContainer(),
+            PostDIContainer(),
             MainViewDIContainer(),
-            PostDetailCellDIContainer(),
-            PostListsDIContainer(),
             ReactionDIContainer(),
-            ReactionMemberDIContainer(),
-            SelectableEmojiDIContainer()
+            RealEmojiDIContainer(),
+            PickDIContainer(),
+            MissionDIContainer(),
+            MemberDIContainer()
         ]
         containers.forEach {
             $0.registerDependencies()

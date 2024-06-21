@@ -16,53 +16,23 @@ enum ReactionType {
 }
 
 final class ReactionDIContainer: BaseContainer {
-    private func makeRealEmojiRepository() -> RealEmojiRepositoryProtocol {
-        return RealEmojiRepository()
-    }
-    
-    private func makeCreateRealEmojiUseCase() -> CreateRealEmojiUseCaseProtocol {
-        return CreateRealEmojiUseCase(realEmojiRepository: makeRealEmojiRepository())
-    }
-    
-    private func makeRemoveRealEmojiUseCase() -> RemoveRealEmojiUseCaseProtocol {
-        return RemoveRealEmojiUseCase(realEmojiRepository: makeRealEmojiRepository())
-    }
-    
-    private func makeFetchRealEmojiListUseCase() -> FetchRealEmojiListUseCaseProtocol {
-        return FetchRealEmojiListUseCase(realEmojiRepository: makeRealEmojiRepository())
-    }
-    
-    private func makeReactionRepository() -> ReactionRepositoryProtocol {
-        return ReactionRepository()
-    }
+    private let repository: ReactionRepositoryProtocol = ReactionRepository()
     
     private func makeCreateReactionUseCase() -> CreateReactionUseCaseProtocol {
-        return CreateReactionUseCase(reactionRepository: makeReactionRepository())
+        return CreateReactionUseCase(reactionRepository: repository)
     }
     
     private func makeRemoveReactionUseCase() -> RemoveReactionUseCaseProtocol {
-        return RemoveReactionUseCase(reactionRepository: makeReactionRepository())
+        return RemoveReactionUseCase(reactionRepository: repository)
     }
     
     private func makeFetchReactionListUseCase() -> FetchReactionListUseCaseProtocol {
-        return FetchReactionListUseCase(reactionRepository: makeReactionRepository())
+        return FetchReactionListUseCase(reactionRepository: repository)
     }
 }
 
 extension ReactionDIContainer {
     func registerDependencies() {
-        container.register(type: CreateRealEmojiUseCaseProtocol.self) { _ in
-            self.makeCreateRealEmojiUseCase()
-        }
-        
-        container.register(type: RemoveRealEmojiUseCaseProtocol.self) { _ in
-            self.makeRemoveRealEmojiUseCase()
-        }
-        
-        container.register(type: FetchRealEmojiListUseCaseProtocol.self) { _ in
-            self.makeFetchRealEmojiListUseCase()
-        }
-        
         container.register(type: CreateReactionUseCaseProtocol.self) { _ in
             self.makeCreateReactionUseCase()
         }

@@ -10,65 +10,45 @@ import Data
 import Domain
 
 final class FamilyDIContainer: BaseContainer {
-    
-    // MARK: - Make UseCase
+
+    private let repository: FamilyRepositoryProtocol = FamilyRepository()
     
     private func makeCreateFamilyUseCase() -> CreateFamilyUseCaseProtocol {
-        CreateFamilyUseCase(
-            familyRepository: makeFamilyRepository()
-        )
+        CreateFamilyUseCase(familyRepository: repository)
     }
     
     private func makeFetchFamilyCreatedAtUseCase() -> FetchFamilyCreatedAtUseCaseProtocol {
-        FetchFamilyCreatedAtUseCase(
-            familyRepository: makeFamilyRepository()
-        )
+        FetchFamilyCreatedAtUseCase(familyRepository: repository)
     }
     
     private func makeFetchFamilyMemberUseCase() -> FetchFamilyMembersUseCaseProtocol {
-        FetchFamilyMembersUseCase(
-            familyRepository: makeFamilyRepository()
-        )
+        FetchFamilyMembersUseCase(familyRepository: repository)
     }
     
     private func makeFetchFamilyMemberFromStorageUseCase() -> FetchFamilyMembersUseCaseFromStorageProtocol {
-        FetchFamilyMembersFromStoragUseCase(
-            familyRepository: makeFamilyRepository()
-        )
+        FetchFamilyMembersFromStoragUseCase(familyRepository: repository)
     }
     
     private func makeFetchInvitationLinkUseCase() -> FetchInvitationLinkUseCaseProtocol {
-        FetchInvitationUrlUseCase(
-            familyRepository: makeFamilyRepository()
-        )
+        FetchInvitationUrlUseCase(familyRepository: repository)
     }
     
     private func makeJoinFamilyUseCase() -> JoinFamilyUseCaseProtocol {
-        JoinFamilyUseCase(
-            familyRepository: makeFamilyRepository()
-        )
+        JoinFamilyUseCase(familyRepository: repository)
     }
     
     private func makeResignFamilyUseCase() -> ResignFamilyUseCaseProtocol {
-        ResignFamilyUseCase(
-            familyRepository: makeFamilyRepository()
-        )
+        ResignFamilyUseCase(familyRepository: repository)
+    }
+    
+    private func makeInviteFamilyUseCase() -> FamilyUseCaseProtocol {
+        return FamilyUseCase(familyRepository: repository)
     }
     
     // Deprecated
     private func makeFamilyUseCase() -> FamilyUseCaseProtocol {
-        FamilyUseCase(
-            familyRepository: makeFamilyRepository()
-        )
+        FamilyUseCase(familyRepository: repository)
     }
-    
-    
-    // MARK: - Make Repository
-    
-    private func makeFamilyRepository() -> FamilyRepositoryProtocol {
-        return FamilyRepository()
-    }
-    
     
     // MARK: - Register
     
@@ -101,10 +81,13 @@ final class FamilyDIContainer: BaseContainer {
             makeResignFamilyUseCase()
         }
         
+        container.register(type: FamilyUseCaseProtocol.self) { _ in
+            self.makeInviteFamilyUseCase()
+        }
+        
         // Deprecated
         container.register(type: FamilyUseCaseProtocol.self) { _ in
             makeFamilyUseCase()
         }
     }
-    
 }

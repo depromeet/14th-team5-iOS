@@ -56,7 +56,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             AppDIContainer(),
             CalendarDIContainer(),
             CommentDIContainer(),
-            PickDIContainer()
+            FamilyDIContainer(),
+            PickDIContainer(),
+            OAuthDIContainer(),
+            SignInDIContainer()
         ]
         containers.forEach {
             $0.registerDependencies()

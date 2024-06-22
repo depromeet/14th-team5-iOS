@@ -13,31 +13,31 @@ final class OAuthDIContainer: BaseContainer {
     
     // MARK: - Make UseCase
     
-    func makeRegisterNewFCMTokenUseCase() -> RegisterNewFCMTokenUseCaseProtocol {
+    private func makeRegisterNewFCMTokenUseCase() -> RegisterNewFCMTokenUseCaseProtocol {
         RegisterNewFCMTokenUseCase(
             oauthRepository: makeOAuthRepository()
         )
     }
     
-    func makeDeleteFCMTokenUseCase() -> DeleteFCMTokenUseCaseProtocol {
+    private func makeDeleteFCMTokenUseCase() -> DeleteFCMTokenUseCaseProtocol {
         DeleteFCMTokenUseCase(
             oauthRepository: makeOAuthRepository()
         )
     }
     
-    func makeRefreshAccessTokenUseCase() -> RefreshAccessTokenUseCaseProtocol {
+    private func makeRefreshAccessTokenUseCase() -> RefreshAccessTokenUseCaseProtocol {
         RefreshAccessTokenUseCase(
             oauthRepository: makeOAuthRepository()
         )
     }
     
-    func makeRegisterNewMemberUseCase() -> RegisterNewMemberUseCaseProtocol {
+    private func makeRegisterNewMemberUseCase() -> RegisterNewMemberUseCaseProtocol {
         RegisterNewMemberUseCase(
             oauthRepository: makeOAuthRepository()
         )
     }
     
-    func makeSignInUseCase() -> SignInUseCaseProtocol {
+    private func makeSignInUseCase() -> SignInUseCaseProtocol {
         SignInUseCase(
             oauthRepository: makeOAuthRepository()
         )
@@ -46,7 +46,7 @@ final class OAuthDIContainer: BaseContainer {
     
     // MARK: - Make Repository
     
-    func makeOAuthRepository() -> OAuthRepositoryProtocol {
+    private func makeOAuthRepository() -> OAuthRepositoryProtocol {
         return OAuthRepository()
     }
     

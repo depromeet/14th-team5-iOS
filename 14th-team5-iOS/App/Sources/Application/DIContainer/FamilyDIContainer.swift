@@ -13,50 +13,50 @@ final class FamilyDIContainer: BaseContainer {
     
     // MARK: - Make UseCase
     
-    func makeCreateFamilyUseCase() -> CreateFamilyUseCaseProtocol {
+    private func makeCreateFamilyUseCase() -> CreateFamilyUseCaseProtocol {
         CreateFamilyUseCase(
             familyRepository: makeFamilyRepository()
         )
     }
     
-    func makeFetchFamilyCreatedAtUseCase() -> FetchFamilyCreatedAtUseCaseProtocol {
+    private func makeFetchFamilyCreatedAtUseCase() -> FetchFamilyCreatedAtUseCaseProtocol {
         FetchFamilyCreatedAtUseCase(
             familyRepository: makeFamilyRepository()
         )
     }
     
-    func makeFetchFamilyMemberUseCase() -> FetchFamilyMembersUseCaseProtocol {
+    private func makeFetchFamilyMemberUseCase() -> FetchFamilyMembersUseCaseProtocol {
         FetchFamilyMembersUseCase(
             familyRepository: makeFamilyRepository()
         )
     }
     
-    func makeFetchFamilyMemberFromStorageUseCase() -> FetchFamilyMembersUseCaseFromStorageProtocol {
+    private func makeFetchFamilyMemberFromStorageUseCase() -> FetchFamilyMembersUseCaseFromStorageProtocol {
         FetchFamilyMembersFromStoragUseCase(
             familyRepository: makeFamilyRepository()
         )
     }
     
-    func makeFetchInvitationLinkUseCase() -> FetchInvitationLinkUseCaseProtocol {
+    private func makeFetchInvitationLinkUseCase() -> FetchInvitationLinkUseCaseProtocol {
         FetchInvitationUrlUseCase(
             familyRepository: makeFamilyRepository()
         )
     }
     
-    func makeJoinFamilyUseCase() -> JoinFamilyUseCaseProtocol {
+    private func makeJoinFamilyUseCase() -> JoinFamilyUseCaseProtocol {
         JoinFamilyUseCase(
             familyRepository: makeFamilyRepository()
         )
     }
     
-    func makeResignFamilyUseCase() -> ResignFamilyUseCaseProtocol {
+    private func makeResignFamilyUseCase() -> ResignFamilyUseCaseProtocol {
         ResignFamilyUseCase(
             familyRepository: makeFamilyRepository()
         )
     }
     
     // Deprecated
-    func makeFamilyUseCase() -> FamilyUseCaseProtocol {
+    private func makeFamilyUseCase() -> FamilyUseCaseProtocol {
         FamilyUseCase(
             familyRepository: makeFamilyRepository()
         )
@@ -65,7 +65,7 @@ final class FamilyDIContainer: BaseContainer {
     
     // MARK: - Make Repository
     
-    func makeFamilyRepository() -> FamilyRepositoryProtocol {
+    private func makeFamilyRepository() -> FamilyRepositoryProtocol {
         return FamilyRepository()
     }
     

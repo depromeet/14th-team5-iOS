@@ -13,13 +13,13 @@ final class SignInDIContainer: BaseContainer {
     
     // MARK: - Make UseCase
     
-    func makeSocialSignInUseCase() -> SocialSignInUseCaseProtocol {
+    private func makeSocialSignInUseCase() -> SocialSignInUseCaseProtocol {
         SocialSignInUseCase(
             signInRepository: makeSignInRepository()
         )
     }
     
-    func makeSocialSignOutUseCase() -> SocialSignOutUseCaseProtocol {
+    private func makeSocialSignOutUseCase() -> SocialSignOutUseCaseProtocol {
         SocialSignOutUseCase(
             signInRepository: makeSignInRepository()
         )
@@ -28,7 +28,7 @@ final class SignInDIContainer: BaseContainer {
     
     // MARK: - Make Repository
     
-    func makeSignInRepository() -> SignInRepositoryProtocol {
+    private func makeSignInRepository() -> SignInRepositoryProtocol {
         return SignInRepository()
     }
     

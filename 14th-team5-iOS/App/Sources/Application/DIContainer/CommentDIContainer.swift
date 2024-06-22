@@ -13,32 +13,32 @@ final class CommentDIContainer: BaseContainer {
     
     // MARK: - Make UseCase
     
-    func makeCreateCommentUseCase() -> CreateCommentUseCaseProtocol {
+    private func makeCreateCommentUseCase() -> CreateCommentUseCaseProtocol {
         CreateCommentUseCase(
             commentRepository: makeCommentRepository()
         )
     }
     
-    func makeDeleteCommentUseCase() -> DeleteCommentUseCaseProtocol {
+    private func makeDeleteCommentUseCase() -> DeleteCommentUseCaseProtocol {
         DeleteCommentUseCase(
             commentRepository: makeCommentRepository()
         )
     }
     
-    func makeFetchCommentUseCase() -> FetchCommentUseCaseProtocol {
+    private func makeFetchCommentUseCase() -> FetchCommentUseCaseProtocol {
         FetchCommentUseCase(
             commentRepository: makeCommentRepository()
         )
     }
     
-    func makeUpdateCommentUseCase() -> UpdateCommentUseCaseProtocol {
+    private func makeUpdateCommentUseCase() -> UpdateCommentUseCaseProtocol {
         UpdateCommentUseCase(
             commentRepository: makeCommentRepository()
         )
     }
     
     // Deprecated
-    func makeCommentUseCase() -> PostCommentUseCaseProtocol {
+    private func makeCommentUseCase() -> PostCommentUseCaseProtocol {
         PostCommentUseCase(
             commentRepository: makeCommentRepository()
         )
@@ -47,7 +47,7 @@ final class CommentDIContainer: BaseContainer {
     
     // MARK: - Make Repository
     
-    func makeCommentRepository() -> CommentRepositoryProtocol {
+    private func makeCommentRepository() -> CommentRepositoryProtocol {
         return CommentRepository()
     }
     

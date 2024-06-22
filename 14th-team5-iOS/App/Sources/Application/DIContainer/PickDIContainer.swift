@@ -13,26 +13,26 @@ final class PickDIContainer: BaseContainer {
     
     // MARK: - Make UseCase
     
-    func makePickMemberUseCase() -> PickMemberUseCaseProtocol {
+    private func makePickMemberUseCase() -> PickMemberUseCaseProtocol {
         PickMemberUseCase(
             pickRepository: makePickRepository()
         )
     }
     
-    func makeWhoDidIPickedMemberUseCase() -> WhoDidIPickMemberUseCaseProtocol {
+    private func makeWhoDidIPickedMemberUseCase() -> WhoDidIPickMemberUseCaseProtocol {
         WhoDidIPickMemberUseCase(
             pickRepository: makePickRepository()
         )
     }
     
-    func makeWhoPickedMeUseCase() -> WhoPickedMeUseCaseProtocol {
+    private func makeWhoPickedMeUseCase() -> WhoPickedMeUseCaseProtocol {
         WhoPickedMeUseCase(
             pickRepository: makePickRepository()
         )
     }
     
     // Deprecated
-    func makePickUseCase() -> PickUseCaseProtocol {
+    private func makePickUseCase() -> PickUseCaseProtocol {
         PickUseCase(
             pickRepository: makePickRepository()
         )
@@ -41,7 +41,7 @@ final class PickDIContainer: BaseContainer {
     
     // MARK: - Make Repository
     
-    func makePickRepository() -> PickRepositoryProtocol {
+    private func makePickRepository() -> PickRepositoryProtocol {
         return PickRepository()
     }
     

@@ -150,7 +150,7 @@ extension ReactionViewController {
             .withLatestFrom(postListData)
             .withUnretained(self) { ($0, $1) }
             .bind(onNext: {
-                let commentViewController = CommentDIContainer(
+                let commentViewController = PostCommentDIContainer(
                     postId: $1.postId
                 ).makeViewController()
                 

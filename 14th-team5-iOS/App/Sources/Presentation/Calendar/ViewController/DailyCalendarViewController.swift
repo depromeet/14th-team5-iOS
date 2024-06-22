@@ -253,7 +253,7 @@ public final class DailyCalendarViewController: BBNavigationViewController<Daily
             .filter { $0.openComment }
             .bind(with: self) { owner, deepLink in
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    let postCommentViewController = CommentDIContainer(
+                    let postCommentViewController = PostCommentDIContainer(
                         postId: deepLink.postId
                     ).makeViewController()
                     

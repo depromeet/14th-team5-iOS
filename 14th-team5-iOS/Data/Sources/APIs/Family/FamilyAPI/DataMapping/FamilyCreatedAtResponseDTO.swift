@@ -18,7 +18,7 @@ public struct FamilyCreatedAtResponseDTO: Decodable {
 }
 
 extension FamilyCreatedAtResponseDTO {
-    func toDomain() -> FamilyCreatedAtResponse {
+    func toDomain() -> FamilyCreatedAtEntity {
         return .init(
             createdAt: createdAt.iso8601ToDate()
         )

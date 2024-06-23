@@ -32,7 +32,7 @@ extension AccountAPIs {
 // MARK: SignIn
 extension AccountAPIWorker {
     private func signInWith(spec: APISpec, jsonEncodable: Encodable) -> Single<AccessTokenResponse?> {
-        return request(spec: spec/*, headers: [BibbiAPI.Header.xAppKey]*/, jsonEncodable: jsonEncodable)
+        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey], jsonEncodable: jsonEncodable)
             .subscribe(on: Self.queue)
             .do(onNext: {
                 if let str = String(data: $0.1, encoding: .utf8) {
@@ -95,6 +95,7 @@ extension AccountAPIWorker {
     
     func accountRefreshToken(parameter: Encodable) -> Single<AccountRefreshDTO?> {
         let spec = AccountAPIs.refreshToken.spec
+        print("RefreshToken: \(parameter)")
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.contentJson], jsonEncodable: parameter)
             .subscribe(on: Self.queue)
             .do {

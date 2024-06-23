@@ -13,32 +13,32 @@ final class CalendarDIContainer: BaseContainer {
     
     // MARK: - Make UseCase
     
-    func makeFetchCalendarBannerUseCase() -> FetchCalendarBannerUseCaseProtocol {
+    private func makeFetchCalendarBannerUseCase() -> FetchCalendarBannerUseCaseProtocol {
         FetchCalendarBannerUseCase(
             calendarRepository: makeCalendarRepository()
         )
     }
     
-    func makeFetchStatisticsSummaryUseCase() -> FetchStatisticsSummaryUseCaseProtocol {
+    private func makeFetchStatisticsSummaryUseCase() -> FetchStatisticsSummaryUseCaseProtocol {
         FetchStatisticsSummaryUseCase(
             calendarRepository: makeCalendarRepository()
         )
     }
     
-    func makeFetchDailyCalendarUseCase() -> FetchDailyCalendarUseCaseProtocol {
+    private func makeFetchDailyCalendarUseCase() -> FetchDailyCalendarUseCaseProtocol {
         FetchDailyCalendarUseCase(
             calendarRepository: makeCalendarRepository()
         )
     }
     
-    func makeFetchMonthlyCalendarUseCase() -> FetchMonthlyCalendarUseCaseProtocol {
+    private func makeFetchMonthlyCalendarUseCase() -> FetchMonthlyCalendarUseCaseProtocol {
         FetchMonthlyCalendarUseCase(
             calendarRepository: makeCalendarRepository()
         )
     }
     
     // Deprecated
-    func makeOldCalendarUseCase() -> CalendarUseCaseProtocol {
+    private func makeOldCalendarUseCase() -> CalendarUseCaseProtocol {
         CalendarUseCase(
             calendarRepository: makeCalendarRepository()
         )
@@ -48,7 +48,7 @@ final class CalendarDIContainer: BaseContainer {
     
     // MARK: - Make Repository
     
-    func makeCalendarRepository() -> CalendarRepositoryProtocol {
+    private func makeCalendarRepository() -> CalendarRepositoryProtocol {
         return CalendarRepository()
     }
     

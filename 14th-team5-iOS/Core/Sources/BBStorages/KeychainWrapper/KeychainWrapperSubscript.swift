@@ -49,6 +49,14 @@ public extension KeychainWrapper {
         }
     }
     
+    subscript(key: Key) -> NSCoding? {
+        get { object(forKey: key) }
+        set {
+            guard let value = newValue else { return }
+            set(value, forKey: key.rawValue)
+        }
+    }
+    
     subscript(key: Key) -> Data? {
         get { data(forKey: key) }
         set {
@@ -79,6 +87,10 @@ public extension KeychainWrapper {
     
     func string(forKey key: Key) -> String? {
         string(forKey: key.rawValue)
+    }
+    
+    func object(forKey key: Key) -> NSCoding? {
+        object(forKey: key.rawValue)
     }
     
     func data(forKey key: Key) -> Data? {

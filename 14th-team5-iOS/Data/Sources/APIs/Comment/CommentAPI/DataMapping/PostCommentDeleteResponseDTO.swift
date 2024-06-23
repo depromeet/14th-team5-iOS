@@ -13,7 +13,7 @@ public struct PostCommentDeleteResponseDTO: Decodable {
 }
 
 extension PostCommentDeleteResponseDTO {
-    func toDomain() -> PostCommentDeleteResponse {
+    func toDomain() -> PostCommentDeleteEntity {
         return .init(success: success)
     }
 }

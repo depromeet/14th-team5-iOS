@@ -31,7 +31,7 @@ extension OAuthAPIWorker {
     
     // MARK: - Refresh Access Token
     
-    public func refreshAccessToken(body: RefreshAccessTokenRequestDTO) -> Single<AuthResultEntity?> {
+    public func refreshAccessToken(body: RefreshAccessTokenRequestDTO) -> Single<AuthResultResponseDTO?> {
         let spec = OAuthAPIs.refreshToken.spec
         
         return request(spec: spec, jsonEncodable: body)
@@ -43,14 +43,13 @@ extension OAuthAPIWorker {
             }
             .map(AuthResultResponseDTO.self)
             .catchAndReturn(nil)
-            .map { $0?.toDomain() }
             .asSingle()
     }
     
     
     // MARK: - Register New Member
     
-    public func registerNewMember(body: CreateNewMemberRequestDTO) -> Single<AuthResultEntity?> {
+    public func registerNewMember(body: CreateNewMemberRequestDTO) -> Single<AuthResultResponseDTO?> {
         let spec = OAuthAPIs.registerMember.spec
         
         return request(spec: spec, jsonEncodable: body)
@@ -62,14 +61,13 @@ extension OAuthAPIWorker {
             }
             .map(AuthResultResponseDTO.self)
             .catchAndReturn(nil)
-            .map { $0?.toDomain() }
             .asSingle()
     }
     
     
     // MARK: - Sign In With SNS
     
-    public func signIn(_ type: SignInType, body: NativeSocialLoginRequestDTO) -> Single<AuthResultEntity?> {
+    public func signIn(_ type: SignInType, body: NativeSocialLoginRequestDTO) -> Single<AuthResultResponseDTO?> {
         let spec = OAuthAPIs.signIn(type).spec
         
         return request(spec: spec, jsonEncodable: body)
@@ -81,7 +79,6 @@ extension OAuthAPIWorker {
             }
             .map(AuthResultResponseDTO.self)
             .catchAndReturn(nil)
-            .map { $0?.toDomain() }
             .asSingle()
     }
     
@@ -89,7 +86,7 @@ extension OAuthAPIWorker {
     
     // MARK: - Register FCM Token
     
-    public func registerNewFCMToken(body: AddFCMTokenRequestDTO) -> Single<DefaultResponseEntity?> {
+    public func registerNewFCMToken(body: AddFCMTokenRequestDTO) -> Single<DefaultResponseDTO?> {
         let spec = OAuthAPIs.registerFCMToken.spec
         
         return request(spec: spec, jsonEncodable: body)
@@ -101,14 +98,13 @@ extension OAuthAPIWorker {
             }
             .map(DefaultResponseDTO.self)
             .catchAndReturn(nil)
-            .map { $0?.toDomain() }
             .asSingle()
     }
     
     
     // MARK: - Delete FCM Token
     
-    public func deleteFCMToken(fcmToken token: String) -> Single<DefaultResponseEntity?> {
+    public func deleteFCMToken(fcmToken token: String) -> Single<DefaultResponseDTO?> {
         let spec = OAuthAPIs.deleteFCMToken(token).spec
         
         return request(spec: spec)
@@ -120,7 +116,6 @@ extension OAuthAPIWorker {
             }
             .map(DefaultResponseDTO.self)
             .catchAndReturn(nil)
-            .map { $0?.toDomain() }
             .asSingle()
     }
     

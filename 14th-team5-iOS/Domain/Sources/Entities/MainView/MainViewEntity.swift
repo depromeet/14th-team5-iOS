@@ -18,7 +18,7 @@ public struct Picker {
 }
 
 public struct MainViewEntity {
-    public let mainFamilyProfileDatas: [ProfileData]
+    public let mainFamilyProfileDatas: [FamilyMemberProfileEntity]
     public let leftUploadCountUntilMissionUnlock: Int
     public let isFamilySurvivalUploadedToday: Bool
     public let isFamilyMissionUploadedToday: Bool
@@ -29,7 +29,7 @@ public struct MainViewEntity {
     public let pickers: [Picker]
     
     public init(
-        mainFamilyProfileDatas: [ProfileData],
+        mainFamilyProfileDatas: [FamilyMemberProfileEntity],
         leftUploadCountUntilMissionUnlock: Int,
         isMissionUnlocked: Bool,
         isMeSurvivalUploadedToday: Bool,

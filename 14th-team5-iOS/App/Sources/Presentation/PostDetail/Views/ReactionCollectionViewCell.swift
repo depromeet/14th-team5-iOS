@@ -95,7 +95,7 @@ extension ReactionCollectionViewCell {
             .disposed(by: disposeBag)
     }
     
-    private func setCell(data: RealEmojiEntity) {
+    private func setCell(data: EmojiEntity) {
         if data.count == 0 {
             return
         }

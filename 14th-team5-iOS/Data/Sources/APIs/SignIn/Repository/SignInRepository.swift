@@ -10,7 +10,7 @@ import Domain
 
 import RxSwift
 
-final class SignInRepository: SignInRepositoryProtocol {
+public final class SignInRepository: SignInRepositoryProtocol {
     
     // MARK: - Properties
     public var disposeBag = DisposeBag()
@@ -29,13 +29,13 @@ extension SignInRepository {
     public func signIn(
         with type: SignInType,
         on window: AnyObject?
-    ) -> Single<TokenResultEntity?> {
+    ) -> Observable<TokenResultEntity?> {
         signInApiWorker.signIn(with: type, on: window)
-            .observe(on: RxSchedulers.main)
             .do { [weak self] in
                 self?.tokenKeychainStorage.saveIdToken($0?.idToken)
                 self?.tokenKeychainStorage.saveSignInType(type)
             }
+            .asObservable()
     }
     
     
@@ -47,8 +47,9 @@ extension SignInRepository {
         else { return .error(RxError.unknown) } // TODO: - Error 타입 정의하기
         
         return signInApiWorker.signOut(with: type)
-            .observe(on: RxSchedulers.main)
-            .do(onCompleted: { KeychainWrapper.standard.removeAllKeys() })
+            .do(onCompleted: {
+                KeychainWrapper.standard.removeAllKeys()
+            })
     }
     
     

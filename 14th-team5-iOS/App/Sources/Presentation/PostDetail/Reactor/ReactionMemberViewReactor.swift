@@ -22,16 +22,15 @@ final class ReactionMemberViewReactor: Reactor {
     }
     
     struct State {
-        let emojiData: RealEmojiEntity
+        let emojiData: EmojiEntity
         var memberDataSource: [FamilyMemberProfileSectionModel] = []
     }
     
     let initialState: State
-    let familyUseCase: FamilyUseCaseProtocol
+    @Injected var familyUseCase: FamilyUseCaseProtocol
     
-    init(initialState: State, familyUseCase: FamilyUseCaseProtocol) {
+    init(initialState: State) {
         self.initialState = initialState
-        self.familyUseCase = familyUseCase
     }
 }
 
@@ -39,11 +38,11 @@ extension ReactionMemberViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .makeDataSource:
-            let profiles: [ProfileData] = familyUseCase.executeFetchPaginationFamilyMembers(memberIds: currentState.emojiData.memberIds)
+            let profiles: [FamilyMemberProfileEntity] = familyUseCase.executeFetchPaginationFamilyMembers(memberIds: currentState.emojiData.memberIds)
             
             var items: [FamilyMemberProfileCellReactor] = []
             profiles.forEach {
-                let member = ProfileData(
+                let member = FamilyMemberProfileEntity(
                     memberId: $0.memberId,
                     profileImageURL: $0.profileImageURL,
                     name: $0.name
@@ -54,7 +53,7 @@ extension ReactionMemberViewReactor {
             if  profiles.count != currentState.emojiData.memberIds.count {
                 let len = currentState.emojiData.memberIds.count - profiles.count
                 for _ in 0...(len - 1) {
-                    let member = ProfileData(
+                    let member = FamilyMemberProfileEntity(
                         memberId: .none,
                         name: .unknown
                     )

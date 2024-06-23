@@ -19,6 +19,9 @@ public protocol TokenKeychainType: KeychainType {
     func saveAccessToken(_ accessToken: String?)
     func loadAccessToken() -> String?
     
+    func saveOldAccessToken(_ tokenResult: AccessToken?)
+    func loadOldAccessToken() -> AccessToken?
+    
     func saveRefreshToken(_ refreshToken: String?)
     func loadRefreshToken() -> String?
     
@@ -58,31 +61,51 @@ final public class TokenKeychain: TokenKeychainType {
     
     // MARK: - AccessToken
     public func saveAccessToken(_ accessToken: String?) {
-        keychain[.accessToken] = accessToken
+        keychain[.newAccessToken] = accessToken
     }
     
     public func loadAccessToken() -> String? {
-        keychain[.accessToken]
+        keychain[.newAccessToken]
+    }
+    
+    
+    // MARK: - Old AccessToken
+    public func saveOldAccessToken(_ tokenResult: AccessToken?) {
+        // AccessToken은 Core 모듈의 TokenRepository에 정의되어 있음
+        guard
+            let data = try? JSONEncoder().encode(tokenResult),
+            let str = String(data: data, encoding: .utf8)
+        else { return }
+        keychain[.accessToken] = str
+    }
+    
+    public func loadOldAccessToken() -> AccessToken? {
+        guard
+            let str: String = keychain[.accessToken],
+            let data = str.data(using: .utf8),
+            let tokenResult = try? JSONDecoder().decode(AccessToken.self, from: data)
+        else { return nil }
+        return tokenResult
     }
     
     
     // MARK: - RefreshToken
     public func saveRefreshToken(_ refreshToken: String?) {
-        keychain[.refreshToken] = refreshToken
+        keychain[.newRefreshToken] = refreshToken
     }
     
     public func loadRefreshToken() -> String? {
-        keychain[.refreshToken]
+        keychain[.newRefreshToken]
     }
     
     
     // MARK: - FCM Token
     public func saveFCMToken(_ fcmToken: String?) {
-        keychain[.fcmToken] = fcmToken
+        keychain[.newFcmToken] = fcmToken
     }
     
     public func loadFCMToken() -> String? {
-        keychain[.fcmToken]
+        keychain[.newFcmToken]
     }
     
 }

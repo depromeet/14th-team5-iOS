@@ -19,7 +19,7 @@ final class PostViewController: BaseViewController<PostReactor> {
     private var navigationView: PostNavigationView = PostNavigationView()
     private let collectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let collectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
-    private let reactionViewController: ReactionViewController = ReactionDIContainer(type: .post).makeViewController(post: .init(postId: "", author: nil, commentCount: 0, emojiCount: 0, imageURL: "", content: nil, time: ""))
+    private let reactionViewController: ReactionViewController = ReactionViewControllerWrapper(type: .post, postListData: .empty).makeViewController()
     
     convenience init(reactor: Reactor? = nil) {
         self.init()
@@ -54,7 +54,6 @@ final class PostViewController: BaseViewController<PostReactor> {
             collectionView.rx.didEndDisplayingCell.map { $0.at.item }.distinctUntilChanged(),
             reactor.state.map { $0.selectedIndex }.distinctUntilChanged()
         )
-        .debug("포스트 뷰 ZIP 옵저버블 :")
         .filter { $0.0 == $0.1 }
         .withUnretained(self)
         .subscribe { owner, indexPath in
@@ -114,35 +113,6 @@ final class PostViewController: BaseViewController<PostReactor> {
             .distinctUntilChanged()
             .map { Reactor.Action.setPost($0) }
             .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        // 댓글 노티피케이션 딥링크 코드
-        reactor.state.compactMap { $0.notificationDeepLink }
-            .distinctUntilChanged(at: \.postId)
-            .filter { $0.openComment }
-            .bind(with: self) { owner, deepLink in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    let postList = reactor.initialState.originPostLists.items
-                    if let postList = postList.first(where: { item in
-                        switch item {
-                        case let .main(post):
-                            post.postId == deepLink.postId
-                        }
-                    }) {
-                        switch postList {
-                        case let .main(post):
-                            let postCommentViewController = CommentDIContainer(
-                                postId: post.postId
-                            ).makeViewController()
-                            
-                            owner.presentPostCommentSheet(
-                                postCommentViewController,
-                                from: .post
-                            )
-                        }
-                    }
-                }
-            }
             .disposed(by: disposeBag)
     }
     
@@ -243,7 +213,7 @@ extension PostViewController {
                     guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostDetailCollectionViewCell.id, for: indexPath) as? PostDetailCollectionViewCell else {
                         return UICollectionViewCell()
                     }
-                    cell.reactor = PostDetailCellDIContainer().makeReactor(post: data)
+                    cell.reactor = PostDetailCellWrapper(post: data).makeReactor()
                     cell.setCell(data: data)
                     return cell
                 }

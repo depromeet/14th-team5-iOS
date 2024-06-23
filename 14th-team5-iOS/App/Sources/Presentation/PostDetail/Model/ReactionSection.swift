@@ -18,7 +18,7 @@ struct ReactionSection {
     enum Item {
         case addComment(Int)
         case addReaction
-        case main(RealEmojiEntity)
+        case main(EmojiEntity)
     }
 }
 

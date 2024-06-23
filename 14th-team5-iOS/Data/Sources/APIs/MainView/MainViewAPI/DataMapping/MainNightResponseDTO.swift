@@ -14,24 +14,24 @@ struct Ranker: Codable {
     let name: String
     let survivalCount: Int
     
-    func toDomain() -> RankerData {
+    func toDomain() -> RankerData? {
         return .init(imageURL: profileImageUrl, name: name, survivalCount: survivalCount)
     }
 }
 
 struct FamilyMemberMonthlyRanking: Codable {
     let month: Int
-    let firstRanker: Ranker
-    let secondRanker: Ranker
-    let thirdRanker: Ranker
+    let firstRanker: Ranker?
+    let secondRanker: Ranker?
+    let thirdRanker: Ranker?
     let mostRecentSurvivalPostDate: String
     
     func toDomain() -> FamilyRankData {
         return .init(month: month,
                      recentPostDate: mostRecentSurvivalPostDate,
-                     firstRanker: firstRanker.toDomain(),
-                     secondRanker: secondRanker.toDomain(),
-                     thirdRanker: thirdRanker.toDomain()
+                     firstRanker: firstRanker?.toDomain(),
+                     secondRanker: secondRanker?.toDomain(),
+                     thirdRanker: thirdRanker?.toDomain()
         )
     }
 }

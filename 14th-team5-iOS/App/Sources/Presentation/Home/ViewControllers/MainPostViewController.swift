@@ -87,11 +87,11 @@ extension MainPostViewController {
             .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
             .withUnretained(self)
             .bind(onNext: {
-                $0.0.navigationController?.pushViewController(
-                    PostListsDIContainer().makeViewController(
-                        postLists: reactor.currentState.postSection,
-                        selectedIndex: $0.1
-                    ), animated: true)
+                let vc = PostDetailViewControllerWrapper(
+                    selectedIndex: $0.1.row,
+                    originPostLists: reactor.currentState.postSection
+                ).makeViewController()
+                $0.0.navigationController?.pushViewController(vc, animated: true)
             })
             .disposed(by: disposeBag)
         

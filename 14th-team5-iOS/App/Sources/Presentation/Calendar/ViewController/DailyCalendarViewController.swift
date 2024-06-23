@@ -28,12 +28,7 @@ public final class DailyCalendarViewController: BBNavigationViewController<Daily
         frame: .zero,
         collectionViewLayout: orthogonalCompositionalLayout
     )
-    private let reactionViewController: ReactionViewController = ReactionDIContainer(type: .calendar).makeViewController(
-        post: .init(
-            postId: "", author: nil, commentCount: 0, emojiCount: 0,
-            imageURL: "", content: nil, time: ""
-        )
-    )
+    private let reactionViewController: ReactionViewController = ReactionViewControllerWrapper(type: .calendar, postListData: .empty).makeViewController()
     private let fireLottieView: LottieView = LottieView(with: .fire, contentMode: .scaleAspectFill)
     
     // MARK: - Properties
@@ -195,7 +190,7 @@ public final class DailyCalendarViewController: BBNavigationViewController<Daily
             .bind { owner, post in
                 let postListData = PostEntity(
                     postId: post.postId,
-                    author: ProfileData(memberId: post.authorId, name: ""),
+                    author: FamilyMemberProfileEntity(memberId: post.authorId, name: ""),
                     commentCount: post.commentCount,
                     emojiCount: post.emojiCount,
                     imageURL: post.postImageUrl,
@@ -253,7 +248,7 @@ public final class DailyCalendarViewController: BBNavigationViewController<Daily
             .filter { $0.openComment }
             .bind(with: self) { owner, deepLink in
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    let postCommentViewController = CommentDIContainer(
+                    let postCommentViewController = PostCommentDIContainer(
                         postId: deepLink.postId
                     ).makeViewController()
                     

@@ -20,17 +20,17 @@ public final class PickRepository: PickRepositoryProtocol {
 }
 
 extension PickRepository {
-    public func pickMember(memberId: String) -> Observable<PickResponse?> {
+    public func pickMember(memberId: String) -> Observable<PickEntity?> {
         return pickApiWorker.pickMember(memberId: memberId)
             .asObservable()
     }
     
-    public func whoDidIPickMember(memberId: String) -> Observable<PickMemberListResponse?> {
+    public func whoDidIPickMember(memberId: String) -> Observable<PickMemberListEntity?> {
         return pickApiWorker.fetchWhoDidIPickMember(memberId: memberId)
             .asObservable()
     }
     
-    public func whoPickedMeMember(memberId: String) -> Observable<PickMemberListResponse?> {
+    public func whoPickedMeMember(memberId: String) -> Observable<PickMemberListEntity?> {
         return pickApiWorker.fetchWhoPickedMeMember(memberId: memberId)
             .asObservable()
     }

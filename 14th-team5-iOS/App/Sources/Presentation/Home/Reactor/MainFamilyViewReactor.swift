@@ -37,13 +37,8 @@ final class MainFamilyViewReactor: Reactor {
     }
     
     let initialState: State = State()
-    let provider: GlobalStateProviderProtocol
-    private let familyUseCase: FamilyUseCaseProtocol
-    
-    init(provider: GlobalStateProviderProtocol, familyUseCase: FamilyUseCaseProtocol) {
-        self.provider = provider
-        self.familyUseCase = familyUseCase
-    }
+    @Injected var provider: GlobalStateProviderProtocol
+    @Injected var familyUseCase: FamilyUseCaseProtocol
 }
 
 extension MainFamilyViewReactor {

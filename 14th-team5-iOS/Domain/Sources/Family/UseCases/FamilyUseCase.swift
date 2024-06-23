@@ -9,17 +9,18 @@ import Foundation
 
 import RxSwift
 
+@available(*, deprecated)
 public protocol FamilyUseCaseProtocol {
-    func executeJoinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyResponse?>
-    func executeResignFamily() -> Observable<AccountFamilyResignResponse?>
-    func executeCreateFamily() -> Observable<CreateFamilyResponse?>
-    func executeFetchCreatedAtFamily() -> Observable<FamilyCreatedAtResponse?>
-    func executeFetchCreatedAtFamily(_ familyId: String) -> Observable<FamilyCreatedAtResponse?>
-    func executeFetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?>
-    func executeFetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfile?>
-    func executeFetchPaginationFamilyMembers(memberIds: [String]) -> [ProfileData]
+    func executeJoinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyEntity?>
+    func executeResignFamily() -> Observable<DefaultEntity?>
+    func executeCreateFamily() -> Observable<CreateFamilyEntity?>
+    func executeFetchCreatedAtFamily() -> Observable<FamilyCreatedAtEntity?>
+    func executeFetchInvitationUrl() -> Observable<FamilyInvitationLinkEntity?>
+    func executeFetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfileEntity?>
+    func executeFetchPaginationFamilyMembers(memberIds: [String]) -> [FamilyMemberProfileEntity]
 }
 
+@available(*, deprecated)
 public final class FamilyUseCase: FamilyUseCaseProtocol {
     private let familyRepository: FamilyRepositoryProtocol
     
@@ -27,35 +28,31 @@ public final class FamilyUseCase: FamilyUseCaseProtocol {
         self.familyRepository = familyRepository
     }
     
-    public func executeJoinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyResponse?> {
+    public func executeJoinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyEntity?> {
         return familyRepository.joinFamily(body: body)
     }
     
-    public func executeResignFamily() -> Observable<AccountFamilyResignResponse?> {
+    public func executeResignFamily() -> Observable<DefaultEntity?> {
         return familyRepository.resignFamily()
     }
     
-    public func executeCreateFamily() -> Observable<CreateFamilyResponse?> {
+    public func executeCreateFamily() -> Observable<CreateFamilyEntity?> {
         return familyRepository.createFamily()
     }
     
-    public func executeFetchCreatedAtFamily() -> Observable<FamilyCreatedAtResponse?> {
+    public func executeFetchCreatedAtFamily() -> Observable<FamilyCreatedAtEntity?> {
         return familyRepository.fetchFamilyCreatedAt()
     }
     
-    public func executeFetchCreatedAtFamily(_ familyId: String) -> Observable<FamilyCreatedAtResponse?> {
-        return familyRepository.fetchFamilyCreatedAt(familyId)
+    public func executeFetchInvitationUrl() -> Observable<FamilyInvitationLinkEntity?> {
+        return familyRepository.fetchInvitationLink()
     }
     
-    public func executeFetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?> {
-        return familyRepository.fetchInvitationUrl()
-    }
-    
-    public func executeFetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfile?> {
+    public func executeFetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfileEntity?> {
         return familyRepository.fetchPaginationFamilyMembers(query: query)
     }
     
-    public func executeFetchPaginationFamilyMembers(memberIds: [String]) -> [ProfileData] {
+    public func executeFetchPaginationFamilyMembers(memberIds: [String]) -> [FamilyMemberProfileEntity] {
         return familyRepository.fetchPaginationFamilyMembers(memberIds: memberIds)
     }
 }

@@ -15,10 +15,10 @@ import Core
 public final class CameraDisplayViewReactor: Reactor {
     
     public var initialState: State
-    private let provider: GlobalStateProviderProtocol
-    private let createPresignedCameraUseCase: CreateCameraUseCaseProtocol
-    private let uploadImageUseCase: FetchCameraUploadImageUseCaseProtocol
-    private let fetchCameraImageUseCase: CreateCameraImageUseCaseProtocol
+    @Injected private var provider: GlobalStateProviderProtocol
+    @Injected private var createPresignedCameraUseCase: CreateCameraUseCaseProtocol
+    @Injected private var uploadImageUseCase: FetchCameraUploadImageUseCaseProtocol
+    @Injected private var fetchCameraImageUseCase: CreateCameraImageUseCaseProtocol
     
     public enum Action {
         case viewDidLoad
@@ -56,19 +56,10 @@ public final class CameraDisplayViewReactor: Reactor {
     
     
     init(
-        provider: GlobalStateProviderProtocol,
-        createPresignedCameraUseCase: CreateCameraUseCaseProtocol,
-        uploadImageUseCase: FetchCameraUploadImageUseCaseProtocol,
-        fetchCameraImageUseCase: CreateCameraImageUseCaseProtocol,
         displayData: Data,
         missionTitle: String,
         cameraType: PostType = .survival
     ) {
-        self.provider = provider
-        self.createPresignedCameraUseCase = createPresignedCameraUseCase
-        self.uploadImageUseCase = uploadImageUseCase
-        self.fetchCameraImageUseCase = fetchCameraImageUseCase
-        
         self.initialState = State(
             isLoading: true,
             displayDescrption: "",

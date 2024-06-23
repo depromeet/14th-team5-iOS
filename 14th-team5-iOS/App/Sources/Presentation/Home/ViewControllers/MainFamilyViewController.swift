@@ -94,7 +94,7 @@ extension MainFamilyViewController {
             }
             .withUnretained(self)
             .bind { owner, profileData in
-                let profileViewController = ProfileDIContainer(memberId: profileData.memberId).makeViewController()
+                let profileViewController = ProfileViewControllerWrapper(memberId: profileData.memberId).viewController
                 self.navigationController?.pushViewController(profileViewController, animated: true)
             }
             .disposed(by: disposeBag)

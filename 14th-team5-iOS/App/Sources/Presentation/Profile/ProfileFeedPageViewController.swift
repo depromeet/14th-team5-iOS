@@ -19,8 +19,8 @@ final class ProfileFeedPageViewController: UIPageViewController {
     private lazy var feedViewControllers:[UIViewController] = [profileFeedSurivalViewController, profileFeedMissionViewController]
     public var memberId: String
     
-    private lazy var profileFeedSurivalViewController: ProfileFeedViewController = ProfileFeedDIContainer(postType: .survival, memberId: memberId).makeViewController()
-    private lazy var profileFeedMissionViewController: ProfileFeedViewController = ProfileFeedDIContainer(postType: .mission, memberId: memberId).makeViewController()
+    private lazy var profileFeedSurivalViewController: ProfileFeedViewController = ProfileFeedViewControllerWrapper(postType: .survival, memberId: memberId).viewController
+    private lazy var profileFeedMissionViewController: ProfileFeedViewController = ProfileFeedViewControllerWrapper(postType: .mission, memberId: memberId).viewController
     
 
     

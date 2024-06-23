@@ -36,7 +36,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     private let profileLineView: UIView = UIView()
     private lazy var profilePickerController: PHPickerViewController = PHPickerViewController(configuration: pickerConfiguration)
 
-    private lazy var profileFeedViewController: ProfileFeedPageViewController = ProfileFeedPageDIContainer(memberId: reactor?.currentState.memberId ?? "").makeViewController()
+    private lazy var profileFeedViewController: ProfileFeedPageViewController = ProfileFeedPageViewControllerWrapper(memberId: reactor?.currentState.memberId ?? "").viewController
     
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -249,7 +249,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .withLatestFrom(reactor.state.compactMap { $0.profileMemberEntity } )
             .withUnretained(self)
             .bind { owner, entity in
-                let profileDetailViewController = ProfileDetailDIContainer(profileURL: entity.memberImage, userNickname: entity.memberName).makeViewController()
+                let profileDetailViewController = ProfileDetailViewControllerWrapper(profileURL: entity.memberImage, userNickname: entity.memberName).makeViewController()
                 owner.navigationController?.pushViewController(profileDetailViewController, animated: false)
             }.disposed(by: disposeBag)
         
@@ -299,7 +299,7 @@ extension ProfileViewController {
         let presentCameraAction: UIAlertAction = UIAlertAction(title: "카메라", style: .default) { _ in
             guard let profileMemberId = self.reactor?.currentState.profileMemberEntity?.memberId else { return }
             
-            let cameraViewController = CameraDIContainer(cameraType: .profile, memberId: profileMemberId).makeViewController()
+            let cameraViewController = CameraViewControllerWrapper(cameraType: .profile, memberId: profileMemberId).viewController
             self.navigationController?.pushViewController(cameraViewController, animated: true)
         }
         

@@ -15,7 +15,7 @@ import ReactorKit
 
 final class ProfileFeedViewReactor: Reactor {
     var initialState: State
-    private let feedUseCase: FetchMembersPostListUseCaseProtocol
+    @Injected private var feedUseCase: FetchMembersPostListUseCaseProtocol
     
     enum Action {
         case reloadFeedItems
@@ -43,11 +43,9 @@ final class ProfileFeedViewReactor: Reactor {
     }
     
     init(
-        feedUseCase: FetchMembersPostListUseCaseProtocol,
         type: PostType,
         memberId: String
     ) {
-        self.feedUseCase = feedUseCase
         self.initialState = State(
             memberId: memberId,
             selectedIndex: nil,

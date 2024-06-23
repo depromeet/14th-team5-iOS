@@ -15,16 +15,16 @@ import ReactorKit
 public final class ProfileViewReactor: Reactor {
     public var initialState: State
     
-    private let fetchMembersProfileUseCase: FetchMembersProfileUseCaseProtocol
-    private let createProfilePresignedUseCase: CreateCameraUseCaseProtocol
-    private let uploadProfileImageUseCase: FetchCameraUploadImageUseCaseProtocol
-    private let updateProfileUseCase: UpdateMembersProfileUseCaseProtocol
+    @Injected private var fetchMembersProfileUseCase: FetchMembersProfileUseCaseProtocol
+    @Injected private var createProfilePresignedUseCase: CreateCameraUseCaseProtocol
+    @Injected private var uploadProfileImageUseCase: FetchCameraUploadImageUseCaseProtocol
+    @Injected private var updateProfileUseCase: UpdateMembersProfileUseCaseProtocol
     
     
     
     private let memberId: String
     private let isUser: Bool
-    private let provider: GlobalStateProviderProtocol
+    @Injected private var provider: GlobalStateProviderProtocol
     
     public enum Action {
         case viewDidLoad
@@ -53,18 +53,9 @@ public final class ProfileViewReactor: Reactor {
     }
     
     init(
-        fetchMembersProfileUseCase: FetchMembersProfileUseCaseProtocol,
-        createProfilePresignedUseCase: CreateCameraUseCaseProtocol,
-        uploadProfileImageUseCase: FetchCameraUploadImageUseCaseProtocol,
-        updateProfileUseCase: UpdateMembersProfileUseCaseProtocol,
-        provider: GlobalStateProviderProtocol,
         memberId: String,
         isUser: Bool
     ) {
-        self.fetchMembersProfileUseCase = fetchMembersProfileUseCase
-        self.createProfilePresignedUseCase = createProfilePresignedUseCase
-        self.uploadProfileImageUseCase = uploadProfileImageUseCase
-        self.updateProfileUseCase = updateProfileUseCase
         self.memberId = memberId
         self.isUser = isUser
         self.initialState = State(

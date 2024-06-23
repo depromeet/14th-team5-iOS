@@ -436,9 +436,7 @@ extension DailyCalendarViewController {
     }
     
     private func pushCameraViewController(cameraType type: UploadLocation) {
-        let cameraViewController = CameraDIContainer(
-            cameraType: type
-        ).makeViewController()
+        let cameraViewController = CameraViewControllerWrapper(cameraType: type).viewController
         
         navigationController?.pushViewController(
             cameraViewController,
@@ -447,9 +445,9 @@ extension DailyCalendarViewController {
     }
     
     private func pushProfileViewController(memberId: String) {
-        let profileController = ProfileDIContainer(
+        let profileController = ProfileViewControllerWrapper(
             memberId: memberId
-        ).makeViewController()
+        ).viewController
         
         navigationController?.pushViewController(
             profileController,

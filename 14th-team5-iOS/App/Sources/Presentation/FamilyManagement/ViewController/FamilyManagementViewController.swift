@@ -125,8 +125,8 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .filter { !$0.isEmpty }
             .withUnretained(self)
             .subscribe {
-                let profileVC = ProfileDIContainer(memberId: $0.1).makeViewController()
-                $0.0.navigationController?.pushViewController(profileVC, animated: true)
+                let profileViewController = ProfileViewControllerWrapper(memberId: $0.1).viewController
+                $0.0.navigationController?.pushViewController(profileViewController, animated: true)
             }
             .disposed(by: disposeBag)
         

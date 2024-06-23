@@ -14,8 +14,6 @@ public protocol CreateCameraUseCaseProtocol {
     func execute(parameter: CameraDisplayImageParameters) -> Single<CameraPreSignedEntity?>
 }
 
-
-// Camera Presigned URL 생성 UseCase
 public final class CreateCameraUseCase: CreateCameraUseCaseProtocol {
     
     private let cameraRepository: any CameraRepositoryProtocol

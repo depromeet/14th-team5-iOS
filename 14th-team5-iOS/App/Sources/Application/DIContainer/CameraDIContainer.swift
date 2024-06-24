@@ -14,14 +14,6 @@ import UIKit
 
 final class CameraDIContainer: BaseContainer {
     
-    private var globalState: GlobalStateProviderProtocol {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return GlobalStateProvider()
-        }
-        return appDelegate.globalStateProvider
-    }
-    
-    
     public func makeRepository() -> CameraRepositoryProtocol {
         return CameraRepository()
     }

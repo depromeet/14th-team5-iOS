@@ -13,14 +13,7 @@ import UIKit
 
 
 final class ProfileDIContainer: BaseContainer {
-    
-    private var globalState: GlobalStateProviderProtocol {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return GlobalStateProvider()
-        }
-        return appDelegate.globalStateProvider
-    }
-    
+        
     public func makeRepository() -> MembersRepositoryProtocol {
         return MembersRepository()
     }

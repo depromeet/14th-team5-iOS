@@ -56,7 +56,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             AppDIContainer(),
             CalendarDIContainer(),
             CameraDIContainer(),
-            ProfileDIContainer()
+            ProfileDIContainer(),
             CommentDIContainer(),
             FamilyDIContainer(),
             OAuthDIContainer(),

@@ -16,12 +16,20 @@ final class PostDIContainer: BaseContainer {
     private func makePostUseCase() -> FetchPostListUseCaseProtocol {
         return FetchPostListUseCase(postListRepository: repository)
     }
+    
+    private func makeFetchMembersPostListUseCase() -> FetchMembersPostListUseCaseProtocol {
+        return FetchMembersPostListUseCase(postListRepository: repository)
+    }
 }
 
 extension PostDIContainer {
     func registerDependencies() {
         container.register(type: FetchPostListUseCaseProtocol.self) { _ in
             self.makePostUseCase()
+        }
+        
+        container.register(type: FetchMembersPostListUseCaseProtocol.self) { _ in
+            self.makeFetchMembersPostListUseCase()
         }
     }
 }

@@ -11,15 +11,9 @@ import Core
 import Data
 import Domain
 
+@available(*, deprecated, renamed: "ManagementViewControllerWrapper")
 public final class FamilyManagementDIContainer {
-    // MARK: - Properties
-    private var globalState: GlobalStateProviderProtocol {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return GlobalStateProvider()
-        }
-        return appDelegate.globalStateProvider
-    }
-    
+
     // MARK: - Make
     public func makeViewController() -> FamilyManagementViewController {
         return FamilyManagementViewController(reactor: makeReactor())
@@ -42,10 +36,6 @@ public final class FamilyManagementDIContainer {
     }
     
     public func makeReactor() -> FamilyManagementViewReactor {
-        return FamilyManagementViewReactor(
-            memberUseCase: makeMemberUseCase(),
-            familyUseCase: makeFamilyUseCase(),
-            provider: globalState
-        )
+        return FamilyManagementViewReactor()
     }
 }

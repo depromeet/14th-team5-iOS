@@ -55,6 +55,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let containers: [BaseContainer] = [
             AppDIContainer(),
             CalendarDIContainer(),
+            CameraDIContainer(),
+            ProfileDIContainer(),
             CommentDIContainer(),
             FamilyDIContainer(),
             OAuthDIContainer(),

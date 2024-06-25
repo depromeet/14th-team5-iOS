@@ -14,7 +14,7 @@ final class ProfileFeedPageViewReactor: Reactor {
     
     //MAKR: Property
     public var initialState: State
-    private var provider: GlobalStateProviderProtocol
+    @Injected private var provider: GlobalStateProviderProtocol
     
     enum Action {
         case updatePageViewController(Int)
@@ -29,9 +29,8 @@ final class ProfileFeedPageViewReactor: Reactor {
         case didShowPageViewController(BibbiFeedType)
     }
     
-    init(provider: GlobalStateProviderProtocol) {
+    init() {
         self.initialState = State(pageType: .survival)
-        self.provider = provider
     }
     
     func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {

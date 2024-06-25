@@ -210,7 +210,7 @@ extension AccountProfileViewController {
     private func createAlertController(owner: AccountProfileViewController) {
         let alertController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         let presentCameraAction: UIAlertAction = UIAlertAction(title: "카메라", style: .default) { _ in
-            let cameraViewController = CameraDIContainer(cameraType: .profile).makeViewController()
+            let cameraViewController = CameraViewControllerWrapper(cameraType: .profile).viewController
             owner.navigationController?.pushViewController(cameraViewController, animated: true)
         }
         let presentAlbumAction: UIAlertAction = UIAlertAction(title: "앨범", style: .default) { _ in

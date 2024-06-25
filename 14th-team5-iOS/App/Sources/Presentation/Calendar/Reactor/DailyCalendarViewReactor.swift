@@ -59,10 +59,10 @@ public final class DailyCalendarViewReactor: Reactor {
     }
     
     // MARK: - Properties
-    public var initialState: State
+    @Injected var provider: GlobalStateProviderProtocol
+    @Injected var calendarUseCase: CalendarUseCaseProtocol
     
-    public let provider: GlobalStateProviderProtocol
-    private let calendarUseCase: CalendarUseCaseProtocol
+    public var initialState: State
     
     private var hasReceivedPostEvent: Bool = false
     private var hasReceivedSelectionEvent: Bool = false
@@ -72,9 +72,7 @@ public final class DailyCalendarViewReactor: Reactor {
     // MARK: - Intializer
     init(
         date: Date,
-        notificationDeepLink deepLink: NotificationDeepLink?,
-        calendarUseCase: CalendarUseCaseProtocol,
-        provider: GlobalStateProviderProtocol
+        notificationDeepLink deepLink: NotificationDeepLink?
     ) {
         self.initialState = State(
             date: date,
@@ -86,9 +84,6 @@ public final class DailyCalendarViewReactor: Reactor {
             shouldPopViewController: false,
             notificationDeepLink: deepLink
         )
-        
-        self.calendarUseCase = calendarUseCase
-        self.provider = provider
     }
     
     // MARK: - Transfor

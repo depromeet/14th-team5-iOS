@@ -10,16 +10,10 @@ import Data
 import Domain
 import UIKit
 
+@available(*, deprecated)
 public final class CalendarPostCellDIContainer {
     // MARK: - Properties
     let post: DailyCalendarEntity
-    
-    private var globalState: GlobalStateProviderProtocol {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return GlobalStateProvider()
-        }
-        return appDelegate.globalStateProvider
-    }
     
     init(post: DailyCalendarEntity) {
         self.post = post
@@ -36,9 +30,7 @@ public final class CalendarPostCellDIContainer {
     
     public func makeReactor() -> CalendarPostCellReactor {
         return CalendarPostCellReactor(
-            post: post,
-            meUseCase: makeMeUseCase(),
-            provider: globalState
+            post: post
         )
     }
 }

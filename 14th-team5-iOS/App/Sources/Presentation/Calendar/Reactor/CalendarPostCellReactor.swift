@@ -39,20 +39,16 @@ public final class CalendarPostCellReactor: Reactor {
     // MARK: - Properties
     public var initialState: State
     
-    public let meUseCase: MemberUseCaseProtocol
-    public let provider: GlobalStateProviderProtocol
+    @Injected var meUseCase: MemberUseCaseProtocol
+    @Injected var provider: GlobalStateProviderProtocol
     
     // MARK: - Intializer
     public init(
-        post: DailyCalendarEntity,
-        meUseCase: MemberUseCaseProtocol,
-        provider: GlobalStateProviderProtocol
+        post: DailyCalendarEntity
     ) {
         self.initialState = State(
             post: post
         )
-        self.meUseCase = meUseCase
-        self.provider = provider
     }
     
     // MARK: - Mutate

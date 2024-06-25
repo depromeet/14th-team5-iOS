@@ -10,6 +10,7 @@ import Data
 import Domain
 import UIKit
 
+@available(*, deprecated, renamed: "CommentViewControllerWrapper")
 public final class PostCommentDIContainer {
     // MARK: - Properties
     private var globalState: GlobalStateProviderProtocol {
@@ -49,10 +50,7 @@ public final class PostCommentDIContainer {
     
     public func makeReactor() -> CommentViewReactor {
         return CommentViewReactor(
-            postId: postId,
-            memberUseCase: makeMemberUseCase(),
-            postCommentUseCase: makePostCommentUseCase(),
-            provider: globalState
+            postId: postId
         )
     }
 }

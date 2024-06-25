@@ -5,12 +5,11 @@
 //  Created by 김건우 on 6/5/24.
 //
 
+import DesignSystem
 import UIKit
 
-import DesignSystem
 import Then
 import SnapKit
-
 import RxSwift
 import RxCocoa
 
@@ -38,6 +37,13 @@ public final class BBNavigationBarView: UIView {
             navigationTitleLabel.isHidden = false
             
             navigationTitleLabel.text = navigationTitle
+        }
+    }
+    
+    // NavigationBar의 FontStyle을 바꿉니다.
+    public var navigationTitleFontStyle: BibbiFontStyle = .head2Bold {
+        didSet {
+            navigationTitleLabel.fontStyle = navigationTitleFontStyle
         }
     }
     

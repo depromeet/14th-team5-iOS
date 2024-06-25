@@ -10,5 +10,5 @@ import Domain
 
 struct FamilyWidgetEntry: TimelineEntry {
     let date: Date
-    let family: RecentFamilyPostData?
+    let family: RecentFamilyPostEntity?
 }

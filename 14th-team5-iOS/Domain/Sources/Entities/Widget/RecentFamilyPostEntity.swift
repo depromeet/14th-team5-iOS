@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct RecentFamilyPostData: Codable {
+public struct RecentFamilyPostEntity: Codable {
     public var authorName: String
     public var authorProfileImageUrl: String?
     public var postId: String?

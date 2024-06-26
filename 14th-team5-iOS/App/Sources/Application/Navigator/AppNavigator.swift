@@ -35,14 +35,14 @@ final class AppNavigator: AppNavigatorProtocol {
     func toSplash() {
         let vc = SplashViewControllerWrapper().viewController
         navigationController.setViewControllers([vc], animated: false)
-        window.rootViewController = vc
+        window.rootViewController = navigationController
         window.makeKeyAndVisible()
     }
     
     func toHome() {
         let vc = MainViewControllerWrapper().viewController
         navigationController.setViewControllers([vc], animated: false)
-        window.rootViewController = vc
+        window.rootViewController = navigationController
         window.makeKeyAndVisible()
     }
     

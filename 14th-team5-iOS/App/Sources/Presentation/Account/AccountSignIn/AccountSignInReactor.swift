@@ -15,8 +15,8 @@ import FirebaseMessaging
 
 public final class AccountSignInReactor: Reactor {
     public var initialState: State
-    private var accountRepository: AccountImpl
-    private let fcmUseCase: FCMUseCaseProtocol
+    private var accountRepository: AccountImpl = AccountRepository()
+    private let fcmUseCase: FCMUseCaseProtocol = FCMUseCase(FCMRepository: MeAPIs.Worker())
     private let disposeBag = DisposeBag()
     
     public enum Action {
@@ -33,9 +33,9 @@ public final class AccountSignInReactor: Reactor {
         var pushAccountSingUpVC: Bool
     }
     
-    init(accountRepository: AccountRepository, fcmUseCase: FCMUseCaseProtocol) {
-        self.accountRepository = accountRepository
-        self.fcmUseCase = fcmUseCase
+    init(/*accountRepository: AccountRepository, fcmUseCase: FCMUseCaseProtocol*/) {
+//        self.accountRepository = accountRepository
+//        self.fcmUseCase = fcmUseCase
         self.initialState = State(pushAccountSingUpVC: false)
     }
 }

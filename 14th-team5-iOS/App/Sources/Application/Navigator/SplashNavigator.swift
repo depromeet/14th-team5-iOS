@@ -39,7 +39,8 @@ final class SplashNavigator: SplashNavigatorProtocol {
     }
     
     func toSignIn() {
-        // ...
+        let vc = SignInViewControllerWrapper().viewController
+        navigationController.setViewControllers([vc], animated: false)
     }
     
     func toOnboarding() {

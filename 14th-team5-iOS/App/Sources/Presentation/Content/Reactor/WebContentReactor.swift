@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 import ReactorKit
 
-public class WebContentViewReactor: Reactor {
+public class WebContentReactor: Reactor {
     public var initialState: State
     
     public enum Action {

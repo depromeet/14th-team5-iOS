@@ -7,12 +7,12 @@
 
 import Foundation
 
-
+@available(*, deprecated, renamed: "WebContentViewControllerWrapper")
 public final class WebContentDIContainer {
     // UseCase or Repository 사용할지
     // Reactor 만 사용할지 논의 필요
     public typealias ViewController = WebContentViewController
-    public typealias Reactor = WebContentViewReactor
+    public typealias Reactor = WebContentReactor
     
     public let webURL: URL?
     
@@ -27,7 +27,7 @@ public final class WebContentDIContainer {
     }
     
     public func makeReactor() -> Reactor {
-        return WebContentViewReactor(contentURL: webURL)
+        return WebContentReactor(contentURL: webURL)
     }
     
     

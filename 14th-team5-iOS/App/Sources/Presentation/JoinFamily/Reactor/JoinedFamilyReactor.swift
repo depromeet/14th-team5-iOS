@@ -27,8 +27,8 @@ public final class JoinedFamilyReactor: Reactor {
     }
     
     public var initialState: State
-    init(initialState: State) {
-        self.initialState = initialState
+    init() {
+        self.initialState = State()
     }
 }
 

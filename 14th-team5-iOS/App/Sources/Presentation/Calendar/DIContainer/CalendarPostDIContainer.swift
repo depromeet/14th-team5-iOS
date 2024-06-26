@@ -11,6 +11,7 @@ import Data
 import Domain
 import UIKit
 
+@available(*, deprecated, renamed: "DailyCalendarViewControllerWrapper")
 public final class WeeklyCalendarDIConatainer {
     // MARK: - Properties
     let date: Date
@@ -26,12 +27,12 @@ public final class WeeklyCalendarDIConatainer {
         self.deepLink = deepLink
     }
     
-    private var globalState: GlobalStateProviderProtocol {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return GlobalStateProvider()
-        }
-        return appDelegate.globalStateProvider
-    }
+//    private var globalState: GlobalStateProviderProtocol {
+//        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+//            return GlobalStateProvider()
+//        }
+//        return appDelegate.globalStateProvider
+//    }
     
     // MARK: - Make
     public func makeViewController() -> DailyCalendarViewController {
@@ -49,9 +50,9 @@ public final class WeeklyCalendarDIConatainer {
     public func makeReactor() -> DailyCalendarViewReactor {
         return DailyCalendarViewReactor(
             date: date,
-            notificationDeepLink: deepLink,
-            calendarUseCase: makeCalendarUseCase(),
-            provider: globalState
+            notificationDeepLink: deepLink
+//            calendarUseCase: makeCalendarUseCase(),
+//            provider: globalState
         )
     }
 }

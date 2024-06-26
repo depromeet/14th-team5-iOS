@@ -11,16 +11,10 @@ import Core
 import Data
 import Domain
 
+@available(*, deprecated)
 public final class CalendarCellDIContainer {
     // MARK: - Properties
     public let yearMonth: String
-    
-    private var globalState: GlobalStateProviderProtocol {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return GlobalStateProvider()
-        }
-        return appDelegate.globalStateProvider
-    }
     
     // MARK: - Intializer
     public init(yearMonth: String) {
@@ -39,8 +33,6 @@ public final class CalendarCellDIContainer {
     public func makeReactor() -> CalendarCellReactor {
         return CalendarCellReactor(
             yearMonth: yearMonth
-//            calendarUseCase: makeUseCase(),
-//            provider: globalState
         )
     }
 }

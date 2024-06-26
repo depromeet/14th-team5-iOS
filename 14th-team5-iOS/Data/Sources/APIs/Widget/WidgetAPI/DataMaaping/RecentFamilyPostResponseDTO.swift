@@ -16,7 +16,7 @@ struct RecentFamilyPostResponseDTO: Codable {
     let postImageUrl: String?
     let postContent: String?
     
-    func toDomain() -> RecentFamilyPostData {
+    func toDomain() -> RecentFamilyPostEntity {
         return .init(authorName: authorName, 
                      authorProfileImageUrl: authorProfileImageUrl,
                      postId: postId,

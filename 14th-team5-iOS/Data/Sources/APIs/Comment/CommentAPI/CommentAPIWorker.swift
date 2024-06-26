@@ -62,8 +62,15 @@ extension CommentAPIWorker {
         body: CreatePostCommentReqeustDTO
     ) -> Single<PostCommentResponseDTO?> {
         let spec = CommentAPIs.createPostComment(postId).spec
-        
-        return request(spec: spec, jsonEncodable: body)
+        let headers = {
+            let accessToken = App.Repository.token.accessToken.value?.accessToken
+            var apiHeaders: [APIHeader] = [
+                BibbiAPI.Header.xAppKey,
+                BibbiAPI.Header.xAuthToken(accessToken!)
+            ]
+            return apiHeaders
+        }() // TODO: - APIWorker 리팩토링되는 대로 코드 삭제하기
+        return request(spec: spec, headers: headers, jsonEncodable: body)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {

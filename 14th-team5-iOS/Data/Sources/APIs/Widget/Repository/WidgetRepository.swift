@@ -18,7 +18,7 @@ public final class WidgetRepository: WidgetRepositoryProtocol {
     
     public init () { }
     
-    public func fetchRecentFamilyPost(completion: @escaping (Result<Domain.RecentFamilyPostData?, Error>) -> Void) {
+    public func fetchRecentFamilyPost(completion: @escaping (Result<Domain.RecentFamilyPostEntity?, Error>) -> Void) {
         widgetAPIWorker.fetchRecentFamilyPost()
             .subscribe(
                 onNext: { result in

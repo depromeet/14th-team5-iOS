@@ -13,7 +13,7 @@ import Domain
 import ReactorKit
 import RxSwift
 
-public final class CalendarViewReactor: Reactor {
+public final class MonthlyCalendarViewReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case popViewController

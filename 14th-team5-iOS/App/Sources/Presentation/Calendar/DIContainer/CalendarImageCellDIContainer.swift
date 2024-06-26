@@ -11,18 +11,13 @@ import Core
 import Data
 import Domain
 
+@available(*, deprecated)
 final public class CalendarImageCellDIContainer {
     // MARK: - Properties
     public let type: CalendarImageCellReactor.CalendarType
     public let monthlyEntity: CalendarEntity
     public let isSelected: Bool
-    
-    private var globalState: GlobalStateProviderProtocol {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return GlobalStateProvider()
-        }
-        return appDelegate.globalStateProvider
-    }
+
     
     // MARK: - Intializer
     public init(
@@ -48,9 +43,7 @@ final public class CalendarImageCellDIContainer {
         return CalendarImageCellReactor(
             type: type,
             monthlyEntity: monthlyEntity,
-            isSelected: isSelected,
-            calendarUseCase: makeUseCase(),
-            provider: globalState
+            isSelected: isSelected
         )
     }
 }

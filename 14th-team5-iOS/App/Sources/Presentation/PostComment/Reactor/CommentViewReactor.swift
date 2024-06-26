@@ -70,20 +70,15 @@ final public class CommentViewReactor: Reactor {
     // MARK: - Properties
     public var initialState: State
     
-    public var memberUseCase: MemberUseCaseProtocol
-    public var postCommentUseCase: PostCommentUseCaseProtocol
-    public var provider: GlobalStateProviderProtocol
+    @Injected var memberUseCase: MemberUseCaseProtocol
+    @Injected var postCommentUseCase: PostCommentUseCaseProtocol
+    @Injected var provider: GlobalStateProviderProtocol
     
     private var postComentCount: Int = 0
     private var hasReceivedInputEvent: Bool = false
     
     // MARK: - Intializer
-    public init(
-        postId: String,
-        memberUseCase: MemberUseCaseProtocol,
-        postCommentUseCase: PostCommentUseCaseProtocol,
-        provider: GlobalStateProviderProtocol
-    ) {
+    public init(postId: String) {
         self.initialState = State(
             postId: postId,
             commentCount: 0,
@@ -103,10 +98,6 @@ final public class CommentViewReactor: Reactor {
             enableCommentTextField: false,
             tableViewBottomOffset: 0
         )
-        
-        self.memberUseCase = memberUseCase
-        self.postCommentUseCase = postCommentUseCase
-        self.provider = provider
     }
     
     // MARK: - Transform

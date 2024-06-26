@@ -11,7 +11,11 @@ import Domain
 
 final class FamilyDIContainer: BaseContainer {
 
+    // MARK: - Repositories
+    
     private let repository: FamilyRepositoryProtocol = FamilyRepository()
+    
+    // MARK: - Make UseCase
     
     private func makeCreateFamilyUseCase() -> CreateFamilyUseCaseProtocol {
         CreateFamilyUseCase(familyRepository: repository)
@@ -39,10 +43,6 @@ final class FamilyDIContainer: BaseContainer {
     
     private func makeResignFamilyUseCase() -> ResignFamilyUseCaseProtocol {
         ResignFamilyUseCase(familyRepository: repository)
-    }
-    
-    private func makeInviteFamilyUseCase() -> FamilyUseCaseProtocol {
-        return FamilyUseCase(familyRepository: repository)
     }
     
     // Deprecated
@@ -79,10 +79,6 @@ final class FamilyDIContainer: BaseContainer {
         
         container.register(type: ResignFamilyUseCaseProtocol.self) { _ in
             makeResignFamilyUseCase()
-        }
-        
-        container.register(type: FamilyUseCaseProtocol.self) { _ in
-            self.makeInviteFamilyUseCase()
         }
         
         // Deprecated

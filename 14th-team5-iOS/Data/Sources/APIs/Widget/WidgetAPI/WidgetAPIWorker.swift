@@ -36,7 +36,7 @@ extension WidgetAPIs {
 }
 
 extension WidgetAPIWorker {
-    func fetchRecentFamilyPost() -> Observable<RecentFamilyPostData?> {
+    func fetchRecentFamilyPost() -> Observable<RecentFamilyPostEntity?> {
 
         let spec = WidgetAPIs.fetchRecentFamilyPost.spec
         let parameters = RecentFamilyPostParameter()

@@ -9,6 +9,7 @@ import Core
 import Foundation
 import UIKit
 
+@available(*, deprecated)
 public final class InvitationUrlContainerDIContainer {
     // MARK: - Properties
     private var globalState: GlobalStateProviderProtocol {

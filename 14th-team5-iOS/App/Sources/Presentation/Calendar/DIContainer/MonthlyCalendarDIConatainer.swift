@@ -11,6 +11,7 @@ import Core
 import Data
 import Domain
 
+@available(*, deprecated, renamed: "MonthlyCalendarViewControllerWrapper")
 public final class MonthlyCalendarDIConatainer {
     // MARK: - Properties
     private var globalState: GlobalStateProviderProtocol {
@@ -33,8 +34,8 @@ public final class MonthlyCalendarDIConatainer {
         return CalendarRepository()
     }
     
-    public func makeReactor() -> CalendarViewReactor {
-        return CalendarViewReactor(
+    public func makeReactor() -> MonthlyCalendarViewReactor {
+        return MonthlyCalendarViewReactor(
 //            calendarUseCase: makeCalendarUseCase()
 //            provider: globalState
         )

@@ -56,16 +56,12 @@ public final class FamilyManagementViewReactor: Reactor {
     // MARK: - Properties
     public let initialState: State
     
-    public let memberUseCase: MemberUseCaseProtocol
-    public let familyUseCase: FamilyUseCaseProtocol
-    public let provider: GlobalStateProviderProtocol
+    @Injected var memberUseCase: MemberUseCaseProtocol
+    @Injected var familyUseCase: FamilyUseCaseProtocol
+    @Injected var provider: GlobalStateProviderProtocol
     
     // MARK: - Intializer
-    init(
-        memberUseCase: MemberUseCaseProtocol,
-        familyUseCase: FamilyUseCaseProtocol,
-        provider: GlobalStateProviderProtocol
-    ) {
+    init() {
         self.initialState = State(
             familyId: nil,
             familyInvitationUrl: nil,
@@ -81,9 +77,6 @@ public final class FamilyManagementViewReactor: Reactor {
             displayFamilyMemberCount: 0
         )
         
-        self.memberUseCase = memberUseCase
-        self.familyUseCase = familyUseCase
-        self.provider = provider
     }
     
     // MARK: - Transform

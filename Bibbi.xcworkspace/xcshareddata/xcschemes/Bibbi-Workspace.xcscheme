@@ -924,6 +924,20 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "1A2AC3156F7D931A875B1432"
+               BuildableName = "nanopb_nanopb.bundle"
+               BlueprintName = "nanopb_nanopb"
+               ReferencedContainer = "container:Tuist/Dependencies/SwiftPackageManager/.build/checkouts/nanopb/nanopb.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "51D7B8F6AC67856BE18DC303"
                BuildableName = "third_party_IsAppEncrypted.framework"
                BlueprintName = "third-party-IsAppEncrypted"

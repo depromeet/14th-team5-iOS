@@ -1,0 +1,50 @@
+//
+//  DailyCalendarNavigator.swift
+//  App
+//
+//  Created by 김건우 on 6/27/24.
+//
+
+import Core
+import UIKit
+
+protocol DailyCalendarNavigatorProtocol: BaseNavigator {
+    func toProfile(memberId: String)
+    func toComment(postId: String)
+    func dismissComment(completion: (() -> Void)?)
+}
+
+final class DailyCalendarNavigator: DailyCalendarNavigatorProtocol {
+    
+    // MARK: - Properties
+    
+    var navigationController: UINavigationController
+    
+    // MARK: - Intializer
+    
+    init(navigationController: UINavigationController) {
+        self.navigationController = navigationController
+    }
+    
+    // MARK: - To
+    
+    func toProfile(memberId: String) {
+        let vc = ProfileViewControllerWrapper(memberId: memberId).viewController
+        navigationController.pushViewController(vc, animated: true)
+    }
+    
+    func toComment(postId: String) {
+        let vc = CommentViewControllerWrapper(postId: postId).viewController
+        navigationController.presentPostCommentSheet(vc, from: .calendar)
+        // TODO: - present 메서드 수정하기
+    }
+    
+    // MARK: - Back
+    
+    func dismissComment(completion: (() -> Void)? = nil) {
+        navigationController.dismiss(animated: true) {
+            completion?()
+        }
+    }
+    
+}

@@ -19,19 +19,17 @@ public final class CameraViewReactor: Reactor {
     public var initialState: State
     
     
-    private let createProfileImageUseCase: CreateCameraUseCaseProtocol
-    private let uploadImageUseCase: FetchCameraUploadImageUseCaseProtocol
-    private let fetchMissionUseCase: FetchCameraTodayMissionUseCaseProtocol
-    private let fetchRealEmojiUpdateUseCase: FetchCameraRealEmojiUpdateUseCaseProtocol
-    private let fetchRealEmojiCreateUseCase: FetchCameraRealEmojiUploadUseCaseProtocol
-    private let editProfileImageUseCase: EditCameraProfileImageUseCaseProtocol
-    private let fetchRealEmojiListUseCase: FetchCameraRealEmojiListUseCaseProtocol
-    private let fetchRealEmojiPreSignedUseCase: FetchCameraRealEmojiUseCaseProtocol
+    @Injected private var createProfileImageUseCase: CreateCameraUseCaseProtocol
+    @Injected private var uploadImageUseCase: FetchCameraUploadImageUseCaseProtocol
+    @Injected private var fetchMissionUseCase: FetchCameraTodayMissionUseCaseProtocol
+    @Injected private var fetchRealEmojiUpdateUseCase: FetchCameraRealEmojiUpdateUseCaseProtocol
+    @Injected private var fetchRealEmojiCreateUseCase: FetchCameraRealEmojiUploadUseCaseProtocol
+    @Injected private var editProfileImageUseCase: EditCameraProfileImageUseCaseProtocol
+    @Injected private var fetchRealEmojiListUseCase: FetchCameraRealEmojiListUseCaseProtocol
+    @Injected private var fetchRealEmojiPreSignedUseCase: FetchCameraRealEmojiUseCaseProtocol
+    @Injected private var provider: GlobalStateProviderProtocol
     
     
-    
-    
-    private let provider: GlobalStateProviderProtocol
     public var cameraType: UploadLocation
     public var memberId: String
     
@@ -90,30 +88,12 @@ public final class CameraViewReactor: Reactor {
     }
     
     init(
-        createProfileImageUseCase: CreateCameraUseCaseProtocol,
-        uploadImageUseCase: FetchCameraUploadImageUseCaseProtocol,
-        fetchMissionUseCase: FetchCameraTodayMissionUseCaseProtocol,
-        fetchRealEmojiUpdateUseCase: FetchCameraRealEmojiUpdateUseCaseProtocol,
-        editProfileImageUseCase: EditCameraProfileImageUseCaseProtocol,
-        fetchRealEmojiCreateUseCase: FetchCameraRealEmojiUploadUseCaseProtocol,
-        fetchRealEmojiListUseCase: FetchCameraRealEmojiListUseCaseProtocol,
-        fetchRealEmojiPreSignedUseCase: FetchCameraRealEmojiUseCaseProtocol,
-        provider: GlobalStateProviderProtocol,
         cameraType: UploadLocation,
         memberId: String,
         emojiType: Emojis = .emoji(forIndex: 1)
     ) {
         self.cameraType = cameraType
-        self.createProfileImageUseCase = createProfileImageUseCase
-        self.uploadImageUseCase = uploadImageUseCase
-        self.fetchMissionUseCase = fetchMissionUseCase
-        self.fetchRealEmojiUpdateUseCase = fetchRealEmojiUpdateUseCase
-        self.editProfileImageUseCase = editProfileImageUseCase
-        self.fetchRealEmojiCreateUseCase = fetchRealEmojiCreateUseCase
-        self.fetchRealEmojiListUseCase = fetchRealEmojiListUseCase
-        self.fetchRealEmojiPreSignedUseCase = fetchRealEmojiPreSignedUseCase
         self.memberId = memberId
-        self.provider = provider
         self.initialState = State(
             isLoading: true,
             isFlashMode: false,

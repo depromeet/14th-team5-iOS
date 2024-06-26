@@ -292,13 +292,13 @@ extension MainViewController {
             navigationController?.pushViewController(WeeklyCalendarDIConatainer(date: date.toDate()).makeViewController(), animated: true)
         case .cameraViewController(let type):
             MPEvent.Home.cameraTapped.track(with: nil)
-                navigationController?.pushViewController(CameraDIContainer(cameraType: type).makeViewController(), animated: true)
+                navigationController?.pushViewController(CameraViewControllerWrapper(cameraType: type).viewController, animated: true)
         case .survivalAlert:
             BibbiAlertBuilder(self)
                 .alertStyle(.takeSurvival)
                 .setConfirmAction { [weak self] in
                     guard let self else { return }
-                    self.navigationController?.pushViewController(CameraDIContainer(cameraType: .survival).makeViewController(), animated: true)
+                    self.navigationController?.pushViewController(CameraViewControllerWrapper(cameraType: .survival).viewController, animated: true)
                 }
                 .present()
         case .pickAlert(let name, let id):
@@ -313,7 +313,7 @@ extension MainViewController {
                 .alertStyle(.missionKey)
                 .setConfirmAction { [weak self] in
                     guard let self else { return }
-                    self.navigationController?.pushViewController(CameraDIContainer(cameraType: .mission).makeViewController(), animated: true)
+                    self.navigationController?.pushViewController(CameraViewControllerWrapper(cameraType: .mission).viewController, animated: true)
                 }
                 .present()
         }

@@ -45,7 +45,7 @@ final class PostViewController: BaseViewController<PostReactor> {
             .withUnretained(self)
             .observe(on: MainScheduler.asyncInstance)
             .bind { owner, entity in
-                let cameraViewController = CameraDIContainer(cameraType: .realEmoji, realEmojiType: entity).makeViewController()
+                let cameraViewController = CameraViewControllerWrapper(cameraType: .realEmoji, realEmojiType: entity).viewController
                 owner.navigationController?.pushViewController(cameraViewController, animated: true)
             }.disposed(by: disposeBag)
         
@@ -223,9 +223,9 @@ extension PostViewController {
 
 extension PostViewController {
     private func pushCameraViewController(cameraType type: UploadLocation) {
-        let cameraViewController = CameraDIContainer(
+        let cameraViewController =  CameraViewControllerWrapper(
             cameraType: type
-        ).makeViewController()
+        ).viewController
         
         navigationController?.pushViewController(
             cameraViewController,
@@ -234,9 +234,9 @@ extension PostViewController {
     }
     
     private func pushProfileViewController(memberId: String) {
-        let profileController = ProfileDIContainer(
+        let profileController = ProfileViewControllerWrapper(
             memberId: memberId
-        ).makeViewController()
+        ).viewController
         
         navigationController?.pushViewController(
             profileController,

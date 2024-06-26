@@ -8,7 +8,7 @@
 import Core
 import Foundation
 
-final class DailyCalendarDIContainer: BaseWrapper {
+final class DailyCalendarViewControllerWrapper: BaseWrapper {
     
     // MARK: - Typealias
     
@@ -18,7 +18,7 @@ final class DailyCalendarDIContainer: BaseWrapper {
     // MARK: - Properties
     
     let date: Date
-    let link: NotificationDeepLink?
+    let link: NotificationDeepLink? // TODO: - link 지우기
     
     var reactor: DailyCalendarViewReactor {
         makeReactor()
@@ -30,7 +30,10 @@ final class DailyCalendarDIContainer: BaseWrapper {
     
     // MARK: - Intializer
     
-    init(date: Date, link: NotificationDeepLink? = nil) {
+    init(
+        selection date: Date,
+        link: NotificationDeepLink? = nil
+    ) {
         self.date = date
         self.link = link
     }

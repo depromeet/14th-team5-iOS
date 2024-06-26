@@ -95,7 +95,8 @@ public final class SplashViewController: BaseViewController<SplashReactor> {
         guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
         var container: UINavigationController
         
-//        @Navigator var splashNavigator: SplashNavigatorProtocol
+        // TODO: - Reactor로 집어넣기
+        @Navigator var splashNavigator: SplashNavigatorProtocol
         
         guard let member = member else {
             container = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())

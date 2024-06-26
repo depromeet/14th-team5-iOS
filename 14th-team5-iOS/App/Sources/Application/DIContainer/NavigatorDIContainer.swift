@@ -36,6 +36,12 @@ final class NavigatorDIContainer: BaseContainer {
                 navigationController: makeUINavigationController()
             )
         }
+        
+        container.register(type: MonthlyCalendarNavigatorProtocol.self) { _ in
+            MonthlyCalendarNavigator(
+                navigationController: makeUINavigationController()
+            )
+        }
     }
     
 }

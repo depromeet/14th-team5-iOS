@@ -1,5 +1,5 @@
 //
-//  DailyCalendarNavigator.swift
+//  CommentNavigator.swift
 //  App
 //
 //  Created by 김건우 on 6/27/24.
@@ -8,12 +8,12 @@
 import Core
 import UIKit
 
-protocol DailyCalendarNavigatorProtocol: BaseNavigator {
+protocol CommentNavigatorProtocol: BaseNavigator {
     func toProfile(memberId: String)
-    func toComment(postId: String)
+    func dismiss(completion: (() -> Void)?)
 }
 
-final class DailyCalendarNavigator: DailyCalendarNavigatorProtocol {
+final class CommentNavigator: CommentNavigatorProtocol {
     
     // MARK: - Properties
     
@@ -32,10 +32,12 @@ final class DailyCalendarNavigator: DailyCalendarNavigatorProtocol {
         navigationController.pushViewController(vc, animated: true)
     }
     
-    func toComment(postId: String) {
-        let vc = CommentViewControllerWrapper(postId: postId).viewController
-        navigationController.presentPostCommentSheet(vc, from: .calendar)
-        // TODO: - present 메서드 수정하기
+    // MARK: - Back
+    
+    func dismiss(completion: (() -> Void)? = nil) {
+        navigationController.dismiss(animated: true) {
+            completion?()
+        }
     }
     
 }

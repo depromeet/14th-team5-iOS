@@ -14,7 +14,7 @@ import RxCocoa
 import SnapKit
 import Then
 
-public final class SplashViewController: BaseViewController<SplashViewReactor> {
+public final class SplashViewController: BaseViewController<SplashReactor> {
     // MARK: - Views
     private let bibbiImageView = UIImageView()
     
@@ -56,7 +56,7 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
         }
     }
     
-    override public func bind(reactor: SplashViewReactor) {
+    override public func bind(reactor: SplashReactor) {
         Observable.just(())
             .map { Reactor.Action.viewDidLoad }
             .bind(to: reactor.action)

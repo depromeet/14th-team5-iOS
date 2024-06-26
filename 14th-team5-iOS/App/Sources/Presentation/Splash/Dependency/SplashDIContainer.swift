@@ -10,9 +10,10 @@ import Data
 import Domain
 import Core
 
+@available(*, deprecated, renamed: "SplashViewControllerWrapper")
 public final class SplashDIContainer {
     public typealias ViewContrller = SplashViewController
-    public typealias Reactor = SplashViewReactor
+    public typealias Reactor = SplashReactor
     
     public func makeViewController() -> ViewContrller {
         return SplashViewController(reactor: makeReactor())
@@ -35,6 +36,6 @@ public final class SplashDIContainer {
     }
     
     public func makeReactor() -> Reactor {
-        return SplashViewReactor(meRepository: makeMeUseCase(), familyUseCase: makeFamilyUseCase())
+        return SplashReactor()
     }
 }

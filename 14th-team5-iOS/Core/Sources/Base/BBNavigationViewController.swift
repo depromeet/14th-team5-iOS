@@ -35,6 +35,12 @@ open class BBNavigationViewController<R>: ReactorViewController<R> where R: Reac
     public let navigationBarView = BBNavigationBarView()
     public let contentView = UIView()
     
+    // MARK: - Properties
+    
+    /// 왼쪽 버튼이 특정 타입시, popViewController 기본 구현을 제공할 지 여부를 결정합니다.
+    /// 기본값은 true입니다.
+    public var enableAutoPopViewController = true
+    
     // MARK: - Intitalizer
     public override init() {
         super.init()
@@ -125,11 +131,13 @@ extension BBNavigationViewController {
 extension BBNavigationViewController {
     
     private func popViewController(_ ifTypeIsXMark: TopBarButtonStyle?) {
-        switch ifTypeIsXMark {
-        case .arrowLeft, .xmark:
-            self.navigationController?.popViewController(animated: true)
-        @unknown default:
-            return
+        if enableAutoPopViewController {
+            switch ifTypeIsXMark {
+            case .arrowLeft, .xmark:
+                self.navigationController?.popViewController(animated: true)
+            @unknown default:
+                return
+            }
         }
     }
     

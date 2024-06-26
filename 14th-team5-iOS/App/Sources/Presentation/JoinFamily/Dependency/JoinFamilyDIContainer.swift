@@ -11,6 +11,7 @@ import Core
 import Data
 import Domain
 
+@available(*, deprecated, renamed: "JoinFamilyViewControllerWrapper")
 final class JoinFamilyDIContainer {
     public func makeViewController() -> JoinFamilyViewController {
         return JoinFamilyViewController(reactor: makeReactor())
@@ -25,6 +26,6 @@ final class JoinFamilyDIContainer {
     }
     
     public func makeReactor() -> JoinFamilyReactor {
-        return JoinFamilyReactor(initialState: .init(), familyUseCase: makeUsecase())
+        return JoinFamilyReactor()
     }
 }

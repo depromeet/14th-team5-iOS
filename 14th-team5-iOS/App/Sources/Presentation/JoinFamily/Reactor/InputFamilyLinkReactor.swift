@@ -38,11 +38,10 @@ public final class InputFamilyLinkReactor: Reactor {
     
     // MARK: - Properties
     public let initialState: State
-    private let familyUseCase: FamilyUseCaseProtocol
+    @Injected var familyUseCase: FamilyUseCaseProtocol
     
-    init(initialState: State, familyUseCase: FamilyUseCaseProtocol) {
-        self.initialState = initialState
-        self.familyUseCase = familyUseCase
+    init() {
+        self.initialState = State()
     }
 }
 

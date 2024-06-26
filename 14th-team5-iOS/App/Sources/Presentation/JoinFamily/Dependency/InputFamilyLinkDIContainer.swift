@@ -11,6 +11,7 @@ import Core
 import Data
 import Domain
 
+@available(*, deprecated, renamed: "InputFamilyLinkControllerWrapper")
 final class InputFamilyLinkDIContainer {
     public func makeViewController() -> InputFamilyLinkViewController {
         return InputFamilyLinkViewController(reactor: makeReactor())
@@ -25,7 +26,7 @@ final class InputFamilyLinkDIContainer {
     }
     
     public func makeReactor() -> InputFamilyLinkReactor {
-        return InputFamilyLinkReactor(initialState: .init(), familyUseCase: makeUseCase())
+        return InputFamilyLinkReactor()
     }
 }
 

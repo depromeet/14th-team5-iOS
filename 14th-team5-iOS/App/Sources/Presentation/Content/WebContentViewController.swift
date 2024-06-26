@@ -14,7 +14,7 @@ import RxSwift
 import RxCocoa
 import ReactorKit
 
-public class WebContentViewController: BaseViewController<WebContentViewReactor> {
+public class WebContentViewController: BaseViewController<WebContentReactor> {
     
     private let webView: WKWebView = WKWebView()
     private let webViewIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
@@ -58,7 +58,7 @@ public class WebContentViewController: BaseViewController<WebContentViewReactor>
     }
     
     
-    public override func bind(reactor: WebContentViewReactor) {
+    public override func bind(reactor: WebContentReactor) {
         super.bind(reactor: reactor)
 
         Observable.just(())

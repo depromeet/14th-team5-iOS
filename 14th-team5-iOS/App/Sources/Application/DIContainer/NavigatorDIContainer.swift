@@ -42,6 +42,18 @@ final class NavigatorDIContainer: BaseContainer {
                 navigationController: makeUINavigationController()
             )
         }
+        
+        container.register(type: DailyCalendarNavigatorProtocol.self) { _ in
+            DailyCalendarNavigator(
+                navigationController: makeUINavigationController()
+            )
+        }
+        
+        container.register(type: CommentNavigatorProtocol.self) { _ in
+            CommentNavigator(
+                navigationController: makeUINavigationController()
+            )
+        }
     }
     
 }

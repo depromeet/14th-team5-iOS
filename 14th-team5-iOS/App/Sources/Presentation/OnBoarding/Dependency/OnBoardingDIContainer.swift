@@ -11,6 +11,7 @@ import Core
 import Data
 import Domain
 
+@available(*, deprecated, renamed: "OnboardingViewControllerWrapper")
 public final class OnBoardingDIContainer {
     
     public func makeViewController() -> OnBoardingViewController {
@@ -26,6 +27,6 @@ public final class OnBoardingDIContainer {
     }
     
     public func makeReactor() -> OnBoardingReactor {
-        return OnBoardingReactor(familyUseCase: makeUseCase())
+        return OnBoardingReactor()
     }
 }

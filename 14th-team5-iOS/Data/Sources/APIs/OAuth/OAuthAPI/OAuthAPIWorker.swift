@@ -33,8 +33,9 @@ extension OAuthAPIWorker {
     
     public func refreshAccessToken(body: RefreshAccessTokenRequestDTO) -> Single<AuthResultResponseDTO?> {
         let spec = OAuthAPIs.refreshToken.spec
+        let headers = BibbiHeader.commonHeaders() // TODO: - Header 없애기
         
-        return request(spec: spec, jsonEncodable: body)
+        return request(spec: spec, headers: headers, jsonEncodable: body)
             .subscribe(on: Self.queue)
             .do {
                 if let str = String(data: $0.1, encoding: .utf8) {

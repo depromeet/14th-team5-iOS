@@ -43,6 +43,8 @@ public final class MonthlyCalendarViewReactor: Reactor {
     @Injected var provider: GlobalStateProviderProtocol
     @Injected var calendarUseCase: CalendarUseCaseProtocol
     
+    @Navigator var navigator: MonthlyCalendarNavigatorProtocol
+    
     // MARK: - Intializer
     init() {
         self.initialState = State(

@@ -11,6 +11,7 @@ import Data
 import Domain
 import Core
 
+@available(*, deprecated, renamed: "SignInViewControllerWrapper")
 public final class AccountSignInDIContainer: BaseDIContainer {
     public typealias ViewContrller = AccountSignInViewController
     public typealias Repository = AccountImpl
@@ -23,7 +24,7 @@ public final class AccountSignInDIContainer: BaseDIContainer {
         return AccountRepository()
     }
     public func makeReactor() -> Reactor {
-        return AccountSignInReactor(accountRepository: AccountRepository(), fcmUseCase: makeFCMUseCase())
+        return AccountSignInReactor(/*accountRepository: AccountRepository(), fcmUseCase: makeFCMUseCase()*/)
     }
 }
 

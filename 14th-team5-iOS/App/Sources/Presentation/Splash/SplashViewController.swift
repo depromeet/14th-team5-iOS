@@ -95,6 +95,9 @@ public final class SplashViewController: BaseViewController<SplashReactor> {
         guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
         var container: UINavigationController
         
+        // TODO: - Reactor로 집어넣기
+        @Navigator var splashNavigator: SplashNavigatorProtocol
+        
         guard let member = member else {
             container = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
             sceneDelegate.window?.rootViewController = container
@@ -104,14 +107,17 @@ public final class SplashViewController: BaseViewController<SplashReactor> {
         
         if let _ = member.familyId {
             if UserDefaults.standard.inviteCode != nil {
+//                splashNavigator.toJoined()
                 container = UINavigationController(rootViewController: JoinedFamilyDIContainer().makeViewController())
             } else {
+//                splashNavigator.toHome()
                 container = UINavigationController(rootViewController: MainViewControllerWrapper().makeViewController())
             }
             sceneDelegate.window?.rootViewController = container
             sceneDelegate.window?.makeKeyAndVisible()
             return
         } else {
+//            splashNavigator.toOnboarding()
             container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
             sceneDelegate.window?.rootViewController = container
             sceneDelegate.window?.makeKeyAndVisible()

@@ -9,6 +9,7 @@ import Foundation
 
 import RxSwift
 
+@available(*, deprecated, renamed: "Rxinterval")
 public enum RxConst {
     static public var milliseconds100Interval: RxTimeInterval {
         return .milliseconds(100)
@@ -19,6 +20,7 @@ public enum RxConst {
     }
 }
 
+@available(*, deprecated, renamed: "RxScheduler")
 public enum RxSchedulers {
     public static let main = {
         MainScheduler.instance

@@ -8,6 +8,7 @@
 import UIKit
 import DesignSystem
 
+// TODO: - 요거 옮겨주세요~
 public enum Emojis: Int {
     case emoji1 = 1
     case emoji2 = 2

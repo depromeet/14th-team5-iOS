@@ -7,6 +7,7 @@
 
 import UIKit
 
+// TODO: - 요거 옮겨주세요~
 public enum BibbiFeedType: Int {
     case survival = 0
     case mission = 1

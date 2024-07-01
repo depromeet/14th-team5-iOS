@@ -43,7 +43,7 @@ jobs:
           token: ${{secrets.ACTION_TOKEN}}
         
       - name: Install Tuist CLI
-        run: bash <(curl -Ls https://install.tuist.io)
+        run: brew install tuist
         
       - name: Install FastLane 
         uses: ruby/setup-ruby@v1
@@ -55,7 +55,7 @@ jobs:
         run: tuist clean
       
       - name: Tuist Fetch Command
-        run: tuist fetch
+        run: tuist install
 
       - name: Tuist Generate Commnad
         run: tuist generate

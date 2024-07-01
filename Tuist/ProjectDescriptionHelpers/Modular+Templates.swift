@@ -10,37 +10,40 @@ import ProjectDescription
 
 public struct ModularFactory {
     var name: ModuleLayer.RawValue
-    var platform: Platform
+    var destinations: Destinations
     var products: ProductsType
+    var platform: Platform
     var dependencies: [TargetDependency]
     var bundleId: String
-    var deploymentTarget: DeploymentTarget?
+    var deploymentTargets: DeploymentTargets?
     var infoPlist: InfoPlist?
     var sources: SourceFilesList?
     var resources: ResourceFileElements?
     var settings: Settings?
-    var entitlements:  ProjectDescription.Path?
+    var entitlements: Entitlements?
     
     
     public init(
         name: ModuleLayer.RawValue = "",
-        platform: Platform = .iOS,
+        destinations: Destinations = .iOS,
         products: ProductsType = .framework(.static),
+        platform: Platform = .iOS,
         dependencies: [TargetDependency] = [],
         bundleId: String = "",
-        deploymentTarget: DeploymentTarget? = .defualt,
+        deploymentTargets: DeploymentTargets? = .defualt,
         infoPlist: InfoPlist? = .default,
         sources: SourceFilesList? = .default,
         resources: ResourceFileElements? = .default,
         settings: Settings? = nil,
-        entitlements:  ProjectDescription.Path? = nil
+        entitlements: Entitlements? = nil
     ) {
         self.name = name
-        self.platform = platform
+        self.destinations = destinations
         self.products = products
+        self.platform = platform
         self.dependencies = dependencies
         self.bundleId = bundleId
-        self.deploymentTarget = deploymentTarget
+        self.deploymentTargets = deploymentTargets
         self.infoPlist = infoPlist
         self.sources = sources
         self.resources = resources
@@ -54,16 +57,16 @@ extension Target {
     public static func makeModular(extenions layer: ExtensionsLayer, factory: ModularFactory) -> Target {
         switch layer {
         case .Widget:
-            return Target(
+            return .target(
                 name: layer.rawValue + "Extension",
-                platform: factory.platform,
+                destinations: factory.destinations,
                 product: factory.products.isExtensions ? .appExtension : .app,
                 bundleId: factory.bundleId.lowercased(),
-                deploymentTarget: factory.deploymentTarget,
+                deploymentTargets: factory.deploymentTargets,
                 infoPlist: factory.infoPlist,
                 sources: factory.products.isExtensions ? .widgetExtensionSources : .default,
                 resources: factory.products.isExtensions ? .widgetExtensionResources : .default,
-                entitlements: factory.entitlements, 
+                entitlements: factory.entitlements,
                 dependencies: factory.dependencies,
                 settings: factory.settings
             )
@@ -74,12 +77,12 @@ extension Target {
         
         switch layer {
         case .App:
-            return Target(
+            return .target(
                 name: layer.rawValue,
-                platform: factory.platform,
+                destinations: .iOS,
                 product: factory.products.isApp ? .app : .staticFramework,
                 bundleId: factory.bundleId.lowercased(),
-                deploymentTarget: factory.deploymentTarget,
+                deploymentTargets: factory.deploymentTargets,
                 infoPlist: factory.infoPlist,
                 sources: factory.sources,
                 resources: factory.resources,
@@ -88,12 +91,12 @@ extension Target {
                 settings: factory.settings
             )
         case .Data:
-            return Target(
+            return .target(
                 name: layer.rawValue,
-                platform: factory.platform,
+                destinations: .iOS,
                 product: factory.products.isLibrary ? .staticFramework : .framework,
                 bundleId: "com.\(layer.rawValue).project".lowercased(),
-                deploymentTarget: factory.deploymentTarget,
+                deploymentTargets: factory.deploymentTargets,
                 infoPlist: factory.infoPlist,
                 sources: factory.sources,
                 resources: factory.resources,
@@ -102,12 +105,13 @@ extension Target {
                 settings: factory.settings
             )
         case .Domain:
-            return Target(
+            
+            return .target(
                 name: layer.rawValue,
-                platform: factory.platform,
+                destinations: .iOS,
                 product: factory.products.isFramework ? .staticFramework : .framework,
                 bundleId: "com.\(layer.rawValue).project".lowercased(),
-                deploymentTarget: factory.deploymentTarget,
+                deploymentTargets: factory.deploymentTargets,
                 infoPlist: factory.infoPlist,
                 sources: factory.sources,
                 resources: factory.resources,
@@ -116,12 +120,12 @@ extension Target {
                 settings: factory.settings
             )
         case .Core:
-            return Target(
+            return .target(
                 name: layer.rawValue,
-                platform: factory.platform,
+                destinations: .iOS,
                 product: factory.products.isLibrary ? .framework : .staticFramework,
                 bundleId: "com.\(layer.rawValue).project".lowercased(),
-                deploymentTarget: factory.deploymentTarget,
+                deploymentTargets: factory.deploymentTargets,
                 infoPlist: factory.infoPlist,
                 sources: factory.sources,
                 resources: factory.resources,
@@ -130,12 +134,13 @@ extension Target {
                 settings: factory.settings
             )
         case .DesignSystem:
-            return Target(
+            
+            return .target(
                 name: layer.rawValue,
-                platform: factory.platform,
+                destinations: .iOS,
                 product: factory.products.isFramework ? .staticFramework : .framework,
                 bundleId: "com.\(layer.rawValue).project".lowercased(),
-                deploymentTarget: factory.deploymentTarget,
+                deploymentTargets: factory.deploymentTargets,
                 infoPlist: factory.infoPlist,
                 sources: factory.sources,
                 resources: factory.resources,

@@ -10,8 +10,11 @@ import Foundation
 import RxSwift
 
 public class RxObject: NSObject {
+    
+    // MARK: - Properties
     private(set) var disposeBag = DisposeBag()
     
+    // MARK: - Bind
     func bind() {}
     func unbind() {
         disposeBag = DisposeBag()

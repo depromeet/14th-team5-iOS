@@ -7,7 +7,7 @@
 
 import Foundation
 
-@available(*, deprecated, message: "KeyChainWrapper 혹은 UserDefaultsWrpper 사용")
+@available(*, deprecated, message: "BBStorage를 사용하세요.")
 public enum App {
     
     public static let indicator = BibbiLoadIndicator()

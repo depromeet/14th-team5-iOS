@@ -36,11 +36,6 @@ extension ResignAPIWorker {
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)])
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("fetch resign Account Result: \(str)")
-                }
-            }
             .map(AccountResignDTO.self)
             .catchAndReturn(nil)
             .asSingle()

@@ -36,11 +36,6 @@ extension PickAPIWorker {
     private func pickMember(spec: APISpec, headers: [APIHeader]?) -> Single<PickEntity?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("PickMember Result: \(str)")
-                }
-            }
             .map(PickResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
@@ -65,11 +60,6 @@ extension PickAPIWorker {
     private func fetchWhoDidIPickMember(spec: APISpec, headers: [APIHeader]?) -> Single<PickMemberListEntity?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Who Did I Pick: \(str)")
-                }
-            }
             .map(PickMemberListResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
@@ -94,11 +84,6 @@ extension PickAPIWorker {
     private func fetchWhoPickedMeMember(spec: APISpec, headers: [APIHeader]?) -> Single<PickMemberListEntity?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Who Picked Me: \(str)")
-                }
-            }
             .map(PickMemberListResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }

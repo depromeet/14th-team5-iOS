@@ -47,11 +47,6 @@ extension RealEmojiAPIWorker {
         
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("RealEmojiList Fetch Result: \(str)")
-                }
-            }
             .map(FetchRealEmojiListResponseDTO.self)
             .catchAndReturn(nil)
             .map {
@@ -65,11 +60,6 @@ extension RealEmojiAPIWorker {
         
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Real Emoji Items Result: \(str)")
-                }
-            }
             .map(MyRealEmojiResponseDTO.self)
             .catchAndReturn(nil)
             .map {
@@ -84,11 +74,6 @@ extension RealEmojiAPIWorker {
         
         return request(spec: spec, headers: headers, jsonEncodable: body)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Add Real Emoji Result: \(str)")
-                }
-            }
             .map(AddRealEmojiResponseDTO.self)
             .catchAndReturn(nil)
             .map {
@@ -102,11 +87,6 @@ extension RealEmojiAPIWorker {
         
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Remove Real Emoji Result: \(str)")
-                }
-            }
             .map(RemoveRealEmojiResponseDTO.self)
             .catchAndReturn(nil)
             .map {

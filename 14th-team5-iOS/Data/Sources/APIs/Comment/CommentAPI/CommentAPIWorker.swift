@@ -44,11 +44,6 @@ extension CommentAPIWorker {
         
         return request(spec: spec)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Fetch PostComment Result: \(str)")
-                }
-            }
             .map(PaginationResponsePostCommentResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -72,11 +67,6 @@ extension CommentAPIWorker {
         }() // TODO: - APIWorker 리팩토링되는 대로 코드 삭제하기
         return request(spec: spec, headers: headers, jsonEncodable: body)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Create PostComment Result: \(str)")
-                }
-            }
             .map(PostCommentResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -94,11 +84,6 @@ extension CommentAPIWorker {
         
         return request(spec: spec, jsonEncodable: body)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Update PostComment Result: \(str)")
-                }
-            }
             .map(PostCommentResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -115,11 +100,6 @@ extension CommentAPIWorker {
         
         return request(spec: spec)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Delete PostComment Result: \(str)")
-                }
-            }
             .map(PostCommentDeleteResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()

@@ -37,11 +37,6 @@ extension OAuthAPIWorker {
         
         return request(spec: spec, headers: headers, jsonEncodable: body)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Refresh Token Result: \(str)")
-                }
-            }
             .map(AuthResultResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -55,11 +50,6 @@ extension OAuthAPIWorker {
         
         return request(spec: spec, jsonEncodable: body)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Auth Token Result: \(str)")
-                }
-            }
             .map(AuthResultResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -73,11 +63,6 @@ extension OAuthAPIWorker {
         
         return request(spec: spec, jsonEncodable: body)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Auth Token Result: \(str)")
-                }
-            }
             .map(AuthResultResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -92,11 +77,6 @@ extension OAuthAPIWorker {
         
         return request(spec: spec, jsonEncodable: body)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("FCM Register Result: \(str)")
-                }
-            }
             .map(DefaultResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -110,11 +90,6 @@ extension OAuthAPIWorker {
         
         return request(spec: spec)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("FCM Delete Result: \(str)")
-                }
-            }
             .map(DefaultResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()

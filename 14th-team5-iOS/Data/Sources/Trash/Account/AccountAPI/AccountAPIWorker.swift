@@ -34,11 +34,6 @@ extension AccountAPIWorker {
     private func signInWith(spec: APISpec, jsonEncodable: Encodable) -> Single<AccessTokenResponse?> {
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey], jsonEncodable: jsonEncodable)
             .subscribe(on: Self.queue)
-            .do(onNext: {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("SignIn result : \(str)")
-                }
-            })
             .map(AccessTokenResponse.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -57,11 +52,6 @@ extension AccountAPIWorker {
         
         return request(spec: spec, headers: headers, jsonEncodable: jsonEncodable)
             .subscribe(on: Self.queue)
-            .do(onNext: {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("SignUp result : \(str)")
-                }
-            })
             .map(AccessTokenResponse.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -83,11 +73,6 @@ extension AccountAPIWorker {
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(accessToken), BibbiAPI.Header.acceptJson], jsonEncodable: parameter)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Account nickName update Result: \(str)")
-                }
-            }
             .map(AccountNickNameEditDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -98,11 +83,6 @@ extension AccountAPIWorker {
         print("RefreshToken: \(parameter)")
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.contentJson], jsonEncodable: parameter)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Account Refresh Token Result \(str)")
-                }
-            }
             .map(AccountRefreshDTO.self)
             .asSingle()
     }

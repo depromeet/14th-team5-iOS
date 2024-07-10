@@ -41,11 +41,6 @@ extension PrivacyAPIWorker {
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], parameters: parameter)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("fetch BibbiApp Info Result: \(str)")
-                }
-            }
             .map(BibbiAppInfoDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -57,11 +52,6 @@ extension PrivacyAPIWorker {
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)])
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("fetch family resign Reuslt: \(str)")
-                }
-            }
             .map(AccountFamilyResignDTO.self)
             .catchAndReturn(nil)
             .asSingle()

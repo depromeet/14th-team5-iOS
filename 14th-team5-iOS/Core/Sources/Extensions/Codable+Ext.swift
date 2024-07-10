@@ -16,6 +16,14 @@ import RxSwift
 
 // MARK: Data Decodable (Data to Decodable)
 public extension Data {
+    
+    var toPrettyPrintedString: String? {
+        guard let object = try? JSONSerialization.jsonObject(with: self, options: []),
+              let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted]),
+              let jsonString = String(data: data, encoding: .utf8) else { return nil }
+        return jsonString
+    }
+    
     func decode<T>(_ type: T.Type, using decoder: JSONDecoder? = nil) -> T? where T: Decodable {
         
         let decoder = decoder ?? JSONDecoder()

@@ -38,11 +38,6 @@ extension CalendarAPIWorker {
         
         return request(spec: spec)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("CalendarResponse Fetch Result: \(str)")
-                }
-            }
             .map(ArrayResponseCalendarResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -57,11 +52,6 @@ extension CalendarAPIWorker {
         
         return request(spec: spec)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("StatisticsSummary Fetch Result: \(str)")
-                }
-            }
             .map(FamilyMonthlyStatisticsResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -76,11 +66,6 @@ extension CalendarAPIWorker {
         
         return request(spec: spec)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("MonthlyCalendar Fetch Result: \(str)")
-                }
-            }
             .map(ArrayResponseMonthlyCalendarResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -95,11 +80,6 @@ extension CalendarAPIWorker {
         
         return request(spec: spec)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("DailyCalendar Fetch Result: \(str)")
-                }
-            }
             .map(ArrayResponseDailyCalendarResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -115,11 +95,6 @@ extension CalendarAPIWorker {
         
         return request(spec: spec)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Banner Fetch Result: \(str)")
-                }
-            }
             .map(BannerResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()

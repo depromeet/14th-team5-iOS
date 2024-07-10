@@ -96,7 +96,7 @@ public class APIWorker: NSObject {
         request.headers = headers
         request.httpBody = jsonData
         
-        return APIWorker.session.rx.request(urlRequest: request)
+        return AF.rx.request(urlRequest: request)
             .retry(5)
             .validate(statusCode: 200..<300)
             .responseData()

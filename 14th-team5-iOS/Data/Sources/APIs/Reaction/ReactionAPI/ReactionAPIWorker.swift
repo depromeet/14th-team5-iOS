@@ -44,11 +44,6 @@ extension ReactionAPIWorker {
         let spec = ReactionAPIs.fetchReactions(query).spec
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Fetch Reaction Result: \(str)")
-                }
-            }
             .map(FetchReactionResponseDTO.self)
             .catchAndReturn(nil)
             .map {
@@ -62,11 +57,6 @@ extension ReactionAPIWorker {
         let spec = ReactionAPIs.addReactions(query.postId).spec
         return request(spec: spec, headers: headers, jsonEncodable: requestDTO)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Add Reaction Result: \(str)")
-                }
-            }
             .map(AddReactionResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
@@ -78,11 +68,6 @@ extension ReactionAPIWorker {
         let spec = ReactionAPIs.removeReactions(query.postId).spec
         return request(spec: spec, headers: headers, jsonEncodable: requestDTO)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Remove Reaction Result: \(str)")
-                }
-            }
             .map(RemoveReactionResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }

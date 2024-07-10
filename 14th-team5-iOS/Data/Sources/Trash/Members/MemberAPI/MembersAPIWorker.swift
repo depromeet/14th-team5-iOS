@@ -38,11 +38,6 @@ extension MembersAPIWorker {
 
         return request(spec: spec, headers: [BibbiAPI.Header.xAppVersion, BibbiAPI.Header.xUserPlatform, BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)])
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("fetch Profile Member Result: \(str)")
-                }
-            }
             .map(MembersProfileResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -54,11 +49,6 @@ extension MembersAPIWorker {
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppVersion, BibbiAPI.Header.xUserPlatform, BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("createPresinged URL \(str)")
-                }
-            }
             .map(CameraDisplayImageResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -70,7 +60,6 @@ extension MembersAPIWorker {
         return upload(spec: spec, headers: [BibbiAPI.Header.xAppVersion, BibbiAPI.Header.xUserPlatform, BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(accessToken)], image: imageData)
             .subscribe(on: Self.queue)
             .catchAndReturn(false)
-            .debug("preSingedURL Upload To Profile")
             .map { _ in true }
     }
     
@@ -79,11 +68,6 @@ extension MembersAPIWorker {
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppVersion, BibbiAPI.Header.xUserPlatform, BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameter)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("updateProfile Image Result: \(str)")
-                }
-            }
             .map(MembersProfileResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -94,11 +78,6 @@ extension MembersAPIWorker {
         
         return request(spec: spec,headers: [BibbiAPI.Header.xAppVersion, BibbiAPI.Header.xUserPlatform, BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson])
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("delete Profile Image Result: \(str)")
-                }
-            }
             .map(MembersProfileResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()

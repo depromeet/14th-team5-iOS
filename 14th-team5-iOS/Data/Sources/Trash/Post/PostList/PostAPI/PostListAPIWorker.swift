@@ -33,11 +33,6 @@ extension PostAPIWorker {
         let spec = PostAPIs.fetchPostList.spec
         return request(spec: spec, parameters: requestDTO)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("PostList Fetch Result: \(str)")
-                }
-            }
             .map(PostListResponseDTO.self)
             .map {
                 return $0?.toDomain()

@@ -43,11 +43,6 @@ extension MainAPIWorker {
         let spec = MainViewAPIs.fetchMain.spec
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Main Fetch Result: \(str)")
-                }
-            }
             .map(MainResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
@@ -58,11 +53,6 @@ extension MainAPIWorker {
         let spec = MainViewAPIs.fetchMainNight.spec
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Main Night Fetch Result: \(str)")
-                }
-            }
             .map(MainNightResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }

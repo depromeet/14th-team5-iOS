@@ -43,11 +43,6 @@ extension WidgetAPIWorker {
         
         return request(spec: spec, headers: headers, parameters: parameters)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Fetch Recent Family Post Result: \(str)")
-                }
-            }
             .map(RecentFamilyPostResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }

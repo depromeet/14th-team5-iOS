@@ -30,11 +30,6 @@ extension MissionAPIWorker {
     private func getMissionContent(spec: APISpec, headers: [APIHeader]?) -> Single<MissionContentEntity?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Mission Content Result: \(str)")
-                }
-            }
             .map(MissionContentResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }

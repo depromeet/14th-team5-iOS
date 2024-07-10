@@ -38,11 +38,6 @@ extension FamilyAPIWorker {
         
         return request(spec: spec, jsonEncodable: body)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Join Family Result: \(str)")
-                }
-            }
             .map(JoinFamilyResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -56,11 +51,6 @@ extension FamilyAPIWorker {
         
         return request(spec: spec)
             .subscribe(on: Self.queue)
-            .do(onNext: {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Resign Family result: \(str)")
-                }
-            })
             .map(DefaultResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -74,11 +64,6 @@ extension FamilyAPIWorker {
         
         return request(spec: spec)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Family Create Result: \(str)")
-                }
-            }
             .map(CreateFamilyResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -92,11 +77,6 @@ extension FamilyAPIWorker {
         
         return request(spec: spec)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("InvigationUrl Fetch Result: \(str)")
-                }
-            }
             .map(FamilyInvitationLinkResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -110,11 +90,6 @@ extension FamilyAPIWorker {
         
         return request(spec: spec)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("FamilyCreatedAt Fetch Result: \(str)")
-                }
-            }
             .map(FamilyCreatedAtResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -131,11 +106,6 @@ extension FamilyAPIWorker {
         
         return request(spec: spec)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("FamilyMember Fetch Result: \(str)")
-                }
-            }
             .map(PaginationResponseFamilyMemberProfileDTO.self)
             .catchAndReturn(nil)
             .asSingle()

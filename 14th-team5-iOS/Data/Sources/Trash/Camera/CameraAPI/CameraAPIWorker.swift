@@ -38,11 +38,6 @@ extension CameraAPIWorker {
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("upload Profile Image URL Fetch Reuslt: \(str)")
-                }
-            }
             .map(CameraDisplayImageResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -56,11 +51,6 @@ extension CameraAPIWorker {
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("uploadImage Fetch Reuslt: \(str)")
-                }
-            }
             .map(CameraDisplayImageResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -70,11 +60,6 @@ extension CameraAPIWorker {
         let spec = CameraAPIs.editProfileImage(memberId).spec
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("editProfile Image Upload Result: \(str)")
-                }
-            }
             .map(MembersProfileResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -94,11 +79,6 @@ extension CameraAPIWorker {
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("editProfile Image Upload Result: \(str)")
-                }
-            }
             .map(CameraDisplayPostResponseDTO.self)
             .map { dto in
                 guard let dto = dto else { return nil }
@@ -116,11 +96,6 @@ extension CameraAPIWorker {
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("RealEmoji Image Presigned URL Reuslt: \(str)")
-                }
-            }
             .map(CameraRealEmojiPreSignedResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -132,11 +107,6 @@ extension CameraAPIWorker {
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Real Image upload to S3 Result: \(str)")
-                }
-            }
             .map(CameraCreateRealEmojiResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -147,11 +117,6 @@ extension CameraAPIWorker {
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)])
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Real Emoji Items Result: \(str)")
-                }
-            }
             .map(CameraRealEmojiImageItemResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -161,11 +126,6 @@ extension CameraAPIWorker {
         let spec = CameraAPIs.modifyRealEmojiImage(memberId, realEmojiId).spec
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Real Emoji Modify Result: \(str)")
-                }
-            }
             .map(CameraUpdateRealEmojiResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -175,11 +135,6 @@ extension CameraAPIWorker {
     let spec = CameraAPIs.fetchMissionToday.spec
     return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)])
       .subscribe(on: Self.queue)
-      .do {
-        if let str = String(data: $0.1, encoding: .utf8) {
-          debugPrint("Fetch Today Mission Items : \(str)")
-        }
-      }
       .map(CameraTodayMissionResponseDTO.self)
       .catchAndReturn(nil)
       .asSingle()

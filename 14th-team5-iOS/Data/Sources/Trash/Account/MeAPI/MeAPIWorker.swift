@@ -34,12 +34,6 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository, FCMRepository
     
         return request(spec: spec, headers: headers, jsonEncodable: token)
             .subscribe(on: Self.queue)
-            .do(onNext: {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("saveFcmToken result : \(str)")
-                    KeychainRepository.shared.saveFCMToken(token: token.fcmToken)
-                }
-            })
             .map(VoidResponse.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
@@ -49,11 +43,6 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository, FCMRepository
     private func deleteFcmToken(spec: APISpec, headers: [APIHeader]?) -> Single<Void?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
-            .do(onNext: {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("deleteFcmToken result : \(str)")
-                }
-            })
             .map(VoidResponse.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
@@ -63,11 +52,6 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository, FCMRepository
     private func getMemberInfo(spec: APISpec) -> Single<MemberInfo?> {
         return request(spec: spec)
             .subscribe(on: Self.queue)
-            .do(onNext: {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("getMemberInfo result : \(str)")
-                }
-            })
             .map(MemberInfo.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -78,11 +62,6 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository, FCMRepository
         
         return request(spec: spec, headers: headers, jsonEncodable: jsonEncodable)
             .subscribe(on: Self.queue)
-            .do(onNext: {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Join Family result : \(str)")
-                }
-            })
             .map(FamilyInfo.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -95,11 +74,6 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository, FCMRepository
         
         return request(spec: spec, headers: headers, jsonEncodable: requestDTO)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Join Family Fetch Result: \(str)")
-                }
-            }
             .map(JoinFamilyResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
@@ -110,11 +84,6 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository, FCMRepository
     private func resignFamily(spec: APISpec, headers: [APIHeader]?) -> Single<AccountFamilyResignResponse?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
-            .do(onNext: {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Resign Family result: \(str)")
-                }
-            })
             .map(AccountFamilyResignResponse.self)
             .catchAndReturn(nil)
             .asSingle()
@@ -123,11 +92,6 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository, FCMRepository
     private func fetchAppVersion(spec: APISpec) -> Single<AppVersionInfo?> {
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey])
             .subscribe(on: Self.queue)
-            .do(onNext: {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Fetch AppVersion result: \(str)")
-                }
-            })
             .map(AppVersionInfo.self)
             .catchAndReturn(nil)
             .asSingle()

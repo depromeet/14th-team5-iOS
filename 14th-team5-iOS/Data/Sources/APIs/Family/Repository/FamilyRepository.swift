@@ -81,6 +81,13 @@ extension FamilyRepository {
             .asObservable()
     }
     
+    public func updateFamilyGroupName(body: JoinFamilyGroupNameRequest) -> Single<JoinFamilyGroupNameEntity?> {
+        let requestDTO = JoinFamilyGroupNameRequestDTO(familyName: body.familyName)
+        return familyApiWorker.updateJoinFamilyGroupName(familyId: familyId, body: requestDTO)
+            .catchAndReturn(nil)
+            .map { $0?.toDomain() }
+    }
+    
     public func fetchPaginationFamilyMembers(memberIds: [String]) -> [FamilyMemberProfileEntity] { // TODO: - 반환 타입 바꾸기
         // TODO: - 리팩토링된 UserDefaults로 바꾸기
         return FamilyUserDefaults.loadMembersFromUserDefaults(memberIds: memberIds)

@@ -37,7 +37,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     private let cameraIndicatorView: BibbiLoadingView = BibbiLoadingView()
     private let filterView: UIImageView = UIImageView()
     private let zoomView: UIButton = UIButton()
-    private let realEmojiDescriptionLabel = BibbiLabel(.body1Regular, textColor: .mainYellow)
+    private let realEmojiDescriptionLabel = BBLabel(.body1Regular, textColor: .mainYellow)
     private let realEmojiFaceView = UIView()
     private let realEmojiFaceImageView = UIImageView()
     private let realEmojiHorizontalStakView = UIStackView()

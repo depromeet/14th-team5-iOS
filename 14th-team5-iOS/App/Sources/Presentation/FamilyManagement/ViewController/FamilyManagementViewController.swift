@@ -24,8 +24,8 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     private let dividerView: UIView = UIView()
     
     private let headerStack: UIStackView = UIStackView()
-    private let tableTitleLabel: BibbiLabel = BibbiLabel(.head1, textColor: .gray200)
-    private let tableCountLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray400)
+    private let tableTitleLabel: BBLabel = BBLabel(.head1, textColor: .gray200)
+    private let tableCountLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray400)
     
     private let familyTableView: UITableView = UITableView()
     private let refreshControl: UIRefreshControl = UIRefreshControl()

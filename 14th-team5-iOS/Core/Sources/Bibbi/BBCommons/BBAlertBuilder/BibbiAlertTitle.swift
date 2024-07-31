@@ -10,5 +10,5 @@ import UIKit
 struct BibbiAlertTitle {
     var text: String?
     var textColor: UIColor?
-    var fontStyle: BibbiFontStyle?
+    var fontStyle: BBFontStyle?
 }

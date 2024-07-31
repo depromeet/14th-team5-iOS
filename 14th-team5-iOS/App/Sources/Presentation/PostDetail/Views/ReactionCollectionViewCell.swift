@@ -20,7 +20,7 @@ final class ReactionCollectionViewCell: BaseCollectionViewCell<TempCellReactor> 
     
     private let emojiImageView = UIImageView()
     private let badgeView = UIImageView()
-    private let countLabel = BibbiLabel(.body2Regular, textAlignment: .left)
+    private let countLabel = BBLabel(.body2Regular, textAlignment: .left)
     
     convenience init(reacter: TempCellReactor? = nil) {
         self.init(frame: .zero)

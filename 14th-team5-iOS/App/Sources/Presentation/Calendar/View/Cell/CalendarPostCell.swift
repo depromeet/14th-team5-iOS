@@ -25,8 +25,8 @@ final class CalendarPostCell: BaseCollectionViewCell<CalendarPostCellReactor> {
     private let authorStackView: UIStackView = UIStackView()
     private let authorImageContainerView: UIView = UIView()
     private let authorImageView: UIImageView = UIImageView()
-    private let authorNameLabel: BibbiLabel = BibbiLabel(.caption, textColor: .gray200)
-    private let authorFirstNameLabel: BibbiLabel = BibbiLabel(.caption, textColor: .bibbiWhite)
+    private let authorNameLabel: BBLabel = BBLabel(.caption, textColor: .gray200)
+    private let authorFirstNameLabel: BBLabel = BBLabel(.caption, textColor: .bibbiWhite)
     private let postImageView: UIImageView = UIImageView()
     private let missionTextView: MissionTextView = MissionTextView()
     private let contentCollectionView: UICollectionView = UICollectionView(

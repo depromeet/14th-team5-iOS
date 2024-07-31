@@ -23,10 +23,10 @@ public final class ProfileFeedCollectionViewCell: BaseCollectionViewCell<Profile
     private let feedContentStackView: UIStackView = UIStackView()
     private let feedEmojiIconView: UIImageView = UIImageView()
     private let feedBadgeImageView: UIImageView = UIImageView()
-    private let feedEmojiCountLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray200)
+    private let feedEmojiCountLabel: BBLabel = BBLabel(.body2Regular, textColor: .gray200)
     private let feedCommentImageView: UIImageView = UIImageView()
-    private let feedCommentCountLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray200)
-    private let feedUplodeLabel: BibbiLabel = BibbiLabel(.caption, textColor: .gray400)
+    private let feedCommentCountLabel: BBLabel = BBLabel(.body2Regular, textColor: .gray200)
+    private let feedUplodeLabel: BBLabel = BBLabel(.caption, textColor: .gray400)
     private let descrptionCollectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     private lazy var descrptionCollectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: descrptionCollectionViewLayout)
     private let descrptionDataSources: RxCollectionViewSectionedReloadDataSource<ProfileFeedDescrptionSectionModel> = .init { dataSources, collectionView, indexPath, sectionItem in

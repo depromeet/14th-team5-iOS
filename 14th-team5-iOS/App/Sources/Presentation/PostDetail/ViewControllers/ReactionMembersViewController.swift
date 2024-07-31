@@ -17,7 +17,7 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberView
     
     private let reactionImageView: UIImageView = UIImageView()
     private let reactionBadgeView: UIImageView = UIImageView()
-    private let reactionLabel: UILabel = BibbiLabel(.body1Bold)
+    private let reactionLabel: UILabel = BBLabel(.body1Bold)
     private let memberTableView: UITableView = UITableView()
     private let closeButton: UIButton = UIButton()
     

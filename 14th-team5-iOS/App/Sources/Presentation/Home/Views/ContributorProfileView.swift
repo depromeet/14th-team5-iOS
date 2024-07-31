@@ -16,9 +16,9 @@ import RxCocoa
 import RxSwift
 
 final class ContributorProfileView: BaseView<ContributorProfileReactor> {
-    private let nameLabel = BibbiLabel(.body2Bold, textAlignment: .center, textColor: .gray200)
-    private let countLabel = BibbiLabel(.body2Regular, textAlignment: .center, textColor: .gray300)
-    private let defaultNameLabel = BibbiLabel(.head1, textAlignment: .center, textColor: .gray200)
+    private let nameLabel = BBLabel(.body2Bold, textAlignment: .center, textColor: .gray200)
+    private let countLabel = BBLabel(.body2Regular, textAlignment: .center, textColor: .gray300)
+    private let defaultNameLabel = BBLabel(.head1, textAlignment: .center, textColor: .gray200)
     private let imageView = UIImageView()
     private let questionView = UIImageView()
     private let badgeView = UIImageView()

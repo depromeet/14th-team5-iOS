@@ -18,9 +18,9 @@ import Then
 final class AccountResignViewCotroller: BaseViewController<AccountResignViewReactor> {
     
     //TODO: 텍스트 컬러, 폰트 정해지면 수정
-    private let resignDesrptionLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray400)
-    private let resignReasonLabel: BibbiLabel = BibbiLabel(.head1, textColor: .gray200)
-    private let resignExampleLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray400)
+    private let resignDesrptionLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray400)
+    private let resignReasonLabel: BBLabel = BBLabel(.head1, textColor: .gray200)
+    private let resignExampleLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray400)
     private let resignIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     private let confirmButton: UIButton = UIButton()
     private let bibbiTermsView: BibbiCheckBoxView = BibbiCheckBoxView(frame: .zero)

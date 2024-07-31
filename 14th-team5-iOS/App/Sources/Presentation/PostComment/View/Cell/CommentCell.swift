@@ -17,15 +17,15 @@ import Then
 final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     // MARK: - Views
     private let containerView: UIView = UIView()
-    private let firstNameLabel: UILabel = BibbiLabel(.head2Bold, textAlignment: .center)
+    private let firstNameLabel: UILabel = BBLabel(.head2Bold, textAlignment: .center)
     private let profileImageView: UIImageView = UIImageView()
     private let profileButton: UIButton = UIButton()
     
     private let userNameStack: UIStackView = UIStackView()
-    private let userNameLabel: BibbiLabel = BibbiLabel(.body2Bold, textColor: .gray100)
-    private let createdAtLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray500)
+    private let userNameLabel: BBLabel = BBLabel(.body2Bold, textColor: .gray100)
+    private let createdAtLabel: BBLabel = BBLabel(.body2Regular, textColor: .gray500)
     
-    private let commentLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray100)
+    private let commentLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray100)
     
     // MARK: - Properties
     static var id: String = "CommentCell"

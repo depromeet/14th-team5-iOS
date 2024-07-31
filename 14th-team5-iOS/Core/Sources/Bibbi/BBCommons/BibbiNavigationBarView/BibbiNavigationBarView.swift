@@ -18,7 +18,7 @@ public final class BibbiNavigationBarView: UIView {
     // MARK: - Views
     private let containerView: UIView = UIView()
     
-    private let navigationTitleLabel: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
+    private let navigationTitleLabel: BBLabel = BBLabel(.head2Bold, textColor: .gray200)
     private var navigationImageView: UIImageView = UIImageView()
     
     fileprivate let leftBarButton: UIButton = UIButton(type: .system)

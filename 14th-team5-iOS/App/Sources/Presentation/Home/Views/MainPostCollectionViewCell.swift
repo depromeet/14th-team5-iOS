@@ -22,8 +22,8 @@ final class MainPostCollectionViewCell: BaseCollectionViewCell<MainPostCellReact
     private let indicator: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     private let missionBadge: UIImageView = UIImageView(image: DesignSystemAsset.missionBadge.image)
     private let stackView: UIStackView = UIStackView()
-    private let nameLabel: BibbiLabel = BibbiLabel(.body2Regular, textAlignment: .left, textColor: .gray200)
-    private let timeLabel: BibbiLabel = BibbiLabel(.caption, textAlignment: .right, textColor: .gray400)
+    private let nameLabel: BBLabel = BBLabel(.body2Regular, textAlignment: .left, textColor: .gray200)
+    private let timeLabel: BBLabel = BBLabel(.caption, textAlignment: .right, textColor: .gray400)
 
     override func bind(reactor: MainPostCellReactor) {
         bindInput(reactor: reactor)

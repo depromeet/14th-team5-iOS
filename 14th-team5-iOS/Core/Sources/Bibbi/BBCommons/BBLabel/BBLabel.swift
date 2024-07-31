@@ -9,20 +9,23 @@ import UIKit
 
 import DesignSystem
 
-public class BibbiLabel: UILabel {
+public class BBLabel: UILabel {
     
     // MARK: - Properties
+    
     public override var text: String? {
         didSet { setupText() }
     }
     
-    public var fontStyle: BibbiFontStyle {
+    public var fontStyle: BBFontStyle {
         didSet { setupFontStyle() }
     }
     
+    
     // MARK: - Intializer
+    
     public init(
-        _ fontStyle: BibbiFontStyle = .body1Regular,
+        _ fontStyle: BBFontStyle = .body1Regular,
         textAlignment alignment: NSTextAlignment = .left,
         textColor color: UIColor = .bibbiWhite
     ) {
@@ -42,9 +45,11 @@ public class BibbiLabel: UILabel {
 }
 
 // MARK: - Extensions
-extension BibbiLabel {
+
+extension BBLabel {
+    
     private func setupText() {
-        let attr = UIFont.bibbiFontAttributes(fontStyle)
+        let attr = BBLabel.fontAttributes(fontStyle)
         
         guard let text = text else { return }
         let attrText = NSMutableAttributedString(string: text)
@@ -54,11 +59,12 @@ extension BibbiLabel {
     }
     
     private func setupFontStyle() {
-        self.font = UIFont.pretendard(fontStyle)
+        self.font = BBLabel.pretendard(fontStyle)
     }
     
     private func configureFontAttributes() {
         setupText()
         setupFontStyle()
     }
+    
 }

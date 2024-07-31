@@ -12,7 +12,7 @@ import SnapKit
 final public class BibbiButton: UIButton {
     
     // MARK: - Views
-    public var bibbiTitleLabel: BibbiLabel = BibbiLabel()
+    public var bibbiTitleLabel: BBLabel = BBLabel()
     
     // MARK: - Properties
     public override var titleLabel: UILabel? {
@@ -50,8 +50,8 @@ final public class BibbiButton: UIButton {
         titleLabel?.textColor = color
     }
     
-    public func setTitleFontStyle(_ fontStyle: BibbiFontStyle) {
-        if let titleLabel = titleLabel as? BibbiLabel {
+    public func setTitleFontStyle(_ fontStyle: BBFontStyle) {
+        if let titleLabel = titleLabel as? BBLabel {
             titleLabel.fontStyle = fontStyle
         }
     }

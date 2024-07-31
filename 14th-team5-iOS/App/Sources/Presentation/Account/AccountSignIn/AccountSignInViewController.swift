@@ -29,7 +29,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
     }
     
     private let bibbiImageView = UIImageView()
-    private let titleLabel = BibbiLabel(.body1Bold, textAlignment: .center, textColor: .gray200)
+    private let titleLabel = BBLabel(.body1Bold, textAlignment: .center, textColor: .gray200)
     private let loginImageView = UIImageView()
     
     private let kakaoLoginButton = UIButton()

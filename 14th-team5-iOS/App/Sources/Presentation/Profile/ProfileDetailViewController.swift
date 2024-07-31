@@ -16,7 +16,7 @@ import Then
 
 final class ProfileDetailViewController: BaseViewController<ProfileDetailViewReactor> {
     private let profileImageView: UIImageView = UIImageView()
-    private let nickNameLabel: BibbiLabel = BibbiLabel(.head1, textAlignment: .center, textColor: .gray200)
+    private let nickNameLabel: BBLabel = BBLabel(.head1, textAlignment: .center, textColor: .gray200)
     private let blurView: UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .systemChromeMaterialDark))
     
     override func viewDidLoad() {

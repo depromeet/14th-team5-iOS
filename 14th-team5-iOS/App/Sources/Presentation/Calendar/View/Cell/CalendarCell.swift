@@ -24,8 +24,8 @@ final class CalendarCell: BaseCollectionViewCell<CalendarCellReactor> {
     
     // MARK: - Views
     private lazy var labelStack: UIStackView = UIStackView()
-    private let titleLabel: BibbiLabel = BibbiLabel(.head2Bold, textAlignment: .center, textColor: .gray200)
-    private let countLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray200)
+    private let titleLabel: BBLabel = BBLabel(.head2Bold, textAlignment: .center, textColor: .gray200)
+    private let countLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray200)
     private let infoButton: UIButton = UIButton(type: .system)
     
     private lazy var bannerView: BannerView = BannerView(viewModel: bannerViewModel)

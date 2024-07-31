@@ -19,7 +19,7 @@ public final class BBNavigationBarView: UIView {
     // MARK: - Views
     private let containerView: UIView = UIView()
     
-    private let navigationTitleLabel: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
+    private let navigationTitleLabel: BBLabel = BBLabel(.head2Bold, textColor: .gray200)
     private var navigationImageView: UIImageView = UIImageView()
     
     private let leftBarButton: UIButton = UIButton(type: .system)
@@ -41,7 +41,7 @@ public final class BBNavigationBarView: UIView {
     }
     
     // NavigationBar의 FontStyle을 바꿉니다.
-    public var navigationTitleFontStyle: BibbiFontStyle = .head2Bold {
+    public var navigationTitleFontStyle: BBFontStyle = .head2Bold {
         didSet {
             navigationTitleLabel.fontStyle = navigationTitleFontStyle
         }

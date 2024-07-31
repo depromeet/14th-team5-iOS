@@ -15,7 +15,7 @@ final class PostCommentTopBarView: UIView {
     // MARK: - Views
     private let grabber: UIView = UIView()
     
-    private let titleLabel: BibbiLabel = BibbiLabel(.body1Bold)
+    private let titleLabel: BBLabel = BBLabel(.body1Bold)
     private let barDividerView: UIView = UIView()
     
     // MARK: - Intializer

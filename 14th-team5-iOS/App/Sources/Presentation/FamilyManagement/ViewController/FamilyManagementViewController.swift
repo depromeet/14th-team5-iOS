@@ -17,7 +17,7 @@ import SnapKit
 import Then
 
 fileprivate typealias _Str = FamilyManagementStrings
-public final class FamilyManagementViewController: BaseViewController<FamilyManagementViewReactor> {
+public final class FamilyManagementViewController: BBNavigationViewController<FamilyManagementViewReactor> {
     // MARK: - Views
     
     private let shareContainerview: InvitationUrlContainerView = InvitationUrlContainerDIContainer().makeView()
@@ -60,7 +60,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        navigationBarView.rx.rightButtonTap
+        navigationBarView.rx.didTapRightBarButton
             .map { _ in Reactor.Action.didTapPrivacyBarButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -224,7 +224,9 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     public override func setupAttributes() {
         super.setupAttributes()
         navigationBarView.do {
-            $0.setNavigationView(leftItem: .arrowLeft, centerItem: .label(_Str.mainTitle), rightItem: .setting)
+            $0.navigationTitle = "가족"
+            $0.leftBarButtonItem = .arrowLeft
+            $0.rightBarButtonItem = .setting
          }
         
         dividerView.do {

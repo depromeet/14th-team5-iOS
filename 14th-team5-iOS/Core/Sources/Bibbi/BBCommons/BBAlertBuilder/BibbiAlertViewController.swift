@@ -21,8 +21,8 @@ public final class BibbiAlertViewController: UIViewController {
     private var mainTitleLabel: BBLabel = BBLabel(.body2Regular, textAlignment: .center)
     private var imageView: UIImageView = UIImageView()
     private var buttonStackView: UIStackView = UIStackView()
-    private var confirmButton: BibbiButton = BibbiButton(type: .system)
-    private var cancelButton: BibbiButton = BibbiButton(type: .system)
+    private var confirmButton: BBButton = BBButton(type: .system)
+    private var cancelButton: BBButton = BBButton(type: .system)
     
     // MARK: - Properties
     var subTitle: BibbiAlertTitle? {

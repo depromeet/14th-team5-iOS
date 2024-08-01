@@ -25,7 +25,7 @@ final class ContributorView: BaseView<ContributorReactor> {
     private let secondProfileView: ContributorProfileView = ContributorProfileView(reactor: ContributorProfileReactor(initialState: .init(rank: .second)))
     private let thirdProfileView: ContributorProfileView =  ContributorProfileView(reactor: ContributorProfileReactor(initialState: .init(rank: .third)))
     
-    private let nextButton: BibbiButton = BibbiButton()
+    private let nextButton: BBButton = BBButton()
     
     let contributorRelay: BehaviorRelay<FamilyRankData> = .init(value: FamilyRankData.empty)
     

@@ -78,7 +78,7 @@ final class MainFamilyCollectionViewCell: BaseCollectionViewCell<MainFamilyCellR
     
     override func setupAttributes() {
         nameLabel.do {
-            $0.font = UIFont.pretendard(.caption)
+            $0.font = UIFont.style(.caption)
             $0.textAlignment = .center
             $0.textColor = .gray300
             

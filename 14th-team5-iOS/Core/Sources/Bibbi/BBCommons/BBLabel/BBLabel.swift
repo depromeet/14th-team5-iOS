@@ -49,7 +49,7 @@ public class BBLabel: UILabel {
 extension BBLabel {
     
     private func setupText() {
-        let attr = BBLabel.fontAttributes(fontStyle)
+        let attr = UIFont.fontAttributes(fontStyle)
         
         guard let text = text else { return }
         let attrText = NSMutableAttributedString(string: text)
@@ -59,7 +59,7 @@ extension BBLabel {
     }
     
     private func setupFontStyle() {
-        self.font = BBLabel.pretendard(fontStyle)
+        self.font = UIFont.style(fontStyle)
     }
     
     private func configureFontAttributes() {

@@ -175,11 +175,11 @@ final class CalendarCell: BaseCollectionViewCell<CalendarCellReactor> {
             
             $0.appearance.selectionColor = UIColor.clear
             
-            $0.appearance.titleFont = UIFont.pretendard(.body1Regular)
+            $0.appearance.titleFont = UIFont.style(.body1Regular)
             $0.appearance.titleDefaultColor = UIColor.bibbiWhite
             $0.appearance.titleSelectionColor = UIColor.bibbiWhite
             
-            $0.appearance.weekdayFont = UIFont.pretendard(.caption)
+            $0.appearance.weekdayFont = UIFont.style(.caption)
             $0.appearance.weekdayTextColor = UIColor.gray300
             $0.appearance.caseOptions = .weekdayUsesSingleUpperCase
             

@@ -225,6 +225,7 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
         super.setupAttributes()
         navigationBarView.do {
             $0.navigationTitle = "가족"
+            $0.navigationTitleFontStyle = .head2Bold
             $0.leftBarButtonItem = .arrowLeft
             $0.rightBarButtonItem = .setting
          }

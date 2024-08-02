@@ -144,7 +144,7 @@ public final class BBNavigationBarView: UIView {
     // MARK: - Intializer
     public convenience init() {
         self.init(frame: .zero)
-        setNavigationBar()
+        set("Bibbi")
     }
     
     public override init(frame: CGRect) {
@@ -253,7 +253,7 @@ extension BBNavigationBarView {
     ///     - rightBarButtonTint: 네비게이션 바의 오른쪽 버튼 강조 색상
     ///     - rightBarButtonItemScale: 네비게이션 바의 오른쪽 버튼 크기
     ///     - rightBarButtonYOffset: 네비게이션 바의 오른쪽 버튼 Y 위치
-    public func setNavigationBar(
+    public func set(
         _ title: String? = nil,
         titleColor: UIColor = .gray200,
         titleFontStyle: BBFontStyle = .homeTitle,
@@ -270,7 +270,7 @@ extension BBNavigationBarView {
         self.navigationTitleTextColor = titleColor
         self.navigationTitleFontStyle = titleFontStyle
         
-        setNavigationBarAttributes(
+        setAttributes(
             leftBarButtonItem: leftBarButtonItem,
             leftBarButtonTint: leftBarButtonTint,
             leftBarButtonItemScale: leftBarButtonItemScale,
@@ -296,7 +296,7 @@ extension BBNavigationBarView {
     ///     - rightBarButtonTint: 네비게이션 바의 오른쪽 버튼 강조 색상
     ///     - rightBarButtonItemScale: 네비게이션 바의 오른쪽 버튼 크기
     ///     - rightBarButtonYOffset: 네비게이션 바의 오른쪽 버튼 Y 위치
-    public func setNavigationBar(
+    public func set(
         _ image: TopBarButtonStyle? = nil,
         imageScale: CGFloat = 1.0,
         leftBarButtonItem: TopBarButtonStyle = .none,
@@ -311,7 +311,7 @@ extension BBNavigationBarView {
         self.navigationImage = image
         self.navigationImageScale = imageScale
         
-        setNavigationBarAttributes(
+        setAttributes(
             leftBarButtonItem: leftBarButtonItem,
             leftBarButtonTint: leftBarButtonTint,
             leftBarButtonItemScale: leftBarButtonItemScale,
@@ -323,7 +323,7 @@ extension BBNavigationBarView {
         )
     }
     
-    private func setNavigationBarAttributes(
+    private func setAttributes(
         leftBarButtonItem: TopBarButtonStyle = .none,
         leftBarButtonTint: UIColor = .gray300,
         leftBarButtonItemScale: CGFloat = 1.0,

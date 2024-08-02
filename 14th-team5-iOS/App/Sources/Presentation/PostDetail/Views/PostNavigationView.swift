@@ -15,11 +15,11 @@ import Then
 final class PostNavigationView: BaseView<PostReactor> {
     typealias Layout = PostAutoLayout.NavigationView
     
-    private let defaultNameLabel: UILabel = BibbiLabel(.head1, textColor: .gray200)
+    private let defaultNameLabel: UILabel = BBLabel(.head1, textColor: .gray200)
     private let backButton: UIButton = UIButton()
     private let profileImageView: UIImageView = UIImageView()
-    private let nameLabel: UILabel = BibbiLabel(.body1Regular, textColor: .gray100)
-    private let dateLabel: UILabel = BibbiLabel(.caption, textColor: .gray400)
+    private let nameLabel: UILabel = BBLabel(.body1Regular, textColor: .gray100)
+    private let dateLabel: UILabel = BBLabel(.caption, textColor: .gray400)
     
     convenience init(reactor: Reactor? = nil) {
         self.init(frame: .zero)

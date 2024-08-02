@@ -18,13 +18,13 @@ import Then
 fileprivate typealias _Str = AccountSignUpStrings.Nickname
 public final class AccountNicknameViewController: BaseViewController<AccountSignUpReactor> {
     // MARK: SubViews
-    private let titleLabel = BibbiLabel(.head2Bold, textColor: .gray300)
+    private let titleLabel = BBLabel(.head2Bold, textColor: .gray300)
     private let inputFielView = UITextField()
-    private let errorLabel = BibbiLabel(.body1Regular, textColor: .warningRed)
+    private let errorLabel = BBLabel(.body1Regular, textColor: .warningRed)
     private let errorImage = UIImageView()
     private let errorStackView = UIStackView()
     private let nextButton = UIButton()
-    private let descLabel = BibbiLabel(.body1Regular, textColor: .gray400)
+    private let descLabel = BBLabel(.body1Regular, textColor: .gray400)
     
     private let infoCircleFill = DesignSystemAsset.infoCircleFill.image
         .withRenderingMode(.alwaysTemplate)

@@ -12,6 +12,6 @@ struct BibbiAlertAction {
     var text: String?
     var textColor: UIColor?
     var backgroundColor: UIColor?
-    var fontStlye: BibbiFontStyle?
+    var fontStlye: BBFontStyle?
     var action: Action
 }

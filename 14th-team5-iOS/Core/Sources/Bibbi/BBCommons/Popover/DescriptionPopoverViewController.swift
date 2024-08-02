@@ -12,7 +12,7 @@ import Then
 
 public final class PopoverDescriptionViewController: UIViewController {
     // MARK: - Views
-    private let descrpitionLabel: BibbiLabel = BibbiLabel(.body2Regular)
+    private let descrpitionLabel: BBLabel = BBLabel(.body2Regular)
     
     // MARK: - Properties
     public var labelText: String

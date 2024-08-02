@@ -17,12 +17,12 @@ public final class BibbiAlertViewController: UIViewController {
     private var containerView: UIView = UIView()
     private var alertStackView: UIStackView = UIStackView()
     private var labelStackView: UIStackView = UIStackView()
-    private var subTitleLabel: BibbiLabel = BibbiLabel(.head2Bold, textAlignment: .center)
-    private var mainTitleLabel: BibbiLabel = BibbiLabel(.body2Regular, textAlignment: .center)
+    private var subTitleLabel: BBLabel = BBLabel(.head2Bold, textAlignment: .center)
+    private var mainTitleLabel: BBLabel = BBLabel(.body2Regular, textAlignment: .center)
     private var imageView: UIImageView = UIImageView()
     private var buttonStackView: UIStackView = UIStackView()
-    private var confirmButton: BibbiButton = BibbiButton(type: .system)
-    private var cancelButton: BibbiButton = BibbiButton(type: .system)
+    private var confirmButton: BBButton = BBButton(type: .system)
+    private var cancelButton: BBButton = BBButton(type: .system)
     
     // MARK: - Properties
     var subTitle: BibbiAlertTitle? {

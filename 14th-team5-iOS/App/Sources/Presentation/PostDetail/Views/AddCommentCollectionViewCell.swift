@@ -16,7 +16,7 @@ final class AddCommentCollectionViewCell: UICollectionViewCell {
     static let id = "addCommentCollectionViewCell"
     
     private let imageView: UIImageView = UIImageView()
-    private let countLabel: BibbiLabel = BibbiLabel(.body2Regular, textAlignment: .left, textColor: .gray200)
+    private let countLabel: BBLabel = BBLabel(.body2Regular, textAlignment: .left, textColor: .gray200)
     
     override init(frame: CGRect) {
         super.init(frame: frame)

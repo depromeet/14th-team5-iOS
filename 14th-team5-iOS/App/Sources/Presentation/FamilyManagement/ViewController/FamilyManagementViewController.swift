@@ -17,15 +17,15 @@ import SnapKit
 import Then
 
 fileprivate typealias _Str = FamilyManagementStrings
-public final class FamilyManagementViewController: BaseViewController<FamilyManagementViewReactor> {
+public final class FamilyManagementViewController: BBNavigationViewController<FamilyManagementViewReactor> {
     // MARK: - Views
     
     private let shareContainerview: InvitationUrlContainerView = InvitationUrlContainerDIContainer().makeView()
     private let dividerView: UIView = UIView()
     
     private let headerStack: UIStackView = UIStackView()
-    private let tableTitleLabel: BibbiLabel = BibbiLabel(.head1, textColor: .gray200)
-    private let tableCountLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray400)
+    private let tableTitleLabel: BBLabel = BBLabel(.head1, textColor: .gray200)
+    private let tableCountLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray400)
     
     private let familyTableView: UITableView = UITableView()
     private let refreshControl: UIRefreshControl = UIRefreshControl()
@@ -60,7 +60,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        navigationBarView.rx.rightButtonTap
+        navigationBarView.rx.didTapRightBarButton
             .map { _ in Reactor.Action.didTapPrivacyBarButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -224,7 +224,10 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     public override func setupAttributes() {
         super.setupAttributes()
         navigationBarView.do {
-            $0.setNavigationView(leftItem: .arrowLeft, centerItem: .label(_Str.mainTitle), rightItem: .setting)
+            $0.navigationTitle = "가족"
+            $0.navigationTitleFontStyle = .head2Bold
+            $0.leftBarButtonItem = .arrowLeft
+            $0.rightBarButtonItem = .setting
          }
         
         dividerView.do {

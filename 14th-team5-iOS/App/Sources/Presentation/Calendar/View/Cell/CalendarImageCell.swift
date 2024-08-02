@@ -22,7 +22,7 @@ final public class CalendarImageCell: FSCalendarCell, ReactorKit.View {
     static let id: String = "ImageCalendarCell"
     
     // MARK: - Views
-    private let dayLabel: BibbiLabel = BibbiLabel(.body1Regular, textAlignment: .center)
+    private let dayLabel: BBLabel = BBLabel(.body1Regular, textAlignment: .center)
     private let containerView: UIView = UIView()
     private let thumbnailView: UIImageView = UIImageView()
     private let todayStrokeView: UIView = UIView()

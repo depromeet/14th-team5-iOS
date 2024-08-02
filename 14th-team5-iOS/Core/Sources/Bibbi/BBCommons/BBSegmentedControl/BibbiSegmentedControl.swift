@@ -62,7 +62,7 @@ public final class BibbiSegmentedControl: UIView {
             $0.configuration = .plain()
             $0.configuration?.baseForegroundColor = .bibbiBlack
             $0.configuration?.attributedTitle = AttributedString(NSAttributedString(string: "생존", attributes: [
-                .font: UIFont.pretendard(.body2Bold),
+                .font: UIFont.style(.body2Bold),
             ]))
             $0.backgroundColor = .gray100
             $0.layer.cornerRadius = 20
@@ -74,7 +74,7 @@ public final class BibbiSegmentedControl: UIView {
             $0.configuration = .plain()
             $0.configuration?.baseForegroundColor = .bibbiBlack
             $0.configuration?.attributedTitle = AttributedString(NSAttributedString(string: "미션", attributes: [
-                .font: UIFont.pretendard(.body2Bold),
+                .font: UIFont.style(.body2Bold),
             ]))
             
             $0.configurationUpdateHandler = { [weak self] in

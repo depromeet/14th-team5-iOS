@@ -16,7 +16,7 @@ import Then
 
 final class ProfileFeedDescrptionCell: BaseCollectionViewCell<ProfileFeedDescrptionCellReactor> {
     
-    private let descrptionLabel: BibbiLabel = BibbiLabel(.caption2, textAlignment: .center)
+    private let descrptionLabel: BBLabel = BBLabel(.caption2, textAlignment: .center)
     private let blurContainerView: UIVisualEffectView = UIVisualEffectView.makeBlurView(style: .dark)
     
     

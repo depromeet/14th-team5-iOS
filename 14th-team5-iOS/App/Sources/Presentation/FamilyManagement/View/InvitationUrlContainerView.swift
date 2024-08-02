@@ -16,8 +16,8 @@ public final class InvitationUrlContainerView: BaseView<InvitationUrlContainerVi
     private let envelopeImageView: UIImageView = UIImageView()
     
     private let labelStack: UIStackView = UIStackView()
-    private let invitationDescLabel: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
-    private let invitationUrlLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray300)
+    private let invitationDescLabel: BBLabel = BBLabel(.head2Bold, textColor: .gray200)
+    private let invitationUrlLabel: BBLabel = BBLabel(.body2Regular, textColor: .gray300)
     private let shareLineImageView: UIImageView = UIImageView()
     private let indicatorView: UIActivityIndicatorView = UIActivityIndicatorView()
     

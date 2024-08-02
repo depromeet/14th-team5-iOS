@@ -14,7 +14,7 @@ import Domain
 
 fileprivate typealias _Str = AccountSignUpStrings.Date
 final class AccountDateViewController: BaseViewController<AccountSignUpReactor> {
-    private let titleLabel = BibbiLabel(.head2Bold, textColor: .gray300)
+    private let titleLabel = BBLabel(.head2Bold, textColor: .gray300)
     
     private let yearInputFieldView = UITextField()
     private let yearLabel = UILabel()
@@ -30,12 +30,12 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
     
     private let fieldStackView = UIStackView()
     
-    private let errorLabel = BibbiLabel(.body1Regular, textColor: .warningRed)
+    private let errorLabel = BBLabel(.body1Regular, textColor: .warningRed)
     private let errorImage = UIImageView()
     private let errorStackView = UIStackView()
     
     private let nextButton = UIButton()
-    private let descLabel = BibbiLabel(.body1Regular, textColor: .gray400)
+    private let descLabel = BBLabel(.body1Regular, textColor: .gray400)
     
     private let infoCircleFill = DesignSystemAsset.infoCircleFill.image
         .withRenderingMode(.alwaysTemplate)

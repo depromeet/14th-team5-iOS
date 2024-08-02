@@ -17,15 +17,15 @@ import RxCocoa
 final class ContributorView: BaseView<ContributorReactor> {
     private let containerView: UIView = UIView()
     
-    private let titleLabel: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
+    private let titleLabel: BBLabel = BBLabel(.head2Bold, textColor: .gray200)
     let infoButton: UIButton = UIButton()
-    private let subTitleLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray300)
+    private let subTitleLabel: BBLabel = BBLabel(.body2Regular, textColor: .gray300)
     
     private let firstProfileView: ContributorProfileView = ContributorProfileView(reactor: ContributorProfileReactor(initialState: .init(rank: .first)))
     private let secondProfileView: ContributorProfileView = ContributorProfileView(reactor: ContributorProfileReactor(initialState: .init(rank: .second)))
     private let thirdProfileView: ContributorProfileView =  ContributorProfileView(reactor: ContributorProfileReactor(initialState: .init(rank: .third)))
     
-    private let nextButton: BibbiButton = BibbiButton()
+    private let nextButton: BBButton = BBButton()
     
     let contributorRelay: BehaviorRelay<FamilyRankData> = .init(value: FamilyRankData.empty)
     

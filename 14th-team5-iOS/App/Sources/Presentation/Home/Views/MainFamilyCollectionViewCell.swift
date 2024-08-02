@@ -17,7 +17,7 @@ final class MainFamilyCollectionViewCell: BaseCollectionViewCell<MainFamilyCellR
     typealias Layout = HomeAutoLayout.ProfileView
     static let id: String = "familyCollectionViewCell"
     
-    private let defaultNameLabel = BibbiLabel(.head1, textAlignment: .center, textColor: .gray200)
+    private let defaultNameLabel = BBLabel(.head1, textAlignment: .center, textColor: .gray200)
     private let imageView: UIImageView = UIImageView()
     private let nameLabel: UILabel = UILabel()
     private let rankBadge: UIImageView = UIImageView()
@@ -78,7 +78,7 @@ final class MainFamilyCollectionViewCell: BaseCollectionViewCell<MainFamilyCellR
     
     override func setupAttributes() {
         nameLabel.do {
-            $0.font = UIFont.pretendard(.caption)
+            $0.font = UIFont.style(.caption)
             $0.textAlignment = .center
             $0.textColor = .gray300
             

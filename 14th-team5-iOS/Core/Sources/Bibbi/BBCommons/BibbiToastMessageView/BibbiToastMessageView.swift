@@ -16,7 +16,7 @@ final public class BibbiToastMessageView: UIView {
     private let capsuleView: UIView = UIView()
     
     private let stackView: UIStackView = UIStackView()
-    private let textLabel: BibbiLabel = BibbiLabel(.body1Regular, textAlignment: .center, textColor: .bibbiWhite)
+    private let textLabel: BBLabel = BBLabel(.body1Regular, textAlignment: .center, textColor: .bibbiWhite)
     private let imageView: UIImageView = UIImageView()
     private let transtionButton: UIButton = UIButton()
     

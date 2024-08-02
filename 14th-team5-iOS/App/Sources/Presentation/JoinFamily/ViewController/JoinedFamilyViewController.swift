@@ -18,8 +18,8 @@ import Then
 
 fileprivate typealias _Str = JoinedFamilyStrings
 final class JoinedFamilyViewController: BaseViewController<JoinedFamilyReactor> {
-    private let titleLabel = BibbiLabel(.head1, textColor: .gray100)
-    private let captionLabel = BibbiLabel(.body1Regular, textColor: .gray300)
+    private let titleLabel = BBLabel(.head1, textColor: .gray100)
+    private let captionLabel = BBLabel(.body1Regular, textColor: .gray300)
     private let labelStack = UIStackView()
     
     private let imageView = UIImageView()

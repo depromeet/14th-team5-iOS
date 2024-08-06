@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class MulticaseDelegate<T> {
+final public class MulticaseDelegate<T> {
     
     private let delegates: NSHashTable<AnyObject> = NSHashTable()
     

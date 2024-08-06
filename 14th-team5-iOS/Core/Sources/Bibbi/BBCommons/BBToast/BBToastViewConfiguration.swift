@@ -14,6 +14,9 @@ public struct BBToastViewConfiguration {
     public let minWidth: CGFloat
     public let minHeight: CGFloat
     
+    public let minButtonWidth: CGFloat
+    public let minButtonHeight: CGFloat
+    
     public let backgroundColor: UIColor
     
     public let titleNumberOfLines: Int
@@ -27,6 +30,8 @@ public struct BBToastViewConfiguration {
     public init(
         minWidth: CGFloat = 300,
         minHeight: CGFloat = 56,
+        minButtonWidth: CGFloat = 50,
+        minButtonHeight: CGFloat = 36,
         backgroundColor: UIColor = .gray900,
         titleNumberOfLines: Int = 1,
         subtitleNumberOfLines: Int = 1,
@@ -34,6 +39,8 @@ public struct BBToastViewConfiguration {
     ) {
         self.minWidth = minWidth
         self.minHeight = minHeight
+        self.minButtonWidth = minButtonWidth
+        self.minButtonHeight = minButtonHeight
         self.backgroundColor = backgroundColor
         self.titleNumberOfLines = titleNumberOfLines
         self.subtitleNumberOfLines = subtitleNumberOfLines

@@ -14,19 +14,20 @@ public class DefaultToastView: UIView, BBToastView {
     
     // MARK: - Views
     
-    private let child: UIView
+    public let child: BBToastStackView
     
     
     // MARK: - Properties
     
-    private weak var toast: BBToast?
+    public weak var toast: BBToast?
+    
     private let viewConfig: BBToastViewConfiguration
     
     
     // MARK: - Intializer
     
     public init(
-        child: UIView,
+        child: BBToastStackView,
         viewConfig: BBToastViewConfiguration = BBToastViewConfiguration()
     ) {
         self.viewConfig = viewConfig
@@ -44,6 +45,7 @@ public class DefaultToastView: UIView, BBToastView {
     
     public func createView(for toast: BBToast) {
         self.toast = toast
+        self.child.toast = toast
         
         setupConstraints(for: toast)
         setupAttributes()

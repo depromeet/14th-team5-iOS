@@ -7,12 +7,15 @@
 
 import UIKit
 
-public class TextToastView: UIStackView {
-    
+public class TextToastView: UIStackView, BBToastStackView {
+        
     // MARK: - Views
     
     private let titleLabel = BBLabel(.body1Regular)
     
+    // MARK: - Properties
+    
+    public var toast: BBToast?
     
     // MARK: - Intializer
     

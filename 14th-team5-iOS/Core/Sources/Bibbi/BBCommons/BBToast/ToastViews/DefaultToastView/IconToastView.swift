@@ -9,13 +9,17 @@ import UIKit
 
 import Then
 
-public class IconToastView: UIStackView {
+public class IconToastView: UIStackView, BBToastStackView {
     
     // MARK: - Views
     
     private let vStack = UIStackView()
     private let imageView = UIImageView()
     private let titleLabel = BBLabel(textAlignment: .center)
+
+    // MARK: - Properties
+    
+    public var toast: BBToast? 
     
     
     // MARK: - Intializer

@@ -24,7 +24,7 @@ public class BBToast {
     
     public static var defaultImageTint: UIColor = .bibbiWhite
     
-    private var multicast = MulticaseDelegate<BBToastDelegate>()
+    public static var multicast = MulticaseDelegate<BBToastDelegate>()
     
     public private(set) var config: BBToastConfiguration
 
@@ -73,6 +73,35 @@ public class BBToast {
         return BBToast(view: view, config: config)
     }
     
+    public static func button(
+        image: UIImage,
+        imageTint: UIColor = defaultImageTint,
+        title: String,
+        titleColor: UIColor? = nil,
+        titleFontStyle: BBFontStyle? = nil,
+        buttonTitle: String,
+        buttonTitleFontStyle: BBFontStyle? = nil,
+        buttonTint: UIColor? = nil,
+        viewConfig: BBToastViewConfiguration = BBToastViewConfiguration(),
+        config: BBToastConfiguration = BBToastConfiguration()
+    ) -> BBToast {
+        let view = DefaultToastView(
+            child: ButtonToastView(
+                image: image,
+                imageTint: imageTint,
+                title: title,
+                titleColor: titleColor,
+                titleFontStyle: titleFontStyle,
+                buttonTitle: buttonTitle,
+                buttonTitleFontStlye: buttonTitleFontStyle,
+                buttonTint: buttonTint,
+                viewConfig: viewConfig
+            ),
+            viewConfig: viewConfig
+        )
+        return BBToast(view: view, config: config)
+    }
+    
     public static func custom(
         view: BBToastView,
         config: BBToastConfiguration = BBToastConfiguration()
@@ -100,7 +129,7 @@ public class BBToast {
         config.view?.addSubview(view) ?? BBHelper.topController()?.view.addSubview(view)
         view.createView(for: self)
         
-        multicast.invoke { $0.willShowToast(self) }
+        Self.multicast.invoke { $0.willShowToast(self) }
         
         config.enteringAnimation.apply(to: self.view)
         let endBackgroundColor = backgroundView?.backgroundColor
@@ -114,7 +143,7 @@ public class BBToast {
             self.config.enteringAnimation.undo(from: self.view)
             self.backgroundView?.backgroundColor = endBackgroundColor
         } completion: { [self] _ in
-            multicast.invoke { $0.didShowToast(self) }
+            Self.multicast.invoke { $0.didShowToast(self) }
             
             configureCloseTimer()
             if !config.allowToastOverlap {
@@ -139,7 +168,7 @@ public class BBToast {
         animated: Bool = true,
         completion: (() -> Void)? = nil
     ) {
-        multicast.invoke { $0.willCloseToast(self) }
+        Self.multicast.invoke { $0.willCloseToast(self) }
         
         UIView.animate(
             withDuration: config.animationTime,
@@ -158,7 +187,7 @@ public class BBToast {
                 BBToast.activeToasts.remove(at: index)
             }
             completion?()
-            self.multicast.invoke { $0.didCloseToast(self) }
+            Self.multicast.invoke { $0.didCloseToast(self) }
         }
     }
     
@@ -194,8 +223,22 @@ public class BBToast {
 extension BBToast {
     
     public func addDelegate(_ delegate: BBToastDelegate) {
-        multicast.add(delegate)
+        Self.multicast.add(delegate)
     }
+    
+    public func addTapAction(
+        _ action: ((BBToast?) -> Void)? = nil
+    ) {
+        if let view = view as? DefaultToastView {
+            if let subview = view.child as? ButtonToastView {
+                subview.tapAction = action
+            }
+        }
+    }
+    
+}
+
+extension BBToast {
     
     private func createBackgroundView() -> UIView? {
         switch config.background {

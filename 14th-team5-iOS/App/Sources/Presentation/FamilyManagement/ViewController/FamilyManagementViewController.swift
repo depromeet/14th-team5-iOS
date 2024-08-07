@@ -133,18 +133,30 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
         reactor.pulse(\.$shouldPresentCopySuccessToastMessageView)
             .filter { $0 }
             .withUnretained(self)
-            .subscribe {
-                $0.0.makeBibbiToastView(
-                    text: _Str.sucessCopyInvitationUrlText,
-                    image: DesignSystemAsset.link.image
-                )
-            }
+            .subscribe(onNext: { _ in
+                BBToast.default(
+                    image: DesignSystemAsset.link.image,
+                    title: "링크가 복사되었어요"
+                ).show()
+            })
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentUrlFetchFailureToastMessageView)
             .filter { $0 }
             .withUnretained(self)
-            .subscribe { $0.0.makeErrorBibbiToastView() }
+            .subscribe(onNext: { _ in
+                let viewConfig = BBToastViewConfiguration(minWidth: 350)
+                let toast = BBToast.button(image: DesignSystemAsset.warning.image, title: "잠시 후에 다시 시도해주세요", buttonTitle: "새로고침", viewConfig: viewConfig)
+                toast.addTapAction { toast in
+                    print("DidTapButton")
+                    toast?.close()
+                }
+                toast.show()
+//                BBToast.default(
+//                    image: DesignSystemAsset.warning.image,
+//                    title: "잠시 후에 다시 시도해주세요"
+//                ).show()
+            })
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentFamilyFetchFailureToastMessageView)

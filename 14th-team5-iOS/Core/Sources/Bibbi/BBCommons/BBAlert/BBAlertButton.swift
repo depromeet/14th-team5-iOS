@@ -21,7 +21,10 @@ extension BBAlert {
             backgroundColor: UIColor? = nil,
             action: BBAlertAction = nil
         )
-        case confirm(title: String? = "확인", action: BBAlertAction = nil)
+        case confirm(
+            title: String? = "확인",
+            action: BBAlertAction = nil
+        )
         case cancel(title: String = "취소")
     }
     

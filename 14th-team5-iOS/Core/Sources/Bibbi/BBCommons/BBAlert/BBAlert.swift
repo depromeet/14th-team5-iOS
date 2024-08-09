@@ -17,7 +17,7 @@ public class BBAlert {
     public let view: BBAlertView
     private var backgroundView: UIView?
     
-    public static var defaultImageTint: UIColor = .black
+    public static var defaultImageTint: UIColor = .bibbiBlack
     
     private var multicast = MulticaseDelegate<BBAlertDelegate>()
     

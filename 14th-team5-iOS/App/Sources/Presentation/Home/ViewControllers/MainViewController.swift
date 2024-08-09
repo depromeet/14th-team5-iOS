@@ -307,7 +307,7 @@ extension MainViewController {
                 }
                 .present()
         case .pickAlert(let name, let id):
-            let viewConfig = BBAlertViewConfiguration(buttonsAxis: .vertical)
+            let viewConfig = BBAlertViewConfiguration()
             BBAlert.image(
                 image: DesignSystemAsset.missionKeyGraphic.image,
                 title: "생존 확인하기",

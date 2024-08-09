@@ -60,7 +60,7 @@ public class DefaultAlertView: UIView, BBAlertView {
     
     private func setupUI() {
         
-        for type in viewConfig.buttons {
+        for type in viewConfig.buttonLayout.buttons {
             let button = createAlertButton(for: type)
             buttonStack.addArrangedSubview(button)
         }
@@ -93,11 +93,11 @@ public class DefaultAlertView: UIView, BBAlertView {
             buttonStack.trailingAnchor.constraint(equalTo: self.layoutMarginsGuide.trailingAnchor),
         ])
         
-        if case .vertical = viewConfig.buttonsAxis {
+        if case .vertical = viewConfig.buttonLayout.axis {
             let count = CGFloat(buttonStack.arrangedSubviews.count)
-            buttonStack.heightAnchor.constraint(equalToConstant: count * viewConfig.buttonHeight + (buttonSpacing * count)).isActive = true
+            buttonStack.heightAnchor.constraint(equalToConstant: count * viewConfig.buttonLayout.height + (buttonSpacing * count)).isActive = true
         } else {
-            buttonStack.heightAnchor.constraint(equalToConstant: viewConfig.buttonHeight).isActive = true
+            buttonStack.heightAnchor.constraint(equalToConstant: viewConfig.buttonLayout.height).isActive = true
         }
         
         child.translatesAutoresizingMaskIntoConstraints = false
@@ -112,7 +112,7 @@ public class DefaultAlertView: UIView, BBAlertView {
     private func setupButtonConstraints() {
         for button in buttonStack.arrangedSubviews {
             NSLayoutConstraint.activate([
-                button.heightAnchor.constraint(equalToConstant: viewConfig.buttonHeight)
+                button.heightAnchor.constraint(equalToConstant: viewConfig.buttonLayout.height)
             ])
         }
     }
@@ -124,7 +124,7 @@ public class DefaultAlertView: UIView, BBAlertView {
         layer.cornerRadius = viewConfig.cornerRadius ?? 16
         backgroundColor = viewConfig.backgroundColor
         
-        buttonStack.axis = viewConfig.buttonsAxis
+        buttonStack.axis = viewConfig.buttonLayout.axis
         buttonStack.spacing = buttonSpacing
         buttonStack.alignment = .fill
         buttonStack.distribution = .fillEqually

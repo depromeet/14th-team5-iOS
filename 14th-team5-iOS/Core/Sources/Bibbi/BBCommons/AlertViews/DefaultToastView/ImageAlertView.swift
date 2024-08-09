@@ -89,7 +89,7 @@ public class ImageAlertView: UIStackView, BBAlertStackView {
         NSLayoutConstraint.activate([
             imageView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             imageView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            imageView.heightAnchor.constraint(lessThanOrEqualToConstant: 151)
+            imageView.heightAnchor.constraint(greaterThanOrEqualToConstant: 151)
         ])
         
     }

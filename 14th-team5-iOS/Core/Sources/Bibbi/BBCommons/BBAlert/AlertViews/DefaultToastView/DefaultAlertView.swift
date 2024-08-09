@@ -134,7 +134,8 @@ public class DefaultAlertView: UIView, BBAlertView {
     private func createAlertButton(for type: BBAlert.Button) -> BBButton {
         let button = BBButton(type: .system)
         
-        if case let .normal(title, titleFontStyle, titleColor, backgroundColor, action) = type {
+        switch type {
+        case let .normal(title, titleFontStyle, titleColor, backgroundColor, action):
             setupAlertButtotAttribute(
                 button,
                 title: title,
@@ -143,11 +144,17 @@ public class DefaultAlertView: UIView, BBAlertView {
                 backgroundColor: backgroundColor,
                 action: action
             )
-        } else {
+            
+        case let .confirm(title, action):
             setupAlertButtotAttribute(
                 button,
-                title: "취소",
-                titleFontStlye: .body1Bold,
+                title: title,
+                action: action
+            )
+        case let .cancel(title):
+            setupAlertButtotAttribute(
+                button,
+                title: title,
                 titleColor: .gray400,
                 backgroundColor: .gray700
             )
@@ -159,19 +166,19 @@ public class DefaultAlertView: UIView, BBAlertView {
     private func setupAlertButtotAttribute(
         _ button: BBButton,
         title: String?,
-        titleFontStlye: BBFontStyle?,
-        titleColor: UIColor?,
-        backgroundColor: UIColor?,
-        action: ((BBAlert?) -> Void)? = nil
+        titleFontStlye: BBFontStyle? = nil,
+        titleColor: UIColor? = nil,
+        backgroundColor: UIColor? = nil,
+        action: BBAlertAction = nil
     ) {
         let action = UIAction { [weak self] _ in
             action?(self?.alert) ?? self?.alert?.close()
         }
         
         button.setTitle(title, for: .normal)
-        button.setTitleColor(titleColor, for: .normal)
+        button.setTitleColor(titleColor ?? .bibbiBlack, for: .normal)
         button.setTitleFontStyle(titleFontStlye ?? .body1Bold)
-        button.backgroundColor = backgroundColor
+        button.backgroundColor = backgroundColor ?? .mainYellow
         
         button.layer.cornerRadius = 8
         button.layer.masksToBounds = false

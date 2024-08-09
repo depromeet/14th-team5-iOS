@@ -7,17 +7,22 @@
 
 import UIKit
 
+// MARK: - Typelias
+
+public typealias BBAlertAction = ((BBAlert?) -> Void)?
+
 extension BBAlert {
     
     public enum Button {
         case normal(
-            title: String? = nil,
+            title: String? = "확인",
             titleFontStyle: BBFontStyle? = nil,
             titleColor: UIColor? = nil,
             backgroundColor: UIColor? = nil,
-            action: ((BBAlert?) -> Void)? = nil
+            action: BBAlertAction = nil
         )
-        case cancel
+        case confirm(title: String? = "확인", action: BBAlertAction = nil)
+        case cancel(title: String = "취소")
     }
     
 }

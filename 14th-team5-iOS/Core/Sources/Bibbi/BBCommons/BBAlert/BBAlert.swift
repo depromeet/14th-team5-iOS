@@ -5,6 +5,7 @@
 //  Created by 김건우 on 8/6/24.
 //
 
+import DesignSystem
 import UIKit
 
 public class BBAlert {
@@ -47,7 +48,7 @@ public class BBAlert {
         return BBAlert(view: view, config: config)
     }
     
-    public static func `image`(
+    public static func image(
         image: UIImage? = nil,
         imageTint: UIColor? = nil,
         title: String,
@@ -71,6 +72,152 @@ public class BBAlert {
         )
         
         return BBAlert(view: view, config: config)
+    }
+    
+    public static func style(
+        _ style: BBAlertStyle,
+        primaryAction action: BBAlertAction,
+        config: BBAlertConfiguration = BBAlertConfiguration()
+    ) -> BBAlert {
+        switch style {
+        case .logout:
+            let layout = BBAlertButtonLayout(
+                buttons: [.cancel(), .confirm(action: action)],
+                axis: .horizontal
+            )
+            let viewConfig = BBAlertViewConfiguration(
+                minHeight: 145,
+                buttonLayout: layout
+            )
+            let view = DefaultAlertView(
+                child: TextAlertView(
+                    "로그아웃",
+                    subtitle: "로그아웃 하시겠어요?",
+                    viewConfig: viewConfig
+                ),
+                viewConfig: viewConfig
+            )
+            return BBAlert(view: view, config: config)
+            
+        case .makeNewFamily:
+            let layout = BBAlertButtonLayout(
+                buttons: [.cancel(), .confirm(action: action)],
+                axis: .horizontal
+            )
+            let viewConfig = BBAlertViewConfiguration(
+                minHeight: 181,
+                buttonLayout: layout
+            )
+            let view = DefaultAlertView(
+                child: TextAlertView(
+                    "새 가족 방 만들기",
+                    subtitle: "초대 받은 가족이 없어\n새 가족 방으로 입장할래요",
+                    viewConfig: viewConfig
+                ),
+                viewConfig: viewConfig
+            )
+            return BBAlert(view: view, config: config)
+            
+        case .resetFamilyName:
+            let layout = BBAlertButtonLayout(
+                buttons: [.cancel(), .confirm(action: action)],
+                axis: .horizontal
+            )
+            let viewConfig = BBAlertViewConfiguration(
+                minHeight: 181,
+                buttonLayout: layout
+            )
+            let view = DefaultAlertView(
+                child: TextAlertView(
+                    "가족 방 이름을 초기화 하겠습니까?",
+                    subtitle: "홈 화면의 가족방 이름이 사라지고\nBibbi 로고로 바뀌어요",
+                    viewConfig: viewConfig
+                ),
+                viewConfig: viewConfig
+            )
+            return BBAlert(view: view, config: config)
+            
+        case .widget:
+            let layout = BBAlertButtonLayout(
+                buttons: [.confirm(title: "확인하기", action: action), .cancel(title: "닫기")],
+                axis: .vertical
+            )
+            let viewConfig = BBAlertViewConfiguration(
+                minHeight: 384,
+                buttonLayout: layout
+            )
+            let view = DefaultAlertView(
+                child: ImageAlertView(
+                    image: DesignSystemAsset.widgetGraphic.image,
+                    title: "위젯 추가하셨나요?",
+                    subtitle: "홈 화면에서 위젯으로\n가족의 소식을 한눈에 파악할 수 있어요",
+                    viewConfig: viewConfig
+                ),
+                viewConfig: viewConfig
+            )
+            return BBAlert(view: view, config: config)
+            
+        case .mission:
+            let layout = BBAlertButtonLayout(
+                buttons: [.confirm(title: "미션 사진 찍기", action: action), .cancel(title: "닫기")],
+                axis: .vertical
+            )
+            let viewConfig = BBAlertViewConfiguration(
+                minHeight: 384,
+                buttonLayout: layout
+            )
+            let view = DefaultAlertView(
+                child: ImageAlertView(
+                    image: DesignSystemAsset.missionKeyGraphic.image,
+                    title: "미션 열쇠 획득!",
+                    subtitle: "열쇠를 획득해 잠금이 해제되었어요.\n미션 사진을 찍을 수 있어요!",
+                    viewConfig: viewConfig
+                ),
+                viewConfig: viewConfig
+            )
+            return BBAlert(view: view, config: config)
+            
+        case let .picking(name):
+            let layout = BBAlertButtonLayout(
+                buttons: [.confirm(title: "지금 하기", action: action), .cancel(title: "다음에 하기")],
+                axis: .vertical
+            )
+            let viewConfig = BBAlertViewConfiguration(
+                minHeight: 384,
+                buttonLayout: layout
+            )
+            let view = DefaultAlertView(
+                child: ImageAlertView(
+                    image: DesignSystemAsset.exhaustedBibbiGraphic.image,
+                    title: "생존 확인하기",
+                    subtitle: "\(name)님의 생존 여부를 물어볼까요?\n지금 알림이 전송됩니다.",
+                    viewConfig: viewConfig
+                ),
+                viewConfig: viewConfig
+            )
+            return BBAlert(view: view, config: config)
+            
+        case .takePhoto:
+            let layout = BBAlertButtonLayout(
+                buttons: [.confirm(title: "생존 신고 먼저하기", action: action), .cancel(title: "다음에 하기")],
+                axis: .vertical
+            )
+            let viewConfig = BBAlertViewConfiguration(
+                minHeight: 384,
+                buttonLayout: layout
+            )
+            let view = DefaultAlertView(
+                child: ImageAlertView(
+                    image: DesignSystemAsset.takeSurvivalGraphic.image,
+                    title: "생존신고 사진을 먼저 찍으세요!",
+                    subtitle: "미션 사진을 올리려면\n생존신고 사진을 먼저 업로드해야해요.",
+                    viewConfig: viewConfig
+                ),
+                viewConfig: viewConfig
+            )
+            return BBAlert(view: view, config: config)
+            
+        }
     }
     
     public static func custom(

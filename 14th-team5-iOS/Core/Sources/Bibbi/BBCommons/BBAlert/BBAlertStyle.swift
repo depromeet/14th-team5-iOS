@@ -7,14 +7,20 @@
 
 import Foundation
 
+// MARK: - Typealias
+
+public typealias BBAlertStyle = BBAlert.Style
+
 extension BBAlert {
     
     public enum Style {
         case logout
+        case makeNewFamily
+        case resetFamilyName
         case widget
         case mission
-        case picking
-        case camera
+        case picking(name: String)
+        case takePhoto
     }
     
 }

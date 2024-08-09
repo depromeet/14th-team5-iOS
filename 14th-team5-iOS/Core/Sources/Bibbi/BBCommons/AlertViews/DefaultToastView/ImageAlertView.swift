@@ -73,22 +73,16 @@ public class ImageAlertView: UIStackView, BBAlertStackView {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: titleStack.topAnchor, constant: 20),
-            titleLabel.leadingAnchor.constraint(equalTo: titleStack.leadingAnchor),
-            titleLabel.trailingAnchor.constraint(equalTo: titleStack.trailingAnchor),
-            titleLabel.heightAnchor.constraint(lessThanOrEqualToConstant: 25)
+            titleLabel.heightAnchor.constraint(equalToConstant: 25)
         ])
         
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            subtitleLabel.leadingAnchor.constraint(equalTo: titleStack.leadingAnchor),
-            subtitleLabel.trailingAnchor.constraint(equalTo: titleStack.trailingAnchor),
             subtitleLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 40)
         ])
         
         imageView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            imageView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            imageView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             imageView.heightAnchor.constraint(greaterThanOrEqualToConstant: 151)
         ])
         

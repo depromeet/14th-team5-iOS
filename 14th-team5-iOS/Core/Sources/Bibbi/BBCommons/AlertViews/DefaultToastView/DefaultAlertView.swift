@@ -15,7 +15,6 @@ public class DefaultAlertView: UIView, BBAlertView {
     
     private let buttonStack: UIStackView = UIStackView()
     
-    private let alertStack: UIStackView = UIStackView()
     
     // MARK: - Properties
     
@@ -79,7 +78,7 @@ public class DefaultAlertView: UIView, BBAlertView {
             trailingAnchor.constraint(lessThanOrEqualTo: superview.layoutMarginsGuide.trailingAnchor),
             bottomAnchor.constraint(lessThanOrEqualTo: superview.layoutMarginsGuide.bottomAnchor),
             centerXAnchor.constraint(equalTo: superview.centerXAnchor),
-            centerYAnchor.constraint(equalTo: superview.centerYAnchor)
+            centerYAnchor.constraint(equalTo: superview.centerYAnchor),
         ])
         
         setupSubviewConstraints()
@@ -102,7 +101,7 @@ public class DefaultAlertView: UIView, BBAlertView {
         
         child.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            child.bottomAnchor.constraint(equalTo: buttonStack.topAnchor, constant: -10),
+            child.bottomAnchor.constraint(equalTo: buttonStack.topAnchor, constant: -16),
             child.leadingAnchor.constraint(equalTo: self.layoutMarginsGuide.leadingAnchor),
             child.trailingAnchor.constraint(equalTo: self.layoutMarginsGuide.trailingAnchor),
             child.topAnchor.constraint(equalTo: self.layoutMarginsGuide.topAnchor)

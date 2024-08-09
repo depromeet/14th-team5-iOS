@@ -25,11 +25,35 @@ public class BBAlert {
     
     // MARK: - Alert
     
+    public static func text(
+        title: String,
+        titleFontStyle: BBFontStyle? = nil,
+        subtitle: String? = nil,
+        subtitleFontStyle: BBFontStyle? = nil,
+        viewConfig: BBAlertViewConfiguration = BBAlertViewConfiguration(),
+        config: BBAlertConfiguration = BBAlertConfiguration()
+    ) -> BBAlert {
+        let view = DefaultAlertView(
+            child: TextAlertView(
+                title,
+                titleFontStyle: titleFontStyle,
+                subtitle: subtitle,
+                subtitleFontStyle: subtitleFontStyle,
+                viewConfig: viewConfig
+            ),
+            viewConfig: viewConfig
+        )
+        
+        return BBAlert(view: view, config: config)
+    }
+    
     public static func `image`(
         image: UIImage? = nil,
         imageTint: UIColor? = nil,
         title: String,
+        titleFontStyle: BBFontStyle? = nil,
         subtitle: String? = nil,
+        subtitleFontStyle: BBFontStyle? = nil,
         viewConfig: BBAlertViewConfiguration = BBAlertViewConfiguration(),
         config: BBAlertConfiguration = BBAlertConfiguration()
     ) -> BBAlert {
@@ -38,7 +62,9 @@ public class BBAlert {
                 image: image,
                 imageTint: imageTint,
                 title: title,
+                titleFontStyle: titleFontStyle,
                 subtitle: subtitle,
+                subtitleFontStyle: subtitleFontStyle,
                 viewConfig: viewConfig
             ),
             viewConfig: viewConfig

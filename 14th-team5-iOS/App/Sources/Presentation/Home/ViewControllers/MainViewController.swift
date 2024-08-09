@@ -307,13 +307,14 @@ extension MainViewController {
                 }
                 .present()
         case .pickAlert(let name, let id):
-            let viewConfig = BBAlertViewConfiguration()
-            BBAlert.image(
-                image: DesignSystemAsset.missionKeyGraphic.image,
-                title: "생존 확인하기",
-                subtitle: "[닉네임]님의 생존 여부를 물어볼까요?\n지금 알림이 전송됩니다.",
-                viewConfig: viewConfig
-            ).show()
+            let viewConfig = BBAlertViewConfiguration(minHeight: 181, buttonLayout: BBAlertButtonLayout(buttons: [.cancel, .normal(title: "확인", titleColor: .bibbiBlack, backgroundColor: .mainYellow)], axis: .horizontal))
+            BBAlert.text(title: "가족 방 이름을 초기화 하겠습니까?", subtitle: "홈 화면의 가족방 이름이 사라지고\nBibbi 로고로 바뀌어요", viewConfig: viewConfig).show()
+//            BBAlert.image(
+//                image: DesignSystemAsset.missionKeyGraphic.image,
+//                title: "생존 확인하기",
+//                subtitle: "[닉네임]님의 생존 여부를 물어볼까요?\n지금 알림이 전송됩니다.",
+//                viewConfig: viewConfig
+//            ).show()
 //            BibbiAlertBuilder(self)
 //                .alertStyle(.pickMember(name))
 //                .setConfirmAction {  [weak self] in 

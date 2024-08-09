@@ -8,6 +8,7 @@
 import DesignSystem
 import UIKit
 
+@available(*, deprecated, renamed: "BBAlert")
 public final class BibbiAlertBuilder {
     
     // MARK: - Properties

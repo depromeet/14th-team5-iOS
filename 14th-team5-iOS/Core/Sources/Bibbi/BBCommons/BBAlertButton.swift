@@ -10,7 +10,13 @@ import UIKit
 extension BBAlert {
     
     public enum Button {
-        case normal(title: String? = nil, tint: UIColor? = nil, action: ((BBAlert?) -> Void)? = nil)
+        case normal(
+            title: String? = nil,
+            titleFontStyle: BBFontStyle? = nil,
+            titleColor: UIColor? = nil,
+            backgroundColor: UIColor? = nil,
+            action: ((BBAlert?) -> Void)? = nil
+        )
         case cancel
     }
     

@@ -138,6 +138,10 @@ public class BBAlert {
 
 extension BBAlert {
     
+    public func addDelegate(_ delegate: BBAlertDelegate) {
+        multicast.add(delegate)
+    }
+    
     private func createBackgroundView() -> UIView? {
         switch config.background {
         case .none:

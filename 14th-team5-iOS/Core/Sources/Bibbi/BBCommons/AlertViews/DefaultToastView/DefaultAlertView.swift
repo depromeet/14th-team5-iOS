@@ -132,21 +132,25 @@ public class DefaultAlertView: UIView, BBAlertView {
         addShadow()
     }
     
-    private func createAlertButton(for type: BBAlert.Button) -> UIButton {
-        let button = UIButton(type: .system) // TODO: - BBButton으로 교체
+    private func createAlertButton(for type: BBAlert.Button) -> BBButton {
+        let button = BBButton(type: .system)
         
-        if case let .normal(title, tint, action) = type {
+        if case let .normal(title, titleFontStyle, titleColor, backgroundColor, action) = type {
             setupAlertButtotAttribute(
                 button,
                 title: title,
-                tint: tint,
+                titleFontStlye: titleFontStyle,
+                titleColor: titleColor,
+                backgroundColor: backgroundColor,
                 action: action
             )
         } else {
             setupAlertButtotAttribute(
                 button,
                 title: "취소",
-                tint: .gray // TODO: - BBColor로 교체
+                titleFontStlye: .body1Bold,
+                titleColor: .gray400,
+                backgroundColor: .gray700
             )
         }
         
@@ -154,9 +158,11 @@ public class DefaultAlertView: UIView, BBAlertView {
     }
     
     private func setupAlertButtotAttribute(
-        _ button: UIButton,
+        _ button: BBButton,
         title: String?,
-        tint: UIColor?,
+        titleFontStlye: BBFontStyle?,
+        titleColor: UIColor?,
+        backgroundColor: UIColor?,
         action: ((BBAlert?) -> Void)? = nil
     ) {
         let action = UIAction { [weak self] _ in
@@ -164,7 +170,9 @@ public class DefaultAlertView: UIView, BBAlertView {
         }
         
         button.setTitle(title, for: .normal)
-        button.backgroundColor = tint
+        button.setTitleColor(titleColor, for: .normal)
+        button.setTitleFontStyle(titleFontStlye ?? .body1Bold)
+        button.backgroundColor = backgroundColor
         
         button.layer.cornerRadius = 8
         button.layer.masksToBounds = false

@@ -34,12 +34,12 @@ public struct BBAlertViewConfiguration {
     public init(
         minWidth: CGFloat = 280,
         minHeight: CGFloat = 384,
-        buttons: [BBAlert.Button] = [.normal(title: "확인", tint: .yellow), .cancel],
+        buttons: [BBAlert.Button] = [.normal(title: "확인", titleColor: .bibbiBlack, backgroundColor: .mainYellow), .cancel],
         buttonsAxis: BBAlertButtonAxis = .horizontal,
         buttonHeight: CGFloat = 44,
         titleNumberOfLines: Int = 1,
         subtitleNumberOfLines: Int = 10,
-        backgroundColor: UIColor? = .black,
+        backgroundColor: UIColor? = .gray900,
         cornerRadius: CGFloat? = nil
     ) {
         self.minWidth = minWidth

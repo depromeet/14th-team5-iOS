@@ -294,6 +294,11 @@ extension MainViewController {
             MPEvent.Home.cameraTapped.track(with: nil)
                 navigationController?.pushViewController(CameraViewControllerWrapper(cameraType: type).viewController, animated: true)
         case .survivalAlert:
+//            BBAlert.image(
+//                image: DesignSystemAsset.key.image,
+//                title: "미션 열쇠 획득!",
+//                subtitle: "열쇠를 획득해 잠금이 해제되었어요.\n미션 사진을 찍을 수 있어요!"
+//            ).show()
             BibbiAlertBuilder(self)
                 .alertStyle(.takeSurvival)
                 .setConfirmAction { [weak self] in
@@ -302,12 +307,19 @@ extension MainViewController {
                 }
                 .present()
         case .pickAlert(let name, let id):
-            BibbiAlertBuilder(self)
-                .alertStyle(.pickMember(name))
-                .setConfirmAction {  [weak self] in 
-                    guard let self else { return }
-                    self.alertConfirmRelay.accept((name, id)) }
-                .present()
+            let viewConfig = BBAlertViewConfiguration(buttonsAxis: .vertical)
+            BBAlert.image(
+                image: DesignSystemAsset.missionKeyGraphic.image,
+                title: "생존 확인하기",
+                subtitle: "[닉네임]님의 생존 여부를 물어볼까요?\n지금 알림이 전송됩니다.",
+                viewConfig: viewConfig
+            ).show()
+//            BibbiAlertBuilder(self)
+//                .alertStyle(.pickMember(name))
+//                .setConfirmAction {  [weak self] in 
+//                    guard let self else { return }
+//                    self.alertConfirmRelay.accept((name, id)) }
+//                .present()
         case .missionUnlockedAlert:
             BibbiAlertBuilder(self)
                 .alertStyle(.missionKey)

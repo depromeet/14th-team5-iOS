@@ -11,8 +11,9 @@ public class ImageAlertView: UIStackView, BBAlertStackView {
     
     // MARK: - Views
     
-    private let titleLabel = UILabel() // TODO: - BBLabel로 교체
-    private let subtitleLabel = UILabel()
+    private let titleLabel = BBLabel(textAlignment: .center)
+    private let subtitleLabel = BBLabel(textAlignment: .center)
+    private let titleStack = UIStackView()
     private let imageView = UIImageView()
     
     
@@ -26,22 +27,28 @@ public class ImageAlertView: UIStackView, BBAlertStackView {
     public init(
         image: UIImage? = nil,
         imageTint: UIColor? = nil,
-        title: String,
+        title: String?,
+        titleFontStyle: BBFontStyle? = nil,
         subtitle: String? = nil,
+        subtitleFontStyle: BBFontStyle? = nil,
         viewConfig: BBAlertViewConfiguration
     ) {
         super.init(frame: .zero)
         commonInit()
         
         titleLabel.text = title
+        titleLabel.fontStyle = titleFontStyle ?? .head2Bold
         titleLabel.numberOfLines = viewConfig.titleNumberOfLines
-        addArrangedSubview(titleLabel)
+        titleStack.addArrangedSubview(titleLabel)
         
         if let subtitle = subtitle {
             subtitleLabel.text = subtitle
+            subtitleLabel.fontStyle = subtitleFontStyle ?? .body2Regular
             subtitleLabel.numberOfLines = viewConfig.subtitleNumberOfLines
-            addArrangedSubview(subtitleLabel)
+            titleStack.addArrangedSubview(subtitleLabel)
         }
+        
+        addArrangedSubview(titleStack)
         
         if let image = image {
             imageView.image = image
@@ -49,6 +56,9 @@ public class ImageAlertView: UIStackView, BBAlertStackView {
             imageView.tintColor = imageTint
             addArrangedSubview(imageView)
         }
+        
+        setupCostraints()
+        setupAttributes()
     }
     
     required init(coder: NSCoder) {
@@ -57,11 +67,44 @@ public class ImageAlertView: UIStackView, BBAlertStackView {
     
     
     // MARK: - Helpers
+
+    private func setupCostraints() {
+
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            titleLabel.topAnchor.constraint(equalTo: titleStack.topAnchor, constant: 20),
+            titleLabel.leadingAnchor.constraint(equalTo: titleStack.leadingAnchor),
+            titleLabel.trailingAnchor.constraint(equalTo: titleStack.trailingAnchor),
+            titleLabel.heightAnchor.constraint(lessThanOrEqualToConstant: 25)
+        ])
+        
+        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            subtitleLabel.leadingAnchor.constraint(equalTo: titleStack.leadingAnchor),
+            subtitleLabel.trailingAnchor.constraint(equalTo: titleStack.trailingAnchor),
+            subtitleLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 40)
+        ])
+        
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            imageView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            imageView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            imageView.heightAnchor.constraint(lessThanOrEqualToConstant: 151)
+        ])
+        
+    }
+    
+    private func setupAttributes() {
+        titleStack.axis = .vertical
+        titleStack.spacing = 8
+        titleStack.alignment = .fill
+        titleStack.distribution = .fillProportionally
+    }
     
     private func commonInit() {
         axis = .vertical
-        spacing = 3
-        alignment = .center
+        spacing = 16
+        alignment = .fill
         distribution = .fillProportionally
     }
     

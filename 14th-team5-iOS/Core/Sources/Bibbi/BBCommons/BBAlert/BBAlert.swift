@@ -8,6 +8,10 @@
 import DesignSystem
 import UIKit
 
+// MARK: - Typelias
+
+public typealias BBAlertAction = ((BBAlert?) -> Void)?
+
 public class BBAlert {
     
     // MARK: - Properties

@@ -5,7 +5,12 @@
 //  Created by 김건우 on 7/4/24.
 //
 
+import DesignSystem
 import UIKit
+
+// MARK: - Typealias
+
+public typealias BBToastAction = ((BBToast?) -> Void)?
 
 public class BBToast {
     
@@ -100,6 +105,27 @@ public class BBToast {
             viewConfig: viewConfig
         )
         return BBToast(view: view, config: config)
+    }
+    
+    public static func style(
+        _ style: BBToastStyle,
+        config: BBToastConfiguration = BBToastConfiguration()
+    ) -> BBToast {
+        switch style {
+        case .error:
+            let viewConfig = BBToastViewConfiguration(
+                minWidth: 250
+            )
+            let view = DefaultToastView(
+                child: IconToastView(
+                    image: DesignSystemAsset.warning.image,
+                    title: "잠시 후에 다시 시도해주세요",
+                    viewConfig: viewConfig
+                ),
+                viewConfig: viewConfig
+            )
+            return BBToast(view: view, config: config)
+        }
     }
     
     public static func custom(
@@ -226,13 +252,12 @@ extension BBToast {
         Self.multicast.add(delegate)
     }
     
-    public func addTapAction(
-        _ action: ((BBToast?) -> Void)? = nil
+    public func addButtonAction(
+        _ action: BBToastAction = nil
     ) {
-        if let view = view as? DefaultToastView {
-            if let subview = view.child as? ButtonToastView {
-                subview.tapAction = action
-            }
+        if let view = view as? DefaultToastView,
+           let subview = view.child as? ButtonToastView {
+            subview.buttonAction = action
         }
     }
     

@@ -15,7 +15,7 @@ import RxDataSources
 import RxCocoa
 import RxSwift
 
-final class MainViewController: BaseViewController<MainViewReactor>, UICollectionViewDelegateFlowLayout, BBAlertDelegate {
+final class MainViewController: BaseViewController<MainViewReactor>, UICollectionViewDelegateFlowLayout {
     private let familyViewController: MainFamilyViewController = MainFamilyViewControllerWrapper().makeViewController()
     
     private let timerView: TimerView = TimerView(reactor: TimerReactor())
@@ -302,15 +302,12 @@ extension MainViewController {
                 }
                 .present()
         case .pickAlert(let name, let id):
-            let alert = BBAlert.style(.logout)
-            alert.addDelegate(self)
-            alert.show()
-//            BibbiAlertBuilder(self)
-//                .alertStyle(.pickMember(name))
-//                .setConfirmAction {  [weak self] in 
-//                    guard let self else { return }
-//                    self.alertConfirmRelay.accept((name, id)) }
-//                .present()
+            BibbiAlertBuilder(self)
+                .alertStyle(.pickMember(name))
+                .setConfirmAction {  [weak self] in 
+                    guard let self else { return }
+                    self.alertConfirmRelay.accept((name, id)) }
+                .present()
         case .missionUnlockedAlert:
             BibbiAlertBuilder(self)
                 .alertStyle(.missionKey)
@@ -328,17 +325,4 @@ extension MainViewController: UIPopoverPresentationControllerDelegate {
     public func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
         return .none
     }
-}
-
-extension MainViewController {
-    
-    func willShowAlert(_ alert: BBAlert) {
-        print("=============== ")
-        print(#function)
-    }
-    
-    func didTapAlertButton(_ alert: BBAlert?, index: Int?, button: BBButton) {
-        print("버튼이 클릭됨! \(index)")
-    }
-    
 }

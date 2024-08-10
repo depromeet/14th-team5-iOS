@@ -7,10 +7,6 @@
 
 import UIKit
 
-// MARK: - Typelias
-
-public typealias BBAlertAction = ((BBAlert?) -> Void)?
-
 extension BBAlert {
     
     public enum Button {

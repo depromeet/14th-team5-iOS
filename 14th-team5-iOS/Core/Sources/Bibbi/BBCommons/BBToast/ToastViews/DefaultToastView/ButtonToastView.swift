@@ -16,7 +16,7 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
     // MARK: - Properties
     
     public var toast: BBToast?
-    public var tapAction: ((BBToast?) -> Void)?
+    public var buttonAction: BBToastAction
     
     private let viewConfig: BBToastViewConfiguration
     
@@ -34,7 +34,7 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
         viewConfig: BBToastViewConfiguration
     ) {
         self.toast = nil
-        self.tapAction = nil
+        self.buttonAction = nil
         
         self.viewConfig = viewConfig
         super.init(frame: .zero)
@@ -49,9 +49,26 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
             viewConfig: viewConfig
         )
         
+        button.setId(0)
         button.setTitle(buttonTitle, for: .normal)
         button.setTitleFontStyle(buttonTitleFontStlye ?? .body1Regular)
         button.setTitleColor(buttonTint ?? .gray100, for: .normal)
+        
+        let action = UIAction { [weak self] _ in
+            guard let self = self else { return }
+            // 델리게이트 실행
+            BBToast.multicast.invoke {
+                $0.didTapToastButton(
+                    self.toast,
+                    index: self.button.id,
+                    button: self.button
+                )
+            }
+            // 액션 클로저 실행
+            buttonAction?(self.toast)
+        }
+        
+        button.addAction(action, for: .touchUpInside)
         
         addArrangedSubview(iconView)
         addArrangedSubview(button)
@@ -78,12 +95,6 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
             action: #selector(didTapToastButton),
             for: .touchUpInside
         )
-    }
-    
-    // TODO: - 세세한 버튼 UI 수정하기
-    
-    @objc public func didTapToastButton(_ button: UIButton) {
-        tapAction?(toast)
     }
     
 }

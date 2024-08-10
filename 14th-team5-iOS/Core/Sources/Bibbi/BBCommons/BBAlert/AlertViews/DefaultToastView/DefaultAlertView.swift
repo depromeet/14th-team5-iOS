@@ -18,6 +18,8 @@ public class DefaultAlertView: UIView, BBAlertView {
     
     // MARK: - Properties
     
+    public var id: Int = -1
+    
     private var alert: BBAlert?
     private let viewConfig: BBAlertViewConfiguration
     
@@ -171,9 +173,8 @@ public class DefaultAlertView: UIView, BBAlertView {
         backgroundColor: UIColor? = nil,
         action: BBAlertAction = nil
     ) {
-        let action = UIAction { [weak self] _ in
-            action?(self?.alert) ?? self?.alert?.close()
-        }
+        self.id += 1
+        button.setId(id)
         
         button.setTitle(title, for: .normal)
         button.setTitleColor(titleColor ?? .bibbiBlack, for: .normal)
@@ -182,6 +183,24 @@ public class DefaultAlertView: UIView, BBAlertView {
         
         button.layer.cornerRadius = 8
         button.layer.masksToBounds = false
+        
+        let action = UIAction { [weak self] _ in
+            guard let self = self else { return }
+            // 델리게이트 실행
+            BBAlert.multicast.invoke {
+                $0.didTapAlertButton(
+                    self.alert,
+                    index: button.id,
+                    button: button
+                )
+            }
+            // 액션 클로저 실행
+            if let action = action {
+                action(self.alert)
+            } else {
+                self.alert?.close()
+            }
+        }
         
         button.addAction(action, for: .touchUpInside)
     }

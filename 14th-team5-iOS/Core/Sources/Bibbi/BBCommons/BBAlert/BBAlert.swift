@@ -19,7 +19,7 @@ public class BBAlert {
     
     public static var defaultImageTint: UIColor = .bibbiBlack
     
-    private var multicast = MulticaseDelegate<BBAlertDelegate>()
+    public static var multicast = MulticastDelegate<BBAlertDelegate>()
     
     public private(set) var config: BBAlertConfiguration
     
@@ -76,7 +76,7 @@ public class BBAlert {
     
     public static func style(
         _ style: BBAlertStyle,
-        primaryAction action: BBAlertAction,
+        primaryAction action: BBAlertAction = nil,
         config: BBAlertConfiguration = BBAlertConfiguration()
     ) -> BBAlert {
         switch style {
@@ -249,7 +249,7 @@ public class BBAlert {
         config.view?.addSubview(view) ?? BBHelper.topController()?.view.addSubview(view)
         view.createView(for: self)
         
-        multicast.invoke { $0.willShowAlert(self) }
+        Self.multicast.invoke { $0.willShowAlert(self) }
         
         config.enteringAnimation.apply(to: self.view)
         let endBackgroundColor = backgroundView?.backgroundColor
@@ -258,7 +258,7 @@ public class BBAlert {
             self.config.enteringAnimation.undo(from: self.view)
             self.backgroundView?.backgroundColor = endBackgroundColor
         } completion: { [self] _ in
-            multicast.invoke { $0.didShowAlert(self) }
+            Self.multicast.invoke { $0.didShowAlert(self) }
             
             if !config.allowOverlapAlert {
                 closeOverlappedAlerts()
@@ -275,7 +275,7 @@ public class BBAlert {
         animated: Bool = true,
         completion: (() -> Void)? = nil
     ) {
-        multicast.invoke { $0.willCloseAlert(self) }
+        Self.multicast.invoke { $0.willCloseAlert(self) }
         
         UIView.animate(withDuration: 0.15) {
             if animated {
@@ -289,7 +289,7 @@ public class BBAlert {
                 BBAlert.activeAlerts.remove(at: index)
             }
             completion?()
-            self.multicast.invoke { $0.didCloseAlert(self) }
+            Self.multicast.invoke { $0.didCloseAlert(self) }
         }
     }
     
@@ -312,7 +312,7 @@ public class BBAlert {
 extension BBAlert {
     
     public func addDelegate(_ delegate: BBAlertDelegate) {
-        multicast.add(delegate)
+        Self.multicast.add(delegate)
     }
     
     private func createBackgroundView() -> UIView? {

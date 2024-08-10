@@ -24,7 +24,7 @@ public class BBToast {
     
     public static var defaultImageTint: UIColor = .bibbiWhite
     
-    public static var multicast = MulticaseDelegate<BBToastDelegate>()
+    public static var multicast = MulticastDelegate<BBToastDelegate>()
     
     public private(set) var config: BBToastConfiguration
 

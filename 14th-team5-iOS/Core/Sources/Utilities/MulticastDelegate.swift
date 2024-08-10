@@ -7,12 +7,12 @@
 
 import Foundation
 
-final public class MulticaseDelegate<T> {
+final public class MulticastDelegate<T> {
     
     private let delegates: NSHashTable<AnyObject> = NSHashTable()
     
     func add(_ delegate: T) {
-        delegates.add(delegates as AnyObject)
+        delegates.add(delegate as AnyObject)
     }
     
     func remove(_ delegateToRemove: T) {
@@ -25,7 +25,9 @@ final public class MulticaseDelegate<T> {
     
     func invoke(_ invocation: (T) -> Void) {
         for delegate in delegates.allObjects.reversed() {
-            invocation(delegate as! T)
+            if let delegate = delegate as? T {
+                invocation(delegate)
+            }
         }
     }
 }

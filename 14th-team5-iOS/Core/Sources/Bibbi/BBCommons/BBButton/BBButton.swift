@@ -17,6 +17,8 @@ final public class BBButton: UIButton {
     
     // MARK: - Properties
     
+    public var id: Int?
+    
     public override var titleLabel: UILabel? {
         get { mainTitleLabel }
         set { }
@@ -37,6 +39,7 @@ final public class BBButton: UIButton {
     // MARK: - Intializer
     
     public override init(frame: CGRect) {
+        self.id = nil
         super.init(frame: frame)
         
         setupUI()
@@ -68,6 +71,11 @@ final public class BBButton: UIButton {
         }
     }
     
+    
+    /// 버튼이 가진 고유한 ID값을 변경합니다.
+    public func setId(_ id: Int) {
+        self.id = id
+    }
     
     /// 버튼의 타이틀을 변경합니다.
     public override func setTitle(_ title: String?, for state: UIControl.State) {

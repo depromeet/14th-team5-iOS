@@ -30,6 +30,15 @@ public class BBAlert {
     
     // MARK: - Alert
     
+    /// 텍스트와 서브 텍스트가 포함된 Alert를 생성합니다.
+    /// - Parameters:
+    ///   - title: 타이틀 텍스트
+    ///   - titleFontStyle: 타이틀의 폰트 스타일
+    ///   - subtitle: 서브 타이틀 텍스트
+    ///   - subtitleFontStyle: 서브 타이틀의 폰트 스타일
+    ///   - viewConfig: AlertView 설정값
+    ///   - config: Alert 설정값
+    /// - Returns: BBAlert
     public static func text(
         title: String,
         titleFontStyle: BBFontStyle? = nil,
@@ -52,6 +61,18 @@ public class BBAlert {
         return BBAlert(view: view, config: config)
     }
     
+    
+    /// 텍스트, 서브 텍스트와 이미지가 포함된 Alert를 생성합니다.
+    /// - Parameters:
+    ///   - image: 이미지
+    ///   - imageTint: 이미지 강조 색상
+    ///   - title: 타이틀 텍스트
+    ///   - titleFontStyle: 타이틀의 폰트 스타일
+    ///   - subtitle: 서브 타이틀 텍스트
+    ///   - subtitleFontStyle: 서브 타이틀의 폰트 스타일
+    ///   - viewConfig: AlertView 설정값
+    ///   - config: Alert 설정값
+    /// - Returns: BBAlert
     public static func image(
         image: UIImage? = nil,
         imageTint: UIColor? = nil,
@@ -78,6 +99,12 @@ public class BBAlert {
         return BBAlert(view: view, config: config)
     }
     
+    /// 정해진 Style의 Alert를 생성합니다.
+    /// - Parameters:
+    ///   - style: 스타일
+    ///   - primaryAction: 버튼 액션 클로저
+    ///   - config: Alert 설정값
+    /// - Returns: BBAlert
     public static func style(
         _ style: BBAlertStyle,
         primaryAction action: BBAlertAction = nil,

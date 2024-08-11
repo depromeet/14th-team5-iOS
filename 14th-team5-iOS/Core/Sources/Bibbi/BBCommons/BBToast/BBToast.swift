@@ -5,7 +5,12 @@
 //  Created by 김건우 on 7/4/24.
 //
 
+import DesignSystem
 import UIKit
+
+// MARK: - Typealias
+
+public typealias BBToastAction = ((BBToast?) -> Void)?
 
 public class BBToast {
     
@@ -24,13 +29,21 @@ public class BBToast {
     
     public static var defaultImageTint: UIColor = .bibbiWhite
     
-    public static var multicast = MulticaseDelegate<BBToastDelegate>()
+    public static var multicast = MulticastDelegate<BBToastDelegate>()
     
     public private(set) var config: BBToastConfiguration
 
     
     // MARK: - Toast
     
+    /// 텍스트가 포함된 Toast를 생성합니다.
+    /// - Parameters:
+    ///   - title: 타이틀 텍스트
+    ///   - titleColor: 타이틀 색상
+    ///   - titleFontStyle: 타이틀의 폰트 스타일
+    ///   - viewConfig: ToastView 설정값
+    ///   - config: Toast 설정값
+    /// - Returns: BBToast
     public static func text(
         _ title: String,
         titleColor: UIColor? = nil,
@@ -50,6 +63,17 @@ public class BBToast {
         return BBToast(view: view, config: config)
     }
     
+    
+    /// 이미지와 텍스트가 포함된 Toast를 생성합니다,
+    /// - Parameters:
+    ///   - image: 이미지
+    ///   - imageTint: 이미지 강조 색상
+    ///   - title: 타이틀 텍스트
+    ///   - titleColor: 타이틀 색상
+    ///   - titleFontStyle: 타이틀의 폰트 스타일
+    ///   - viewConfig: ToastView 설정값
+    ///   - config: Toast 설정값
+    /// - Returns: BBToast
     public static func `default`(
         image: UIImage,
         imageTint: UIColor = defaultImageTint,
@@ -73,6 +97,19 @@ public class BBToast {
         return BBToast(view: view, config: config)
     }
     
+    /// 이미지, 텍스트와 버튼이 포함된 Toast를 생성합니다.
+    /// - Parameters:
+    ///   - image: 이미지
+    ///   - imageTint: 이미지 강조 색상
+    ///   - title: 타이틀 텍스트
+    ///   - titleColor: 타이틀 색상
+    ///   - titleFontStyle: 타이틀의 폰트 스타일
+    ///   - buttonTitle: 버튼 타이틀 텍스트
+    ///   - buttonTitleFontStyle: 버튼 타이틀의 폰트 스타일
+    ///   - buttonTint: 버튼 강조 색상
+    ///   - viewConfig: ToastView 설정값
+    ///   - config: Toast 설정값
+    /// - Returns: BBToast
     public static func button(
         image: UIImage,
         imageTint: UIColor = defaultImageTint,
@@ -100,6 +137,33 @@ public class BBToast {
             viewConfig: viewConfig
         )
         return BBToast(view: view, config: config)
+    }
+    
+    
+    /// 정해진 Style의 Toast를 생성합니다.
+    /// - Parameters:
+    ///   - style: 스타일
+    ///   - config: Toast 설정값
+    /// - Returns: BBToast
+    public static func style(
+        _ style: BBToastStyle,
+        config: BBToastConfiguration = BBToastConfiguration()
+    ) -> BBToast {
+        switch style {
+        case .error:
+            let viewConfig = BBToastViewConfiguration(
+                minWidth: 250
+            )
+            let view = DefaultToastView(
+                child: IconToastView(
+                    image: DesignSystemAsset.warning.image,
+                    title: "잠시 후에 다시 시도해주세요",
+                    viewConfig: viewConfig
+                ),
+                viewConfig: viewConfig
+            )
+            return BBToast(view: view, config: config)
+        }
     }
     
     public static func custom(
@@ -226,13 +290,12 @@ extension BBToast {
         Self.multicast.add(delegate)
     }
     
-    public func addTapAction(
-        _ action: ((BBToast?) -> Void)? = nil
+    public func addButtonAction(
+        _ action: BBToastAction = nil
     ) {
-        if let view = view as? DefaultToastView {
-            if let subview = view.child as? ButtonToastView {
-                subview.tapAction = action
-            }
+        if let view = view as? DefaultToastView,
+           let subview = view.child as? ButtonToastView {
+            subview.buttonAction = action
         }
     }
     

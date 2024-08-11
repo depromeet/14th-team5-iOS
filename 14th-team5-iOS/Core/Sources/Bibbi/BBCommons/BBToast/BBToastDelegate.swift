@@ -14,7 +14,7 @@ public protocol BBToastDelegate: AnyObject {
     func willCloseToast(_ toast: BBToast)
     func didCloseToast(_ toast: BBToast)
     
-    func didTapToastButton(_ toast: BBToast)
+    func didTapToastButton(_ toast: BBToast?, index: Int?, button: BBButton)
     
 }
 
@@ -25,6 +25,6 @@ public extension BBToastDelegate {
     func willCloseToast(_ toast: BBToast) { }
     func didCloseToast(_ toast: BBToast) { }
     
-    func didTapToastButton(_ toast: BBToast) { }
+    func didTapToastButton(_ toast: BBToast, index: Int?, button: BBButton) { }
     
 }

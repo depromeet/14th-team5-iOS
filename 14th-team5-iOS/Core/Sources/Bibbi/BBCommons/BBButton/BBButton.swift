@@ -13,20 +13,38 @@ final public class BBButton: UIButton {
     
     // MARK: - Views
     
-    public var bibbiTitleLabel: BBLabel = BBLabel()
+    public var mainTitleLabel: BBLabel = BBLabel()
     
     // MARK: - Properties
     
+    public var id: Int?
+    
     public override var titleLabel: UILabel? {
-        get { bibbiTitleLabel }
+        get { mainTitleLabel }
         set { }
+    }
+    
+    public override var isHighlighted: Bool {
+        didSet {
+            guard
+                oldValue != self.isHighlighted
+            else { return }
+            
+            UIView.animate(withDuration: 0.1, delay: 0, options: [.beginFromCurrentState]) {
+                self.alpha = self.isHighlighted ? 0.5 : 1
+            }
+        }
     }
     
     // MARK: - Intializer
     
     public override init(frame: CGRect) {
+        self.id = nil
         super.init(frame: frame)
+        
         setupUI()
+        setupConstraints()
+        setupAttributes()
     }
     
     public required init?(coder aDecoder: NSCoder) {
@@ -37,11 +55,26 @@ final public class BBButton: UIButton {
     // MARK: - Helpers
     
     private func setupUI() {
-        addSubview(bibbiTitleLabel)
+        addSubview(mainTitleLabel)
         
-        bibbiTitleLabel.snp.makeConstraints { make in
-            make.center.equalToSuperview()
+    }
+    
+    private func setupConstraints() {
+        mainTitleLabel.snp.makeConstraints {
+            $0.center.equalToSuperview()
         }
+    }
+    
+    private func setupAttributes() {
+        mainTitleLabel.do {
+            $0.numberOfLines = 1
+        }
+    }
+    
+    
+    /// 버튼이 가진 고유한 ID값을 변경합니다.
+    public func setId(_ id: Int) {
+        self.id = id
     }
     
     /// 버튼의 타이틀을 변경합니다.

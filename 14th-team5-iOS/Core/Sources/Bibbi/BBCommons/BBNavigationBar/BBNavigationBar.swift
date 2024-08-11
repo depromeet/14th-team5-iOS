@@ -77,9 +77,9 @@ public final class BBNavigationBar: UIView {
     }
     
     /// 왼쪽 버튼에 New 표시를 숨깁니다.
-    public var isHiddenleftBarButtonNewMark: Bool = true {
+    public var isHiddenLeftBarButtonNewMark: Bool = true {
         didSet {
-            newMarkImageView.isHidden = isHiddenleftBarButtonNewMark
+            newMarkImageView.isHidden = isHiddenLeftBarButtonNewMark
         }
     }
     
@@ -383,7 +383,7 @@ extension BBNavigationBar {
     private func setupButtonImage(_ button: UIButton, type: BBNavigationButtonStyle?) {
         button.setImage(type?.image, for: .normal)
         if case let .person(new) = type {
-            isHiddenleftBarButtonNewMark = !new
+            isHiddenLeftBarButtonNewMark = !new
         }
     }
 

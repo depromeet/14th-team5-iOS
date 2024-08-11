@@ -33,7 +33,7 @@ open class BBNavigationViewController<R>: ReactorViewController<R> where R: Reac
     
     // MARK: - Views
     
-    public let navigationBarView = BBNavigationBar()
+    public let navigationBar = BBNavigationBar()
     public let contentView = UIView()
     
     // MARK: - Properties
@@ -62,11 +62,11 @@ open class BBNavigationViewController<R>: ReactorViewController<R> where R: Reac
         super.bind(reactor: reactor)
         
         // 왼쪽 버튼이 특정 타입시, popViewController 기본 구현 제공
-        navigationBarView.rx.didTapLeftBarButton
+        navigationBar.rx.didTapLeftBarButton
             .bind(with: self) { owner, _ in
-                let buttonItem = owner.navigationBarView.leftBarButtonItem
+                let item = owner.navigationBar.leftBarButtonItem
                 
-                owner.popViewController(buttonItem)
+                owner.popViewController(item)
             }
             .disposed(by: disposeBag)
     }
@@ -74,20 +74,20 @@ open class BBNavigationViewController<R>: ReactorViewController<R> where R: Reac
     open override func setupUI() {
         super.setupUI()
         
-        view.addSubviews(navigationBarView, contentView)
+        view.addSubviews(navigationBar, contentView)
     }
     
     open override func setupAutoLayout() {
         super.setupAutoLayout()
         
-        navigationBarView.snp.makeConstraints {
+        navigationBar.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(42) // 내비게이션 바 기본 높이 42
         }
         
         contentView.snp.makeConstraints {
-            $0.top.equalTo(navigationBarView.snp.bottom)
+            $0.top.equalTo(navigationBar.snp.bottom)
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalToSuperview()
         }
@@ -97,7 +97,7 @@ open class BBNavigationViewController<R>: ReactorViewController<R> where R: Reac
     open override func setupAttributes() {
         super.setupAttributes()
         
-        navigationBarView.layer.zPosition = 888
+        navigationBar.layer.zPosition = 888
     }
     
 }
@@ -109,14 +109,14 @@ extension BBNavigationViewController {
     
     /// NavigationBar의 높이를 바꿉니다.
     public func setNavigationBarHeight(_ height: CGFloat) {
-        navigationBarView.snp.updateConstraints {
+        navigationBar.snp.updateConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(height)
         }
         
         contentView.snp.makeConstraints {
-            $0.top.equalTo(navigationBarView.snp.bottom)
+            $0.top.equalTo(navigationBar.snp.bottom)
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalToSuperview()
         }
@@ -127,7 +127,7 @@ extension BBNavigationViewController {
     /// contentView가 아닌 view에 새로운 UI를 배치할 때, 꼭 호출해주어야 합니다.
     @available(*, deprecated)
     public func bringNavigationBarViewToFront() {
-        view.bringSubviewToFront(navigationBarView)
+        view.bringSubviewToFront(navigationBar)
     }
     
 }

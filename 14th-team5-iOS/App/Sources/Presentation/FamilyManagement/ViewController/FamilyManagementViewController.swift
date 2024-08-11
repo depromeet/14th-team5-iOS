@@ -60,7 +60,7 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        navigationBarView.rx.didTapRightBarButton
+        navigationBar.rx.didTapRightBarButton
             .map { _ in Reactor.Action.didTapPrivacyBarButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -199,7 +199,7 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         shareContainerview.snp.makeConstraints {
-            $0.top.equalTo(navigationBarView.snp.bottom).offset(24)
+            $0.top.equalTo(navigationBar.snp.bottom).offset(24)
             $0.horizontalEdges.equalToSuperview().inset(20)
             $0.height.equalTo(90)
         }
@@ -235,7 +235,7 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
     
     public override func setupAttributes() {
         super.setupAttributes()
-        navigationBarView.do {
+        navigationBar.do {
             $0.navigationTitle = "가족"
             $0.navigationTitleFontStyle = .head2Bold
             $0.leftBarButtonItem = .arrowLeft

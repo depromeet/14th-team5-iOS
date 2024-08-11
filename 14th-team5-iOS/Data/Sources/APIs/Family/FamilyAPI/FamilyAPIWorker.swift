@@ -110,4 +110,22 @@ extension FamilyAPIWorker {
             .catchAndReturn(nil)
             .asSingle()
     }
+    
+    // MARK: - Change Family Name
+    
+    public func updateFamilyName(
+        familyId: String,
+        body: UpdateFamilyNameRequestDTO
+    ) -> Single<FamilyNameResponseDTO?> {
+        let spec = FamilyAPIs.updateFamilyName(familyId).spec
+        
+        return request(spec: spec, jsonEncodable: body)
+            .subscribe(on: Self.queue)
+            .map(FamilyNameResponseDTO.self)
+            .catchAndReturn(nil)
+            .asSingle()
+    }
 }
+
+
+

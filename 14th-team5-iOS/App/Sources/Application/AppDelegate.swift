@@ -68,7 +68,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             RealEmojiDIContainer(),
             PickDIContainer(),
             MissionDIContainer(),
-            MemberDIContainer()
+            MemberDIContainer(),
+            MyDIContainer()
         ]
         containers.forEach {
             $0.registerDependencies()

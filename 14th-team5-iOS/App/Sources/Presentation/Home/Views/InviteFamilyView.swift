@@ -33,8 +33,8 @@ final class InviteFamilyView: UIView {
     
     private let inviteImageView: UIImageView = UIImageView()
     private let labelStack: UIStackView = UIStackView()
-    private let subLabel: UILabel = BibbiLabel(.body2Regular)
-    private let titleLabel: UILabel = BibbiLabel(.head2Bold)
+    private let subLabel: UILabel = BBLabel(.body2Regular)
+    private let titleLabel: UILabel = BBLabel(.head2Bold)
     private let nextIconImageView: UIImageView = UIImageView()
     
     private var openType: InviteType

@@ -19,7 +19,7 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
     private let familyViewController: MainFamilyViewController = MainFamilyViewControllerWrapper().makeViewController()
     
     private let timerView: TimerView = TimerView(reactor: TimerReactor())
-    private let descriptionLabel: BibbiLabel = BibbiLabel(.body2Regular, textAlignment: .center, textColor: .gray300)
+    private let descriptionLabel: BBLabel = BBLabel(.body2Regular, textAlignment: .center, textColor: .gray300)
     private let imageView: UIImageView = UIImageView()
     
     private let contributorView: ContributorView = ContributorView(reactor: ContributorReactor())

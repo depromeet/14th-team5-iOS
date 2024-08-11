@@ -327,7 +327,7 @@ public final class DailyCalendarViewController: BBNavigationViewController<Daily
             
             $0.appearance.selectionColor = UIColor.clear
             
-            $0.appearance.titleFont = UIFont.pretendard(.body1Regular)
+            $0.appearance.titleFont = UIFont.style(.body1Regular)
             $0.appearance.titleDefaultColor = UIColor.bibbiWhite
             $0.appearance.titleSelectionColor = UIColor.bibbiWhite
             

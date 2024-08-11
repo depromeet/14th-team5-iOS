@@ -17,15 +17,15 @@ import SnapKit
 import Then
 
 fileprivate typealias _Str = FamilyManagementStrings
-public final class FamilyManagementViewController: BaseViewController<FamilyManagementViewReactor> {
+public final class FamilyManagementViewController: BBNavigationViewController<FamilyManagementViewReactor> {
     // MARK: - Views
     
     private let shareContainerview: InvitationUrlContainerView = InvitationUrlContainerDIContainer().makeView()
     private let dividerView: UIView = UIView()
     
     private let headerStack: UIStackView = UIStackView()
-    private let tableTitleLabel: BibbiLabel = BibbiLabel(.head1, textColor: .gray200)
-    private let tableCountLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray400)
+    private let tableTitleLabel: BBLabel = BBLabel(.head1, textColor: .gray200)
+    private let tableCountLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray400)
     
     private let familyTableView: UITableView = UITableView()
     private let refreshControl: UIRefreshControl = UIRefreshControl()
@@ -60,7 +60,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        navigationBarView.rx.rightButtonTap
+        navigationBarView.rx.didTapRightBarButton
             .map { _ in Reactor.Action.didTapPrivacyBarButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -133,18 +133,27 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
         reactor.pulse(\.$shouldPresentCopySuccessToastMessageView)
             .filter { $0 }
             .withUnretained(self)
-            .subscribe {
-                $0.0.makeBibbiToastView(
-                    text: _Str.sucessCopyInvitationUrlText,
-                    image: DesignSystemAsset.link.image
-                )
-            }
+            .subscribe(onNext: { _ in
+                BBToast.default(
+                    image: DesignSystemAsset.link.image,
+                    title: "링크가 복사되었어요"
+                ).show()
+            })
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentUrlFetchFailureToastMessageView)
             .filter { $0 }
             .withUnretained(self)
-            .subscribe { $0.0.makeErrorBibbiToastView() }
+            .subscribe(onNext: { _ in
+//                let viewConfig = BBToastViewConfiguration(minWidth: 350)
+//                let toast = BBToast.button(image: DesignSystemAsset.warning.image, title: "잠시 후에 다시 시도해주세요", buttonTitle: "새로고침", viewConfig: viewConfig)
+//                toast.addTapAction { toast in
+//                    print("DidTapButton")
+//                    toast?.close()
+//                }
+//                toast.show()
+                BBToast.style(.error).show()
+            })
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentFamilyFetchFailureToastMessageView)
@@ -224,7 +233,10 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     public override func setupAttributes() {
         super.setupAttributes()
         navigationBarView.do {
-            $0.setNavigationView(leftItem: .arrowLeft, centerItem: .label(_Str.mainTitle), rightItem: .setting)
+            $0.navigationTitle = "가족"
+            $0.navigationTitleFontStyle = .head2Bold
+            $0.leftBarButtonItem = .arrowLeft
+            $0.rightBarButtonItem = .setting
          }
         
         dividerView.do {

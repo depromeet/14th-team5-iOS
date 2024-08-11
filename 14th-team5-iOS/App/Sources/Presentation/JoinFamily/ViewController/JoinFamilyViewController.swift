@@ -20,7 +20,7 @@ import Then
 fileprivate typealias _Str = JoinFamilyStrings
 final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
     // MARK: - Views
-    private let titleLabel: BibbiLabel = BibbiLabel(.head1, textColor: .gray100)
+    private let titleLabel: BBLabel = BBLabel(.head1, textColor: .gray100)
     private let joinFamilyButton: InviteFamilyView = InviteFamilyView(openType: .inviteUrl)
     private let makeFamilyButton: MakeNewFamilyView = MakeNewFamilyView()
     

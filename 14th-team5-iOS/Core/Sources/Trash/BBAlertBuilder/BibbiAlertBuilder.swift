@@ -8,6 +8,7 @@
 import DesignSystem
 import UIKit
 
+@available(*, deprecated, renamed: "BBAlert")
 public final class BibbiAlertBuilder {
     
     // MARK: - Properties
@@ -36,7 +37,7 @@ public final class BibbiAlertBuilder {
     public func setMainTitle(
         _ text: String? = nil,
         textColor: UIColor = .gray100,
-        fontStyle: BibbiFontStyle = .head2Bold
+        fontStyle: BBFontStyle = .head2Bold
     ) -> Self {
         mainTitle = BibbiAlertTitle(
             text: text != nil ? text : alertStyle?.mainTitle,
@@ -49,7 +50,7 @@ public final class BibbiAlertBuilder {
     public func setSubTitle(
         _ text: String? = nil,
         textColor: UIColor = .gray300,
-        fontStyle: BibbiFontStyle = .body2Regular
+        fontStyle: BBFontStyle = .body2Regular
     ) -> Self {
         subTitle = BibbiAlertTitle(
             text: text != nil ? text : alertStyle?.subTitle,
@@ -68,7 +69,7 @@ public final class BibbiAlertBuilder {
         _ text: String? = nil,
         textColor: UIColor = .bibbiBlack,
         backgroundColor: UIColor = .mainYellow,
-        fontStyle: BibbiFontStyle = .body1Bold,
+        fontStyle: BBFontStyle = .body1Bold,
         action: Action = nil
     ) -> Self {
         confirmAction = BibbiAlertAction(
@@ -85,7 +86,7 @@ public final class BibbiAlertBuilder {
         _ text: String? = nil,
         textColor: UIColor = .gray400,
         backgroundColor: UIColor = .gray700,
-        fontStyle: BibbiFontStyle = .body1Bold,
+        fontStyle: BBFontStyle = .body1Bold,
         action: Action = nil
     ) -> Self {
         cancelAction = BibbiAlertAction(

@@ -20,7 +20,7 @@ final class MissionTextView: UIView {
     private let containerView: UIView = UIView()
     private let missionStackView: UIStackView = UIStackView()
     private let missionImageView: UIImageView = UIImageView()
-    let missionLabel: BibbiLabel = BibbiLabel(.body2Regular, textAlignment: .left, textColor: .bibbiWhite)
+    let missionLabel: BBLabel = BBLabel(.body2Regular, textAlignment: .left, textColor: .bibbiWhite)
     
     // MARK: - Helpers
     

@@ -21,15 +21,16 @@ public extension BBNavigationBarView {
     
     enum TitleStyle {
         case bibbi
-        case newBibbi
     }
     
     enum TopBarButtonStyle {
         case addPerson
         case arrowLeft
+        case change
         case heartCalendar
         case setting
         case xmark
+        case none
     }
     
 }
@@ -39,8 +40,6 @@ extension TitleStyle {
     var image: UIImage? {
         switch self {
         case .bibbi:
-            return DesignSystemAsset.bibbiLogo.image
-        case .newBibbi:
             return DesignSystemAsset.bibbiLogo.image
         }
     }
@@ -54,13 +53,17 @@ extension TopBarButtonStyle {
         case .addPerson:
             return DesignSystemAsset.addPerson.image
         case .arrowLeft:
-            return UIImage(systemName: "chevron.backward")
+            return DesignSystemAsset.arrowLeft.image
+        case .change:
+            return DesignSystemAsset.familyNameChange.image
         case .heartCalendar:
             return DesignSystemAsset.heartCalendar.image
         case .setting:
             return DesignSystemAsset.setting.image
         case .xmark:
             return DesignSystemAsset.xmark.image
+        @unknown default:
+            return nil
         }
     }
     

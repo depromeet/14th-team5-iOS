@@ -16,6 +16,7 @@ import ReactorKit
 ///
 /// 이 ViewController를 상속하는 ViewController는 `View`가 아닌 `ContentView`에 UI를 배치해야 합니다. 
 /// `ContentView`는 NavigationBar 영역을 제외한 나머지 공간을 차지하는 View입니다. 이 View는 NavigationBar의 높이에 따라 동적으로 변합니다.
+///  물론 `ContentView`가 아니라 `View`에 UI를 배치해도 상관없습니다.
 ///
 /// 삐삐 스타일의 NavigationBar의 UI나 스타일을 변경해야 한다면, 직접 관련 메서드나 프로퍼티를 통해 변경할 수 있습니다.
 /// 가령, NavigationBar의 높이를 바꿔야 한다면. `setNavigationBarHeight(_:)` 메서드를 호출하면 됩니다.
@@ -95,6 +96,8 @@ open class BBNavigationViewController<R>: ReactorViewController<R> where R: Reac
     
     open override func setupAttributes() {
         super.setupAttributes()
+        
+        navigationBarView.layer.zPosition = 888
     }
     
 }
@@ -119,8 +122,10 @@ extension BBNavigationViewController {
         }
     }
     
+    
     /// NavigationBar를 View의 맨 앞으로 가져옵니다.
     /// contentView가 아닌 view에 새로운 UI를 배치할 때, 꼭 호출해주어야 합니다.
+    @available(*, deprecated)
     public func bringNavigationBarViewToFront() {
         view.bringSubviewToFront(navigationBarView)
     }

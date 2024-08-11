@@ -14,7 +14,7 @@ import Then
 
 
 public final class PrivacyHeaderFooterView: UITableViewHeaderFooterView {
-    private let headerLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray300)
+    private let headerLabel: BBLabel = BBLabel(.body2Regular, textColor: .gray300)
     
     
     public override init(reuseIdentifier: String?) {

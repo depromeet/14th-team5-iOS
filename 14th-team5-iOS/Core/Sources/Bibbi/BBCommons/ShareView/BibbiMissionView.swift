@@ -14,7 +14,7 @@ import SnapKit
 public final class BibbiMissionView: UIView {
     
     public let missionBadgeView: UIImageView = UIImageView()
-    public let missionTitleView: BibbiLabel = BibbiLabel(.body2Bold, textAlignment: .center, textColor: .mainYellow)
+    public let missionTitleView: BBLabel = BBLabel(.body2Bold, textAlignment: .center, textColor: .mainYellow)
     
     
     

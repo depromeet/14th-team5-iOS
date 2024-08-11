@@ -11,8 +11,8 @@ import DesignSystem
 
 final class MakeNewFamilyView: UIView {
     private let imageView = UIImageView()
-    private let titleLabel = BibbiLabel(.body2Regular)
-    private let captionLabel = BibbiLabel(.head2Bold)
+    private let titleLabel = BBLabel(.body2Regular)
+    private let captionLabel = BBLabel(.head2Bold)
     private let labelStack = UIStackView()
     
     override init(frame: CGRect) {

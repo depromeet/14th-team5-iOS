@@ -17,7 +17,7 @@ final class BalloonView: BaseView<BalloonReactor> {
     private let containerView: UIView = UIView()
     private let polygonImageView: UIImageView = UIImageView()
     private let stackView: UIStackView = UIStackView()
-    private let textLabel: UILabel = BibbiLabel(.body2Regular)
+    private let textLabel: UILabel = BBLabel(.body2Regular)
     
     let balloonTypeRelay: BehaviorRelay<BalloonType> = BehaviorRelay(value: .normal)
     
@@ -157,7 +157,7 @@ extension BalloonView {
     }
     
     private func makeLabel(name: String){
-        let label = BibbiLabel(.caption2, textAlignment: .center, textColor: .gray200)
+        let label = BBLabel(.caption2, textAlignment: .center, textColor: .gray200)
         label.backgroundColor = .gray800
         label.layer.borderWidth = 2
         label.layer.borderColor = UIColor.mainYellow.cgColor

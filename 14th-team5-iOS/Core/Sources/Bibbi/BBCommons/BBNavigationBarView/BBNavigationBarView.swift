@@ -19,7 +19,7 @@ public final class BBNavigationBarView: UIView {
     // MARK: - Views
     private let containerView: UIView = UIView()
     
-    private let navigationTitleLabel: BibbiLabel = BibbiLabel(.head2Bold, textColor: .gray200)
+    private let navigationTitleLabel: BBLabel = BBLabel(.head2Bold, textColor: .gray200)
     private var navigationImageView: UIImageView = UIImageView()
     
     private let leftBarButton: UIButton = UIButton(type: .system)
@@ -41,7 +41,7 @@ public final class BBNavigationBarView: UIView {
     }
     
     // NavigationBar의 FontStyle을 바꿉니다.
-    public var navigationTitleFontStyle: BibbiFontStyle = .head2Bold {
+    public var navigationTitleFontStyle: BBFontStyle = .homeTitle {
         didSet {
             navigationTitleLabel.fontStyle = navigationTitleFontStyle
         }
@@ -76,7 +76,7 @@ public final class BBNavigationBarView: UIView {
                 rightBarButtonItem?.image,
                 for: .normal
             )
-            setupButtonBackground(rightBarButton, type: leftBarButtonItem)
+            setupButtonBackground(rightBarButton, type: rightBarButtonItem)
         }
     }
     
@@ -142,6 +142,11 @@ public final class BBNavigationBarView: UIView {
     }
     
     // MARK: - Intializer
+    public convenience init() {
+        self.init(frame: .zero)
+        set("Bibbi")
+    }
+    
     public override init(frame: CGRect) {
         super.init(frame: .zero)
         setupUI()
@@ -233,6 +238,116 @@ public final class BBNavigationBarView: UIView {
 // MARK: - Extensions
 
 extension BBNavigationBarView {
+    
+    /// NavigationBar의 속성을 바꿉니다.
+    ///
+    /// - Parameters:
+    ///     - title: 네비게이션 바의 타이틀 문자열
+    ///     - titleColor: 네비게이션 바의 타이틀 색상
+    ///     - titleFontStyle: 네비게이션 바의 타이틀 폰트 스타일
+    ///     - leftBarButtonItem: 네비게이션 바의 왼쪽 버튼 스타일
+    ///     - leftBarButtonTint: 네비게이션 바의 왼쪽 버튼 강조 색상
+    ///     - leftBarButtonItemScale: 네비게이션 바의 왼쪽 버튼 크기
+    ///     - leftBarButtonYOffset: 네비게이션 바의 왼쪽 버튼 Y 위치
+    ///     - rightBarButtonItem: 네비게이션 바의 오른쪽 버튼 스타일
+    ///     - rightBarButtonTint: 네비게이션 바의 오른쪽 버튼 강조 색상
+    ///     - rightBarButtonItemScale: 네비게이션 바의 오른쪽 버튼 크기
+    ///     - rightBarButtonYOffset: 네비게이션 바의 오른쪽 버튼 Y 위치
+    public func set(
+        _ title: String? = nil,
+        titleColor: UIColor = .gray200,
+        titleFontStyle: BBFontStyle = .homeTitle,
+        leftBarButtonItem: TopBarButtonStyle = .none,
+        leftBarButtonTint: UIColor = .gray300,
+        leftBarButtonItemScale: CGFloat = 1.0,
+        leftBarButtonYOffset: CGFloat = 0.0,
+        rightBarButtonItem: TopBarButtonStyle = .none,
+        rightBarButtonTint: UIColor = .gray300,
+        rightBarButtonItemScale: CGFloat = 1.0,
+        rightBarButtonYOffset: CGFloat = 0.0
+    ) {
+        self.navigationTitle = title
+        self.navigationTitleTextColor = titleColor
+        self.navigationTitleFontStyle = titleFontStyle
+        
+        setAttributes(
+            leftBarButtonItem: leftBarButtonItem,
+            leftBarButtonTint: leftBarButtonTint,
+            leftBarButtonItemScale: leftBarButtonItemScale,
+            leftBarButtonYOffset: leftBarButtonYOffset,
+            rightBarButtonItem: rightBarButtonItem,
+            rightBarButtonTint: rightBarButtonTint,
+            rightBarButtonItemScale: rightBarButtonItemScale,
+            rightBarButtonYOffset: rightBarButtonYOffset
+        )
+    }
+    
+    /// NavigationBar의 속성을 바꿉니다.
+    ///
+    /// - Parameters:
+    ///     - title: 네비게이션 바의 타이틀 문자열
+    ///     - titleColor: 네비게이션 바의 타이틀 색상
+    ///     - titleFontStyle: 네비게이션 바의 타이틀 폰트 스타일
+    ///     - leftBarButtonItem: 네비게이션 바의 왼쪽 버튼 스타일
+    ///     - leftBarButtonTint: 네비게이션 바의 왼쪽 버튼 강조 색상
+    ///     - leftBarButtonItemScale: 네비게이션 바의 왼쪽 버튼 크기
+    ///     - leftBarButtonYOffset: 네비게이션 바의 왼쪽 버튼 Y 위치
+    ///     - rightBarButtonItem: 네비게이션 바의 오른쪽 버튼 스타일
+    ///     - rightBarButtonTint: 네비게이션 바의 오른쪽 버튼 강조 색상
+    ///     - rightBarButtonItemScale: 네비게이션 바의 오른쪽 버튼 크기
+    ///     - rightBarButtonYOffset: 네비게이션 바의 오른쪽 버튼 Y 위치
+    public func set(
+        _ image: TopBarButtonStyle? = nil,
+        imageScale: CGFloat = 1.0,
+        leftBarButtonItem: TopBarButtonStyle = .none,
+        leftBarButtonTint: UIColor = .gray300,
+        leftBarButtonItemScale: CGFloat = 1.0,
+        leftBarButtonYOffset: CGFloat = 0.0,
+        rightBarButtonItem: TopBarButtonStyle = .none,
+        rightBarButtonTint: UIColor = .gray300,
+        rightBarButtonItemScale: CGFloat = 1.0,
+        rightBarButtonYOffset: CGFloat = 0.0
+    ) {
+        self.navigationImage = image
+        self.navigationImageScale = imageScale
+        
+        setAttributes(
+            leftBarButtonItem: leftBarButtonItem,
+            leftBarButtonTint: leftBarButtonTint,
+            leftBarButtonItemScale: leftBarButtonItemScale,
+            leftBarButtonYOffset: leftBarButtonYOffset,
+            rightBarButtonItem: rightBarButtonItem,
+            rightBarButtonTint: rightBarButtonTint,
+            rightBarButtonItemScale: rightBarButtonItemScale,
+            rightBarButtonYOffset: rightBarButtonYOffset
+        )
+    }
+    
+    private func setAttributes(
+        leftBarButtonItem: TopBarButtonStyle = .none,
+        leftBarButtonTint: UIColor = .gray300,
+        leftBarButtonItemScale: CGFloat = 1.0,
+        leftBarButtonYOffset: CGFloat = 0.0,
+        rightBarButtonItem: TopBarButtonStyle = .none,
+        rightBarButtonTint: UIColor = .gray300,
+        rightBarButtonItemScale: CGFloat = 1.0,
+        rightBarButtonYOffset: CGFloat = 0.0
+    ) {
+        self.leftBarButtonItem = leftBarButtonItem
+        self.leftBarButtonItemTintColor = leftBarButtonTint
+        self.leftBarButtonItemScale = leftBarButtonItemScale
+        self.leftBarButtonItemYOffset = leftBarButtonYOffset
+        
+        self.rightBarButtonItem = rightBarButtonItem
+        self.rightBarButtonItemTintColor = rightBarButtonTint
+        self.rightBarButtonItemScale = rightBarButtonItemScale
+        self.rightBarButtonItemYOffset = rightBarButtonYOffset
+    }
+    
+}
+
+extension BBNavigationBarView {
+    
     private func setupNavigationImageScale(_ scale: CGFloat) {
         navigationImageView.layer.transform = CATransform3DMakeScale(
             scale, scale, scale
@@ -258,9 +373,11 @@ extension BBNavigationBarView {
             button.backgroundColor = .clear
         }
     }
+    
 }
 
 extension BBNavigationBarView {
+    
     @objc func didTapLeftButton(_ button: UIButton, event: UIButton.Event) {
         guard let _ = button.currentImage else { return }
         delegate?.navigationBarView?(button, didTapLeftBarButton: event)
@@ -270,4 +387,5 @@ extension BBNavigationBarView {
         guard let _ = button.currentImage else { return }
         delegate?.navigationBarView?(button, didTapRightBarButton: event)
     }
+    
 }

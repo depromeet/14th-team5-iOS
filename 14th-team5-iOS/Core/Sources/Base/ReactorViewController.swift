@@ -48,5 +48,7 @@ open class ReactorViewController<R>: UIViewController, ReactorKit.View where R: 
     
     open func setupAutoLayout() { }
     
-    open func setupAttributes() { }
+    open func setupAttributes() { 
+        view.backgroundColor = .bibbiBlack
+    }
 }

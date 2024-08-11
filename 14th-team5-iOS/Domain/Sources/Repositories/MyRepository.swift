@@ -8,8 +8,8 @@
 import Foundation
 
 public protocol MyRepositoryProtocol {
-    func fetchMyMemberId() -> String
-    func fetchMyUserName() -> String
-    func fetchUserName(memberId: String) -> String
-    func fetchProfileImageUrl(memberId: String) -> String
+    func fetchMyMemberId() -> String?
+    func fetchMyUserName() -> String?
+    func fetchUserName(memberId: String) -> String?
+    func fetchProfileImageUrl(memberId: String) -> String?
 }

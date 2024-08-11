@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol FetchMyMemberIdUseCaseProtocol {
-    func execute() -> String
+    func execute() -> String?
 }
 
 public class FetchMyMemberIdUseCase: FetchMyMemberIdUseCaseProtocol {
@@ -22,7 +22,7 @@ public class FetchMyMemberIdUseCase: FetchMyMemberIdUseCaseProtocol {
     }
     
     // MARK: - Execute
-    public func execute() -> String {
+    public func execute() -> String? {
         myRepository.fetchMyMemberId()
     }
     

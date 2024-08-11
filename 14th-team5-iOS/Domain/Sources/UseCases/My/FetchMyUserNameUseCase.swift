@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol FetchMyUserNameUseCaseProtocol {
-    func execute() -> String
+    func execute() -> String?
 }
 
 public class FetchMyUserNameUseCase: FetchMyUserNameUseCaseProtocol {
@@ -22,7 +22,7 @@ public class FetchMyUserNameUseCase: FetchMyUserNameUseCaseProtocol {
     }
     
     // MARK: - Execute
-    public func execute() -> String {
+    public func execute() -> String? {
         myRepository.fetchMyUserName()
     }
     

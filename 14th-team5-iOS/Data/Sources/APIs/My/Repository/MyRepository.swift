@@ -22,25 +22,25 @@ public final class MyRepository: MyRepositoryProtocol {
 
 extension MyRepository {
     
-    public func fetchMyMemberId() -> String {
+    public func fetchMyMemberId() -> String? {
         // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
         FamilyUserDefaults.returnMyMemberId()
     }
     
-    public func fetchMyUserName() -> String {
+    public func fetchMyUserName() -> String? {
         // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
         let myMemberId = FamilyUserDefaults.returnMyMemberId()
-        return FamilyUserDefaults.load(memberId: myMemberId)?.name ?? ""
+        return FamilyUserDefaults.load(memberId: myMemberId)?.name
     }
     
-    public func fetchUserName(memberId: String) -> String {
+    public func fetchUserName(memberId: String) -> String? {
         // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
-        FamilyUserDefaults.load(memberId: memberId)?.name ?? ""
+        FamilyUserDefaults.load(memberId: memberId)?.name
     }
     
-    public func fetchProfileImageUrl(memberId: String) -> String {
+    public func fetchProfileImageUrl(memberId: String) -> String? {
         // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
-        FamilyUserDefaults.load(memberId: memberId)?.profileImageURL ?? ""
+        FamilyUserDefaults.load(memberId: memberId)?.profileImageURL
     }
     
 }

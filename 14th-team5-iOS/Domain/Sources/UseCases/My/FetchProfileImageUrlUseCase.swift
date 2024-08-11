@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol FetchProfileImageUrlUseCaseProtocol {
-    func execute(memberId: String) -> String
+    func execute(memberId: String) -> String?
 }
 
 public class FetchProfileImageUrlUseCase: FetchProfileImageUrlUseCaseProtocol {
@@ -22,7 +22,7 @@ public class FetchProfileImageUrlUseCase: FetchProfileImageUrlUseCaseProtocol {
     }
     
     // MARK: - Execute
-    public func execute(memberId: String) -> String {
+    public func execute(memberId: String) -> String? {
         myRepository.fetchProfileImageUrl(memberId: memberId)
     }
     

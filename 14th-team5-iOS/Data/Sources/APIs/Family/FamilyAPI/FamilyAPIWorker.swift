@@ -110,14 +110,4 @@ extension FamilyAPIWorker {
             .catchAndReturn(nil)
             .asSingle()
     }
-    
-    public func updateJoinFamilyGroupName(familyId: String, body: JoinFamilyGroupNameRequestDTO) -> Single<JoinFamilyGroupNameResponseDTO?> {
-        let spec = FamilyAPIs.updateFamilyGroupName(familyId).spec
-        print("familyRepository Test: \(spec)")
-        return request(spec: spec, jsonEncodable: body)
-            .subscribe(on: Self.queue)
-            .map(JoinFamilyGroupNameResponseDTO.self)
-            .catchAndReturn(nil)
-            .asSingle()
-    }
 }

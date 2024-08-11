@@ -13,7 +13,6 @@ import ReactorKit
 
 public final class JoinFamilyGroupNameViewReactor: Reactor {
     public var initialState: State
-    @Injected private var updateJoinFamilyGroupUseCase: UpdateJoinFamilyGroupNameUseCaseProtocol
     
     public enum Action {
         case didChangeFamilyGroupNickname(String)
@@ -22,13 +21,11 @@ public final class JoinFamilyGroupNameViewReactor: Reactor {
     
     public enum Mutation {
         case setFamilyGroupNickName(String)
-        case setFamilyGroupNickNameResponse(JoinFamilyGroupNameEntity?)
         case setFamilyNickNameVaildation(Bool)
         case setFamilyNickNameMaximumValidation(Bool)
     }
     
     public struct State {
-        @Pulse var familyGroupNameEntity: JoinFamilyGroupNameEntity?
         var familyGroupNickName: String
         var isNickNameVaildation: Bool
         var isNickNameMaximumValidation: Bool
@@ -37,7 +34,6 @@ public final class JoinFamilyGroupNameViewReactor: Reactor {
     
     init() {
         self.initialState = State(
-            familyGroupNameEntity: nil,
             familyGroupNickName: "",
             isNickNameVaildation: false,
             isNickNameMaximumValidation: false
@@ -56,12 +52,7 @@ public final class JoinFamilyGroupNameViewReactor: Reactor {
                 .just(.setFamilyNickNameMaximumValidation(isMaximumValidation))
             )
         case .didTapUpdateFamilyGroupNickname:
-            let body = JoinFamilyGroupNameRequest(familyName: currentState.familyGroupNickName)
-            return updateJoinFamilyGroupUseCase.execute(body: body)
-                .asObservable()
-                .flatMap { entity -> Observable<JoinFamilyGroupNameViewReactor.Mutation> in
-                    return .just(.setFamilyGroupNickNameResponse(entity))
-                }
+            return .empty()
         }
     }
     
@@ -75,8 +66,6 @@ public final class JoinFamilyGroupNameViewReactor: Reactor {
             newState.isNickNameVaildation = isNickNameVaildation
         case let .setFamilyNickNameMaximumValidation(isNickNameMaximumValidation):
             newState.isNickNameMaximumValidation = isNickNameMaximumValidation
-        case let .setFamilyGroupNickNameResponse(familyGroupNameEntity):
-            newState.familyGroupNameEntity = familyGroupNameEntity
         }
         return newState
     }

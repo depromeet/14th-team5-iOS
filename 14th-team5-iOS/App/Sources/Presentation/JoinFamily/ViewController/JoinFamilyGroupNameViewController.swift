@@ -13,25 +13,27 @@ import ReactorKit
 
 final class JoinFamilyGroupNameViewController: BaseViewController<JoinFamilyGroupNameViewReactor> {
     
-    private let groupNameLabel: BibbiLabel = BibbiLabel(.head2Bold, textAlignment: .center, textColor: .gray300)
+    private let groupNameLabel: BibbiLabel = BibbiLabel(.caption, textAlignment: .center, textColor: .gray300)
     private let groupConfirmButton: BibbiButton = BibbiButton()
     private let groupTextField: UITextField = UITextField()
     private let groupDescrptionLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray400)
     private let groupErrorStackView: UIStackView = UIStackView()
     private let groupErrorImageView: UIImageView = UIImageView()
     private let groupErrorLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .warningRed)
+    private let groupEditerView: JoinFamilyGroupEdierView = JoinFamilyGroupEdierView()
     
     
     override func setupUI() {
         super.setupUI()
         groupErrorStackView.addArrangedSubviews(groupErrorImageView, groupErrorLabel)
-        view.addSubviews(groupNameLabel, groupDescrptionLabel, groupTextField, groupConfirmButton, groupErrorStackView)
+        view.addSubviews(groupNameLabel, groupDescrptionLabel, groupTextField, groupConfirmButton, groupErrorStackView, groupEditerView)
     }
     
     override func setupAutoLayout() {
         super.setupAutoLayout()
         groupNameLabel.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(130)
+            $0.height.equalTo(25)
             $0.centerX.equalToSuperview().inset(20)
         }
         
@@ -54,6 +56,13 @@ final class JoinFamilyGroupNameViewController: BaseViewController<JoinFamilyGrou
         groupDescrptionLabel.snp.makeConstraints {
             $0.centerX.equalToSuperview()
             $0.bottom.equalTo(groupConfirmButton.snp.top).offset(-14)
+        }
+        
+        groupEditerView.snp.makeConstraints {
+            $0.width.equalTo(171)
+            $0.height.equalTo(24)
+            $0.bottom.equalTo(groupConfirmButton.snp.top).offset(-14)
+            $0.centerX.equalToSuperview()
         }
         
         groupConfirmButton.snp.makeConstraints {
@@ -100,6 +109,7 @@ final class JoinFamilyGroupNameViewController: BaseViewController<JoinFamilyGrou
             $0.spellCheckingType = .no
         }
         
+        //TODO: Entity에 따라 Hidden 처리 로직 추가
         groupDescrptionLabel.do {
             $0.text = "홈 화면에 가족 이름이 추가돼요 "
         }

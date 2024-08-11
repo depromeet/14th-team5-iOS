@@ -50,9 +50,6 @@ final class FamilyDIContainer: BaseContainer {
         FamilyUseCase(familyRepository: repository)
     }
     
-    private func makeUpdateJoinFamilyGroupNameUseCase() -> UpdateJoinFamilyGroupNameUseCaseProtocol {
-        return UpdateJoinFamilyGroupNameUseCase(familyRepository: repository)
-    }
     
     // MARK: - Register
     
@@ -83,10 +80,6 @@ final class FamilyDIContainer: BaseContainer {
         
         container.register(type: ResignFamilyUseCaseProtocol.self) { _ in
             makeResignFamilyUseCase()
-        }
-        
-        container.register(type: UpdateJoinFamilyGroupNameUseCaseProtocol.self) { _ in
-            makeUpdateJoinFamilyGroupNameUseCase()
         }
         
         // Deprecated

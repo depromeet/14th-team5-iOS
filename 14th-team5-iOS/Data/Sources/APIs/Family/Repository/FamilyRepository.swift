@@ -65,6 +65,14 @@ extension FamilyRepository {
             .asObservable()
     }
     
+    // MARK: - Fetch Family ID
+    
+    public func fetchFamilyId() -> String? {
+        // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
+        App.Repository.member.familyId.value
+    }
+    
+    
     // MARK: - Fetch Family CreatedAt
     
     public func fetchFamilyCreatedAt() -> Observable<FamilyCreatedAtEntity?> {

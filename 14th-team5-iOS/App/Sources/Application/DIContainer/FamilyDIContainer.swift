@@ -21,6 +21,10 @@ final class FamilyDIContainer: BaseContainer {
         CreateFamilyUseCase(familyRepository: repository)
     }
     
+    private func makeFetchFamilyIdUseCase() -> FetchFamilyIdUseCaseProtocol {
+        FetchFamilyIdUseCase(familyRepository: repository)
+    }
+    
     private func makeFetchFamilyCreatedAtUseCase() -> FetchFamilyCreatedAtUseCaseProtocol {
         FetchFamilyCreatedAtUseCase(familyRepository: repository)
     }
@@ -59,6 +63,10 @@ final class FamilyDIContainer: BaseContainer {
     func registerDependencies() {
         container.register(type: CreateFamilyUseCaseProtocol.self) { _ in
             makeCreateFamilyUseCase()
+        }
+        
+        container.register(type: FetchFamilyIdUseCaseProtocol.self) { _ in
+            makeFetchFamilyIdUseCase()
         }
         
         container.register(type: FetchFamilyCreatedAtUseCaseProtocol.self) { _ in

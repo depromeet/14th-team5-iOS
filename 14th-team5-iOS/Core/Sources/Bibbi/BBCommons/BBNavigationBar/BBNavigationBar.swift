@@ -14,20 +14,23 @@ import RxSwift
 import RxCocoa
 
 ///. 삐삐 스타일의 NavigationBar가 구현된 View입니다.
-public final class BBNavigationBar: UIView {
+public class BBNavigationBar: UIView {
     
     // MARK: - Views
-    private let containerView: UIView = UIView()
     
-    private let navigationTitleLabel: BBLabel = BBLabel(.head2Bold, textColor: .gray200)
-    private var navigationImageView: UIImageView = UIImageView()
+    private let containerView = UIView()
     
-    private let leftBarButton: UIButton = UIButton(type: .system)
-    private let rightBarButton: UIButton = UIButton(type: .system)
+    private let navigationTitleLabel = BBLabel(.head2Bold, textColor: .gray200)
+    private var navigationImageView = UIImageView()
     
-    private let newMarkImageView: UIImageView = UIImageView()
+    private let leftBarButton = BBNavigationBarButton()
+    private let rightBarButton = BBNavigationBarButton()
+    
+    private let newMarkImageView = UIImageView()
+    
     
     // MARK: - Properties
+    
     public weak var delegate: BBNavigationBarDelegate?
     
     
@@ -77,9 +80,16 @@ public final class BBNavigationBar: UIView {
     }
     
     /// 왼쪽 버튼에 New 표시를 숨깁니다.
-    public var isHiddenLeftBarButtonNewMark: Bool = true {
+    public var isHiddenLeftBarButtonMark: Bool = true {
         didSet {
-            newMarkImageView.isHidden = isHiddenLeftBarButtonNewMark
+            leftBarButton.isHiddenMark = isHiddenLeftBarButtonMark
+        }
+    }
+    
+    // 왼쪽 버튼의 New 표시의 위치를 지정합니다.
+    public var leftBarButtonMarkPosition: BBNavigationBarButton.MarkPosition = .topTrailing() {
+        didSet {
+            leftBarButton.markPosition = leftBarButtonMarkPosition
         }
     }
     
@@ -144,6 +154,7 @@ public final class BBNavigationBar: UIView {
         }
     }
     
+    
     // MARK: - Intializer
 
     public convenience init() {
@@ -194,15 +205,15 @@ public final class BBNavigationBar: UIView {
         }
         
         leftBarButton.snp.makeConstraints {
-            $0.leading.equalTo(0.0)
+            $0.leading.equalTo(0)
             $0.centerY.equalTo(self.snp.centerY)
-            $0.width.height.equalTo(52.0)
+            $0.width.height.equalTo(52)
         }
         
         rightBarButton.snp.makeConstraints {
-            $0.trailing.equalTo(0.0)
+            $0.trailing.equalTo(0)
             $0.centerY.equalTo(self.snp.centerY)
-            $0.width.height.equalTo(52.0)
+            $0.width.height.equalTo(52)
         }
         
         newMarkImageView.snp.makeConstraints {
@@ -213,7 +224,7 @@ public final class BBNavigationBar: UIView {
     
     private func setupAttributes() {
         containerView.do {
-            $0.backgroundColor = UIColor.clear
+            $0.backgroundColor = .clear
         }
         
         navigationImageView.do {
@@ -221,10 +232,6 @@ public final class BBNavigationBar: UIView {
         }
         
         leftBarButton.do {
-            $0.clipsToBounds = false
-            $0.layer.cornerRadius = 10
-            $0.tintColor = .gray300
-            
             $0.addTarget(
                 self,
                 action: #selector(didTapLeftButton),
@@ -234,10 +241,6 @@ public final class BBNavigationBar: UIView {
         }
         
         rightBarButton.do {
-            $0.clipsToBounds = false
-            $0.layer.cornerRadius = 10
-            $0.tintColor = .gray300
-            
             $0.addTarget(
                 self,
                 action: #selector(didTapRightButton),
@@ -389,14 +392,20 @@ extension BBNavigationBar {
         )
     }
     
-    private func setupButtonImage(_ button: UIButton, type: BBNavigationButtonStyle?) {
-        button.setImage(type?.image, for: .normal)
+    private func setupButtonImage(
+        _ button: BBNavigationBarButton,
+        type: BBNavigationButtonStyle?
+    ) {
+        button.type = type
         if case let .person(new) = type {
-            isHiddenLeftBarButtonNewMark = !new
+            button.isHiddenMark = !new
         }
     }
 
-    private func setupButtonBackground(_ button: UIButton, type: BBNavigationButtonStyle?) {
+    private func setupButtonBackground(
+        _ button: BBNavigationBarButton,
+        type: BBNavigationButtonStyle?
+    ) {
         if type == .arrowLeft || type == .xmark {
             button.backgroundColor = .gray900
         } else {

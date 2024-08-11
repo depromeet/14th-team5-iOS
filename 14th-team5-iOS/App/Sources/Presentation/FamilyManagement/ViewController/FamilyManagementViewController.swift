@@ -238,7 +238,7 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
         navigationBar.do {
             $0.navigationTitle = "가족"
             $0.navigationTitleFontStyle = .head2Bold
-            $0.leftBarButtonItem = .arrowLeft
+            $0.leftBarButtonItem = .person(new: true)
             $0.rightBarButtonItem = .setting
          }
         

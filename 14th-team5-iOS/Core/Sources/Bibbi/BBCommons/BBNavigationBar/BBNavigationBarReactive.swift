@@ -11,9 +11,9 @@ import RxSwift
 
 public extension Reactive where Base: BBNavigationBar {
     
-    var isHiddenLeftBarButtonNewMark: Binder<Bool> {
+    var isHiddenLeftBarButtonMark: Binder<Bool> {
         Binder(self.base) { navigationBar, isHidden in
-            navigationBar.isHiddenLeftBarButtonNewMark = isHidden
+            navigationBar.isHiddenLeftBarButtonMark = isHidden
         }
     }
     

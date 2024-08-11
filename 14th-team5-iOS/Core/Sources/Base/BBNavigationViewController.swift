@@ -33,7 +33,7 @@ open class BBNavigationViewController<R>: ReactorViewController<R> where R: Reac
     
     // MARK: - Views
     
-    public let navigationBarView = BBNavigationBarView()
+    public let navigationBarView = BBNavigationBar()
     public let contentView = UIView()
     
     // MARK: - Properties
@@ -135,7 +135,7 @@ extension BBNavigationViewController {
 
 extension BBNavigationViewController {
     
-    private func popViewController(_ ifTypeIsXMark: TopBarButtonStyle?) {
+    private func popViewController(_ ifTypeIsXMark: BBNavigationButtonStyle?) {
         if enableAutoPopViewController {
             switch ifTypeIsXMark {
             case .arrowLeft, .xmark:

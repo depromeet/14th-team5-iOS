@@ -146,9 +146,13 @@ public final class BBNavigationBar: UIView {
     
     // MARK: - Intializer
 
+    public convenience init() {
+        self.init(frame: .zero)
+        commonInit()
+    }
+    
     public override init(frame: CGRect) {
-        super.init(frame: .zero)
-        set()
+        super.init(frame: frame)
         
         setupUI()
         setupAutolayout()
@@ -160,7 +164,12 @@ public final class BBNavigationBar: UIView {
     }
     
     // MARK: - Helpers
-    func setupUI() {
+    
+    private func commonInit() {
+        set()
+    }
+    
+    private func setupUI() {
         addSubview(containerView)
         containerView.addSubviews(
             leftBarButton, navigationImageView, navigationTitleLabel, rightBarButton
@@ -169,7 +178,7 @@ public final class BBNavigationBar: UIView {
         leftBarButton.addSubview(newMarkImageView)
     }
     
-    func setupAutolayout() {
+    private func setupAutolayout() {
         containerView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
@@ -202,7 +211,7 @@ public final class BBNavigationBar: UIView {
         }
     }
     
-    func setupAttributes() {
+    private func setupAttributes() {
         containerView.do {
             $0.backgroundColor = UIColor.clear
         }

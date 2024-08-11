@@ -13,8 +13,10 @@ public protocol FamilyRepositoryProtocol {
     func joinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyEntity?>
     func resignFamily() -> Observable<DefaultEntity?>
     func createFamily() -> Observable<CreateFamilyEntity?>
+    func fetchFamilyId() -> String?
     func fetchFamilyCreatedAt() -> Observable<FamilyCreatedAtEntity?>
     func fetchInvitationLink() -> Observable<FamilyInvitationLinkEntity?>
     func fetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfileEntity?>
     func fetchPaginationFamilyMembers(memberIds: [String]) -> [FamilyMemberProfileEntity]
+    func updateFamilyName(body: UpdateFamilyNameRequest) -> Observable<FamilyNameEntity?>
 }

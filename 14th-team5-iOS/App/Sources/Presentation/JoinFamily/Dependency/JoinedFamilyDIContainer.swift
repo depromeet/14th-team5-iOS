@@ -13,11 +13,11 @@ import Domain
 
 @available(*, deprecated, renamed: "JoinedFamilyViewControllerWrapper")
 final class JoinedFamilyDIContainer {
-    public func makeViewController() -> JoinedFamilyViewController {
-        return JoinedFamilyViewController(reactor: makeReactor())
+    public func makeViewController() -> FamilyEntranceViewController {
+        return FamilyEntranceViewController(reactor: makeReactor())
     }
     
-    public func makeReactor() -> JoinedFamilyReactor {
-        return JoinedFamilyReactor()
+    public func makeReactor() -> FamilyEntranceReactor {
+        return FamilyEntranceReactor()
     }
 }

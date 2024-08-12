@@ -14,19 +14,24 @@ import RxSwift
 import RxCocoa
 
 ///. 삐삐 스타일의 NavigationBar가 구현된 View입니다.
-public final class BBNavigationBarView: UIView {
+public class BBNavigationBar: UIView {
     
     // MARK: - Views
-    private let containerView: UIView = UIView()
     
-    private let navigationTitleLabel: BBLabel = BBLabel(.head2Bold, textColor: .gray200)
-    private var navigationImageView: UIImageView = UIImageView()
+    private let containerView = UIView()
     
-    private let leftBarButton: UIButton = UIButton(type: .system)
-    private let rightBarButton: UIButton = UIButton(type: .system)
+    private let navigationTitleLabel = BBLabel(.head2Bold, textColor: .gray200)
+    private var navigationImageView = UIImageView()
+    
+    private let leftBarButton = BBNavigationBarButton()
+    private let rightBarButton = BBNavigationBarButton()
+    
+    private let newMarkImageView = UIImageView()
+    
     
     // MARK: - Properties
-    public weak var delegate: BBNavigationBarViewDelegate?
+    
+    public weak var delegate: BBNavigationBarDelegate?
     
     
     /// NavigationBar의 Title을 바꿉니다.
@@ -49,7 +54,7 @@ public final class BBNavigationBarView: UIView {
     
     /// NavigationBar의 Image를 바꿉니다.
     /// Image를 적용하면 Title이 사라집니다.
-    public var navigationImage: TopBarButtonStyle? {
+    public var navigationImage: BBNavigationButtonStyle? {
         didSet {
             navigationImageView.isHidden = false
             navigationTitleLabel.isHidden = true
@@ -59,24 +64,32 @@ public final class BBNavigationBarView: UIView {
     }
     
     /// 왼쪽 버튼의 스타일을 설정합니다.
-    public var leftBarButtonItem: TopBarButtonStyle?   {
+    public var leftBarButtonItem: BBNavigationButtonStyle?   {
         didSet {
-            leftBarButton.setImage(
-                leftBarButtonItem?.image,
-                for: .normal
-            )
+            setupButtonImage(leftBarButton, type: leftBarButtonItem)
             setupButtonBackground(leftBarButton, type: leftBarButtonItem)
         }
     }
     
     /// 오른쪽 버튼의 스타일을 설정합니다.
-    public var rightBarButtonItem: TopBarButtonStyle? {
+    public var rightBarButtonItem: BBNavigationButtonStyle? {
         didSet {
-            rightBarButton.setImage(
-                rightBarButtonItem?.image,
-                for: .normal
-            )
+            setupButtonImage(rightBarButton, type: rightBarButtonItem)
             setupButtonBackground(rightBarButton, type: rightBarButtonItem)
+        }
+    }
+    
+    /// 왼쪽 버튼에 New 표시를 숨깁니다.
+    public var isHiddenLeftBarButtonMark: Bool = true {
+        didSet {
+            leftBarButton.isHiddenMark = isHiddenLeftBarButtonMark
+        }
+    }
+    
+    // 왼쪽 버튼의 New 표시의 위치를 지정합니다.
+    public var leftBarButtonMarkPosition: BBNavigationBarButton.MarkPosition = .topTrailing() {
+        didSet {
+            leftBarButton.markPosition = leftBarButtonMarkPosition
         }
     }
     
@@ -141,14 +154,17 @@ public final class BBNavigationBarView: UIView {
         }
     }
     
+    
     // MARK: - Intializer
+
     public convenience init() {
         self.init(frame: .zero)
-        set("Bibbi")
+        commonInit()
     }
     
     public override init(frame: CGRect) {
-        super.init(frame: .zero)
+        super.init(frame: frame)
+        
         setupUI()
         setupAutolayout()
         setupAttributes()
@@ -159,14 +175,21 @@ public final class BBNavigationBarView: UIView {
     }
     
     // MARK: - Helpers
-    func setupUI() {
+    
+    private func commonInit() {
+        set()
+    }
+    
+    private func setupUI() {
         addSubview(containerView)
         containerView.addSubviews(
             leftBarButton, navigationImageView, navigationTitleLabel, rightBarButton
         )
+        
+        leftBarButton.addSubview(newMarkImageView)
     }
     
-    func setupAutolayout() {
+    private func setupAutolayout() {
         containerView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
@@ -182,21 +205,26 @@ public final class BBNavigationBarView: UIView {
         }
         
         leftBarButton.snp.makeConstraints {
-            $0.leading.equalTo(0.0)
+            $0.leading.equalTo(0)
             $0.centerY.equalTo(self.snp.centerY)
-            $0.width.height.equalTo(52.0)
+            $0.width.height.equalTo(52)
         }
         
         rightBarButton.snp.makeConstraints {
-            $0.trailing.equalTo(0.0)
+            $0.trailing.equalTo(0)
             $0.centerY.equalTo(self.snp.centerY)
-            $0.width.height.equalTo(52.0)
+            $0.width.height.equalTo(52)
+        }
+        
+        newMarkImageView.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(7)
+            $0.trailing.equalToSuperview().offset(10)
         }
     }
     
-    func setupAttributes() {
+    private func setupAttributes() {
         containerView.do {
-            $0.backgroundColor = UIColor.clear
+            $0.backgroundColor = .clear
         }
         
         navigationImageView.do {
@@ -204,10 +232,6 @@ public final class BBNavigationBarView: UIView {
         }
         
         leftBarButton.do {
-            $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = 10.0
-            $0.tintColor = DesignSystemAsset.gray300.color
-            
             $0.addTarget(
                 self,
                 action: #selector(didTapLeftButton),
@@ -217,15 +241,17 @@ public final class BBNavigationBarView: UIView {
         }
         
         rightBarButton.do {
-            $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = 10.0
-            $0.tintColor = DesignSystemAsset.gray300.color
-            
             $0.addTarget(
                 self,
                 action: #selector(didTapRightButton),
                 for: .touchUpInside
             )
+        }
+        
+        newMarkImageView.do {
+            $0.isHidden = true
+            $0.image = DesignSystemAsset.new.image
+            $0.contentMode = .scaleAspectFit
         }
         
         setupNavigationImageScale(navigationImageScale)
@@ -237,7 +263,7 @@ public final class BBNavigationBarView: UIView {
 
 // MARK: - Extensions
 
-extension BBNavigationBarView {
+extension BBNavigationBar {
     
     /// NavigationBar의 속성을 바꿉니다.
     ///
@@ -254,14 +280,14 @@ extension BBNavigationBarView {
     ///     - rightBarButtonItemScale: 네비게이션 바의 오른쪽 버튼 크기
     ///     - rightBarButtonYOffset: 네비게이션 바의 오른쪽 버튼 Y 위치
     public func set(
-        _ title: String? = nil,
+        _ title: String? = "Bibbi",
         titleColor: UIColor = .gray200,
         titleFontStyle: BBFontStyle = .homeTitle,
-        leftBarButtonItem: TopBarButtonStyle = .none,
+        leftBarButtonItem: BBNavigationButtonStyle? = nil,
         leftBarButtonTint: UIColor = .gray300,
         leftBarButtonItemScale: CGFloat = 1.0,
         leftBarButtonYOffset: CGFloat = 0.0,
-        rightBarButtonItem: TopBarButtonStyle = .none,
+        rightBarButtonItem: BBNavigationButtonStyle? = nil,
         rightBarButtonTint: UIColor = .gray300,
         rightBarButtonItemScale: CGFloat = 1.0,
         rightBarButtonYOffset: CGFloat = 0.0
@@ -297,13 +323,13 @@ extension BBNavigationBarView {
     ///     - rightBarButtonItemScale: 네비게이션 바의 오른쪽 버튼 크기
     ///     - rightBarButtonYOffset: 네비게이션 바의 오른쪽 버튼 Y 위치
     public func set(
-        _ image: TopBarButtonStyle? = nil,
+        _ image: BBNavigationButtonStyle? = nil,
         imageScale: CGFloat = 1.0,
-        leftBarButtonItem: TopBarButtonStyle = .none,
+        leftBarButtonItem: BBNavigationButtonStyle? = nil,
         leftBarButtonTint: UIColor = .gray300,
         leftBarButtonItemScale: CGFloat = 1.0,
         leftBarButtonYOffset: CGFloat = 0.0,
-        rightBarButtonItem: TopBarButtonStyle = .none,
+        rightBarButtonItem: BBNavigationButtonStyle? = nil,
         rightBarButtonTint: UIColor = .gray300,
         rightBarButtonItemScale: CGFloat = 1.0,
         rightBarButtonYOffset: CGFloat = 0.0
@@ -324,11 +350,11 @@ extension BBNavigationBarView {
     }
     
     private func setAttributes(
-        leftBarButtonItem: TopBarButtonStyle = .none,
+        leftBarButtonItem: BBNavigationButtonStyle? = nil,
         leftBarButtonTint: UIColor = .gray300,
         leftBarButtonItemScale: CGFloat = 1.0,
         leftBarButtonYOffset: CGFloat = 0.0,
-        rightBarButtonItem: TopBarButtonStyle = .none,
+        rightBarButtonItem: BBNavigationButtonStyle? = nil,
         rightBarButtonTint: UIColor = .gray300,
         rightBarButtonItemScale: CGFloat = 1.0,
         rightBarButtonYOffset: CGFloat = 0.0
@@ -346,7 +372,7 @@ extension BBNavigationBarView {
     
 }
 
-extension BBNavigationBarView {
+extension BBNavigationBar {
     
     private func setupNavigationImageScale(_ scale: CGFloat) {
         navigationImageView.layer.transform = CATransform3DMakeScale(
@@ -365,8 +391,21 @@ extension BBNavigationBarView {
             scale, scale, scale
         )
     }
+    
+    private func setupButtonImage(
+        _ button: BBNavigationBarButton,
+        type: BBNavigationButtonStyle?
+    ) {
+        button.type = type
+        if case let .person(new) = type {
+            button.isHiddenMark = !new
+        }
+    }
 
-    private func setupButtonBackground(_ button: UIButton, type: TopBarButtonStyle?) {
+    private func setupButtonBackground(
+        _ button: BBNavigationBarButton,
+        type: BBNavigationButtonStyle?
+    ) {
         if type == .arrowLeft || type == .xmark {
             button.backgroundColor = .gray900
         } else {
@@ -376,16 +415,16 @@ extension BBNavigationBarView {
     
 }
 
-extension BBNavigationBarView {
+extension BBNavigationBar {
     
     @objc func didTapLeftButton(_ button: UIButton, event: UIButton.Event) {
         guard let _ = button.currentImage else { return }
-        delegate?.navigationBarView?(button, didTapLeftBarButton: event)
+        delegate?.navigationBar?(button, didTapLeftBarButton: event)
     }
 
     @objc func didTapRightButton(_ button: UIButton, event: UIButton.Event) {
         guard let _ = button.currentImage else { return }
-        delegate?.navigationBarView?(button, didTapRightBarButton: event)
+        delegate?.navigationBar?(button, didTapRightBarButton: event)
     }
     
 }

@@ -9,7 +9,7 @@ import UIKit
 
 import SnapKit
 
-final public class BBButton: UIButton {
+public class BBButton: UIButton {
     
     // MARK: - Views
     

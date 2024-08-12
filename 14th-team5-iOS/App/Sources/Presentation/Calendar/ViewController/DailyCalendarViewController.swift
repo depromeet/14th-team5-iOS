@@ -71,7 +71,7 @@ public final class DailyCalendarViewController: BBNavigationViewController<Daily
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        navigationBarView.rx.didTapLeftBarButton
+        navigationBar.rx.didTapLeftBarButton
             .map { _ in Reactor.Action.popViewController }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -281,7 +281,7 @@ public final class DailyCalendarViewController: BBNavigationViewController<Daily
         }
         
         calendarView.snp.makeConstraints {
-            $0.top.equalTo(navigationBarView.snp.bottom).offset(16)
+            $0.top.equalTo(navigationBar.snp.bottom).offset(16)
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(350)
         }
@@ -313,7 +313,7 @@ public final class DailyCalendarViewController: BBNavigationViewController<Daily
             $0.isUserInteractionEnabled = true
         }
         
-        navigationBarView.do {
+        navigationBar.do {
             $0.leftBarButtonItem = .arrowLeft
         }
         
@@ -420,7 +420,7 @@ extension DailyCalendarViewController {
     }
     
     private func setupNavigationTitle(_ date: Date) {
-        navigationBarView.navigationTitle = date.toFormatString(with: .yyyyM)
+        navigationBar.navigationTitle = date.toFormatString(with: .yyyyM)
     }
     
     private func updateCalendarViewConstraints(_ bounds: CGRect) {

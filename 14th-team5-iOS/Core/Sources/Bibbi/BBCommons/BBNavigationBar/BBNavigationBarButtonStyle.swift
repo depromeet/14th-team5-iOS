@@ -11,31 +11,37 @@ import UIKit
 
 // MARK: - Typealias
 
-public typealias TitleStyle = BBNavigationBarView.TitleStyle
-public typealias TopBarButtonStyle = BBNavigationBarView.TopBarButtonStyle
+public typealias BBNavigationTitleStyle = BBNavigationBar.Style.Title
+public typealias BBNavigationButtonStyle = BBNavigationBar.Style.Button
 
 
 // MARK: - Extensions
 
-public extension BBNavigationBarView {
+extension BBNavigationBar {
     
-    enum TitleStyle {
-        case bibbi
-    }
-    
-    enum TopBarButtonStyle {
-        case addPerson
-        case arrowLeft
-        case change
-        case heartCalendar
-        case setting
-        case xmark
-        case none
+    public enum Style {
+        
+        public enum Title {
+            case bibbi
+        }
+        
+        public enum Button {
+            @available(*, deprecated, renamed: "person")
+            case addPerson
+            
+            case person(new: Bool)
+            case arrowLeft
+            case refresh
+            case calendar
+            case setting
+            case xmark
+        }
+        
     }
     
 }
 
-extension TitleStyle {
+extension BBNavigationTitleStyle {
     
     var image: UIImage? {
         switch self {
@@ -46,17 +52,17 @@ extension TitleStyle {
     
 }
 
-extension TopBarButtonStyle {
+extension BBNavigationButtonStyle {
     
     var image: UIImage? {
         switch self {
-        case .addPerson:
+        case .addPerson, .person:
             return DesignSystemAsset.addPerson.image
         case .arrowLeft:
             return DesignSystemAsset.arrowLeft.image
-        case .change:
+        case .refresh:
             return DesignSystemAsset.familyNameChange.image
-        case .heartCalendar:
+        case .calendar:
             return DesignSystemAsset.heartCalendar.image
         case .setting:
             return DesignSystemAsset.setting.image
@@ -68,3 +74,8 @@ extension TopBarButtonStyle {
     }
     
 }
+
+
+extension BBNavigationTitleStyle: Equatable { }
+
+extension BBNavigationButtonStyle: Equatable { }

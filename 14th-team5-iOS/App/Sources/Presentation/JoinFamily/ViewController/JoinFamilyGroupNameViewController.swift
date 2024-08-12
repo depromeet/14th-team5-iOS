@@ -13,13 +13,13 @@ import ReactorKit
 
 final class JoinFamilyGroupNameViewController: BaseViewController<JoinFamilyGroupNameViewReactor> {
     
-    private let groupNameLabel: BibbiLabel = BibbiLabel(.caption, textAlignment: .center, textColor: .gray300)
-    private let groupConfirmButton: BibbiButton = BibbiButton()
+    private let groupNameLabel: BBLabel = BBLabel(.caption, textAlignment: .center, textColor: .gray300)
+    private let groupConfirmButton: BBButton = BBButton()
     private let groupTextField: UITextField = UITextField()
-    private let groupDescrptionLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray400)
+    private let groupDescrptionLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray400)
     private let groupErrorStackView: UIStackView = UIStackView()
     private let groupErrorImageView: UIImageView = UIImageView()
-    private let groupErrorLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .warningRed)
+    private let groupErrorLabel: BBLabel = BBLabel(.body1Regular, textColor: .warningRed)
     private let groupEditerView: JoinFamilyGroupEdierView = JoinFamilyGroupEdierView()
     
     
@@ -114,6 +114,10 @@ final class JoinFamilyGroupNameViewController: BaseViewController<JoinFamilyGrou
             $0.text = "홈 화면에 가족 이름이 추가돼요 "
         }
         
+        groupEditerView.do {
+            $0.isHidden = true
+        }
+        
         groupConfirmButton.do {
             $0.setTitle("저장", for: .normal)
             $0.setTitleFontStyle(.body1Bold)
@@ -126,6 +130,12 @@ final class JoinFamilyGroupNameViewController: BaseViewController<JoinFamilyGrou
     
     override func bind(reactor: JoinFamilyGroupNameViewReactor) {
         super.bind(reactor: reactor)
+        
+        Observable.just(())
+            .map { Reactor.Action.viewDidLoad }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         groupTextField.rx.text
             .orEmpty
             .debounce(.milliseconds(300), scheduler: MainScheduler.instance)
@@ -138,6 +148,33 @@ final class JoinFamilyGroupNameViewController: BaseViewController<JoinFamilyGrou
             .throttle(.microseconds(300), scheduler: MainScheduler.instance)
             .map { Reactor.Action.didTapUpdateFamilyGroupNickname }
             .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$familyNameEntity)
+            .map { $0 != nil }
+            .bind(with: self) { owner, _ in
+                owner.navigationController?.popViewController(animated: true)
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$familyNameEditorEntity)
+            .compactMap { $0?.memberImage }
+            .distinctUntilChanged()
+            .bind(with: self) { owner, image in
+                owner.groupEditerView.profileView.kf.setImage(with: image)
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.isEdit }
+            .distinctUntilChanged()
+            .bind(to: groupEditerView.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$familyNameEditorEntity)
+            .compactMap { $0?.memberName }
+            .distinctUntilChanged()
+            .bind(to: groupEditerView.userNameLabel.rx.text)
             .disposed(by: disposeBag)
         
         reactor.state

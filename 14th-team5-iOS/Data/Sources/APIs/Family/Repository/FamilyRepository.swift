@@ -115,6 +115,9 @@ extension FamilyRepository {
         
         return familyApiWorker.updateFamilyName(familyId: familyId, body: body)
             .map { $0?.toDomain() }
+            .do(onSuccess: {
+                FamilyUserDefaults.saveMyMemberId(memberId: $0?.familyIdEditorId ?? "")
+            })
             .asObservable()
     }
 }

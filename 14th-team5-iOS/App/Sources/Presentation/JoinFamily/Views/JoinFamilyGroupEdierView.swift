@@ -13,9 +13,9 @@ import UIKit
 final class JoinFamilyGroupEdierView: UIView {
     
     //MARK: Properties
-    private let descrptionLabel: BibbiLabel = BibbiLabel(.body1Regular, textAlignment: .center, textColor: .gray400)
-    private let profileView: UIImageView = UIImageView()
-    private let userNameLabel: BibbiLabel = BibbiLabel(.body1Regular, textAlignment: .center, textColor: .gray400)
+    private let descrptionLabel: BBLabel = BBLabel(.body1Regular, textAlignment: .center, textColor: .gray400)
+    public let profileView: UIImageView = UIImageView()
+    public let userNameLabel: BBLabel = BBLabel(.body1Regular, textAlignment: .center, textColor: .gray400)
     
     
     override init(frame: CGRect) {

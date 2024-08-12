@@ -16,18 +16,18 @@ final class JoinFamilyGroupNameViewControllerWrapper: BaseWrapper {
     
     
     func makeReactor() -> JoinFamilyGroupNameViewReactor {
-        return reactor
-    }
-    
-    func makeViewController() -> JoinFamilyGroupNameViewController {
-        return viewController
-    }
-    
-    var reactor: JoinFamilyGroupNameViewReactor {
         return JoinFamilyGroupNameViewReactor()
     }
     
-    var viewController: JoinFamilyGroupNameViewController {
+    func makeViewController() -> JoinFamilyGroupNameViewController {
         return JoinFamilyGroupNameViewController(reactor: reactor)
+    }
+    
+    var reactor: JoinFamilyGroupNameViewReactor {
+        return makeReactor()
+    }
+    
+    var viewController: JoinFamilyGroupNameViewController {
+        return makeViewController()
     }
 }

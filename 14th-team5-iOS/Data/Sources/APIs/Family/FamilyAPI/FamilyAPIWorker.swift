@@ -119,7 +119,9 @@ extension FamilyAPIWorker {
     ) -> Single<FamilyNameResponseDTO?> {
         let spec = FamilyAPIs.updateFamilyName(familyId).spec
         
-        return request(spec: spec, jsonEncodable: body)
+        let accessToken = App.Repository.token.accessToken.value?.accessToken ?? ""
+        //TODO: Interceptor에서 CommonHedaer 넣어주지 않고 있음
+        return request(spec: spec, headers: [BibbiHeader.acceptJson, BibbiHeader.xAppKey, BibbiHeader.xAuthToken(accessToken)], jsonEncodable: body)
             .subscribe(on: Self.queue)
             .map(FamilyNameResponseDTO.self)
             .catchAndReturn(nil)

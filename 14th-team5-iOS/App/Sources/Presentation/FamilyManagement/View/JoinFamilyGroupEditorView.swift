@@ -1,5 +1,5 @@
 //
-//  JoinFamilyGroupEdierView.swift
+//  JoinFamilyGroupEdtiorView.swift
 //  App
 //
 //  Created by Kim dohyun on 8/11/24.
@@ -10,7 +10,7 @@ import DesignSystem
 import UIKit
 
 
-final class JoinFamilyGroupEdierView: UIView {
+final class JoinFamilyGroupEdtiorView: UIView {
     
     //MARK: Properties
     private let descrptionLabel: BBLabel = BBLabel(.body1Regular, textAlignment: .center, textColor: .gray400)

@@ -85,8 +85,8 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
         tableEditButton.rx.tap
             .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
             .bind(with: self) { owner, _ in
-                let joinFamilyGroupNameViewController = JoinFamilyGroupNameViewControllerWrapper().viewController
-                owner.navigationController?.pushViewController(joinFamilyGroupNameViewController, animated: true)
+                let familyGroupSettingViewController = FamilyNameSettingViewControllerWrapper().viewController
+                owner.navigationController?.pushViewController(familyGroupSettingViewController, animated: true)
             }
             .disposed(by: disposeBag)
     }

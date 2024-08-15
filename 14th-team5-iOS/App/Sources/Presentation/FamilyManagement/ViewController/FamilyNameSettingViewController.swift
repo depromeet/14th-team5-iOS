@@ -1,5 +1,5 @@
 //
-//  JoinFamilyGroupNameViewController.swift
+//  FamilyNameSettingViewController.swift
 //  App
 //
 //  Created by Kim dohyun on 7/11/24.
@@ -11,7 +11,7 @@ import UIKit
 
 import ReactorKit
 
-final class JoinFamilyGroupNameViewController: BaseViewController<JoinFamilyGroupNameViewReactor> {
+final class FamilyNameSettingViewController: BBNavigationViewController<FamilyNameSettingViewReactor> {
     
     private let groupNameLabel: BBLabel = BBLabel(.caption, textAlignment: .center, textColor: .gray300)
     private let groupConfirmButton: BBButton = BBButton()
@@ -20,7 +20,7 @@ final class JoinFamilyGroupNameViewController: BaseViewController<JoinFamilyGrou
     private let groupErrorStackView: UIStackView = UIStackView()
     private let groupErrorImageView: UIImageView = UIImageView()
     private let groupErrorLabel: BBLabel = BBLabel(.body1Regular, textColor: .warningRed)
-    private let groupEditerView: JoinFamilyGroupEdierView = JoinFamilyGroupEdierView()
+    private let groupEditerView: JoinFamilyGroupEdtiorView = JoinFamilyGroupEdtiorView()
     
     
     override func setupUI() {
@@ -74,9 +74,6 @@ final class JoinFamilyGroupNameViewController: BaseViewController<JoinFamilyGrou
     
     override func setupAttributes() {
         super.setupAttributes()
-        navigationBarView.do {
-            $0.setNavigationView(leftItem: .arrowLeft, rightItem: .empty)
-        }
         
         groupNameLabel.do {
             $0.text = "가족 방 이름을 입력해주세요"
@@ -128,7 +125,7 @@ final class JoinFamilyGroupNameViewController: BaseViewController<JoinFamilyGrou
         }
     }
     
-    override func bind(reactor: JoinFamilyGroupNameViewReactor) {
+    override func bind(reactor: FamilyNameSettingViewReactor) {
         super.bind(reactor: reactor)
         
         Observable.just(())
@@ -193,7 +190,7 @@ final class JoinFamilyGroupNameViewController: BaseViewController<JoinFamilyGrou
     }
 }
 
-extension JoinFamilyGroupNameViewController {
+extension FamilyNameSettingViewController {
     private func updateVaildationLayout(isEnabled: Bool) {
         groupConfirmButton.backgroundColor = isEnabled ? DesignSystemAsset.mainYellow.color : DesignSystemAsset.mainYellow.color.withAlphaComponent(0.2)
         groupConfirmButton.isEnabled = isEnabled

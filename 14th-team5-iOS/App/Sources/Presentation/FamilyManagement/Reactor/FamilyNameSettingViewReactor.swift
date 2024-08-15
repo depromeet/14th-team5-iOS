@@ -1,5 +1,5 @@
 //
-//  JoinFamilyGroupNameViewReactor.swift
+//  FamilyNameSettingViewReactor.swift
 //  App
 //
 //  Created by Kim dohyun on 7/23/24.
@@ -11,7 +11,7 @@ import Core
 import Domain
 import ReactorKit
 
-public final class JoinFamilyGroupNameViewReactor: Reactor {
+public final class FamilyNameSettingViewReactor: Reactor {
     public var initialState: State
     @Injected private var memberUseCase: MemberUseCaseProtocol
     @Injected private var updateFamilyNameUseCase: UpdateFamilyNameUseCaseProtocol

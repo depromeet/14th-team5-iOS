@@ -57,6 +57,23 @@ public class BBProgressHUD {
         return BBProgressHUD(view: view, config: config)
     }
     
+    public static func style(
+        _ style: BBProgressHUDStyle,
+        config: BBProgressHUDConfiguration = BBProgressHUDConfiguration()
+    ) -> BBProgressHUD {
+        switch style {
+        case .airplane:
+            let view = DefaultProgressHUDView(
+                child: LottieProgressHUDView(
+                    of: .airplane,
+                    viewConfig: .airplaneLottie
+                ),
+                viewConfig: .airplaneLottie
+            )
+            return BBProgressHUD(view: view, config: config)
+        }
+    }
+    
     
     // MARK: - Show
     

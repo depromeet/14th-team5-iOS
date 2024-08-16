@@ -37,8 +37,6 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-        BBProgressHUD.lottie(.airplane).show()
     }
     
     override func bind(reactor: MainViewReactor) {

@@ -31,7 +31,7 @@ public struct BBProgressHUDViewConfiguration {
         offsetFromCenterX xOffset: CGFloat = 0,
         offsetFromCenterY yOffset: CGFloat = 0,
         animationColor: UIColor? = .mainYellow,
-        backgroundColor: UIColor? = nil,
+        backgroundColor: UIColor? = .gray900,
         cornerRadius: CGFloat? = 30
     ) {
         self.minWidth = minWidth

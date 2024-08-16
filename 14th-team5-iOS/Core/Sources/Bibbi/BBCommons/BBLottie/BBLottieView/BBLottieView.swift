@@ -14,7 +14,7 @@ public class BBLottieView: LottieAnimationView {
     // MARK: - Intializer
     
     public init(
-        of kind: BBLottieViewKind
+        of kind: BBLottieKind
     ) {
         super.init(frame: .zero)
         animation = LottieAnimation.named(kind.name)
@@ -26,6 +26,10 @@ public class BBLottieView: LottieAnimationView {
     
     
     // MARK: - Helpers
+    
+    public func startAnimating(completion: LottieCompletionBlock? = nil) {
+        play(completion: completion)
+    }
     
     /// Plays the animation from a start frame to an end frame in the animation’s framerate.
     public func startAnimating(

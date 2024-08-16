@@ -20,6 +20,11 @@ public struct BBProgressHUDViewConfiguration {
     public let animationColor: UIColor?
     public let backgroundColor: UIColor?
     
+    public let lottieFromProgress: CGFloat
+    public let lottieToProgress: CGFloat
+    public let lottieAnimationSpeed: CGFloat
+    public let lottieAnimationScale: CGFloat
+    
     public let cornerRadius: CGFloat?
     
     
@@ -32,6 +37,10 @@ public struct BBProgressHUDViewConfiguration {
         offsetFromCenterY yOffset: CGFloat = 0,
         animationColor: UIColor? = .mainYellow,
         backgroundColor: UIColor? = .gray900,
+        lottieFromProgress fromProgress: CGFloat = 0.15,
+        lottieToProgress toProgress: CGFloat = 0.95,
+        lottieAnimationSpeed speed: CGFloat = 1.35,
+        lottieAnimationScale scale: CGFloat = 0.8,
         cornerRadius: CGFloat? = 30
     ) {
         self.minWidth = minWidth
@@ -40,7 +49,27 @@ public struct BBProgressHUDViewConfiguration {
         self.yOffset = yOffset
         self.animationColor = animationColor
         self.backgroundColor = backgroundColor
+        self.lottieFromProgress = fromProgress
+        self.lottieToProgress = toProgress
+        self.lottieAnimationSpeed = speed
+        self.lottieAnimationScale = scale
         self.cornerRadius = cornerRadius
     }
+    
+}
+
+
+// MARK: - Extensions
+
+public extension BBProgressHUDViewConfiguration {
+    
+    static var airplaneLottie: Self = {
+        Self(
+            lottieFromProgress: 0.15,
+            lottieToProgress: 0.95,
+            lottieAnimationSpeed: 1.35,
+            lottieAnimationScale: 0.8
+        )
+    }()
     
 }

@@ -75,7 +75,7 @@ public class DefaultProgressHUDView: UIView, BBProgressHUDView {
         backgroundColor = viewConfig.backgroundColor
         
         addShadow()
-
+        
         child.applyAnimation(for: progressHud)
     }
     

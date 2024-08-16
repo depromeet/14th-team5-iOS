@@ -35,6 +35,12 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
         UserDefaults.standard.inviteCode = nil
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        BBProgressHUD.lottie(.airplane).show()
+    }
+    
     override func bind(reactor: MainViewReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)

@@ -25,8 +25,20 @@ public class BBProgressHUD {
     
     // MARK: - ProgressHUD
     
-    public static func lottie() {
+    public static func lottie(
+        _ kind: BBLottieKind,
+        viewConfig: BBProgressHUDViewConfiguration = BBProgressHUDViewConfiguration(),
+        config: BBProgressHUDConfiguration = BBProgressHUDConfiguration()
+    ) -> BBProgressHUD {
+        let view = DefaultProgressHUDView(
+            child: LottieProgressHUDView(
+                of: kind,
+                viewConfig: viewConfig
+            ),
+            viewConfig: viewConfig
+        )
         
+        return BBProgressHUD(view: view, config: config)
     }
     
     public static func animation(

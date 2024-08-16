@@ -9,12 +9,12 @@ import UIKit
 
 // MARK: - Typealias
 
-public typealias BBLottieViewKind = BBLottieView.Kind
+public typealias BBLottieKind = BBLottie.Kind
 
 
 // MARK: - Extensions
 
-extension BBLottieView {
+extension BBLottie {
     
     public enum `Kind`: String {
         case fire

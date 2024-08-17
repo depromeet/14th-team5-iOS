@@ -8,6 +8,7 @@
 import Foundation
 import DesignSystem
 
+@available(*, deprecated)
 public enum LottieType: Equatable {
     static let keyLoading = "loading"
     static let keyfire = "fire"

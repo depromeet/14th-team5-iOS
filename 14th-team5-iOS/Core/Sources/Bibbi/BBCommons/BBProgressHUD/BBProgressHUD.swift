@@ -25,6 +25,12 @@ public class BBProgressHUD {
     
     // MARK: - ProgressHUD
     
+    /// 로띠가 포함된 ProgressHUD를 생성합니다.
+    /// - Parameters:
+    ///   - kind: 로띠 종류
+    ///   - viewConfig: ProgressHUDView 설정값
+    ///   - config: ProgressHUD 설정값
+    /// - Returns: BBProgressHUD
     public static func lottie(
         _ kind: BBLottieKind,
         viewConfig: BBProgressHUDViewConfiguration = BBProgressHUDViewConfiguration(),
@@ -41,6 +47,12 @@ public class BBProgressHUD {
         return BBProgressHUD(view: view, config: config)
     }
     
+    /// 코어 애니메이션이 포함된 ProgressHUD를 생성합니다.
+    /// - Parameters:
+    ///   - type: 코어 애니메이션 타입
+    ///   - viewConfig: ProgressHUDView 설정값
+    ///   - config: ProgressHUD 설정값
+    /// - Returns: BBProgressHUD
     public static func animation(
         _ type: BBProgressHUDCAType,
         viewConfig: BBProgressHUDViewConfiguration = BBProgressHUDViewConfiguration(),
@@ -57,6 +69,11 @@ public class BBProgressHUD {
         return BBProgressHUD(view: view, config: config)
     }
     
+    /// 정해진 Style의 ProgressHUD를 생성합니다.
+    /// - Parameters:
+    ///   - style: 스타일
+    ///   - config: ProgressHUD 설정값
+    /// - Returns: BBProgressHUD
     public static func style(
         _ style: BBProgressHUDStyle,
         config: BBProgressHUDConfiguration = BBProgressHUDConfiguration()
@@ -72,6 +89,19 @@ public class BBProgressHUD {
             )
             return BBProgressHUD(view: view, config: config)
         }
+    }
+    
+    public static func custom(
+        _ child: BBProgressHUDSubView,
+        viewConfig: BBProgressHUDViewConfiguration = BBProgressHUDViewConfiguration(),
+        config: BBProgressHUDConfiguration = BBProgressHUDConfiguration()
+    ) -> BBProgressHUD {
+        let view = DefaultProgressHUDView(
+            child: child,
+            viewConfig: viewConfig
+        )
+        
+        return BBProgressHUD(view: view, config: config)
     }
     
     

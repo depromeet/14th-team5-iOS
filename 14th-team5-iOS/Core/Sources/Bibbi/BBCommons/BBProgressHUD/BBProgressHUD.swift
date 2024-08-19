@@ -100,6 +100,19 @@ public class BBProgressHUD {
                 viewConfig: .lottie
             )
             return BBProgressHUD(view: view, config: config)
+            
+        case let .airplaneWithTitle(title, titleFontStyle, titleColor):
+            let view = DefaultProgressHUDView(
+                child: LottieProgressHUDView(
+                    of: .airplane,
+                    title: title,
+                    titleFontStyle: titleFontStyle,
+                    titleColor: titleColor,
+                    viewConfig: .lottieWithTitle
+                ),
+                viewConfig: .lottieWithTitle
+            )
+            return BBProgressHUD(view: view, config: config)
         }
     }
     

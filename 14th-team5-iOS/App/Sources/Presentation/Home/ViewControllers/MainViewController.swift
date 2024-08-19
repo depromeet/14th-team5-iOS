@@ -40,7 +40,7 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
         
         let viewConfig = BBProgressHUDViewConfiguration(minWidth: 160, minHeight: 160, lottieAnimationScale: 1.1)
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            BBProgressHUD.lottie(.airplane, title: "열심히 불러오는 중..", viewConfig: viewConfig).show()
+            BBProgressHUD.style(.airplaneWithTitle()).show()
         }
     }
     

@@ -37,10 +37,10 @@ public struct BBProgressHUDViewConfiguration {
         offsetFromCenterY yOffset: CGFloat = 0,
         animationColor: UIColor? = .mainYellow,
         backgroundColor: UIColor? = .gray900,
-        lottieFromProgress fromProgress: CGFloat = 0.15,
-        lottieToProgress toProgress: CGFloat = 0.95,
-        lottieAnimationSpeed speed: CGFloat = 1.35,
-        lottieAnimationScale scale: CGFloat = 0.8,
+        lottieFromProgress fromProgress: CGFloat = 0,
+        lottieToProgress toProgress: CGFloat = 1,
+        lottieAnimationSpeed speed: CGFloat = 1,
+        lottieAnimationScale scale: CGFloat = 1,
         cornerRadius: CGFloat? = 30
     ) {
         self.minWidth = minWidth
@@ -68,7 +68,19 @@ public extension BBProgressHUDViewConfiguration {
             lottieFromProgress: 0.15,
             lottieToProgress: 0.95,
             lottieAnimationSpeed: 1.35,
-            lottieAnimationScale: 0.8
+            lottieAnimationScale: 1.1
+        )
+    }()
+    
+    static var lottieWithTitle: Self = {
+        Self(
+            minWidth: 160,
+            minHeight: 160,
+            backgroundColor: .clear,
+            lottieFromProgress: 0.15,
+            lottieToProgress: 0.95,
+            lottieAnimationSpeed: 1.35,
+            lottieAnimationScale: 1.1
         )
     }()
     

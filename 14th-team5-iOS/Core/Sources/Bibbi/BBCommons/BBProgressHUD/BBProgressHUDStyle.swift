@@ -5,7 +5,7 @@
 //  Created by 김건우 on 8/16/24.
 //
 
-import Foundation
+import UIKit
 
 // MARK: - Typealias
 
@@ -18,6 +18,11 @@ extension BBProgressHUD {
     
     public enum Style {
         case airplane
+        case airplaneWithTitle(
+            title: String? = "열심히 불러오는 중..",
+            titleFontStyle: BBFontStyle? = .body1Regular,
+            titleColor: UIColor? = .gray400
+        )
     }
     
 }

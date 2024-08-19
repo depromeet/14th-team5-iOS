@@ -63,7 +63,7 @@ public struct BBProgressHUDViewConfiguration {
 
 public extension BBProgressHUDViewConfiguration {
     
-    static var airplaneLottie: Self = {
+    static var lottie: Self = {
         Self(
             lottieFromProgress: 0.15,
             lottieToProgress: 0.95,

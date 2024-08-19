@@ -33,12 +33,18 @@ public class BBProgressHUD {
     /// - Returns: BBProgressHUD
     public static func lottie(
         _ kind: BBLottieKind,
+        title: String? = nil,
+        titleFontStyle: BBFontStyle? = nil,
+        titleColor: UIColor? = nil,
         viewConfig: BBProgressHUDViewConfiguration = BBProgressHUDViewConfiguration(),
         config: BBProgressHUDConfiguration = BBProgressHUDConfiguration()
     ) -> BBProgressHUD {
         let view = DefaultProgressHUDView(
             child: LottieProgressHUDView(
                 of: kind,
+                title: title,
+                titleFontStyle: titleFontStyle,
+                titleColor: titleColor,
                 viewConfig: viewConfig
             ),
             viewConfig: viewConfig
@@ -55,12 +61,18 @@ public class BBProgressHUD {
     /// - Returns: BBProgressHUD
     public static func animation(
         _ type: BBProgressHUDCAType,
+        title: String? = nil,
+        titleFontStyle: BBFontStyle? = nil,
+        titleColor: UIColor? = nil,
         viewConfig: BBProgressHUDViewConfiguration = BBProgressHUDViewConfiguration(),
         config: BBProgressHUDConfiguration = BBProgressHUDConfiguration()
     ) -> BBProgressHUD {
         let view = DefaultProgressHUDView(
             child: CoreAnimationProgressHUDView(
-                of: type,
+                type,
+                title: title,
+                titleFontStyle: titleFontStyle,
+                titleColor: titleColor,
                 viewConfig: viewConfig
             ),
             viewConfig: viewConfig
@@ -83,16 +95,16 @@ public class BBProgressHUD {
             let view = DefaultProgressHUDView(
                 child: LottieProgressHUDView(
                     of: .airplane,
-                    viewConfig: .airplaneLottie
+                    viewConfig: .lottie
                 ),
-                viewConfig: .airplaneLottie
+                viewConfig: .lottie
             )
             return BBProgressHUD(view: view, config: config)
         }
     }
     
     public static func custom(
-        _ child: BBProgressHUDSubView,
+        _ child: BBProgressHUDStackView,
         viewConfig: BBProgressHUDViewConfiguration = BBProgressHUDViewConfiguration(),
         config: BBProgressHUDConfiguration = BBProgressHUDConfiguration()
     ) -> BBProgressHUD {

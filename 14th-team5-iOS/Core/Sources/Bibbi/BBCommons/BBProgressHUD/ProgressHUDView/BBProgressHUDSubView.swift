@@ -7,6 +7,6 @@
 
 import UIKit
 
-public protocol BBProgressHUDSubView: UIView {
-    func applyAnimation(for progressHud: BBProgressHUD?)
+public protocol BBProgressHUDStackView: UIStackView {
+    var progressHud: BBProgressHUD? { get set }
 }

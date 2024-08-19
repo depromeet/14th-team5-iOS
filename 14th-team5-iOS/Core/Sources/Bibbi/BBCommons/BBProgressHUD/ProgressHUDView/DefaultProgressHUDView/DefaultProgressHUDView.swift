@@ -11,7 +11,7 @@ public class DefaultProgressHUDView: UIView, BBProgressHUDView {
     
     // MARK: - Views
     
-    private let child: BBProgressHUDSubView
+    private let child: BBProgressHUDStackView
     
     // MARK: - Properties
     
@@ -21,7 +21,7 @@ public class DefaultProgressHUDView: UIView, BBProgressHUDView {
     // MARK: - Intializer
     
     public init(
-        child: BBProgressHUDSubView,
+        child: BBProgressHUDStackView,
         viewConfig: BBProgressHUDViewConfiguration
     ) {
         self.child = child
@@ -75,8 +75,6 @@ public class DefaultProgressHUDView: UIView, BBProgressHUDView {
         backgroundColor = viewConfig.backgroundColor
         
         addShadow()
-        
-        child.applyAnimation(for: progressHud)
     }
     
     private func addShadow() {

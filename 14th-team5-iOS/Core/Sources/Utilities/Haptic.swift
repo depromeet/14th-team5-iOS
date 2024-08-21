@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 
 public final class Haptic {
+    
     // MARK: - Notification
     public static func notification(type: UINotificationFeedbackGenerator.FeedbackType) {
         let generator = UINotificationFeedbackGenerator()
@@ -27,4 +28,5 @@ public final class Haptic {
         let generator = UISelectionFeedbackGenerator()
         generator.selectionChanged()
     }
+    
 }

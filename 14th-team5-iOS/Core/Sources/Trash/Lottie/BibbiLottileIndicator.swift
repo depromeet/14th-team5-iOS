@@ -10,6 +10,7 @@ import RxSwift
 import RxCocoa
 import Lottie
 
+@available(*, deprecated, renamed: "BBProgressHUD")
 public class BibbiLoadIndicator {
     private var disposeBag = DisposeBag()
     

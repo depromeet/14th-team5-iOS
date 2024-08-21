@@ -9,7 +9,7 @@ import UIKit
 
 import Lottie
 
-
+@available(*, deprecated, renamed: "BBLottieView")
 public final class BibbiLoadingView: UIView {
     
     public let loadingView: LottieAnimationView = LottieAnimationView()

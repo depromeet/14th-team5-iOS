@@ -11,6 +11,7 @@ import SnapKit
 import RxSwift
 import RxCocoa
 
+@available(*, deprecated, renamed: "BBLottieView")
 final public class LottieView: UIView {
   
     // MARK: SubView

@@ -35,15 +35,6 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
         UserDefaults.standard.inviteCode = nil
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        let viewConfig = BBProgressHUDViewConfiguration(minWidth: 160, minHeight: 160, lottieAnimationScale: 1.1)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            BBProgressHUD.style(.airplaneWithTitle()).show()
-        }
-    }
-    
     override func bind(reactor: MainViewReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)

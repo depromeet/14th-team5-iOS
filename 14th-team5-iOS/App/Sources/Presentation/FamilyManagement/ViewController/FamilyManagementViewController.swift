@@ -145,13 +145,6 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
             .filter { $0 }
             .withUnretained(self)
             .subscribe(onNext: { _ in
-//                let viewConfig = BBToastViewConfiguration(minWidth: 350)
-//                let toast = BBToast.button(image: DesignSystemAsset.warning.image, title: "잠시 후에 다시 시도해주세요", buttonTitle: "새로고침", viewConfig: viewConfig)
-//                toast.addTapAction { toast in
-//                    print("DidTapButton")
-//                    toast?.close()
-//                }
-//                toast.show()
                 BBToast.style(.error).show()
             })
             .disposed(by: disposeBag)
@@ -235,7 +228,7 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
         navigationBar.do {
             $0.navigationTitle = "가족"
             $0.navigationTitleFontStyle = .head2Bold
-            $0.leftBarButtonItem = .person(new: true)
+            $0.leftBarButtonItem = .arrowLeft
             $0.rightBarButtonItem = .setting
          }
         

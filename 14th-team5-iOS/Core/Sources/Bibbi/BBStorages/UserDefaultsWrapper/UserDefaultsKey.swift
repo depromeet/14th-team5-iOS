@@ -16,15 +16,22 @@ public extension UserDefaultsWrapper.Key {
     static let isFirstShowWidgetAlert: Self = "isFirstShowWidgetAlert"
     static let inviteCode: Self = "inviteCode"
     
+    
     // MARK: - Family UserDefaults
     
     static let familyId: Self = "familyId"
     static let familyCreatedAt: Self = "familyCreatedAt"
     static let familyName: Self = "familyName"
     
+    
     // MARK: - My UserDefaults
     
     static let userName: Self = "userName"
     static let memberId: Self = "memberId"
+    
+    
+    // MARK: - Comment UserDefaults
+    
+    static let commentSnapshot: Self = "commentSnapshot"
     
 }

@@ -99,28 +99,29 @@ public final class SplashViewController: BaseViewController<SplashReactor> {
         @Navigator var splashNavigator: SplashNavigatorProtocol
         
         guard let member = member else {
-            container = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
-            sceneDelegate.window?.rootViewController = container
-            sceneDelegate.window?.makeKeyAndVisible()
+            splashNavigator.toSignIn()
+//            container = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
+//            sceneDelegate.window?.rootViewController = container
+//            sceneDelegate.window?.makeKeyAndVisible()
             return
         }
         
         if let _ = member.familyId {
             if UserDefaults.standard.inviteCode != nil {
-//                splashNavigator.toJoined()
-                container = UINavigationController(rootViewController: JoinedFamilyDIContainer().makeViewController())
+                splashNavigator.toJoined()
+//                container = UINavigationController(rootViewController: JoinedFamilyDIContainer().makeViewController())
             } else {
-//                splashNavigator.toHome()
-                container = UINavigationController(rootViewController: MainViewControllerWrapper().makeViewController())
+                splashNavigator.toHome()
+//                container = UINavigationController(rootViewController: MainViewControllerWrapper().makeViewController())
             }
-            sceneDelegate.window?.rootViewController = container
-            sceneDelegate.window?.makeKeyAndVisible()
+//            sceneDelegate.window?.rootViewController = container
+//            sceneDelegate.window?.makeKeyAndVisible()
             return
         } else {
-//            splashNavigator.toOnboarding()
-            container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
-            sceneDelegate.window?.rootViewController = container
-            sceneDelegate.window?.makeKeyAndVisible()
+            splashNavigator.toOnboarding()
+//            container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
+//            sceneDelegate.window?.rootViewController = container
+//            sceneDelegate.window?.makeKeyAndVisible()
             return
         }
     }

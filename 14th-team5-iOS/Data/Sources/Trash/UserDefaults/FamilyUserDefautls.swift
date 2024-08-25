@@ -11,6 +11,7 @@ import Domain
 import RxSwift
 import RxCocoa
 
+@available(*, deprecated, renamed: "FamilyInfoUserDefaults")
 public class FamilyUserDefaults {
     /// familyIdKey - familyId 저장
     /// familyId - memberId를 배열로 저장

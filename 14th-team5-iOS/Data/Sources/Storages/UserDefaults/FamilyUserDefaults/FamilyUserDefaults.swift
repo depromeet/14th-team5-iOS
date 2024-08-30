@@ -5,11 +5,21 @@
 //  Created by 김건우 on 6/2/24.
 //
 
-import Core
 import Foundation
+
+import Core
+import Domain
 
 
 public protocol FamilyInfoUserDefaultsType: UserDefaultsType {
+    typealias Profile = FamilyMemberProfileEntity
+    
+    func loadFamilyMember(_ memberId: String) -> Profile?
+    
+    func saveFamilyMembers(_ members: [Profile])
+    func loadFamilyMembers() -> [Profile]?
+    func deleteFamilyMembers()
+    
     func saveFamilyId(_ familyId: String?)
     func loadFamilyId() -> String?
     
@@ -22,10 +32,39 @@ public protocol FamilyInfoUserDefaultsType: UserDefaultsType {
 
 
 final public class FamilyInfoUserDefaults: FamilyInfoUserDefaultsType {
- 
+  
+    
     // MARK: - Intializer
     
     public init() { }
+    
+    // MARK: - FamilyMember
+    
+    public func loadFamilyMember(_ memberId: String) -> Profile? {
+        guard let familyMembers = loadFamilyMembers() else {
+            return nil
+        }
+        
+        let member = familyMembers.filter { $0.memberId == memberId }
+        return member.first
+    }
+    
+    // MARK: - FamilyMembers
+    
+    public func saveFamilyMembers(_ members: [Profile]) {
+        userDefaults[.familyMembers] = members
+    }
+    
+    public func loadFamilyMembers() -> [Profile]? {
+        guard let value: [Profile] = userDefaults[.familyMembers] else {
+            return nil
+        }
+        return value
+    }
+    
+    public func deleteFamilyMembers() {
+        userDefaults.remove(forKey: .familyMembers)
+    }
     
     
     // MARK: - Family Id

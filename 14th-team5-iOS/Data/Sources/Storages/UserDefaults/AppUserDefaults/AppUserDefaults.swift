@@ -92,8 +92,9 @@ final public class AppUserDefaults: AppUserDefaultsType {
         return inviteCode
     }
     
-    public func deleteInvitedCode() {
-        userDefaults.remove(forKey: .inviteCode)
+
+    public func deleteInviteCode() {
+        remove(forKey: .inviteCode)
     }
     
     

@@ -63,7 +63,7 @@ final public class FamilyInfoUserDefaults: FamilyInfoUserDefaultsType {
     }
     
     public func deleteFamilyMembers() {
-        userDefaults.remove(forKey: .familyMembers)
+        remove(forKey: .familyMembers)
     }
     
     

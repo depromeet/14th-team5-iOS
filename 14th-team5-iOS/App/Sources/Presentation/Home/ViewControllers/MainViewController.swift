@@ -27,7 +27,6 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
     private let pageViewController: SegmentPageViewController = SegmentPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
     
     private let cameraButton: MainCameraButtonView = MainCameraButtonView(reactor: MainCameraReactor())
-    private let alertConfirmRelay: PublishRelay<(String, String)> = PublishRelay<(String, String)>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -152,23 +151,20 @@ extension MainViewController {
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
         
-        alertConfirmRelay.map { Reactor.Action.pickConfirmButtonTapped($0.0, $0.1) }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        contributorView.infoButton.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind(onNext: {
-                $0.0.makeDescriptionPopoverView(
-                    $0.0,
-                    sourceView: $0.0.contributorView.infoButton,
-                    text: "생존신고 횟수가 동일한 경우\n이모지, 댓글 수를 합산해서 등수를 정해요",
-                    popoverSize: CGSize(width: 260, height: 62),
-                    permittedArrowDrections: [.up]
-                )
-            })
-            .disposed(by: disposeBag)
+//        
+//        contributorView.infoButton.rx.tap
+//            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
+//            .withUnretained(self)
+//            .bind(onNext: {
+//                $0.0.makeDescriptionPopoverView(
+//                    $0.0,
+//                    sourceView: $0.0.contributorView.infoButton,
+//                    text: "생존신고 횟수가 동일한 경우\n이모지, 댓글 수를 합산해서 등수를 정해요",
+//                    popoverSize: CGSize(width: 260, height: 62),
+//                    permittedArrowDrections: [.up]
+//                )
+//            })
+//            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: MainViewReactor) {
@@ -221,39 +217,6 @@ extension MainViewController {
         reactor.pulse(\.$contributor)
             .bind(to: contributorView.contributorRelay)
             .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$openNextView).compactMap { $0 }
-            .withUnretained(self)
-            .observe(on: MainScheduler.instance)
-            .bind(onNext: { $0.0.pushViewController(type: $0.1) })
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$shouldPresentPickSuccessToastMessage)
-            .compactMap { $0 }
-            .bind(with: self) { owner, name in
-                owner.makeBibbiToastView(
-                    text: "\(name)님에게 생존신고 알림을 보냈어요",
-                    image: DesignSystemAsset.yellowPaperPlane.image
-                )
-            }
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$shouldPresentCopySuccessToastMessage)
-            .filter { $0 }
-            .bind(with: self) { owner, _ in
-                owner.makeBibbiToastView(
-                    text: "링크가 복사되었어요",
-                    image: DesignSystemAsset.link.image
-                )
-            }
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$shouldPresentFailureToastMessage)
-            .filter { $0 }
-            .bind(with: self) { owner, _ in
-                owner.makeErrorBibbiToastView()
-            }
-            .disposed(by: disposeBag)
     }
 }
 
@@ -280,44 +243,6 @@ extension MainViewController {
             descriptionLabel.text = description.text
         }
         imageView.image = description.image
-    }
-    
-    private func pushViewController(type: MainViewReactor.OpenType) {
-        switch type {
-        case .monthlyCalendarViewController:
-            navigationController?.pushViewController(MonthlyCalendarDIConatainer().makeViewController(), animated: true)
-        case .familyManagementViewController:
-            navigationController?.pushViewController(FamilyManagementDIContainer().makeViewController(), animated: true)
-        case .weeklycalendarViewController(let date):
-            navigationController?.pushViewController(WeeklyCalendarDIConatainer(date: date.toDate()).makeViewController(), animated: true)
-        case .cameraViewController(let type):
-            MPEvent.Home.cameraTapped.track(with: nil)
-                navigationController?.pushViewController(CameraViewControllerWrapper(cameraType: type).viewController, animated: true)
-        case .survivalAlert:
-            BibbiAlertBuilder(self)
-                .alertStyle(.takeSurvival)
-                .setConfirmAction { [weak self] in
-                    guard let self else { return }
-                    self.navigationController?.pushViewController(CameraViewControllerWrapper(cameraType: .survival).viewController, animated: true)
-                }
-                .present()
-        case .pickAlert(let name, let id):
-            BibbiAlertBuilder(self)
-                .alertStyle(.pickMember(name))
-                .setConfirmAction {  [weak self] in 
-                    guard let self else { return }
-                    self.alertConfirmRelay.accept((name, id)) }
-                .present()
-        case .missionUnlockedAlert:
-            BibbiAlertBuilder(self)
-                .alertStyle(.missionKey)
-                .setConfirmAction { [weak self] in
-                    guard let self else { return }
-                    self.navigationController?.pushViewController(CameraViewControllerWrapper(cameraType: .mission).viewController, animated: true)
-                }
-                .present()
-        }
-
     }
 }
 

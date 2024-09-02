@@ -8,7 +8,6 @@
 import Core
 import Foundation
 
-
 public protocol AppUserDefaultsType: UserDefaultsType {
     func saveIsFirstLaunchApp(_ value: Bool?)
     func loadIsFirstLaunchApp() -> Bool?

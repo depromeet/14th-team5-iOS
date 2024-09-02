@@ -11,12 +11,15 @@ import Foundation
 import RxSwift
 
 public final class AppRepository: AppRepositoryProtocol {
-    
+
     // MARK: - Properties
     public let disposeBag = DisposeBag()
     
     // MARK: - APIWorker
     private let appApiWorker = AppAPIWorker()
+    
+    // TODO: 수정해주세요 - 겸이
+    private let localStorage = UserDefaults.standard
     
     // MARK: - Intializer
     public init() { }
@@ -35,6 +38,11 @@ extension AppRepository {
         return appApiWorker.fetchAppVersion(appKey: appKey)
             .map { $0?.toDomain() }
             .asObservable()
+    }
+    
+    public func fetchisFirstFamilyManagement() -> RxSwift.Observable<Bool> {
+        let isFirstFamily = localStorage.bool(forKey: "familyManagement")
+        return .just(isFirstFamily)
     }
     
 }

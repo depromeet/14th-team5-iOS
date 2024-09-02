@@ -11,4 +11,5 @@ import RxSwift
 
 public protocol AppRepositoryProtocol {
     func fetchAppVersion() -> Observable<AppVersionEntity?>
+    func fetchisFirstFamilyManagement() -> Observable<Bool>
 }

@@ -33,21 +33,16 @@ extension PickAPIWorker {
     
     // MARK: - Pick Member
     
-    private func pickMember(spec: APISpec, headers: [APIHeader]?) -> Single<PickResponse?> {
+    private func pickMember(spec: APISpec, headers: [APIHeader]?) -> Single<PickEntity?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("PickMember Result: \(str)")
-                }
-            }
             .map(PickResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
             .asSingle()
     }
     
-    public func pickMember(memberId: String) -> Single<PickResponse?> {
+    public func pickMember(memberId: String) -> Single<PickEntity?> {
         let spec = PickAPIs.pick(memberId).spec
         
         return Observable<Void>.just(())
@@ -62,21 +57,16 @@ extension PickAPIWorker {
     
     // MARK: - Who Did I Pick?
     
-    private func fetchWhoDidIPickMember(spec: APISpec, headers: [APIHeader]?) -> Single<PickMemberListResponse?> {
+    private func fetchWhoDidIPickMember(spec: APISpec, headers: [APIHeader]?) -> Single<PickMemberListEntity?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Who Did I Pick: \(str)")
-                }
-            }
             .map(PickMemberListResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
             .asSingle()
     }
     
-    public func fetchWhoDidIPickMember(memberId: String) -> Single<PickMemberListResponse?> {
+    public func fetchWhoDidIPickMember(memberId: String) -> Single<PickMemberListEntity?> {
         let spec = PickAPIs.whoDidIPick(memberId).spec
         
         return Observable<Void>.just(())
@@ -91,21 +81,16 @@ extension PickAPIWorker {
     
     // MARK: - Who Picked Me?
     
-    private func fetchWhoPickedMeMember(spec: APISpec, headers: [APIHeader]?) -> Single<PickMemberListResponse?> {
+    private func fetchWhoPickedMeMember(spec: APISpec, headers: [APIHeader]?) -> Single<PickMemberListEntity?> {
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
-            .do {
-                if let str = String(data: $0.1, encoding: .utf8) {
-                    debugPrint("Who Picked Me: \(str)")
-                }
-            }
             .map(PickMemberListResponseDTO.self)
             .catchAndReturn(nil)
             .map { $0?.toDomain() }
             .asSingle()
     }
     
-    public func fetchWhoPickedMeMember(memberId: String) -> Single<PickMemberListResponse?> {
+    public func fetchWhoPickedMeMember(memberId: String) -> Single<PickMemberListEntity?> {
         let spec = PickAPIs.whoPickedMe(memberId).spec
         
         return Observable<Void>.just(())

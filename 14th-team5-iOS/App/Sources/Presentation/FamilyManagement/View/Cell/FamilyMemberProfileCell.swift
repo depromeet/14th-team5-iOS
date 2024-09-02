@@ -17,13 +17,13 @@ import Then
 final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellReactor> {    
     // MARK: - Views
     private let containerView: UIView = UIView()
-    private let firstNameLabel: BibbiLabel = BibbiLabel(.head2Bold, textAlignment: .center, textColor: .gray200)
+    private let firstNameLabel: BBLabel = BBLabel(.head2Bold, textAlignment: .center, textColor: .gray200)
     private let profileImageView: UIImageView = UIImageView()
     private let dayOfBirthBadgeView: UIImageView = UIImageView()
     
     private let labelStack: UIStackView = UIStackView()
-    private let nameLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray200)
-    private let isMeLabel: BibbiLabel = BibbiLabel(.body2Regular, textColor: .gray500)
+    private let nameLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray200)
+    private let isMeLabel: BBLabel = BBLabel(.body2Regular, textColor: .gray500)
     private let rightArrowImageView: UIImageView = UIImageView()
     
     

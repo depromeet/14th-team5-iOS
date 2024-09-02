@@ -18,7 +18,7 @@ final class ProfileFeedEmptyCollectionViewCell: BaseCollectionViewCell<ProfileFe
     
     
     private let emptyImageView: UIImageView = UIImageView()
-    private let emptyDescrptionLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray300)
+    private let emptyDescrptionLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray300)
     
     
     public override func prepareForReuse() {

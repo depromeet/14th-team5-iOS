@@ -17,6 +17,7 @@ extension UIViewController {
         case down
     }
     
+    @available(*, deprecated, message: "BBToast를 사용하세요.")
     public func makeErrorBibbiToastView(
         delay: CGFloat = 0.6,
         duration: CGFloat = 0.6,
@@ -31,6 +32,7 @@ extension UIViewController {
         )
     }
     
+    @available(*, deprecated, message: "BBToast를 사용하세요.")
     public func makeActionBibbiToastView(
         text: String = "",
         transtionText: String = "",
@@ -48,6 +50,7 @@ extension UIViewController {
         )
     }
     
+    @available(*, deprecated, message: "BBToast를 사용하세요.")
     public func makeTranstionToastView(
         text: String = "",
         transtionText: String = "",
@@ -71,6 +74,7 @@ extension UIViewController {
         }
     }
     
+    @available(*, deprecated, message: "BBToast를 사용하세요.")
     public func makeBibbiToastView(
         text: String,
         image: DesignSystemImages.Image? = nil,

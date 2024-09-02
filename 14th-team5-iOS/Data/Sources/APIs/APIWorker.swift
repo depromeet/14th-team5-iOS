@@ -21,8 +21,17 @@ public class APIWorker: NSObject {
     // MARK: - Identifier
     
     var id: String = "APIWorker"
-    
-    
+    private static let session: Session = {
+        let networkMonitor: BibbiNetworkMonitor = BibbiNetworkMonitor()
+        let networkConfiguration: URLSessionConfiguration = AF.session.configuration
+        let networkInterceptor: RequestInterceptor = NetworkInterceptor()
+        let networkSession: Session = Session(
+            configuration: networkConfiguration,
+            interceptor: networkInterceptor,
+            eventMonitors: [networkMonitor]
+        )
+        return networkSession
+    }()
     
     // MARK: - Request
     
@@ -35,8 +44,8 @@ public class APIWorker: NSObject {
         
         let headers = self.httpHeaders(headers)
         let parameters = self.parameters(parameters)
-        
-        return AF.rx.request(
+    
+        return APIWorker.session.rx.request(
             spec.method,
             spec.url,
             parameters: parameters,
@@ -46,7 +55,6 @@ public class APIWorker: NSObject {
         )
         .validate(statusCode: 200..<300)
         .responseData()
-        .debug("API Worker has received data from \"\(spec.url)\"")
     }
     
     func request(
@@ -59,7 +67,7 @@ public class APIWorker: NSObject {
         let headers = self.httpHeaders(headers)
         let parameters = parameters.asDictionary()
         
-        return AF.rx.request(
+        return APIWorker.session.rx.request(
             spec.method,
             spec.url,
             parameters: parameters,
@@ -69,7 +77,6 @@ public class APIWorker: NSObject {
         )
         .validate(statusCode: 200..<300)
         .responseData()
-        .debug("API Worker has received data from \"\(spec.url)\"")
     }
     
     private func refreshRequest(
@@ -88,13 +95,11 @@ public class APIWorker: NSObject {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.headers = headers
         request.httpBody = jsonData
-        print("interCepter call with name \(url)")
         
         return AF.rx.request(urlRequest: request)
             .retry(5)
             .validate(statusCode: 200..<300)
             .responseData()
-            .debug("API Worker has received data from \"\(spec.url)\"")
     }
     
     private func request(
@@ -113,15 +118,13 @@ public class APIWorker: NSObject {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.headers = headers
         request.httpBody = jsonData
-        print("interCepter call with name \(url)")
         
-        return AF.rx.request(
+        return APIWorker.session.rx.request(
             urlRequest: request,
             interceptor: NetworkInterceptor()
         )
         .validate(statusCode: 200..<300)
         .responseData()
-        .debug("API Worker has received data from \"\(spec.url)\"")
     }
     
     func request(
@@ -155,7 +158,7 @@ public class APIWorker: NSObject {
         request.headers = headers
         
         return Single.create { single -> Disposable in
-            AF.upload(
+            APIWorker.session.upload(
                 image,
                 to: url,
                 method: spec.method,

@@ -56,7 +56,7 @@ extension SelectableEmojiCollectionViewCell {
         imageView.image = data.emojiImage
     }
     
-    func setData(index: Int, data: MyRealEmoji?) {
+    func setData(index: Int, data: MyRealEmojiEntity?) {
         if let data {
             badgeView.isHidden = false
             badgeView.image = data.type.emojiBadgeImage

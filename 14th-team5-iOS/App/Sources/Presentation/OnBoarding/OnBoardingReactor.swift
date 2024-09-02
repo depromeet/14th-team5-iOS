@@ -17,7 +17,7 @@ import ReactorKit
 public final class OnBoardingReactor: Reactor {
     
     public var initialState: State = State()
-    private var familyUseCase: FamilyUseCaseProtocol
+    @Injected var familyUseCase: FamilyUseCaseProtocol
     
     public enum Action {
         case permissionTapped
@@ -31,8 +31,7 @@ public final class OnBoardingReactor: Reactor {
         var permissionTappedFinish: Bool = false
     }
     
-    init(familyUseCase: FamilyUseCaseProtocol) {
-        self.familyUseCase = familyUseCase
+    init() {
         self.initialState = State()
     }
 }

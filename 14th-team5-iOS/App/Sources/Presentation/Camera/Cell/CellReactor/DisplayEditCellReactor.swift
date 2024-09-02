@@ -21,11 +21,11 @@ public final class DisplayEditCellReactor: Reactor {
     public struct State {
         var title: String
         var radius: CGFloat
-        var font: UIFont.PretendardStyle
+        var font: BBFontStyle
     }
     
     
-    init(title: String, radius: CGFloat, font: UIFont.PretendardStyle) {
+    init(title: String, radius: CGFloat, font: BBFontStyle) {
         self.initialState = State(title: title, radius: radius, font: font)
     }
     

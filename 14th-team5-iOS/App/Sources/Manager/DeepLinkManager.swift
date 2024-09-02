@@ -31,8 +31,8 @@ final class DeepLinkManager {
     
     // 이번 3차 끝나고, postdetailviewcontroller에서 post 불러오는 형태로 바꿔보겠습니다.
     let disposeBag: DisposeBag = DisposeBag()
-    let postRepository: PostListRepositoryProtocol = PostListAPIs.Worker()
-    lazy var postUseCase: PostListUseCaseProtocol = PostListUseCase(postListRepository: postRepository)
+    let postRepository: PostListRepositoryProtocol = PostRepository()
+    lazy var postUseCase: FetchPostListUseCaseProtocol = FetchPostListUseCase(postListRepository: postRepository)
     
     private init() {}
     
@@ -71,11 +71,11 @@ final class DeepLinkManager {
         
     }
 
-    private func fetchTodayPost(type: PostType, completion: @escaping (PostListPage?) -> Void) {
+    private func fetchTodayPost(type: PostType, completion: @escaping (PostListPageEntity?) -> Void) {
         let dateString = Date().toFormatString(with: "yyyy-MM-dd")
         let query = PostListQuery(date: dateString, type: type)
         
-        postUseCase.excute(query: query)
+        postUseCase.execute(query: query)
             .subscribe(onSuccess: { result in
                 completion(result)
             })
@@ -86,11 +86,10 @@ final class DeepLinkManager {
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow }),
            let navigationController = keyWindow.rootViewController as? UINavigationController {
-            let viewController = PostListsDIContainer().makeViewController(
-                postLists: PostSection.Model(model: 0, items: items),
-                selectedIndex: index,
-                notificationDeepLink: data
-            )
+            let viewController = PostDetailViewControllerWrapper(
+                selectedIndex: index.row,
+                originPostLists: PostSection.Model(model: 0, items: items)
+            ).makeViewController()
             navigationController.pushViewController(viewController, animated: true)
         }
     }

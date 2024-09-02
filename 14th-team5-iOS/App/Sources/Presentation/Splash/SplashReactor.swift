@@ -11,8 +11,9 @@ import Domain
 
 import ReactorKit
 import RxSwift
+import Data
 
-public final class SplashViewReactor: Reactor {
+public final class SplashReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case viewDidLoad
@@ -32,15 +33,13 @@ public final class SplashViewReactor: Reactor {
     }
     
     // MARK: - Properties
-    private let meRepository: MeUseCaseProtocol
-    private let familyUseCase: FamilyUseCaseProtocol
+    private let meRepository = MeUseCase(meRepository: MeAPIs.Worker()) // TODO: - Injected로 수정하기
+    @Injected var familyUseCase: FamilyUseCaseProtocol
+    
     public let initialState: State = State()
     
     // MARK: - Intializer
-    init(meRepository: MeUseCaseProtocol, familyUseCase: FamilyUseCaseProtocol) {
-        self.meRepository = meRepository
-        self.familyUseCase = familyUseCase
-    }
+    init() { }
     
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {

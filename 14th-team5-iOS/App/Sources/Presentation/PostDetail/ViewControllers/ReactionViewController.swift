@@ -15,7 +15,7 @@ import RxCocoa
 import RxDataSources
 
 final class ReactionViewController: BaseViewController<ReactionViewReactor>, UICollectionViewDelegateFlowLayout {
-    let postListData: BehaviorRelay<PostListData> = BehaviorRelay<PostListData>(value: .init(postId: "", author: nil, commentCount: 0, emojiCount: 0, imageURL: "", content: nil, time: ""))
+    let postListData: BehaviorRelay<PostEntity> = BehaviorRelay<PostEntity>(value: .init(postId: "", author: nil, commentCount: 0, emojiCount: 0, imageURL: "", content: nil, time: ""))
     
     private let selectedReactionSubject: PublishSubject<Void> = PublishSubject<Void>()
     
@@ -126,7 +126,7 @@ extension ReactionViewController {
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .bind(onNext: {
-                let vc = ReactionMemberDIContainer().makeViewController(emojiData: $0.1)
+                let vc = ReactionMembersViewControllerWrapper(emojiData: $0.1).makeViewController()
                 $0.0.presentCustomSheetViewController(viewController: vc, detentHeightRatio: 0.58)
             })
             .disposed(by: disposeBag)
@@ -138,7 +138,7 @@ extension ReactionViewController {
             .withLatestFrom(postListData)
             .withUnretained(self) { ($0, $1) }
             .bind(onNext: {
-                let vc = SelectableEmojiDIContainer().makeViewController(postId: $0.1.postId, subject: self.selectedReactionSubject)
+                let vc = SelectableEmojiViewControllerWrapper(subject: self.selectedReactionSubject, postId: $0.1.postId).makeViewController()
                 $0.0.presentCustomSheetViewController(viewController: vc, detentHeightRatio: 0.25)
             })
             .disposed(by: disposeBag)
@@ -150,7 +150,7 @@ extension ReactionViewController {
             .withLatestFrom(postListData)
             .withUnretained(self) { ($0, $1) }
             .bind(onNext: {
-                let commentViewController = CommentDIContainer(
+                let commentViewController = PostCommentDIContainer(
                     postId: $1.postId
                 ).makeViewController()
                 

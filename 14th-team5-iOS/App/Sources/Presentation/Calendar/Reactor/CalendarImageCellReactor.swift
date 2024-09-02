@@ -40,8 +40,8 @@ final public class CalendarImageCellReactor: Reactor {
     // MARK: - Properties
     public var initialState: State
     
-    private let calendarUseCase: CalendarUseCaseProtocol
-    private let provider: GlobalStateProviderProtocol
+    @Injected var calendarUseCase: CalendarUseCaseProtocol
+    @Injected var provider: GlobalStateProviderProtocol
     
     public let type: CalendarType
     
@@ -49,9 +49,7 @@ final public class CalendarImageCellReactor: Reactor {
     init(
         type: CalendarType,
         monthlyEntity: CalendarEntity,
-        isSelected: Bool,
-        calendarUseCase: CalendarUseCaseProtocol,
-        provider: GlobalStateProviderProtocol
+        isSelected: Bool
     ) {
         self.initialState = State(
             date: monthlyEntity.date,
@@ -62,9 +60,6 @@ final public class CalendarImageCellReactor: Reactor {
         )
 
         self.type = type
-        
-        self.calendarUseCase = calendarUseCase
-        self.provider = provider
     }
     
     // MARK: - Transform

@@ -23,8 +23,8 @@ struct PageRelay {
 }
 
 final class SegmentPageViewController: UIPageViewController {
-    private let survivalViewController: MainPostViewController = MainPostViewDIContainer().makeViewController(type: .survival)
-    private let missionViewController: MainPostViewController = MainPostViewDIContainer().makeViewController(type: .mission)
+    private let survivalViewController: MainPostViewController = MainPostViewControllerWrapper(type: .survival).makeViewController()
+    private let missionViewController: MainPostViewController =  MainPostViewControllerWrapper(type: .mission).makeViewController()
     private let disposeBag = DisposeBag()
     
     private lazy var pages: [UIViewController] = [survivalViewController, missionViewController]

@@ -16,6 +16,13 @@ import RxDataSources
 import SnapKit
 import Then
 
+import MacrosInterface
+
+@Codable
+struct MemberDTO {
+    var name: String
+}
+
 fileprivate typealias _Str = CalendarStrings
 public final class MonthlyCalendarViewController: BaseViewController<MonthlyCalendarViewReactor> {
     // MARK: - Views

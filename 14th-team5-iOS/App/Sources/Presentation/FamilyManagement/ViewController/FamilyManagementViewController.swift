@@ -17,15 +17,15 @@ import SnapKit
 import Then
 
 fileprivate typealias _Str = FamilyManagementStrings
-public final class FamilyManagementViewController: BaseViewController<FamilyManagementViewReactor> {
+public final class FamilyManagementViewController: BBNavigationViewController<FamilyManagementViewReactor> {
     // MARK: - Views
     
     private let shareContainerview: InvitationUrlContainerView = InvitationUrlContainerDIContainer().makeView()
     private let dividerView: UIView = UIView()
     
     private let headerStack: UIStackView = UIStackView()
-    private let tableTitleLabel: BibbiLabel = BibbiLabel(.head1, textColor: .gray200)
-    private let tableCountLabel: BibbiLabel = BibbiLabel(.body1Regular, textColor: .gray400)
+    private let tableTitleLabel: BBLabel = BBLabel(.head1, textColor: .gray200)
+    private let tableCountLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray400)
     
     private let familyTableView: UITableView = UITableView()
     private let refreshControl: UIRefreshControl = UIRefreshControl()
@@ -60,7 +60,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        navigationBarView.rx.rightButtonTap
+        navigationBar.rx.didTapRightBarButton
             .map { _ in Reactor.Action.didTapPrivacyBarButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -125,26 +125,28 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
             .filter { !$0.isEmpty }
             .withUnretained(self)
             .subscribe {
-                let profileVC = ProfileDIContainer(memberId: $0.1).makeViewController()
-                $0.0.navigationController?.pushViewController(profileVC, animated: true)
+                let profileViewController = ProfileViewControllerWrapper(memberId: $0.1).viewController
+                $0.0.navigationController?.pushViewController(profileViewController, animated: true)
             }
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentCopySuccessToastMessageView)
             .filter { $0 }
             .withUnretained(self)
-            .subscribe {
-                $0.0.makeBibbiToastView(
-                    text: _Str.sucessCopyInvitationUrlText,
-                    image: DesignSystemAsset.link.image
-                )
-            }
+            .subscribe(onNext: { _ in
+                BBToast.default(
+                    image: DesignSystemAsset.link.image,
+                    title: "링크가 복사되었어요"
+                ).show()
+            })
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentUrlFetchFailureToastMessageView)
             .filter { $0 }
             .withUnretained(self)
-            .subscribe { $0.0.makeErrorBibbiToastView() }
+            .subscribe(onNext: { _ in
+                BBToast.style(.error).show()
+            })
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentFamilyFetchFailureToastMessageView)
@@ -187,7 +189,7 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         shareContainerview.snp.makeConstraints {
-            $0.top.equalTo(navigationBarView.snp.bottom).offset(24)
+            $0.top.equalTo(navigationBar.snp.bottom).offset(24)
             $0.horizontalEdges.equalToSuperview().inset(20)
             $0.height.equalTo(90)
         }
@@ -223,8 +225,11 @@ public final class FamilyManagementViewController: BaseViewController<FamilyMana
     
     public override func setupAttributes() {
         super.setupAttributes()
-        navigationBarView.do {
-            $0.setNavigationView(leftItem: .arrowLeft, centerItem: .label(_Str.mainTitle), rightItem: .setting)
+        navigationBar.do {
+            $0.navigationTitle = "가족"
+            $0.navigationTitleFontStyle = .head2Bold
+            $0.leftBarButtonItem = .arrowLeft
+            $0.rightBarButtonItem = .setting
          }
         
         dividerView.do {

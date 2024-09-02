@@ -36,7 +36,7 @@ final public class FamilyMemberProfileCellReactor: Reactor {
     public var initialState: State
     
     // MARK: - Intializer
-    public init(_ memberResponse: ProfileData, isMe: Bool, cellType: CellType) {
+    public init(_ memberResponse: FamilyMemberProfileEntity, isMe: Bool, cellType: CellType) {
         self.initialState = State(
             cellType: cellType,
             memberId: memberResponse.memberId,

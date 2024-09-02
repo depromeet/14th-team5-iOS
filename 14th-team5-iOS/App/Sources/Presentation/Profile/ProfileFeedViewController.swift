@@ -113,8 +113,11 @@ final class ProfileFeedViewController: BaseViewController<ProfileFeedViewReactor
             .debounce(.milliseconds(300), scheduler: MainScheduler.asyncInstance)
             .bind {
                 guard let indexPath = $0.1.1 else { return }
-                let postListViewController = PostListsDIContainer().makeViewController(postLists: $0.1.0, selectedIndex: indexPath)
-                $0.0.navigationController?.pushViewController(postListViewController, animated: true)
+                let vc = PostDetailViewControllerWrapper(
+                    selectedIndex: indexPath.row,
+                    originPostLists: $0.1.0
+                ).makeViewController()
+                $0.0.navigationController?.pushViewController(vc, animated: true)
             }.disposed(by: disposeBag)
         
         reactor.state

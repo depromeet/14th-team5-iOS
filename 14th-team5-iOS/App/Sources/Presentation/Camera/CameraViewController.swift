@@ -37,7 +37,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     private let cameraIndicatorView: BibbiLoadingView = BibbiLoadingView()
     private let filterView: UIImageView = UIImageView()
     private let zoomView: UIButton = UIButton()
-    private let realEmojiDescriptionLabel = BibbiLabel(.body1Regular, textColor: .mainYellow)
+    private let realEmojiDescriptionLabel = BBLabel(.body1Regular, textColor: .mainYellow)
     private let realEmojiFaceView = UIView()
     private let realEmojiFaceImageView = UIImageView()
     private let realEmojiHorizontalStakView = UIStackView()
@@ -238,7 +238,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .filter { $0.1.asPostType == .survival }
             .withUnretained(self)
             .bind {
-                let cameraDisplayViewController = CameraDisplayDIContainer(displayData: $0.1.0).makeViewController()
+                let cameraDisplayViewController = CameraDisplayViewControllerWrapper(displayData: $0.1.0).viewController
                 $0.0.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
             }.disposed(by: disposeBag)
         
@@ -251,7 +251,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             )
             .withUnretained(self)
             .bind {
-                let cameraDisplayViewController = CameraDisplayDIContainer(displayData: $0.1.0, missionTitle: $0.1.1, cameraDisplayType: $0.1.2).makeViewController()
+                let cameraDisplayViewController = CameraDisplayViewControllerWrapper(displayData: $0.1.0, missionTitle: $0.1.1, cameraDisplayType: $0.1.2).viewController
                 $0.0.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
             }.disposed(by: disposeBag)
         

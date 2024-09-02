@@ -12,75 +12,117 @@ import Foundation
 import RxSwift
 
 public final class FamilyRepository: FamilyRepositoryProtocol {
+    
+    // MARK: - Properties
+    
     public let disposeBag: DisposeBag = DisposeBag()
     
     private let familyApiWorker: FamilyAPIWorker = FamilyAPIWorker()
     
-    private var familyId: String = App.Repository.member.familyId.value ?? ""
-    
-    
-    // NOTE: - 예시 코드
-    private var inMemory = InMemoryWrapper.standard
-    private var userDefaults = UserDefaultsWrapper.standard
-    private var keychain = KeychainWrapper.standard
-    
-    
-    
+    // MARK: - Intializer
     
     public init() { }
 }
 
 extension FamilyRepository {
-    public func joinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyResponse?> {
+    
+    // MARK: - Join Family
+    
+    public func joinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyEntity?> {
         let body = JoinFamilyRequestDTO(inviteCode: body.inviteCode)
+        
         return familyApiWorker.joinFamily(body: body)
+            .map { $0?.toDomain() }
             .do(onSuccess: { [weak self] response in
                 guard let self else { return }
-                App.Repository.member.familyId.accept(response?.familyId)
+                App.Repository.member.familyId.accept(response?.familyId) // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
                 App.Repository.member.familyCreatedAt.accept(response?.createdAt)
-                fetchPaginationFamilyMembers(query: .init())
+                fetchPaginationFamilyMembers(query: .init()) // TODO: - 로직 분리하기
             })
             .asObservable()
     }
     
-    public func resignFamily() -> Observable<AccountFamilyResignResponse?> {
+    // MARK: - Resign Family
+    
+    public func resignFamily() -> Observable<DefaultEntity?> {
         return familyApiWorker.resignFamily()
+            .map { $0?.toDomain() }
             .asObservable()
     }
     
-    public func createFamily() -> Observable<CreateFamilyResponse?> {
+    // MARK: - Create Family
+    
+    public func createFamily() -> Observable<CreateFamilyEntity?> {
         return familyApiWorker.createFamily()
+            .map { $0?.toDomain() }
             .do(onSuccess: {
-                App.Repository.member.familyId.accept($0?.familyId)
-                App.Repository.member.familyCreatedAt.accept($0?.createdAt)
+                App.Repository.member.familyId.accept($0?.familyId) // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
+                App.Repository.member.familyCreatedAt.accept($0?.createdAt) // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
             })
             .asObservable()
     }
     
-    public func fetchFamilyCreatedAt() -> Observable<FamilyCreatedAtResponse?> {
+    // MARK: - Fetch Family ID
+    
+    public func fetchFamilyId() -> String? {
+        // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
+        App.Repository.member.familyId.value
+    }
+    
+    
+    // MARK: - Fetch Family CreatedAt
+    
+    public func fetchFamilyCreatedAt() -> Observable<FamilyCreatedAtEntity?> {
+        // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
+        var familyId: String = App.Repository.member.familyId.value ?? ""
+        
         return familyApiWorker.fetchFamilyCreatedAt(familyId: familyId)
-            .do(onSuccess: { App.Repository.member.familyCreatedAt.accept($0?.createdAt) })
+            .map { $0?.toDomain() }
+            .do(onSuccess: {
+                App.Repository.member.familyCreatedAt.accept($0?.createdAt) // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
+            })
             .asObservable()
     }
     
-    public func fetchFamilyCreatedAt(_ familyId: String) -> Observable<FamilyCreatedAtResponse?> {
-        return familyApiWorker.fetchFamilyCreatedAt(familyId: familyId)
-            .do(onSuccess: { App.Repository.member.familyCreatedAt.accept($0?.createdAt) })
+    // MARK: - Fetch Invitation Url
+    
+    public func fetchInvitationLink() -> Observable<FamilyInvitationLinkEntity?> {
+        // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
+        var familyId: String = App.Repository.member.familyId.value ?? ""
+        
+        return familyApiWorker.fetchInvitationLink(familyId: familyId)
+            .map { $0?.toDomain() }
             .asObservable()
     }
     
-    public func fetchInvitationUrl() -> Observable<FamilyInvitationLinkResponse?> {
-        return familyApiWorker.fetchInvitationUrl(familyId: familyId)
-            .asObservable()
-    }
+    // MARK: - Fetch Family Members
     
-    public func fetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfile?> {
+    public func fetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfileEntity?> {
+        // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
+        var familyId: String = App.Repository.member.familyId.value ?? ""
+        
         return familyApiWorker.fetchPaginationFamilyMember(familyId: familyId, query: query)
-            .do(onSuccess: { FamilyUserDefaults.saveFamilyMembers($0?.results ?? []) })
+            .map { $0?.toDomain() }
+            .do(onSuccess: {
+                FamilyUserDefaults.saveFamilyMembers($0?.results ?? []) // TODO: - UserDefaults로 바꾸기
+            })
             .asObservable()
     }
     
-    public func fetchPaginationFamilyMembers(memberIds: [String]) -> [ProfileData] {
+    public func fetchPaginationFamilyMembers(memberIds: [String]) -> [FamilyMemberProfileEntity] {
+        // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
         return FamilyUserDefaults.loadMembersFromUserDefaults(memberIds: memberIds)
+    }
+    
+    // MARK: - Update Family Name
+    
+    public func updateFamilyName(body: UpdateFamilyNameRequest) -> Observable<FamilyNameEntity?> {
+        // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
+        var familyId: String = App.Repository.member.familyId.value ?? ""
+        let body = UpdateFamilyNameRequestDTO(familyName: body.familyName)
+        
+        return familyApiWorker.updateFamilyName(familyId: familyId, body: body)
+            .map { $0?.toDomain() }
+            .asObservable()
     }
 }

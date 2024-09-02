@@ -21,8 +21,8 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<PostDetailViewR
     private let profileStackView = UIStackView()
     private let containerView = UIView()
     private let profileImageView = UIImageView()
-    private let firstNameLabel = BibbiLabel(.caption, textColor: .bibbiWhite)
-    private let userNameLabel = BibbiLabel(.caption, textColor: .gray200)
+    private let firstNameLabel = BBLabel(.caption, textColor: .bibbiWhite)
+    private let userNameLabel = BBLabel(.caption, textColor: .gray200)
     private let postImageView = UIImageView(image: DesignSystemAsset.emptyCaseGraphicEmoji.image)
     private let missionTextView = MissionTextView()
     private let contentCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
@@ -226,7 +226,7 @@ extension PostDetailCollectionViewCell {
 }
 
 extension PostDetailCollectionViewCell {
-    private func setupProfileNameAndImage(post: PostListData) {
+    private func setupProfileNameAndImage(post: PostEntity) {
         postImageView.kf.setImage(
             with: URL(string: post.imageURL),
             options: [
@@ -283,7 +283,7 @@ extension PostDetailCollectionViewCell: UICollectionViewDelegateFlowLayout {
 
 
 extension PostDetailCollectionViewCell {
-    func setCell(data: PostListData) {
+    func setCell(data: PostEntity) {
         postImageView.kf.setImage(with: URL(string: data.imageURL))
     }
 }

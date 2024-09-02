@@ -19,7 +19,7 @@ final class PostViewController: BaseViewController<PostReactor> {
     private var navigationView: PostNavigationView = PostNavigationView()
     private let collectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let collectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
-    private let reactionViewController: ReactionViewController = ReactionDIContainer(type: .post).makeViewController(post: .init(postId: "", author: nil, commentCount: 0, emojiCount: 0, imageURL: "", content: nil, time: ""))
+    private let reactionViewController: ReactionViewController = ReactionViewControllerWrapper(type: .post, postListData: .empty).makeViewController()
     
     convenience init(reactor: Reactor? = nil) {
         self.init()
@@ -45,7 +45,7 @@ final class PostViewController: BaseViewController<PostReactor> {
             .withUnretained(self)
             .observe(on: MainScheduler.asyncInstance)
             .bind { owner, entity in
-                let cameraViewController = CameraDIContainer(cameraType: .realEmoji, realEmojiType: entity).makeViewController()
+                let cameraViewController = CameraViewControllerWrapper(cameraType: .realEmoji, realEmojiType: entity).viewController
                 owner.navigationController?.pushViewController(cameraViewController, animated: true)
             }.disposed(by: disposeBag)
         
@@ -54,7 +54,6 @@ final class PostViewController: BaseViewController<PostReactor> {
             collectionView.rx.didEndDisplayingCell.map { $0.at.item }.distinctUntilChanged(),
             reactor.state.map { $0.selectedIndex }.distinctUntilChanged()
         )
-        .debug("포스트 뷰 ZIP 옵저버블 :")
         .filter { $0.0 == $0.1 }
         .withUnretained(self)
         .subscribe { owner, indexPath in
@@ -114,35 +113,6 @@ final class PostViewController: BaseViewController<PostReactor> {
             .distinctUntilChanged()
             .map { Reactor.Action.setPost($0) }
             .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        // 댓글 노티피케이션 딥링크 코드
-        reactor.state.compactMap { $0.notificationDeepLink }
-            .distinctUntilChanged(at: \.postId)
-            .filter { $0.openComment }
-            .bind(with: self) { owner, deepLink in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    let postList = reactor.initialState.originPostLists.items
-                    if let postList = postList.first(where: { item in
-                        switch item {
-                        case let .main(post):
-                            post.postId == deepLink.postId
-                        }
-                    }) {
-                        switch postList {
-                        case let .main(post):
-                            let postCommentViewController = CommentDIContainer(
-                                postId: post.postId
-                            ).makeViewController()
-                            
-                            owner.presentPostCommentSheet(
-                                postCommentViewController,
-                                from: .post
-                            )
-                        }
-                    }
-                }
-            }
             .disposed(by: disposeBag)
     }
     
@@ -217,7 +187,7 @@ final class PostViewController: BaseViewController<PostReactor> {
 }
 
 extension PostViewController {
-    private func setBackgroundView(data: PostListData) {
+    private func setBackgroundView(data: PostEntity) {
         guard let url = URL(string: data.imageURL) else {
             return
         }
@@ -243,7 +213,7 @@ extension PostViewController {
                     guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostDetailCollectionViewCell.id, for: indexPath) as? PostDetailCollectionViewCell else {
                         return UICollectionViewCell()
                     }
-                    cell.reactor = PostDetailCellDIContainer().makeReactor(post: data)
+                    cell.reactor = PostDetailCellWrapper(post: data).makeReactor()
                     cell.setCell(data: data)
                     return cell
                 }
@@ -253,9 +223,9 @@ extension PostViewController {
 
 extension PostViewController {
     private func pushCameraViewController(cameraType type: UploadLocation) {
-        let cameraViewController = CameraDIContainer(
+        let cameraViewController =  CameraViewControllerWrapper(
             cameraType: type
-        ).makeViewController()
+        ).viewController
         
         navigationController?.pushViewController(
             cameraViewController,
@@ -264,9 +234,9 @@ extension PostViewController {
     }
     
     private func pushProfileViewController(memberId: String) {
-        let profileController = ProfileDIContainer(
+        let profileController = ProfileViewControllerWrapper(
             memberId: memberId
-        ).makeViewController()
+        ).viewController
         
         navigationController?.pushViewController(
             profileController,

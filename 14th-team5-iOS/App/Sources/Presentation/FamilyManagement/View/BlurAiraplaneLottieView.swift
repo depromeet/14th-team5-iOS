@@ -18,7 +18,7 @@ final public class BlurAiraplaneLottieView: UIView {
 
     private let lottieStack: UIStackView = UIStackView()
     private let lottieView: LottieView = LottieView(with: .loading)
-    private let loadingLabel: BibbiLabel = BibbiLabel(.body1Regular, textAlignment: .center, textColor: .gray500)
+    private let loadingLabel: BBLabel = BBLabel(.body1Regular, textAlignment: .center, textColor: .gray500)
     
     // MARK: - Properties
     public var containerSize: CGFloat = 125 {

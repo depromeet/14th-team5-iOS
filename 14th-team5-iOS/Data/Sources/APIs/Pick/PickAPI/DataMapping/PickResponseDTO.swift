@@ -16,7 +16,7 @@ public struct PickResponseDTO: Decodable {
 }
 
 extension PickResponseDTO {
-    func toDomain() -> PickResponse {
+    func toDomain() -> PickEntity {
         return .init(success: success)
     }
 }

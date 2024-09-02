@@ -12,7 +12,7 @@ import DesignSystem
 final class OnBoardingCollectionViewCell: BaseCollectionViewCell<OnBoardingReactor> {
     static let id = "onBoardingCollectionViewCell"
     
-    private let titleLabel = BibbiLabel(.head1, textColor: .bibbiBlack)
+    private let titleLabel = BBLabel(.head1, textColor: .bibbiBlack)
     private let imageView = UIImageView()
     
     private let screenSize = UIApplication.shared.connectedScenes

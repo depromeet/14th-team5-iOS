@@ -87,14 +87,14 @@ extension MainFamilyViewController {
         
         familyCollectionView.rx.modelSelected(FamilySection.Item.self)
             .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
-            .compactMap { item -> ProfileData? in
+            .compactMap { item -> FamilyMemberProfileEntity? in
                 switch item {
                 case let .main(reactor): return reactor.currentState.profileData
                 }
             }
             .withUnretained(self)
             .bind { owner, profileData in
-                let profileViewController = ProfileDIContainer(memberId: profileData.memberId).makeViewController()
+                let profileViewController = ProfileViewControllerWrapper(memberId: profileData.memberId).viewController
                 self.navigationController?.pushViewController(profileViewController, animated: true)
             }
             .disposed(by: disposeBag)

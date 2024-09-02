@@ -36,24 +36,21 @@ public final class MonthlyCalendarViewReactor: Reactor {
         @Pulse var displayCalendar: [MonthlyCalendarSectionModel]
     }
     
+    
     // MARK: - Properties
     public var initialState: State
     
-    public let provider: GlobalStateProviderProtocol
-    private let calendarUseCase: CalendarUseCaseProtocol
+    @Injected var provider: GlobalStateProviderProtocol
+    @Injected var calendarUseCase: CalendarUseCaseProtocol
+    
+    @Navigator var navigator: MonthlyCalendarNavigatorProtocol
     
     // MARK: - Intializer
-    init(
-        calendarUseCase: CalendarUseCaseProtocol,
-        provider: GlobalStateProviderProtocol
-    ) {
+    init() {
         self.initialState = State(
             shouldPopViewController: false,
             displayCalendar: [.init(model: (), items: [])]
         )
-        
-        self.calendarUseCase = calendarUseCase
-        self.provider = provider
     }
     
     // MARK: - Transform

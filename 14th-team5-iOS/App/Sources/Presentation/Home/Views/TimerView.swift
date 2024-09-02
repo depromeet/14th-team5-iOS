@@ -15,7 +15,7 @@ import RxSwift
 
 final class TimerView: BaseView<TimerReactor> {
     private let dividerView: UIView = UIView()
-    private let timerLabel: BibbiLabel = BibbiLabel(.head1, textAlignment: .center)
+    private let timerLabel: BBLabel = BBLabel(.head1, textAlignment: .center)
   
     override func bind(reactor: TimerReactor) {
         bindInput(reactor: reactor)

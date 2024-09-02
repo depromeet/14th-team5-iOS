@@ -15,8 +15,10 @@ import Core
 public final class CameraDisplayViewReactor: Reactor {
     
     public var initialState: State
-    private let provider: GlobalStateProviderProtocol
-    private var cameraDisplayUseCase: CameraDisplayViewUseCaseProtocol
+    @Injected private var provider: GlobalStateProviderProtocol
+    @Injected private var createPresignedCameraUseCase: CreateCameraUseCaseProtocol
+    @Injected private var uploadImageUseCase: FetchCameraUploadImageUseCaseProtocol
+    @Injected private var fetchCameraImageUseCase: CreateCameraImageUseCaseProtocol
     
     public enum Action {
         case viewDidLoad
@@ -33,9 +35,9 @@ public final class CameraDisplayViewReactor: Reactor {
         case setRenderImage(Data)
         case saveDeviceimage(Data)
         case setDescription(String)
-        case setDisplayEntity(CameraDisplayImageResponse?)
+        case setDisplayEntity(CameraPreSignedEntity?)
         case setDisplayOriginalEntity(Bool)
-        case setPostEntity(CameraDisplayPostResponse?)
+        case setPostEntity(CameraPostEntity?)
     }
     
     public struct State {
@@ -46,22 +48,18 @@ public final class CameraDisplayViewReactor: Reactor {
         @Pulse var displayData: Data
         @Pulse var missionTitle: String
         @Pulse var displaySection: [DisplayEditSectionModel]
-        @Pulse var displayEntity: CameraDisplayImageResponse?
+        @Pulse var displayEntity: CameraPreSignedEntity?
         @Pulse var displayOringalEntity: Bool
-        @Pulse var displayPostEntity: CameraDisplayPostResponse?
+        @Pulse var displayPostEntity: CameraPostEntity?
     }
     
     
     
     init(
-        provider: GlobalStateProviderProtocol,
-        cameraDisplayUseCase: CameraDisplayViewUseCaseProtocol,
         displayData: Data,
         missionTitle: String,
         cameraType: PostType = .survival
     ) {
-        self.provider = provider
-        self.cameraDisplayUseCase = cameraDisplayUseCase
         self.initialState = State(
             isLoading: true,
             displayDescrption: "",
@@ -86,7 +84,8 @@ public final class CameraDisplayViewReactor: Reactor {
                 .just(.setLoading(false)),
                 .just(.setError(false)),
                 .just(.setRenderImage(currentState.displayData)),
-                cameraDisplayUseCase.executeDisplayImageURL(parameters: parameters)
+                createPresignedCameraUseCase.execute(parameter: parameters)
+                    .asObservable()
                     .withUnretained(self)
                     .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                     .asObservable()
@@ -97,7 +96,7 @@ public final class CameraDisplayViewReactor: Reactor {
                                 .just(.setError(true))
                             )
                         }
-                        return owner.cameraDisplayUseCase.executeUploadToS3(toURL: originalURL, imageData: owner.currentState.displayData)
+                        return owner.uploadImageUseCase.execute(to: originalURL, from: owner.currentState.displayData)
                             .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                             .asObservable()
                             .flatMap { isSuccess -> Observable<CameraDisplayViewReactor.Mutation> in
@@ -119,15 +118,16 @@ public final class CameraDisplayViewReactor: Reactor {
             )
         case let .fetchDisplayImage(description):
             return .concat(
-                cameraDisplayUseCase.executeDescrptionItems(with: description)
-                    .asObservable()
+                Observable.of(Array(description))
+                    .map { String($0) }
                     .flatMap { items -> Observable<CameraDisplayViewReactor.Mutation> in
                         var sectionItem: [DisplayEditItemModel] = []
+                        
                         items.forEach {
-                            sectionItem.append(.fetchDisplayItem(DisplayEditCellReactor(title: $0, radius: 8, font: .head1)))
+                            sectionItem.append(.fetchDisplayItem(DisplayEditCellReactor(title: String($0), radius: 8, font: .head1)))
                         }
                         
-                        return Observable.concat(
+                        return .concat(
                             .just(.setDisplayEditSection(sectionItem)),
                             .just(.setDescription(description))
                         )
@@ -154,7 +154,7 @@ public final class CameraDisplayViewReactor: Reactor {
                 uploadTime: DateFormatter.yyyyMMddTHHmmssXXX.string(from: Date())
             )
             
-            return cameraDisplayUseCase.executeCombineWithTextImage(parameters: parameters, query: cameraQuery)
+            return fetchCameraImageUseCase.execute(parameter: parameters, query: cameraQuery)
                 .asObservable()
                 .catchAndReturn(nil)
                 .flatMap { entity -> Observable<CameraDisplayViewReactor.Mutation> in

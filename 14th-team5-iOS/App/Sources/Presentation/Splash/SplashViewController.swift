@@ -14,7 +14,7 @@ import RxCocoa
 import SnapKit
 import Then
 
-public final class SplashViewController: BaseViewController<SplashViewReactor> {
+public final class SplashViewController: BaseViewController<SplashReactor> {
     // MARK: - Views
     private let bibbiImageView = UIImageView()
     
@@ -56,7 +56,7 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
         }
     }
     
-    override public func bind(reactor: SplashViewReactor) {
+    override public func bind(reactor: SplashReactor) {
         Observable.just(())
             .map { Reactor.Action.viewDidLoad }
             .bind(to: reactor.action)
@@ -95,26 +95,33 @@ public final class SplashViewController: BaseViewController<SplashViewReactor> {
         guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
         var container: UINavigationController
         
+        // TODO: - Reactor로 집어넣기
+        @Navigator var splashNavigator: SplashNavigatorProtocol
+        
         guard let member = member else {
-            container = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
-            sceneDelegate.window?.rootViewController = container
-            sceneDelegate.window?.makeKeyAndVisible()
+            splashNavigator.toSignIn()
+//            container = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
+//            sceneDelegate.window?.rootViewController = container
+//            sceneDelegate.window?.makeKeyAndVisible()
             return
         }
         
         if let _ = member.familyId {
             if UserDefaults.standard.inviteCode != nil {
-                container = UINavigationController(rootViewController: JoinedFamilyDIContainer().makeViewController())
+                splashNavigator.toJoined()
+//                container = UINavigationController(rootViewController: JoinedFamilyDIContainer().makeViewController())
             } else {
-                container = UINavigationController(rootViewController: MainViewDIContainer().makeViewController())
+                splashNavigator.toHome()
+//                container = UINavigationController(rootViewController: MainViewControllerWrapper().makeViewController())
             }
-            sceneDelegate.window?.rootViewController = container
-            sceneDelegate.window?.makeKeyAndVisible()
+//            sceneDelegate.window?.rootViewController = container
+//            sceneDelegate.window?.makeKeyAndVisible()
             return
         } else {
-            container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
-            sceneDelegate.window?.rootViewController = container
-            sceneDelegate.window?.makeKeyAndVisible()
+            splashNavigator.toOnboarding()
+//            container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
+//            sceneDelegate.window?.rootViewController = container
+//            sceneDelegate.window?.makeKeyAndVisible()
             return
         }
     }

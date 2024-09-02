@@ -18,7 +18,9 @@ public enum ExtensionsLayer: String, ModuleType {
         switch self {
         case .Widget:
             return [
-                .with(.Core)
+                .with(.Core),
+                .with(.Domain),
+                .with(.Data)
             ]
         }
     }
@@ -46,29 +48,33 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
                 .with(.Core),
                 .with(.Data),
                 .external(name: "ReactorKit"),
-                .external(name: "Lottie")
+                .external(name: "Lottie"),
+                .external(name: "Macros")
             ]
         case .Data:
             return [
                 .with(.Domain),
                 .external(name: "Alamofire"),
                 .external(name: "KakaoSDK"),
-                .external(name: "RxKakaoSDK")
+                .external(name: "RxKakaoSDK"),
+                .external(name: "Macros")
             ]
         case .Domain:
             return [
                 .external(name: "RxSwift"),
-                .with(.Core)
+                .with(.Core),
+                .external(name: "Macros")
             ]
         case .Core:
             return [
                 .with(.DesignSystem),
-                .external(name: "SnapKit"),
-                .external(name: "Then"),
-                .external(name: "Kingfisher"),
-                .external(name: "FSCalendar"),
-                .external(name: "RxDataSources"),
-                .external(name: "Lottie")
+                .external(name: "SnapKit", condition: .when(.all)),
+                .external(name: "Then", condition: .when(.all)),
+                .external(name: "Kingfisher", condition: .when(.all)),
+                .external(name: "FSCalendar", condition: .when(.all)),
+                .external(name: "RxDataSources", condition: .when(.all)),
+                .external(name: "Lottie", condition: .when(.all)),
+                .external(name: "Macros")
             ]
         case .DesignSystem:
             return [] 

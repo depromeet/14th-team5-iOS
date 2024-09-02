@@ -15,19 +15,19 @@ import ReactorKit
 
 final class ProfileFeedViewReactor: Reactor {
     var initialState: State
-    private let feedUseCase: ProfileFeedUseCaseProtocol
+    @Injected private var feedUseCase: FetchMembersPostListUseCaseProtocol
     
     enum Action {
         case reloadFeedItems
         case fetchMoreFeedItems
-        case didTapProfileFeedItem(IndexPath, [PostListData])
+        case didTapProfileFeedItem(IndexPath, [PostEntity])
     }
     
     enum Mutation {
         case setFeedSectionItems([ProfileFeedSectionItem])
         case setFeedItemPage(Int)
-        case setFeedPaginationItems([PostListData])
-        case setFeedItems(PostListPage)
+        case setFeedPaginationItems([PostEntity])
+        case setFeedItems(PostListPageEntity)
         case setFeedDetailItem(PostSection.Model, IndexPath)
     }
     
@@ -35,15 +35,17 @@ final class ProfileFeedViewReactor: Reactor {
         var memberId: String
         @Pulse var selectedIndex: IndexPath?
         @Pulse var feedDetailItem: PostSection.Model
-        @Pulse var feedPaginationItems: [PostListData]
+        @Pulse var feedPaginationItems: [PostEntity]
         @Pulse var feedPage: Int
         @Pulse var type: PostType
-        @Pulse var feedItems: PostListPage?
+        @Pulse var feedItems: PostListPageEntity?
         @Pulse var feedSection: [ProfileFeedSectionModel]
     }
     
-    init(feedUseCase: ProfileFeedUseCaseProtocol, type: PostType, memberId: String) {
-        self.feedUseCase = feedUseCase
+    init(
+        type: PostType,
+        memberId: String
+    ) {
         self.initialState = State(
             memberId: memberId,
             selectedIndex: nil,
@@ -110,7 +112,7 @@ final class ProfileFeedViewReactor: Reactor {
                     var sectionItem: [ProfileFeedSectionItem] = []
                     guard let entity = entity else { return .empty() }
                     
-                    var feedItems: [PostListData] = owner.currentState.feedPaginationItems
+                    var feedItems: [PostEntity] = owner.currentState.feedPaginationItems
                     feedItems.append(contentsOf: entity.postLists)
                     
                     feedItems.forEach {
@@ -139,11 +141,11 @@ final class ProfileFeedViewReactor: Reactor {
             
             feedItems.forEach {
                 feedDetailSection.items.append(
-                    .main(PostListData(
+                    .main(PostEntity(
                         postId: $0.postId,
                         missionId: $0.missionId,
                         missionType: $0.missionType,
-                        author: ProfileData(
+                        author: FamilyMemberProfileEntity(
                             memberId: currentState.memberId,
                             profileImageURL: $0.author?.profileImageURL,
                             name: $0.author?.name ?? ""),

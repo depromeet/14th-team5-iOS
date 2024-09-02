@@ -34,7 +34,7 @@ final class MainFamilyCellReactor: Reactor {
     
     // MARK: - State
     struct State {
-        let profileData: ProfileData
+        let profileData: FamilyMemberProfileEntity
         var profile: (imageUrl: String?, name: String) = (nil, .none)
         var rank: Int? = nil
         var isShowBirthdayBadge: Bool = false
@@ -46,7 +46,7 @@ final class MainFamilyCellReactor: Reactor {
     let provider: GlobalStateProviderProtocol
     
     // MARK: - Intializer
-    init(_ profileData: ProfileData, service provider: GlobalStateProviderProtocol) {
+    init(_ profileData: FamilyMemberProfileEntity, service provider: GlobalStateProviderProtocol) {
         self.initialState = State(profileData: profileData)
         self.provider = provider
     }

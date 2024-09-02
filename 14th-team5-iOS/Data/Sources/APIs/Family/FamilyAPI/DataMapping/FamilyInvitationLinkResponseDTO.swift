@@ -29,7 +29,7 @@ extension FamilyInvitationLinkResponseDTO {
 }
 
 extension FamilyInvitationLinkResponseDTO {
-    func toDomain() -> FamilyInvitationLinkResponse {
+    func toDomain() -> FamilyInvitationLinkEntity {
         return .init(url: url)
     }
 }

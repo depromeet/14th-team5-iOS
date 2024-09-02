@@ -9,21 +9,21 @@ import Domain
 
 import RxDataSources
 
-typealias PostListSectionModel = SectionModel<String, PostListData>
-
-struct SectionOfPostDetail {
-    var items: [PostData]
-    
-    init(items: [PostData]) {
-        self.items = items
-    }
-}
-
-extension SectionOfPostDetail: SectionModelType {
-    typealias Item = PostData
-    
-    init(original: SectionOfPostDetail, items: [PostData]) {
-        self = original
-        self.items = items
-    }
-}
+typealias PostListSectionModel = SectionModel<String, PostEntity>
+//
+//struct SectionOfPostDetail {
+//    var items: [BriefPostEntity]
+//    
+//    init(items: [BriefPostEntity]) {
+//        self.items = items
+//    }
+//}
+//
+//extension SectionOfPostDetail: SectionModelType {
+//    typealias Item = BriefPostEntity
+//    
+//    init(original: SectionOfPostDetail, items: [BriefPostEntity]) {
+//        self = original
+//        self.items = items
+//    }
+//}

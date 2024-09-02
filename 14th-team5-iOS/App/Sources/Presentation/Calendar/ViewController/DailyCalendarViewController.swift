@@ -20,7 +20,7 @@ import SnapKit
 import Then
 
 fileprivate typealias _Str = CalendarStrings
-public final class DailyCalendarViewController: BaseViewController<DailyCalendarViewReactor> {
+public final class DailyCalendarViewController: BBNavigationViewController<DailyCalendarViewReactor> {
     // MARK: - Views
     private let imageView: UIImageView = UIImageView()
     private let calendarView: FSCalendar = FSCalendar()
@@ -28,12 +28,7 @@ public final class DailyCalendarViewController: BaseViewController<DailyCalendar
         frame: .zero,
         collectionViewLayout: orthogonalCompositionalLayout
     )
-    private let reactionViewController: ReactionViewController = ReactionDIContainer(type: .calendar).makeViewController(
-        post: .init(
-            postId: "", author: nil, commentCount: 0, emojiCount: 0,
-            imageURL: "", content: nil, time: ""
-        )
-    )
+    private let reactionViewController: ReactionViewController = ReactionViewControllerWrapper(type: .calendar, postListData: .empty).makeViewController()
     private let fireLottieView: LottieView = LottieView(with: .fire, contentMode: .scaleAspectFill)
     
     // MARK: - Properties
@@ -76,7 +71,7 @@ public final class DailyCalendarViewController: BaseViewController<DailyCalendar
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        navigationBarView.rx.leftButtonTap
+        navigationBar.rx.didTapLeftBarButton
             .map { _ in Reactor.Action.popViewController }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -193,9 +188,9 @@ public final class DailyCalendarViewController: BaseViewController<DailyCalendar
             .distinctUntilChanged()
             .withUnretained(self)
             .bind { owner, post in
-                let postListData = PostListData(
+                let postListData = PostEntity(
                     postId: post.postId,
-                    author: ProfileData(memberId: post.authorId, name: ""),
+                    author: FamilyMemberProfileEntity(memberId: post.authorId, name: ""),
                     commentCount: post.commentCount,
                     emojiCount: post.emojiCount,
                     imageURL: post.postImageUrl,
@@ -247,19 +242,13 @@ public final class DailyCalendarViewController: BaseViewController<DailyCalendar
             .subscribe(onNext: { _ in Haptic.selection() })
             .disposed(by: disposeBag)
         
-//        reactor.pulse(\.$shouldPopViewController)
-//            .filter { $0 }
-//            .withUnretained(self)
-//            .subscribe { $0.0.navigationController?.popViewController(animated: true) }
-//            .disposed(by: disposeBag)
-        
-        // 댓글 노티피케이션 딥링크 코드
+        // TODO: - 딥링크 코드 개선하기
         reactor.state.compactMap { $0.notificationDeepLink }
             .distinctUntilChanged(at: \.postId)
             .filter { $0.openComment }
             .bind(with: self) { owner, deepLink in
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    let postCommentViewController = CommentDIContainer(
+                    let postCommentViewController = PostCommentDIContainer(
                         postId: deepLink.postId
                     ).makeViewController()
                     
@@ -276,12 +265,8 @@ public final class DailyCalendarViewController: BaseViewController<DailyCalendar
     
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(
-            imageView, navigationBarView
-        )
-        imageView.addSubviews(
-            calendarView, postCollectionView
-        )
+        view.addSubviews(imageView)
+        imageView.addSubviews(calendarView, postCollectionView)
         view.addSubview(fireLottieView)
         
         addChild(reactionViewController)
@@ -296,7 +281,7 @@ public final class DailyCalendarViewController: BaseViewController<DailyCalendar
         }
         
         calendarView.snp.makeConstraints {
-            $0.top.equalTo(navigationBarView.snp.bottom).offset(16)
+            $0.top.equalTo(navigationBar.snp.bottom).offset(16)
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(350)
         }
@@ -316,6 +301,8 @@ public final class DailyCalendarViewController: BaseViewController<DailyCalendar
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalToSuperview()
         }
+        
+        bringNavigationBarViewToFront()
     }
     
     public override func setupAttributes() {
@@ -326,8 +313,8 @@ public final class DailyCalendarViewController: BaseViewController<DailyCalendar
             $0.isUserInteractionEnabled = true
         }
         
-        navigationBarView.do {
-            $0.setNavigationView(leftItem: .arrowLeft, rightItem: .empty)
+        navigationBar.do {
+            $0.leftBarButtonItem = .arrowLeft
         }
         
         calendarView.do {
@@ -340,7 +327,7 @@ public final class DailyCalendarViewController: BaseViewController<DailyCalendar
             
             $0.appearance.selectionColor = UIColor.clear
             
-            $0.appearance.titleFont = UIFont.pretendard(.body1Regular)
+            $0.appearance.titleFont = UIFont.style(.body1Regular)
             $0.appearance.titleDefaultColor = UIColor.bibbiWhite
             $0.appearance.titleSelectionColor = UIColor.bibbiWhite
             
@@ -433,7 +420,7 @@ extension DailyCalendarViewController {
     }
     
     private func setupNavigationTitle(_ date: Date) {
-        navigationBarView.setNavigationTitle(title: date.toFormatString(with: .yyyyM))
+        navigationBar.navigationTitle = date.toFormatString(with: .yyyyM)
     }
     
     private func updateCalendarViewConstraints(_ bounds: CGRect) {
@@ -444,9 +431,7 @@ extension DailyCalendarViewController {
     }
     
     private func pushCameraViewController(cameraType type: UploadLocation) {
-        let cameraViewController = CameraDIContainer(
-            cameraType: type
-        ).makeViewController()
+        let cameraViewController = CameraViewControllerWrapper(cameraType: type).viewController
         
         navigationController?.pushViewController(
             cameraViewController,
@@ -455,9 +440,9 @@ extension DailyCalendarViewController {
     }
     
     private func pushProfileViewController(memberId: String) {
-        let profileController = ProfileDIContainer(
+        let profileController = ProfileViewControllerWrapper(
             memberId: memberId
-        ).makeViewController()
+        ).viewController
         
         navigationController?.pushViewController(
             profileController,

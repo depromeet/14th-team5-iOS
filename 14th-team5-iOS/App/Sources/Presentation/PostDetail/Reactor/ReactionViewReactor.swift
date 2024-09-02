@@ -18,19 +18,19 @@ final class ReactionViewReactor: Reactor {
         case tapComment
         case tapAddEmoji
         case longPressEmoji(IndexPath)
-        case selectCell(IndexPath, FetchedEmojiData)
-        case acceptPostListData(PostListData)
+        case selectCell(IndexPath, EmojiEntity)
+        case acceptPostListData(PostEntity)
         case fetchReactionList(String)
     }
     
     enum Mutation {
-        case setSpecificCell(IndexPath, FetchedEmojiData)
+        case setSpecificCell(IndexPath, EmojiEntity)
         case setSelectedReactionIndices([Int])
         case setCommentSheet
         case setEmojiSheet
-        case setReactionMemberSheetEmoji(FetchedEmojiData)
+        case setReactionMemberSheetEmoji(EmojiEntity)
         case updateDataSource([ReactionSection.Item])
-        case setPost(PostListData)
+        case setPost(PostEntity)
         case setPostCommentCount(Int)
         case setInitialDataSource
         case setSelectionHapticFeedback
@@ -38,7 +38,7 @@ final class ReactionViewReactor: Reactor {
     
     struct State {
         let type: ReactionType
-        var postListData: PostListData
+        var postListData: PostEntity
         
         var deSelectedReactionIndicies: [Int] = []
         var selectedReactionIndicies: [Int] = []
@@ -47,27 +47,23 @@ final class ReactionViewReactor: Reactor {
             .addReaction,
         ])
         
-        @Pulse var reactionMemberSheetEmoji: FetchedEmojiData? = nil
+        @Pulse var reactionMemberSheetEmoji: EmojiEntity? = nil
         @Pulse var isShowingCommentSheet: Bool = false
         @Pulse var isShowingEmojiSheet: Bool = false
         @Pulse var selectionHapticFeedback: Bool = false
     }
     
     let initialState: State
-    let provider: GlobalStateProviderProtocol
-    let emojiRepository: EmojiUseCaseProtocol
-    let realEmojiRepository: RealEmojiUseCaseProtocol
+    @Injected var provider: GlobalStateProviderProtocol
+    @Injected var fetchReactionListUseCase: FetchReactionListUseCaseProtocol
+    @Injected var createReactionUseCase: CreateReactionUseCaseProtocol
+    @Injected var removeReactionUseCase: RemoveReactionUseCaseProtocol
+    @Injected var fetchRealEmojiListUseCase: FetchRealEmojiListUseCaseProtocol
+    @Injected var createRealEmojiUseCase: CreateRealEmojiUseCaseProtocol
+    @Injected var removeRealEmojiUseCase: RemoveRealEmojiUseCaseProtocol
     
-    init(
-        provider: GlobalStateProviderProtocol,
-        initialState: State,
-        emojiRepository: EmojiUseCaseProtocol,
-        realEmojiRepository: RealEmojiUseCaseProtocol
-    ) {
+    init(initialState: State) {
         self.initialState = initialState
-        self.provider = provider
-        self.emojiRepository = emojiRepository
-        self.realEmojiRepository = realEmojiRepository
     }
 }
 
@@ -75,8 +71,8 @@ extension ReactionViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .fetchReactionList(let postId):
-            let repository1 = emojiRepository.execute(query: .init(postId: postId)).asObservable()
-            let repository2 = realEmojiRepository.execute(query: .init(postId: postId)).asObservable()
+            let repository1 = fetchReactionListUseCase.execute(query: .init(postId: postId)).asObservable()
+            let repository2 = fetchRealEmojiListUseCase.execute(query: .init(postId: postId)).asObservable()
 
             return Observable.combineLatest(repository1, repository2)
                 .flatMap { response1, response2 in
@@ -169,20 +165,20 @@ extension ReactionViewReactor {
 }
 
 extension ReactionViewReactor {
-    func handleSelectCell(postId: String, indexPath: IndexPath, data: FetchedEmojiData, isAdd: Bool) -> Observable<Mutation> {
+    func handleSelectCell(postId: String, indexPath: IndexPath, data: EmojiEntity, isAdd: Bool) -> Observable<Mutation> {
         let executeObservable: Observable<Void?>
 
         if data.isStandard {
             if data.isSelfSelected {
-                executeObservable = emojiRepository.excuteRemoveEmoji(query: .init(postId: postId), body: .init(content: data.emojiType)).asObservable()
+                executeObservable = removeReactionUseCase.execute(query: .init(postId: postId), body: .init(content: data.emojiType)).asObservable()
             } else {
-                executeObservable = emojiRepository.executeAddEmoji(query: .init(postId: postId), body: .init(content: data.emojiType.emojiString)).asObservable()
+                executeObservable = createReactionUseCase.execute(query: .init(postId: postId), body: .init(content: data.emojiType.emojiString)).asObservable()
             }
         } else {
             if data.isSelfSelected {
-                executeObservable = realEmojiRepository.execute(query: .init(postId: postId, realEmojiId: data.realEmojiId)).asObservable()
+                executeObservable = removeRealEmojiUseCase.execute(query: .init(postId: postId, realEmojiId: data.realEmojiId)).asObservable()
             } else {
-                executeObservable = realEmojiRepository.execute(query: .init(postId: postId), body: .init(content: data.realEmojiId)).asObservable()
+                executeObservable = createRealEmojiUseCase.execute(query: .init(postId: postId), body: .init(content: data.realEmojiId)).asObservable()
             }
         }
 

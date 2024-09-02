@@ -41,28 +41,24 @@ public final class CalendarCellReactor: Reactor {
     // MARK: - Properties
     public var initialState: State
     
-    private let calendarUseCase: CalendarUseCaseProtocol
-    private let provider: GlobalStateProviderProtocol
+    @Injected var provider: GlobalStateProviderProtocol
+    @Injected var calendarUseCase: CalendarUseCaseProtocol
+    
+    @Navigator var navigator: MonthlyCalendarNavigatorProtocol
     
     // MARK: - Intializer
-    init(
-        yearMonth: String,
-        calendarUseCase: CalendarUseCaseProtocol,
-        provider: GlobalStateProviderProtocol
-    ) {
+    init(yearMonth: String) {
         self.initialState = State(
             yearMonth: yearMonth,
             displayMemoryCount: 0
         )
-        
-        self.calendarUseCase = calendarUseCase
-        self.provider = provider
     }
     
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case let .dateSelected(date):
+            // navigator.toDailyCalendar(selection: date)
             return provider.calendarGlabalState.pushCalendarPostVC(date)
                 .flatMap { _ in Observable<Mutation>.empty() }
             

@@ -11,7 +11,7 @@ public struct AppFactory {
     var products: [ProductsType]
     var dependencies: [TargetDependency]
     var bundleId: String
-    var deploymentTarget: DeploymentTarget?
+    var deploymentTarget: DeploymentTargets?
     var infoPlist: InfoPlist?
     var sources: SourceFilesList?
     var resources: ResourceFileElements?
@@ -26,7 +26,7 @@ public struct AppFactory {
         products: [ProductsType] = [.app, .uiTests, .unitTests],
         dependencies: [TargetDependency] = [],
         bundleId: String,
-        deploymentTarget: DeploymentTarget? = .defualt,
+        deploymentTarget: DeploymentTargets? = .defualt,
         infoPlist: InfoPlist? = .default,
         sources: SourceFilesList? = .default,
         resources: ResourceFileElements? = .default,

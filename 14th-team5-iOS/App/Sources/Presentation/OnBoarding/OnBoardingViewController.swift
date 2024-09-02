@@ -151,7 +151,7 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
             if let _ = UserDefaults.standard.inviteCode {
                 sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: JoinedFamilyDIContainer().makeViewController())
             } else {
-                sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: MainViewDIContainer().makeViewController())
+                sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: MainViewControllerWrapper().makeViewController())
             }
             
             sceneDelegate.window?.makeKeyAndVisible()

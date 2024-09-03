@@ -21,10 +21,7 @@ final class ContributorReactor: Reactor {
     }
 
     struct State {
-        var month: Int = Date().month
-        @Pulse var firstRanker: RankerData? = nil
-        @Pulse var secondRanker: RankerData? = nil
-        @Pulse var thirdRanker: RankerData? = nil
+        @Pulse var rank: FamilyRankData = .empty
     }
     
     let initialState: State = State()
@@ -43,10 +40,7 @@ extension ContributorReactor {
         
         switch mutation {
         case .updateState(let contributor):
-            newState.month = contributor.month
-            newState.firstRanker = contributor.firstRanker
-            newState.secondRanker = contributor.secondRanker
-            newState.thirdRanker = contributor.thirdRanker
+            newState.rank = contributor
         }
         
         return newState

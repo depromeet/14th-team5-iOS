@@ -36,6 +36,7 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
     }
     
     override func bind(reactor: MainViewReactor) {
+        print("bind main reactor")
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
@@ -172,7 +173,6 @@ extension MainViewController {
     
     private func bindOutput(reactor: MainViewReactor) {
         reactor.state.map { $0.isInTime }.compactMap { $0 }
-            .debug("isInTime")
             .distinctUntilChanged()
             .withUnretained(self)
             .observe(on: MainScheduler.instance)

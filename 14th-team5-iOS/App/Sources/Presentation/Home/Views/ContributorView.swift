@@ -115,8 +115,9 @@ final class ContributorView: BaseView<ContributorReactor> {
             $0.layer.cornerRadius = 8
             $0.setTitle("지난 날 생존신고 보기", for: .normal)
             $0.setTitleColor(.bibbiBlack, for: .normal)
-            $0.backgroundColor = .mainYellow
             $0.setTitleFontStyle(.body1Bold)
+            $0.setButtonBackgroundColor(.mainYellow, for: .normal)
+            $0.setButtonBackgroundColor(.gray400, for: .disabled)
         }
     }
 }
@@ -129,22 +130,29 @@ extension ContributorView {
     }
     
     private func bindOutput(reactor: ContributorReactor) {
-        reactor.state.map { $0.month }
-            .distinctUntilChanged()
-            .map { "\($0)월 생존신고 횟수" }
+        reactor.pulse(\.$rank)
+            .map { "\($0.month)월 생존신고 횟수" }
             .bind(to: subTitleLabel.rx.text)
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$firstRanker)
+        reactor.pulse(\.$rank)
+            .map { $0.firstRanker }
             .bind(to: firstProfileView.rankerRelay)
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$secondRanker)
+        reactor.pulse(\.$rank)
+            .map { $0.secondRanker }
             .bind(to: secondProfileView.rankerRelay)
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$thirdRanker)
+        reactor.pulse(\.$rank)
+            .map { $0.thirdRanker }
             .bind(to: thirdProfileView.rankerRelay)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$rank)
+            .map { $0.recentPostDate != nil }
+            .bind(to: nextButton.rx.isEnabled)
             .disposed(by: disposeBag)
     }
 }

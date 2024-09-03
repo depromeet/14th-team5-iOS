@@ -173,20 +173,20 @@ extension MainViewReactor {
         case .calculateTime:
             let (isInTime, time) = self.calculateRemainingTime()
             
-//            if isInTime {
-//                return Observable.concat([
-//                    Observable.just(Mutation.setInTime(true)),
-//                    self.mutate(action: .fetchMainUseCase),
-//                    self.mutate(action: .setTimer(isInTime, time))
-//                ])
-//            } else {
+            if isInTime {
+                return Observable.concat([
+                    Observable.just(Mutation.setInTime(true)),
+                    self.mutate(action: .fetchMainUseCase),
+                    self.mutate(action: .setTimer(isInTime, time))
+                ])
+            } else {
                 return Observable.concat([
                     Observable.just(Mutation.setInTime(false)),
                     self.mutate(action: .fetchMainNightUseCase),
                     self.mutate(action: .setTimer(isInTime, time))
                 ])
                 
-//            }
+            }
         case .didTapSegmentControl(let type):
             return Observable.concat(
                 Observable.just(.setPageIndex(type.getIndex())),

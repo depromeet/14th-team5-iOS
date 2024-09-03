@@ -40,10 +40,7 @@ open class BaseViewController<R>: UIViewController, ReactorKit.View where R: Rea
         setupUI()
         setupAutoLayout()
         setupAttributes()
-        
-        if let reactor = initialReactor {
-            self.reactor = reactor
-        }
+        setupReactor()
     }
     
     // MARK: - Helpers
@@ -63,6 +60,12 @@ open class BaseViewController<R>: UIViewController, ReactorKit.View where R: Rea
                 }
             })
             .disposed(by: disposeBag)
+    }
+    
+    open func setupReactor() {
+        if let reactor = initialReactor {
+            self.reactor = reactor
+        }
     }
     
     /// 서브 뷰 추가를 위한 메서드

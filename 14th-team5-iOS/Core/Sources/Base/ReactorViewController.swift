@@ -40,10 +40,7 @@ open class ReactorViewController<R>: UIViewController, ReactorKit.View where R: 
         setupUI()
         setupAutoLayout()
         setupAttributes()
-        
-        if let reactor = initialReactor {
-            self.reactor = reactor
-        }
+        setupReactor()
     }
     
     // MARK: - Helpers
@@ -55,5 +52,11 @@ open class ReactorViewController<R>: UIViewController, ReactorKit.View where R: 
     
     open func setupAttributes() {
         view.backgroundColor = .bibbiBlack
+    }
+    
+    open func setupReactor() {
+        if let reactor = initialReactor {
+            self.reactor = reactor
+        }
     }
 }

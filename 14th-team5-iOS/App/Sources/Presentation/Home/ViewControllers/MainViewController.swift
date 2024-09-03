@@ -116,7 +116,6 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
         
         contributorView.do {
             $0.isHidden = true
-            print("isHidden true!")
         }
     }
 }
@@ -268,7 +267,6 @@ extension MainViewController {
             contributorView.isHidden = false
             pageViewController.view.isHidden = true
             segmentControl.isHidden = true
-            print("isHidden!")
         }
     }
     

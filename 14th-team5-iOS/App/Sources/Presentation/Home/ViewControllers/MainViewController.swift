@@ -36,6 +36,7 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
     }
     
     override func bind(reactor: MainViewReactor) {
+        print("bind main reactor")
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
@@ -115,6 +116,7 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
         
         contributorView.do {
             $0.isHidden = true
+            print("isHidden true!")
         }
     }
 }
@@ -172,7 +174,6 @@ extension MainViewController {
     
     private func bindOutput(reactor: MainViewReactor) {
         reactor.state.map { $0.isInTime }.compactMap { $0 }
-            .debug("isInTime")
             .distinctUntilChanged()
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
@@ -267,6 +268,7 @@ extension MainViewController {
             contributorView.isHidden = false
             pageViewController.view.isHidden = true
             segmentControl.isHidden = true
+            print("isHidden!")
         }
     }
     

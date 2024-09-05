@@ -33,8 +33,8 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
         buttonTint: UIColor? = nil,
         viewConfig: BBToastViewConfiguration
     ) {
-        self.toast = nil
         self.buttonAction = nil
+        self.toast = nil
         
         self.viewConfig = viewConfig
         super.init(frame: .zero)
@@ -85,16 +85,6 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
         spacing = 6
         alignment = .center
         distribution = .fillProportionally
-        
-        setupAttributes()
-    }
-    
-    private func setupAttributes() {
-        button.addTarget(
-            self,
-            action: #selector(didTapToastButton),
-            for: .touchUpInside
-        )
     }
     
 }

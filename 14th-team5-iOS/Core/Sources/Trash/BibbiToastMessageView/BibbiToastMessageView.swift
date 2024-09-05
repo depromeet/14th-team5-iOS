@@ -11,6 +11,7 @@ import UIKit
 import SnapKit
 import Then
 
+@available(*, deprecated)
 final public class BibbiToastMessageView: UIView {
     // MARK: - Views
     private let capsuleView: UIView = UIView()

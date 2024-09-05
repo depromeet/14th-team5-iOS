@@ -17,7 +17,7 @@ final public class UserDefaultsWrapper {
     private(set) public var suitName: String
     
     private static let defaultSuitName: String = {
-        Bundle.main.bundleIdentifier ?? "UserDefaultsWrapper"
+        "UserDefaultsWrapper"
     }()
     
     // MARK: - Intializer

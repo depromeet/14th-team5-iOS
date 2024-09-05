@@ -9,7 +9,9 @@ import Foundation
 
 import RxSwift
 
+@available(*, deprecated, renamed: "RxInterval")
 public enum RxConst {
+    
     static public var milliseconds100Interval: RxTimeInterval {
         return .milliseconds(100)
     }
@@ -17,9 +19,12 @@ public enum RxConst {
     static public var milliseconds300Interval: RxTimeInterval {
         return .milliseconds(300)
     }
+    
 }
 
+@available(*, deprecated, renamed: "RxSchedulers")
 public enum RxSchedulers {
+    
     public static let main = {
         MainScheduler.instance
     }()
@@ -55,4 +60,5 @@ public enum RxSchedulers {
     public static let userInteractive = {
         ConcurrentDispatchQueueScheduler(queue: DispatchQueue(label: "userInteractive", qos: .userInteractive))
     }()
+    
 }

@@ -225,7 +225,10 @@ extension MainViewReactor {
             case .navigationLeftButtonTap:
                 return Observable<Mutation>.just(.showNextView(.familyManagementViewController))
             case .contributorNextButtonTap:
-                return Observable<Mutation>.just(.showNextView(.weeklycalendarViewController(currentState.contributor.recentPostDate)))
+                guard let date = currentState.contributor.recentPostDate else {
+                    return .empty()
+                }
+                return Observable<Mutation>.just(.showNextView(.weeklycalendarViewController(date)))
             }
         case .checkMissionAlert(let isUnlocked, let isMeSurvivalUploadedToday):
             if isUnlocked && isMeSurvivalUploadedToday {

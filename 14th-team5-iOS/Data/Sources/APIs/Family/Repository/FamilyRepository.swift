@@ -19,9 +19,6 @@ public final class FamilyRepository: FamilyRepositoryProtocol {
     
     private let familyApiWorker: FamilyAPIWorker = FamilyAPIWorker()
     
-    // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
-    private var familyId: String = App.Repository.member.familyId.value ?? ""
-    
     // MARK: - Intializer
     
     public init() { }
@@ -76,6 +73,9 @@ extension FamilyRepository {
     // MARK: - Fetch Family CreatedAt
     
     public func fetchFamilyCreatedAt() -> Observable<FamilyCreatedAtEntity?> {
+        // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
+        var familyId: String = App.Repository.member.familyId.value ?? ""
+        
         return familyApiWorker.fetchFamilyCreatedAt(familyId: familyId)
             .map { $0?.toDomain() }
             .do(onSuccess: {
@@ -87,6 +87,9 @@ extension FamilyRepository {
     // MARK: - Fetch Invitation Url
     
     public func fetchInvitationLink() -> Observable<FamilyInvitationLinkEntity?> {
+        // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
+        var familyId: String = App.Repository.member.familyId.value ?? ""
+        
         return familyApiWorker.fetchInvitationLink(familyId: familyId)
             .map { $0?.toDomain() }
             .asObservable()
@@ -95,6 +98,9 @@ extension FamilyRepository {
     // MARK: - Fetch Family Members
     
     public func fetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfileEntity?> {
+        // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
+        var familyId: String = App.Repository.member.familyId.value ?? ""
+        
         return familyApiWorker.fetchPaginationFamilyMember(familyId: familyId, query: query)
             .map { $0?.toDomain() }
             .do(onSuccess: {
@@ -111,6 +117,8 @@ extension FamilyRepository {
     // MARK: - Update Family Name
     
     public func updateFamilyName(body: UpdateFamilyNameRequest) -> Observable<FamilyNameEntity?> {
+        // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
+        var familyId: String = App.Repository.member.familyId.value ?? ""
         let body = UpdateFamilyNameRequestDTO(familyName: body.familyName)
         
         return familyApiWorker.updateFamilyName(familyId: familyId, body: body)

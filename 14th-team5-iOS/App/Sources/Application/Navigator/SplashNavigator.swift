@@ -34,7 +34,7 @@ final class SplashNavigator: SplashNavigatorProtocol {
     }
     
     func toJoined() {
-        let vc = JoinedFamilyViewControllerWrapper().viewController
+        let vc = FamilyEntranceControllerWrapper().viewController
         navigationController.setViewControllers([vc], animated: false)
     }
     

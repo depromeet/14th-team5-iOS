@@ -57,12 +57,12 @@ public struct RankerData {
 
 public struct FamilyRankData {
     public let month: Int
-    public let recentPostDate: String
+    public let recentPostDate: String?
     public let firstRanker: RankerData?
     public let secondRanker: RankerData?
     public let thirdRanker: RankerData?
     
-    public init(month: Int, recentPostDate: String, firstRanker: RankerData?, secondRanker: RankerData?, thirdRanker: RankerData?) {
+    public init(month: Int, recentPostDate: String?, firstRanker: RankerData?, secondRanker: RankerData?, thirdRanker: RankerData?) {
         self.month = month
         self.recentPostDate = recentPostDate
         self.firstRanker = firstRanker
@@ -73,7 +73,7 @@ public struct FamilyRankData {
 
 extension FamilyRankData {
     public static var empty: FamilyRankData {
-        return .init(month: 0, recentPostDate: "", firstRanker: nil, secondRanker: nil, thirdRanker: nil)
+        return .init(month: 0, recentPostDate: nil, firstRanker: nil, secondRanker: nil, thirdRanker: nil)
     }
 }
 

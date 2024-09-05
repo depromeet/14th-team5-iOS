@@ -24,7 +24,7 @@ struct FamilyMemberMonthlyRanking: Codable {
     let firstRanker: Ranker?
     let secondRanker: Ranker?
     let thirdRanker: Ranker?
-    let mostRecentSurvivalPostDate: String
+    let mostRecentSurvivalPostDate: String?
     
     func toDomain() -> FamilyRankData {
         return .init(month: month,

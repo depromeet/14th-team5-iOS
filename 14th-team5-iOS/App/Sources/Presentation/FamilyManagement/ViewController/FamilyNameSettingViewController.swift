@@ -13,7 +13,7 @@ import ReactorKit
 
 final class FamilyNameSettingViewController: BBNavigationViewController<FamilyNameSettingViewReactor> {
     
-    private let groupNameLabel: BBLabel = BBLabel(.caption, textAlignment: .center, textColor: .gray300)
+    private let groupNameLabel: BBLabel = BBLabel(.head2Bold, textAlignment: .center, textColor: .gray300)
     private let groupConfirmButton: BBButton = BBButton()
     private let groupTextField: UITextField = UITextField()
     private let groupDescrptionLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray400)
@@ -133,8 +133,16 @@ final class FamilyNameSettingViewController: BBNavigationViewController<FamilyNa
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        //TODO: BBAlert 추가
+        navigationBar.rx.didTapRightBarButton
+            .bind(with: self) { owner, _ in
+                <#code#>
+            }
+            .disposed(by: disposeBag)
+                
         groupTextField.rx.text
             .orEmpty
+            .skip(1)
             .debounce(.milliseconds(300), scheduler: MainScheduler.instance)
             .map { Reactor.Action.didChangeFamilyGroupNickname($0)}
             .bind(to: reactor.action)
@@ -147,8 +155,10 @@ final class FamilyNameSettingViewController: BBNavigationViewController<FamilyNa
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$familyNameEntity)
-            .map { $0 != nil }
+        groupConfirmButton
+            .rx.tap
+            .withLatestFrom(reactor.pulse(\.$familyNameEntity))
+            .filter { $0 == nil }
             .bind(with: self) { owner, _ in
                 owner.navigationController?.popViewController(animated: true)
             }
@@ -168,10 +178,40 @@ final class FamilyNameSettingViewController: BBNavigationViewController<FamilyNa
             .bind(to: groupEditerView.rx.isHidden)
             .disposed(by: disposeBag)
         
+        reactor.state
+            .map { !$0.isEdit }
+            .distinctUntilChanged()
+            .bind(to: groupDescrptionLabel.rx.isHidden)
+            .disposed(by: disposeBag)
+        
         reactor.pulse(\.$familyNameEditorEntity)
             .compactMap { $0?.memberName }
             .distinctUntilChanged()
             .bind(to: groupEditerView.userNameLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$familyNameEditorEntity)
+            .compactMap { $0 }
+            .filter { $0.memberImage.isFileURL }
+            .compactMap { $0.memberName.first }
+            .compactMap { "\($0)"}
+            .bind(to: groupEditerView.profileNameLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$familyNameEditorEntity)
+            .compactMap { $0?.memberImage }
+            .filter { $0.isFileURL == false }
+            .bind(with: self) { owner, imageURL in
+                owner.groupEditerView.profileView.kf.setImage(with: imageURL)
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.isEdit }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
+            .bind(onNext: { $0.0.updateNavigationBarLayout(isUpdate: $0.1) })
             .disposed(by: disposeBag)
         
         reactor.state
@@ -199,8 +239,10 @@ extension FamilyNameSettingViewController {
     private func updateMaximumValidationLayout(isUpdate: Bool) {
         groupErrorStackView.isHidden = isUpdate
         groupTextField.textColor = isUpdate ? DesignSystemAsset.gray200.color : DesignSystemAsset.warningRed.color
-        groupConfirmButton.isEnabled = isUpdate
-        groupConfirmButton.backgroundColor = isUpdate ? DesignSystemAsset.mainYellow.color : DesignSystemAsset.mainYellow.color.withAlphaComponent(0.2)
     }
     
+    private func updateNavigationBarLayout(isUpdate: Bool) {
+        navigationBar.leftBarButtonItem = .arrowLeft
+        navigationBar.rightBarButtonItem = isUpdate == true ? .none : .refresh
+    }
 }

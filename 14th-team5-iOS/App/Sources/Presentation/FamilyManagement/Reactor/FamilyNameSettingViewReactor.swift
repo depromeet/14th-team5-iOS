@@ -13,9 +13,9 @@ import ReactorKit
 
 public final class FamilyNameSettingViewReactor: Reactor {
     public var initialState: State
-    @Injected private var memberUseCase: MemberUseCaseProtocol
-    @Injected private var updateFamilyNameUseCase: UpdateFamilyNameUseCaseProtocol
-    @Injected private var fetchFamilyEditerUseCase: FetchMembersProfileUseCaseProtocol
+    @Injected private var fetchFamilyGroupInfoUseCase: any FetchFamilyGroupInfoUseCaseProtocol
+    @Injected private var updateFamilyNameUseCase: any UpdateFamilyNameUseCaseProtocol
+    @Injected private var fetchFamilyEditerUseCase: any FetchMembersProfileUseCaseProtocol
     
     public enum Action {
         case viewDidLoad
@@ -25,6 +25,7 @@ public final class FamilyNameSettingViewReactor: Reactor {
     
     public enum Mutation {
         case setFamilyGroupNameEditerItem(MembersProfileEntity)
+        case setFamilyGroupInfoItem(FamilyGroupInfoEntity)
         case setFamilyGroupNickName(String)
         case setFamilyNickNameVaildation(Bool)
         case setFamilyGroupEditValidation(Bool)
@@ -35,6 +36,7 @@ public final class FamilyNameSettingViewReactor: Reactor {
     public struct State {
         @Pulse var familyNameEntity: FamilyNameEntity?
         @Pulse var familyNameEditorEntity: MembersProfileEntity?
+        @Pulse var familyGroupInfoEntity: FamilyGroupInfoEntity?
         var familyGroupNickName: String
         var isNickNameVaildation: Bool
         var isEdit: Bool
@@ -46,29 +48,41 @@ public final class FamilyNameSettingViewReactor: Reactor {
             familyGroupNickName: "",
             isNickNameVaildation: false,
             isEdit: false,
-            isNickNameMaximumValidation: false
+            isNickNameMaximumValidation: true
         )
     }
     
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewDidLoad:
-            if memberUseCase.executeFetchFamilyNameEditorId().isEmpty {
-                return .just(.setFamilyGroupEditValidation(false))
-            } else {
-                let editorId = memberUseCase.executeFetchFamilyNameEditorId()
-                return fetchFamilyEditerUseCase.execute(memberId: editorId)
-                    .asObservable()
-                    .compactMap { $0 }
-                    .flatMap { entity -> Observable<Mutation> in
+            
+            return fetchFamilyGroupInfoUseCase
+                .execute()
+                .asObservable()
+                .compactMap { $0 }
+                .withUnretained(self)
+                .flatMap { owner, familyGroupInfo -> Observable<Mutation> in
+                    if familyGroupInfo.familyNameEditorId.isEmpty {
                         return .concat(
-                            .just(.setFamilyGroupNameEditerItem(entity)),
-                            .just(.setFamilyGroupEditValidation(true))
+                            .just(.setFamilyNickNameVaildation(false)),
+                            .just(.setFamilyGroupEditValidation(true)),
+                            .just(.setFamilyGroupInfoItem(familyGroupInfo))
                         )
                     }
-            }
+                    let editorId = familyGroupInfo.familyNameEditorId
+                    return owner.fetchFamilyEditerUseCase.execute(memberId: editorId)
+                        .asObservable()
+                        .compactMap { $0 }
+                        .flatMap { editorInfo -> Observable<Mutation> in
+                            return .concat(
+                                .just(.setFamilyGroupNameEditerItem(editorInfo)),
+                                .just(.setFamilyGroupEditValidation(false))
+                            )
+                        }
+                    
+                }
         case let .didChangeFamilyGroupNickname(familyGroupNickName):
-            let isValidation = familyGroupNickName.count > 0 ? true : false
+            let isValidation = familyGroupNickName.count > 0 && familyGroupNickName.count < 10 ? true : false
             let isMaximumValidation = familyGroupNickName.count < 10 ? true : false
             
             return .concat(
@@ -82,7 +96,6 @@ public final class FamilyNameSettingViewReactor: Reactor {
                 .asObservable()
                 .compactMap { $0 }
                 .flatMap { entity -> Observable<Mutation> in
-                    print("entity familyGroup : \(entity)")
                     return .just(.setUpdateFamilyNameItem(entity))
                 }
         }
@@ -104,6 +117,8 @@ public final class FamilyNameSettingViewReactor: Reactor {
             newState.familyNameEditorEntity = familyNameEditorEntity
         case let .setFamilyGroupEditValidation(isEdit):
             newState.isEdit = isEdit
+        case let .setFamilyGroupInfoItem(familyGroupInfoEntity):
+            newState.familyGroupInfoEntity = familyGroupInfoEntity
         }
         return newState
     }

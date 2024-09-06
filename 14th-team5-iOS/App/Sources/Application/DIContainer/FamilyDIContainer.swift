@@ -53,6 +53,10 @@ final class FamilyDIContainer: BaseContainer {
         UpdateFamilyNameUseCase(familyRepository: repository)
     }
     
+    private func makeFetchFamilyGroupInfoUseCase() -> FetchFamilyGroupInfoUseCaseProtocol {
+        FetchFamilyGroupInfoUseCase(familyRepository: repository)
+    }
+    
     // Deprecated
     private func makeFamilyUseCase() -> FamilyUseCaseProtocol {
         FamilyUseCase(familyRepository: repository)
@@ -96,6 +100,10 @@ final class FamilyDIContainer: BaseContainer {
         
         container.register(type: UpdateFamilyNameUseCaseProtocol.self) { _ in
             makeUpdateFamilyNameUseCase()
+        }
+        
+        container.register(type: FetchFamilyGroupInfoUseCaseProtocol.self) { _ in
+            makeFetchFamilyGroupInfoUseCase()
         }
         
         // Deprecated

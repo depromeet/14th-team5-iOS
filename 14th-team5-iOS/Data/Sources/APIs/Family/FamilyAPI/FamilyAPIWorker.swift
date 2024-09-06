@@ -127,6 +127,18 @@ extension FamilyAPIWorker {
             .catchAndReturn(nil)
             .asSingle()
     }
+    
+    // MARK: - Fetch Family Info
+    
+    public func fetchFamilyGroupInfo() -> Single<FamilyGroupInfoResponseDTO?> {
+        let spec = FamilyAPIs.fetchFamilyInfo.spec
+        
+        return request(spec: spec)
+            .subscribe(on: Self.queue)
+            .map(FamilyGroupInfoResponseDTO.self)
+            .catchAndReturn(nil)
+            .asSingle()
+    }
 }
 
 

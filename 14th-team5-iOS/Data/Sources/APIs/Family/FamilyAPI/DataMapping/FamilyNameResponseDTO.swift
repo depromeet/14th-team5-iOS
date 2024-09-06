@@ -26,7 +26,7 @@ extension FamilyNameResponseDTO {
         return .init(
             familyId: self.familyId,
             familyName: self.familyName,
-            familyIdEditorId: self.familyNameEditorId,
+            familyNameEditorId: self.familyNameEditorId,
             createdAt: self.createdAt.iso8601ToDate()
         )
     }

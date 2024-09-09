@@ -16,8 +16,8 @@ public struct FamilyNameResponseDTO: Decodable {
         case createdAt
     }
     var familyId: String
-    var familyName: String
-    var familyNameEditorId: String
+    let familyName: String?
+    let familyNameEditorId: String?
     var createdAt: String
 }
 
@@ -25,8 +25,8 @@ extension FamilyNameResponseDTO {
     func toDomain() -> FamilyNameEntity {
         return .init(
             familyId: self.familyId,
-            familyName: self.familyName,
-            familyNameEditorId: self.familyNameEditorId,
+            familyName: self.familyName ?? "",
+            familyNameEditorId: self.familyNameEditorId ?? "",
             createdAt: self.createdAt.iso8601ToDate()
         )
     }

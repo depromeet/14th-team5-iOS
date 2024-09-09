@@ -14,7 +14,7 @@ final class JoinFamilyGroupEdtiorView: UIView {
     
     //MARK: Properties
     private let descrptionLabel: BBLabel = BBLabel(.body1Regular, textAlignment: .center, textColor: .gray400)
-    let profileNameLabel: BBLabel = BBLabel(.head1, textAlignment: .center, textColor: .gray200)
+    let profileNameLabel: BBLabel = BBLabel(.head2Bold, textAlignment: .center, textColor: .gray200)
     let profileView: UIImageView = UIImageView()
     let userNameLabel: BBLabel = BBLabel(.body1Regular, textAlignment: .center, textColor: .gray400)
     

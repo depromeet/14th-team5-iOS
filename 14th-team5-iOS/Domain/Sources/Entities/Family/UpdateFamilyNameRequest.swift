@@ -8,9 +8,9 @@
 import Foundation
 
 public struct UpdateFamilyNameRequest {
-    public let familyName: String
+    public let familyName: String?
     
-    public init(familyName: String) {
+    public init(familyName: String?) {
         self.familyName = familyName
     }
 }

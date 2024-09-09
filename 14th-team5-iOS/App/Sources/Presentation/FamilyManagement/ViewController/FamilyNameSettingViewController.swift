@@ -13,6 +13,7 @@ import ReactorKit
 
 final class FamilyNameSettingViewController: BBNavigationViewController<FamilyNameSettingViewReactor> {
     
+    //MARK: Properties
     private let groupNameLabel: BBLabel = BBLabel(.head2Bold, textAlignment: .center, textColor: .gray300)
     private let groupConfirmButton: BBButton = BBButton()
     private let groupTextField: UITextField = UITextField()
@@ -23,6 +24,7 @@ final class FamilyNameSettingViewController: BBNavigationViewController<FamilyNa
     private let groupEditerView: JoinFamilyGroupEdtiorView = JoinFamilyGroupEdtiorView()
     
     
+    //MARK: Configures
     override func setupUI() {
         super.setupUI()
         groupErrorStackView.addArrangedSubviews(groupErrorImageView, groupErrorLabel)
@@ -106,7 +108,6 @@ final class FamilyNameSettingViewController: BBNavigationViewController<FamilyNa
             $0.spellCheckingType = .no
         }
         
-        //TODO: Entity에 따라 Hidden 처리 로직 추가
         groupDescrptionLabel.do {
             $0.text = "홈 화면에 가족 이름이 추가돼요 "
         }
@@ -128,15 +129,17 @@ final class FamilyNameSettingViewController: BBNavigationViewController<FamilyNa
     override func bind(reactor: FamilyNameSettingViewReactor) {
         super.bind(reactor: reactor)
         
+        
         Observable.just(())
             .map { Reactor.Action.viewDidLoad }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        //TODO: BBAlert 추가
         navigationBar.rx.didTapRightBarButton
             .bind(with: self) { owner, _ in
-                <#code#>
+                let alert = BBAlert.style(.resetFamilyName)
+                alert.addDelegate(owner)
+                alert.show()
             }
             .disposed(by: disposeBag)
                 
@@ -151,14 +154,21 @@ final class FamilyNameSettingViewController: BBNavigationViewController<FamilyNa
         groupConfirmButton.rx
             .tap
             .throttle(.microseconds(300), scheduler: MainScheduler.instance)
-            .map { Reactor.Action.didTapUpdateFamilyGroupNickname }
+            .map { Reactor.Action.didTapUpdateFamilyGroupNickname(.update) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         groupConfirmButton
             .rx.tap
             .withLatestFrom(reactor.pulse(\.$familyNameEntity))
-            .filter { $0 == nil }
+            .filter { $0 != nil }
+            .bind(with: self) { owner, _ in
+                owner.navigationController?.popViewController(animated: true)
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$familyNameEntity)
+            .filter { $0 != nil }
             .bind(with: self) { owner, _ in
                 owner.navigationController?.popViewController(animated: true)
             }
@@ -230,6 +240,7 @@ final class FamilyNameSettingViewController: BBNavigationViewController<FamilyNa
     }
 }
 
+//MARK: Layout Extenions
 extension FamilyNameSettingViewController {
     private func updateVaildationLayout(isEnabled: Bool) {
         groupConfirmButton.backgroundColor = isEnabled ? DesignSystemAsset.mainYellow.color : DesignSystemAsset.mainYellow.color.withAlphaComponent(0.2)
@@ -244,5 +255,24 @@ extension FamilyNameSettingViewController {
     private func updateNavigationBarLayout(isUpdate: Bool) {
         navigationBar.leftBarButtonItem = .arrowLeft
         navigationBar.rightBarButtonItem = isUpdate == true ? .none : .refresh
+    }
+}
+
+//MARK: Delegate Extensions
+extension FamilyNameSettingViewController: BBAlertDelegate {
+    func willShowAlert(_ alert: Core.BBAlert) { }
+    
+    func didShowAlert(_ alert: Core.BBAlert) { }
+    
+    func willCloseAlert(_ alert: Core.BBAlert) { }
+    
+    func didCloseAlert(_ alert: Core.BBAlert) { }
+    
+    func didTapAlertButton(_ alert: BBAlert?, index: Int?, button: BBButton) {
+        if index == 0 {
+            alert?.close()
+        } else {
+            self.reactor?.action.onNext(.didTapUpdateFamilyGroupNickname(.initial))
+        }
     }
 }

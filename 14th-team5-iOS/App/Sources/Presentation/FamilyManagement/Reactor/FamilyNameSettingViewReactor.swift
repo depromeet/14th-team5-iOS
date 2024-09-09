@@ -17,10 +17,15 @@ public final class FamilyNameSettingViewReactor: Reactor {
     @Injected private var updateFamilyNameUseCase: any UpdateFamilyNameUseCaseProtocol
     @Injected private var fetchFamilyEditerUseCase: any FetchMembersProfileUseCaseProtocol
     
+    public enum FamilyNameUpdateType {
+        case initial
+        case update
+    }
+    
     public enum Action {
         case viewDidLoad
         case didChangeFamilyGroupNickname(String)
-        case didTapUpdateFamilyGroupNickname
+        case didTapUpdateFamilyGroupNickname(FamilyNameUpdateType)
     }
     
     public enum Mutation {
@@ -90,13 +95,14 @@ public final class FamilyNameSettingViewReactor: Reactor {
                 .just(.setFamilyNickNameVaildation(isValidation)),
                 .just(.setFamilyNickNameMaximumValidation(isMaximumValidation))
             )
-        case .didTapUpdateFamilyGroupNickname:
-            let updateFamilyBody = UpdateFamilyNameRequest(familyName: currentState.familyGroupNickName)
+        case let .didTapUpdateFamilyGroupNickname(type):
+            let familyName = type == .initial ? nil : currentState.familyGroupNickName
+            let updateFamilyBody = UpdateFamilyNameRequest(familyName: familyName)
             return updateFamilyNameUseCase.execute(body: updateFamilyBody)
                 .asObservable()
                 .compactMap { $0 }
-                .flatMap { entity -> Observable<Mutation> in
-                    return .just(.setUpdateFamilyNameItem(entity))
+                .flatMap { familyGroupNameEntity -> Observable<Mutation> in
+                    return .just(.setUpdateFamilyNameItem(familyGroupNameEntity))
                 }
         }
     }

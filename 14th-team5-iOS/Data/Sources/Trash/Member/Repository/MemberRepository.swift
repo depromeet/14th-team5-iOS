@@ -13,6 +13,10 @@ public final class MemberRepository: MemberRepositoryProtocol {
 }
 
 extension MemberRepository {
+    public func fetchFamilyNameEditorId() -> String {
+        return FamilyUserDefaults.loadFamilyNameEditorId() 
+    }
+    
     public func fetchUserName(memberId: String) -> String {
         return FamilyUserDefaults.load(memberId: memberId)?.name ?? .unknown
     }

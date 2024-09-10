@@ -1,17 +1,18 @@
 //
-//  FamilyNameEntity.swift
+//  FamilyGroupInfoEntity.swift
 //  Domain
 //
-//  Created by 김건우 on 8/11/24.
+//  Created by Kim dohyun on 9/6/24.
 //
 
 import Foundation
 
-public struct FamilyNameEntity {
-    public var familyId: String
-    public var familyName: String
-    public var familyNameEditorId: String
-    public var createdAt: Date
+public struct FamilyGroupInfoEntity {
+    public let familyId: String
+    public let familyName: String
+    public let familyNameEditorId: String
+    public let createdAt: Date
+    
     
     public init(
         familyId: String,

@@ -15,6 +15,7 @@ import FirebaseMessaging
 
 public final class AccountSignInReactor: Reactor {
     public var initialState: State
+    @Injected var fetchIsFirstOnboardingUseCase: any FetchIsFirstOnboardingUseCaseProtocol
     private var accountRepository: AccountImpl = AccountRepository()
     private let fcmUseCase: FCMUseCaseProtocol = FCMUseCase(FCMRepository: MeAPIs.Worker())
     private let disposeBag = DisposeBag()
@@ -27,44 +28,63 @@ public final class AccountSignInReactor: Reactor {
     public enum Mutation {
         case kakaoLogin(Bool)
         case appleLogin(Bool)
+        case setIsFirstOnboarding(Bool)
+        
     }
     
     public struct State {
         var pushAccountSingUpVC: Bool
+        @Pulse var isFirstOnboarding: Bool
     }
     
     init(/*accountRepository: AccountRepository, fcmUseCase: FCMUseCaseProtocol*/) {
 //        self.accountRepository = accountRepository
 //        self.fcmUseCase = fcmUseCase
-        self.initialState = State(pushAccountSingUpVC: false)
+        self.initialState = State(
+            pushAccountSingUpVC: false,
+            isFirstOnboarding: false
+        )
     }
 }
 
 extension AccountSignInReactor {
     public func mutate(action: Action) -> Observable<Mutation> {
+        let isFirstOnboarding = self.fetchIsFirstOnboardingUseCase.execute()
         switch action {
         case .kakaoLoginTapped(let sns, let vc):
-            accountRepository.kakaoLogin(with: sns, vc: vc)
-                .flatMap { result in
+            return accountRepository.kakaoLogin(with: sns, vc: vc)
+                .flatMap { result -> Observable<Mutation> in
                     switch result {
                     case .success:
                         self.saveFCM()
-                        return Observable.just(Mutation.kakaoLogin(true))
+                        return .concat(
+                            .just(.kakaoLogin(true)),
+                            .just(.setIsFirstOnboarding(isFirstOnboarding))
+                        )
                     case .failed:
-                        return Observable.just(Mutation.kakaoLogin(false))
+                        return .concat(
+                            .just(.kakaoLogin(false)),
+                            .just(.setIsFirstOnboarding(false))
+                        )
                     }
                 }
             
             
         case .appleLoginTapped(let sns, let vc):
-            accountRepository.appleLogin(with: sns, vc: vc)
+            return accountRepository.appleLogin(with: sns, vc: vc)
                 .flatMap { result -> Observable<Mutation> in
                     switch result {
                     case .success:
                         self.saveFCM()
-                        return Observable.just(Mutation.appleLogin(true))
+                        return .concat(
+                            .just(.appleLogin(true)),
+                            .just(.setIsFirstOnboarding(isFirstOnboarding))
+                        )
                     case .failed:
-                        return Observable.just(Mutation.appleLogin(false))
+                        return .concat(
+                            .just(.appleLogin(false)),
+                            .just(.setIsFirstOnboarding(false))
+                        )
                     }
                 }
         }
@@ -77,6 +97,8 @@ extension AccountSignInReactor {
             newState.pushAccountSingUpVC = result
         case .appleLogin(let result):
             newState.pushAccountSingUpVC = result
+        case let .setIsFirstOnboarding(isFirstOnboarding):
+            newState.isFirstOnboarding = isFirstOnboarding
         }
         return newState
     }

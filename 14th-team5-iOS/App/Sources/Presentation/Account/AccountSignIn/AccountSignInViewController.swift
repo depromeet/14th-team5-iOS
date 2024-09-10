@@ -121,20 +121,25 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        App.Repository.token.accessToken
+        
+        Observable
+            .combineLatest(
+                App.Repository.token.accessToken.asObservable(),
+                reactor.pulse(\.$isFirstOnboarding)
+            )
             .observe(on: RxSchedulers.main)
-            .skip(1)
-            .withUnretained(self)
-            .bind(onNext: { $0.0.showNextPage(token: $0.1) })
+            .bind(with: self) { owner, response in
+                let (token, isFirstOnboarding) = response
+                owner.showNextPage(token: token, isFirstOnboarding)
+            }
             .disposed(by: disposeBag)
     }
 }
 
 extension AccountSignInViewController {
-    private func showNextPage(token: AccessToken?) {
-        
+    private func showNextPage(token: AccessToken?, _ isFirstOnboarding: Bool) {
+        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
         guard let token = token, let isTemporaryToken = token.isTemporaryToken else { return }
-        
         if isTemporaryToken {
             let container = UINavigationController(rootViewController: AccountSignUpDIContainer().makeViewController())
             container.modalPresentationStyle = .fullScreen
@@ -142,8 +147,13 @@ extension AccountSignInViewController {
             return
         }
         
-        let container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
-        container.modalPresentationStyle = .fullScreen
-        present(container, animated: false)
+        if isFirstOnboarding == true && isTemporaryToken == false {
+            let mainViewController = MainViewControllerWrapper().viewController
+            let container = UINavigationController(rootViewController: mainViewController)
+            sceneDelegate.window?.rootViewController = container
+            sceneDelegate.window?.makeKeyAndVisible()
+        }
+        
+        // isFirstOnboarding 이 true 이고 member isTemporaryToken false 일경우 MainViewController로 이동
     }
 }

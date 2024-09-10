@@ -40,6 +40,9 @@ final class AppDIContainer: BaseContainer {
             return GlobalStateProvider()
         }
         
+        container.register(type: AppUserDefaultsType.self) { _ in
+            return AppUserDefaults()
+        }
     }
     
 }

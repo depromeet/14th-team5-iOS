@@ -18,6 +18,7 @@ public final class OnBoardingReactor: Reactor {
     
     public var initialState: State = State()
     @Injected var familyUseCase: FamilyUseCaseProtocol
+    @Injected var updateIsFirstOnboardingUseCase: any UpdateIsFirstOnboardingUseCaseProtocol
     
     public enum Action {
         case permissionTapped
@@ -57,14 +58,14 @@ extension OnBoardingReactor {
                 },
                 familyUseCase.executeFetchPaginationFamilyMembers(query: .init())
             )
-            .flatMap { (granted: Bool, _) -> Observable<Mutation> in
+            .flatMap { [weak self] (granted: Bool, _) -> Observable<Mutation> in
                 if granted {
+                    self?.updateIsFirstOnboardingUseCase.execute(granted)
                     return Observable.just(.permissionTapped)
                 } else {
                     return Observable<Mutation>.empty()
                 }
             }
-
         }
     }
     

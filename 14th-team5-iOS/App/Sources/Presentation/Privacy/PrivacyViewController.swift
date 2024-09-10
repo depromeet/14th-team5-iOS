@@ -119,7 +119,8 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
             .bind { owner, isSuccess in
                 guard isSuccess else { return }
                 guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
-                sceneDelegate.window?.rootViewController = AccountSignInDIContainer().makeViewController()
+                let accountSignInViewController = SignInViewControllerWrapper().makeViewController()
+                sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: accountSignInViewController)
                 sceneDelegate.window?.makeKeyAndVisible()
             }.disposed(by: disposeBag)
         

@@ -14,6 +14,7 @@ public protocol MemberUseCaseProtocol {
     func executeCheckIsMe(memberId: String) -> Bool
     func executeCheckIsValidMember(memberId: String) -> Bool
     func executeFetchMyMemberId() -> String
+    func executeFetchFamilyNameEditorId() -> String
 }
 
 public final class MemberUseCase: MemberUseCaseProtocol {
@@ -46,5 +47,9 @@ public final class MemberUseCase: MemberUseCaseProtocol {
     
     public func executeFetchMyMemberId() -> String {
         return memberRepository.fetchMyMemberId()
+    }
+    
+    public func executeFetchFamilyNameEditorId() -> String {
+        return memberRepository.fetchFamilyNameEditorId()
     }
 }

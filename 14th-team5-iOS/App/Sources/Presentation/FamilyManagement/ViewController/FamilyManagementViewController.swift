@@ -25,6 +25,7 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
     
     private let headerStack: UIStackView = UIStackView()
     private let tableTitleLabel: BBLabel = BBLabel(.head1, textColor: .gray200)
+    private let tableEditButton: BBButton = BBButton()
     private let tableCountLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray400)
     
     private let familyTableView: UITableView = UITableView()
@@ -79,6 +80,14 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
         refreshControl.rx.controlEvent(.valueChanged)
             .map { Reactor.Action.fetchPaginationFamilyMemebers(true) }
             .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        tableEditButton.rx.tap
+            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
+            .bind(with: self) { owner, _ in
+                let familyGroupSettingViewController = FamilyNameSettingViewControllerWrapper().viewController
+                owner.navigationController?.pushViewController(familyGroupSettingViewController, animated: true)
+            }
             .disposed(by: disposeBag)
     }
     
@@ -178,7 +187,7 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
         super.setupUI()
         view.addSubviews(
             shareContainerview,
-            dividerView, headerStack, familyTableView
+            dividerView, headerStack, tableEditButton ,familyTableView
         )
         headerStack.addArrangedSubviews(
             tableTitleLabel, tableCountLabel
@@ -203,6 +212,12 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
         headerStack.snp.makeConstraints {
             $0.leading.equalTo(view).inset(24)
             $0.top.equalTo(dividerView.snp.bottom).offset(28)
+        }
+        
+        tableEditButton.snp.makeConstraints {
+            $0.centerY.equalTo(headerStack)
+            $0.height.width.equalTo(24)
+            $0.right.equalToSuperview().inset(20)
         }
         
         familyTableView.snp.makeConstraints {
@@ -234,6 +249,11 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
         
         dividerView.do {
             $0.backgroundColor = UIColor.gray600
+        }
+        
+        tableEditButton.do {
+            $0.setBackgroundImage(DesignSystemAsset.edit.image, for: .normal)
+            $0.setTitle("", for: .normal)
         }
         
         headerStack.do {

@@ -9,6 +9,10 @@ import UIKit
 
 import SnapKit
 
+extension UIControl.State: Hashable {
+    
+}
+
 public class BBButton: UIButton {
     
     // MARK: - Views
@@ -18,11 +22,18 @@ public class BBButton: UIButton {
     // MARK: - Properties
     
     public var id: Int?
+    private var backgroundColors: [UIControl.State: UIColor] = [:]
     
     public override var titleLabel: UILabel? {
         get { mainTitleLabel }
         set { }
     }
+    
+    public override var isEnabled: Bool {
+         didSet {
+             updateBackgroundColor()
+         }
+     }
     
     public override var isHighlighted: Bool {
         didSet {
@@ -35,6 +46,7 @@ public class BBButton: UIButton {
             }
         }
     }
+    
     
     // MARK: - Intializer
     
@@ -70,6 +82,19 @@ public class BBButton: UIButton {
             $0.numberOfLines = 1
         }
     }
+    
+    private func updateBackgroundColor() {
+          if let color = backgroundColors[state] {
+              self.backgroundColor = color
+          } else if let normalColor = backgroundColors[.normal] {
+              self.backgroundColor = normalColor
+          }
+      }
+      
+      public func setButtonBackgroundColor(_ backgroundColor: UIColor, for state: UIControl.State) {
+          backgroundColors[state] = backgroundColor
+          updateBackgroundColor()
+      }
     
     
     /// 버튼이 가진 고유한 ID값을 변경합니다.

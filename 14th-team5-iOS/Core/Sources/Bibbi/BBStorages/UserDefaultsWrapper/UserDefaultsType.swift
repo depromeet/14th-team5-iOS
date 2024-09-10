@@ -9,10 +9,15 @@ import Foundation
 
 public protocol UserDefaultsType {
     var userDefaults: UserDefaultsWrapper { get }
+    func remove(forKey key: UserDefaultsWrapper.Key)
 }
 
 extension UserDefaultsType {
     public var userDefaults: UserDefaultsWrapper {
         UserDefaultsWrapper.standard
+    }
+    
+    public func remove(forKey key: UserDefaultsWrapper.Key) {
+        UserDefaultsWrapper.standard.remove(forKey: key)
     }
 }

@@ -19,12 +19,19 @@ public protocol AppUserDefaultsType: UserDefaultsType {
     func saveIsFirstShowWidgetAlert(_ value: Bool?)
     func loadIsFirstShowWidgetAlert() -> Bool?
     
-    func saveInviteCode(_ inviteCode: String?)
+    func saveIsFirstOnboarding(_ value: Bool)
+    func loadIsFirstOnboarding() -> Bool
+    
+    func saveIsFirstFamilyManagement(_ value: Bool)
+    func loadIsFirstFamilyManagement() -> Bool
+    
+    func saveInviteCode(_ inviteCode: String)
     func loadInviteCode() -> String?
+    func deleteInvitedCode()
 }
 
 final public class AppUserDefaults: AppUserDefaultsType {
-    
+
     // MARK: - Intializer
     
     public init() { }
@@ -74,7 +81,7 @@ final public class AppUserDefaults: AppUserDefaultsType {
     
     // MARK: - Invite Code
     
-    public func saveInviteCode(_ inviteCode: String?) {
+    public func saveInviteCode(_ inviteCode: String) {
         userDefaults[.inviteCode] = inviteCode
     }
     
@@ -85,9 +92,40 @@ final public class AppUserDefaults: AppUserDefaultsType {
         return inviteCode
     }
     
+
+    public func deleteInvitedCode() {
+        remove(forKey: .inviteCode)
+    }
     
     
+    // MARK: - Onboarding
     
+    public func saveIsFirstOnboarding(_ value: Bool) {
+        userDefaults[.isFirstOnboarding] = value
+    }
+    
+    public func loadIsFirstOnboarding() -> Bool {
+        guard let isFirstOnboarding: Bool = userDefaults[.isFirstOnboarding] else {
+            return false
+        }
+        return isFirstOnboarding
+    }
+    
+    // MARK: - FamilyManagement
+    
+    public func saveIsFirstFamilyManagement(_ value: Bool) {
+        userDefaults[.isFirstFamilyManagement] = value
+    }
+    
+    public func loadIsFirstFamilyManagement() -> Bool {
+        guard let isFirstFamilyManagement: Bool = userDefaults[.isFirstFamilyManagement] else {
+            return false
+        }
+        
+        return isFirstFamilyManagement
+    }
+    
+
     
     
 }

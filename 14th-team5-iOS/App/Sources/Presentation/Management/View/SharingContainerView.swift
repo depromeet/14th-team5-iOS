@@ -9,14 +9,6 @@ import Core
 import DesignSystem
 import UIKit
 
-
-// MARK: - Typealias
-
-fileprivate typealias _Str = ManagementStrings // SharingRoundedRectStrings 로 수정
-
-
-// MARK: - ViewController
-
 public final class SharingContainerView: BaseView<SharingContainerReactor> {
     
     // MARK: - Views
@@ -143,11 +135,11 @@ public final class SharingContainerView: BaseView<SharingContainerReactor> {
         }
         
         sharingDescriptionLabel.do {
-            $0.text = _Str.inviteDescText
+            $0.text = "삐삐에 가족 초대하기"
         }
         
         sharingUrlLabel.do {
-            $0.text = _Str.invitationUrlText
+            $0.text = "https://no5ing.kr/"
         }
 
         sharingImageView.do {

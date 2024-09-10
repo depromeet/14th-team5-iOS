@@ -13,6 +13,7 @@ import DesignSystem
 protocol ManagementNavigatorProtocol: BaseNavigator {
     func toProfile(memberId: String)
     func toSetting(memberId: String)
+    func toFamilyNameSetting()
     
     func presentSharingSheet(url: URL?)
     
@@ -42,6 +43,11 @@ final class ManagementNavigator: ManagementNavigatorProtocol {
     func toSetting(memberId: String) {
         // TODO: - Wrapper로 바꾸기
         let vc = PrivacyDIContainer(memberId: memberId).makeViewController()
+        navigationController.pushViewController(vc, animated: true)
+    }
+    
+    func toFamilyNameSetting() {
+        let vc = FamilyNameSettingViewControllerWrapper().viewController
         navigationController.pushViewController(vc, animated: true)
     }
     

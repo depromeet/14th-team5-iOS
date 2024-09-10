@@ -15,6 +15,7 @@ public enum ManagementEvent {
     case hiddenTableProgressHud(hidden: Bool)
     case hiddenMemberFetchFailureView(hidden: Bool)
     case setTableHeaderInfo(familyName: String, memberCount: Int)
+    case endTableRefreshing
 }
 
 public protocol ManagementServiceType {
@@ -30,6 +31,8 @@ public protocol ManagementServiceType {
     func hiddenMemberFetchFailureView(hidden: Bool) -> Observable<Bool>
     @discardableResult
     func setTableHeaderInfo(familyName: String, memberCount: Int) -> Observable<(String, Int)>
+    @discardableResult
+    func endTableRefreshing() -> Observable<Void>
 }
 
 final public class ManagementService: BaseService, ManagementServiceType {
@@ -59,6 +62,11 @@ final public class ManagementService: BaseService, ManagementServiceType {
     public func setTableHeaderInfo(familyName: String, memberCount: Int) -> Observable<(String, Int)> {
         event.onNext(.setTableHeaderInfo(familyName: familyName, memberCount: memberCount))
         return Observable<(String, Int)>.just((familyName, memberCount))
+    }
+    
+    public func endTableRefreshing() -> Observable<Void> {
+        event.onNext(.endTableRefreshing)
+        return Observable<Void>.just(())
     }
     
 }

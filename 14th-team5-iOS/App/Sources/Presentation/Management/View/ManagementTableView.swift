@@ -16,6 +16,7 @@ public final class ManagementTableView: BaseTableView<ManagementTableReactor> {
     // MARK: - Views
     
     private let basicRefreshControl: UIRefreshControl = UIRefreshControl()
+    // TODO: - 리팩토링된 FetchFailure로 바꾸기
     private let fetchFailureView: BibbiFetchFailureView = BibbiFetchFailureView(type: .family)
     
     // MARK: - Properties
@@ -78,6 +79,12 @@ public final class ManagementTableView: BaseTableView<ManagementTableReactor> {
             .distinctUntilChanged()
             .bind(to: fetchFailureView.rx.isHidden)
             .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$isRefreshing)
+            .delay(RxInterval._700milliseconds, scheduler: RxScheduler.main)
+            .bind(to: basicRefreshControl.rx.isRefreshing)
+            .disposed(by: disposeBag)
+            
         
     }
     

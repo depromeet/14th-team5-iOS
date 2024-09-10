@@ -23,6 +23,7 @@ final public class ManagementTableReactor {
     public enum Mutation {
         case setHiddenTableProgresssHud(Bool)
         case setHiddenFetchFailureView(Bool)
+        case setEndRefreshing(Bool)
     }
     
     
@@ -31,6 +32,7 @@ final public class ManagementTableReactor {
     public struct State {
         var hiddenTableProgressHud: Bool = false
         var hiddenFetchFailureView: Bool = true
+        @Pulse var isRefreshing: Bool = true
     }
     
     
@@ -60,6 +62,9 @@ final public class ManagementTableReactor {
                 case let .hiddenMemberFetchFailureView(hidden):
                     return Observable<Mutation>.just(.setHiddenFetchFailureView(hidden))
                     
+                case .endTableRefreshing:
+                    return Observable<Mutation>.just(.setEndRefreshing(false))
+                    
                 default:
                     return Observable<Mutation>.empty()
                 }
@@ -80,6 +85,9 @@ final public class ManagementTableReactor {
             
         case let .setHiddenFetchFailureView(hidden):
             newState.hiddenFetchFailureView = hidden
+            
+        case let .setEndRefreshing(isRefreshing):
+            newState.isRefreshing = isRefreshing
         }
         
         return newState

@@ -17,13 +17,6 @@ import SnapKit
 import Then
 
 
-// MARK: - Typealias
-
-fileprivate typealias _Str = ManagementStrings
-
-
-// MARK: - ViewController
-
 public final class ManagementViewController: BBNavigationViewController<ManagementReactor> {
     
     // MARK: - Typealias
@@ -56,7 +49,7 @@ public final class ManagementViewController: BBNavigationViewController<Manageme
     
     private func bindInput(reactor: ManagementReactor) {
         Observable<Void>.just(())
-            .map { Reactor.Action.fetchPaginationFamilyMemebers(false) }
+            .map { Reactor.Action.fetchPaginationFamilyMemebers }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -77,35 +70,24 @@ public final class ManagementViewController: BBNavigationViewController<Manageme
             .disposed(by: disposeBag)
         
         memberTableView.rx.didPullDownRefreshControl
-            .map { _ in Reactor.Action.fetchPaginationFamilyMemebers(true) }
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
+            .map { _ in Reactor.Action.fetchPaginationFamilyMemebers }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         memberTableHeaderView.rx.didTapFamilyNameEditButton
             .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
-            .bind(with: self) { owner, _ in
-                let familyGroupSettingViewController = FamilyNameSettingViewControllerWrapper().viewController
-                owner.navigationController?.pushViewController(familyGroupSettingViewController, animated: true)
-            }
+            .map { _ in Reactor.Action.didTapFamilyNameEditButton }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: ManagementReactor) {
         
-        let memberDataSource = reactor.pulse(\.$memberDatasource).asDriver(onErrorJustReturn: [])
-        
-        memberDataSource
-            .drive(memberTableView.rx.items(dataSource: dataSource))
+        reactor.pulse(\.$memberDatasource)
+            .bind(to: memberTableView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
-        
-        // TODO: - 이거 삭제하기
-        memberDataSource
-            .drive(with: self, onNext: { owner, _ in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                    owner.memberTableView.endRefreshing()
-                }
-            })
-            .disposed(by: disposeBag)
+
     }
     
     public override func setupUI() {

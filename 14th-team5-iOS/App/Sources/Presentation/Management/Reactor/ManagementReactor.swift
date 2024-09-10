@@ -18,9 +18,10 @@ public final class ManagementReactor: Reactor {
     // MARK: - Action
     
     public enum Action {
-        case fetchPaginationFamilyMemebers(Bool)
+        case fetchPaginationFamilyMemebers
         case didTapSharingContainer
         case didTapSettingBarButton
+        case didTapFamilyNameEditButton
         case didSelectTableCell(IndexPath)
     }
     
@@ -61,18 +62,7 @@ public final class ManagementReactor: Reactor {
     
     
     // MARK: - Transform
-    
-    public func transform(action: Observable<Action>) -> Observable<Action> {
-        let eventAction = provider.profileGlobalState.event
-            .flatMap { event -> Observable<Action> in
-                switch event {
-                case .refreshFamilyMembers:
-                    return Observable<Action>.just(.fetchPaginationFamilyMemebers(false))
-                }
-            }
-        
-        return Observable<Action>.merge(action, eventAction)
-    }
+
     
     public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
         let eventMutation = provider.managementService.event
@@ -94,14 +84,14 @@ public final class ManagementReactor: Reactor {
     // MARK: - Mutate
     
     public func mutate(action: Action) -> Observable<Mutation> {
-        let mangementService = provider.managementService
+        let managementService = provider.managementService
         
         switch action {
         case .didTapSharingContainer:
             // Mixpanel
             MPEvent.Family.shareLink.track(with: nil)
             
-            mangementService.hiddenSharingProgressHud(hidden: false)
+            managementService.hiddenSharingProgressHud(hidden: false)
             return Observable.concat(
                 
                 fetchSharingUrlUseCase.execute()
@@ -109,13 +99,13 @@ public final class ManagementReactor: Reactor {
                     .concatMap {
                         guard let sharingUrl = $0.1?.url else {
                             Haptic.notification(type: .error)
-                            mangementService.hiddenSharingProgressHud(hidden: true)
+                            managementService.hiddenSharingProgressHud(hidden: true)
                             $0.0.navigator.showErrorToast()
                             
                             return Observable<Mutation>.empty()
                         }
                         
-                        mangementService.hiddenSharingProgressHud(hidden: true)
+                        managementService.hiddenSharingProgressHud(hidden: true)
                         $0.0.navigator.presentSharingSheet(url: URL(string: sharingUrl))
                         return Observable<Mutation>.empty()
                     }
@@ -127,28 +117,35 @@ public final class ManagementReactor: Reactor {
             }
             return Observable<Mutation>.empty()
             
-        case let .fetchPaginationFamilyMemebers(refresh):
+        case .didTapFamilyNameEditButton:
+            navigator.toFamilyNameSetting()
+            return Observable<Mutation>.empty()
+            
+        case .fetchPaginationFamilyMemebers:
             let query = FamilyPaginationQuery()
          
             return Observable.concat(
                 fetchFamilyMemberUseCase.execute(query: query)
                     .withUnretained(self)
                     .concatMap {
-                        guard let memberResponse = $0.1?.results else {
+                        guard let results = $0.1?.results else {
                             Haptic.notification(type: .error)
-                            mangementService.hiddenTableProgressHud(hidden: true)
-                            mangementService.hiddenMemberFetchFailureView(hidden: false)
+                            managementService.hiddenTableProgressHud(hidden: true)
+                            managementService.hiddenMemberFetchFailureView(hidden: false)
                             $0.0.navigator.showErrorToast()
+                            managementService.endTableRefreshing()
                             
                             return Observable<Mutation>.just(.setMemberDatasource([]))
                         }
                         
-                        mangementService.hiddenTableProgressHud(hidden: true)
-                        mangementService.hiddenMemberFetchFailureView(hidden: true)
-                        mangementService.setTableHeaderInfo(familyName: "나의 가족", memberCount: memberResponse.count)
+                        managementService.hiddenTableProgressHud(hidden: true)
+                        managementService.hiddenMemberFetchFailureView(hidden: true)
+                        // TODO: - 새로운 가족 이름 반영하기
+                        managementService.setTableHeaderInfo(familyName: "나의 가족", memberCount: results.count)
+                        managementService.endTableRefreshing()
                         return Observable<Mutation>.just(
                             .setMemberDatasource(
-                                memberResponse.map { [weak self] member in
+                                results.map { [weak self] member in
                                     let isMe = self?.checkIsMeUseCase.execute(memberId: member.memberId) ?? false
                                     
                                     return FamilyMemberCellReactor(

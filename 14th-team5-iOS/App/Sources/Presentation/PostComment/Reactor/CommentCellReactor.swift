@@ -44,14 +44,14 @@ final public class CommentCellReactor: Reactor {
     
     public var memberUseCase: MemberUseCaseProtocol
     public var postCommentUseCase: PostCommentUseCaseProtocol
-    public var provider: GlobalStateProviderProtocol
+    public var provider: ServiceProviderProtocol
     
     // MARK: - Intializer
     public init(
         _ commentResponse: PostCommentEntity,
         memberUseCase: MemberUseCaseProtocol,
         postCommentUseCase: PostCommentUseCaseProtocol,
-        provider: GlobalStateProviderProtocol
+        provider: ServiceProviderProtocol
     ) {
         self.initialState = State(
             commentId: commentResponse.commentId,

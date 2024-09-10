@@ -7,9 +7,10 @@
 
 import Foundation
 
-public protocol GlobalStateProviderProtocol: AnyObject {
+public protocol ServiceProviderProtocol: AnyObject {
+    var managementService: ManagementServiceType { get }
+    
     var postGlobalState: PostGlobalStateType { get }
-    var activityGlobalState: ActivityGlobalStateType { get }
     var calendarGlabalState: CalendarGlobalStateType { get }
     var toastGlobalState: ToastMessageGlobalStateType { get }
     var profileGlobalState: ProfileGlobalStateType { get }
@@ -19,9 +20,12 @@ public protocol GlobalStateProviderProtocol: AnyObject {
     var mainService: MainServiceType { get }
 }
 
-final public class GlobalStateProvider: GlobalStateProviderProtocol {
+final public class ServiceProvider: ServiceProviderProtocol {
+    
+    public lazy var managementService: any ManagementServiceType = ManagementService(provider: self)
+    
+    
     public lazy var postGlobalState: PostGlobalStateType = PostGlobalState(provider: self)
-    public lazy var activityGlobalState: ActivityGlobalStateType = ActivityGlobalState(provider: self)
     public lazy var calendarGlabalState: CalendarGlobalStateType = CalendarGlobalState(provider: self)
     public lazy var toastGlobalState: ToastMessageGlobalStateType = ToastMessageGlobalState(provider: self)
     public lazy var profileGlobalState: ProfileGlobalStateType = ProfileGlobalState(provider: self)

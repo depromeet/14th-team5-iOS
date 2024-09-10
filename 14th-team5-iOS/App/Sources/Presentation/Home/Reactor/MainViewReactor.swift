@@ -90,7 +90,7 @@ final class MainViewReactor: Reactor {
     }
     
     let initialState: State = State()
-    @Injected var provider: GlobalStateProviderProtocol
+    @Injected var provider: ServiceProviderProtocol
     @Injected var fetchMainUseCase: FetchMainUseCaseProtocol
     @Injected var fetchMainNightUseCase: FetchNightMainViewUseCaseProtocol
     @Injected var pickUseCase: PickUseCaseProtocol
@@ -111,10 +111,10 @@ extension MainViewReactor {
                 }
             }
         
-        let eventMutation = provider.activityGlobalState.event
+        let eventMutation = provider.managementService.event
             .flatMap { event -> Observable<Mutation> in
                 switch event {
-                case .didTapCopyInvitationUrlAction:
+                case .didTapCopyUrlAction:
                     return Observable<Mutation>.just(.setCopySuccessToastMessage)
                 default:
                     return Observable<Mutation>.empty()

@@ -12,7 +12,7 @@ import ReactorKit
 
 public final class BibbiRealEmojiCellReactor: Reactor {
     public typealias Action = NoAction
-    private let provider: GlobalStateProviderProtocol
+    private let provider: ServiceProviderProtocol
     public var initialState: State
     
     
@@ -32,7 +32,7 @@ public final class BibbiRealEmojiCellReactor: Reactor {
     }
     
     public init(
-        provider: GlobalStateProviderProtocol,
+        provider: ServiceProviderProtocol,
         realEmojiImage: URL?,
         isSelected: Bool,
         indexPath: Int,

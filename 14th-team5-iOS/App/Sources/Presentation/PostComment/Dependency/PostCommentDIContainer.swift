@@ -13,9 +13,9 @@ import UIKit
 @available(*, deprecated, renamed: "CommentViewControllerWrapper")
 public final class PostCommentDIContainer {
     // MARK: - Properties
-    private var globalState: GlobalStateProviderProtocol {
+    private var globalState: ServiceProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return GlobalStateProvider()
+            return ServiceProvider()
         }
         return appDelegate.globalStateProvider
     }

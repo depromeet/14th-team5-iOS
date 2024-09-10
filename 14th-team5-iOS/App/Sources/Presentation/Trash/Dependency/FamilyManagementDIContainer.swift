@@ -35,7 +35,7 @@ public final class FamilyManagementDIContainer {
         return FamilyRepository()
     }
     
-    public func makeReactor() -> ManagementViewReactor {
-        return ManagementViewReactor()
+    public func makeReactor() -> ManagementReactor {
+        return ManagementReactor()
     }
 }

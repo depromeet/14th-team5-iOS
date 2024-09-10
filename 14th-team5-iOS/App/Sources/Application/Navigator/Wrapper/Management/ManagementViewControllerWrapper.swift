@@ -12,12 +12,12 @@ final class ManagementViewControllerWrapper: BaseWrapper {
     
     // MARK: - Typealias
     
-    typealias R = ManagementViewReactor
+    typealias R = ManagementReactor
     typealias V = ManagementViewController
     
     // MARK: - Properties
     
-    var reactor: ManagementViewReactor {
+    var reactor: ManagementReactor {
         makeReactor()
     }
     
@@ -27,8 +27,8 @@ final class ManagementViewControllerWrapper: BaseWrapper {
     
     // MARK: - Make
     
-    func makeReactor() -> ManagementViewReactor {
-        ManagementViewReactor()
+    func makeReactor() -> ManagementReactor {
+        ManagementReactor()
     }
     
     func makeViewController() -> ManagementViewController {

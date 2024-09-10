@@ -37,7 +37,7 @@ final class MainFamilyViewReactor: Reactor {
     }
     
     let initialState: State = State()
-    @Injected var provider: GlobalStateProviderProtocol
+    @Injected var provider: ServiceProviderProtocol
     @Injected var familyUseCase: FamilyUseCaseProtocol
 }
 

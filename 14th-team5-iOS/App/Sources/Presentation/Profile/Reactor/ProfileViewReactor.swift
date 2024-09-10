@@ -24,7 +24,7 @@ public final class ProfileViewReactor: Reactor {
     
     private let memberId: String
     private let isUser: Bool
-    @Injected private var provider: GlobalStateProviderProtocol
+    @Injected private var provider: ServiceProviderProtocol
     
     public enum Action {
         case viewDidLoad

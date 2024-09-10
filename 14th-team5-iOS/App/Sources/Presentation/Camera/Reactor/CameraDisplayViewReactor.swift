@@ -15,7 +15,7 @@ import Core
 public final class CameraDisplayViewReactor: Reactor {
     
     public var initialState: State
-    @Injected private var provider: GlobalStateProviderProtocol
+    @Injected private var provider: ServiceProviderProtocol
     @Injected private var createPresignedCameraUseCase: CreateCameraUseCaseProtocol
     @Injected private var uploadImageUseCase: FetchCameraUploadImageUseCaseProtocol
     @Injected private var fetchCameraImageUseCase: CreateCameraImageUseCaseProtocol

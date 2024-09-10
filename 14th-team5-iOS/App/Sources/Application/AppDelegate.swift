@@ -34,7 +34,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let disposeBag = DisposeBag()
     
     @available(*, deprecated, message: "@Injected var provider: ServiceProviderProtocol")
-    let globalStateProvider: GlobalStateProviderProtocol = GlobalStateProvider()
+    let globalStateProvider: ServiceProviderProtocol = ServiceProvider()
     
     
     

@@ -72,7 +72,7 @@ final public class CommentViewReactor: Reactor {
     
     @Injected var memberUseCase: MemberUseCaseProtocol
     @Injected var postCommentUseCase: PostCommentUseCaseProtocol
-    @Injected var provider: GlobalStateProviderProtocol
+    @Injected var provider: ServiceProviderProtocol
     
     private var postComentCount: Int = 0
     private var hasReceivedInputEvent: Bool = false

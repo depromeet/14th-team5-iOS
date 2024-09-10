@@ -27,7 +27,6 @@ public protocol AppUserDefaultsType: UserDefaultsType {
     
     func saveInviteCode(_ inviteCode: String)
     func loadInviteCode() -> String?
-    func deleteInvitedCode()
 }
 
 final public class AppUserDefaults: AppUserDefaultsType {
@@ -92,11 +91,6 @@ final public class AppUserDefaults: AppUserDefaultsType {
         return inviteCode
     }
     
-
-    public func deleteInvitedCode() {
-        remove(forKey: .inviteCode)
-    }
-    
     
     // MARK: - Onboarding
     
@@ -124,8 +118,5 @@ final public class AppUserDefaults: AppUserDefaultsType {
         
         return isFirstFamilyManagement
     }
-    
 
-    
-    
 }

@@ -36,7 +36,7 @@ final public class FamilyMemberCell: BaseTableViewCell<FamilyMemberCellReactor> 
     // 요거 깔끔하게 코드 수정
     private var containerSize: CGFloat {
         guard let reactor = reactor else { return 52 }
-        return reactor.currentState.cellType == .management ? 52 : 44
+        return reactor.currentState.kind == .management ? 52 : 44
     }
     
     // MARK: - Intializer
@@ -64,12 +64,12 @@ final public class FamilyMemberCell: BaseTableViewCell<FamilyMemberCellReactor> 
     private func bindInput(reactor: FamilyMemberCellReactor) { }
     
     private func bindOutput(reactor: FamilyMemberCellReactor) {
-        reactor.state.compactMap { $0.imageUrl }
+        reactor.state.compactMap { $0.member.profileImageURL }
             .distinctUntilChanged()
             .bind(to: profileImageView.rx.kingfisherImage)
             .disposed(by: disposeBag)
         
-        let name = reactor.state.map({ $0.name }).asDriver(onErrorJustReturn: .none)
+        let name = reactor.state.map({ $0.member.name }).asDriver(onErrorJustReturn: .none)
         
         name
             .distinctUntilChanged()
@@ -93,13 +93,13 @@ final public class FamilyMemberCell: BaseTableViewCell<FamilyMemberCellReactor> 
             .drive(labelStack.rx.isMeSpacing)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.dayOfBirth }
+        reactor.state.map { $0.member.dayOfBirth ?? Date() }
             .distinctUntilChanged()
             .map { !$0.isEqual([.month, .day], with: .now) }
             .bind(to: dayOfBirthBadgeView.rx.isHidden)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.cellType }
+        reactor.state.map { $0.kind }
             .map { $0 != .management }
             .distinctUntilChanged()
             .bind(to: rightArrowImageView.rx.isHidden)

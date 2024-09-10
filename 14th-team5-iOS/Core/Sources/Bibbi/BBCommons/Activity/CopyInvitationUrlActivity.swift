@@ -14,14 +14,14 @@ public class CopyInvitationUrlActivity: UIActivity {
     }
     
     let url: URL
-    let provider: GlobalStateProviderProtocol?
+    
+    @Injected var provider: ServiceProviderProtocol
     
     let bundleId: String = Bundle.main.bundleIdentifier!
     var typeName: String = String(describing: CopyInvitationUrlActivity.self)
     
-    public init(_ url: URL, provider: GlobalStateProviderProtocol?) {
+    public init(_ url: URL) {
         self.url = url
-        self.provider = provider
     }
     
     public override class var activityCategory: UIActivity.Category {
@@ -46,7 +46,7 @@ public class CopyInvitationUrlActivity: UIActivity {
     
     public override func perform() {
         UIPasteboard.general.string = url.description
-        provider?.activityGlobalState.didTapCopyInvitationUrlAction()
+        provider.managementService.didTapCopUrlAction()
     }
     
 }

@@ -23,12 +23,9 @@ final public class FamilyMemberCellReactor: Reactor {
     // MARK: - State
     
     public struct State {
-        let cellType: FamilyMemberCellKind
-        var memberId: String
-        var name: String
-        var imageUrl: String?
-        var dayOfBirth: Date
-        var isMe: Bool
+        var member: FamilyMemberProfileEntity
+        let isMe: Bool
+        let kind: FamilyMemberCellKind
     }
     
     
@@ -39,14 +36,15 @@ final public class FamilyMemberCellReactor: Reactor {
     
     // MARK: - Intializer
     
-    public init(_ memberResponse: FamilyMemberProfileEntity, isMe: Bool, cellType: FamilyMemberCellKind) {
+    public init(
+        of kind: FamilyMemberCellKind,
+        member: FamilyMemberProfileEntity,
+        isMe: Bool
+    ) {
         self.initialState = State(
-            cellType: cellType,
-            memberId: memberResponse.memberId,
-            name: memberResponse.name,
-            imageUrl: memberResponse.profileImageURL,
-            dayOfBirth: memberResponse.dayOfBirth ?? Date(),
-            isMe: isMe
+            member: member,
+            isMe: isMe,
+            kind: kind
         )
     }
 }

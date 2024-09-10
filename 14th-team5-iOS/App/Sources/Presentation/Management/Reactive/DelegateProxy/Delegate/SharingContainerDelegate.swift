@@ -7,7 +7,7 @@
 
 import UIKit
 
-@objc public protocol SharingRoundedRectDlegate {
+@objc public protocol SharingContainerDlegate {
     
     @objc optional func sharing(_ button: UIButton, didTapSharingButton event: UIButton.Event)
     

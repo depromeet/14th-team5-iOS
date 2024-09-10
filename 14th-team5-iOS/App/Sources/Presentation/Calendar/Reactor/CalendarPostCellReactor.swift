@@ -40,7 +40,7 @@ public final class CalendarPostCellReactor: Reactor {
     public var initialState: State
     
     @Injected var meUseCase: MemberUseCaseProtocol
-    @Injected var provider: GlobalStateProviderProtocol
+    @Injected var provider: ServiceProviderProtocol
     
     // MARK: - Intializer
     public init(

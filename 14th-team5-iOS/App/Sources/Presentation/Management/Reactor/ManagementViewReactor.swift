@@ -13,8 +13,10 @@ import Differentiator
 import ReactorKit
 import RxSwift
 
-public final class FamilyManagementViewReactor: Reactor {
+public final class ManagementViewReactor: Reactor {
+    
     // MARK: - Action
+    
     public enum Action {
         case fetchPaginationFamilyMemebers(Bool)
         case didTapShareContainer
@@ -22,7 +24,9 @@ public final class FamilyManagementViewReactor: Reactor {
         case didSelectTableCell(IndexPath)
     }
     
+    
     // MARK: - Mutate
+    
     public enum Mutation {
         case setSharePanel(String?)
         case setCopySuccessToastMessageView
@@ -33,11 +37,13 @@ public final class FamilyManagementViewReactor: Reactor {
         case pushProfileVC(String)
         case pushPrivacyVC(String)
         case injectFamilyId(String?)
-        case injectFamilyMembers([FamilyMemberProfileCellReactor])
+        case injectFamilyMembers([FamilyMemberCellReactor])
         case generateErrorHapticNotification
     }
     
+    
     // MARK: - State
+    
     public struct State {
         var familyId: String?
         @Pulse var familyInvitationUrl: URL?
@@ -49,18 +55,22 @@ public final class FamilyManagementViewReactor: Reactor {
         @Pulse var shouldGenerateErrorHapticNotification: Bool
         @Pulse var shouldPresentPaperAirplaneLottieView: Bool
         @Pulse var shouldPresentFamilyFetchFailureView: Bool
-        @Pulse var displayFamilyMember: [FamilyMemberProfileSectionModel]
+        @Pulse var displayFamilyMember: [FamilyMemberSectionModel]
         var displayFamilyMemberCount: Int
     }
     
+    
     // MARK: - Properties
+    
     public let initialState: State
     
     @Injected var memberUseCase: MemberUseCaseProtocol
     @Injected var familyUseCase: FamilyUseCaseProtocol
     @Injected var provider: GlobalStateProviderProtocol
     
+    
     // MARK: - Intializer
+    
     init() {
         self.initialState = State(
             familyId: nil,
@@ -79,7 +89,9 @@ public final class FamilyManagementViewReactor: Reactor {
         
     }
     
+    
     // MARK: - Transform
+    
     public func transform(action: Observable<Action>) -> Observable<Action> {
         let eventAction = provider.profileGlobalState.event
             .flatMap { event -> Observable<Action> in
@@ -106,7 +118,9 @@ public final class FamilyManagementViewReactor: Reactor {
         return Observable<Mutation>.merge(mutation, eventMutation)
     }
     
+    
     // MARK: - Mutate
+    
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .didTapShareContainer:
@@ -162,8 +176,8 @@ public final class FamilyManagementViewReactor: Reactor {
                             Observable<Mutation>.just(
                                 .injectFamilyMembers(
                                     familyResponse.map {
-                                        FamilyMemberProfileCellReactor(
-                                            $0, isMe: self.memberUseCase.executeCheckIsMe(memberId: $0.memberId), cellType: .family
+                                        FamilyMemberCellReactor(
+                                            $0, isMe: self.memberUseCase.executeCheckIsMe(memberId: $0.memberId), cellType: .management
                                         )
                                     }
                                 )
@@ -184,7 +198,9 @@ public final class FamilyManagementViewReactor: Reactor {
         }
     }
     
+    
     // MARK: - Reduce
+    
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
@@ -232,8 +248,12 @@ public final class FamilyManagementViewReactor: Reactor {
     }
 }
 
-extension FamilyManagementViewController {
+// MARK: - Extensions
+
+extension ManagementViewReactor {
+    
     private func shouldFetchNextPage(contentOffsetY: CGFloat, frameHehgit: CGFloat) -> Bool {
         return false
     }
+    
 }

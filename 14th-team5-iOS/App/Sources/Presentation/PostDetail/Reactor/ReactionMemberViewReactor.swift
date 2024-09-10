@@ -18,12 +18,12 @@ final class ReactionMemberViewReactor: Reactor {
     }
     
     enum Mutation {
-        case setMemberDataSource([FamilyMemberProfileSectionModel])
+        case setMemberDataSource([FamilyMemberSectionModel])
     }
     
     struct State {
         let emojiData: EmojiEntity
-        var memberDataSource: [FamilyMemberProfileSectionModel] = []
+        var memberDataSource: [FamilyMemberSectionModel] = []
     }
     
     let initialState: State
@@ -40,14 +40,14 @@ extension ReactionMemberViewReactor {
         case .makeDataSource:
             let profiles: [FamilyMemberProfileEntity] = familyUseCase.executeFetchPaginationFamilyMembers(memberIds: currentState.emojiData.memberIds)
             
-            var items: [FamilyMemberProfileCellReactor] = []
+            var items: [FamilyMemberCellReactor] = []
             profiles.forEach {
                 let member = FamilyMemberProfileEntity(
                     memberId: $0.memberId,
                     profileImageURL: $0.profileImageURL,
                     name: $0.name
                 )
-                items.append(FamilyMemberProfileCellReactor(member, isMe: false, cellType: .emoji))
+                items.append(FamilyMemberCellReactor(member, isMe: false, cellType: .emoji))
             }
             
             if  profiles.count != currentState.emojiData.memberIds.count {
@@ -57,11 +57,11 @@ extension ReactionMemberViewReactor {
                         memberId: .none,
                         name: .unknown
                     )
-                    items.append(FamilyMemberProfileCellReactor(member, isMe: false, cellType: .emoji))
+                    items.append(FamilyMemberCellReactor(member, isMe: false, cellType: .emoji))
                 }
             }
             
-            let dataSource: FamilyMemberProfileSectionModel = .init(model: (), items: items)
+            let dataSource: FamilyMemberSectionModel = .init(model: (), items: items)
             return Observable.just(Mutation.setMemberDataSource([dataSource]))
         }
     }

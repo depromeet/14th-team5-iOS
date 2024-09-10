@@ -14,8 +14,10 @@ import RxSwift
 import SnapKit
 import Then
 
-final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellReactor> {    
+final public class FamilyMemberCell: BaseTableViewCell<FamilyMemberCellReactor> {
+    
     // MARK: - Views
+    
     private let containerView: UIView = UIView()
     private let firstNameLabel: BBLabel = BBLabel(.head2Bold, textAlignment: .center, textColor: .gray200)
     private let profileImageView: UIImageView = UIImageView()
@@ -28,14 +30,21 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
     
     
     // MARK: - Properties
+    
     static let id: String = "FamilyProfileCell"
     
+    // 요거 깔끔하게 코드 수정
     private var containerSize: CGFloat {
         guard let reactor = reactor else { return 52 }
-        return reactor.currentState.cellType == .family ? 52 : 44
+        return reactor.currentState.cellType == .management ? 52 : 44
     }
+    
+    // MARK: - Intializer
 
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+    override init(
+        style: UITableViewCell.CellStyle,
+        reuseIdentifier: String?
+    ) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
     }
     
@@ -43,22 +52,18 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func prepareForReuse() {
-        nameLabel.text = String.none
-        isMeLabel.text = String.none
-        profileImageView.image = nil
-    }
     
     // MARK: - Helpers
-    override func bind(reactor: FamilyMemberProfileCellReactor) {
+    
+    public override func bind(reactor: FamilyMemberCellReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: FamilyMemberProfileCellReactor) { }
+    private func bindInput(reactor: FamilyMemberCellReactor) { }
     
-    private func bindOutput(reactor: FamilyMemberProfileCellReactor) {
+    private func bindOutput(reactor: FamilyMemberCellReactor) {
         reactor.state.compactMap { $0.imageUrl }
             .distinctUntilChanged()
             .bind(to: profileImageView.rx.kingfisherImage)
@@ -95,13 +100,13 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.cellType }
-            .map { $0 != .family }
+            .map { $0 != .management }
             .distinctUntilChanged()
             .bind(to: rightArrowImageView.rx.isHidden)
             .disposed(by: disposeBag)
     }
     
-    override func setupUI() {
+    public override func setupUI() {
         super.setupUI()
         containerView.addSubviews(
             firstNameLabel, profileImageView
@@ -115,7 +120,7 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
         )
     }
     
-    override func setupAutoLayout() {
+    public override func setupAutoLayout() {
         super.setupAutoLayout()
 
         containerView.snp.makeConstraints {
@@ -150,7 +155,7 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
         }
     }
     
-    override func setupAttributes() {
+    public override func setupAttributes() {
         super.setupAttributes()
         
         self.selectionStyle = .none
@@ -187,4 +192,11 @@ final class FamilyMemberProfileCell: BaseTableViewCell<FamilyMemberProfileCellRe
             $0.contentMode = .scaleAspectFill
         }
     }
+    
+    public override func prepareForReuse() {
+        nameLabel.text = String.none
+        isMeLabel.text = String.none
+        profileImageView.image = nil
+    }
+    
 }

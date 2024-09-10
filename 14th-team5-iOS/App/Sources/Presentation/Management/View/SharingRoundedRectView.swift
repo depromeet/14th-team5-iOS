@@ -9,9 +9,18 @@ import Core
 import DesignSystem
 import UIKit
 
-fileprivate typealias _Str = FamilyManagementStrings
-public final class InvitationUrlContainerView: BaseView<InvitationUrlContainerViewReactor> {
+
+// MARK: - Typealias
+
+fileprivate typealias _Str = ManagementStrings // SharingRoundedRectStrings 로 수정
+
+
+// MARK: - ViewController
+
+public final class SharingRoundedRectView: BaseView<SharingRoundedRectViewReactor> {
+    
     // MARK: - Views
+    
     private let shareContainerView: UIView = UIView()
     private let envelopeImageView: UIImageView = UIImageView()
     
@@ -21,7 +30,11 @@ public final class InvitationUrlContainerView: BaseView<InvitationUrlContainerVi
     private let shareLineImageView: UIImageView = UIImageView()
     private let indicatorView: UIActivityIndicatorView = UIActivityIndicatorView()
     
+    
+    public weak var delegate: SharingRoundedRectDlegate?
+    
     // MARK: - Intialzier
+    
     public override init(frame: CGRect) {
         super.init(frame: .zero)
     }
@@ -30,16 +43,18 @@ public final class InvitationUrlContainerView: BaseView<InvitationUrlContainerVi
         fatalError("init(coder:) has not been implemented")
     }
     
+    
     // MARK: - Helpers
-    public override func bind(reactor: InvitationUrlContainerViewReactor) { 
+    
+    public override func bind(reactor: SharingRoundedRectViewReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: InvitationUrlContainerViewReactor) { }
+    private func bindInput(reactor: SharingRoundedRectViewReactor) { }
     
-    private func bindOutput(reactor: InvitationUrlContainerViewReactor) {
+    private func bindOutput(reactor: SharingRoundedRectViewReactor) {
         reactor.state.map { !$0.shouldHiddenIndicatorView }
             .distinctUntilChanged()
             .bind(to: indicatorView.rx.isHidden)

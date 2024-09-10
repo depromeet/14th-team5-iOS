@@ -7,12 +7,13 @@
 
 import UIKit
 
-typealias FamilyManagementStrings = String.FamilyManagement
+typealias ManagementStrings = String.Management
 extension String {
-    enum FamilyManagement {}
+    enum Management {}
 }
 
-extension FamilyManagementStrings {
+extension ManagementStrings {
+    
     static let mainTitle: String = "가족"
     static let inviteDescText: String = "삐삐에 가족 초대하기"
     static let invitationUrlText: String = "https://no5ing.kr/"
@@ -21,4 +22,5 @@ extension FamilyManagementStrings {
     static let sucessCopyInvitationUrlText = "링크가 복사되었어요"
     static let fetchFailInvitationUrlText = "잠시 후에 다시 시도해주세요"
     static let fetchFailFamilyText = "가족을 불러오는데 실패했어요"
+    
 }

@@ -13,14 +13,18 @@ import Then
 import SnapKit
 
 final public class BlurAiraplaneLottieView: UIView {
+    
     // MARK: - Views
+    
     private let blurContainerView: UIView = UIView()
 
     private let lottieStack: UIStackView = UIStackView()
     private let lottieView: LottieView = LottieView(with: .loading)
     private let loadingLabel: BBLabel = BBLabel(.body1Regular, textAlignment: .center, textColor: .gray500)
     
+    
     // MARK: - Properties
+    
     public var containerSize: CGFloat = 125 {
         didSet {
             blurContainerView.snp.updateConstraints {

@@ -13,18 +13,17 @@ import ReactorKit
 import RxDataSources
 import RxSwift
 
-final public class FamilyMemberProfileCellReactor: Reactor {
-    public enum CellType {
-        case family
-        case emoji
-    }
+final public class FamilyMemberCellReactor: Reactor {
     
     // MARK: - Action
+    
     public typealias Action = NoAction
     
+    
     // MARK: - State
+    
     public struct State {
-        let cellType: CellType
+        let cellType: FamilyMemberCellKind
         var memberId: String
         var name: String
         var imageUrl: String?
@@ -32,11 +31,15 @@ final public class FamilyMemberProfileCellReactor: Reactor {
         var isMe: Bool
     }
     
+    
     // MARK: - Properties
+    
     public var initialState: State
     
+    
     // MARK: - Intializer
-    public init(_ memberResponse: FamilyMemberProfileEntity, isMe: Bool, cellType: CellType) {
+    
+    public init(_ memberResponse: FamilyMemberProfileEntity, isMe: Bool, cellType: FamilyMemberCellKind) {
         self.initialState = State(
             cellType: cellType,
             memberId: memberResponse.memberId,

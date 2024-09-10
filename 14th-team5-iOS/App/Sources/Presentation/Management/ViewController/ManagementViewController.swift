@@ -16,46 +16,68 @@ import RxSwift
 import SnapKit
 import Then
 
-fileprivate typealias _Str = FamilyManagementStrings
-public final class FamilyManagementViewController: BBNavigationViewController<FamilyManagementViewReactor> {
+
+// MARK: - Typealias
+
+fileprivate typealias _Str = ManagementStrings
+
+
+// MARK: - ViewController
+
+public final class ManagementViewController: BBNavigationViewController<ManagementViewReactor> {
+    
+    // MARK: - Typealias
+    
+    private typealias RxDataSource = RxTableViewSectionedReloadDataSource<FamilyMemberSectionModel>
+    
+    
     // MARK: - Views
     
-    private let shareContainerview: InvitationUrlContainerView = InvitationUrlContainerDIContainer().makeView()
-    private let dividerView: UIView = UIView()
+    // 공유 라운드 Rectangle 뷰 따로 빼기 - 뷰 컨트롤러 안에 Wrapper 따로 만들기
+    private let shareContainerview: SharingRoundedRectView = InvitationUrlContainerDIContainer().makeView()
+    // SharingRoundedRectView
     
+    
+    // 이거는 뷰 컨트롤러에 냅두기
+    private let dividerView: UIView = UIView()
+    // divider
+    
+    // 테이블 뷰로 빼기
+    
+    // > 테이블 헤더로 뷰 따로 빼기
     private let headerStack: UIStackView = UIStackView()
     private let tableTitleLabel: BBLabel = BBLabel(.head1, textColor: .gray200)
     private let tableEditButton: BBButton = BBButton()
     private let tableCountLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray400)
     
-    private let familyTableView: UITableView = UITableView()
-    private let refreshControl: UIRefreshControl = UIRefreshControl()
+    // > 테이블 뷰로 따로 빼기
+    private let familyTableView: UITableView = UITableView() // memberTableView 로 이름 바꾸기
+    private let refreshControl: UIRefreshControl = UIRefreshControl() // refreshControl.. 좋은데 커스텀 refresh Control 해보기
 
+    
+    
+    // BBProgressHUD로 바꾸기
     private let bibbiLottieView: AirplaneLottieView = AirplaneLottieView()
     
+    // 이거 따로 빼는거 준비하기
     private let fetchFailureView: BibbiFetchFailureView = BibbiFetchFailureView(type: .family)
     
+    
     // MARK: - Properties
-    private lazy var dataSource: RxTableViewSectionedReloadDataSource<FamilyMemberProfileSectionModel> = prepareDatasource()
     
-    // MARK: - Lifecycles
-    public override func viewDidLoad() {
-        super.viewDidLoad()
-    }
-    
-    public override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.navigationBar.isHidden = true
-    }
+    private lazy var dataSource: RxDataSource = {
+        prepareDatasource()
+    }()
     
     // MARK: - Helpers
-    public override func bind(reactor: FamilyManagementViewReactor) {
+    
+    public override func bind(reactor: ManagementViewReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: FamilyManagementViewReactor) {
+    private func bindInput(reactor: ManagementViewReactor) {
         Observable<Void>.just(())
             .map { Reactor.Action.fetchPaginationFamilyMemebers(false) }
             .bind(to: reactor.action)
@@ -67,7 +89,7 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
             .disposed(by: disposeBag)
         
         shareContainerview.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
+            .throttle(RxInterval._300milliseconds, scheduler: MainScheduler.instance)
             .map { Reactor.Action.didTapShareContainer }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -91,7 +113,9 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
             .disposed(by: disposeBag)
     }
     
-    private func bindOutput(reactor: FamilyManagementViewReactor) {
+    private func bindOutput(reactor: ManagementViewReactor) {
+        
+        // 이거 Navigator로 제거하기
         reactor.pulse(\.$shouldPushPrivacyVC)
             .filter { !$0.isEmpty }
             .withUnretained(self)
@@ -101,6 +125,7 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
             }
             .disposed(by: disposeBag)
         
+        // 초대 링크는 Transform으로 전달 받기
         reactor.pulse(\.$familyInvitationUrl)
             .withUnretained(self)
             .subscribe {
@@ -111,11 +136,13 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
             }
             .disposed(by: disposeBag)
         
+        // RoundedRectView로 이동하기
         reactor.state.map { "\($0.displayFamilyMemberCount)" }
             .distinctUntilChanged()
             .bind(to: tableCountLabel.rx.text)
             .disposed(by: disposeBag)
         
+        // ManagementTableView로 이동하기
         let familyMember = reactor.pulse(\.$displayFamilyMember).asDriver(onErrorJustReturn: [])
         
         familyMember
@@ -130,6 +157,7 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
             })
             .disposed(by: disposeBag)
         
+        // Navigator로 이동
         reactor.pulse(\.$shouldPushProfileVC)
             .filter { !$0.isEmpty }
             .withUnretained(self)
@@ -139,6 +167,7 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
             }
             .disposed(by: disposeBag)
         
+        // Navigator로 이동
         reactor.pulse(\.$shouldPresentCopySuccessToastMessageView)
             .filter { $0 }
             .withUnretained(self)
@@ -150,6 +179,7 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
             })
             .disposed(by: disposeBag)
         
+        // Navigator로 이동
         reactor.pulse(\.$shouldPresentUrlFetchFailureToastMessageView)
             .filter { $0 }
             .withUnretained(self)
@@ -158,6 +188,7 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
             })
             .disposed(by: disposeBag)
         
+        // Navigator로 이동
         reactor.pulse(\.$shouldPresentFamilyFetchFailureToastMessageView)
             .filter { $0 }
             .withUnretained(self)
@@ -169,6 +200,7 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
             }
             .disposed(by: disposeBag)
 
+        // ManagementTableView로 이동 구현
         reactor.pulse(\.$shouldPresentPaperAirplaneLottieView)
             .bind(to: bibbiLottieView.rx.isHidden)
             .disposed(by: disposeBag)
@@ -177,6 +209,8 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
             .bind(to: fetchFailureView.rx.isHidden)
             .disposed(by: disposeBag)
         
+        
+        // ManagementTableView로 이동 구현
         reactor.pulse(\.$shouldGenerateErrorHapticNotification)
             .filter { $0 }
             .subscribe(onNext: { _ in Haptic.notification(type: .error) })
@@ -185,6 +219,8 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
     
     public override func setupUI() {
         super.setupUI()
+        
+        // 코드 리팩토링하기
         view.addSubviews(
             shareContainerview,
             dividerView, headerStack, tableEditButton ,familyTableView
@@ -197,6 +233,7 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
+        
         shareContainerview.snp.makeConstraints {
             $0.top.equalTo(navigationBar.snp.bottom).offset(24)
             $0.horizontalEdges.equalToSuperview().inset(20)
@@ -240,6 +277,7 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
     
     public override func setupAttributes() {
         super.setupAttributes()
+        
         navigationBar.do {
             $0.navigationTitle = "가족"
             $0.navigationTitleFontStyle = .head2Bold
@@ -280,7 +318,7 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
             $0.refreshControl = refreshControl
             $0.refreshControl?.tintColor = UIColor.bibbiWhite
             
-            $0.register(FamilyMemberProfileCell.self, forCellReuseIdentifier: FamilyMemberProfileCell.id)
+            $0.register(FamilyMemberCell.self, forCellReuseIdentifier: FamilyMemberCell.id)
         }
         
         fetchFailureView.do {
@@ -289,13 +327,23 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
     }
 }
 
+
 // MARK: - Extensions
-extension FamilyManagementViewController {
-    private func prepareDatasource() -> RxTableViewSectionedReloadDataSource<FamilyMemberProfileSectionModel> {
-        return RxTableViewSectionedReloadDataSource<FamilyMemberProfileSectionModel> { datasource, tableView, indexPath, reactor in
-            let cell = tableView.dequeueReusableCell(withIdentifier: FamilyMemberProfileCell.id, for: indexPath) as! FamilyMemberProfileCell
+
+private extension ManagementViewController {
+
+    
+    
+}
+
+private extension ManagementViewController {
+    
+    func prepareDatasource() -> RxTableViewSectionedReloadDataSource<FamilyMemberSectionModel> {
+        return RxTableViewSectionedReloadDataSource<FamilyMemberSectionModel> { datasource, tableView, indexPath, reactor in
+            let cell = tableView.dequeueReusableCell(withIdentifier: FamilyMemberCell.id, for: indexPath) as! FamilyMemberCell
             cell.reactor = reactor
             return cell
         }
     }
+    
 }

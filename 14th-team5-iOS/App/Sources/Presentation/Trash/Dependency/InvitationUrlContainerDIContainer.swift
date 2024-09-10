@@ -20,11 +20,11 @@ public final class InvitationUrlContainerDIContainer {
     }
     
     // MARK: - Make
-    public func makeView() -> InvitationUrlContainerView {
-        return InvitationUrlContainerView(reactor: makeReactor())
+    public func makeView() -> SharingRoundedRectView {
+        return SharingRoundedRectView(reactor: makeReactor())
     }
     
-    public func makeReactor() -> InvitationUrlContainerViewReactor {
-        return InvitationUrlContainerViewReactor(provider: globalState)
+    public func makeReactor() -> SharingRoundedRectViewReactor {
+        return SharingRoundedRectViewReactor(provider: globalState)
     }
 }

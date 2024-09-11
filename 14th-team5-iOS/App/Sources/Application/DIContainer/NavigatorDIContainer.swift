@@ -58,6 +58,18 @@ final class NavigatorDIContainer: BaseContainer {
         container.register(type: FamilyEntranceNavigatorProtocol.self) { _ in
                 FamilyEntranceNavigator(navigationController: makeUINavigationController())
         }
+        
+        container.register(type: OnboardingNavigatorProtocol.self) { _ in
+            OnboardingNavigator(
+                navigationController: makeUINavigationController()
+            )
+        }
+        
+        container.register(type: PrivacyNavigatorProtocol.self) { _ in
+            PrivacyNavigator(
+                navigationController: makeUINavigationController()
+            )
+        }
     }
     
 }

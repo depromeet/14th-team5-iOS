@@ -62,10 +62,7 @@ extension AccountSignInReactor {
                             .just(.setIsFirstOnboarding(isFirstOnboarding))
                         )
                     case .failed:
-                        return .concat(
-                            .just(.kakaoLogin(false)),
-                            .just(.setIsFirstOnboarding(false))
-                        )
+                        return .just(.kakaoLogin(false))
                     }
                 }
             
@@ -81,10 +78,7 @@ extension AccountSignInReactor {
                             .just(.setIsFirstOnboarding(isFirstOnboarding))
                         )
                     case .failed:
-                        return .concat(
-                            .just(.appleLogin(false)),
-                            .just(.setIsFirstOnboarding(false))
-                        )
+                        return .just(.appleLogin(false))
                     }
                 }
         }

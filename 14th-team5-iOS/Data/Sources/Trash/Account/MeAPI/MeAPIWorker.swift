@@ -157,16 +157,6 @@ extension MeAPIWorker {
             .asSingle()
     }
     
-    @available(*, deprecated, renamed: "resignFamily")
-    public func resignFamily() -> Single<AccountFamilyResignResponse?> {
-        let spec = PrivacyAPIs.accountFamilyResign.spec
-        return Observable.just(())
-            .withLatestFrom(self._headers)
-            .withUnretained(self)
-            .flatMap { $0.0.resignFamily(spec: spec, headers: $0.1) }
-            .asSingle()
-    }
-    
     public func fetchAppVersion() -> Single<AppVersionInfo?> {
         let spec = MeAPIs.appVersion.spec
         return Observable.just(())

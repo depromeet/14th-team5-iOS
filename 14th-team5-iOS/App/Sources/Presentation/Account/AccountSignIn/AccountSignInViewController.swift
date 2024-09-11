@@ -38,7 +38,6 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
     
     override public func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.navigationBar.isHidden = false
     }
     
     override public func setupUI() {
@@ -110,13 +109,13 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
     
     override public func bind(reactor: AccountSignInReactor) {
         kakaoLoginButton.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.kakaoLoginTapped(.kakao, self) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         appleLoginButton.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.appleLoginTapped(.apple, self) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -127,7 +126,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
                 App.Repository.token.accessToken.asObservable(),
                 reactor.pulse(\.$isFirstOnboarding)
             )
-            .observe(on: RxSchedulers.main)
+            .observe(on: RxScheduler.main)
             .bind(with: self) { owner, response in
                 let (token, isFirstOnboarding) = response
                 owner.showNextPage(token: token, isFirstOnboarding)
@@ -140,20 +139,19 @@ extension AccountSignInViewController {
     private func showNextPage(token: AccessToken?, _ isFirstOnboarding: Bool) {
         guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
         guard let token = token, let isTemporaryToken = token.isTemporaryToken else { return }
+        //TODO: AccoutSignIn Navigator 추가
         if isTemporaryToken {
             let container = UINavigationController(rootViewController: AccountSignUpDIContainer().makeViewController())
             container.modalPresentationStyle = .fullScreen
-            present(container, animated: false)
+            sceneDelegate.window?.rootViewController = container
             return
         }
         
-        if isFirstOnboarding == true && isTemporaryToken == false {
+        if isFirstOnboarding == true {
             let mainViewController = MainViewControllerWrapper().viewController
             let container = UINavigationController(rootViewController: mainViewController)
             sceneDelegate.window?.rootViewController = container
             sceneDelegate.window?.makeKeyAndVisible()
         }
-        
-        // isFirstOnboarding 이 true 이고 member isTemporaryToken false 일경우 MainViewController로 이동
     }
 }

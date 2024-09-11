@@ -14,6 +14,7 @@ import RxSwift
 
 final class AccountResignViewReactor: Reactor {
     private let resignUseCase: AccountResignUseCaseProtocol
+    @Injected var updateIsFirstOnboardingUseCase: UpdateIsFirstOnboardingUseCaseProtocol
     var initialState: State
     
     enum Action {
@@ -61,7 +62,7 @@ final class AccountResignViewReactor: Reactor {
                 .withUnretained(self)
                 .flatMap { owner, entity -> Observable<AccountResignViewReactor.Mutation> in
                     if entity.isSuccess {
-                        
+                        owner.updateIsFirstOnboardingUseCase.execute(false)
                         return .concat(
                             .just(.setLoading(true)),
                             .just(.setResignEntity(entity.isSuccess)),

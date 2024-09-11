@@ -1,8 +1,8 @@
 //
-//  MembersRepositoryProtocol.swift
+//  MembersRepository.swift
 //  Domain
 //
-//  Created by Kim dohyun on 6/5/24.
+//  Created by Kim dohyun on 9/11/24.
 //
 
 import Foundation
@@ -18,3 +18,5 @@ public protocol MembersRepositoryProtocol {
     func updataProfileImageToS3(memberId: String, parameter: ProfileImageEditParameter) -> Single<MembersProfileEntity?>
     func deleteProfileImageToS3(memberId: String) -> Single<MembersProfileEntity?>
 }
+
+

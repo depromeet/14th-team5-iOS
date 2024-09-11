@@ -87,7 +87,7 @@ public final class FamilyManagementViewController: BBNavigationViewController<Fa
             .filter { !$0.isEmpty }
             .withUnretained(self)
             .subscribe {
-                let privacyVC = PrivacyDIContainer(memberId: $0.1).makeViewController()
+                let privacyVC = PrivacyViewControllerWrapper(memberId: $0.1).viewController
                 $0.0.navigationController?.pushViewController(privacyVC, animated: true)
             }
             .disposed(by: disposeBag)

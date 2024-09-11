@@ -8,6 +8,7 @@
 import Foundation
 
 
+//TODO: Request로 네이밍 수정
 public struct ProfileImageEditParameter: Encodable {
     public var profileImageUrl: String
     

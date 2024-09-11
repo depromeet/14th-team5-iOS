@@ -120,7 +120,7 @@ extension AccountSignUpReactor {
                         .just(.setEditNickName(entity))
                 }
             
-        case let .didTapCompletehButton:
+        case .didTapCompletehButton:
             let date = getDateToString(year: currentState.year!, month: currentState.month, day: currentState.day)
             
             if self.currentState.profilePresignedURL.isEmpty {

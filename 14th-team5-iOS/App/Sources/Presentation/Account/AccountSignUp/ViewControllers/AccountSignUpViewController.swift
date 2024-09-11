@@ -88,9 +88,9 @@ extension AccountSignUpViewController {
     }
     
     private func showOnboardingViewCotnroller() {
-        let onBoardingViewController = OnBoardingDIContainer().makeViewController()
-        onBoardingViewController.modalPresentationStyle = .fullScreen
-        present(onBoardingViewController, animated: true)
+        //TODO: Navigator
+        let onBoardingViewController = OnboardingViewControllerWrapper().viewController
+        self.navigationController?.pushViewController(onBoardingViewController, animated: true)
     }
 }
 

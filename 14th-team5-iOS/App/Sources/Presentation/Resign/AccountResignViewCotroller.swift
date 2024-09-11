@@ -201,6 +201,7 @@ extension AccountResignViewCotroller {
     
     private func makeRootViewController() {
         guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
+        //TODO: Navigator
         sceneDelegate.window?.rootViewController = SplashDIContainer().makeViewController()
         sceneDelegate.window?.makeKeyAndVisible()
     }

@@ -102,10 +102,7 @@ final public class FamilyMemberCell: BaseTableViewCell<FamilyMemberCellReactor> 
         
         reactor.state.map { $0.isHiddenIsMeMark }
             .distinctUntilChanged()
-            .bind(with: self) {
-                $0.isMeLabel.text = $1 ? "" : "Me"
-                $0.labelStack.spacing = $1 ? 0 : 3
-            }
+            .bind(with: self) { $0.isMeLabel.text = $1 ? "" : "Me" }
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.isHiddenBirthBadge}
@@ -118,11 +115,16 @@ final public class FamilyMemberCell: BaseTableViewCell<FamilyMemberCellReactor> 
             .bind(to: profileImage.rx.kingfisherImage)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.kind }
-            .map { $0 != .management }
+        let kind = reactor.state
+            .map { $0.kind }
+            .map { $0 == .emoji }
+            .asDriver(onErrorJustReturn: false)
+        
+        kind
             .distinctUntilChanged()
-            .bind(to: rightArrowSymbol.rx.isHidden)
+            .drive(rightArrowSymbol.rx.isHidden)
             .disposed(by: disposeBag)
+        
     }
     
     public override func setupUI() {

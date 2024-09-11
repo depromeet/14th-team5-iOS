@@ -69,12 +69,14 @@ final public class FamilyMemberCellReactor: Reactor {
         
         switch action {
         case .checkIsMe:
-            let isHidden = checkIsMeUseCase.execute(memberId: member.memberId)
-            return Observable<Mutation>.just(.setIsHiddenIsMeMark(!isHidden))
+            let checkIsMe = checkIsMeUseCase.execute(memberId: member.memberId)
+            let isHidden = initialState.kind == .management ? !checkIsMe : true
+            return Observable<Mutation>.just(.setIsHiddenIsMeMark(isHidden))
             
         case .checkIsMemberBirth:
-            let isHidden = member.dayOfBirth?.isEqual([.day, .month], with: Date.now) ?? false
-            return Observable<Mutation>.just(.setIsHiddenBirthBadge(!isHidden))
+            let checkBirth = member.dayOfBirth?.isEqual([.day, .month], with: Date.now) ?? false
+            let isHidden = initialState.kind == .management ? !checkBirth : true
+            return Observable<Mutation>.just(.setIsHiddenBirthBadge(isHidden))
         }
     }
     

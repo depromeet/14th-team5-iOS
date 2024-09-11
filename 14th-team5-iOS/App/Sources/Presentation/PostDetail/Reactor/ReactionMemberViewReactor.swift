@@ -47,7 +47,7 @@ extension ReactionMemberViewReactor {
                     profileImageURL: $0.profileImageURL,
                     name: $0.name
                 )
-                items.append(FamilyMemberCellReactor(of: .emoji, member: member, isMe: false))
+                items.append(FamilyMemberCellReactor(.emoji, member: member))
             }
             
             if  profiles.count != currentState.emojiData.memberIds.count {
@@ -57,7 +57,7 @@ extension ReactionMemberViewReactor {
                         memberId: .none,
                         name: .unknown
                     )
-                    items.append(FamilyMemberCellReactor(of: .emoji, member: member, isMe: false))
+                    items.append(FamilyMemberCellReactor(.emoji, member: member))
                 }
             }
             

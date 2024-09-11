@@ -143,19 +143,13 @@ public final class ManagementReactor: Reactor {
                         // TODO: - 새로운 가족 이름 반영하기
                         managementService.setTableHeaderInfo(familyName: "나의 가족", memberCount: results.count)
                         managementService.endTableRefreshing()
-                        return Observable<Mutation>.just(
-                            .setMemberDatasource(
-                                results.map { [weak self] member in
-                                    let isMe = self?.checkIsMeUseCase.execute(memberId: member.memberId) ?? false
-                                    
-                                    return FamilyMemberCellReactor(
-                                        of: .management,
-                                        member: member,
-                                        isMe: isMe
-                                    )
-                                }
-                            )
-                        )
+                        
+                        let items = results.sorted { [unowned self] in
+                            self.checkIsMeUseCase.execute(memberId: $0.memberId) &&
+                            !self.checkIsMeUseCase.execute(memberId: $1.memberId)
+                        }.map { FamilyMemberCellReactor(.management, member: $0) }
+                        
+                        return Observable<Mutation>.just(.setMemberDatasource(items))
                     }
             )
             
@@ -176,11 +170,8 @@ public final class ManagementReactor: Reactor {
         var newState = state
         switch mutation {
             
-        case let .setMemberDatasource(members):
-            guard
-                var dataSource = currentState.memberDatasource.first
-            else { break }
-            dataSource.items = members.sorted { $0.currentState.isMe && !$1.currentState.isMe }
+        case let .setMemberDatasource(items):
+            let dataSource = FamilyMemberSectionModel(model: (), items: items)
             newState.memberDatasource = [dataSource]
         }
         return newState

@@ -5,10 +5,10 @@
 //  Created by 김건우 on 12/12/23.
 //
 
-import UIKit
-
 import Core
 import DesignSystem
+import UIKit
+
 import ReactorKit
 import RxSwift
 import SnapKit
@@ -18,26 +18,33 @@ final public class FamilyMemberCell: BaseTableViewCell<FamilyMemberCellReactor> 
     
     // MARK: - Views
     
-    private let containerView: UIView = UIView()
-    private let firstNameLabel: BBLabel = BBLabel(.head2Bold, textAlignment: .center, textColor: .gray200)
-    private let profileImageView: UIImageView = UIImageView()
-    private let dayOfBirthBadgeView: UIImageView = UIImageView()
+    private let profileBackground: UIView = UIView()
+    private let profileImage: UIImageView = UIImageView()
+    private let profilePlaceholder: BBLabel = BBLabel(.head2Bold, textAlignment: .center, textColor: .gray200)
+    private let birthBadge: UIImageView = UIImageView()
     
     private let labelStack: UIStackView = UIStackView()
     private let nameLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray200)
     private let isMeLabel: BBLabel = BBLabel(.body2Regular, textColor: .gray500)
-    private let rightArrowImageView: UIImageView = UIImageView()
+    
+    private let rightArrowSymbol: UIImageView = UIImageView()
     
     
     // MARK: - Properties
     
-    static let id: String = "FamilyProfileCell"
+    static let id: String = "FamilyMemberCell"
     
-    // 요거 깔끔하게 코드 수정
     private var containerSize: CGFloat {
-        guard let reactor = reactor else { return 52 }
-        return reactor.currentState.kind == .management ? 52 : 44
+        guard let reactor else { return 52 }
+        
+        let size: CGFloat = switch reactor.initialState.kind {
+        case .emoji: 44
+        case .management: 52
+        }
+        
+        return size
     }
+    
     
     // MARK: - Intializer
 
@@ -55,100 +62,105 @@ final public class FamilyMemberCell: BaseTableViewCell<FamilyMemberCellReactor> 
     
     // MARK: - Helpers
     
+    public override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        nameLabel.text = ""
+        isMeLabel.text = ""
+        profileImage.image = nil
+    }
+    
     public override func bind(reactor: FamilyMemberCellReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: FamilyMemberCellReactor) { }
+    private func bindInput(reactor: FamilyMemberCellReactor) {
+        Observable<Reactor.Action>.merge([
+            Observable.just(.checkIsMe),
+            Observable.just(.checkIsMemberBirth)
+        ])
+        .bind(to: reactor.action)
+        .disposed(by: disposeBag)
+    }
     
     private func bindOutput(reactor: FamilyMemberCellReactor) {
-        reactor.state.compactMap { $0.member.profileImageURL }
-            .distinctUntilChanged()
-            .bind(to: profileImageView.rx.kingfisherImage)
-            .disposed(by: disposeBag)
+        let memberName = reactor.state
+            .map { $0.member.name }
+            .asDriver(onErrorJustReturn: .none)
         
-        let name = reactor.state.map({ $0.member.name }).asDriver(onErrorJustReturn: .none)
-        
-        name
+        memberName
             .distinctUntilChanged()
             .drive(nameLabel.rx.text)
             .disposed(by: disposeBag)
         
-        name
+        memberName
             .distinctUntilChanged()
-            .drive(firstNameLabel.rx.firtNameText)
+            .drive(profilePlaceholder.rx.firstLetterText)
             .disposed(by: disposeBag)
         
-        let isMe = reactor.state.map({ $0.isMe }).asDriver(onErrorJustReturn: false)
-        
-        isMe
+        reactor.state.map { $0.isHiddenIsMeMark }
             .distinctUntilChanged()
-            .drive(isMeLabel.rx.isMeText)
+            .bind(with: self) {
+                $0.isMeLabel.text = $1 ? "" : "Me"
+                $0.labelStack.spacing = $1 ? 0 : 3
+            }
             .disposed(by: disposeBag)
         
-        isMe
+        reactor.state.map { $0.isHiddenBirthBadge}
             .distinctUntilChanged()
-            .drive(labelStack.rx.isMeSpacing)
+            .bind(to: birthBadge.rx.isHidden)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.member.dayOfBirth ?? Date() }
+        reactor.state.compactMap { $0.member.profileImageURL }
             .distinctUntilChanged()
-            .map { !$0.isEqual([.month, .day], with: .now) }
-            .bind(to: dayOfBirthBadgeView.rx.isHidden)
+            .bind(to: profileImage.rx.kingfisherImage)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.kind }
             .map { $0 != .management }
             .distinctUntilChanged()
-            .bind(to: rightArrowImageView.rx.isHidden)
+            .bind(to: rightArrowSymbol.rx.isHidden)
             .disposed(by: disposeBag)
     }
     
     public override func setupUI() {
         super.setupUI()
-        containerView.addSubviews(
-            firstNameLabel, profileImageView
-        )
-        contentView.addSubviews(
-            containerView, dayOfBirthBadgeView,
-            labelStack, rightArrowImageView
-        )
-        labelStack.addArrangedSubviews(
-            nameLabel, isMeLabel
-        )
+        profileBackground.addSubviews(profilePlaceholder, profileImage)
+        contentView.addSubviews(profileBackground, birthBadge,labelStack, rightArrowSymbol)
+        labelStack.addArrangedSubviews(nameLabel, isMeLabel)
     }
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
 
-        containerView.snp.makeConstraints {
+        profileBackground.snp.makeConstraints {
              $0.size.equalTo(containerSize)
              $0.leading.equalTo(contentView.snp.leading).offset(20)
              $0.verticalEdges.equalToSuperview().inset(12)
          }
         
-        dayOfBirthBadgeView.snp.makeConstraints {
+        birthBadge.snp.makeConstraints {
             $0.size.equalTo(20)
-            $0.top.equalTo(containerView.snp.top).offset(-5)
-            $0.trailing.equalTo(containerView.snp.trailing).offset(5)
+            $0.top.equalTo(profileBackground.snp.top).offset(-5)
+            $0.trailing.equalTo(profileBackground.snp.trailing).offset(5)
         }
         
-        firstNameLabel.snp.makeConstraints {
+        profilePlaceholder.snp.makeConstraints {
             $0.center.equalToSuperview()
         }
         
-        profileImageView.snp.makeConstraints {
+        profileImage.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
         
         labelStack.snp.makeConstraints {
-            $0.leading.equalTo(containerView.snp.trailing).offset(16)
-            $0.centerY.equalTo(containerView.snp.centerY)
+            $0.leading.equalTo(profileBackground.snp.trailing).offset(16)
+            $0.centerY.equalTo(profileBackground.snp.centerY)
         }
         
-        rightArrowImageView.snp.makeConstraints {
+        rightArrowSymbol.snp.makeConstraints {
             $0.size.equalTo(20)
             $0.centerY.equalToSuperview()
             $0.trailing.equalToSuperview().offset(-20)
@@ -161,20 +173,19 @@ final public class FamilyMemberCell: BaseTableViewCell<FamilyMemberCellReactor> 
         self.selectionStyle = .none
         self.backgroundColor = .clear
         
-        containerView.do {
+        profileBackground.do {
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = containerSize / 2
             $0.backgroundColor = UIColor.gray800
         }
         
-        dayOfBirthBadgeView.do {
+        birthBadge.do {
             $0.image = DesignSystemAsset.birthday.image
             $0.contentMode = .scaleAspectFit
         }
         
-        profileImageView.do {
+        profileImage.do {
             $0.contentMode = .scaleAspectFill
-            $0.layer.masksToBounds = true
             $0.layer.cornerRadius = containerSize / 2
         }
         
@@ -185,18 +196,12 @@ final public class FamilyMemberCell: BaseTableViewCell<FamilyMemberCellReactor> 
             $0.distribution = .fillProportionally
         }
         
-        rightArrowImageView.do {
+        rightArrowSymbol.do {
             let arrowRight = DesignSystemAsset.arrowRight.image
             $0.image = arrowRight.withRenderingMode(.alwaysTemplate)
             $0.tintColor = UIColor.gray500
             $0.contentMode = .scaleAspectFill
         }
-    }
-    
-    public override func prepareForReuse() {
-        nameLabel.text = String.none
-        isMeLabel.text = String.none
-        profileImageView.image = nil
     }
     
 }

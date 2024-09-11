@@ -9,19 +9,28 @@ import Core
 import DesignSystem
 import UIKit
 
-fileprivate typealias _Str = FamilyManagementStrings
-public final class InvitationUrlContainerView: BaseView<InvitationUrlContainerViewReactor> {
+public final class SharingContainerView: BaseView<SharingContainerReactor> {
+    
     // MARK: - Views
-    private let shareContainerView: UIView = UIView()
+    
+    private let containerView: UIView = UIView()
     private let envelopeImageView: UIImageView = UIImageView()
     
     private let labelStack: UIStackView = UIStackView()
-    private let invitationDescLabel: BBLabel = BBLabel(.head2Bold, textColor: .gray200)
-    private let invitationUrlLabel: BBLabel = BBLabel(.body2Regular, textColor: .gray300)
-    private let shareLineImageView: UIImageView = UIImageView()
-    private let indicatorView: UIActivityIndicatorView = UIActivityIndicatorView()
+    private let sharingDescriptionLabel: BBLabel = BBLabel(.head2Bold, textColor: .gray200)
+    private let sharingUrlLabel: BBLabel = BBLabel(.body2Regular, textColor: .gray300)
+    private let sharingImageView: UIImageView = UIImageView()
+    
+    private let basicProgressHud: UIActivityIndicatorView = UIActivityIndicatorView()
+    
+    
+    // MARK: - Properties
+    
+    public weak var delegate: SharingContainerDlegate?
+    
     
     // MARK: - Intialzier
+    
     public override init(frame: CGRect) {
         super.init(frame: .zero)
     }
@@ -30,81 +39,84 @@ public final class InvitationUrlContainerView: BaseView<InvitationUrlContainerVi
         fatalError("init(coder:) has not been implemented")
     }
     
+    
     // MARK: - Helpers
-    public override func bind(reactor: InvitationUrlContainerViewReactor) { 
+    
+    public override func bind(reactor: SharingContainerReactor) {
         super.bind(reactor: reactor)
+        
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: InvitationUrlContainerViewReactor) { }
+    private func bindInput(reactor: SharingContainerReactor) { }
     
-    private func bindOutput(reactor: InvitationUrlContainerViewReactor) {
-        reactor.state.map { !$0.shouldHiddenIndicatorView }
+    private func bindOutput(reactor: SharingContainerReactor) {
+        let hiddenProgressHud = reactor.state
+            .map { $0.hiddenProgresHud }
+            .asDriver(onErrorJustReturn: true)
+        
+        hiddenProgressHud
             .distinctUntilChanged()
-            .bind(to: indicatorView.rx.isHidden)
+            .drive(basicProgressHud.rx.isHidden)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.shouldHiddenIndicatorView }
+        hiddenProgressHud
+            .map { !$0 }
             .distinctUntilChanged()
-            .bind(to: indicatorView.rx.isAnimating)
+            .drive(basicProgressHud.rx.isAnimating)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.shouldHiddenIndicatorView }
+        hiddenProgressHud
+            .map { !$0 }
             .distinctUntilChanged()
-            .bind(to: shareLineImageView.rx.isHidden)
+            .drive(sharingImageView.rx.isHidden)
             .disposed(by: disposeBag)
     }
     
     public override func setupUI() {
         super.setupUI()
         
-        self.addSubviews(
-            shareContainerView
-        )
-        shareContainerView.addSubviews(
-            envelopeImageView, labelStack, shareLineImageView, indicatorView
-        )
-        labelStack.addArrangedSubviews(
-            invitationDescLabel, invitationUrlLabel
-        )
+        self.addSubviews(containerView)
+        containerView.addSubviews(envelopeImageView, labelStack, sharingImageView, basicProgressHud)
+        labelStack.addArrangedSubviews(sharingDescriptionLabel, sharingUrlLabel)
     }
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         
-        shareContainerView.snp.makeConstraints {
+        containerView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
         
         envelopeImageView.snp.makeConstraints {
             $0.size.equalTo(50)
-            $0.leading.equalTo(shareContainerView.snp.leading).offset(16)
-            $0.centerY.equalTo(shareContainerView.snp.centerY)
+            $0.leading.equalTo(containerView.snp.leading).offset(16)
+            $0.centerY.equalTo(containerView.snp.centerY)
         }
         
         labelStack.snp.makeConstraints {
             $0.leading.equalTo(envelopeImageView.snp.trailing).offset(16)
-            $0.centerY.equalTo(shareContainerView.snp.centerY)
+            $0.centerY.equalTo(containerView.snp.centerY)
         }
         
-        shareLineImageView.snp.makeConstraints {
+        sharingImageView.snp.makeConstraints {
             $0.size.equalTo(24)
-            $0.trailing.equalTo(shareContainerView.snp.trailing).offset(-24)
-            $0.centerY.equalTo(shareContainerView.snp.centerY)
+            $0.trailing.equalTo(containerView.snp.trailing).offset(-24)
+            $0.centerY.equalTo(containerView.snp.centerY)
         }
         
-        indicatorView.snp.makeConstraints {
+        basicProgressHud.snp.makeConstraints {
             $0.size.equalTo(24)
-            $0.trailing.equalTo(shareContainerView.snp.trailing).offset(-24)
-            $0.centerY.equalTo(shareContainerView.snp.centerY)
+            $0.trailing.equalTo(containerView.snp.trailing).offset(-24)
+            $0.centerY.equalTo(containerView.snp.centerY)
         }
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
         
-        shareContainerView.do {
+        containerView.do {
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = 16
             $0.backgroundColor = UIColor.gray800
@@ -122,21 +134,21 @@ public final class InvitationUrlContainerView: BaseView<InvitationUrlContainerVi
             $0.distribution = .fillProportionally
         }
         
-        invitationDescLabel.do {
-            $0.text = _Str.inviteDescText
+        sharingDescriptionLabel.do {
+            $0.text = "삐삐에 가족 초대하기"
         }
         
-        invitationUrlLabel.do {
-            $0.text = _Str.invitationUrlText
+        sharingUrlLabel.do {
+            $0.text = "https://no5ing.kr/"
         }
 
-        shareLineImageView.do {
+        sharingImageView.do {
             $0.image = DesignSystemAsset.shareLine.image
             $0.tintColor = .gray500
             $0.contentMode = .scaleAspectFit
         }
         
-        indicatorView.do {
+        basicProgressHud.do {
             $0.color = UIColor.bibbiWhite
             $0.isHidden = true
             $0.style = .medium

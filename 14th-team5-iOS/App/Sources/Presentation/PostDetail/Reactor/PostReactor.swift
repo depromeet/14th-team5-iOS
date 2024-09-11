@@ -39,7 +39,7 @@ final class PostReactor: Reactor {
     
     let initialState: State
     @Injected var fetchMissionUseCase: FetchMissionContentUseCaseProtocol
-    @Injected var provider: GlobalStateProviderProtocol
+    @Injected var provider: ServiceProviderProtocol
     
     
     init(initialState: State) {

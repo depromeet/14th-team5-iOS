@@ -36,8 +36,8 @@ final class AppDIContainer: BaseContainer {
         }
         
         // ServiceProvider 등록
-        container.register(type: GlobalStateProviderProtocol.self) { _ in
-            return GlobalStateProvider()
+        container.register(type: ServiceProviderProtocol.self) { _ in
+            return ServiceProvider()
         }
         
     }

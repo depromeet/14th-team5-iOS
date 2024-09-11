@@ -8,9 +8,9 @@
 import ReactorKit
 
 public class BaseService {
-    unowned let provider: GlobalStateProviderProtocol
+    unowned let provider: ServiceProviderProtocol
     
-    init(provider: GlobalStateProviderProtocol) {
+    init(provider: ServiceProviderProtocol) {
         self.provider = provider
     }
 }

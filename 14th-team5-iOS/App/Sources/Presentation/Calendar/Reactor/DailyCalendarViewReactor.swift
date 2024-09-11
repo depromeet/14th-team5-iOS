@@ -59,7 +59,7 @@ public final class DailyCalendarViewReactor: Reactor {
     }
     
     // MARK: - Properties
-    @Injected var provider: GlobalStateProviderProtocol
+    @Injected var provider: ServiceProviderProtocol
     @Injected var calendarUseCase: CalendarUseCaseProtocol
     
     public var initialState: State

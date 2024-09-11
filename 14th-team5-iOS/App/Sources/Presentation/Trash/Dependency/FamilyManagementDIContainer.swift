@@ -15,8 +15,8 @@ import Domain
 public final class FamilyManagementDIContainer {
 
     // MARK: - Make
-    public func makeViewController() -> FamilyManagementViewController {
-        return FamilyManagementViewController(reactor: makeReactor())
+    public func makeViewController() -> ManagementViewController {
+        return ManagementViewController(reactor: makeReactor())
     }
     
     public func makeMemberUseCase() -> MemberUseCaseProtocol {
@@ -35,7 +35,7 @@ public final class FamilyManagementDIContainer {
         return FamilyRepository()
     }
     
-    public func makeReactor() -> FamilyManagementViewReactor {
-        return FamilyManagementViewReactor()
+    public func makeReactor() -> ManagementReactor {
+        return ManagementReactor()
     }
 }

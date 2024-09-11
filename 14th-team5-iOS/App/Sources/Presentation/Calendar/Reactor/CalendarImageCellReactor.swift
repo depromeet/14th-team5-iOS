@@ -41,7 +41,7 @@ final public class CalendarImageCellReactor: Reactor {
     public var initialState: State
     
     @Injected var calendarUseCase: CalendarUseCaseProtocol
-    @Injected var provider: GlobalStateProviderProtocol
+    @Injected var provider: ServiceProviderProtocol
     
     public let type: CalendarType
     

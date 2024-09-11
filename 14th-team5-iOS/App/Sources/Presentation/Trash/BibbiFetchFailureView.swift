@@ -12,6 +12,7 @@ import UIKit
 import Then
 import SnapKit
 
+@available(*, deprecated)
 final public class BibbiFetchFailureView: UIView {
     // MARK: - Type
     public enum FailureType: String {

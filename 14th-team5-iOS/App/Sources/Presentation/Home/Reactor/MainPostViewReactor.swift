@@ -34,7 +34,7 @@ final class MainPostViewReactor: Reactor {
     }
     
     let initialState: State
-    @Injected var provider: GlobalStateProviderProtocol
+    @Injected var provider: ServiceProviderProtocol
     @Injected var postUseCase: FetchPostListUseCaseProtocol
     
     init(initialState: State) {

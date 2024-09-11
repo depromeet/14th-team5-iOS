@@ -55,6 +55,12 @@ final class NavigatorDIContainer: BaseContainer {
             )
         }
         
+        container.register(type: ManagementNavigatorProtocol.self) { _ in
+            ManagementNavigator(
+                navigationController: makeUINavigationController()
+            )
+        }
+        
         container.register(type: FamilyEntranceNavigatorProtocol.self) { _ in
                 FamilyEntranceNavigator(navigationController: makeUINavigationController())
         }

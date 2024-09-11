@@ -12,19 +12,19 @@ import UIKit
 @available(*, deprecated)
 public final class InvitationUrlContainerDIContainer {
     // MARK: - Properties
-    private var globalState: GlobalStateProviderProtocol {
+    private var globalState: ServiceProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return GlobalStateProvider()
+            return ServiceProvider()
         }
         return appDelegate.globalStateProvider
     }
     
     // MARK: - Make
-    public func makeView() -> InvitationUrlContainerView {
-        return InvitationUrlContainerView(reactor: makeReactor())
+    public func makeView() -> SharingContainerView {
+        return SharingContainerView(reactor: makeReactor())
     }
     
-    public func makeReactor() -> InvitationUrlContainerViewReactor {
-        return InvitationUrlContainerViewReactor(provider: globalState)
+    public func makeReactor() -> SharingContainerReactor {
+        return SharingContainerReactor()
     }
 }

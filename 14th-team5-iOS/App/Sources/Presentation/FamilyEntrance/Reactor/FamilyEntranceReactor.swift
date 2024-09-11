@@ -29,7 +29,7 @@ public final class FamilyEntranceReactor: Reactor {
     
     public var initialState: State = State()
     @Navigator var navigator: FamilyEntranceNavigatorProtocol
-    @Injected var provider: GlobalStateProviderProtocol
+    @Injected var provider: ServiceProviderProtocol
     @Injected var familyUseCase: FamilyUseCaseProtocol
 }
 

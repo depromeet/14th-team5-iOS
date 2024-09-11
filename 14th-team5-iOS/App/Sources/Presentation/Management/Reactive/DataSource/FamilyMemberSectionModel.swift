@@ -9,4 +9,4 @@ import Foundation
 
 import Differentiator
 
-typealias FamilyMemberProfileSectionModel = SectionModel<Void, FamilyMemberProfileCellReactor>
+typealias FamilyMemberSectionModel = SectionModel<Void, FamilyMemberCellReactor>

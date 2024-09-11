@@ -14,9 +14,9 @@ import Domain
 @available(*, deprecated, renamed: "MonthlyCalendarViewControllerWrapper")
 public final class MonthlyCalendarDIConatainer {
     // MARK: - Properties
-    private var globalState: GlobalStateProviderProtocol {
+    private var globalState: ServiceProviderProtocol {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return GlobalStateProvider()
+            return ServiceProvider()
         }
         return appDelegate.globalStateProvider
     }

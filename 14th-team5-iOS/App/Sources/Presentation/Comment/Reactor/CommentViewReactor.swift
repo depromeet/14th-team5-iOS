@@ -13,18 +13,23 @@ import ReactorKit
 import RxSwift
 
 final public class CommentViewReactor: Reactor {
+    
     // MARK: - Action
-    public enum Action { 
-        case inputComment(String)
-        case fetchPostComment
-        case createPostComment(String?)
-        case deletePostComment(String)
+    
+    public enum Action {
+//        case inputComment(String)
+        case fetchComment
+        case createComment(String?)
+        case deleteComment(String)
+        
         case keyboardWillShow(CGFloat)
         case keyboardWillHide
     }
     
+    
     // MARK: - Mutation
-    public enum Mutation { 
+    
+    public enum Mutation {
         case injectInputComment(String)
         case injectPostComment([CommentCellReactor])
         case appendPostComment(CommentCellReactor)
@@ -45,7 +50,9 @@ final public class CommentViewReactor: Reactor {
         case dismiss
     }
     
+    
     // MARK: - State
+    
     public struct State {
         var postId: String
         @Pulse var commentCount: Int
@@ -67,7 +74,9 @@ final public class CommentViewReactor: Reactor {
         var tableViewBottomOffset: CGFloat
     }
     
+    
     // MARK: - Properties
+    
     public var initialState: State
     
     @Injected var memberUseCase: MemberUseCaseProtocol
@@ -102,20 +111,20 @@ final public class CommentViewReactor: Reactor {
     
     // MARK: - Transform
     public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
-        let inputMutation = provider.postGlobalState.input
-            .withUnretained(self)
-            .flatMap {
-                let postId = $0.0.currentState.postId
-                // 처음 시트가 열리고
-                if !$0.0.hasReceivedInputEvent  {
-                    // Post Id가 동일하고 텍스트가 있으면
-                    if $0.1.0 == postId && !$0.1.1.isEmpty {
-                        $0.0.hasReceivedInputEvent = true // 이후 불필요한 스트림 막기
-                        return Observable<Mutation>.just(.injectInputComment($0.1.1))
-                    }
-                }
-                return Observable<Mutation>.empty()
-            }
+//        let inputMutation = provider.postGlobalState.input
+//            .withUnretained(self)
+//            .flatMap {
+//                let postId = $0.0.currentState.postId
+//                // 처음 시트가 열리고
+//                if !$0.0.hasReceivedInputEvent  {
+//                    // Post Id가 동일하고 텍스트가 있으면
+//                    if $0.1.0 == postId && !$0.1.1.isEmpty {
+//                        $0.0.hasReceivedInputEvent = true // 이후 불필요한 스트림 막기
+//                        return Observable<Mutation>.just(.injectInputComment($0.1.1))
+//                    }
+//                }
+//                return Observable<Mutation>.empty()
+//            }
         
         let postMutation = provider.postGlobalState.event
             .flatMap { event in
@@ -127,67 +136,62 @@ final public class CommentViewReactor: Reactor {
                 }
             }
         
-        return Observable<Mutation>.merge(mutation, inputMutation, postMutation)
+        return Observable<Mutation>.merge(mutation, /*inputMutation,*/ postMutation)
     }
     
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case let .inputComment(text):
-            let postId = currentState.postId
-            provider.postGlobalState.storeCommentText(postId, text: text)
-            return Observable<Mutation>.just(.injectInputComment(text))
+//        case let .inputComment(text):
+//            let postId = currentState.postId
+//            provider.postGlobalState.storeCommentText(postId, text: text)
+//            return Observable<Mutation>.just(.injectInputComment(text))
             
-        case .fetchPostComment:
-            let postId = currentState.postId
+        case .fetchComment:
+            let postId = currentState.postId // 굳이 state에? 밖으로 빼기
             let query = PostCommentPaginationQuery()
         
             return Observable.concat(
-                Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(false)),
-                Observable<Mutation>.just(.enableCommentTextField(false)),
+                Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(false)), // service로 바꾸기
+                Observable<Mutation>.just(.enableCommentTextField(false)),// service로 바꾸기
                 
                 postCommentUseCase.executeFetchPostComment(postId: postId, query: query)
                     .concatMap {
                         // 통신에 실패한다면
                         guard let commentResponseArray = $0 else {
                             return Observable.concat(
-                                Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(true)),
-                                Observable<Mutation>.just(.setCommentFetchFailureToastMessageView),
-                                Observable<Mutation>.just(.generateErrorHapticNotification),
+                                Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(true)),// service로 바꾸기
+                                Observable<Mutation>.just(.setCommentFetchFailureToastMessageView),// navigator
+                                Observable<Mutation>.just(.generateErrorHapticNotification),// Haptic
                                 Observable<Mutation>.just(.injectPostComment([])),
-                                Observable<Mutation>.just(.setHiddenNoCommentView(true))
+                                Observable<Mutation>.just(.setHiddenNoCommentView(true)) // service로 바꾸기
                             )
                         }
                         
                         // 댓글이 없다면
                         guard !commentResponseArray.results.isEmpty else {
                             return Observable.concat(
-                                Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(true)),
-                                Observable<Mutation>.just(.enableCommentTextField(true)),
-                                Observable<Mutation>.just(.becomeFirstResponseder),
+                                Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(true)),// service로 바꾸기
+                                Observable<Mutation>.just(.enableCommentTextField(true)),// service로 바꾸기
+                                Observable<Mutation>.just(.becomeFirstResponseder),// service로 바꾸기
                                 Observable<Mutation>.just(.injectPostComment([]))
                             )
                         }
                         
-                        let reactors = commentResponseArray.results.map { CommentCellReactor(
-                                $0,
-                                memberUseCase: self.memberUseCase,
-                                postCommentUseCase: self.postCommentUseCase,
-                                provider: self.provider
-                            )
-                        }
+                        let reactors = commentResponseArray.results
+                            .map { CommentCellReactor($0) }
                         
                         return Observable.concat(
-                            Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(true)),
+                            Observable<Mutation>.just(.setHiddenPaperAirplaneLottieView(true)),// service로 바꾸기
                             Observable<Mutation>.just(.injectPostComment(reactors)),
                             Observable<Mutation>.just(.scrollToLast),
-                            Observable<Mutation>.just(.enableCommentTextField(true)),
-                            Observable<Mutation>.just(.becomeFirstResponseder)
+                            Observable<Mutation>.just(.enableCommentTextField(true)), // service로 바꾸기
+                            Observable<Mutation>.just(.becomeFirstResponseder)// service로 바꾸기
                         )
                     }
             )
             
-        case let .createPostComment(comment):
+        case let .createComment(comment):
             guard let safeComment = comment,
                   !safeComment.trimmingCharacters(in: .whitespaces).isEmpty else {
                 return Observable<Mutation>.just(.clearCommentTextField)
@@ -204,33 +208,28 @@ final public class CommentViewReactor: Reactor {
                     .concatMap {
                         guard let commentResponse = $0.1 else {
                             return Observable.concat(
-                                Observable<Mutation>.just(.enableCommentTextField(true)),
-                                Observable<Mutation>.just(.generateErrorHapticNotification),
-                                Observable<Mutation>.just(.setUploadCommentFamilureTaostMessageView)
+                                Observable<Mutation>.just(.enableCommentTextField(true)),// service로 바꾸기
+                                Observable<Mutation>.just(.generateErrorHapticNotification),// service로 바꾸기
+                                Observable<Mutation>.just(.setUploadCommentFamilureTaostMessageView)// service로 바꾸기
                                 
                             )
                         }
                         
-                        let reactor = CommentCellReactor(
-                            commentResponse,
-                            memberUseCase: self.memberUseCase,
-                            postCommentUseCase: self.postCommentUseCase,
-                            provider: self.provider
-                        )
+                        let reactor = CommentCellReactor(commentResponse)
                         
                         let count = $0.0.currentState.commentCount
                         $0.0.provider.postGlobalState.clearCommentText()
                         $0.0.provider.postGlobalState.renewalPostCommentCount(count + 1)
                         return Observable.concat(
-                            Observable<Mutation>.just(.enableCommentTextField(true)),
-                            Observable<Mutation>.just(.clearCommentTextField),
+                            Observable<Mutation>.just(.enableCommentTextField(true)),// service로 바꾸기
+                            Observable<Mutation>.just(.clearCommentTextField),// service로 바꾸기
                             Observable<Mutation>.just(.appendPostComment(reactor)),
                             Observable<Mutation>.just(.scrollToLast)
                         )
                     }
             )
             
-        case let .deletePostComment(commentId):
+        case let .deleteComment(commentId):
             let postId = initialState.postId
             
             return postCommentUseCase.executeDeletePostComment(postId: postId, commentId: commentId)
@@ -239,8 +238,8 @@ final public class CommentViewReactor: Reactor {
                     guard let deleteSuccessResponse = $0.1,
                           deleteSuccessResponse.success else {
                         return Observable.concat(
-                            Observable<Mutation>.just(.generateErrorHapticNotification),
-                            Observable<Mutation>.just(.setUploadCommentFamilureTaostMessageView)
+                            Observable<Mutation>.just(.generateErrorHapticNotification),// service로 바꾸기
+                            Observable<Mutation>.just(.setUploadCommentFamilureTaostMessageView)// service로 바꾸기
                         )
                     }
                     
@@ -291,7 +290,7 @@ final public class CommentViewReactor: Reactor {
                 break
             }
             dataSource.items.removeAll(where: {
-                $0.currentState.commentId == commentId
+                $0.currentState.comment.commentId == commentId
             })
             newState.displayComment = [dataSource]
             newState.commentCount = dataSource.items.count

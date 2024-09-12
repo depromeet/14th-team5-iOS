@@ -15,39 +15,36 @@ import SnapKit
 import Then
 
 final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
+    
     // MARK: - Views
-    private let containerView: UIView = UIView()
-    private let firstNameLabel: UILabel = BBLabel(.head2Bold, textAlignment: .center)
-    private let profileImageView: UIImageView = UIImageView()
+    
+    private let profileBackground: UIView = UIView()
+    private let profilePlaceholder: UILabel = BBLabel(.head2Bold, textAlignment: .center)
+    private let profileImage: UIImageView = UIImageView()
     private let profileButton: UIButton = UIButton()
     
-    private let userNameStack: UIStackView = UIStackView()
-    private let userNameLabel: BBLabel = BBLabel(.body2Bold, textColor: .gray100)
+    private let labelStack: UIStackView = UIStackView()
+    private let nameLabel: BBLabel = BBLabel(.body2Bold, textColor: .gray100)
     private let createdAtLabel: BBLabel = BBLabel(.body2Regular, textColor: .gray500)
     
     private let commentLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray100)
     
+    
     // MARK: - Properties
+    
     static var id: String = "CommentCell"
     
-    // MARK: - Intialzier
-    public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-    }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    // MARK: - Helpers
     
-    // MARK: - Helerps
     public override func prepareForReuse() {
         super.prepareForReuse()
         
-        disposeBag = DisposeBag()
+        nameLabel.text = ""
+        createdAtLabel.text = ""
+        profileImage.image = nil
         
-        userNameLabel.text = String.none
-        createdAtLabel.text = String.none
-        profileImageView.image = nil
+        disposeBag = DisposeBag() // TODO: - 코드 삭제 테스트하기
     }
     
     public override func bind(reactor: CommentCellReactor) {
@@ -59,7 +56,7 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     private func bindInput(reactor: CommentCellReactor) { 
         Observable<Reactor.Action>.merge(
             Observable.just(Reactor.Action.fetchUserName),
-            Observable.just(Reactor.Action.fetchProfileImageUrlString)
+            Observable.just(Reactor.Action.fetchProfileImage)
         )
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
@@ -72,30 +69,32 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     }
     
     private func bindOutput(reactor: CommentCellReactor) {
-        let userName = reactor.state.map({ $0.userName }).asDriver(onErrorJustReturn: .none)
+        let mamberName = reactor.state
+            .compactMap { $0.memberName }
+            .asDriver(onErrorJustReturn: "")
         
-        userName
+        mamberName
             .distinctUntilChanged()
-            .drive(userNameLabel.rx.text)
+            .drive(nameLabel.rx.text)
             .disposed(by: disposeBag)
         
-        userName
+        mamberName
             .distinctUntilChanged()
-            .drive(with: self) { $0.userNameLabel.text = $1[0] }
+            .drive(profilePlaceholder.rx.firstLetterText)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.profileImageUrlString }
+        reactor.state.compactMap { $0.profileImageUrl }
             .distinctUntilChanged()
-            .bind(to: profileImageView.rx.kingfisherImage)
+            .bind(to: profileImage.rx.kingfisherImage)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.createdAt }
+        reactor.state.map { $0.comment.createdAt }
             .distinctUntilChanged()
-            .map { $0.relativeFormatter() }
+            .map { $0.relativeFormatter() } // Reactor 안으로 집어넣기
             .bind(to: createdAtLabel.rx.text)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.comment }
+        reactor.state.map { $0.comment.comment }
             .distinctUntilChanged()
             .bind(to: commentLabel.rx.text)
             .disposed(by: disposeBag)
@@ -104,15 +103,15 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     public override func setupUI() {
         super.setupUI()
         
-        containerView.addSubviews(firstNameLabel, profileImageView, profileButton)
-        contentView.addSubviews(containerView, userNameStack, commentLabel)
-        userNameStack.addArrangedSubviews(userNameLabel, createdAtLabel)
+        profileBackground.addSubviews(profilePlaceholder, profileImage, profileButton)
+        contentView.addSubviews(profileBackground, labelStack, commentLabel)
+        labelStack.addArrangedSubviews(nameLabel, createdAtLabel)
     }
     
     public override func setupAutoLayout() {
         super.setupUI()
         
-        containerView.snp.makeConstraints {
+        profileBackground.snp.makeConstraints {
             $0.size.equalTo(44)
             $0.top.equalTo(contentView.snp.top).offset(8)
             $0.leading.equalTo(contentView.snp.leading).offset(20)
@@ -122,22 +121,22 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
             $0.edges.equalToSuperview()
         }
         
-        firstNameLabel.snp.makeConstraints {
+        profilePlaceholder.snp.makeConstraints {
             $0.size.equalToSuperview()
         }
         
-        profileImageView.snp.makeConstraints {
+        profileImage.snp.makeConstraints {
             $0.size.equalToSuperview()
         }
         
-        userNameStack.snp.makeConstraints {
+        labelStack.snp.makeConstraints {
             $0.top.equalToSuperview().offset(10)
-            $0.leading.equalTo(containerView.snp.trailing).offset(18)
+            $0.leading.equalTo(profileBackground.snp.trailing).offset(18)
         }
         
         commentLabel.snp.makeConstraints {
-            $0.top.equalTo(userNameStack.snp.bottom).offset(8)
-            $0.leading.equalTo(userNameStack.snp.leading)
+            $0.top.equalTo(labelStack.snp.bottom).offset(8)
+            $0.leading.equalTo(labelStack.snp.leading)
             $0.trailing.equalToSuperview().offset(-8)
             $0.bottom.equalToSuperview().offset(-10)
         }
@@ -151,23 +150,23 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         }
         
         profileButton.do {
-            $0.setTitle(.none, for: .normal)
+            $0.setTitle("", for: .normal)
             $0.backgroundColor = UIColor.clear
         }
         
-        containerView.do {
+        profileBackground.do {
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = 44 / 2
             $0.backgroundColor = UIColor.gray800
         }
         
-        profileImageView.do {
+        profileImage.do {
             $0.contentMode = .scaleAspectFill
             $0.layer.masksToBounds = true
             $0.layer.cornerRadius = 44 / 2
         }
         
-        userNameStack.do {
+        labelStack.do {
             $0.axis = .horizontal
             $0.spacing = 8
             $0.alignment = .fill

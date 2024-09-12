@@ -6,6 +6,7 @@
 //
 
 import Core
+import DesignSystem
 import UIKit
 
 protocol CommentNavigatorProtocol: BaseNavigator {
@@ -38,6 +39,26 @@ final class CommentNavigator: CommentNavigatorProtocol {
         navigationController.dismiss(animated: true) {
             completion?()
         }
+    }
+    
+    // MARK: - Show
+    
+    func showErrorToast() {
+        BBToast.style(.error).show()
+    }
+    
+    func showCommentDeleteToast() {
+        BBToast.default(
+            image: DesignSystemAsset.warning.image,
+            title: "댓글이 삭제되었습니다"
+        ).show()
+    }
+    
+    func showFetchFailureToast() {
+        BBToast.default(
+            image: DesignSystemAsset.warning.image,
+            title: "댓글을 불러오는데 실패했어요"
+        ).show()
     }
     
 }

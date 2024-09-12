@@ -86,12 +86,6 @@ extension AccountSignUpViewController {
         
         setViewControllers([prevPage], direction: .reverse, animated: true)
     }
-    
-    private func showOnboardingViewCotnroller() {
-        //TODO: Navigator
-        let onBoardingViewController = OnboardingViewControllerWrapper().viewController
-        self.navigationController?.pushViewController(onBoardingViewController, animated: true)
-    }
 }
 
 extension AccountSignUpViewController: UIPageViewControllerDataSource {

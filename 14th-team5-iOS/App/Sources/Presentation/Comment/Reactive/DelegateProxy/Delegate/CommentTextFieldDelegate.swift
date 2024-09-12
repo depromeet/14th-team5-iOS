@@ -9,4 +9,5 @@ import UIKit
 
 @objc public protocol CommentTextFieldDelegate: AnyObject {
     @objc optional func didTapConfirmButton(_ button: UIButton, text: String?, event: UITextField.Event)
+    @objc optional func didTapDoneButton(text: String?)
 }

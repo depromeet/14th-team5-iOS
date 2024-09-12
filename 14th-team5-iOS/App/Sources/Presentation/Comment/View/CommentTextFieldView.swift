@@ -37,6 +37,37 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
     
     // MARK: - Helpers
     
+    public override func bind(reactor: CommentTextFieldReactor) {
+        super.bind(reactor: reactor)
+        bindInput(reactor: reactor)
+        bindOutput(reactor: reactor)
+    }
+    
+    private func bindInput(reactor: CommentTextFieldReactor) {
+        textFieldView.rx.text
+            .orEmpty
+            .map { Reactor.Action.inputText($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+    }
+    
+    private func bindOutput(reactor: CommentTextFieldReactor) {
+        reactor.state.map { $0.inputText }
+            .distinctUntilChanged()
+            .bind(to: textFieldView.rx.text)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.enableTextField }
+            .distinctUntilChanged()
+            .bind(to: textFieldView.rx.isEnabled)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.enableConfirmButton }
+            .distinctUntilChanged()
+            .bind(to: confirmButton.rx.isEnabled)
+            .disposed(by: disposeBag)
+    }
+    
     public override func setupUI() {
         super.setupUI()
         addSubviews(container, textFieldView)
@@ -73,6 +104,8 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
             $0.rightView = confirmButton
             $0.rightViewMode = .always
             $0.returnKeyType = .done
+            
+            $0.delegate = self
         }
         
         confirmButton.do {
@@ -93,6 +126,15 @@ extension CommentTextFieldView {
     
     @objc func didTapConfirmButton(_ button: UIButton, event: UIButton.Event) {
         delegate?.didTapConfirmButton?(button, text: textFieldView.text, event: event)
+    }
+    
+}
+
+extension CommentTextFieldView: UITextFieldDelegate {
+    
+    public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        delegate?.didTapDoneButton?(text: textField.text)
+        return true
     }
     
 }

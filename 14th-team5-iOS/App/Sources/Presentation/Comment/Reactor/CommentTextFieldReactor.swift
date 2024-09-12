@@ -25,16 +25,20 @@ public final class CommentTextFieldReactor {
     // MARK: - Mutation
     
     public enum Mutation {
+        case clearTextField
         case setIsEnableConfirmButton(Bool)
         case setIsEnableTextField(Bool)
+        case becomFirstResponder
     }
     
     
     // MARK: - State
     
     public struct State { 
+        var inputText: String? = nil
         var enableTextField: Bool = true
         var enableConfirmButton: Bool = false
+        @Pulse var becomeFirstResponder: Bool = false
     }
     
     
@@ -62,6 +66,12 @@ public final class CommentTextFieldReactor {
                 case let .enableConfirmButton(enable):
                     return Observable<Mutation>.just(.setIsEnableConfirmButton(enable))
                     
+                case .clearCommentTextField:
+                    return Observable<Mutation>.just(.clearTextField)
+                    
+                case .becomeFirstResponder:
+                    return Observable<Mutation>.just(.becomFirstResponder)
+            
                 @unknown default:
                     return Observable<Mutation>.empty()
                 }
@@ -76,6 +86,7 @@ public final class CommentTextFieldReactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case let .inputText(text):
+            // TODO: - 댓글 내용 임시 저장 코드 구현하기
             let enable = text.count == 0 ? false : true
             return Observable<Mutation>.just(.setIsEnableConfirmButton(enable))
         }
@@ -88,6 +99,12 @@ public final class CommentTextFieldReactor {
         var newState = state
         
         switch mutation {
+        case .clearTextField:
+            newState.inputText = nil
+            
+        case .becomFirstResponder:
+            newState.becomeFirstResponder = true
+            
         case let .setIsEnableConfirmButton(enable):
             newState.enableConfirmButton = enable
             

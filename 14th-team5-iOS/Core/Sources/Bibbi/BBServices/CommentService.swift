@@ -19,6 +19,7 @@ public enum CommentEvent {
     case enableCommentTextField(enable: Bool)
     case enableConfirmButton(enable: Bool)
     
+    case scrollCommentTableToLast(index: IndexPath)
     
     case becomeFirstResponder
 }
@@ -41,6 +42,9 @@ public protocol CommentServiceType {
     func enableCommentTextField(enable: Bool) -> Observable<Bool>
     @discardableResult
     func enableConfirmButton(enable: Bool) -> Observable<Bool>
+    
+    @discardableResult
+    func scrollCommentTableToLast(index: IndexPath) -> Observable<IndexPath>
     
     @discardableResult
     func becomeFirstResponder() -> Observable<Void>
@@ -83,6 +87,11 @@ final public class CommentService: BaseService, CommentServiceType {
     public func enableConfirmButton(enable: Bool) -> Observable<Bool> {
         event.onNext(.enableConfirmButton(enable: enable))
         return Observable<Bool>.just(enable)
+    }
+    
+    public func scrollCommentTableToLast(index: IndexPath) -> Observable<IndexPath> {
+        event.onNext(.scrollCommentTableToLast(index: index))
+        return Observable<IndexPath>.just(index)
     }
     
     public func becomeFirstResponder() -> Observable<Void> {

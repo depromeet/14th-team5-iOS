@@ -12,6 +12,10 @@ import UIKit
 protocol CommentNavigatorProtocol: BaseNavigator {
     func toProfile(memberId: String)
     func dismiss(completion: (() -> Void)?)
+    
+    func showErrorToast()
+    func showCommentDeleteToast()
+    func showFetchFailureToast()
 }
 
 final class CommentNavigator: CommentNavigatorProtocol {
@@ -48,6 +52,7 @@ final class CommentNavigator: CommentNavigatorProtocol {
     }
     
     func showCommentDeleteToast() {
+        // TODO: - yOffset 값 설정하기
         BBToast.default(
             image: DesignSystemAsset.warning.image,
             title: "댓글이 삭제되었습니다"

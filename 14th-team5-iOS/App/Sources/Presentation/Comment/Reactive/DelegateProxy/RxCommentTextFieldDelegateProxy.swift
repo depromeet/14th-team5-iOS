@@ -42,4 +42,11 @@ extension Reactive where Base: CommentTextFieldView {
         return source
     }
     
+    public var didTapDoneButton: Observable<String> {
+        let source = delegate.sentMessage(#selector(CommentTextFieldDelegate.didTapDoneButton(text:)))
+            .map { $0[0] as! String }
+        
+        return source
+    }
+    
 }

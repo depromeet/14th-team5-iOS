@@ -137,21 +137,16 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
 
 extension AccountSignInViewController {
     private func showNextPage(token: AccessToken?, _ isFirstOnboarding: Bool) {
-        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
+        @Navigator var signInNavigator: AccountSignInNavigatorProtocol
         guard let token = token, let isTemporaryToken = token.isTemporaryToken else { return }
-        //TODO: AccoutSignIn Navigator 추가
         if isTemporaryToken {
-            let container = UINavigationController(rootViewController: AccountSignUpDIContainer().makeViewController())
-            container.modalPresentationStyle = .fullScreen
-            sceneDelegate.window?.rootViewController = container
+            signInNavigator.toSignUp()
             return
         }
         
         if isFirstOnboarding == true {
-            let mainViewController = MainViewControllerWrapper().viewController
-            let container = UINavigationController(rootViewController: mainViewController)
-            sceneDelegate.window?.rootViewController = container
-            sceneDelegate.window?.makeKeyAndVisible()
+            signInNavigator.toMain()
+            return
         }
     }
 }

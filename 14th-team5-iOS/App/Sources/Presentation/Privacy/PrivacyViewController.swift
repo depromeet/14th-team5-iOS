@@ -119,7 +119,6 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
             .bind { owner, isSuccess in
                 guard isSuccess else { return }
                 @Navigator var privacyNavigator: PrivacyNavigatorProtocol
-                
                 privacyNavigator.toSignIn()
             }.disposed(by: disposeBag)
         
@@ -167,7 +166,7 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
                     } else if indexPath.item == 1 {
                         owner.showFamilyResignAlertController()
                     } else {
-                        let resignViewController = AccountResignDIContainer().makeViewController()
+                        let resignViewController = AccountResignViewControllerWrapper().viewController
                         owner.navigationController?.pushViewController(resignViewController, animated: true)
                     }
                 }

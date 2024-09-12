@@ -166,8 +166,9 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
             .filter { $0 }
             .withUnretained(self)
             .bind { owner, isSuccess in
+                @Navigator var resignNavigator: AccountResignNavigatorProtocol
+                resignNavigator.toSignIn()
                 App.Repository.token.clearAccessToken()
-                owner.makeRootViewController()
             }.disposed(by: disposeBag)
     }
 }
@@ -198,12 +199,4 @@ extension AccountResignViewCotroller {
         resignAlertController.overrideUserInterfaceStyle = .dark
         present(resignAlertController, animated: true)
     }
-    
-    private func makeRootViewController() {
-        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
-        //TODO: Navigator
-        sceneDelegate.window?.rootViewController = SplashDIContainer().makeViewController()
-        sceneDelegate.window?.makeKeyAndVisible()
-    }
-    
 }

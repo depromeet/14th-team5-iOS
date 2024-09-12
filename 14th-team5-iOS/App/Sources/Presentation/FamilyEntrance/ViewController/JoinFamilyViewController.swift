@@ -116,12 +116,10 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
 extension JoinFamilyViewController {
     private func showHomeViewController(_ isShow: Bool) {
         guard isShow else { return }
+        @Navigator var joinFamilyNavigator: JoinFamilyNavigatorProtocol
         
         UserDefaults.standard.clearInviteCode()
-        
-        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
-        sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: MainViewControllerWrapper().makeViewController())
-        sceneDelegate.window?.makeKeyAndVisible()
+        joinFamilyNavigator.toMain()
     }
     
     private func showInputLinkViewController(_ isShow: Bool) {

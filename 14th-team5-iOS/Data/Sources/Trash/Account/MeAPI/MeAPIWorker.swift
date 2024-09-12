@@ -80,15 +80,6 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository, FCMRepository
             .asSingle()
     }
     
-    @available(*, deprecated, renamed: "resignFamily")
-    private func resignFamily(spec: APISpec, headers: [APIHeader]?) -> Single<AccountFamilyResignResponse?> {
-        return request(spec: spec, headers: headers)
-            .subscribe(on: Self.queue)
-            .map(AccountFamilyResignResponse.self)
-            .catchAndReturn(nil)
-            .asSingle()
-    }
-    
     private func fetchAppVersion(spec: APISpec) -> Single<AppVersionInfo?> {
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey])
             .subscribe(on: Self.queue)

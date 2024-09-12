@@ -13,7 +13,7 @@ import ReactorKit
 import RxSwift
 
 final class AccountResignViewReactor: Reactor {
-    private let resignUseCase: AccountResignUseCaseProtocol
+    @Injected var deleteAccountResignUseCase: DeleteAccountResignUseCaseProtocol
     @Injected var updateIsFirstOnboardingUseCase: UpdateIsFirstOnboardingUseCaseProtocol
     var initialState: State
     
@@ -35,8 +35,7 @@ final class AccountResignViewReactor: Reactor {
         var isSuccess: Bool
     }
     
-    init(resignUseCase: AccountResignUseCaseProtocol) {
-        self.resignUseCase = resignUseCase
+    init() {
         self.initialState = State(
             isLoading: false,
             isSeleced: false,
@@ -57,10 +56,11 @@ final class AccountResignViewReactor: Reactor {
         case .didTapResignButton:
             //TODO: MemberID는 유저 디폴트 저장한거 사용 하자
             MPEvent.Account.withdrawl.track(with: nil)
-            return resignUseCase.executeAccountResign()
+            return deleteAccountResignUseCase.execute()
                 .asObservable()
+                .compactMap { $0 }
                 .withUnretained(self)
-                .flatMap { owner, entity -> Observable<AccountResignViewReactor.Mutation> in
+                .flatMap { owner, entity -> Observable<Mutation> in
                     if entity.isSuccess {
                         owner.updateIsFirstOnboardingUseCase.execute(false)
                         return .concat(
@@ -68,9 +68,8 @@ final class AccountResignViewReactor: Reactor {
                             .just(.setResignEntity(entity.isSuccess)),
                             .just(.setLoading(false))
                         )
-                    } else {
-                        return .empty()
                     }
+                    return .empty()
                 }
         }
     }

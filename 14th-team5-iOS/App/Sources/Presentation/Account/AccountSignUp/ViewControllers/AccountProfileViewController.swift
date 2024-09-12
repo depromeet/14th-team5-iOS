@@ -190,7 +190,7 @@ extension AccountProfileViewController {
     }
     
     private func showNextPage(accessToken: AccessTokenResponse?) {
-        
+        @Navigator var accountProfileNavigator: AccountProfileNavigatorProtocol
         guard let accessToken = accessToken else { return }
         
         let token = accessToken.accessToken
@@ -200,10 +200,7 @@ extension AccountProfileViewController {
         let tk = AccessToken(accessToken: token, refreshToken: refreshToken, isTemporaryToken: isTemporaryToken)
         App.Repository.token.accessToken.accept(tk)
         
-        //TODO: Navigator 적용
-        let container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
-        container.modalPresentationStyle = .fullScreen
-        present(container, animated: false)
+        accountProfileNavigator.toOnboarding()
     }
 }
 

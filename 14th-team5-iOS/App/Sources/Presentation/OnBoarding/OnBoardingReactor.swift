@@ -41,6 +41,7 @@ extension OnBoardingReactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .permissionTapped:
+            updateIsFirstOnboardingUseCase.execute(true)
             return Observable.zip(
                 Observable.create { observer in
                     MPEvent.Account.invitedGroupFinished.track(with: nil)
@@ -60,7 +61,6 @@ extension OnBoardingReactor {
             )
             .flatMap { [weak self] (granted: Bool, _) -> Observable<Mutation> in
                 if granted {
-                    self?.updateIsFirstOnboardingUseCase.execute(granted)
                     return Observable.just(.permissionTapped)
                 } else {
                     return Observable<Mutation>.empty()

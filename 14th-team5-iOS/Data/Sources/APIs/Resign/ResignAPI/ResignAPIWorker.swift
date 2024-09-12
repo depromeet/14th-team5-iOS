@@ -31,12 +31,12 @@ extension ResignAPIs {
 
 extension ResignAPIWorker {
     
-    public func resignUser(accessToken: String, memberId: String) -> Single<AccountResignDTO?> {
+    public func resignUser(memberId: String) -> Single<AccountResignResponseDTO?> {
         let spec = ResignAPIs.accountResign(memberId).spec
         
-        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)])
+        return request(spec: spec)
             .subscribe(on: Self.queue)
-            .map(AccountResignDTO.self)
+            .map(AccountResignResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
     }

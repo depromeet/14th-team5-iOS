@@ -123,9 +123,10 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
         
         Observable
             .combineLatest(
-                App.Repository.token.accessToken.asObservable(),
-                reactor.pulse(\.$isFirstOnboarding)
+                App.Repository.token.accessToken.distinctUntilChanged(),
+                reactor.pulse(\.$isFirstOnboarding).distinctUntilChanged()
             )
+            .skip(1)
             .observe(on: RxScheduler.main)
             .bind(with: self) { owner, response in
                 let (token, isFirstOnboarding) = response
@@ -144,7 +145,7 @@ extension AccountSignInViewController {
             return
         }
         
-        if isFirstOnboarding == true {
+        if isFirstOnboarding {
             signInNavigator.toMain()
             return
         }

@@ -15,6 +15,7 @@ import ReactorKit
 fileprivate typealias _Str = AccountSignUpStrings
 public final class AccountSignUpReactor: Reactor {
     public var initialState: State
+    @Injected var updateIsFirstOnboardingUseCase: any UpdateIsFirstOnboardingUseCaseProtocol
     private var accountRepository: AccountImpl
     private let memberId: String
     private let profileType: AccountLoaction
@@ -124,11 +125,15 @@ extension AccountSignUpReactor {
             let date = getDateToString(year: currentState.year!, month: currentState.month, day: currentState.day)
             
             if self.currentState.profilePresignedURL.isEmpty {
-                return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: nil).flatMap { tokenEntity -> Observable<Mutation> in
+                return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: nil)
+                    .withUnretained(self).flatMap { owner, tokenEntity -> Observable<Mutation> in
+                        owner.updateIsFirstOnboardingUseCase.execute(true)
                     return Observable.just(Mutation.didTapCompletehButton(tokenEntity))
                 }
             } else {
-                return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: currentState.profilePresignedURL).flatMap { tokenEntity -> Observable<Mutation> in
+                return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: currentState.profilePresignedURL)
+                    .withUnretained(self).flatMap { owner, tokenEntity -> Observable<Mutation> in
+                        owner.updateIsFirstOnboardingUseCase.execute(true)
                     return Observable.just(Mutation.didTapCompletehButton(tokenEntity))
                 }
             }

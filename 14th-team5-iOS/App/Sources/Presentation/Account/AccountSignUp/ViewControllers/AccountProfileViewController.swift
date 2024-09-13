@@ -199,7 +199,6 @@ extension AccountProfileViewController {
         
         let tk = AccessToken(accessToken: token, refreshToken: refreshToken, isTemporaryToken: isTemporaryToken)
         App.Repository.token.accessToken.accept(tk)
-        
         accountProfileNavigator.toOnboarding()
     }
 }

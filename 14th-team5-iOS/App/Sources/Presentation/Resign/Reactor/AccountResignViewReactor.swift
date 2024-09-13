@@ -54,7 +54,6 @@ final class AccountResignViewReactor: Reactor {
         case let .didTapCheckButton(isSelected):
             return .just(.setSelect(isSelected))
         case .didTapResignButton:
-            //TODO: MemberID는 유저 디폴트 저장한거 사용 하자
             MPEvent.Account.withdrawl.track(with: nil)
             return deleteAccountResignUseCase.execute()
                 .asObservable()

@@ -25,7 +25,7 @@ final public class CommentViewController: ReactorViewController<CommentViewReact
     // MARK: - Views
     
     private let topBarView: CommentTopBarView = CommentTopBarView()
-    private let commentTableView: CommentTableView = CommentTableView()
+    private lazy var commentTableView: CommentTableView = makeCommentTableView()
     private lazy var textFieldView: CommentTextFieldView = makeCommentTextFieldView()
     
     
@@ -52,6 +52,7 @@ final public class CommentViewController: ReactorViewController<CommentViewReact
     
     private func bindInput(reactor: CommentViewReactor) { 
         Observable<Void>.just(())
+            .delay(RxInterval._900milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.fetchComment }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -77,6 +78,51 @@ final public class CommentViewController: ReactorViewController<CommentViewReact
     private func bindOutput(reactor: CommentViewReactor) {
         reactor.pulse(\.$commentDatasource)
             .bind(to: commentTableView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.hiddenTableProgressHud }
+            .distinctUntilChanged()
+            .bind(with: self) { $0.commentTableView.hiddenTableProgressHud(hidden: $1) }
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.hiddenFetchFailureView }
+            .distinctUntilChanged()
+            .bind(with: self) {  $0.commentTableView.hiddenFetchFailureView(hidden: $1) }
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.hiddenNoneCommentView }
+            .distinctUntilChanged()
+            .bind(with: self) { $0.commentTableView.hiddenNoneCommentView(hidden: $1) }
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.enableConfirmButton }
+            .distinctUntilChanged()
+            .bind(with: self) { $0.textFieldView.enableConfirmButton(enable: $1) }
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.enableCommentTextField }
+            .distinctUntilChanged()
+            .bind(with: self) { $0.textFieldView.enableCommentTextField(enable: $1) }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$text)
+            .bind(with: self) { $0.textFieldView.assignText($1) }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$makeTextFieldFirstResponder)
+            .bind(with: self) { owner, _ in owner.textFieldView.makeTextFieldFirstResponder() }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$scrollTableToLast)
+            .filter { $0 }
+            .bind(with: self) { owner, _ in
+                // TODO: - 메서드로 빼기
+                guard
+                    let count = reactor.currentState.commentDatasource.first?.items.count
+                else { return }
+                let indexPath = IndexPath(item: count - 1, section: 0)
+                owner.commentTableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+            }
             .disposed(by: disposeBag)
         
         let keyboardWillShow = NotificationCenter.default.rx
@@ -149,7 +195,6 @@ final public class CommentViewController: ReactorViewController<CommentViewReact
     
     public override func setupAttributes() {
         super.setupAttributes()
-        
         // TODO: - App.Repository 제거하기
         dataSource.canEditRowAtIndexPath = {
             let myMemberId = App.Repository.member.memberID.value
@@ -164,6 +209,12 @@ final public class CommentViewController: ReactorViewController<CommentViewReact
 
 extension CommentViewController {
     
+    private func makeCommentTableView() -> CommentTableView {
+        CommentTableView(
+            reactor: CommentTableReactor()
+        )
+    }
+
     private func makeCommentTextFieldView() -> CommentTextFieldView {
         CommentTextFieldView(
             reactor: CommentTextFieldReactor()

@@ -26,7 +26,6 @@ public final class CommentTableView: BaseTableView<CommentTableReactor> {
     private lazy var progressHud: BBProgressHUD = {
         let config = BBProgressHUDConfiguration(attachedTo: self)
         let viewConfig = BBProgressHUDViewConfiguration(
-            offsetFromCenterY: -100,
             backgroundColor: UIColor.clear
         )
         let hud = BBProgressHUD.lottie(
@@ -42,10 +41,6 @@ public final class CommentTableView: BaseTableView<CommentTableReactor> {
     
     
     // MARK: - Intializer
-    
-    public convenience init() {
-        self.init(frame: .zero, style: .plain)
-    }
     
     public override init(
         frame: CGRect, 
@@ -68,26 +63,31 @@ public final class CommentTableView: BaseTableView<CommentTableReactor> {
     
     private func bindOutput(reactor: CommentTableReactor) {
         reactor.state.map { $0.hiddenFetchFailureView }
+            .debug()
             .distinctUntilChanged()
             .bind(to: fetchFailureView.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.hiddenTableProgressHud }
+            .debug()
             .distinctUntilChanged()
-            .bind(with: self) { $1 ? $0.progressHud.show() : $0.progressHud.close() }
+            .bind(with: self) { $1 ? $0.progressHud.close() : $0.progressHud.show() }
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.hiddenNoneCommentView }
+            .debug()
             .distinctUntilChanged()
             .bind(to: noneCommentView.rx.isHidden)
             .disposed(by: disposeBag)
+        
+        // TODO: - 이거 제대로 안뜨는 문제 수정
     }
     
     
     public override func setupUI() {
         super.setupUI()
         
-        self.addSubviews(noneCommentView, fetchFailureView)
+        addSubviews(noneCommentView, fetchFailureView)
     }
     
     public override func setupAutoLayout() {
@@ -106,11 +106,11 @@ public final class CommentTableView: BaseTableView<CommentTableReactor> {
             $0.register(CommentCell.self, forCellReuseIdentifier: CommentCell.id)
         }
         
-        noneCommentView.do {
+        fetchFailureView.do {
             $0.isHidden = true
         }
         
-        fetchFailureView.do {
+        noneCommentView.do {
             $0.isHidden = true
         }
     }
@@ -119,15 +119,35 @@ public final class CommentTableView: BaseTableView<CommentTableReactor> {
         super.setupAttributes()
         
         noneCommentView.snp.makeConstraints {
-            $0.top.equalTo(self.snp.top).offset(74)
+            $0.top.equalTo(self.snp.top).offset(75)
             $0.bottom.equalTo(self.snp.bottom).offset(-5)
             $0.horizontalEdges.equalToSuperview()
+            $0.centerX.equalToSuperview()
         }
         
         fetchFailureView.snp.makeConstraints {
             $0.top.equalToSuperview().offset(70)
             $0.centerX.equalToSuperview()
         }
+    }
+    
+}
+
+
+// MARK: - Extensions
+
+extension CommentTableView {
+    
+    func hiddenTableProgressHud(hidden: Bool) {
+        hidden ? progressHud.close() : progressHud.show()
+    }
+    
+    func hiddenFetchFailureView(hidden: Bool) {
+        fetchFailureView.isHidden = hidden
+    }
+    
+    func hiddenNoneCommentView(hidden: Bool) {
+        noneCommentView.isHidden = hidden
     }
     
 }

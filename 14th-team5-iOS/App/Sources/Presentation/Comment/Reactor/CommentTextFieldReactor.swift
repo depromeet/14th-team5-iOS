@@ -25,10 +25,8 @@ public final class CommentTextFieldReactor {
     // MARK: - Mutation
     
     public enum Mutation {
-        case clearTextField
-        case setIsEnableConfirmButton(Bool)
-        case setIsEnableTextField(Bool)
-        case becomFirstResponder
+        case setEnableConfirmButton(Bool)
+        case setEnableTextField(Bool)
     }
     
     
@@ -38,7 +36,6 @@ public final class CommentTextFieldReactor {
         @Pulse var inputText: String? = nil
         var enableTextField: Bool = true
         var enableConfirmButton: Bool = false
-        @Pulse var becomeFirstResponder: Bool = false
     }
     
     
@@ -54,32 +51,6 @@ public final class CommentTextFieldReactor {
         self.initialState = State()
     }
     
-    // MARK: - Transform
-    
-    public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
-        let eventMutation = provider.commentService.event
-            .flatMap { event in
-                switch event {
-                case let .enableCommentTextField(enable):
-                    return Observable<Mutation>.just(.setIsEnableTextField(enable))
-                    
-                case let .enableConfirmButton(enable):
-                    return Observable<Mutation>.just(.setIsEnableConfirmButton(enable))
-                    
-                case .clearCommentTextField:
-                    return Observable<Mutation>.just(.clearTextField)
-                    
-                case .becomeFirstResponder:
-                    return Observable<Mutation>.just(.becomFirstResponder)
-            
-                @unknown default:
-                    return Observable<Mutation>.empty()
-                }
-            }
-        
-        return Observable<Mutation>.merge(mutation, eventMutation)
-    }
-    
     
     // MARK: - Mutate
     
@@ -88,7 +59,7 @@ public final class CommentTextFieldReactor {
         case let .inputText(text):
             // TODO: - 댓글 내용 임시 저장 코드 구현하기
             let enable = text.count == 0 ? false : true
-            return Observable<Mutation>.just(.setIsEnableConfirmButton(enable))
+            return Observable<Mutation>.just(.setEnableConfirmButton(enable))
         }
     }
     
@@ -99,16 +70,10 @@ public final class CommentTextFieldReactor {
         var newState = state
         
         switch mutation {
-        case .clearTextField:
-            newState.inputText = nil
-            
-        case .becomFirstResponder:
-            newState.becomeFirstResponder = true
-            
-        case let .setIsEnableConfirmButton(enable):
+        case let .setEnableConfirmButton(enable):
             newState.enableConfirmButton = enable
             
-        case let .setIsEnableTextField(enable):
+        case let .setEnableTextField(enable):
             newState.enableTextField = enable
         }
         

@@ -55,16 +55,19 @@ final public class CommentService: BaseService, CommentServiceType {
     public var event: PublishSubject<CommentEvent> = PublishSubject<CommentEvent>()
     
     public func hiddenTableProgressHud(hidden: Bool) -> Observable<Bool> {
+        print(#function)
         event.onNext(.hiddenTableProgressHud(hidden: hidden))
         return Observable<Bool>.just(hidden)
     }
     
     public func hiddenCommentFetchFailureView(hidden: Bool) -> Observable<Bool> {
+        print(#function)
         event.onNext(.hiddenCommentFetchFailureView(hidden: hidden))
         return Observable<Bool>.just(hidden)
     }
     
     public func hiddenNoneCommentView(hidden: Bool) -> Observable<Bool> {
+        print(#function)
         event.onNext(.hiddenNoneCommentView(hidden: hidden))
         return Observable<Bool>.just(hidden)
     }

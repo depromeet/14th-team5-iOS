@@ -29,14 +29,37 @@ final public class CommentViewReactor: Reactor {
         case setComments([CommentCellReactor])
         case appendComment(CommentCellReactor)
         case deleteComment(String)
+        
+        case setHiddenTablePrgressHud(Bool)
+        case setHiddenFetchFailureView(Bool)
+        case setHiddenNoneCommentView(Bool)
+        
+        case setEnableConfirmButton(Bool)
+        case setEnableCommentTextField(Bool)
+        
+        case setText(String?)
+        case setBecomeFirstResponder(Bool)
+        
+        case scrollTableToLast(Bool)
     }
     
     
     // MARK: - State
     
     public struct State {
-        var textFieldBottomOffset: CGFloat = 0
         @Pulse var commentDatasource: [CommentSectionModel] = [.init(model: "", items: [])]
+    
+        var hiddenTableProgressHud: Bool = false
+        var hiddenFetchFailureView: Bool = true
+        var hiddenNoneCommentView: Bool = true
+        
+        var enableConfirmButton: Bool = false
+        var enableCommentTextField: Bool = false
+        
+        @Pulse var text: String? = nil
+        @Pulse var makeTextFieldFirstResponder: Bool = false
+        
+        @Pulse var scrollTableToLast: Bool = false
     }
     
     
@@ -77,82 +100,103 @@ final public class CommentViewReactor: Reactor {
     
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
-        let commentService = provider.commentService
+//        let commentService = provider.commentService
         
         switch action {
         case .fetchComment:
             let query = PostCommentPaginationQuery()
-        
-            commentService.hiddenTableProgressHud(hidden: false)
-            commentService.enableConfirmButton(enable: false)
-            commentService.enableCommentTextField(enable: false)
-            return fetchCommentUseCase.execute(postId: postId, query: query)
+            
+            return Observable.concat(
+                Observable<Mutation>.just(.setEnableConfirmButton(false)),
+                Observable<Mutation>.just(.setEnableCommentTextField(false)),
+                
+                fetchCommentUseCase.execute(postId: postId, query: query)
                     .withUnretained(self)
-                    .flatMap {
+                    .concatMap {
                         // 통신에 실패한다면
                         guard let comments = $0.1 else {
                             Haptic.notification(type: .error)
                             $0.0.navigator.showFetchFailureToast()
-                            commentService.hiddenTableProgressHud(hidden: true)
-                            commentService.hiddenNoneCommentView(hidden: true)
-                            return Observable<Mutation>.just(.setComments([]))
+                            return Observable.concat(
+                                Observable<Mutation>.just(.setComments([])),
+                                Observable<Mutation>.just(.setHiddenTablePrgressHud(true)),
+                                Observable<Mutation>.just(.setHiddenNoneCommentView(true)),
+                                Observable<Mutation>.just(.setHiddenFetchFailureView(false))
+                            )
                         }
                         
                         // 댓글이 없다면
                         if comments.results.isEmpty  {
-                            commentService.becomeFirstResponder()
-                            commentService.hiddenTableProgressHud(hidden: true)
-                            commentService.enableConfirmButton(enable: true)
-                            commentService.enableCommentTextField(enable: true)
-                            return Observable<Mutation>.just(.setComments([]))
+                            return Observable.concat(
+                                Observable<Mutation>.just(.setComments([])),
+                                Observable<Mutation>.just(.setBecomeFirstResponder(true)),
+                                Observable<Mutation>.just(.setHiddenTablePrgressHud(true)),
+                                Observable<Mutation>.just(.setHiddenNoneCommentView(false)),
+                                Observable<Mutation>.just(.setHiddenFetchFailureView(true)),
+                                Observable<Mutation>.just(.setEnableConfirmButton(true)),
+                                Observable<Mutation>.just(.setEnableCommentTextField(true))
+                            )
                         }
                         
                         let cells = comments.results
                             .map { CommentCellReactor($0) }
                         
-                        commentService.becomeFirstResponder()
-                        commentService.hiddenTableProgressHud(hidden: true)
-                        commentService.enableConfirmButton(enable: true)
-                        commentService.enableCommentTextField(enable: true)
-                        return Observable<Mutation>.just(.setComments(cells))
+                        return Observable.concat(
+                            Observable<Mutation>.just(.setComments(cells)),
+                            Observable<Mutation>.just(.setBecomeFirstResponder(true)),
+                            Observable<Mutation>.just(.setHiddenTablePrgressHud(true)),
+                            Observable<Mutation>.just(.setHiddenNoneCommentView(true)),
+                            Observable<Mutation>.just(.setHiddenFetchFailureView(true)),
+                            Observable<Mutation>.just(.setEnableConfirmButton(true)),
+                            Observable<Mutation>.just(.setEnableCommentTextField(true)),
+                            Observable<Mutation>.just(.scrollTableToLast(true))
+                        )
                     }
+            )
                                                          
         case let .createComment(content):
             guard
                 !content.trimmingCharacters(in: .whitespaces).isEmpty
             else {
-                commentService.clearCommentTextField()
-                return Observable.empty()
+                return Observable<Mutation>.just(.setText(nil))
             }
 
             let body = CreatePostCommentRequest(content: content)
             
             Haptic.impact(style: .rigid)
-            commentService.enableConfirmButton(enable: false)
-            commentService.enableCommentTextField(enable: false)
-            return createCommentUseCase.execute(postId: postId, body: body)
-                    .withUnretained(self)
-                    .concatMap {
-                        guard let comment = $0.1 else {
-                            Haptic.notification(type: .error)
-                            commentService.enableConfirmButton(enable: true)
-                            commentService.enableCommentTextField(enable: true)
-                            $0.0.navigator.showErrorToast()
-                            return Observable<Mutation>.empty()
+            
+            return Observable.concat(
+                Observable<Mutation>.just(.setEnableConfirmButton(false)),
+                Observable<Mutation>.just(.setEnableCommentTextField(false)),
+                
+                createCommentUseCase.execute(postId: postId, body: body)
+                        .withUnretained(self)
+                        .concatMap {
+                            guard let comment = $0.1 else {
+                                Haptic.notification(type: .error)
+                                $0.0.navigator.showErrorToast()
+                                return Observable.concat(
+                                    Observable<Mutation>.just(.setEnableConfirmButton(true)),
+                                    Observable<Mutation>.just(.setEnableCommentTextField(true))
+                                )
+                            }
+                            
+                            let reactor = CommentCellReactor(comment)
+                            
+                            // TODO: - Provider 바꾸기
+                            if let count = $0.0.commentCount {
+                                $0.0.provider.postGlobalState.renewalPostCommentCount(count + 1)
+                            }
+
+                            return Observable.concat(
+                                Observable<Mutation>.just(.appendComment(reactor)),
+                                Observable<Mutation>.just(.setEnableConfirmButton(true)),
+                                Observable<Mutation>.just(.setEnableCommentTextField(true)),
+                                Observable<Mutation>.just(.scrollTableToLast(true)),
+                                Observable<Mutation>.just(.setText(nil))
+                            )
                         }
-                        
-                        let cell = CommentCellReactor(comment)
-                        
-                        // TODO: - Provider 바꾸기
-                        if let count = $0.0.commentCount {
-                            $0.0.provider.postGlobalState.renewalPostCommentCount(count + 1)
-                        }
-                        
-                        commentService.clearCommentTextField()
-                        commentService.enableConfirmButton(enable: true)
-                        commentService.enableCommentTextField(enable: true)
-                        return Observable<Mutation>.just(.appendComment(cell))
-                    }
+            )
             
         case let .deleteComment(commentId):
             return deleteCommentUseCase.execute(postId: postId, commentId: commentId)
@@ -185,7 +229,6 @@ final public class CommentViewReactor: Reactor {
         case let .setComments(comments):
             let dataSource: CommentSectionModel = .init(model: "", items: comments)
             newState.commentDatasource = [dataSource]
-//            scrollCommentTableToLast()
             
         case let .appendComment(comment):
             guard
@@ -193,7 +236,6 @@ final public class CommentViewReactor: Reactor {
             else { break }
             dataSource.items.append(comment)
             newState.commentDatasource = [dataSource]
-//            scrollCommentTableToLast()
             
         case let .deleteComment(commentId):
             guard
@@ -201,6 +243,30 @@ final public class CommentViewReactor: Reactor {
             else { break }
             dataSource.items.removeAll { $0.currentState.comment.commentId == commentId }
             newState.commentDatasource = [dataSource]
+            
+        case let .setHiddenTablePrgressHud(hidden):
+            newState.hiddenTableProgressHud = hidden
+            
+        case let .setHiddenNoneCommentView(hidden):
+            newState.hiddenNoneCommentView = hidden
+            
+        case let .setHiddenFetchFailureView(hidden):
+            newState.hiddenFetchFailureView = hidden
+            
+        case let .setEnableConfirmButton(enable):
+            newState.enableConfirmButton = enable
+            
+        case let .setEnableCommentTextField(enable):
+            newState.enableCommentTextField = enable
+            
+        case let .setText(text):
+            newState.text = text
+            
+        case let .setBecomeFirstResponder(responder):
+            newState.makeTextFieldFirstResponder = responder
+            
+        case let .scrollTableToLast(scroll):
+            newState.scrollTableToLast = scroll
         }
         
         return newState
@@ -213,10 +279,6 @@ final public class CommentViewReactor: Reactor {
 
 extension CommentViewReactor {
     
-    private func scrollCommentTableToLast() {
-        if let count = commentCount {
-            provider.commentService.scrollCommentTableToLast(index: IndexPath(row: count, section: 0))
-        }
-    }
+    
     
 }

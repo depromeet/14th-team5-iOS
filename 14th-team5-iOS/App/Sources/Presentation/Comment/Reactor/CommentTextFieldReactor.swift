@@ -35,7 +35,7 @@ public final class CommentTextFieldReactor {
     // MARK: - State
     
     public struct State { 
-        var inputText: String? = nil
+        @Pulse var inputText: String? = nil
         var enableTextField: Bool = true
         var enableConfirmButton: Bool = false
         @Pulse var becomeFirstResponder: Bool = false

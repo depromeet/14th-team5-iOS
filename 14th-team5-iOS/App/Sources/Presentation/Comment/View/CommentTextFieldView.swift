@@ -52,8 +52,7 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
     }
     
     private func bindOutput(reactor: CommentTextFieldReactor) {
-        reactor.state.map { $0.inputText }
-            .distinctUntilChanged()
+        reactor.pulse(\.$inputText)
             .bind(to: textFieldView.rx.text)
             .disposed(by: disposeBag)
         

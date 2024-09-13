@@ -53,16 +53,16 @@ private extension BBToastConfiguration {
     
     private static func defaultEnteringAnimation(with direction: BBToast.Direction) -> BBToast.Animation {
         switch direction {
-        case .top:
+        case let .top(yOffset):
             return .custom(
-                transformation: CGAffineTransform(scaleX: 0.9, y: 0.9).translatedBy(x: 0, y: -100)
+                transformation: CGAffineTransform(scaleX: 0.9, y: 0.9).translatedBy(x: 0, y: -yOffset - 100)
             )
             
-        case .bottom:
+        case let .bottom(yOffset):
             return .custom(
-                transformation: CGAffineTransform(scaleX: 0.9, y: 0.9).translatedBy(x: 0, y: 100)
+                transformation: CGAffineTransform(scaleX: 0.9, y: 0.9).translatedBy(x: 0, y: +yOffset + 100)
             )
-            
+
         case .center:
             return .custom(
                 transformation: CGAffineTransform(scaleX: 0.5, y: 0.5)

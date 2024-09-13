@@ -25,7 +25,7 @@ final public class CommentViewController: ReactorViewController<CommentViewReact
     // MARK: - Views
     
     private let topBarView: CommentTopBarView = CommentTopBarView()
-    private let commentTableView: UITableView = UITableView()
+    private let commentTableView: CommentTableView = CommentTableView()
     private lazy var textFieldView: CommentTextFieldView = makeCommentTextFieldView()
     
     
@@ -75,8 +75,7 @@ final public class CommentViewController: ReactorViewController<CommentViewReact
     }
     
     private func bindOutput(reactor: CommentViewReactor) {
-        reactor.state.map { $0.commentDatasource }
-            .distinctUntilChanged()
+        reactor.pulse(\.$commentDatasource)
             .bind(to: commentTableView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
@@ -94,7 +93,6 @@ final public class CommentViewController: ReactorViewController<CommentViewReact
             .flatMap { _ in Observable<CGFloat>.just(.zero) }
         
         keyboardWillShow
-            .distinctUntilChanged()
             .bind(with: self) { owner, height in
                 let bottomInset = owner.view.safeAreaInsets.bottom
                 let keyboardHeight = height - bottomInset
@@ -179,7 +177,9 @@ extension CommentViewController {
     
     private func prepareDatasource() -> RxDataSource {
         return RxDataSource { dataSource, tableView, indexPath, reactor in
-            let cell = tableView.dequeueReusableCell(withIdentifier: CommentCell.id) as! CommentCell
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: CommentCell.id
+            ) as! CommentCell
             cell.reactor = reactor
             return cell
         }

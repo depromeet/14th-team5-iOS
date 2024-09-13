@@ -69,6 +69,7 @@ public class DefaultToastView: UIView, BBToastView {
         case let .top(yOffset):
             topAnchor.constraint(equalTo: superview.layoutMarginsGuide.topAnchor, constant: yOffset).isActive = true
         case let .center(xOffset, yOffset):
+            centerXAnchor.constraint(equalTo: superview.layoutMarginsGuide.centerXAnchor, constant: xOffset).isActive = true
             centerYAnchor.constraint(equalTo: superview.layoutMarginsGuide.centerYAnchor, constant: yOffset).isActive = true
         }
         

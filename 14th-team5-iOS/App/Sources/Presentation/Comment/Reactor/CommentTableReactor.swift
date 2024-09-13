@@ -78,9 +78,9 @@ public final class CommentTableReactor {
     
     // MARK: - Mutate
     
-    public func mutate(action: Action) -> Observable<Mutation> {
-        return .empty()
-    }
+//    public func mutate(action: Action) -> Observable<Mutation> {
+//        return .empty()
+//    }
     
     
     // MARK: - Reduce

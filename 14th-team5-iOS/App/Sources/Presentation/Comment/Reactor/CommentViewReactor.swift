@@ -26,7 +26,7 @@ final public class CommentViewReactor: Reactor {
     // MARK: - Mutation
     
     public enum Mutation {
-        case setComment([CommentCellReactor])
+        case setComments([CommentCellReactor])
         case appendComment(CommentCellReactor)
         case deleteComment(String)
     }
@@ -88,33 +88,33 @@ final public class CommentViewReactor: Reactor {
             commentService.enableCommentTextField(enable: false)
             return fetchCommentUseCase.execute(postId: postId, query: query)
                     .withUnretained(self)
-                    .concatMap {
+                    .flatMap {
                         // 통신에 실패한다면
                         guard let comments = $0.1 else {
                             Haptic.notification(type: .error)
                             $0.0.navigator.showFetchFailureToast()
                             commentService.hiddenTableProgressHud(hidden: true)
                             commentService.hiddenNoneCommentView(hidden: true)
-                            return Observable<Mutation>.just(.setComment([]))
+                            return Observable<Mutation>.just(.setComments([]))
                         }
                         
                         // 댓글이 없다면
-                        guard !comments.results.isEmpty else {
+                        if comments.results.isEmpty  {
                             commentService.becomeFirstResponder()
                             commentService.hiddenTableProgressHud(hidden: true)
                             commentService.enableConfirmButton(enable: true)
                             commentService.enableCommentTextField(enable: true)
-                            return Observable<Mutation>.just(.setComment([]))
+                            return Observable<Mutation>.just(.setComments([]))
                         }
                         
                         let cells = comments.results
                             .map { CommentCellReactor($0) }
                         
+                        commentService.becomeFirstResponder()
                         commentService.hiddenTableProgressHud(hidden: true)
                         commentService.enableConfirmButton(enable: true)
                         commentService.enableCommentTextField(enable: true)
-                        commentService.becomeFirstResponder()
-                        return Observable<Mutation>.just(.setComment(cells))
+                        return Observable<Mutation>.just(.setComments(cells))
                     }
                                                          
         case let .createComment(content):
@@ -182,10 +182,10 @@ final public class CommentViewReactor: Reactor {
         var newState = state
         
         switch mutation {
-        case let .setComment(comments):
+        case let .setComments(comments):
             let dataSource: CommentSectionModel = .init(model: "", items: comments)
             newState.commentDatasource = [dataSource]
-            scrollCommentTableToLast()
+//            scrollCommentTableToLast()
             
         case let .appendComment(comment):
             guard
@@ -193,7 +193,7 @@ final public class CommentViewReactor: Reactor {
             else { break }
             dataSource.items.append(comment)
             newState.commentDatasource = [dataSource]
-            scrollCommentTableToLast()
+//            scrollCommentTableToLast()
             
         case let .deleteComment(commentId):
             guard

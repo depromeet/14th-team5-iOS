@@ -62,7 +62,7 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         .disposed(by: disposeBag)
         
         profileButton.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.didTapProfileButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -155,15 +155,13 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         }
         
         profileBackground.do {
-            $0.layer.masksToBounds = true
             $0.layer.cornerRadius = 44 / 2
             $0.backgroundColor = UIColor.gray800
         }
         
         profileImage.do {
-            $0.contentMode = .scaleAspectFill
-            $0.layer.masksToBounds = true
             $0.layer.cornerRadius = 44 / 2
+            $0.contentMode = .scaleAspectFill
         }
         
         labelStack.do {

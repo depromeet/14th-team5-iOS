@@ -123,6 +123,15 @@ extension FamilyRepository {
         
         return familyApiWorker.updateFamilyName(familyId: familyId, body: body)
             .map { $0?.toDomain() }
+            .do(onSuccess: {
+                FamilyUserDefaults.saveFamilyEditorId(familyEditorId: $0?.familyNameEditorId ?? "")
+            })
+            .asObservable()
+    }
+    
+    public func fetchFamilyGroupInfo() -> Observable<FamilyGroupInfoEntity?> {
+        return familyApiWorker.fetchFamilyGroupInfo()
+            .map { $0?.toDomain() }
             .asObservable()
     }
 }

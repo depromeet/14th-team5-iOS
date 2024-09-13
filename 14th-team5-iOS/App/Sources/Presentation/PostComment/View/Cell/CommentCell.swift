@@ -81,7 +81,7 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         
         userName
             .distinctUntilChanged()
-            .drive(firstNameLabel.rx.firtNameText)
+            .drive(with: self) { $0.userNameLabel.text = $1[0] }
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.profileImageUrlString }

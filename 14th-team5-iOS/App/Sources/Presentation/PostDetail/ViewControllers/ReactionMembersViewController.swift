@@ -135,7 +135,7 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberView
             $0.allowsSelection = false
             $0.backgroundColor = UIColor.clear
             $0.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 0)
-            $0.register(FamilyMemberProfileCell.self, forCellReuseIdentifier: FamilyMemberProfileCell.id)
+            $0.register(FamilyMemberCell.self, forCellReuseIdentifier: FamilyMemberCell.id)
         }
         
         closeButton.do {
@@ -155,9 +155,9 @@ extension ReactionMembersViewController: UITableViewDelegate {
 }
 
 extension ReactionMembersViewController {
-    private func createDataSource() -> RxTableViewSectionedReloadDataSource<FamilyMemberProfileSectionModel> {
-        return RxTableViewSectionedReloadDataSource<FamilyMemberProfileSectionModel> { datasource, tableView, indexPath, reactor in
-            let cell = tableView.dequeueReusableCell(withIdentifier: FamilyMemberProfileCell.id, for: indexPath) as! FamilyMemberProfileCell
+    private func createDataSource() -> RxTableViewSectionedReloadDataSource<FamilyMemberSectionModel> {
+        return RxTableViewSectionedReloadDataSource<FamilyMemberSectionModel> { datasource, tableView, indexPath, reactor in
+            let cell = tableView.dequeueReusableCell(withIdentifier: FamilyMemberCell.id, for: indexPath) as! FamilyMemberCell
             cell.reactor = reactor
             return cell
         }

@@ -43,10 +43,10 @@ final class MainFamilyCellReactor: Reactor {
     
     // MARK: - Properties
     let initialState: State
-    let provider: GlobalStateProviderProtocol
+    let provider: ServiceProviderProtocol
     
     // MARK: - Intializer
-    init(_ profileData: FamilyMemberProfileEntity, service provider: GlobalStateProviderProtocol) {
+    init(_ profileData: FamilyMemberProfileEntity, service provider: ServiceProviderProtocol) {
         self.initialState = State(profileData: profileData)
         self.provider = provider
     }

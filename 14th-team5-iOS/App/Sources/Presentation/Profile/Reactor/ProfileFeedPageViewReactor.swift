@@ -14,7 +14,7 @@ final class ProfileFeedPageViewReactor: Reactor {
     
     //MAKR: Property
     public var initialState: State
-    @Injected private var provider: GlobalStateProviderProtocol
+    @Injected private var provider: ServiceProviderProtocol
     
     enum Action {
         case updatePageViewController(Int)

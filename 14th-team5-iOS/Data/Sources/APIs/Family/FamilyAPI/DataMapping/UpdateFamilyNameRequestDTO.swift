@@ -8,5 +8,5 @@
 import Foundation
 
 public struct UpdateFamilyNameRequestDTO: Encodable {
-    let familyName: String
+    let familyName: String?
 }

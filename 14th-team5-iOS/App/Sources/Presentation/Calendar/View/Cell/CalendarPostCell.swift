@@ -110,7 +110,7 @@ final class CalendarPostCell: BaseCollectionViewCell<CalendarPostCellReactor> {
 
         reactor.state.compactMap { $0.authorName }
             .distinctUntilChanged()
-            .bind(to: authorFirstNameLabel.rx.firtNameText)
+            .bind(with: self) { $0.authorNameLabel.text = $1[0] }
             .disposed(by: disposeBag)
         
         reactor.state.compactMap { $0.authorImageUrl }

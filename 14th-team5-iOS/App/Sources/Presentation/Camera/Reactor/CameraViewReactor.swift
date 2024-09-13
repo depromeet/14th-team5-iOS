@@ -27,7 +27,7 @@ public final class CameraViewReactor: Reactor {
     @Injected private var editProfileImageUseCase: EditCameraProfileImageUseCaseProtocol
     @Injected private var fetchRealEmojiListUseCase: FetchCameraRealEmojiListUseCaseProtocol
     @Injected private var fetchRealEmojiPreSignedUseCase: FetchCameraRealEmojiUseCaseProtocol
-    @Injected private var provider: GlobalStateProviderProtocol
+    @Injected private var provider: ServiceProviderProtocol
     
     
     public var cameraType: UploadLocation

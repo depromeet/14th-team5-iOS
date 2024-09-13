@@ -8,6 +8,7 @@
 import Foundation
 
 public protocol MemberRepositoryProtocol {
+    func fetchFamilyNameEditorId() -> String
     func fetchUserName(memberId: String) -> String
     func fetchProfileImageUrlString(memberId: String) -> String
     func checkIsMe(memberId: String) -> Bool

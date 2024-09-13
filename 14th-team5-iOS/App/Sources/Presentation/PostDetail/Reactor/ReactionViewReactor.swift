@@ -54,7 +54,7 @@ final class ReactionViewReactor: Reactor {
     }
     
     let initialState: State
-    @Injected var provider: GlobalStateProviderProtocol
+    @Injected var provider: ServiceProviderProtocol
     @Injected var fetchReactionListUseCase: FetchReactionListUseCaseProtocol
     @Injected var createReactionUseCase: CreateReactionUseCaseProtocol
     @Injected var removeReactionUseCase: RemoveReactionUseCaseProtocol

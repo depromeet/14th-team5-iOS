@@ -40,7 +40,7 @@ public final class MonthlyCalendarViewReactor: Reactor {
     // MARK: - Properties
     public var initialState: State
     
-    @Injected var provider: GlobalStateProviderProtocol
+    @Injected var provider: ServiceProviderProtocol
     @Injected var calendarUseCase: CalendarUseCaseProtocol
     
     @Navigator var navigator: MonthlyCalendarNavigatorProtocol

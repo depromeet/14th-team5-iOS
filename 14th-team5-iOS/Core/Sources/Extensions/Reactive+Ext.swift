@@ -51,22 +51,6 @@ extension Reactive where Base: UIView {
     }
 }
 
-extension Reactive where Base: UIScrollView {
-    public func reachedBottom(from space: CGFloat = 200.0) -> ControlEvent<Void> {
-        let source = contentOffset.map { contentOffset in
-            let visibleHeight = self.base.frame.height - self.base.contentInset.top - self.base.contentInset.bottom
-            let y = contentOffset.y + self.base.contentInset.top
-            let threshold = self.base.contentSize.height - visibleHeight - space
-            return y >= threshold
-        }
-        .distinctUntilChanged()
-        .filter { $0 }
-        .map { _ in () }
-        
-        return ControlEvent(events: source)
-    }
-}
-
 extension Reactive where Base: UITapGestureRecognizer {
     public var tapGesture: ControlEvent<Void> {
         let tapEvent = self.methodInvoked(#selector(Base.touchesBegan(_:with:))).map { _ in }
@@ -75,12 +59,16 @@ extension Reactive where Base: UITapGestureRecognizer {
 }
 
 extension Reactive where Base: UILabel {
-    public var isMeText: Binder<Bool> {
-        Binder(self.base) { label, isMe in
-            label.text = isMe ? "ME" : ""
+    
+    public var firstLetterText: Binder<String> {
+        Binder(self.base) { label, text in
+            if let firstLetter = text.first {
+                label.text = String(firstLetter)
+            }
         }
     }
     
+    @available(*, deprecated, message: "삭제")
     public var calendarTitleText: Binder<Date> {
         Binder(self.base) { label, date in
             var formatString: String = .none
@@ -93,23 +81,10 @@ extension Reactive where Base: UILabel {
         }
     }
     
-    public var firtNameText: Binder<String> {
-        Binder(self.base) { label, text in
-            label.text = text[0]
-        }
-    }
-    
+    @available(*, deprecated, message: "삭제")
     public var memoryCountText: Binder<Int> {
         Binder(self.base) { label, count in
             label.text = "\(count)개의 추억"
-        }
-    }
-}
-
-extension Reactive where Base: UIStackView {
-    public var isMeSpacing: Binder<Bool> {
-        Binder(self.base) { stackView, isMe in
-            stackView.spacing = isMe ? 3.0 : 0.0
         }
     }
 }

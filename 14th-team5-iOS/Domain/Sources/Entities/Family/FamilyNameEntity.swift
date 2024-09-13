@@ -10,18 +10,18 @@ import Foundation
 public struct FamilyNameEntity {
     public var familyId: String
     public var familyName: String
-    public var familyIdEditorId: String
+    public var familyNameEditorId: String
     public var createdAt: Date
     
     public init(
         familyId: String,
         familyName: String,
-        familyIdEditorId: String,
+        familyNameEditorId: String,
         createdAt: Date
     ) {
         self.familyId = familyId
         self.familyName = familyName
-        self.familyIdEditorId = familyIdEditorId
+        self.familyNameEditorId = familyNameEditorId
         self.createdAt = createdAt
     }
 }

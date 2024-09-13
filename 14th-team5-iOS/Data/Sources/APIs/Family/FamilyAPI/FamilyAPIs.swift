@@ -16,6 +16,7 @@ enum FamilyAPIs: API {
     case fetchFamilyCreatedAt(String)
     case fetchPaginationFamilyMembers(Int, Int)
     case updateFamilyName(String)
+    case fetchFamilyInfo
 
     var spec: APISpec {
         switch self {
@@ -33,6 +34,8 @@ enum FamilyAPIs: API {
             return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/members?type=FAMILY&page=\(page)&size=\(size)")
         case let .updateFamilyName(familyId):
             return APISpec(method: .put, url: "\(BibbiAPI.hostApi)/families/\(familyId)/name")
+        case .fetchFamilyInfo:
+            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/me/family-info")
         }
     }
 }

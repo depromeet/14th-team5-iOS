@@ -57,6 +57,11 @@ open class BBNavigationViewController<R>: ReactorViewController<R> where R: Reac
         
     }
     
+    open override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.isHidden = true
+    }
+    
     // MARK: - Helpers
     open override func bind(reactor: R) {
         super.bind(reactor: reactor)

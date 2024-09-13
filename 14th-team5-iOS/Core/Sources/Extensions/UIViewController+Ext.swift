@@ -148,6 +148,8 @@ extension UIViewController {
 }
 
 extension UIViewController {
+    
+    @available(*, deprecated, message: "Navigator 안에서 호출하세요.")
     public func makeSharePanel(
         _ activityItemSources: [UIActivityItemSource],
         activities: [UIActivity],
@@ -166,13 +168,15 @@ extension UIViewController {
     /// - Parameters:
     ///   - url: 공유할 URL
     ///   - globalState: GlobalState (선택)
-    public func makeInvitationUrlSharePanel(_ url: URL?, provider globalState: GlobalStateProviderProtocol? = nil) {
+    ///
+    @available(*, deprecated, message: "Navigator 안에서 호출하세요.")
+    public func makeInvitationUrlSharePanel(_ url: URL?, provider globalState: ServiceProviderProtocol? = nil) {
         guard let url = url else { return }
         let itemSource = UrlActivityItemSource(
             title: "삐삐! 가족에게 보내는 하루 한 번 생존 신고",
             url: url
         )
-        let copyToPastboard = CopyInvitationUrlActivity(url, provider: globalState)
+        let copyToPastboard = CopyInvitationUrlActivity(url)
         
         makeSharePanel([itemSource], activities: [copyToPastboard])
     }

@@ -18,7 +18,7 @@ final class ResignDIContainer: BaseContainer {
     
     private func makeDeleteAccountResignUseCaseProtocol() -> DeleteAccountResignUseCaseProtocol {
         return DeleteAccountResignUseCase(
-            accountResingRepository: makeResignRepository()
+            accountResignRepository: makeResignRepository()
         )
     }
     

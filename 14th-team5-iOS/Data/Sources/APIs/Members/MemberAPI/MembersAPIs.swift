@@ -16,7 +16,7 @@ enum MembersAPIs: API {
     case profileUploadToPreSignedURL(String)
     case profileEditImage(String)
     case profileDeleteImage(String)
-    case accountResing(String)
+    case accountResign(String)
     
     var spec: APISpec {
         switch self {
@@ -32,7 +32,7 @@ enum MembersAPIs: API {
             return APISpec(method: .put, url: "\(BibbiAPI.hostApi)/members/profile-image-url/\(memberId)")
         case let .profileDeleteImage(memberId):
             return APISpec(method: .delete, url: "\(BibbiAPI.hostApi)/members/profile-image-url/\(memberId)")
-        case let .accountResing(memberId):
+        case let .accountResign(memberId):
             return APISpec(method: .delete, url: "\(BibbiAPI.hostApi)/members/\(memberId)")
         
         }

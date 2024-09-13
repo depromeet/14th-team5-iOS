@@ -15,13 +15,13 @@ public protocol DeleteAccountResignUseCaseProtocol {
 
 public final class DeleteAccountResignUseCase: DeleteAccountResignUseCaseProtocol {
     
-    private let accountResingRepository: any AccountResignRepositoryProtocol
+    private let accountResignRepository: any AccountResignRepositoryProtocol
     
-    public init(accountResingRepository: any AccountResignRepositoryProtocol) {
-        self.accountResingRepository = accountResingRepository
+    public init(accountResignRepository: any AccountResignRepositoryProtocol) {
+        self.accountResignRepository = accountResignRepository
     }
     
     public func execute() -> Observable<AccountResignEntity?> {
-        return accountResingRepository.deleteAccountResignItem()
+        return accountResignRepository.deleteAccountResignItem()
     }
 }

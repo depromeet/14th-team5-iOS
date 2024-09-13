@@ -134,7 +134,14 @@ public final class ManagementTableView: BaseTableView<ManagementTableReactor> {
 
 extension ManagementTableView {
     
-    // TODO: - 임시 코드 삭제하기
+    func hiddenTableProgressHud(hidden: Bool) {
+        hidden ? progressHud.close() : progressHud.show()
+    }
+    
+    func hiddenFetchFailureView(hidden: Bool) {
+        fetchFailureView.isHidden = hidden
+    }
+    
     func endRefreshing() {
         basicRefreshControl.endRefreshing()
     }

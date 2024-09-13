@@ -65,11 +65,6 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
             .distinctUntilChanged()
             .bind(to: confirmButton.rx.isEnabled)
             .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$becomeFirstResponder)
-            .bind(with: self) { owner, _ in owner.textFieldView.becomeFirstResponder() }
-            .disposed(by: disposeBag)
-        
     }
     
     public override func setupUI() {

@@ -26,6 +26,7 @@ public final class CommentTableView: BaseTableView<CommentTableReactor> {
     private lazy var progressHud: BBProgressHUD = {
         let config = BBProgressHUDConfiguration(attachedTo: self)
         let viewConfig = BBProgressHUDViewConfiguration(
+            offsetFromCenterY: -50,
             backgroundColor: UIColor.clear
         )
         let hud = BBProgressHUD.lottie(
@@ -55,34 +56,6 @@ public final class CommentTableView: BaseTableView<CommentTableReactor> {
     
     
     // MARK: - Helpers
-    
-    public override func bind(reactor: CommentTableReactor) {
-        super.bind(reactor: reactor)
-        bindOutput(reactor: reactor)
-    }
-    
-    private func bindOutput(reactor: CommentTableReactor) {
-        reactor.state.map { $0.hiddenFetchFailureView }
-            .debug()
-            .distinctUntilChanged()
-            .bind(to: fetchFailureView.rx.isHidden)
-            .disposed(by: disposeBag)
-        
-        reactor.state.map { $0.hiddenTableProgressHud }
-            .debug()
-            .distinctUntilChanged()
-            .bind(with: self) { $1 ? $0.progressHud.close() : $0.progressHud.show() }
-            .disposed(by: disposeBag)
-        
-        reactor.state.map { $0.hiddenNoneCommentView }
-            .debug()
-            .distinctUntilChanged()
-            .bind(to: noneCommentView.rx.isHidden)
-            .disposed(by: disposeBag)
-        
-        // TODO: - 이거 제대로 안뜨는 문제 수정
-    }
-    
     
     public override func setupUI() {
         super.setupUI()

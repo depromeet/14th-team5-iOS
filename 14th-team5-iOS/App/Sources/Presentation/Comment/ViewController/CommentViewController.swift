@@ -115,14 +115,7 @@ final public class CommentViewController: ReactorViewController<CommentViewReact
         
         reactor.pulse(\.$scrollTableToLast)
             .filter { $0 }
-            .bind(with: self) { owner, _ in
-                // TODO: - 메서드로 빼기
-                guard
-                    let count = reactor.currentState.commentDatasource.first?.items.count
-                else { return }
-                let indexPath = IndexPath(item: count - 1, section: 0)
-                owner.commentTableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
-            }
+            .bind(with: self) { owner, _ in owner.scrollCommentTableToLast() }
             .disposed(by: disposeBag)
         
         let keyboardWillShow = NotificationCenter.default.rx
@@ -221,11 +214,6 @@ extension CommentViewController {
         )
     }
     
-}
-
-
-extension CommentViewController {
-    
     private func prepareDatasource() -> RxDataSource {
         return RxDataSource { dataSource, tableView, indexPath, reactor in
             let cell = tableView.dequeueReusableCell(
@@ -234,6 +222,19 @@ extension CommentViewController {
             cell.reactor = reactor
             return cell
         }
+    }
+    
+}
+
+
+extension CommentViewController {
+    
+    private func scrollCommentTableToLast() {
+        guard
+            let count = reactor?.currentState.commentDatasource.first?.items.count
+        else { return }
+        let indexPath = IndexPath(item: count - 1, section: 0)
+        commentTableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
     }
     
 }

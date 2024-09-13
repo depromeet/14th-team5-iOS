@@ -8,7 +8,6 @@
 import Foundation
 
 public protocol ServiceProviderProtocol: AnyObject {
-    var commentService: CommentServiceType { get }
     var mainService: MainServiceType { get }
     var managementService: ManagementServiceType { get }
     
@@ -23,7 +22,6 @@ public protocol ServiceProviderProtocol: AnyObject {
 
 final public class ServiceProvider: ServiceProviderProtocol {
     
-    public lazy var commentService: any CommentServiceType = CommentService(provider: self)
     public lazy var mainService: MainServiceType = MainService(provider: self)
     public lazy var managementService: any ManagementServiceType = ManagementService(provider: self)
     

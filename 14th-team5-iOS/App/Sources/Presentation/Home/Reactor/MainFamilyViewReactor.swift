@@ -19,8 +19,8 @@ final class MainFamilyViewReactor: Reactor {
     }
     
     enum Mutation {
-        case setSharePanel(String)
-        case showShareAcitivityView(URL?)
+//        case setSharePanel(String)
+//        case showShareAcitivityView(URL?)
         
         case updateFamilyDataSource([FamilySection.Item])
         case setFetchFailureToastMessageView
@@ -29,7 +29,7 @@ final class MainFamilyViewReactor: Reactor {
     }
     
     struct State {
-        @Pulse var familyInvitationLink: URL?
+//        @Pulse var familyInvitationLink: URL?
         @Pulse var shouldPresentFetchFailureToastMessageView: Bool = false
         @Pulse var familySection: FamilySection.Model = FamilySection.Model(model: 0, items: [])
         
@@ -39,6 +39,10 @@ final class MainFamilyViewReactor: Reactor {
     let initialState: State = State()
     @Injected var provider: ServiceProviderProtocol
     @Injected var familyUseCase: FamilyUseCaseProtocol
+    
+    @Injected var fetchSharinUrlUseCase: FetchInvitationLinkUseCaseProtocol
+    
+    @Navigator var navigator: HomeNavigatorProtocol
 }
 
 extension MainFamilyViewReactor {
@@ -46,12 +50,14 @@ extension MainFamilyViewReactor {
         switch action {
         case .tapInviteFamily:
             MPEvent.Home.shareLink.track(with: nil)
-            return familyUseCase.executeFetchInvitationUrl()
-                .map {
-                    guard let invitationLink = $0?.url else {
-                        return .setFetchFailureToastMessageView
+            return fetchSharinUrlUseCase.execute()
+                .withUnretained(self)
+                .flatMap {
+                    guard let invitationLink = $0.1?.url else {
+                        return Observable<Mutation>.just(.setFetchFailureToastMessageView)
                     }
-                    return .setSharePanel(invitationLink)
+                    $0.0.navigator.presentSharingSheet(url: URL(string: invitationLink))
+                    return Observable<Mutation>.empty()
                 }
         case .updateFamilySection(let items):
             if items.count < 2 {
@@ -70,12 +76,12 @@ extension MainFamilyViewReactor {
                 newState.familySection.items = familySectionItem
             case .setInviteFamilyView(let isShow):
                 newState.isShowingInviteFamilyView = isShow
-            case let .showShareAcitivityView(url):
-                newState.familyInvitationLink = url
+//            case let .showShareAcitivityView(url):
+//                newState.familyInvitationLink = url
             case .setFetchFailureToastMessageView:
                 newState.shouldPresentFetchFailureToastMessageView = true
-            case let .setSharePanel(urlString):
-                newState.familyInvitationLink = URL(string: urlString)
+//            case let .setSharePanel(urlString):
+//                newState.familyInvitationLink = URL(string: urlString)
         }
         
         return newState

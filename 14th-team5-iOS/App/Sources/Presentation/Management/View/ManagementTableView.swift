@@ -60,35 +60,6 @@ public final class ManagementTableView: BaseTableView<ManagementTableReactor> {
     
     // MARK: - Helpers
     
-    public override func bind(reactor: ManagementTableReactor) {
-        super.bind(reactor: reactor)
-        
-        bindOutput(reactor: reactor)
-    }
-    
-    private func bindOutput(reactor: ManagementTableReactor) {
-        
-        reactor.state.map { $0.hiddenTableProgressHud }
-            .distinctUntilChanged()
-            .bind(with: self) { owner, hidden in
-                hidden ? owner.progressHud.close() : owner.progressHud.show()
-            }
-            .disposed(by: disposeBag)
-        
-        reactor.state.map { $0.hiddenFetchFailureView }
-            .distinctUntilChanged()
-            .bind(to: fetchFailureView.rx.isHidden)
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$isRefreshing)
-            .delay(RxInterval._700milliseconds, scheduler: RxScheduler.main)
-            .bind(to: basicRefreshControl.rx.isRefreshing)
-            .disposed(by: disposeBag)
-            
-        
-    }
-    
-    
     public override func setupUI() {
         super.setupUI()
         

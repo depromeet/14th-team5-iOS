@@ -121,16 +121,16 @@ extension MainFamilyViewController {
             .bind(to: familyCollectionView.rx.isHidden)
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$familyInvitationLink)
-            .observe(on: RxSchedulers.main)
-            .withUnretained(self)
-            .bind(onNext: {
-                $0.0.makeInvitationUrlSharePanel(
-                    $0.1,
-                    provider: reactor.provider
-                )
-            })
-            .disposed(by: disposeBag)
+//        reactor.pulse(\.$familyInvitationLink)
+//            .observe(on: RxSchedulers.main)
+//            .withUnretained(self)
+//            .bind(onNext: {
+//                $0.0.makeInvitationUrlSharePanel(
+//                    $0.1,
+//                    provider: reactor.provider
+//                )
+//            })
+//            .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPresentFetchFailureToastMessageView)
             .filter {  $0 }

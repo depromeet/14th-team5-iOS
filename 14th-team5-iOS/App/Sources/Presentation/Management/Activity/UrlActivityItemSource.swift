@@ -7,6 +7,8 @@
 
 import LinkPresentation
 
+// TODO: - 코드 리팩토링하기
+
 public class UrlActivityItemSource: NSObject, UIActivityItemSource {
     var title: String
     var url: URL

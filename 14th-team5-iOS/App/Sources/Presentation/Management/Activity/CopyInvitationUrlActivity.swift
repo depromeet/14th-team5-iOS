@@ -5,7 +5,10 @@
 //  Created by 김건우 on 12/13/23.
 //
 
+import Core
 import UIKit
+
+// TODO: - 코드 리팩토링하기
 
 public class CopyInvitationUrlActivity: UIActivity {
     private enum Activity {
@@ -46,7 +49,7 @@ public class CopyInvitationUrlActivity: UIActivity {
     
     public override func perform() {
         UIPasteboard.general.string = url.description
-        provider.managementService.didTapCopUrlAction()
+        provider.managementService.didTapCopUrlAction() // TODO: - 오타 수정
     }
     
 }

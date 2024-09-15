@@ -12,6 +12,8 @@ import SnapKit
 import Then
 
 extension UIViewController {
+    
+    @available(*, deprecated, message: "BBToast를 사용하세요.")
     public enum ToastDirection {
         case up
         case down
@@ -144,41 +146,6 @@ extension UIViewController {
         }
         
         return toastView
-    }
-}
-
-extension UIViewController {
-    
-    @available(*, deprecated, message: "Navigator 안에서 호출하세요.")
-    public func makeSharePanel(
-        _ activityItemSources: [UIActivityItemSource],
-        activities: [UIActivity],
-        excludedActivityTypes: [UIActivity.ActivityType] = [.addToReadingList, .copyToPasteboard]
-    ) {
-        let items: [Any] = activityItemSources
-        let activityVC = UIActivityViewController(
-            activityItems: items,
-            applicationActivities: activities
-        )
-        activityVC.excludedActivityTypes = excludedActivityTypes
-        present(activityVC, animated: true)
-    }
-    
-    /// 친구 초대 공유 시트를 보여줍니다.
-    /// - Parameters:
-    ///   - url: 공유할 URL
-    ///   - globalState: GlobalState (선택)
-    ///
-    @available(*, deprecated, message: "Navigator 안에서 호출하세요.")
-    public func makeInvitationUrlSharePanel(_ url: URL?, provider globalState: ServiceProviderProtocol? = nil) {
-        guard let url = url else { return }
-        let itemSource = UrlActivityItemSource(
-            title: "삐삐! 가족에게 보내는 하루 한 번 생존 신고",
-            url: url
-        )
-        let copyToPastboard = CopyInvitationUrlActivity(url)
-        
-        makeSharePanel([itemSource], activities: [copyToPastboard])
     }
 }
 

@@ -41,39 +41,7 @@ public final class SharingContainerView: BaseView<SharingContainerReactor> {
     
     
     // MARK: - Helpers
-    
-    public override func bind(reactor: SharingContainerReactor) {
-        super.bind(reactor: reactor)
-        
-        bindInput(reactor: reactor)
-        bindOutput(reactor: reactor)
-    }
-    
-    private func bindInput(reactor: SharingContainerReactor) { }
-    
-    private func bindOutput(reactor: SharingContainerReactor) {
-        let hiddenProgressHud = reactor.state
-            .map { $0.hiddenProgresHud }
-            .asDriver(onErrorJustReturn: true)
-        
-        hiddenProgressHud
-            .distinctUntilChanged()
-            .drive(basicProgressHud.rx.isHidden)
-            .disposed(by: disposeBag)
-        
-        hiddenProgressHud
-            .map { !$0 }
-            .distinctUntilChanged()
-            .drive(basicProgressHud.rx.isAnimating)
-            .disposed(by: disposeBag)
-        
-        hiddenProgressHud
-            .map { !$0 }
-            .distinctUntilChanged()
-            .drive(sharingImageView.rx.isHidden)
-            .disposed(by: disposeBag)
-    }
-    
+  
     public override func setupUI() {
         super.setupUI()
         
@@ -154,4 +122,21 @@ public final class SharingContainerView: BaseView<SharingContainerReactor> {
             $0.style = .medium
         }
     }
+}
+
+
+// MARK: - Extensions
+
+extension SharingContainerView {
+    
+    func hiddenSharingProgressHud(hidden: Bool) {
+        if hidden {
+            basicProgressHud.stopAnimating()
+            sharingImageView.isHidden = false
+        } else {
+            basicProgressHud.startAnimating()
+            sharingImageView.isHidden = true
+        }
+    }
+    
 }

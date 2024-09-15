@@ -28,8 +28,8 @@ public final class PostCommentDIContainer {
     }
     
     // MARK: - Make
-    public func makeViewController() -> PostCommentViewController {
-        return PostCommentViewController(reactor: makeReactor())
+    public func makeViewController() -> CommentViewController {
+        return CommentViewController(reactor: makeReactor())
     }
     
     public func makeMemberRepository() -> MemberRepositoryProtocol {

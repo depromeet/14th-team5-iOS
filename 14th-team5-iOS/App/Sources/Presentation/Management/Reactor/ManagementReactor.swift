@@ -18,7 +18,7 @@ public final class ManagementReactor: Reactor {
     // MARK: - Action
     
     public enum Action {
-        case fetchPaginationFamilyMemebers
+        case fetchPaginationFamilyMemeber(refresh: Bool)
         case didTapSharingContainer
         case didTapSettingBarButton
         case didTapFamilyNameEditButton
@@ -30,6 +30,13 @@ public final class ManagementReactor: Reactor {
     
     public enum Mutation {
         case setMemberDatasource([FamilyMemberCellReactor])
+        
+        case setHiddenSharingProgressHud(Bool)
+        case setHiddenTableProgressHud(Bool)
+        case setHiddenMemberFetchFailureView(Bool)
+        case setEndRefreshing(Bool)
+        
+        case setTableHeaderInfo((String, Int)?)
     }
     
     
@@ -37,6 +44,13 @@ public final class ManagementReactor: Reactor {
     
     public struct State {
         @Pulse var memberDatasource: [FamilyMemberSectionModel] = [.init(model: (), items: [])]
+        
+        var hiddenSharingProgressHud: Bool = true
+        var hiddenTableProgressHud: Bool = false
+        var hiddenMemberFetchFailureView: Bool = true
+        @Pulse var isRefreshing: Bool = false
+        
+        var tableHeaderInfo: (String, Int)? = nil
     }
     
     
@@ -91,23 +105,20 @@ public final class ManagementReactor: Reactor {
             // Mixpanel
             MPEvent.Family.shareLink.track(with: nil)
             
-            managementService.hiddenSharingProgressHud(hidden: false)
             return Observable.concat(
+                Observable<Mutation>.just(.setHiddenSharingProgressHud(false)),
                 
                 fetchSharingUrlUseCase.execute()
                     .withUnretained(self)
                     .concatMap {
-                        guard let sharingUrl = $0.1?.url else {
+                        guard let url = $0.1?.url else {
                             Haptic.notification(type: .error)
-                            managementService.hiddenSharingProgressHud(hidden: true)
                             $0.0.navigator.showErrorToast()
-                            
-                            return Observable<Mutation>.empty()
+                            return Observable<Mutation>.just(.setHiddenSharingProgressHud(true))
                         }
                         
-                        managementService.hiddenSharingProgressHud(hidden: true)
-                        $0.0.navigator.presentSharingSheet(url: URL(string: sharingUrl))
-                        return Observable<Mutation>.empty()
+                        $0.0.navigator.presentSharingSheet(url: URL(string: url))
+                        return Observable<Mutation>.just(.setHiddenSharingProgressHud(true))
                     }
             )
             
@@ -121,35 +132,40 @@ public final class ManagementReactor: Reactor {
             navigator.toFamilyNameSetting()
             return Observable<Mutation>.empty()
             
-        case .fetchPaginationFamilyMemebers:
+        case let .fetchPaginationFamilyMemeber(refresh):
             let query = FamilyPaginationQuery()
          
             return Observable.concat(
+                Observable<Mutation>.just(.setHiddenTableProgressHud(refresh)),
+                Observable<Mutation>.just(.setHiddenMemberFetchFailureView(true)),
+                
                 fetchFamilyMemberUseCase.execute(query: query)
                     .withUnretained(self)
                     .concatMap {
                         guard let results = $0.1?.results else {
                             Haptic.notification(type: .error)
-                            managementService.hiddenTableProgressHud(hidden: true)
-                            managementService.hiddenMemberFetchFailureView(hidden: false)
                             $0.0.navigator.showErrorToast()
-                            managementService.endTableRefreshing()
-                            
-                            return Observable<Mutation>.just(.setMemberDatasource([]))
+                            return Observable.concat(
+                                Observable<Mutation>.just(.setMemberDatasource([])),
+                                Observable<Mutation>.just(.setHiddenTableProgressHud(true)),
+                                Observable<Mutation>.just(.setHiddenMemberFetchFailureView(false)),
+                                Observable<Mutation>.just(.setEndRefreshing(true))
+                            )
                         }
-                        
-                        managementService.hiddenTableProgressHud(hidden: true)
-                        managementService.hiddenMemberFetchFailureView(hidden: true)
-                        // TODO: - 새로운 가족 이름 반영하기
-                        managementService.setTableHeaderInfo(familyName: "나의 가족", memberCount: results.count)
-                        managementService.endTableRefreshing()
                         
                         let items = results.sorted { [unowned self] in
                             self.checkIsMeUseCase.execute(memberId: $0.memberId) &&
                             !self.checkIsMeUseCase.execute(memberId: $1.memberId)
                         }.map { FamilyMemberCellReactor(.management, member: $0) }
                         
-                        return Observable<Mutation>.just(.setMemberDatasource(items))
+                        return Observable.concat(
+                            Observable<Mutation>.just(.setMemberDatasource(items)),
+                            Observable<Mutation>.just(.setHiddenTableProgressHud(true)),
+                            Observable<Mutation>.just(.setHiddenMemberFetchFailureView(true)),
+                            Observable<Mutation>.just(.setEndRefreshing(true)),
+                            Observable<Mutation>.just(.setTableHeaderInfo(("나의 가족", results.count)))
+                        )
+                        // TODO: - 가족 정보 반영 로직 구현하기
                     }
             )
             
@@ -168,12 +184,29 @@ public final class ManagementReactor: Reactor {
     
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
+        
         switch mutation {
-            
         case let .setMemberDatasource(items):
             let dataSource = FamilyMemberSectionModel(model: (), items: items)
             newState.memberDatasource = [dataSource]
+            
+        case let .setHiddenSharingProgressHud(hidden):
+            newState.hiddenSharingProgressHud = hidden
+            
+        case let .setHiddenTableProgressHud(hidden):
+            newState.hiddenTableProgressHud = hidden
+            
+        case let .setHiddenMemberFetchFailureView(hidden):
+            newState.hiddenMemberFetchFailureView = hidden
+            
+        case let .setEndRefreshing(isRefreshing):
+            newState.isRefreshing = isRefreshing
+            
+        case let .setTableHeaderInfo(headerInfo):
+            newState.tableHeaderInfo = headerInfo
         }
+        
         return newState
     }
+    
 }

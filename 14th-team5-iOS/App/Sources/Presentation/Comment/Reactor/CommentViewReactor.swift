@@ -100,8 +100,6 @@ final public class CommentViewReactor: Reactor {
     
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
-//        let commentService = provider.commentService
-        
         switch action {
         case .fetchComment:
             let query = PostCommentPaginationQuery()
@@ -192,6 +190,7 @@ final public class CommentViewReactor: Reactor {
                                 Observable<Mutation>.just(.appendComment(reactor)),
                                 Observable<Mutation>.just(.setEnableConfirmButton(true)),
                                 Observable<Mutation>.just(.setEnableCommentTextField(true)),
+                                Observable<Mutation>.just(.setHiddenNoneCommentView(true)),
                                 Observable<Mutation>.just(.scrollTableToLast(true)),
                                 Observable<Mutation>.just(.setText(nil))
                             )
@@ -216,7 +215,14 @@ final public class CommentViewReactor: Reactor {
                     }
                     
                     $0.0.navigator.showCommentDeleteToast()
-                    return Observable<Mutation>.just(.deleteComment(commentId))
+                    if $0.0.commentCount == 0 + 1 {
+                        return Observable<Mutation>.concat(
+                            Observable<Mutation>.just(.setHiddenNoneCommentView(false)),
+                            Observable<Mutation>.just(.deleteComment(commentId))
+                        )
+                    } else {
+                        return Observable<Mutation>.just(.deleteComment(commentId))
+                    }
                 }
         }
     }

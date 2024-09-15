@@ -1,8 +1,8 @@
 //
-//  ManagementTableHeaderViewReactor.swift
+//  CommentTableReactor.swift
 //  App
 //
-//  Created by 김건우 on 9/1/24.
+//  Created by 김건우 on 9/12/24.
 //
 
 import Core
@@ -11,7 +11,7 @@ import MacrosInterface
 import ReactorKit
 
 @Reactor
-public final class ManagementTableHeaderReactor {
+public final class CommentTableReactor {
     
     // MARK: - Action
     
@@ -30,7 +30,7 @@ public final class ManagementTableHeaderReactor {
     
     // MARK: - Properties
     
-    public var initialState: State
+    public let initialState: State
     
     
     // MARK: - Intializer
@@ -40,3 +40,4 @@ public final class ManagementTableHeaderReactor {
     }
     
 }
+

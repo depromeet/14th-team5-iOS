@@ -20,23 +20,17 @@ final public class SharingContainerReactor: Reactor {
     
     // MARK: - Mutation
     
-    public enum Mutation {
-        case setProgressHud(Bool)
-    }
+    public enum Mutation { }
     
     
     // MARK: - State
     
-    public struct State {
-        var hiddenProgresHud: Bool = true
-    }
+    public struct State { }
     
     
     // MARK: - Properties
     
     public var initialState: State
-    
-    @Injected var provider: ServiceProviderProtocol
     
     
     // MARK: - Intializer
@@ -45,32 +39,4 @@ final public class SharingContainerReactor: Reactor {
         self.initialState = State()
     }
     
-    
-    // MARK: - Transform
-    
-    public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
-        let eventMutation = provider.managementService.event
-            .flatMap { event -> Observable<Mutation> in
-                switch event {
-                case let .hiddenSharingProgressHud(hidden):
-                    return Observable<Mutation>.just(.setProgressHud(hidden))
-                default:
-                    return Observable<Mutation>.empty()
-                }
-            }
-        
-        return Observable<Mutation>.merge(mutation, eventMutation)
-    }
-    
-    
-    // MARK: - Reduce
-    
-    public func reduce(state: State, mutation: Mutation) -> State {
-        var newState = state
-        switch mutation {
-        case let .setProgressHud(hidden):
-            newState.hiddenProgresHud = hidden
-        }
-        return newState
-    }
 }

@@ -34,7 +34,7 @@ extension FamilyAPIWorker {
     // MARK: - Join Family
     
     public func joinFamily(body: JoinFamilyRequestDTO) -> Single<JoinFamilyResponseDTO?> {
-        let spec = MeAPIs.joinFamily.spec
+        let spec = FamilyAPIs.joinFamily.spec
         
         return request(spec: spec, jsonEncodable: body)
             .subscribe(on: Self.queue)

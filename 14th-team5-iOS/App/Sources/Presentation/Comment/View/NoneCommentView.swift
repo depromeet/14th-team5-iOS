@@ -11,13 +11,19 @@ import UIKit
 import Then
 import SnapKit
 
-final class NoCommentLabel: UIView {
+// NoneCommentView
+
+final class NoneCommentView: UIView {
+    
     // MARK: - Views
+    
     private let labelStack: UIStackView = UIStackView()
-    private let mainLabel: BBLabel = BBLabel(.body1Bold, textAlignment: .center)
-    private let subLabel: BBLabel = BBLabel(.body2Regular, textAlignment: .center, textColor: .gray500)
+    private let mainTextLabel: BBLabel = BBLabel(.body1Bold, textAlignment: .center)
+    private let subTextLabel: BBLabel = BBLabel(.body2Regular, textAlignment: .center, textColor: .gray500)
+    
     
     // MARK: - Intializer
+    
     override init(frame: CGRect) {
         super.init(frame: .zero)
         setupUI()
@@ -29,16 +35,17 @@ final class NoCommentLabel: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    
     // MARK: - Helpers
+    
     func setupUI() {
-        labelStack.addArrangedSubviews(mainLabel, subLabel)
-        self.addSubview(labelStack)
+        addSubview(labelStack)
+        labelStack.addArrangedSubviews(mainTextLabel, subTextLabel)
     }
     
     func setupAutoLayout() {
         labelStack.snp.makeConstraints {
-            $0.top.equalToSuperview()
-            $0.centerX.equalToSuperview()
+            $0.center.equalToSuperview()
         }
     }
     
@@ -50,11 +57,11 @@ final class NoCommentLabel: UIView {
             $0.distribution = .fillProportionally
         }
         
-        mainLabel.do {
+        mainTextLabel.do {
             $0.text = "아직 댓글이 없습니다"
         }
         
-        subLabel.do {
+        subTextLabel.do {
             $0.text = "댓글을 남겨보세요"
         }
     }

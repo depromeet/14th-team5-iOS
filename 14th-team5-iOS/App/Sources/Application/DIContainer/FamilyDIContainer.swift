@@ -49,6 +49,10 @@ final class FamilyDIContainer: BaseContainer {
         ResignFamilyUseCase(familyRepository: repository)
     }
     
+    private func makeFetchFamilyNameUseCase() -> FetchFamilyNameUseCaseProtocol {
+        FetchFamilyNameUseCase(familyRepository: repository)
+    }
+    
     private func makeUpdateFamilyNameUseCase() -> UpdateFamilyNameUseCaseProtocol {
         UpdateFamilyNameUseCase(familyRepository: repository)
     }
@@ -96,6 +100,10 @@ final class FamilyDIContainer: BaseContainer {
         
         container.register(type: ResignFamilyUseCaseProtocol.self) { _ in
             makeResignFamilyUseCase()
+        }
+        
+        container.register(type: FetchFamilyNameUseCaseProtocol.self) { _ in
+            makeFetchFamilyNameUseCase()
         }
         
         container.register(type: UpdateFamilyNameUseCaseProtocol.self) { _ in

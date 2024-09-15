@@ -49,6 +49,11 @@ public final class ManagementViewController: BBNavigationViewController<Manageme
     
     private func bindInput(reactor: ManagementReactor) {
         Observable<Void>.just(())
+            .map { Reactor.Action.fetchFamilyGroupInfo }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        Observable<Void>.just(())
             .map { Reactor.Action.fetchPaginationFamilyMemeber(refresh: false) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -107,9 +112,14 @@ public final class ManagementViewController: BBNavigationViewController<Manageme
             .bind(with: self) { owner, _ in owner.memberTableView.endRefreshing() }
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.tableHeaderInfo }
-            .compactMap { $0 }
-            .bind(with: self) { $0.memberTableHeaderView.setTableHeaderInfo($1.0, count: $1.1) }
+        reactor.state.compactMap { $0.familyName }
+            .distinctUntilChanged()
+            .bind(with: self) { $0.memberTableHeaderView.setFamilyName($1) }
+            .disposed(by: disposeBag)
+        
+        reactor.state.compactMap { $0.memberCount}
+            .distinctUntilChanged()
+            .bind(with: self) { $0.memberTableHeaderView.setMemberCount($1) }
             .disposed(by: disposeBag)
     }
     

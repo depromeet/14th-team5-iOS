@@ -150,6 +150,14 @@ extension FamilyRepository {
         return results
     }
     
+    
+    // MARK: - Fetch Family Name
+    
+    public func fetchFamilyName() -> String? {
+        familyUserDefaults.loadFamilyName()
+    }
+    
+    
     // MARK: - Update Family Name
     
     public func updateFamilyName(body: UpdateFamilyNameRequest) -> Observable<FamilyNameEntity?> {

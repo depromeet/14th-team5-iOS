@@ -18,6 +18,7 @@ public final class ManagementReactor: Reactor {
     // MARK: - Action
     
     public enum Action {
+        case fetchFamilyGroupInfo
         case fetchPaginationFamilyMemeber(refresh: Bool)
         case didTapSharingContainer
         case didTapSettingBarButton
@@ -36,7 +37,8 @@ public final class ManagementReactor: Reactor {
         case setHiddenMemberFetchFailureView(Bool)
         case setEndRefreshing(Bool)
         
-        case setTableHeaderInfo((String, Int)?)
+        case setFamilyName(String)
+        case setMemberCount(Int)
     }
     
     
@@ -50,7 +52,8 @@ public final class ManagementReactor: Reactor {
         var hiddenMemberFetchFailureView: Bool = true
         @Pulse var isRefreshing: Bool = false
         
-        var tableHeaderInfo: (String, Int)? = nil
+        var familyName: String? = nil
+        var memberCount: Int? = nil
     }
     
     
@@ -61,6 +64,7 @@ public final class ManagementReactor: Reactor {
     @Navigator var navigator: ManagementNavigatorProtocol
     
     @Injected var fetchMyMemberIdIUseCase: FetchMyMemberIdUseCaseProtocol
+    @Injected var fetchFamilyGroupInfoUseCase: FetchFamilyGroupInfoUseCaseProtocol
     @Injected var fetchFamilyMemberUseCase: FetchFamilyMembersUseCaseProtocol
     @Injected var fetchSharingUrlUseCase: FetchInvitationLinkUseCaseProtocol
     @Injected var checkIsMeUseCase: CheckIsMeUseCaseProtocol
@@ -77,16 +81,36 @@ public final class ManagementReactor: Reactor {
     
     // MARK: - Transform
 
+    public func transform(action: Observable<Action>) -> Observable<Action> {
+        let eventAction = provider.managementService.event
+            .withUnretained(self)
+            .flatMap {
+                switch $0.1 {
+                case .didUpdateFamilyInfo:
+                    return Observable<Action>.merge(
+                        Observable<Action>.just(.fetchFamilyGroupInfo),
+                        Observable<Action>.just(.fetchPaginationFamilyMemeber(refresh: true))
+                    )
+                    
+                @unknown default:
+                    return Observable<Action>.empty()
+                }
+            }
+        
+        return Observable<Action>.merge(action, eventAction)
+    }
+    
     
     public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
         let eventMutation = provider.managementService.event
             .withUnretained(self)
-            .flatMap { owner, event -> Observable<Mutation> in
-                switch event {
+            .flatMap {
+                switch $0.1 {
                 case .didTapCopyUrlAction:
-                    owner.navigator.showSuccessToast()
+                    $0.0.navigator.showSuccessToast()
                     return Observable<Mutation>.empty()
-                default:
+                    
+                @unknown default:
                     return Observable<Mutation>.empty()
                 }
             }
@@ -98,8 +122,6 @@ public final class ManagementReactor: Reactor {
     // MARK: - Mutate
     
     public func mutate(action: Action) -> Observable<Mutation> {
-        let managementService = provider.managementService
-        
         switch action {
         case .didTapSharingContainer:
             // Mixpanel
@@ -132,6 +154,16 @@ public final class ManagementReactor: Reactor {
             navigator.toFamilyNameSetting()
             return Observable<Mutation>.empty()
             
+        case .fetchFamilyGroupInfo:
+            return fetchFamilyGroupInfoUseCase.execute()
+                .withUnretained(self)
+                .flatMap {
+                    guard let familyInfo = $0.1 else {
+                        return Observable<Mutation>.just(.setFamilyName("나의 가족"))
+                    }
+                    return Observable<Mutation>.just(.setFamilyName(familyInfo.familyName))
+                }
+            
         case let .fetchPaginationFamilyMemeber(refresh):
             let query = FamilyPaginationQuery()
          
@@ -158,14 +190,15 @@ public final class ManagementReactor: Reactor {
                             !self.checkIsMeUseCase.execute(memberId: $1.memberId)
                         }.map { FamilyMemberCellReactor(.management, member: $0) }
                         
+                        let memberCount = results.count
+                        
                         return Observable.concat(
                             Observable<Mutation>.just(.setMemberDatasource(items)),
                             Observable<Mutation>.just(.setHiddenTableProgressHud(true)),
                             Observable<Mutation>.just(.setHiddenMemberFetchFailureView(true)),
                             Observable<Mutation>.just(.setEndRefreshing(true)),
-                            Observable<Mutation>.just(.setTableHeaderInfo(("나의 가족", results.count)))
+                            Observable<Mutation>.just(.setMemberCount(memberCount))
                         )
-                        // TODO: - 가족 정보 반영 로직 구현하기
                     }
             )
             
@@ -202,8 +235,11 @@ public final class ManagementReactor: Reactor {
         case let .setEndRefreshing(isRefreshing):
             newState.isRefreshing = isRefreshing
             
-        case let .setTableHeaderInfo(headerInfo):
-            newState.tableHeaderInfo = headerInfo
+        case let .setFamilyName(name):
+            newState.familyName = name
+            
+        case let .setMemberCount(count):
+            newState.memberCount = count
         }
         
         return newState

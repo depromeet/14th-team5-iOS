@@ -19,6 +19,8 @@ public final class FamilyRepository: FamilyRepositoryProtocol {
     
     private let familyApiWorker: FamilyAPIWorker = FamilyAPIWorker()
     
+    private let familyUserDefaults: FamilyInfoUserDefaultsType = FamilyInfoUserDefaults()
+    
     // MARK: - Intializer
     
     public init() { }
@@ -33,11 +35,16 @@ extension FamilyRepository {
         
         return familyApiWorker.joinFamily(body: body)
             .map { $0?.toDomain() }
-            .do(onSuccess: { [weak self] response in
+            .do(onSuccess: { [weak self] in
                 guard let self else { return }
-                App.Repository.member.familyId.accept(response?.familyId) // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
-                App.Repository.member.familyCreatedAt.accept(response?.createdAt)
-                fetchPaginationFamilyMembers(query: .init()) // TODO: - 로직 분리하기
+                self.familyUserDefaults.saveFamilyId($0?.familyId)
+                self.familyUserDefaults.saveFamilyCreatedAt($0?.createdAt)
+                
+                // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
+                App.Repository.member.familyId.accept($0?.familyId)
+                App.Repository.member.familyCreatedAt.accept($0?.createdAt)
+                // TODO: - 로직 분리하기
+                fetchPaginationFamilyMembers(query: .init())
             })
             .asObservable()
     }
@@ -55,9 +62,14 @@ extension FamilyRepository {
     public func createFamily() -> Observable<CreateFamilyEntity?> {
         return familyApiWorker.createFamily()
             .map { $0?.toDomain() }
-            .do(onSuccess: {
-                App.Repository.member.familyId.accept($0?.familyId) // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
-                App.Repository.member.familyCreatedAt.accept($0?.createdAt) // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
+            .do(onSuccess: { [weak self] in
+                guard let self else { return }
+                self.familyUserDefaults.saveFamilyId($0?.familyId)
+                self.familyUserDefaults.saveFamilyCreatedAt($0?.createdAt)
+                
+                // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
+                App.Repository.member.familyId.accept($0?.familyId)
+                App.Repository.member.familyCreatedAt.accept($0?.createdAt)
             })
             .asObservable()
     }
@@ -65,21 +77,25 @@ extension FamilyRepository {
     // MARK: - Fetch Family ID
     
     public func fetchFamilyId() -> String? {
-        // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
-        App.Repository.member.familyId.value
+        familyUserDefaults.loadFamilyId()
     }
     
     
     // MARK: - Fetch Family CreatedAt
     
     public func fetchFamilyCreatedAt() -> Observable<FamilyCreatedAtEntity?> {
-        // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
-        var familyId: String = App.Repository.member.familyId.value ?? ""
+        guard
+            let familyId = familyUserDefaults.loadFamilyId()
+        else { return .error(NSError()) } // TODO: - Error 타입 정의하기
         
         return familyApiWorker.fetchFamilyCreatedAt(familyId: familyId)
             .map { $0?.toDomain() }
-            .do(onSuccess: {
-                App.Repository.member.familyCreatedAt.accept($0?.createdAt) // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
+            .do(onSuccess: { [weak self] in
+                guard let self else { return }
+                self.familyUserDefaults.saveFamilyCreatedAt($0?.createdAt)
+                
+                // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
+                App.Repository.member.familyCreatedAt.accept($0?.createdAt)
             })
             .asObservable()
     }
@@ -87,8 +103,9 @@ extension FamilyRepository {
     // MARK: - Fetch Invitation Url
     
     public func fetchInvitationLink() -> Observable<FamilyInvitationLinkEntity?> {
-        // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
-        var familyId: String = App.Repository.member.familyId.value ?? ""
+        guard
+            let familyId = familyUserDefaults.loadFamilyId()
+        else { return .error(NSError()) } // TODO: - Error 타입 정의하기
         
         return familyApiWorker.fetchInvitationLink(familyId: familyId)
             .map { $0?.toDomain() }
@@ -98,33 +115,50 @@ extension FamilyRepository {
     // MARK: - Fetch Family Members
     
     public func fetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfileEntity?> {
-        // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
-        var familyId: String = App.Repository.member.familyId.value ?? ""
+        guard
+            let familyId = familyUserDefaults.loadFamilyId()
+        else { return .error(NSError()) } // TODO: - Error 타입 정의하기
         
         return familyApiWorker.fetchPaginationFamilyMember(familyId: familyId, query: query)
             .map { $0?.toDomain() }
-            .do(onSuccess: {
-                FamilyUserDefaults.saveFamilyMembers($0?.results ?? []) // TODO: - UserDefaults로 바꾸기
+            .do(onSuccess: { [weak self] in
+                guard let self else { return }
+                
+                if let profiles = $0?.results {
+                    self.familyUserDefaults.saveFamilyMembers(profiles)
+                }
             })
             .asObservable()
     }
     
     public func fetchPaginationFamilyMembers(memberIds: [String]) -> [FamilyMemberProfileEntity] {
-        // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
-        return FamilyUserDefaults.loadMembersFromUserDefaults(memberIds: memberIds)
+        var results: [FamilyMemberProfileEntity] = []
+        for memberId in memberIds {
+            guard
+                let member = familyUserDefaults.loadFamilyMember(memberId)
+            else { continue }
+            results.append(member)
+        }
+        return results
     }
     
     // MARK: - Update Family Name
     
     public func updateFamilyName(body: UpdateFamilyNameRequest) -> Observable<FamilyNameEntity?> {
-        // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
-        var familyId: String = App.Repository.member.familyId.value ?? ""
         let body = UpdateFamilyNameRequestDTO(familyName: body.familyName)
+        
+        guard
+            let familyId = familyUserDefaults.loadFamilyId()
+        else { return .error(NSError()) } // TODO: - Error 타입 정의하기
         
         return familyApiWorker.updateFamilyName(familyId: familyId, body: body)
             .map { $0?.toDomain() }
-            .do(onSuccess: {
-                FamilyUserDefaults.saveFamilyEditorId(familyEditorId: $0?.familyNameEditorId ?? "")
+            .do(onSuccess: { [weak self] in
+                guard let self else { return }
+                self.familyUserDefaults.saveFamilyId($0?.familyId)
+                self.familyUserDefaults.saveFamilyName($0?.familyName)
+                self.familyUserDefaults.saveFamilyCreatedAt($0?.createdAt)
+                self.familyUserDefaults.saveFamilyNameEditorId($0?.familyNameEditorId)
             })
             .asObservable()
     }
@@ -132,6 +166,12 @@ extension FamilyRepository {
     public func fetchFamilyGroupInfo() -> Observable<FamilyGroupInfoEntity?> {
         return familyApiWorker.fetchFamilyGroupInfo()
             .map { $0?.toDomain() }
+            .do(onSuccess: { [weak self] in
+                guard let self else { return }
+                self.familyUserDefaults.saveFamilyId($0?.familyId)
+                self.familyUserDefaults.saveFamilyName($0?.familyName)
+                self.familyUserDefaults.saveFamilyNameEditorId($0?.familyNameEditorId)
+            })
             .asObservable()
     }
 }

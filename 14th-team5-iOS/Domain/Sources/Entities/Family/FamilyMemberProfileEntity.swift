@@ -7,6 +7,8 @@
 
 import Foundation
 
+public typealias Profile = FamilyMemberProfileEntity
+
 public struct PaginationResponseFamilyMemberProfileEntity {
     public var results: [FamilyMemberProfileEntity]
     

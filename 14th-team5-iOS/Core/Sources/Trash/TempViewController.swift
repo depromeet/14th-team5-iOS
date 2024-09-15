@@ -1,9 +1,10 @@
 //
-//  ReactorViewController.swift
+//  TempViewController.swift
 //  Core
 //
-//  Created by 김건우 on 6/5/24.
+//  Created by 김건우 on 9/15/24.
 //
+
 
 import DesignSystem
 import UIKit
@@ -11,15 +12,13 @@ import UIKit
 import ReactorKit
 import RxSwift
 
-open class ReactorViewController<R>: UIViewController, ReactorKit.View where R: Reactor {
+open class TempViewController<R>: UIViewController, ReactorKit.View where R: Reactor {
     
     // MARK: - Typealias
     
     public typealias Reactor = R
     
     // MARK: - Properties
-
-    private var initialReactor: Reactor?
 
     public var disposeBag: RxSwift.DisposeBag = DisposeBag()
     
@@ -31,7 +30,7 @@ open class ReactorViewController<R>: UIViewController, ReactorKit.View where R: 
     
     public convenience init(reactor: Reactor? = nil) {
         self.init()
-        self.initialReactor = reactor
+        self.reactor = reactor
     }
     
     required public init?(coder: NSCoder) {
@@ -45,7 +44,6 @@ open class ReactorViewController<R>: UIViewController, ReactorKit.View where R: 
         setupUI()
         setupAutoLayout()
         setupAttributes()
-        setupReactor()
     }
     
     // MARK: - Helpers
@@ -59,8 +57,5 @@ open class ReactorViewController<R>: UIViewController, ReactorKit.View where R: 
     open func setupAttributes() {
         view.backgroundColor = .bibbiBlack
     }
-    
-    open func setupReactor() {
-        self.reactor = initialReactor
-    }
 }
+

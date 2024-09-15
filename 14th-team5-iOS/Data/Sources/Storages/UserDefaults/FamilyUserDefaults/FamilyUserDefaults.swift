@@ -11,9 +11,7 @@ import Core
 import Domain
 
 
-public protocol FamilyInfoUserDefaultsType: UserDefaultsType {
-    typealias Profile = FamilyMemberProfileEntity
-    
+public protocol FamilyInfoUserDefaultsType: UserDefaultsType {    
     func loadFamilyMember(_ memberId: String) -> Profile?
     
     func saveFamilyMembers(_ members: [Profile])
@@ -28,6 +26,9 @@ public protocol FamilyInfoUserDefaultsType: UserDefaultsType {
     
     func saveFamilyName(_ familyName: String?)
     func loadFamilyName() -> String?
+    
+    func saveFamilyNameEditorId(_ editorId: String?)
+    func loadFamilyNameEditorId() -> String?
 }
 
 
@@ -106,6 +107,20 @@ final public class FamilyInfoUserDefaults: FamilyInfoUserDefaultsType {
             let familyName: String? = userDefaults[.familyName]
         else { return nil }
         return familyName
+    }
+    
+    
+    // MARK: - Family Editor Id
+    
+    public func saveFamilyNameEditorId(_ editorId: String?) {
+        userDefaults[.familyNameEditorId] = editorId
+    }
+    
+    public func loadFamilyNameEditorId() -> String? {
+        guard
+            let familyNameEditorId: String = userDefaults[.familyNameEditorId]
+        else { return nil }
+        return familyNameEditorId
     }
     
 }

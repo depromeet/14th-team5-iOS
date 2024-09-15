@@ -74,6 +74,7 @@ extension BannerView {
             intimacyDescText
                 .offset(y: 6)
         }
+        .foregroundStyle(Color(uiColor: UIColor.bibbiBlack))
     }
     
     var familyTopPercentageText: some View {

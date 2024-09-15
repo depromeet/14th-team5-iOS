@@ -54,6 +54,14 @@ extension FamilyRepository {
     public func resignFamily() -> Observable<DefaultEntity?> {
         return familyApiWorker.resignFamily()
             .map { $0?.toDomain() }
+            .do(onSuccess: { [weak self] in
+                guard let self else { return }
+                if let sucess = $0?.success, sucess {
+                    self.familyUserDefaults.remove(forKey: .familyId)
+                    self.familyUserDefaults.remove(forKey: .familyName)
+                    self.familyUserDefaults.remove(forKey: .familyCreatedAt)
+                }
+            })
             .asObservable()
     }
     

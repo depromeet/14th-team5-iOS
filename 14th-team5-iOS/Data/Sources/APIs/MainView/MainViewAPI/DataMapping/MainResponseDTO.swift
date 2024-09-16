@@ -10,6 +10,7 @@ import Foundation
 import Domain
 
 struct TopBarElement: Codable {
+    let familyName: String?
     let memberId: String
     let imageUrl: String?
     let noImageLetter: String
@@ -68,6 +69,7 @@ struct MainResponseDTO: Codable {
     
     func toDomain() -> MainViewEntity {
         return .init(
+            familyName: topBarElements.first?.familyName,
             mainFamilyProfileDatas: topBarElements.map { $0.toDomain() },
             leftUploadCountUntilMissionUnlock: leftUploadCountUntilMissionUnlock,
             isMissionUnlocked: isMissionUnlocked,

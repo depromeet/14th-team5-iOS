@@ -69,6 +69,7 @@ final class MainViewReactor: Reactor {
         var pageIndex: Int = 0
         var leftCount: Int = 0
         
+        var familyname: String?
         var missionText: String = ""
         var balloonText: BalloonText = .survivalStandard
         var description: Description = .survivalNone
@@ -120,9 +121,8 @@ extension MainViewReactor {
             .flatMap { event -> Observable<Mutation> in
                 switch event {
                 case .didTapCopyUrlAction:
-                    return Observable<Mutation>.just(.setCopySuccessToastMessage)
-                default:
-                    return Observable<Mutation>.empty()
+                    self.pushViewController(type: .showToastMessage(DesignSystemAsset.link.image, "링크가 복사되었어요"))
+                    return .empty()
                 }
             }
         
@@ -322,7 +322,6 @@ extension MainViewReactor: BBAlertDelegate {
         if index == 0 {
             alert?.close()
             self.action.onNext(.pickConfirmButtonTapped)
-            //            return self.mutate(action: .pickConfirmButtonTapped)
         }
     }
 }
@@ -330,6 +329,7 @@ extension MainViewReactor: BBAlertDelegate {
 extension MainViewReactor {
     private func updateMainData(_ state: State, _ data: MainViewEntity) -> State {
         var newState = state
+        newState.familyname = data.familyName
         newState.isMissionUnlocked = data.isMissionUnlocked
         newState.isMeSurvivalUploadedToday = data.isMeSurvivalUploadedToday
         newState.isMeMissionUploadedToday = data.isMeMissionUploadedToday

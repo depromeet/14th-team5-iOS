@@ -15,7 +15,7 @@ import RxDataSources
 import RxCocoa
 import RxSwift
 
-final class MainViewController: BaseViewController<MainViewReactor>, UICollectionViewDelegateFlowLayout {
+final class MainViewController: BBNavigationViewController<MainViewReactor>, UICollectionViewDelegateFlowLayout {
     private let familyViewController: MainFamilyViewController = MainFamilyViewControllerWrapper().makeViewController()
     
     private let timerView: TimerView = TimerView(reactor: TimerReactor())
@@ -35,7 +35,6 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
     }
     
     override func bind(reactor: MainViewReactor) {
-        print("bind main reactor")
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
@@ -47,9 +46,9 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
         addChild(familyViewController)
         addChild(pageViewController)
         
-        view.addSubviews(familyViewController.view, timerView, descriptionLabel,
-                         imageView, segmentControl, pageViewController.view,
-                         cameraButton, contributorView)
+        contentView.addSubviews(familyViewController.view, timerView, descriptionLabel,
+                                imageView, segmentControl, pageViewController.view,
+                                cameraButton, contributorView)
         
         familyViewController.didMove(toParent: self)
         pageViewController.didMove(toParent: self)
@@ -59,7 +58,7 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
         super.setupAutoLayout()
         
         familyViewController.view.snp.makeConstraints {
-            $0.top.equalTo(navigationBarView.snp.bottom)
+            $0.top.equalToSuperview()
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(138)
         }
@@ -109,8 +108,9 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
     override func setupAttributes() {
         super.setupAttributes()
         
-        navigationBarView.do {
-            $0.setNavigationView(leftItem: .family, centerItem: .logo, rightItem: .calendar)
+        navigationBar.do {
+            $0.leftBarButtonItem = .person(new: false)
+            $0.rightBarButtonItem = .calendar
         }
         
         contributorView.do {
@@ -122,7 +122,7 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
 extension MainViewController {
     private func bindInput(reactor: MainViewReactor) {
         Observable.merge(
-            Observable.just(())
+            rx.viewWillAppear
                 .map { _ in Reactor.Action.calculateTime },
             NotificationCenter.default.rx.notification(UIScene.willEnterForegroundNotification)
                 .map { _ in Reactor.Action.calculateTime }
@@ -143,28 +143,28 @@ extension MainViewController {
         Observable.merge(
             contributorView.nextButtonTapEvent.map { Reactor.Action.openNextViewController(.contributorNextButtonTap)},
             cameraButton.camerTapEvent.map { Reactor.Action.openNextViewController(.cameraButtonTap )},
-            navigationBarView.rx.rightButtonTap.map { Reactor.Action.openNextViewController(.navigationRightButtonTap)},
-            navigationBarView.rx.leftButtonTap.map { _ in Reactor.Action.openNextViewController(.navigationLeftButtonTap)}
+            navigationBar.rx.didTapRightBarButton.map { _ in Reactor.Action.openNextViewController(.navigationRightButtonTap)},
+            navigationBar.rx.didTapLeftBarButton.map { _ in Reactor.Action.openNextViewController(.navigationLeftButtonTap)}
         )
         .observe(on: MainScheduler.instance)
-        .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
+        .throttle(RxInterval._300milliseconds, scheduler: MainScheduler.instance)
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
         
-//        
-//        contributorView.infoButton.rx.tap
-//            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
-//            .withUnretained(self)
-//            .bind(onNext: {
-//                $0.0.makeDescriptionPopoverView(
-//                    $0.0,
-//                    sourceView: $0.0.contributorView.infoButton,
-//                    text: "생존신고 횟수가 동일한 경우\n이모지, 댓글 수를 합산해서 등수를 정해요",
-//                    popoverSize: CGSize(width: 260, height: 62),
-//                    permittedArrowDrections: [.up]
-//                )
-//            })
-//            .disposed(by: disposeBag)
+        //
+        //        contributorView.infoButton.rx.tap
+        //            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
+        //            .withUnretained(self)
+        //            .bind(onNext: {
+        //                $0.0.makeDescriptionPopoverView(
+        //                    $0.0,
+        //                    sourceView: $0.0.contributorView.infoButton,
+        //                    text: "생존신고 횟수가 동일한 경우\n이모지, 댓글 수를 합산해서 등수를 정해요",
+        //                    popoverSize: CGSize(width: 260, height: 62),
+        //                    permittedArrowDrections: [.up]
+        //                )
+        //            })
+        //            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: MainViewReactor) {
@@ -217,6 +217,13 @@ extension MainViewController {
         reactor.pulse(\.$contributor)
             .bind(to: contributorView.contributorRelay)
             .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.familyname }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(onNext:{ $0.0.setNavigationTitle(title:$0.1)})
+            .disposed(by: disposeBag)
     }
 }
 
@@ -243,6 +250,15 @@ extension MainViewController {
             descriptionLabel.text = description.text
         }
         imageView.image = description.image
+    }
+    
+    private func setNavigationTitle(title: String?) {
+        if let title {
+            navigationBar.navigationTitleFontStyle = .homeTitle
+            navigationBar.navigationTitle = title
+        } else {
+            navigationBar.navigationImage = .bibbi
+        }
     }
 }
 

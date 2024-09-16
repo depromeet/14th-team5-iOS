@@ -54,7 +54,7 @@ public class BBNavigationBar: UIView {
     
     /// NavigationBar의 Image를 바꿉니다.
     /// Image를 적용하면 Title이 사라집니다.
-    public var navigationImage: BBNavigationButtonStyle? {
+    public var navigationImage: BBNavigationTitleStyle? {
         didSet {
             navigationImageView.isHidden = false
             navigationTitleLabel.isHidden = true
@@ -323,7 +323,7 @@ extension BBNavigationBar {
     ///     - rightBarButtonItemScale: 네비게이션 바의 오른쪽 버튼 크기
     ///     - rightBarButtonYOffset: 네비게이션 바의 오른쪽 버튼 Y 위치
     public func set(
-        _ image: BBNavigationButtonStyle? = nil,
+        _ image: BBNavigationTitleStyle? = nil,
         imageScale: CGFloat = 1.0,
         leftBarButtonItem: BBNavigationButtonStyle? = nil,
         leftBarButtonTint: UIColor = .gray300,

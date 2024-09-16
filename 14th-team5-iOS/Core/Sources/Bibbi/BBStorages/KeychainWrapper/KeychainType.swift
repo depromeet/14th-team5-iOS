@@ -15,4 +15,8 @@ extension KeychainType {
     public var keychain: KeychainWrapper {
         KeychainWrapper.standard
     }
+    
+    public func remove(forKey key: KeychainWrapper.Key) {
+        keychain.remove(forKey: key)
+    }
 }

@@ -35,8 +35,11 @@ extension FamilyAPIWorker {
     
     public func joinFamily(body: JoinFamilyRequestDTO) -> Single<JoinFamilyResponseDTO?> {
         let spec = FamilyAPIs.joinFamily.spec
+        // TODO: - 자동으로 헤더 집어넣게 코드 리팩토링하기
+        let accessToken = App.Repository.token.accessToken.value
+        let headers = BibbiHeader.commonHeaders(accessToken: accessToken?.accessToken)
         
-        return request(spec: spec, jsonEncodable: body)
+        return request(spec: spec, headers: headers, jsonEncodable: body)
             .subscribe(on: Self.queue)
             .map(JoinFamilyResponseDTO.self)
             .catchAndReturn(nil)

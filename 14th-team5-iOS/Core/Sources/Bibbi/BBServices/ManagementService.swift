@@ -11,6 +11,7 @@ import RxSwift
 
 public enum ManagementEvent {
     case didTapCopyUrlAction
+    case didUpdateFamilyInfo
 }
 
 public protocol ManagementServiceType {
@@ -18,6 +19,8 @@ public protocol ManagementServiceType {
     
     @discardableResult
     func didTapCopUrlAction() -> Observable<Void>
+    @discardableResult
+    func didUpdateFamilyInfo() -> Observable<Void>
 }
 
 final public class ManagementService: BaseService, ManagementServiceType {
@@ -26,6 +29,11 @@ final public class ManagementService: BaseService, ManagementServiceType {
     
     public func didTapCopUrlAction() -> Observable<Void> {
         event.onNext(.didTapCopyUrlAction)
+        return Observable<Void>.just(())
+    }
+    
+    public func didUpdateFamilyInfo() -> Observable<Void> {
+        event.onNext(.didUpdateFamilyInfo)
         return Observable<Void>.just(())
     }
     

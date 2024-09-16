@@ -24,7 +24,7 @@ struct MemberDTO {
 }
 
 fileprivate typealias _Str = CalendarStrings
-public final class MonthlyCalendarViewController: BaseViewController<MonthlyCalendarViewReactor> {
+public final class MonthlyCalendarViewController: TempNavigationViewController<MonthlyCalendarViewReactor> {
     // MARK: - Views
     private lazy var calendarCollectionView: UICollectionView = UICollectionView(
         frame: .zero,
@@ -74,7 +74,7 @@ public final class MonthlyCalendarViewController: BaseViewController<MonthlyCale
             .disposed(by: disposeBag)
          
 
-        navigationBarView.rx.leftButtonTap
+        navigationBar.rx.didTapLeftBarButton
             .map { _ in Reactor.Action.popViewController }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -113,7 +113,7 @@ public final class MonthlyCalendarViewController: BaseViewController<MonthlyCale
         super.setupAutoLayout()
         
         calendarCollectionView.snp.makeConstraints {
-            $0.top.equalTo(navigationBarView.snp.bottom)
+            $0.top.equalTo(navigationBar.snp.bottom)
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalToSuperview()
         }
@@ -122,12 +122,10 @@ public final class MonthlyCalendarViewController: BaseViewController<MonthlyCale
     public override func setupAttributes() {
         super.setupAttributes()
         
-        navigationBarView.do {
-            $0.setNavigationView(
-                leftItem: .arrowLeft,
-                centerItem: .label(_Str.mainTitle),
-                rightItem: .empty
-            )
+        navigationBar.do {
+            $0.navigationTitle = "추억 캘린더"
+            $0.leftBarButtonItem = .arrowLeft
+            $0.rightBarButtonItem = nil
         }
         
         calendarCollectionView.do {

@@ -14,6 +14,8 @@ import Alamofire
 
 fileprivate typealias _PayLoad = MeAPIs.PayLoad
 typealias MeAPIWorker = MeAPIs.Worker
+
+@available(*, deprecated, renamed: "MeAPIWorker", message: "MeAPIWorker, MeRespository가 만들어지기 전 사용할 임시 코드입니다")
 extension MeAPIs {
     public final class Worker: APIWorker {
         
@@ -49,11 +51,24 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository, FCMRepository
             .asSingle()
     }
     
+    /// MeRepository가 만들어지면 없어질 코드
     private func getMemberInfo(spec: APISpec) -> Single<MemberInfo?> {
+        let myUserDefaults = MyUserDefaults()
+        let familyUserDefaults = FamilyInfoUserDefaults()
+        
         return request(spec: spec)
             .subscribe(on: Self.queue)
             .map(MemberInfo.self)
             .catchAndReturn(nil)
+            .do(onNext: {
+                myUserDefaults.saveUserName($0?.name)
+                myUserDefaults.saveMemberId($0?.memberId)
+                familyUserDefaults.saveFamilyId($0?.familyId)
+                
+                App.Repository.member.memberID.accept($0?.memberId)
+                App.Repository.member.familyId.accept($0?.familyId)
+                App.Repository.member.nickname.accept($0?.name)
+            })
             .asSingle()
     }
     

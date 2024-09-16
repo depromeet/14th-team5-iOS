@@ -82,9 +82,12 @@ public final class ManagementTableHeaderView: BaseView<ManagementTableHeaderReac
 
 extension ManagementTableHeaderView {
     
-    func setTableHeaderInfo(_ familyName: String, count: Int) {
+    func setFamilyName(_ familyName: String) {
         familyNameLabel.text = familyName
-        memberCountLabel.text = String(count)
+    }
+    
+    func setMemberCount(_ memberCount: Int) {
+        memberCountLabel.text = String(memberCount)
     }
     
 }

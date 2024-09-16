@@ -52,7 +52,6 @@ final public class CommentViewController: ReactorViewController<CommentViewReact
     
     private func bindInput(reactor: CommentViewReactor) { 
         Observable<Void>.just(())
-            .delay(RxInterval._900milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.fetchComment }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)

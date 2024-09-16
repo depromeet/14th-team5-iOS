@@ -82,8 +82,8 @@ final public class CommentCellReactor: Reactor {
                 navigator.dismiss { [weak self] in
                     self?.navigator.toProfile(memberId: memberId)
                 }
-//                provider.postGlobalState.pushProfileViewController(memberId)
             }
+            
             return Observable<Mutation>.empty()
         }
     }

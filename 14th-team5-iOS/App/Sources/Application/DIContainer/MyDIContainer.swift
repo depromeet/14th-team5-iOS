@@ -49,6 +49,18 @@ final class MyDIContainer: BaseContainer {
         )
     }
     
+    private func makeFetchIsFirstOnboardingUseCase() -> FetchIsFirstOnboardingUseCaseProtocol {
+        return FetchIsFirstOnboardingUseCase(
+            myRepository: makeMyRepository()
+        )
+    }
+    
+    private func makeUpdateIsFirstOnboardingUseCase() -> UpdateIsFirstOnboardingUseCaseProtocol {
+        return UpdateIsFirstOnboardingUseCase(
+            myRepository: makeMyRepository()
+        )
+    }
+    
     
     // MARK: - Make Repository
     
@@ -82,6 +94,14 @@ final class MyDIContainer: BaseContainer {
         
         container.register(type: CheckIsVaildMemberUseCaseProtocol.self) { _ in
             self.makeCheckIsVaildMemberUseCase()
+        }
+        
+        container.register(type: FetchIsFirstOnboardingUseCaseProtocol.self) { _ in
+            return self.makeFetchIsFirstOnboardingUseCase()
+        }
+        
+        container.register(type: UpdateIsFirstOnboardingUseCaseProtocol.self) { _ in
+            return self.makeUpdateIsFirstOnboardingUseCase()
         }
         
     }

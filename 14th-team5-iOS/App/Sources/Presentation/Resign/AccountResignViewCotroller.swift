@@ -155,19 +155,14 @@ final class AccountResignViewCotroller: BaseViewController<AccountResignViewReac
             .bind(to: resignIndicatorView.rx.isAnimating)
             .disposed(by: disposeBag)
         
-        NotificationCenter.default
-            .rx.notification(.UserAccountDeleted)
-            .map { _ in Reactor.Action.didTapResignButton}
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-
         reactor.state.map { $0.isSuccess }
             .distinctUntilChanged()
             .filter { $0 }
             .withUnretained(self)
             .bind { owner, isSuccess in
+                @Navigator var resignNavigator: AccountResignNavigatorProtocol
+                resignNavigator.toSignIn()
                 App.Repository.token.clearAccessToken()
-                owner.makeRootViewController()
             }.disposed(by: disposeBag)
     }
 }
@@ -190,19 +185,13 @@ extension AccountResignViewCotroller {
             resignAlertController.dismiss(animated: true)
         }
         
-        let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
-            NotificationCenter.default.post(name: .UserAccountDeleted, object: nil, userInfo: nil)
+        let confirmAction = UIAlertAction(title: "확인", style: .default) { [weak self] _ in
+            guard let self else { return }
+            self.reactor?.action.onNext(.didTapResignButton)
         }
         
         [cancelAction, confirmAction].forEach(resignAlertController.addAction(_:))
         resignAlertController.overrideUserInterfaceStyle = .dark
         present(resignAlertController, animated: true)
     }
-    
-    private func makeRootViewController() {
-        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
-        sceneDelegate.window?.rootViewController = SplashDIContainer().makeViewController()
-        sceneDelegate.window?.makeKeyAndVisible()
-    }
-    
 }

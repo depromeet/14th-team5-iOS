@@ -86,12 +86,6 @@ extension AccountSignUpViewController {
         
         setViewControllers([prevPage], direction: .reverse, animated: true)
     }
-    
-    private func showOnboardingViewCotnroller() {
-        let onBoardingViewController = OnBoardingDIContainer().makeViewController()
-        onBoardingViewController.modalPresentationStyle = .fullScreen
-        present(onBoardingViewController, animated: true)
-    }
 }
 
 extension AccountSignUpViewController: UIPageViewControllerDataSource {

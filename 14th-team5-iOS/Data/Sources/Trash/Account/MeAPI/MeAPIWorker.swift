@@ -80,15 +80,6 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository, FCMRepository
             .asSingle()
     }
     
-    @available(*, deprecated, renamed: "resignFamily")
-    private func resignFamily(spec: APISpec, headers: [APIHeader]?) -> Single<AccountFamilyResignResponse?> {
-        return request(spec: spec, headers: headers)
-            .subscribe(on: Self.queue)
-            .map(AccountFamilyResignResponse.self)
-            .catchAndReturn(nil)
-            .asSingle()
-    }
-    
     private func fetchAppVersion(spec: APISpec) -> Single<AppVersionInfo?> {
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey])
             .subscribe(on: Self.queue)
@@ -154,16 +145,6 @@ extension MeAPIWorker {
             .withLatestFrom(self._headers)
             .withUnretained(self)
             .flatMap { $0.0.joinFamily(spec: spec, headers: $0.1, jsonEncodable: payload) }
-            .asSingle()
-    }
-    
-    @available(*, deprecated, renamed: "resignFamily")
-    public func resignFamily() -> Single<AccountFamilyResignResponse?> {
-        let spec = PrivacyAPIs.accountFamilyResign.spec
-        return Observable.just(())
-            .withLatestFrom(self._headers)
-            .withUnretained(self)
-            .flatMap { $0.0.resignFamily(spec: spec, headers: $0.1) }
             .asSingle()
     }
     

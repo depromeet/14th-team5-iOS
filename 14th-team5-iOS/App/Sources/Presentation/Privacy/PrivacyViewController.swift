@@ -118,9 +118,8 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
             .withUnretained(self)
             .bind { owner, isSuccess in
                 guard isSuccess else { return }
-                guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
-                sceneDelegate.window?.rootViewController = AccountSignInDIContainer().makeViewController()
-                sceneDelegate.window?.makeKeyAndVisible()
+                @Navigator var privacyNavigator: PrivacyNavigatorProtocol
+                privacyNavigator.toSignIn()
             }.disposed(by: disposeBag)
         
         NotificationCenter.default
@@ -140,8 +139,8 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
             .rx.tap
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .bind(with: self, onNext: { owner, _ in
-                let webContentViewController = WebContentDIContainer(webURL: URLTypes.inquiry.originURL).makeViewController()
-                owner.navigationController?.pushViewController(webContentViewController, animated: true)
+                let inquiryViewController = WebContentViewControllerWrapper(url: URLTypes.inquiry.originURL).viewController
+                owner.navigationController?.pushViewController(inquiryViewController, animated: true)
             }).disposed(by: disposeBag)
 
         privacyTableView.rx
@@ -155,11 +154,11 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
                     } else if indexPath.item == 1 {
                         UIApplication.shared.open(URLTypes.settings.originURL)
                     } else if indexPath.item == 2{
-                        let webContentViewController = WebContentDIContainer(webURL: URLTypes.privacy.originURL).makeViewController()
-                        owner.navigationController?.pushViewController(webContentViewController, animated: true)
+                        let privacyWebViewController = WebContentViewControllerWrapper(url: URLTypes.privacy.originURL).viewController
+                        owner.navigationController?.pushViewController(privacyWebViewController, animated: true)
                     } else {
-                        let webContentViewController = WebContentDIContainer(webURL: URLTypes.terms.originURL).makeViewController()
-                        owner.navigationController?.pushViewController(webContentViewController, animated: true)
+                        let termsWebViewController = WebContentViewControllerWrapper(url: URLTypes.terms.originURL).viewController
+                        owner.navigationController?.pushViewController(termsWebViewController, animated: true)
                     }
                 case .userAuthorizationItem:
                     if indexPath.item == 0 {
@@ -167,7 +166,7 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
                     } else if indexPath.item == 1 {
                         owner.showFamilyResignAlertController()
                     } else {
-                        let resignViewController = AccountResignDIContainer().makeViewController()
+                        let resignViewController = AccountResignViewControllerWrapper().viewController
                         owner.navigationController?.pushViewController(resignViewController, animated: true)
                     }
                 }
@@ -194,10 +193,9 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
             .map { $0.isFamilyResign }
             .filter { $0 }
             .subscribe { _ in
+                @Navigator var privacyNavigator: PrivacyNavigatorProtocol
                 App.Repository.member.familyId.accept(nil)
-                guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
-                sceneDelegate.window?.rootViewController =  UINavigationController(rootViewController: JoinFamilyDIContainer().makeViewController())
-                sceneDelegate.window?.makeKeyAndVisible()
+                privacyNavigator.toJoinFamily()
             }.disposed(by: disposeBag)
         
     }

@@ -15,6 +15,8 @@ public protocol SignOutUseCaseProtocol {
 
 
 public class SignOutUseCase: SignOutUseCaseProtocol {
+    //FIXME: - Repository 분리
+    //FIXME: - SocialSignOutUse로 로직 수정
     private let keychainRepository: KeychainRepositoryProtocol
     private let userDefaultsRepository: UserDefaultsRepositoryProtocol
     private let fcmRepository: FCMRepositoryProtocol

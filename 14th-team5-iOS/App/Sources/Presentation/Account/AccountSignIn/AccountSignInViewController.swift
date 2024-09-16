@@ -38,7 +38,6 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
     
     override public func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.navigationBar.isHidden = false
     }
     
     override public func setupUI() {
@@ -110,40 +109,45 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
     
     override public func bind(reactor: AccountSignInReactor) {
         kakaoLoginButton.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.kakaoLoginTapped(.kakao, self) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         appleLoginButton.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.appleLoginTapped(.apple, self) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        App.Repository.token.accessToken
-            .observe(on: RxSchedulers.main)
+        
+        Observable
+            .combineLatest(
+                App.Repository.token.accessToken.distinctUntilChanged(),
+                reactor.pulse(\.$isFirstOnboarding).distinctUntilChanged()
+            )
             .skip(1)
-            .withUnretained(self)
-            .bind(onNext: { $0.0.showNextPage(token: $0.1) })
+            .observe(on: RxScheduler.main)
+            .bind(with: self) { owner, response in
+                let (token, isFirstOnboarding) = response
+                owner.showNextPage(token: token, isFirstOnboarding)
+            }
             .disposed(by: disposeBag)
     }
 }
 
 extension AccountSignInViewController {
-    private func showNextPage(token: AccessToken?) {
-        
+    private func showNextPage(token: AccessToken?, _ isFirstOnboarding: Bool) {
+        @Navigator var signInNavigator: AccountSignInNavigatorProtocol
         guard let token = token, let isTemporaryToken = token.isTemporaryToken else { return }
-        
         if isTemporaryToken {
-            let container = UINavigationController(rootViewController: AccountSignUpDIContainer().makeViewController())
-            container.modalPresentationStyle = .fullScreen
-            present(container, animated: false)
+            signInNavigator.toSignUp()
             return
         }
         
-        let container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
-        container.modalPresentationStyle = .fullScreen
-        present(container, animated: false)
+        if isFirstOnboarding {
+            signInNavigator.toMain()
+            return
+        }
     }
 }

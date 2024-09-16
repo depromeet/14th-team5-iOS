@@ -11,5 +11,4 @@ import RxSwift
 @available(*, deprecated, renamed: "FamilyRepository")
 public protocol JoinFamilyRepository {
     func joinFamily(body: JoinFamilyRequest) -> Single<JoinFamilyEntity?>
-    func resignFamily() -> Single<AccountFamilyResignResponse?>
 }

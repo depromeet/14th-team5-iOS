@@ -17,6 +17,7 @@ import RxSwift
 
 // TODO: - SignInAPIWorker로 코드 이동, Deprecated 처리
 
+@available(*, deprecated, renamed: "SignInHelper")
 final class AccountSignInHelper: NSObject {
     
     // MARK: - Properties

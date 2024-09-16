@@ -29,28 +29,6 @@ public final class ManagementTableHeaderView: BaseView<ManagementTableHeaderReac
     
     // MARK: - Helpers
     
-    public override func bind(reactor: ManagementTableHeaderReactor) {
-        super.bind(reactor: reactor)
-        bindInput(reactor: reactor)
-        bindOutput(reactor: reactor)
-    }
-    
-    private func bindInput(reactor: ManagementTableHeaderReactor) {
-        
-    }
-    
-    private func bindOutput(reactor: ManagementTableHeaderReactor) {
-        reactor.state.map { $0.familyName }
-            .distinctUntilChanged()
-            .bind(to: familyNameLabel.rx.text)
-            .disposed(by: disposeBag)
-        
-        reactor.state.map { $0.memberCount }
-            .distinctUntilChanged()
-            .bind(to: memberCountLabel.rx.text)
-            .disposed(by: disposeBag)
-    }
-    
     public override func setupUI() {
         super.setupUI()
         
@@ -101,6 +79,19 @@ public final class ManagementTableHeaderView: BaseView<ManagementTableHeaderReac
 
 
 // MARK: - Extensions
+
+extension ManagementTableHeaderView {
+    
+    func setFamilyName(_ familyName: String) {
+        familyNameLabel.text = familyName
+    }
+    
+    func setMemberCount(_ memberCount: Int) {
+        memberCountLabel.text = String(memberCount)
+    }
+    
+}
+
 
 extension ManagementTableHeaderView {
     

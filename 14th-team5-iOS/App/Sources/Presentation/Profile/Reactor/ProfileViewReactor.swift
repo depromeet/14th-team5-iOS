@@ -207,7 +207,7 @@ public final class ProfileViewReactor: Reactor {
             newState.isLoading = isLoading
         
         case let .setProfileMemberItems(entity):
-            provider.profileGlobalState.refreshFamilyMembers()
+            provider.managementService.didUpdateFamilyInfo()
             newState.profileMemberEntity = entity
             
         case let .setProfilePresingedURL(entity):

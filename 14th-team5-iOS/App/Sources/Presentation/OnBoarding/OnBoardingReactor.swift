@@ -57,14 +57,13 @@ extension OnBoardingReactor {
                 },
                 familyUseCase.executeFetchPaginationFamilyMembers(query: .init())
             )
-            .flatMap { (granted: Bool, _) -> Observable<Mutation> in
+            .flatMap { [weak self] (granted: Bool, _) -> Observable<Mutation> in
                 if granted {
                     return Observable.just(.permissionTapped)
                 } else {
                     return Observable<Mutation>.empty()
                 }
             }
-
         }
     }
     

@@ -40,6 +40,9 @@ final class AppDIContainer: BaseContainer {
             return ServiceProvider()
         }
         
+        container.register(type: AppUserDefaultsType.self) { _ in
+            return AppUserDefaults()
+        }
     }
     
 }

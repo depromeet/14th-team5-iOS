@@ -17,6 +17,8 @@ public final class FamilyNameSettingViewReactor: Reactor {
     @Injected private var updateFamilyNameUseCase: any UpdateFamilyNameUseCaseProtocol
     @Injected private var fetchFamilyEditerUseCase: any FetchMembersProfileUseCaseProtocol
     
+    @Injected private var provider: any ServiceProviderProtocol
+    
     public enum FamilyNameUpdateType {
         case initial
         case update
@@ -98,10 +100,13 @@ public final class FamilyNameSettingViewReactor: Reactor {
         case let .didTapUpdateFamilyGroupNickname(type):
             let familyName = type == .initial ? nil : currentState.familyGroupNickName
             let updateFamilyBody = UpdateFamilyNameRequest(familyName: familyName)
+            
             return updateFamilyNameUseCase.execute(body: updateFamilyBody)
                 .asObservable()
                 .compactMap { $0 }
-                .flatMap { familyGroupNameEntity -> Observable<Mutation> in
+                .withUnretained(self)
+                .do(onNext: { $0.0.provider.managementService.didUpdateFamilyInfo() })
+                .flatMap { owner, familyGroupNameEntity -> Observable<Mutation> in
                     return .just(.setUpdateFamilyNameItem(familyGroupNameEntity))
                 }
         }

@@ -37,6 +37,18 @@ final class NavigatorDIContainer: BaseContainer {
             )
         }
         
+        container.register(type: AccountSignInNavigatorProtocol.self) { _ in
+            AccountSignInNavigator(
+                navigationController: makeUINavigationController()
+            )
+        }
+        
+        container.register(type: AccountProfileNavigatorProtocol.self) { _ in
+            AccountProfileNavigator(
+                navigationController: makeUINavigationController()
+            )
+        }
+        
         container.register(type: MonthlyCalendarNavigatorProtocol.self) { _ in
             MonthlyCalendarNavigator(
                 navigationController: makeUINavigationController()
@@ -63,6 +75,30 @@ final class NavigatorDIContainer: BaseContainer {
         
         container.register(type: FamilyEntranceNavigatorProtocol.self) { _ in
                 FamilyEntranceNavigator(navigationController: makeUINavigationController())
+        }
+        
+        container.register(type: JoinFamilyNavigatorProtocol.self) { _ in
+            JoinFamilyNavigator(
+                navigationController: makeUINavigationController()
+            )
+        }
+        
+        container.register(type: OnboardingNavigatorProtocol.self) { _ in
+            OnboardingNavigator(
+                navigationController: makeUINavigationController()
+            )
+        }
+        
+        container.register(type: PrivacyNavigatorProtocol.self) { _ in
+            PrivacyNavigator(
+                navigationController: makeUINavigationController()
+            )
+        }
+        
+        container.register(type: AccountResignNavigatorProtocol.self) { _ in
+            AccountResignNavigator(
+                navigationController: makeUINavigationController()
+            )
         }
     }
     

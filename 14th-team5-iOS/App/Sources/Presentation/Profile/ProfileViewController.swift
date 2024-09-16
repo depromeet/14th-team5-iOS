@@ -258,7 +258,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .withLatestFrom(reactor.state.map { $0.memberId })
             .withUnretained(self)
             .bind { owner, memberId in
-                let privacyViewController = PrivacyDIContainer(memberId: memberId).makeViewController()
+                let privacyViewController = PrivacyViewControllerWrapper(memberId: memberId).viewController
                 owner.navigationController?.pushViewController(privacyViewController, animated: true)
             }.disposed(by: disposeBag)
     }

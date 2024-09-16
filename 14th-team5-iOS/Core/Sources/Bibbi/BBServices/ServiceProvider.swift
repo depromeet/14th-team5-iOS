@@ -8,6 +8,7 @@
 import Foundation
 
 public protocol ServiceProviderProtocol: AnyObject {
+    var mainService: MainServiceType { get }
     var managementService: ManagementServiceType { get }
     
     var postGlobalState: PostGlobalStateType { get }
@@ -17,13 +18,12 @@ public protocol ServiceProviderProtocol: AnyObject {
     var timerGlobalState: TimerGlobalStateType { get }
     var realEmojiGlobalState: RealEmojiGlobalStateType { get }
     var profilePageGlobalState: ProfileFeedGlobalStateType { get }
-    var mainService: MainServiceType { get }
 }
 
 final public class ServiceProvider: ServiceProviderProtocol {
     
+    public lazy var mainService: MainServiceType = MainService(provider: self)
     public lazy var managementService: any ManagementServiceType = ManagementService(provider: self)
-    
     
     public lazy var postGlobalState: PostGlobalStateType = PostGlobalState(provider: self)
     public lazy var calendarGlabalState: CalendarGlobalStateType = CalendarGlobalState(provider: self)
@@ -34,7 +34,6 @@ final public class ServiceProvider: ServiceProviderProtocol {
     public lazy var realEmojiGlobalState: RealEmojiGlobalStateType = RealEmojiGlobalState(provider: self)
     public lazy var profilePageGlobalState: ProfileFeedGlobalStateType = ProfileFeedGlobalState(provider: self)
     
-    public lazy var mainService: MainServiceType = MainService(provider: self)
     
     public init() { }
 }

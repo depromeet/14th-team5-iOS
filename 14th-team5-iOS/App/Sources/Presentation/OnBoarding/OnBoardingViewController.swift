@@ -142,19 +142,16 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
     
     private func showNextPage(_ show: Bool) {
         guard show else { return }
-        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
+        @Navigator var onboardingNavigator: OnboardingNavigatorProtocol
         
         if App.Repository.member.familyId.value == nil {
-            sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: JoinFamilyDIContainer().makeViewController())
-            sceneDelegate.window?.makeKeyAndVisible()
+            onboardingNavigator.toJoinFamily()
         } else {
             if let _ = UserDefaults.standard.inviteCode {
-                sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: JoinedFamilyDIContainer().makeViewController())
+                onboardingNavigator.toJoinFamily()
             } else {
-                sceneDelegate.window?.rootViewController = UINavigationController(rootViewController: MainViewControllerWrapper().makeViewController())
+                onboardingNavigator.toMain()
             }
-            
-            sceneDelegate.window?.makeKeyAndVisible()
         }
     }
 }

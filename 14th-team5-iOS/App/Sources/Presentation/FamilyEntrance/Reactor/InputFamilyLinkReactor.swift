@@ -40,6 +40,8 @@ public final class InputFamilyLinkReactor: Reactor {
     public let initialState: State
     @Injected var familyUseCase: FamilyUseCaseProtocol
     
+    @Injected var joinFamilyUseCase: JoinFamilyUseCaseProtocol
+    
     init() {
         self.initialState = State()
     }
@@ -60,8 +62,9 @@ extension InputFamilyLinkReactor {
             let body = JoinFamilyRequest(inviteCode: String(code))
             
             let commonLogic: (JoinFamilyEntity) -> Observable<InputFamilyLinkReactor.Mutation> = { joinFamilyData in
-//                App.Repository.member.familyId.accept(joinFamilyData.familyId)
-//                App.Repository.member.familyCreatedAt.accept(joinFamilyData.createdAt)
+                // Repository에서 이미 UserDefaults와 App.Repository에 저장하고 있음
+                App.Repository.member.familyId.accept(joinFamilyData.familyId)
+                App.Repository.member.familyCreatedAt.accept(joinFamilyData.createdAt)
                 return Observable.just(Mutation.setShowHome(true))
             }
 
@@ -80,7 +83,7 @@ extension InputFamilyLinkReactor {
                             }
                     }
             } else {
-                return familyUseCase.executeJoinFamily(body: body)
+                return joinFamilyUseCase.execute(body: body)
                     .asObservable()
                     .flatMap { joinFamilyData in
                         guard let joinFamilyData = joinFamilyData else {

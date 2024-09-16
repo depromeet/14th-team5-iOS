@@ -61,8 +61,6 @@ open class ReactorViewController<R>: UIViewController, ReactorKit.View where R: 
     }
     
     open func setupReactor() {
-        if let reactor = initialReactor {
-            self.reactor = reactor
-        }
+        self.reactor = initialReactor
     }
 }

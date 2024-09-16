@@ -20,7 +20,7 @@ import SnapKit
 import Then
 
 fileprivate typealias _Str = CalendarStrings
-public final class DailyCalendarViewController: BBNavigationViewController<DailyCalendarViewReactor> {
+public final class DailyCalendarViewController: TempNavigationViewController<DailyCalendarViewReactor> {
     // MARK: - Views
     private let imageView: UIImageView = UIImageView()
     private let calendarView: FSCalendar = FSCalendar()

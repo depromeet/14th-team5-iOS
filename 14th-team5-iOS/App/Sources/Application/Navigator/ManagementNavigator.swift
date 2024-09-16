@@ -41,8 +41,7 @@ final class ManagementNavigator: ManagementNavigatorProtocol {
     }
     
     func toSetting(memberId: String) {
-        // TODO: - Wrapper로 바꾸기
-        let vc = PrivacyDIContainer(memberId: memberId).makeViewController()
+        let vc = PrivacyViewControllerWrapper(memberId: memberId).makeViewController()
         navigationController.pushViewController(vc, animated: true)
     }
     

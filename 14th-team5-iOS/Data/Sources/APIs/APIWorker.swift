@@ -140,7 +140,6 @@ public class APIWorker: NSObject {
     }
     
     
-    
     // MARK: - Upload
     
     func upload(

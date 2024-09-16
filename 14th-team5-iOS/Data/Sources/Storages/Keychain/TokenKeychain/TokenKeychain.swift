@@ -19,6 +19,9 @@ public protocol TokenKeychainType: KeychainType {
     func saveAccessToken(_ accessToken: String?)
     func loadAccessToken() -> String?
     
+    func saveIsTemporaryToken(_ isTemporary: Bool?)
+    func loadIsTemporaryToken() -> Bool?
+    
     func saveOldAccessToken(_ tokenResult: AccessToken?)
     func loadOldAccessToken() -> AccessToken?
     
@@ -36,20 +39,26 @@ final public class TokenKeychain: TokenKeychainType {
     
     
     // MARK: - IdToken
+    
+    /// 로그인 서버(카카오, 애플)로부터 발급받은 접근 토큰을 저장합니다.
     public func saveIdToken(_ idToken: String?) {
         keychain[.idToken] = idToken
     }
     
+    /// 로그인 서버(카카오, 애플)로부터 발급받은 접근 토큰을 불러옵니다.
     public func loadIdToken() -> String? {
         keychain[.idToken]
     }
     
     
     // MARK: - SignInType
+    
+    /// 로그인 타입(애플, 카카오)를 저장합니다.
     public func saveSignInType(_ type: SignInType?) {
         keychain[.signInType] = type?.rawValue
     }
     
+    /// 로그인 타입(애플, 카카오)를 불러옵니다.
     public func loadSignInType() -> SignInType? {
         guard
             let sign: String = keychain[.signInType],
@@ -60,18 +69,61 @@ final public class TokenKeychain: TokenKeychainType {
     
     
     // MARK: - AccessToken
+    
+    /// 삐삐 서버로부터 발급받은 접근 토큰을 저장합니다.
     public func saveAccessToken(_ accessToken: String?) {
         keychain[.newAccessToken] = accessToken
     }
     
+    /// 삐삐 서버로부터 발급받은 접근 토큰을 불러옵니다.
     public func loadAccessToken() -> String? {
         keychain[.newAccessToken]
     }
     
     
+    // MARK: - RefreshToken
+    
+    /// 삐삐 서버로부터 발급받은 리프레시 토큰을 저장합니다.
+    public func saveRefreshToken(_ refreshToken: String?) {
+        keychain[.newRefreshToken] = refreshToken
+    }
+    
+    /// 삐삐 서버로부터 발급받은 리프레시 토큰을 불러옵니다.
+    public func loadRefreshToken() -> String? {
+        keychain[.newRefreshToken]
+    }
+    
+    
+    // MARK: - Is Temporary Token
+    
+    public func saveIsTemporaryToken(_ isTemporary: Bool?) {
+        keychain[.newIsTemporaryToken] = isTemporary
+    }
+    
+    public func loadIsTemporaryToken() -> Bool? {
+        keychain[.newIsTemporaryToken]
+    }
+    
+    
+    // MARK: - FCM Token
+    
+    /// FCM 서버로부터 발급받은 FCM 토큰을 저장합니다.
+    public func saveFCMToken(_ fcmToken: String?) {
+        keychain[.newFcmToken] = fcmToken
+    }
+    
+    /// FCM 서버로부터 발급받은 FCM 토큰을 저장합니다.
+    public func loadFCMToken() -> String? {
+        keychain[.newFcmToken]
+    }
+    
+    
+    
     // MARK: - Old AccessToken
+    
+    @available(*, deprecated)
     public func saveOldAccessToken(_ tokenResult: AccessToken?) {
-        // AccessToken은 Core 모듈의 TokenRepository에 정의되어 있음
+        // 🔵Info: AccessToken은 Core 모듈의 TokenRepository.swift에 정의되어 있음
         guard
             let data = try? JSONEncoder().encode(tokenResult),
             let str = String(data: data, encoding: .utf8)
@@ -79,6 +131,7 @@ final public class TokenKeychain: TokenKeychainType {
         keychain[.accessToken] = str
     }
     
+    @available(*, deprecated)
     public func loadOldAccessToken() -> AccessToken? {
         guard
             let str: String = keychain[.accessToken],
@@ -86,26 +139,6 @@ final public class TokenKeychain: TokenKeychainType {
             let tokenResult = try? JSONDecoder().decode(AccessToken.self, from: data)
         else { return nil }
         return tokenResult
-    }
-    
-    
-    // MARK: - RefreshToken
-    public func saveRefreshToken(_ refreshToken: String?) {
-        keychain[.newRefreshToken] = refreshToken
-    }
-    
-    public func loadRefreshToken() -> String? {
-        keychain[.newRefreshToken]
-    }
-    
-    
-    // MARK: - FCM Token
-    public func saveFCMToken(_ fcmToken: String?) {
-        keychain[.newFcmToken] = fcmToken
-    }
-    
-    public func loadFCMToken() -> String? {
-        keychain[.newFcmToken]
     }
     
 }

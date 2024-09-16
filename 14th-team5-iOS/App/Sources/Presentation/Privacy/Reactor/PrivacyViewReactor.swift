@@ -7,6 +7,7 @@
 
 import Foundation
 
+import Core
 import Domain
 import Data
 import ReactorKit
@@ -15,9 +16,12 @@ import ReactorKit
 
 public final class PrivacyViewReactor: Reactor {
     public var initialState: State
-    private var privacyUseCase: PrivacyViewUseCaseProtocol
+    @Injected var fetchAppVersionUseCase: FetchAppVersionUseCaseProtocol
+    @Injected var signOutUseCase: SignOutUseCaseProtocol
+    @Injected var resignFamilyUseCase: ResignFamilyUseCaseProtocol
+    @Injected var fetchAuthorizationItemUseCase: FetchAuthorizationItemsUseCaseProtocol
+    @Injected var fetchPrivacyItemsUseCase: FetchPrivacyItemsUseCaseProtocol
     private let memberId: String
-    private let signOutUseCase: SignOutUseCaseProtocol
     
     public enum Action {
         case viewDidLoad
@@ -27,7 +31,7 @@ public final class PrivacyViewReactor: Reactor {
     
     public enum Mutation {
         case setLoading(Bool)
-        case setBibbiAppInfo(BibbiAppInfoResponse)
+        case setBibbiAppInfo(AppVersionEntity)
         case setFamilyResign(Bool)
         case setPrivacyItemModel([PrivacyItemModel])
         case setAuthorizationItemModel([PrivacyItemModel])
@@ -39,14 +43,12 @@ public final class PrivacyViewReactor: Reactor {
         var isFamilyResign: Bool
         var memberId: String
         var isSuccess: Bool
-        @Pulse var appInfo: BibbiAppInfoResponse?
+        @Pulse var appInfo: AppVersionEntity?
         @Pulse var section: [PrivacySectionModel]
         
     }
     
-    public init(privacyUseCase: PrivacyViewUseCaseProtocol, signOutUseCase: SignOutUseCaseProtocol,  memberId: String) {
-        self.privacyUseCase = privacyUseCase
-        self.signOutUseCase = signOutUseCase
+    public init(memberId: String) {
         self.memberId = memberId
         self.initialState = State(
             isLoading: false,
@@ -64,37 +66,36 @@ public final class PrivacyViewReactor: Reactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewDidLoad:
-            let appKey: String = "7c5aaa36-570e-491f-b18a-26a1a0b72959"
-            let bibbiAppInfoParameter: BibbiAppInfoParameter = BibbiAppInfoParameter(appKey: appKey)
             return .concat(
                 .just(.setLoading(true)),
                 .merge(
-                    privacyUseCase.executeBibbiAppInfo(parameter: bibbiAppInfoParameter)
+                    fetchAppVersionUseCase.execute()
                         .asObservable()
                         .withUnretained(self)
-                        .flatMap { owner, entity -> Observable<PrivacyViewReactor.Mutation> in
-                            owner.privacyUseCase.executePrivacyItems()
+                        .flatMap { owner, appVersionEntity -> Observable<Mutation> in
+                            owner.fetchPrivacyItemsUseCase.execute()
                                 .asObservable()
-                                .flatMap { items -> Observable<PrivacyViewReactor.Mutation> in
-                                    
+                                .flatMap { privateInfo -> Observable<Mutation> in
+                                    guard let appVersionEntity = appVersionEntity else { return .empty() }
                                     var sectionItem: [PrivacyItemModel] = []
-                                    items.forEach {
-                                        sectionItem.append(.privacyWithAuthItem(PrivacyCellReactor(descrption: $0, isCheck: entity.latest)))
+                                    privateInfo.forEach {
+                                        sectionItem.append(.privacyWithAuthItem(PrivacyCellReactor(descrption: $0, isCheck: appVersionEntity.latest)))
                                         
                                     }
                                     
                                     return .concat(
                                         .just(.setPrivacyItemModel(sectionItem)),
-                                        .just(.setBibbiAppInfo(entity))
+                                        .just(.setBibbiAppInfo(appVersionEntity))
                                     )
                                 }
                                 
                         },
-                    privacyUseCase.executeAuthorizationItem()
+                    
+                    fetchAuthorizationItemUseCase.execute()
                         .asObservable()
-                        .flatMap { items -> Observable<PrivacyViewReactor.Mutation> in
+                        .flatMap { authorizationInfo -> Observable<Mutation> in
                             var sectionItems: [PrivacyItemModel] = []
-                            items.forEach {
+                            authorizationInfo.forEach {
                                 sectionItems.append(.userAuthorizationItem(PrivacyCellReactor(descrption: $0, isCheck: false)))
                             }
                             
@@ -121,11 +122,12 @@ public final class PrivacyViewReactor: Reactor {
         case .didTapFamilyUserResign:
             return .concat(
                 .just(.setLoading(true)),
-                privacyUseCase.executeAccountFamilyResign()
+                resignFamilyUseCase.execute()
                     .asObservable()
+                    .compactMap { $0 }
                     .flatMap { entity -> Observable<PrivacyViewReactor.Mutation> in
                         return .concat(
-                            .just(.setFamilyResign(entity.isSuccess)),
+                            .just(.setFamilyResign(entity.success)),
                             .just(.setLoading(false))
                         )
                     }

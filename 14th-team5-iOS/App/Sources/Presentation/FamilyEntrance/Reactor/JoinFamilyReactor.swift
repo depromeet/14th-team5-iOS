@@ -51,8 +51,9 @@ extension JoinFamilyReactor {
                     guard let familyResponse: CreateFamilyEntity = $0 else {
                         return Observable.just(Mutation.setShowHome(false))
                     }
-//                    App.Repository.member.familyCreatedAt.accept(familyResponse.createdAt)
-//                    App.Repository.member.familyId.accept(familyResponse.familyId)
+                    // Repository에서 이미 UserDefaults에 데이터를 저장하고 있음
+                    App.Repository.member.familyCreatedAt.accept(familyResponse.createdAt)
+                    App.Repository.member.familyId.accept(familyResponse.familyId)
                     return Observable.just(Mutation.setShowHome(true))
                 }
         case .joinFamily:

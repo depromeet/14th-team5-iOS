@@ -49,7 +49,12 @@ public final class ManagementViewController: BBNavigationViewController<Manageme
     
     private func bindInput(reactor: ManagementReactor) {
         Observable<Void>.just(())
-            .map { Reactor.Action.fetchPaginationFamilyMemebers }
+            .map { Reactor.Action.fetchFamilyGroupInfo }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        Observable<Void>.just(())
+            .map { Reactor.Action.fetchPaginationFamilyMemeber(refresh: false) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -71,7 +76,7 @@ public final class ManagementViewController: BBNavigationViewController<Manageme
         
         memberTableView.rx.didPullDownRefreshControl
             .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
-            .map { _ in Reactor.Action.fetchPaginationFamilyMemebers }
+            .map { _ in Reactor.Action.fetchPaginationFamilyMemeber(refresh: true) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -83,11 +88,39 @@ public final class ManagementViewController: BBNavigationViewController<Manageme
     }
     
     private func bindOutput(reactor: ManagementReactor) {
-        
         reactor.pulse(\.$memberDatasource)
             .bind(to: memberTableView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
-
+        
+        reactor.state.map { $0.hiddenSharingProgressHud }
+            .distinctUntilChanged()
+            .bind(with: self) { $0.sharingContainerView.hiddenSharingProgressHud(hidden: $1) }
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.hiddenTableProgressHud }
+            .distinctUntilChanged()
+            .bind(with: self) { $0.memberTableView.hiddenTableProgressHud(hidden: $1) }
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.hiddenMemberFetchFailureView }
+            .distinctUntilChanged()
+            .bind(with: self) { $0.memberTableView.hiddenFetchFailureView(hidden: $1) }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$isRefreshing)
+            .delay(RxInterval._700milliseconds, scheduler: RxScheduler.main)
+            .bind(with: self) { owner, _ in owner.memberTableView.endRefreshing() }
+            .disposed(by: disposeBag)
+        
+        reactor.state.compactMap { $0.familyName }
+            .distinctUntilChanged()
+            .bind(with: self) { $0.memberTableHeaderView.setFamilyName($1) }
+            .disposed(by: disposeBag)
+        
+        reactor.state.compactMap { $0.memberCount}
+            .distinctUntilChanged()
+            .bind(with: self) { $0.memberTableHeaderView.setMemberCount($1) }
+            .disposed(by: disposeBag)
     }
     
     public override func setupUI() {

@@ -25,6 +25,7 @@ public extension UserDefaultsWrapper.Key {
     static let familyName: Self = "familyName"
     static let familyMembers: Self = "familyMembers"
     static let familyMemberIds: Self = "familyMemberIds"
+    static let familyNameEditorId: Self = "familyEditorId"
     
     
     // MARK: - My UserDefaults

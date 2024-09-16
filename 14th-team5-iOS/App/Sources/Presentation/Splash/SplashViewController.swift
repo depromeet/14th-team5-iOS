@@ -92,10 +92,6 @@ public final class SplashViewController: BaseViewController<SplashReactor> {
     }
     
     private func showNextPage(with member: MemberInfo?) {
-        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
-        var container: UINavigationController
-        
-        // TODO: - Reactor로 집어넣기
         @Navigator var splashNavigator: SplashNavigatorProtocol
         
         guard let member = member else {

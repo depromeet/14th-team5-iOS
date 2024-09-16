@@ -13,7 +13,7 @@ final class CommentViewControllerWrapper: BaseWrapper {
     // MARK: - Typealias
     
     typealias R = CommentViewReactor
-    typealias V = PostCommentViewController
+    typealias V = CommentViewController
     
     // MARK: - Properties
     
@@ -23,7 +23,7 @@ final class CommentViewControllerWrapper: BaseWrapper {
         makeReactor()
     }
     
-    var viewController: PostCommentViewController {
+    var viewController: CommentViewController {
         makeViewController()
     }
     
@@ -39,8 +39,8 @@ final class CommentViewControllerWrapper: BaseWrapper {
         CommentViewReactor(postId: postId)
     }
     
-    func makeViewController() -> PostCommentViewController {
-        PostCommentViewController(reactor: makeReactor())
+    func makeViewController() -> CommentViewController {
+        CommentViewController(reactor: makeReactor())
     }
     
 }

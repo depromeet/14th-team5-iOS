@@ -15,7 +15,7 @@ public enum AppAPIs: API {
     public var spec: APISpec {
         switch self {
         case let .appVersion(appKey):
-            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/me/app-version&appKey=\(appKey)")
+            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/me/app-version?appKey=\(appKey)")
         }
     }
     

@@ -130,6 +130,11 @@ extension MainViewController {
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
         
+        Observable.just(())
+            .map { Reactor.Action.checkFamilyManagement }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         Observable.merge(
             segmentControl.survivalButton.rx.tap.map { Reactor.Action.didTapSegmentControl(.survival) },
             segmentControl.missionButton.rx.tap.map { Reactor.Action.didTapSegmentControl(.mission) },
@@ -151,23 +156,24 @@ extension MainViewController {
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
         
-        //
-        //        contributorView.infoButton.rx.tap
-        //            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
-        //            .withUnretained(self)
-        //            .bind(onNext: {
-        //                $0.0.makeDescriptionPopoverView(
-        //                    $0.0,
-        //                    sourceView: $0.0.contributorView.infoButton,
-        //                    text: "생존신고 횟수가 동일한 경우\n이모지, 댓글 수를 합산해서 등수를 정해요",
-        //                    popoverSize: CGSize(width: 260, height: 62),
-        //                    permittedArrowDrections: [.up]
-        //                )
-        //            })
-        //            .disposed(by: disposeBag)
+        
+        contributorView.infoButton.rx.tap
+            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: {
+                $0.0.makeDescriptionPopoverView(
+                    $0.0,
+                    sourceView: $0.0.contributorView.infoButton,
+                    text: "생존신고 횟수가 동일한 경우\n이모지, 댓글 수를 합산해서 등수를 정해요",
+                    popoverSize: CGSize(width: 260, height: 62),
+                    permittedArrowDrections: [.up]
+                )
+            })
+            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: MainViewReactor) {
+        
         reactor.state.map { $0.isInTime }.compactMap { $0 }
             .distinctUntilChanged()
             .withUnretained(self)
@@ -218,11 +224,15 @@ extension MainViewController {
             .bind(to: contributorView.contributorRelay)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.familyname }
-            .distinctUntilChanged()
+        Observable.combineLatest(
+            reactor.state.map { $0.familyname }.distinctUntilChanged(),
+            reactor.state.map { $0.isFirstFamilyManagement }.distinctUntilChanged()
+        )
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
-            .bind(onNext:{ $0.0.setNavigationTitle(title:$0.1)})
+            .bind(onNext: {
+                $0.0.setNavigation(title: $0.1.0, isFirstFamilyManagement: $0.1.1)
+            })
             .disposed(by: disposeBag)
     }
 }
@@ -252,7 +262,8 @@ extension MainViewController {
         imageView.image = description.image
     }
     
-    private func setNavigationTitle(title: String?) {
+    private func setNavigation(title: String?, isFirstFamilyManagement: Bool) {
+        navigationBar.leftBarButtonItem = .person(new: isFirstFamilyManagement)
         if let title {
             navigationBar.navigationTitleFontStyle = .homeTitle
             navigationBar.navigationTitle = title

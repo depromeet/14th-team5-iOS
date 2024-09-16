@@ -112,7 +112,7 @@ final public class AppUserDefaults: AppUserDefaultsType {
     
     public func loadIsFirstFamilyManagement() -> Bool {
         guard let isFirstFamilyManagement: Bool = userDefaults[.isFirstFamilyManagement] else {
-            return false
+            return true
         }
         
         return isFirstFamilyManagement

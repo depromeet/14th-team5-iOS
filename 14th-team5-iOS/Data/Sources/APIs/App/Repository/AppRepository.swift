@@ -17,9 +17,9 @@ public final class AppRepository: AppRepositoryProtocol {
     
     // MARK: - APIWorker
     private let appApiWorker = AppAPIWorker()
-    
-    // TODO: 수정해주세요 - 겸이
-    private let localStorage = UserDefaults.standard
+
+    // MARK: - UserDefaults
+    private let appUserDefaults = AppUserDefaults()
     
     // MARK: - Intializer
     public init() { }
@@ -41,8 +41,11 @@ extension AppRepository {
     }
     
     public func fetchisFirstFamilyManagement() -> RxSwift.Observable<Bool> {
-        let isFirstFamily = localStorage.bool(forKey: "familyManagement")
+        let isFirstFamily = appUserDefaults.loadIsFirstFamilyManagement()
         return .just(isFirstFamily)
     }
     
+    public func saveIsFirstFamilyManagement(isFirst: Bool) {
+        appUserDefaults.saveIsFirstFamilyManagement(isFirst)
+    }
 }

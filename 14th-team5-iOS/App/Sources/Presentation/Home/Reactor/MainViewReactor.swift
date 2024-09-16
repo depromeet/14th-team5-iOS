@@ -42,7 +42,7 @@ final class MainViewReactor: Reactor {
         case fetchMainUseCase
         case fetchMainNightUseCase
         
-        case checkFamilyManagement(Bool)
+        case checkFamilyManagement
         case checkMissionAlert(Bool, Bool)
         
         case openNextViewController(TapAction)
@@ -100,6 +100,8 @@ final class MainViewReactor: Reactor {
     @Injected var pickUseCase: PickUseCaseProtocol
     @Injected var updateIsFirstOnboardingUseCase: any UpdateIsFirstOnboardingUseCaseProtocol
     @Injected var checkMissionAlertShowUseCase: CheckMissionAlertShowUseCaseProtocol
+    @Injected var checkFamilyManagementUseCase: FetchFamilyManagementUseCaseProtocol
+    @Injected var saveFamilyManagementUseCase: SaveFamilyManagementUseCaseProtocol
 }
 
 extension MainViewReactor {
@@ -233,6 +235,11 @@ extension MainViewReactor {
                 self.pushViewController(type: .monthlyCalendarViewController)
             case .navigationLeftButtonTap:
                 self.pushViewController(type: .familyManagementViewController)
+                
+                if currentState.isFirstFamilyManagement {
+                    saveFamilyManagementUseCase.execute(false)
+                    return Observable<Mutation>.just(.setFamilyManagement(false))
+                }
             case .contributorNextButtonTap:
                 guard let date = currentState.contributor.recentPostDate else {
                     return .empty()
@@ -251,12 +258,11 @@ extension MainViewReactor {
                     self.pushViewController(type: .missionUnlockedAlert)
                     return .empty()
                 }
-        case .checkFamilyManagement(_):
-            return Observable<Mutation>.empty()
-            //            let isFirstFamilyManagement = familyManagementUseCase.execute()
-            //                .flatMap {
-            //                    return Observable<Mutation>.just(.setFamilyManagement($0))
-            //                }
+        case .checkFamilyManagement:
+            return checkFamilyManagementUseCase.execute()
+                .flatMap {
+                    return Observable<Mutation>.just(.setFamilyManagement($0))
+                }
         }
     }
     
@@ -271,6 +277,7 @@ extension MainViewReactor {
         case .updateMainData(let data):
             newState = updateMainData(newState, data)
         case .updateMainNight(let data):
+            newState.familyname = data.familyName
             newState.familySection = FamilySection.Model(model: 0, items: data.mainFamilyProfileDatas.map {
                 .main(MainFamilyCellReactor($0, service: provider))
             }).items
@@ -305,7 +312,7 @@ extension MainViewReactor {
             navigator.toCamera(type)
         case .survivalAlert:
             navigator.showSurvivalAlert()
-        case .pickAlert(let name, let id):
+        case .pickAlert(let name, _):
             navigator.pickAlert(name)
         case .missionUnlockedAlert:
             navigator.missionUnlockedAlert()

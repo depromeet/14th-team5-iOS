@@ -22,6 +22,6 @@ public class FetchFamilyManagementUseCase: FetchFamilyManagementUseCaseProtocol 
     }
     
     public func execute() -> Observable<Bool> {
-        repository.fetchisFirstFamilyManagement()
+        repository.fetchisFirstFamilyManagement().asObservable()
     }
 }

@@ -6,21 +6,24 @@
 //
 
 import UIKit
+
 import DesignSystem
+import Kingfisher
 import SnapKit
 import Then
 
 
+public enum BBToolTipXPosition: CGFloat {
+    case left = 0.0
+    case midLeft = 0.25
+    case center = 0.5
+    case midRight = 0.75
+    case right = 1.0
+}
+
 public enum BBToolTipPosition {
-    public enum BBToolTipXPosition: CGFloat {
-        case left = 0.0
-        case midLeft = 0.25
-        case center = 0.5
-        case midRight = 0.75
-        case right = 1.0
-    }
-    case top(BBToolTipXPosition)
-    case bottom(BBToolTipXPosition)
+    case top
+    case bottom
 }
 
 public struct BBToolTipConfig {
@@ -42,10 +45,10 @@ public struct BBToolTipConfig {
     public var arrowHeight: CGFloat
     
     public init(
-        cornerRadius: CGFloat = 12.0,
+        cornerRadius: CGFloat = 12,
         foregroundColor: UIColor = .bibbiBlack,
         backgroundColor: UIColor = .mainYellow,
-        position: BBToolTipPosition = .top(.left),
+        position: BBToolTipPosition = .top,
         font: BBFontStyle = .body2Regular,
         contentText: String = "",
         arrowWidth: CGFloat = 15,
@@ -83,79 +86,91 @@ public enum BBToolTipType {
     /// 추억 캘린더 화면 Description Button Touch Tool Tip
     case monthlyCalendar
     /// 홈 화면 생존 신고 알림 Tool Tip
-    case waitingSurvivalImage(contentText: String, profile:[UIImage])
+    case waitingSurvivalImage(contentText: String, imageURL:[URL])
+    
+    
+    var xPosition: BBToolTipXPosition {
+        switch self {
+        case .monthlyCalendar, .contributor:
+            return .midLeft
+        case .familyNameEdit:
+            return .right
+        default:
+            return .center
+        }
+    }
+    
     
     var configure: BBToolTipConfig {
         switch self {
         case .inactiveCameraTime:
             return .init(
-                foregroundColor: .bibbiBlack,
+                foregroundColor: .bibbiWhite,
                 backgroundColor: .gray700,
-                position: .bottom(.center),
+                position: .bottom,
                 contentText: "오늘의 생존신고는 완료되었어요"
             )
         case .activeCameraTime:
             return .init(
                 foregroundColor: .bibbiWhite,
                 backgroundColor: .gray700,
-                position: .bottom(.center),
+                position: .bottom,
                 contentText: "하루에 한 번 사진을 올릴 수 있어요"
             )
         case .familyNameEdit:
             return .init(
                 foregroundColor: .bibbiBlack,
                 backgroundColor: .mainYellow,
-                position: .bottom(.right),
+                position: .bottom,
                 contentText: "가족 방 이름을 변경해보세요!"
             )
         case .inactiveSurvivalCameraNoUpload:
             return .init(
                 foregroundColor: .bibbiWhite,
                 backgroundColor: .gray700,
-                position: .bottom(.center),
+                position: .bottom,
                 contentText: "생존신고 후 미션 사진을 올릴 수 있어요"
             )
         case .inactiveMissionCameraPostUpload:
             return .init(
                 foregroundColor: .bibbiWhite,
                 backgroundColor: .gray700,
-                position: .bottom(.center),
+                position: .bottom,
                 contentText: "오늘의 미션은 완료되었어요"
             )
         case .inactiveMissionCamera:
             return .init(
-                foregroundColor: .bibbiBlack,
+                foregroundColor: .bibbiWhite,
                 backgroundColor: .gray700,
-                position: .bottom(.center),
+                position: .bottom,
                 contentText: "아직 미션 사진을 찍을 수 없어요"
             )
         case .activeMissionCamera:
             return .init(
-                foregroundColor: .bibbiBlack,
+                foregroundColor: .bibbiWhite,
                 backgroundColor: .gray700,
-                position: .bottom(.center),
+                position: .bottom,
                 contentText: "미션 사진을 찍으러 가볼까요?"
             )
         case .contributor:
             return .init(
                 foregroundColor: .bibbiWhite,
                 backgroundColor: .gray700,
-                position: .top(.midLeft),
+                position: .top,
                 contentText: "생존신고 횟수가 동일한 경우\n이모지, 댓글 수를 합산해서 등수를 정해요"
-                
             )
         case .monthlyCalendar:
             return .init(
                 foregroundColor: .bibbiWhite,
                 backgroundColor: .gray700,
-                position: .top(.midLeft),
+                position: .top,
                 contentText: "모두가 참여한 날과 업로드한 사진 수로\n이 달의 친밀도를 측정합니다"
             )
         case let .waitingSurvivalImage(contentText, profile):
             return .init(
                 foregroundColor: .bibbiBlack,
                 backgroundColor: .mainYellow,
-                position: .bottom(.center),
+                position: .bottom,
                 contentText: "\(contentText)님 외 \(profile.count - 1)명이 기다리고 있어요"
             )
         }
@@ -166,16 +181,16 @@ public enum BBToolTipType {
 public final class BBToolTipView: UIView {
     
     private let contentLabel: BBLabel = BBLabel()
-    private let toolTipType: BBToolTipType
-    
-    public init(toolTipType: BBToolTipType) {
-        self.toolTipType = toolTipType
-        super.init(frame: .zero)
-        setupToolTipUI()
-        setupToolTipContent()
+    private let profileStackView: UIStackView = UIStackView()
+    public var toolTipType: BBToolTipType = .activeCameraTime {
+        didSet {
+            setNeedsDisplay()
+        }
     }
     
-    //TODO: Positions, Text, Color, Font 는 Setter 할 수 있도록 수정
+    public init() {
+        super.init(frame: .zero)
+    }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -185,7 +200,9 @@ public final class BBToolTipView: UIView {
         super.draw(rect)
         guard let context = UIGraphicsGetCurrentContext() else { return }
         context.saveGState()
-        drawToolTip(rect, arrowPosition: toolTipType.configure.position, context: context)
+        setupToolTipUI()
+        setupToolTipContent()
+        drawToolTip(rect, type: toolTipType, context: context)
         context.restoreGState()
     }
     
@@ -193,51 +210,45 @@ public final class BBToolTipView: UIView {
         super.layoutSubviews()
     }
 
-    private func drawToolTip(_ frame: CGRect, arrowPosition: BBToolTipPosition, context: CGContext) {
+    private func drawToolTip(_ frame: CGRect, type: BBToolTipType, context: CGContext) {
         
         let toolTipPath = CGMutablePath()
-        let toolTipCornerRadius = toolTipType.configure.cornerRadius
-        let arrowWidth = toolTipType.configure.arrowWidth
-        let arrowHeight = toolTipType.configure.arrowHeight
         
-        switch arrowPosition {
-        case let .top(xPosition):
-            let arrowTipXPosition = xPosition.rawValue * frame.width
-            let arrowBaseYPosition = arrowHeight
-            
-            let margin: CGFloat = 16
-            let adjustedArrowTipXPosition = min(max(arrowTipXPosition, margin + arrowWidth / 2), frame.width - margin - arrowWidth / 2)
-            let arrowLeft = adjustedArrowTipXPosition - arrowWidth / 2
-            let arrowRight = adjustedArrowTipXPosition + arrowWidth / 2
-
-            toolTipPath.move(to: CGPoint(x: arrowLeft, y: arrowBaseYPosition))
-            toolTipPath.addLine(to: CGPoint(x: adjustedArrowTipXPosition, y: 0))
-            toolTipPath.addLine(to: CGPoint(x: arrowRight, y: arrowBaseYPosition))
-            
-            drawBBToolTipTopShape(frame, cornerRadius: toolTipCornerRadius, path: toolTipPath)
-            setupAutoLayout()
-            
-        case let .bottom(xPosition):
-            let arrowTipXPosition = xPosition.rawValue * frame.width
-            let arrowBaseYPosition = frame.height - arrowHeight
-            let margin: CGFloat = 16
-            let adjustedArrowTipXPosition = min(max(arrowTipXPosition, margin + arrowWidth / 2), frame.width - margin - arrowWidth / 2)
-            let arrowLeft = adjustedArrowTipXPosition - arrowWidth / 2
-            let arrowRight = adjustedArrowTipXPosition + arrowWidth / 2
-
-
-            toolTipPath.move(to: CGPoint(x: arrowLeft, y: arrowBaseYPosition))
-            toolTipPath.addLine(to: CGPoint(x: adjustedArrowTipXPosition, y: frame.height))
-            toolTipPath.addLine(to: CGPoint(x: arrowRight, y: arrowBaseYPosition))
-            
-            drawBBToolTipBottomShape(frame, cornerRadius: toolTipCornerRadius, path: toolTipPath)
-            setupAutoLayout()
+        switch type {
+        case .contributor, .monthlyCalendar:
+            drawBBToolTipArrowShape(frame, type: type, path: toolTipPath)
+            drawBBToolTipTopShape(frame, cornerRadius: type.configure.cornerRadius, path: toolTipPath)
+            setupAutoLayout(type)
+        default:
+            drawBBToolTipArrowShape(frame, type: type, path: toolTipPath)
+            drawBBToolTipBottomShape(frame, cornerRadius: type.configure.cornerRadius, path: toolTipPath)
+            setupAutoLayout(type)
         }
         
         toolTipPath.closeSubpath()
         context.addPath(toolTipPath)
         context.setFillColor(toolTipType.configure.backgroundColor.cgColor)
         context.fillPath()
+    }
+    
+    
+    private func drawBBToolTipArrowShape(_ frame : CGRect, type: BBToolTipType, path: CGMutablePath) {
+        let margin: CGFloat = 16
+        let arrowTipXPosition = type.xPosition.rawValue * frame.width
+        let adjustedArrowTipXPosition = min(max(arrowTipXPosition, margin + type.configure.arrowWidth / 2), frame.width - margin - type.configure.arrowWidth / 2)
+        let arrowLeft = adjustedArrowTipXPosition - type.configure.arrowWidth / 2
+        let arrowRight = adjustedArrowTipXPosition + type.configure.arrowWidth / 2
+        
+        switch type {
+        case .contributor, .monthlyCalendar:
+            path.move(to: CGPoint(x: arrowLeft, y: type.configure.arrowHeight))
+            path.addLine(to: CGPoint(x: adjustedArrowTipXPosition, y: 0))
+            path.addLine(to: CGPoint(x: arrowRight, y: type.configure.arrowHeight))
+        default:
+            path.move(to: CGPoint(x: arrowLeft, y: frame.height - type.configure.arrowHeight))
+            path.addLine(to: CGPoint(x: adjustedArrowTipXPosition, y: frame.height))
+            path.addLine(to: CGPoint(x: arrowRight, y: frame.height - type.configure.arrowHeight))
+        }
     }
     
     private func drawBBToolTipBottomShape(_ frame: CGRect, cornerRadius: CGFloat, path: CGMutablePath) {
@@ -259,9 +270,17 @@ public final class BBToolTipView: UIView {
     }
     
     private func setupToolTipContent() {
+        
+        profileStackView.do {
+            $0.spacing = -8
+            $0.distribution = .fillEqually
+        }
+        
         contentLabel.do {
             $0.text = toolTipType.configure.contentText
             $0.fontStyle = toolTipType.configure.font
+            $0.textAlignment = .center
+            $0.numberOfLines = 0
             $0.textColor = toolTipType.configure.foregroundColor
         }
         
@@ -271,14 +290,62 @@ public final class BBToolTipView: UIView {
     }
     
     private func setupToolTipUI() {
-        addSubview(contentLabel)
+        addSubviews(contentLabel, profileStackView)
     }
     
     
-    private func setupAutoLayout() {
+    private func setupWaittingToolTipUI(imageURL: [URL]) {
+        imageURL.forEach {
+            createProfileImageView(imageURL: $0)
+        }
+    }
+    
+    private func createProfileImageView(imageURL: URL) {
+        let imageView = UIImageView(frame: .init(x: 0, y: 0, width: 20, height: 20))
+        imageView.contentMode = .scaleAspectFill
+        imageView.layer.borderColor = UIColor.mainYellow.cgColor
+        imageView.layer.borderWidth = 2
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 10
+        imageView.kf.setImage(with: imageURL)
+        profileStackView.addArrangedSubview(imageView)
+    }
+    
+    private func setupAutoLayout(_ type: BBToolTipType) {
         let arrowHeight = toolTipType.configure.arrowHeight
         let textPadding: CGFloat = 10
         
-        
+        switch type {
+        case .monthlyCalendar, .contributor:
+            contentLabel.snp.makeConstraints {
+                $0.left.equalToSuperview().inset(16)
+                $0.right.equalToSuperview().inset(16)
+                $0.top.equalToSuperview().inset((arrowHeight + textPadding))
+                $0.bottom.equalToSuperview().inset(textPadding)
+            }
+        case let .waitingSurvivalImage(_ ,imageURL):
+            setupWaittingToolTipUI(imageURL: imageURL)
+            
+            profileStackView.snp.makeConstraints {
+                $0.width.equalTo(24 * imageURL.count)
+                $0.left.equalToSuperview().inset(16)
+                $0.height.equalTo(24)
+                $0.centerY.equalTo(contentLabel)
+            }
+            
+            contentLabel.snp.makeConstraints {
+                $0.left.equalTo(profileStackView.snp.right).offset(2)
+                $0.right.equalToSuperview().inset(16)
+                $0.bottom.equalToSuperview().inset((arrowHeight + textPadding))
+                $0.top.equalToSuperview().inset(textPadding)
+            }
+        default:
+            contentLabel.snp.makeConstraints {
+                $0.left.equalToSuperview().inset(16)
+                $0.right.equalToSuperview().inset(16)
+                $0.bottom.equalToSuperview().inset((arrowHeight + textPadding))
+                $0.top.equalToSuperview().inset(textPadding)
+            }
+        }
     }
 }

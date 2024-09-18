@@ -9,6 +9,7 @@ import UIKit
 
 public class DefaultAlertView: UIView, BBAlertView {
     
+    
     // MARK: - Views
     
     private let child: BBAlertStackView
@@ -21,6 +22,8 @@ public class DefaultAlertView: UIView, BBAlertView {
     public var id: Int = -1
     
     private var alert: BBAlert?
+    
+    private var actions: [BBAlertAction] = []
     private let viewConfig: BBAlertViewConfiguration
     
     private let buttonSpacing: CGFloat = 8
@@ -47,8 +50,11 @@ public class DefaultAlertView: UIView, BBAlertView {
     
     // MARK: - Create
     
-    public func createView(for alert: BBAlert) {
+    public func createView(for alert: BBAlert, actions: [BBAlertAction]) {
+        precondition(!actions.isEmpty, "🟡 BBAlert에 적어도 하나 이상의 BBAlertAction이 필요합니다.")
+        
         self.alert = alert
+        self.actions = actions
         self.child.alert = alert
         
         setupUI()
@@ -61,8 +67,8 @@ public class DefaultAlertView: UIView, BBAlertView {
     
     private func setupUI() {
         
-        for type in viewConfig.buttonLayout.buttons {
-            let button = createAlertButton(for: type)
+        for action in actions {
+            let button = createAlertButton(with: action)
             buttonStack.addArrangedSubview(button)
         }
         
@@ -94,11 +100,11 @@ public class DefaultAlertView: UIView, BBAlertView {
             buttonStack.trailingAnchor.constraint(equalTo: self.layoutMarginsGuide.trailingAnchor),
         ])
         
-        if case .vertical = viewConfig.buttonLayout.axis {
+        if case .vertical = viewConfig.buttonAxis {
             let count = CGFloat(buttonStack.arrangedSubviews.count)
-            buttonStack.heightAnchor.constraint(equalToConstant: count * viewConfig.buttonLayout.height + (buttonSpacing * count)).isActive = true
+            buttonStack.heightAnchor.constraint(equalToConstant: count * viewConfig.buttonHieght + (buttonSpacing * count)).isActive = true
         } else {
-            buttonStack.heightAnchor.constraint(equalToConstant: viewConfig.buttonLayout.height).isActive = true
+            buttonStack.heightAnchor.constraint(equalToConstant: viewConfig.buttonHieght).isActive = true
         }
         
         child.translatesAutoresizingMaskIntoConstraints = false
@@ -113,7 +119,7 @@ public class DefaultAlertView: UIView, BBAlertView {
     private func setupButtonConstraints() {
         for button in buttonStack.arrangedSubviews {
             NSLayoutConstraint.activate([
-                button.heightAnchor.constraint(equalToConstant: viewConfig.buttonLayout.height)
+                button.heightAnchor.constraint(equalToConstant: viewConfig.buttonHieght)
             ])
         }
     }
@@ -125,7 +131,7 @@ public class DefaultAlertView: UIView, BBAlertView {
         layer.cornerRadius = viewConfig.cornerRadius ?? 16
         backgroundColor = viewConfig.backgroundColor
         
-        buttonStack.axis = viewConfig.buttonLayout.axis
+        buttonStack.axis = viewConfig.buttonAxis
         buttonStack.spacing = buttonSpacing
         buttonStack.alignment = .fill
         buttonStack.distribution = .fillEqually
@@ -133,32 +139,27 @@ public class DefaultAlertView: UIView, BBAlertView {
         addShadow()
     }
     
-    private func createAlertButton(for type: BBAlert.Button) -> BBButton {
+    private func createAlertButton(with action: BBAlertAction) -> BBButton {
         let button = BBButton(type: .system)
         
-        switch type {
-        case let .normal(title, titleFontStyle, titleColor, backgroundColor, action):
+        switch action.style {
+        case let .custom(titleFontStyle, titleColor, backgroundColor):
             setupAlertButtotAttribute(
                 button,
-                title: title,
+                title: action.title,
                 titleFontStlye: titleFontStyle,
                 titleColor: titleColor,
                 backgroundColor: backgroundColor,
-                action: action
+                action: action.handler
             )
-            
-        case let .confirm(title, action):
+        default:
             setupAlertButtotAttribute(
                 button,
-                title: title,
-                action: action
-            )
-        case let .cancel(title):
-            setupAlertButtotAttribute(
-                button,
-                title: title,
-                titleColor: .gray400,
-                backgroundColor: .gray700
+                title: action.title,
+                titleFontStlye: action.style.titleFontStyle,
+                titleColor: action.style.titleColor,
+                backgroundColor: action.style.backgroundColor,
+                action: action.handler
             )
         }
         
@@ -171,7 +172,7 @@ public class DefaultAlertView: UIView, BBAlertView {
         titleFontStlye: BBFontStyle? = nil,
         titleColor: UIColor? = nil,
         backgroundColor: UIColor? = nil,
-        action: BBAlertAction = nil
+        action: BBAlertActionHandler = nil
     ) {
         self.id += 1
         button.setId(id)
@@ -185,7 +186,7 @@ public class DefaultAlertView: UIView, BBAlertView {
         button.layer.masksToBounds = false
         
         let action = UIAction { [weak self] _ in
-            guard let self = self else { return }
+            guard let self else { return }
             // 델리게이트 실행
             BBAlert.multicast.invoke {
                 $0.didTapAlertButton(

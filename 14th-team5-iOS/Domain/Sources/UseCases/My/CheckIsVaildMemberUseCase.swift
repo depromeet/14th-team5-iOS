@@ -23,7 +23,7 @@ public class CheckIsVaildMemberUseCase: CheckIsVaildMemberUseCaseProtocol {
     
     // MARK: - Execute
     public func execute(memberId: String) -> Bool {
-        myRepository.fetchUserName(memberId: memberId) != ""
+        return myRepository.fetchUserName(memberId: memberId) != nil
     }
     
 }

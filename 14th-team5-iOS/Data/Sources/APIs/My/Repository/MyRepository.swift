@@ -44,11 +44,11 @@ extension MyRepository {
         FamilyUserDefaults.load(memberId: memberId)?.profileImageURL
     }
     
-    public func fetchIsFirstOnboarding() -> Bool {
+    public func fetchIsFirstOnboarding() -> Bool? {
         return appUserDefaults.loadIsFirstOnboarding()
     }
     
-    public func updateIsFirstOnboarding(_ isFirstOnboarding: Bool) {
+    public func updateIsFirstOnboarding(_ isFirstOnboarding: Bool?) {
         appUserDefaults.saveIsFirstOnboarding(isFirstOnboarding)
     }
     

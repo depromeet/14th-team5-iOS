@@ -178,18 +178,22 @@ public enum BBToolTipType {
 }
 
 
-public final class BBToolTipView: UIView {
+public class BBToolTipView: UIView {
     
     private let contentLabel: BBLabel = BBLabel()
     private let profileStackView: UIStackView = UIStackView()
+    
     public var toolTipType: BBToolTipType = .activeCameraTime {
         didSet {
+            setupToolTipContent()
+            setupAutoLayout(toolTipType)
             setNeedsDisplay()
         }
     }
     
     public init() {
         super.init(frame: .zero)
+        setupToolTipUI()
     }
     
     required init?(coder: NSCoder) {
@@ -200,14 +204,8 @@ public final class BBToolTipView: UIView {
         super.draw(rect)
         guard let context = UIGraphicsGetCurrentContext() else { return }
         context.saveGState()
-        setupToolTipUI()
-        setupToolTipContent()
         drawToolTip(rect, type: toolTipType, context: context)
         context.restoreGState()
-    }
-    
-    public override func layoutSubviews() {
-        super.layoutSubviews()
     }
 
     private func drawToolTip(_ frame: CGRect, type: BBToolTipType, context: CGContext) {
@@ -218,11 +216,9 @@ public final class BBToolTipView: UIView {
         case .contributor, .monthlyCalendar:
             drawBBToolTipArrowShape(frame, type: type, path: toolTipPath)
             drawBBToolTipTopShape(frame, cornerRadius: type.configure.cornerRadius, path: toolTipPath)
-            setupAutoLayout(type)
         default:
             drawBBToolTipArrowShape(frame, type: type, path: toolTipPath)
             drawBBToolTipBottomShape(frame, cornerRadius: type.configure.cornerRadius, path: toolTipPath)
-            setupAutoLayout(type)
         }
         
         toolTipPath.closeSubpath()
@@ -272,7 +268,7 @@ public final class BBToolTipView: UIView {
     private func setupToolTipContent() {
         
         profileStackView.do {
-            $0.spacing = -8
+            $0.spacing = -4
             $0.distribution = .fillEqually
         }
         
@@ -282,6 +278,7 @@ public final class BBToolTipView: UIView {
             $0.textAlignment = .center
             $0.numberOfLines = 0
             $0.textColor = toolTipType.configure.foregroundColor
+            $0.sizeToFit()
         }
         
         self.do {
@@ -317,7 +314,7 @@ public final class BBToolTipView: UIView {
         
         switch type {
         case .monthlyCalendar, .contributor:
-            contentLabel.snp.makeConstraints {
+            contentLabel.snp.remakeConstraints {
                 $0.left.equalToSuperview().inset(16)
                 $0.right.equalToSuperview().inset(16)
                 $0.top.equalToSuperview().inset((arrowHeight + textPadding))
@@ -326,21 +323,21 @@ public final class BBToolTipView: UIView {
         case let .waitingSurvivalImage(_ ,imageURL):
             setupWaittingToolTipUI(imageURL: imageURL)
             
-            profileStackView.snp.makeConstraints {
+            profileStackView.snp.remakeConstraints {
                 $0.width.equalTo(24 * imageURL.count)
-                $0.left.equalToSuperview().inset(16)
+                $0.left.equalToSuperview().offset(16)
                 $0.height.equalTo(24)
                 $0.centerY.equalTo(contentLabel)
             }
             
-            contentLabel.snp.makeConstraints {
+            contentLabel.snp.remakeConstraints {
                 $0.left.equalTo(profileStackView.snp.right).offset(2)
                 $0.right.equalToSuperview().inset(16)
                 $0.bottom.equalToSuperview().inset((arrowHeight + textPadding))
                 $0.top.equalToSuperview().inset(textPadding)
             }
         default:
-            contentLabel.snp.makeConstraints {
+            contentLabel.snp.remakeConstraints {
                 $0.left.equalToSuperview().inset(16)
                 $0.right.equalToSuperview().inset(16)
                 $0.bottom.equalToSuperview().inset((arrowHeight + textPadding))

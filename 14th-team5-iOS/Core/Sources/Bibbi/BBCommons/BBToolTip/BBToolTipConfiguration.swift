@@ -1,5 +1,5 @@
 //
-//  BBToolTipConfig.swift
+//  BBToolTipConfiguration.swift
 //  Core
 //
 //  Created by Kim dohyun on 9/19/24.
@@ -10,7 +10,7 @@ import UIKit
 import DesignSystem
 
 /// BBToolTip에 (UI, Width, Height) Properties를 설정하기 위한 구조체입니다.
-public struct BBToolTipConfig {
+public struct BBToolTipConfiguration {
     /// ToolTip Corner Radius
     public var cornerRadius: CGFloat
     /// TooTip TextFont Foreground Color

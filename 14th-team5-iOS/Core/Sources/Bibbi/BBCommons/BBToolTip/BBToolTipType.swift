@@ -46,7 +46,7 @@ public enum BBToolTipType {
     }
     
     
-    var configure: BBToolTipConfig {
+    var configure: BBToolTipConfiguration {
         switch self {
         case .inactiveCameraTime:
             return .init(

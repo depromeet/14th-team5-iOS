@@ -13,7 +13,7 @@ import SnapKit
 import Then
 
 
-public class BBToolTipView: UIView, BBDrawable, BBAnimatable {
+public final class BBToolTipView: UIView, BBDrawable, BBAnimatable {
     
     //MARK: Properties
     private let contentLabel: BBLabel = BBLabel()

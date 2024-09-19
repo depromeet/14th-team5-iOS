@@ -5,11 +5,12 @@
 //  Created by Kim dohyun on 9/19/24.
 //
 
-import Foundation
+import UIKit
 
 import DesignSystem
 
-
+/// BBToolTip의 Style을 설정하기 위한  Nested types입니다.
+/// 해당 **BBToolTipType** 을 통해 BBToolTip의 Layout을 구성합니다.
 public enum BBToolTipType {
     /// 홈 화면 inactive Camera Button State ToolTip Type
     case inactiveCameraTime
@@ -33,7 +34,7 @@ public enum BBToolTipType {
     case waitingSurvivalImage(contentText: String, imageURL:[URL])
     
     
-    var xPosition: BBToolTipXPosition {
+    var xPosition: BBToolTipHorizontalPosition {
         switch self {
         case .monthlyCalendar, .contributor:
             return .midLeft

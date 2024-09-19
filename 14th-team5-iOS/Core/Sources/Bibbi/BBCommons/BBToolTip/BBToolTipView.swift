@@ -15,9 +15,9 @@ import Then
 
 public class BBToolTipView: UIView, BBDrawable, BBAnimatable {
     
+    //MARK: Properties
     private let contentLabel: BBLabel = BBLabel()
     private let profileStackView: UIStackView = UIStackView()
-    
     public var toolTipType: BBToolTipType = .activeCameraTime {
         didSet {
             setupToolTipContent()
@@ -43,6 +43,7 @@ public class BBToolTipView: UIView, BBDrawable, BBAnimatable {
         context.restoreGState()
     }
     
+    //MARK: Configure
     private func setupToolTipContent() {
         
         profileStackView.do {

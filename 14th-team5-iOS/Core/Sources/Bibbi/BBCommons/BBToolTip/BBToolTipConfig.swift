@@ -5,11 +5,11 @@
 //  Created by Kim dohyun on 9/19/24.
 //
 
-import Foundation
+import UIKit
 
 import DesignSystem
 
-
+/// BBToolTip에 (UI, Width, Height) Properties를 설정하기 위한 구조체입니다.
 public struct BBToolTipConfig {
     /// ToolTip Corner Radius
     public var cornerRadius: CGFloat
@@ -18,7 +18,7 @@ public struct BBToolTipConfig {
     /// TooTip Background Color
     public var backgroundColor: UIColor
     /// ToolTip Arrow Position
-    public var position: BBToolTipPosition
+    public var position: BBToolTipVerticalPosition
     /// ToolTip Text Font
     public var font: BBFontStyle
     /// ToolTip Content Text
@@ -32,7 +32,7 @@ public struct BBToolTipConfig {
         cornerRadius: CGFloat = 12,
         foregroundColor: UIColor = .bibbiBlack,
         backgroundColor: UIColor = .mainYellow,
-        position: BBToolTipPosition = .top,
+        position: BBToolTipVerticalPosition = .top,
         font: BBFontStyle = .body2Regular,
         contentText: String = "",
         arrowWidth: CGFloat = 15,

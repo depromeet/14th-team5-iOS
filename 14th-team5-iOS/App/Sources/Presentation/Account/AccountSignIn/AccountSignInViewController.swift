@@ -145,7 +145,7 @@ extension AccountSignInViewController {
             return
         }
         
-        if isFirstOnboarding {
+        if isFirstOnboarding || isTemporaryToken == false {
             signInNavigator.toMain()
             return
         }

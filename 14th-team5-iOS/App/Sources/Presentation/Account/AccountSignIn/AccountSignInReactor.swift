@@ -49,7 +49,7 @@ public final class AccountSignInReactor: Reactor {
 
 extension AccountSignInReactor {
     public func mutate(action: Action) -> Observable<Mutation> {
-        let isFirstOnboarding = self.fetchIsFirstOnboardingUseCase.execute()
+        let isFirstOnboarding = self.fetchIsFirstOnboardingUseCase.execute() == nil ? false : true
         switch action {
         case .kakaoLoginTapped(let sns, let vc):
             return accountRepository.kakaoLogin(with: sns, vc: vc)

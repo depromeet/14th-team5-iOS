@@ -19,8 +19,8 @@ public protocol AppUserDefaultsType: UserDefaultsType {
     func saveIsFirstShowWidgetAlert(_ value: Bool?)
     func loadIsFirstShowWidgetAlert() -> Bool?
     
-    func saveIsFirstOnboarding(_ value: Bool)
-    func loadIsFirstOnboarding() -> Bool
+    func saveIsFirstOnboarding(_ value: Bool?)
+    func loadIsFirstOnboarding() -> Bool?
     
     func saveIsFirstFamilyManagement(_ value: Bool)
     func loadIsFirstFamilyManagement() -> Bool
@@ -94,13 +94,13 @@ final public class AppUserDefaults: AppUserDefaultsType {
     
     // MARK: - Onboarding
     
-    public func saveIsFirstOnboarding(_ value: Bool) {
+    public func saveIsFirstOnboarding(_ value: Bool?) {
         userDefaults[.isFirstOnboarding] = value
     }
     
-    public func loadIsFirstOnboarding() -> Bool {
+    public func loadIsFirstOnboarding() -> Bool? {
         guard let isFirstOnboarding: Bool = userDefaults[.isFirstOnboarding] else {
-            return false
+            return nil
         }
         return isFirstOnboarding
     }

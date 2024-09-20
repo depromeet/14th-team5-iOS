@@ -13,7 +13,7 @@ import SnapKit
 import Then
 
 
-public final class BBToolTipView: UIView, BBDrawable, BBAnimatable {
+public final class BBToolTipView: UIView, BBDrawable, BBComponentPresentable {
     
     //MARK: Properties
     private let contentLabel: BBLabel = BBLabel()
@@ -70,7 +70,7 @@ public final class BBToolTipView: UIView, BBDrawable, BBAnimatable {
     }
     
     
-    private func setupWaittingToolTipUI(imageURL: [URL]) {
+    private func setupWaitingToolTipUI(imageURL: [URL]) {
         imageURL.forEach {
             createProfileImageView(imageURL: $0)
         }
@@ -100,7 +100,7 @@ public final class BBToolTipView: UIView, BBDrawable, BBAnimatable {
                 $0.bottom.equalToSuperview().inset(textPadding)
             }
         case let .waitingSurvivalImage(_ ,imageURL):
-            setupWaittingToolTipUI(imageURL: imageURL)
+            setupWaitingToolTipUI(imageURL: imageURL)
             
             profileStackView.snp.remakeConstraints {
                 $0.width.equalTo(24 * imageURL.count)

@@ -9,6 +9,9 @@ import Foundation
 
 // MARK: - Typealias
 
+/// BBAlert의 편리 사용을 위한 미리 정의되어 있는 Alert 스타일입니다.
+///
+/// - Authors: 김소월
 public typealias BBAlertStyle = BBAlert.Style
 
 extension BBAlert {

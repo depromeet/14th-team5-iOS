@@ -8,5 +8,5 @@
 import UIKit
 
 public protocol BBAlertView: UIView {
-    func createView(for alert: BBAlert)
+    func createView(for alert: BBAlert, actions: [BBAlertAction])
 }

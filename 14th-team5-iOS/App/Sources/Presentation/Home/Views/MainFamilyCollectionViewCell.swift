@@ -123,8 +123,8 @@ extension MainFamilyCollectionViewCell {
             .disposed(by: disposeBag)
         
         pickButton.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
-            .map { Reactor.Action.pickButtonTapped }
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
+            .map { Reactor.Action.didTapPickButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
@@ -150,9 +150,8 @@ extension MainFamilyCollectionViewCell {
             .bind(to: birthdayBadge.rx.isHidden)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.isShowPickButton }
+        reactor.state.map { $0.hiddenPickButton }
             .distinctUntilChanged()
-            .map { !$0 }
             .bind(to: pickButton.rx.isHidden)
             .disposed(by: disposeBag)
     }

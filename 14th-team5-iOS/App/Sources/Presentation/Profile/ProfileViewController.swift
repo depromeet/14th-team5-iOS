@@ -37,8 +37,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     private lazy var profilePickerController: PHPickerViewController = PHPickerViewController(configuration: pickerConfiguration)
 
     private lazy var profileFeedViewController: ProfileFeedPageViewController = ProfileFeedPageViewControllerWrapper(memberId: reactor?.currentState.memberId ?? "").viewController
-    //TODO: - Test Code 추후 제거
-    private let toolTipView: BBToolTipView = BBToolTipView(toolTipType: .activeCameraTime)
     
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -59,7 +57,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         
         addChild(profileFeedViewController)
         //TODO: - Test Code 추후 제거
-        view.addSubviews(profileView, profileLineView, profileFeedViewController.view, profileSegementControl, profileIndicatorView, toolTipView)
+        view.addSubviews(profileView, profileLineView, profileFeedViewController.view, profileSegementControl, profileIndicatorView)
         profileFeedViewController.didMove(toParent: self)
     }
     
@@ -86,12 +84,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             $0.top.equalTo(navigationBarView.snp.bottom)
             $0.left.right.equalToSuperview()
             $0.bottom.equalTo(profileLineView.snp.top)
-        }
-        //TODO: - Test Code 추후 제거
-        toolTipView.snp.makeConstraints {
-            $0.width.equalTo(187)
-            $0.height.equalTo(52)
-            $0.center.equalToSuperview()
         }
         
         profileLineView.snp.makeConstraints {

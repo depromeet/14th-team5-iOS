@@ -19,12 +19,12 @@ final class AppDIContainer: BaseContainer {
         )
     }
     
-    private func makeFetchFamilyManagementUseCase() -> FetchFamilyManagementUseCaseProtocol {
+    private func makeFetchFamilyManagementUseCase() -> FetchIsFirstFamilyManagementUseCaseProtocol {
         FetchFamilyManagementUseCase(repository: makeAppRepository())
     }
     
-    private func makeSaveFamilyManagementUseCase() -> SaveFamilyManagementUseCaseProtocol {
-        SaveFamilyManagementUseCase(repository: makeAppRepository())
+    private func makeSaveFamilyManagementUseCase() -> UpdateFamilyManagementUseCaseProtocol {
+        UpdateFamilyManagementUseCase(repository: makeAppRepository())
     }
     
     
@@ -38,11 +38,11 @@ final class AppDIContainer: BaseContainer {
     // MARK: - Register
     
     func registerDependencies() {
-        container.register(type: FetchFamilyManagementUseCaseProtocol.self) { _ in
+        container.register(type: FetchIsFirstFamilyManagementUseCaseProtocol.self) { _ in
             self.makeFetchFamilyManagementUseCase()
         }
         
-        container.register(type: SaveFamilyManagementUseCaseProtocol.self) { _ in
+        container.register(type: UpdateFamilyManagementUseCaseProtocol.self) { _ in
             self.makeSaveFamilyManagementUseCase()
         }
         

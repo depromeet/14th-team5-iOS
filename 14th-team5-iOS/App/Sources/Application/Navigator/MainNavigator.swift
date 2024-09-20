@@ -55,7 +55,7 @@ final class MainNavigator: MainNavigatorProtocol {
     }
     
     func showToast(_ image: UIImage?, _ message: String) {
-        BBToast.default(image: UIImage(), title: message).show()
+        BBToast.default(image: image ?? UIImage(), title: message).show()
     }
     
     func toCamera(_ type: UploadLocation) {

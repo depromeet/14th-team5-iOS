@@ -100,8 +100,8 @@ final class MainViewReactor: Reactor {
     @Injected var pickUseCase: PickUseCaseProtocol
     @Injected var updateIsFirstOnboardingUseCase: any UpdateIsFirstOnboardingUseCaseProtocol
     @Injected var checkMissionAlertShowUseCase: CheckMissionAlertShowUseCaseProtocol
-    @Injected var checkFamilyManagementUseCase: FetchFamilyManagementUseCaseProtocol
-    @Injected var saveFamilyManagementUseCase: SaveFamilyManagementUseCaseProtocol
+    @Injected var checkFamilyManagementUseCase: FetchIsFirstFamilyManagementUseCaseProtocol
+    @Injected var saveFamilyManagementUseCase: UpdateFamilyManagementUseCaseProtocol
 }
 
 extension MainViewReactor {
@@ -124,6 +124,8 @@ extension MainViewReactor {
                 switch event {
                 case .didTapCopyUrlAction:
                     self.pushViewController(type: .showToastMessage(DesignSystemAsset.link.image, "링크가 복사되었어요"))
+                    return .empty()
+                default:
                     return .empty()
                 }
             }
@@ -319,7 +321,7 @@ extension MainViewReactor {
         case .showToastMessage(let image, let message):
             navigator.showToast(image, message)
         case .showErrorToast:
-            navigator.showToast(nil, "ERROR")
+            navigator.showToast(DesignSystemAsset.warning.image, "에러가 발생했습니다")
         }
     }
 }

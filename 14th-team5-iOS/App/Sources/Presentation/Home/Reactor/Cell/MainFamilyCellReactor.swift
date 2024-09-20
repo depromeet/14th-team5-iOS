@@ -117,9 +117,9 @@ final class MainFamilyCellReactor: Reactor {
             let memberName = initialState.profileData.name
 
             return provider.bbAlertService.show(
-                image: DesignSystemAsset.missionKeyGraphic.image,
-                title: "미션 열쇠 획득!",
-                subtitle: "열쇠를 획득해 잠금이 해제되었어요.\n미션 사진을 찍을 수 있어요!",
+                image: DesignSystemAsset.exhaustedBibbiGraphic.image,
+                title: "생존 확인하기",
+                subtitle: "\(memberName)님의 생존 여부를 물어볼까요?\n지금 알림이 전송됩니다.",
                 actions: actions
             )
             .withUnretained(self)
@@ -129,7 +129,7 @@ final class MainFamilyCellReactor: Reactor {
                     return $0.0.pickMemberUseCase.execute(memberId: memberId)
                         .flatMap {
                             guard
-                                let entity = $0, !entity.success
+                                let entity = $0, entity.success
                             else { return Observable<Mutation>.empty() }
                             
                             return Observable<Mutation>.just(.setHiddenPickButton(true))

@@ -148,7 +148,7 @@ extension MainViewController {
         Observable.merge(
             contributorView.nextButtonTapEvent.map { Reactor.Action.openNextViewController(.contributorNextButtonTap)},
             cameraButton.camerTapEvent.map { Reactor.Action.openNextViewController(.cameraButtonTap )},
-//            navigationBar.rx.didTapRightBarButton.map { _ in Reactor.Action.openNextViewController(.navigationRightButtonTap)},
+            navigationBar.rx.didTapRightBarButton.map { _ in Reactor.Action.openNextViewController(.navigationRightButtonTap)},
             navigationBar.rx.didTapLeftBarButton.map { _ in Reactor.Action.openNextViewController(.navigationLeftButtonTap)}
         )
         .observe(on: MainScheduler.instance)

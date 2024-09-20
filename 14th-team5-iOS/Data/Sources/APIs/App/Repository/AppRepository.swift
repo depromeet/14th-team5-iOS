@@ -11,12 +11,15 @@ import Foundation
 import RxSwift
 
 public final class AppRepository: AppRepositoryProtocol {
-    
+
     // MARK: - Properties
     public let disposeBag = DisposeBag()
     
     // MARK: - APIWorker
     private let appApiWorker = AppAPIWorker()
+
+    // MARK: - UserDefaults
+    private let appUserDefaults = AppUserDefaults()
     
     // MARK: - Intializer
     public init() { }
@@ -37,4 +40,12 @@ extension AppRepository {
             .asObservable()
     }
     
+    public func fetchIsFirstFamilyManagement() -> RxSwift.Observable<Bool?> {
+        let isFirstFamily = appUserDefaults.loadIsFirstFamilyManagement()
+        return .just(isFirstFamily)
+    }
+    
+    public func saveIsFirstFamilyManagement(isFirst: Bool) {
+        appUserDefaults.saveIsFirstFamilyManagement(isFirst)
+    }
 }

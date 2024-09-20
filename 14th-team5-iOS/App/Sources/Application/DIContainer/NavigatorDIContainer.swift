@@ -31,6 +31,10 @@ final class NavigatorDIContainer: BaseContainer {
             )
         }
         
+        container.register(type: MainNavigatorProtocol.self) { _ in
+                MainNavigator(navigationController: makeUINavigationController())
+        }
+        
         container.register(type: SplashNavigatorProtocol.self) { _ in
             SplashNavigator(
                 navigationController: makeUINavigationController()

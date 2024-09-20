@@ -41,7 +41,9 @@ struct MainNightResponseDTO: Codable {
     let familyMemberMonthlyRanking: FamilyMemberMonthlyRanking
     
     func toDomain() -> NightMainViewEntity {
-        return .init(mainFamilyProfileDatas: topBarElements.map { $0.toDomain() },
-                     familyRankData: familyMemberMonthlyRanking.toDomain())
+        return .init(
+            familyName: topBarElements.first?.familyName,
+            mainFamilyProfileDatas: topBarElements.map { $0.toDomain() },
+            familyRankData: familyMemberMonthlyRanking.toDomain())
     }
 }

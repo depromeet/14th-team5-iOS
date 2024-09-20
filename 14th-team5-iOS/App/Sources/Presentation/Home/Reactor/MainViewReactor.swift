@@ -31,18 +31,23 @@ final class MainViewReactor: Reactor {
         case weeklycalendarViewController(String)
         case familyManagementViewController
         case monthlyCalendarViewController
+        case showToastMessage(UIImage?, String)
+        case showErrorToast
     }
     
     enum Action {
         case calculateTime
         case setTimer(Bool, Int)
+        
         case fetchMainUseCase
         case fetchMainNightUseCase
         
+        case checkFamilyManagement
         case checkMissionAlert(Bool, Bool)
+        
         case openNextViewController(TapAction)
         case didTapSegmentControl(PostType)
-        case pickConfirmButtonTapped(String, String)
+        case pickConfirmButtonTapped
     }
     
     enum Mutation {
@@ -54,12 +59,9 @@ final class MainViewReactor: Reactor {
         case setCamerEnabled
         case setBalloonText
         case setDescriptionText
+        case setFamilyManagement(Bool)
         
-        case setPickSuccessToastMessage(String)
-        case setCopySuccessToastMessage
-        case setFailureToastMessage
-        
-        case showNextView(OpenType)
+        case setPickMember(String, String)
     }
     
     struct State {
@@ -67,48 +69,53 @@ final class MainViewReactor: Reactor {
         var pageIndex: Int = 0
         var leftCount: Int = 0
         
+        var familyname: String?
         var missionText: String = ""
         var balloonText: BalloonText = .survivalStandard
         var description: Description = .survivalNone
         
+        var isFirstFamilyManagement: Bool = false
         var isFamilySurvivalUploadedToday: Bool = false
         var isFamilyMissionUploadedToday: Bool = false
         var isMeSurvivalUploadedToday: Bool = false
         var isMeMissionUploadedToday: Bool = false
         var isMissionUnlocked: Bool = false
         
-        @Pulse var openNextView: OpenType? = nil
+        @Pulse var pickedMember: (memberId: String, name: String)? = nil
+        
         @Pulse var cameraEnabled: Bool = false
         
         @Pulse var pickers: [Picker] = []
         @Pulse var contributor: FamilyRankData = FamilyRankData.empty
         @Pulse var familySection: [FamilySection.Item] = []
-        
-        @Pulse var shouldPresentPickSuccessToastMessage: String?
-        @Pulse var shouldPresentCopySuccessToastMessage: Bool = false
-        @Pulse var shouldPresentFailureToastMessage: Bool = false
     }
     
     let initialState: State = State()
+    
+    @Navigator var navigator: MainNavigatorProtocol
+    
     @Injected var provider: ServiceProviderProtocol
     @Injected var fetchMainUseCase: FetchMainUseCaseProtocol
     @Injected var fetchMainNightUseCase: FetchNightMainViewUseCaseProtocol
     @Injected var pickUseCase: PickUseCaseProtocol
     @Injected var updateIsFirstOnboardingUseCase: any UpdateIsFirstOnboardingUseCaseProtocol
     @Injected var checkMissionAlertShowUseCase: CheckMissionAlertShowUseCaseProtocol
+    @Injected var checkFamilyManagementUseCase: FetchIsFirstFamilyManagementUseCaseProtocol
+    @Injected var saveFamilyManagementUseCase: UpdateFamilyManagementUseCaseProtocol
 }
 
 extension MainViewReactor {
     func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
         let homeMutation = provider.mainService.event
-            .flatMap { event in
+            .flatMap { event -> Observable<Mutation> in
                 switch event {
                 case let .presentPickAlert(name, id):
-                    return Observable<Mutation>.just(.showNextView(.pickAlert(name, id)))
+                    self.pushViewController(type: .pickAlert(name, id))
+                    return .just(.setPickMember(id, name))
                 case .refreshMain:
                     return self.mutate(action: .calculateTime)
                 default:
-                    return Observable<Mutation>.empty()
+                    return .empty()
                 }
             }
         
@@ -116,9 +123,10 @@ extension MainViewReactor {
             .flatMap { event -> Observable<Mutation> in
                 switch event {
                 case .didTapCopyUrlAction:
-                    return Observable<Mutation>.just(.setCopySuccessToastMessage)
+                    self.pushViewController(type: .showToastMessage(DesignSystemAsset.link.image, "링크가 복사되었어요"))
+                    return .empty()
                 default:
-                    return Observable<Mutation>.empty()
+                    return .empty()
                 }
             }
         
@@ -130,25 +138,25 @@ extension MainViewReactor {
         case .fetchMainUseCase:
             return fetchMainUseCase.execute()
                 .asObservable()
-                .flatMap { result -> Observable<MainViewReactor.Mutation> in
+                .flatMap { result -> Observable<Mutation> in
                     guard let data = result else {
                         return Observable.empty()
                     }
                     return Observable.concat(
-                        Observable.just(.updateMainData(data)),
-                        Observable.just(.setBalloonText),
-                        Observable.just(.setCamerEnabled),
+                        .just(.updateMainData(data)),
+                        .just(.setBalloonText),
+                        .just(.setCamerEnabled),
                         self.mutate(action: .checkMissionAlert(data.isMissionUnlocked, data.isMeSurvivalUploadedToday))
                     )
                 }
         case .fetchMainNightUseCase:
             return fetchMainNightUseCase.execute()
                 .asObservable()
-                .flatMap { result -> Observable<MainViewReactor.Mutation> in
+                .flatMap { result -> Observable<Mutation> in
                     guard let data = result else {
-                        return Observable.empty()
+                        return .empty()
                     }
-                    return Observable.just(.updateMainNight(data))
+                    return .just(.updateMainNight(data))
                 }
         case .setTimer(let isInTime, let time):
             if isInTime {
@@ -156,9 +164,9 @@ extension MainViewReactor {
                     .timer(.seconds(time), scheduler: MainScheduler.instance)
                     .flatMap {_ in
                         return Observable.concat([
-                            Observable.just(Mutation.setInTime(false)),
+                            .just(Mutation.setInTime(false)),
                             self.mutate(action: .fetchMainNightUseCase),
-                            Observable.just(Mutation.setDescriptionText)
+                            .just(Mutation.setDescriptionText)
                         ])
                     }
             } else {
@@ -166,7 +174,7 @@ extension MainViewReactor {
                     .timer(.seconds(time), scheduler: MainScheduler.instance)
                     .flatMap {_ in
                         return Observable.concat([
-                            Observable.just(Mutation.setInTime(true)),
+                            .just(Mutation.setInTime(true)),
                             self.mutate(action: .fetchMainUseCase)
                         ])
                     }
@@ -176,13 +184,13 @@ extension MainViewReactor {
             self.updateIsFirstOnboardingUseCase.execute(true)
             if isInTime {
                 return Observable.concat([
-                    Observable.just(Mutation.setInTime(true)),
+                    .just(.setInTime(true)),
                     self.mutate(action: .fetchMainUseCase),
                     self.mutate(action: .setTimer(isInTime, time))
                 ])
             } else {
                 return Observable.concat([
-                    Observable.just(Mutation.setInTime(false)),
+                    .just(.setInTime(false)),
                     self.mutate(action: .fetchMainNightUseCase),
                     self.mutate(action: .setTimer(isInTime, time))
                 ])
@@ -190,60 +198,73 @@ extension MainViewReactor {
             }
         case .didTapSegmentControl(let type):
             return Observable.concat(
-                Observable.just(.setPageIndex(type.getIndex())),
-                Observable.just(.setBalloonText),
-                Observable.just(.setDescriptionText),
-                Observable.just(.setCamerEnabled)
+                .just(.setPageIndex(type.getIndex())),
+                .just(.setBalloonText),
+                .just(.setDescriptionText),
+                .just(.setCamerEnabled)
             )
             
-        case let .pickConfirmButtonTapped(name, id):
-            return pickUseCase.executePickMember(memberId: id)
-                .flatMap { response in
-                    guard let response = response,
-                          response.success else {
-                        return Observable<Mutation>.just(.setFailureToastMessage)
+        case let .pickConfirmButtonTapped:
+            guard let pickedMember = currentState.pickedMember else {
+                return .empty()
+            }
+            return pickUseCase.executePickMember(memberId: pickedMember.memberId)
+                .compactMap { $0 }
+                .flatMap { response -> Observable<Mutation> in
+                    if !response.success {
+                        self.pushViewController(type: .showErrorToast)
+                    } else {
+                        self.pushViewController(type:
+                                .showToastMessage(DesignSystemAsset.yellowPaperPlane.image,
+                                                  "\(pickedMember.name)님에게 생존신고 알림을 보냈어요")
+                        )
                     }
-                    self.provider.mainService.showPickButton(false, memberId: id)
-                    return Observable.concat(
-                        Observable<Mutation>.just(.setPickSuccessToastMessage(name)),
-                        self.mutate(action: .calculateTime)
-                    )
+                    return .empty()
                 }
         case .openNextViewController(let type):
             switch type {
             case .cameraButtonTap:
                 if currentState.pageIndex == 0 {
-                    return Observable<Mutation>.just(.showNextView(.cameraViewController(.survival)))
+                    self.pushViewController(type: .cameraViewController(.survival))
                 } else {
                     if currentState.isMeSurvivalUploadedToday {
-                        return Observable<Mutation>.just(.showNextView(.cameraViewController(.mission)))
+                        self.pushViewController(type: .cameraViewController(.mission))
                     } else {
-                        return Observable<Mutation>.just(.showNextView(.survivalAlert))
+                        self.pushViewController(type: .survivalAlert)
                     }
                 }
             case .navigationRightButtonTap:
-                return Observable<Mutation>.just(.showNextView(.monthlyCalendarViewController))
+                self.pushViewController(type: .monthlyCalendarViewController)
             case .navigationLeftButtonTap:
-                return Observable<Mutation>.just(.showNextView(.familyManagementViewController))
+                self.pushViewController(type: .familyManagementViewController)
+                
+                if currentState.isFirstFamilyManagement {
+                    saveFamilyManagementUseCase.execute(false)
+                    return Observable<Mutation>.just(.setFamilyManagement(false))
+                }
             case .contributorNextButtonTap:
                 guard let date = currentState.contributor.recentPostDate else {
                     return .empty()
                 }
-                return Observable<Mutation>.just(.showNextView(.weeklycalendarViewController(date)))
+                self.pushViewController(type: .weeklycalendarViewController(date))
             }
+            return .empty()
         case .checkMissionAlert(let isUnlocked, let isMeSurvivalUploadedToday):
-            if isUnlocked && isMeSurvivalUploadedToday {
-                return checkMissionAlertShowUseCase.execute()
-                    .flatMap { isAlreadyShown in
-                        if !isAlreadyShown {
-                            return Observable<Mutation>.just(.showNextView(.missionUnlockedAlert))
-                        } else {
-                            return Observable<Mutation>.empty()
-                        }
-                    }
-            } else {
-                return Observable<Mutation>.empty()
+            if !(isUnlocked && isMeSurvivalUploadedToday) {
+                return .empty()
             }
+            
+            return checkMissionAlertShowUseCase.execute()
+                .filter { !$0 }
+                .flatMap { isAlreadyShown -> Observable<Mutation> in
+                    self.pushViewController(type: .missionUnlockedAlert)
+                    return .empty()
+                }
+        case .checkFamilyManagement:
+            return checkFamilyManagementUseCase.execute()
+                .flatMap {
+                    return Observable<Mutation>.just(.setFamilyManagement($0))
+                }
         }
     }
     
@@ -253,17 +274,12 @@ extension MainViewReactor {
         switch mutation {
         case .setInTime(let isInTime):
             newState.isInTime = isInTime
-        case .setCopySuccessToastMessage:
-            newState.shouldPresentCopySuccessToastMessage = true
-        case let .setPickSuccessToastMessage(name):
-            newState.shouldPresentPickSuccessToastMessage = name
-        case .setFailureToastMessage:
-            newState.shouldPresentFailureToastMessage = true
         case .setPageIndex(let index):
             newState.pageIndex = index
         case .updateMainData(let data):
             newState = updateMainData(newState, data)
         case .updateMainNight(let data):
+            newState.familyname = data.familyName
             newState.familySection = FamilySection.Model(model: 0, items: data.mainFamilyProfileDatas.map {
                 .main(MainFamilyCellReactor($0, service: provider))
             }).items
@@ -274,8 +290,10 @@ extension MainViewReactor {
             newState = setBalloonText(newState)
         case .setDescriptionText:
             newState = setDescriptionText(newState)
-        case .showNextView(let type):
-            newState.openNextView = type
+        case .setFamilyManagement(let isFirst):
+            newState.isFirstFamilyManagement = isFirst
+        case .setPickMember(let id, let name):
+            newState.pickedMember = (id, name)
         }
         
         return newState
@@ -283,8 +301,44 @@ extension MainViewReactor {
 }
 
 extension MainViewReactor {
+    private func pushViewController(type: MainViewReactor.OpenType) {
+        switch type {
+        case .monthlyCalendarViewController:
+            navigator.toMonthlyCalendar()
+        case .familyManagementViewController:
+            navigator.toFamilyManagement()
+        case .weeklycalendarViewController(let date):
+            navigator.toDailyCalendar(date)
+        case .cameraViewController(let type):
+            MPEvent.Home.cameraTapped.track(with: nil)
+            navigator.toCamera(type)
+        case .survivalAlert:
+            navigator.showSurvivalAlert()
+        case .pickAlert(let name, _):
+            navigator.pickAlert(name)
+        case .missionUnlockedAlert:
+            navigator.missionUnlockedAlert()
+        case .showToastMessage(let image, let message):
+            navigator.showToast(image, message)
+        case .showErrorToast:
+            navigator.showToast(DesignSystemAsset.warning.image, "에러가 발생했습니다")
+        }
+    }
+}
+
+extension MainViewReactor: BBAlertDelegate {
+    func didTapAlertButton(_ alert: BBAlert?, index: Int?, button: BBButton) {
+        if index == 0 {
+            alert?.close()
+            self.action.onNext(.pickConfirmButtonTapped)
+        }
+    }
+}
+
+extension MainViewReactor {
     private func updateMainData(_ state: State, _ data: MainViewEntity) -> State {
         var newState = state
+        newState.familyname = data.familyName
         newState.isMissionUnlocked = data.isMissionUnlocked
         newState.isMeSurvivalUploadedToday = data.isMeSurvivalUploadedToday
         newState.isMeMissionUploadedToday = data.isMeMissionUploadedToday
@@ -355,7 +409,7 @@ extension MainViewReactor {
         var newState = state
         
         guard let inTime = currentState.isInTime,
-            inTime else {
+              inTime else {
             newState.description = .survivalNone
             return newState
         }

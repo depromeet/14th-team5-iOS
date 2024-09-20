@@ -8,7 +8,6 @@
 import Core
 import Foundation
 
-
 public protocol AppUserDefaultsType: UserDefaultsType {
     func saveIsFirstLaunchApp(_ value: Bool?)
     func loadIsFirstLaunchApp() -> Bool?
@@ -23,7 +22,7 @@ public protocol AppUserDefaultsType: UserDefaultsType {
     func loadIsFirstOnboarding() -> Bool?
     
     func saveIsFirstFamilyManagement(_ value: Bool)
-    func loadIsFirstFamilyManagement() -> Bool
+    func loadIsFirstFamilyManagement() -> Bool?
     
     func saveInviteCode(_ inviteCode: String)
     func loadInviteCode() -> String?
@@ -111,12 +110,8 @@ final public class AppUserDefaults: AppUserDefaultsType {
         userDefaults[.isFirstFamilyManagement] = value
     }
     
-    public func loadIsFirstFamilyManagement() -> Bool {
-        guard let isFirstFamilyManagement: Bool = userDefaults[.isFirstFamilyManagement] else {
-            return false
-        }
-        
-        return isFirstFamilyManagement
+    public func loadIsFirstFamilyManagement() -> Bool? {
+        return userDefaults[.isFirstFamilyManagement]
     }
 
 }

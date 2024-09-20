@@ -15,7 +15,7 @@ import RxDataSources
 import RxCocoa
 import RxSwift
 
-final class MainViewController: BaseViewController<MainViewReactor>, UICollectionViewDelegateFlowLayout {
+final class MainViewController: BBNavigationViewController<MainViewReactor>, UICollectionViewDelegateFlowLayout {
     private let familyViewController: MainFamilyViewController = MainFamilyViewControllerWrapper().makeViewController()
     
     private let timerView: TimerView = TimerView(reactor: TimerReactor())
@@ -27,7 +27,6 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
     private let pageViewController: SegmentPageViewController = SegmentPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
     
     private let cameraButton: MainCameraButtonView = MainCameraButtonView(reactor: MainCameraReactor())
-    private let alertConfirmRelay: PublishRelay<(String, String)> = PublishRelay<(String, String)>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,7 +35,6 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
     }
     
     override func bind(reactor: MainViewReactor) {
-        print("bind main reactor")
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
@@ -48,9 +46,9 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
         addChild(familyViewController)
         addChild(pageViewController)
         
-        view.addSubviews(familyViewController.view, timerView, descriptionLabel,
-                         imageView, segmentControl, pageViewController.view,
-                         cameraButton, contributorView)
+        contentView.addSubviews(familyViewController.view, timerView, descriptionLabel,
+                                imageView, segmentControl, pageViewController.view,
+                                cameraButton, contributorView)
         
         familyViewController.didMove(toParent: self)
         pageViewController.didMove(toParent: self)
@@ -60,7 +58,7 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
         super.setupAutoLayout()
         
         familyViewController.view.snp.makeConstraints {
-            $0.top.equalTo(navigationBarView.snp.bottom)
+            $0.top.equalToSuperview()
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(138)
         }
@@ -110,8 +108,9 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
     override func setupAttributes() {
         super.setupAttributes()
         
-        navigationBarView.do {
-            $0.setNavigationView(leftItem: .family, centerItem: .logo, rightItem: .calendar)
+        navigationBar.do {
+            $0.leftBarButtonItem = .person(new: false)
+            $0.rightBarButtonItem = .calendar
         }
         
         contributorView.do {
@@ -123,13 +122,18 @@ final class MainViewController: BaseViewController<MainViewReactor>, UICollectio
 extension MainViewController {
     private func bindInput(reactor: MainViewReactor) {
         Observable.merge(
-            Observable.just(())
+            rx.viewWillAppear
                 .map { _ in Reactor.Action.calculateTime },
             NotificationCenter.default.rx.notification(UIScene.willEnterForegroundNotification)
                 .map { _ in Reactor.Action.calculateTime }
         )
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
+        
+        Observable.just(())
+            .map { Reactor.Action.checkFamilyManagement }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
         Observable.merge(
             segmentControl.survivalButton.rx.tap.map { Reactor.Action.didTapSegmentControl(.survival) },
@@ -144,17 +148,14 @@ extension MainViewController {
         Observable.merge(
             contributorView.nextButtonTapEvent.map { Reactor.Action.openNextViewController(.contributorNextButtonTap)},
             cameraButton.camerTapEvent.map { Reactor.Action.openNextViewController(.cameraButtonTap )},
-            navigationBarView.rx.rightButtonTap.map { Reactor.Action.openNextViewController(.navigationRightButtonTap)},
-            navigationBarView.rx.leftButtonTap.map { _ in Reactor.Action.openNextViewController(.navigationLeftButtonTap)}
+            navigationBar.rx.didTapRightBarButton.map { _ in Reactor.Action.openNextViewController(.navigationRightButtonTap)},
+            navigationBar.rx.didTapLeftBarButton.map { _ in Reactor.Action.openNextViewController(.navigationLeftButtonTap)}
         )
         .observe(on: MainScheduler.instance)
-        .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
+        .throttle(RxInterval._300milliseconds, scheduler: MainScheduler.instance)
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
         
-        alertConfirmRelay.map { Reactor.Action.pickConfirmButtonTapped($0.0, $0.1) }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
         
         contributorView.infoButton.rx.tap
             .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
@@ -172,6 +173,7 @@ extension MainViewController {
     }
     
     private func bindOutput(reactor: MainViewReactor) {
+        
         reactor.state.map { $0.isInTime }.compactMap { $0 }
             .distinctUntilChanged()
             .withUnretained(self)
@@ -222,37 +224,15 @@ extension MainViewController {
             .bind(to: contributorView.contributorRelay)
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$openNextView).compactMap { $0 }
+        Observable.combineLatest(
+            reactor.state.map { $0.familyname }.distinctUntilChanged(),
+            reactor.state.map { $0.isFirstFamilyManagement }.distinctUntilChanged()
+        )
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
-            .bind(onNext: { $0.0.pushViewController(type: $0.1) })
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$shouldPresentPickSuccessToastMessage)
-            .compactMap { $0 }
-            .bind(with: self) { owner, name in
-                owner.makeBibbiToastView(
-                    text: "\(name)님에게 생존신고 알림을 보냈어요",
-                    image: DesignSystemAsset.yellowPaperPlane.image
-                )
-            }
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$shouldPresentCopySuccessToastMessage)
-            .filter { $0 }
-            .bind(with: self) { owner, _ in
-                owner.makeBibbiToastView(
-                    text: "링크가 복사되었어요",
-                    image: DesignSystemAsset.link.image
-                )
-            }
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$shouldPresentFailureToastMessage)
-            .filter { $0 }
-            .bind(with: self) { owner, _ in
-                owner.makeErrorBibbiToastView()
-            }
+            .bind(onNext: {
+                $0.0.setNavigation(title: $0.1.0, isFirstFamilyManagement: $0.1.1)
+            })
             .disposed(by: disposeBag)
     }
 }
@@ -282,42 +262,14 @@ extension MainViewController {
         imageView.image = description.image
     }
     
-    private func pushViewController(type: MainViewReactor.OpenType) {
-        switch type {
-        case .monthlyCalendarViewController:
-            navigationController?.pushViewController(MonthlyCalendarDIConatainer().makeViewController(), animated: true)
-        case .familyManagementViewController:
-            navigationController?.pushViewController(FamilyManagementDIContainer().makeViewController(), animated: true)
-        case .weeklycalendarViewController(let date):
-            navigationController?.pushViewController(WeeklyCalendarDIConatainer(date: date.toDate()).makeViewController(), animated: true)
-        case .cameraViewController(let type):
-            MPEvent.Home.cameraTapped.track(with: nil)
-                navigationController?.pushViewController(CameraViewControllerWrapper(cameraType: type).viewController, animated: true)
-        case .survivalAlert:
-            BibbiAlertBuilder(self)
-                .alertStyle(.takeSurvival)
-                .setConfirmAction { [weak self] in
-                    guard let self else { return }
-                    self.navigationController?.pushViewController(CameraViewControllerWrapper(cameraType: .survival).viewController, animated: true)
-                }
-                .present()
-        case .pickAlert(let name, let id):
-            BibbiAlertBuilder(self)
-                .alertStyle(.pickMember(name))
-                .setConfirmAction {  [weak self] in 
-                    guard let self else { return }
-                    self.alertConfirmRelay.accept((name, id)) }
-                .present()
-        case .missionUnlockedAlert:
-            BibbiAlertBuilder(self)
-                .alertStyle(.missionKey)
-                .setConfirmAction { [weak self] in
-                    guard let self else { return }
-                    self.navigationController?.pushViewController(CameraViewControllerWrapper(cameraType: .mission).viewController, animated: true)
-                }
-                .present()
+    private func setNavigation(title: String?, isFirstFamilyManagement: Bool) {
+        navigationBar.leftBarButtonItem = .person(new: isFirstFamilyManagement)
+        if let title {
+            navigationBar.navigationTitleFontStyle = .homeTitle
+            navigationBar.navigationTitle = title
+        } else {
+            navigationBar.navigationImage = .bibbi
         }
-
     }
 }
 

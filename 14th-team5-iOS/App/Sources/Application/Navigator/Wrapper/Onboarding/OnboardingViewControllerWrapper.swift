@@ -7,32 +7,15 @@
 
 import Core
 import Foundation
+import MacrosInterface
 
-final class OnboardingViewControllerWrapper: BaseWrapper {
-    
-    // MARK: - Typealias
-    
-    typealias R = OnBoardingReactor
-    typealias V = OnBoardingViewController
-    
-    // MARK: - Properties
-    
-    var reactor: OnBoardingReactor {
-        makeReactor()
-    }
-    
-    var viewController: OnBoardingViewController {
-        makeViewController()
-    }
+@Wrapper<OnBoardingReactor, OnBoardingViewController>
+final class OnboardingViewControllerWrapper {
     
     // MARK: - Make
     
     func makeReactor() -> OnBoardingReactor {
         OnBoardingReactor()
-    }
-    
-    func makeViewController() -> OnBoardingViewController {
-        OnBoardingViewController(reactor: makeReactor())
     }
     
 }

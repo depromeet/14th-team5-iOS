@@ -7,25 +7,14 @@
 
 import Core
 import Foundation
+import MacrosInterface
 
-final class WebContentViewControllerWrapper: BaseWrapper {
-    
-    // MARK: - Typealias
-    
-    typealias R = WebContentReactor
-    typealias V = WebContentViewController
-    
+@Wrapper<WebContentReactor, WebContentViewController>
+final class WebContentViewControllerWrapper {
+  
     // MARK: - Properties
     
     let url: URL?
-    
-    var reactor: WebContentReactor {
-        makeReactor()
-    }
-    
-    var viewController: WebContentViewController {
-        makeViewController()
-    }
     
     // MARK: - Intializer
     
@@ -38,9 +27,5 @@ final class WebContentViewControllerWrapper: BaseWrapper {
     func makeReactor() -> WebContentReactor {
         WebContentReactor(contentURL: url)
     }
-    
-    func makeViewController() -> WebContentViewController {
-        WebContentViewController(reactor: makeReactor())
-    }
-    
+   
 }

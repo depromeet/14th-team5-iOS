@@ -7,26 +7,16 @@
 
 import Core
 import Foundation
+import MacrosInterface
 
-final class DailyCalendarViewControllerWrapper: BaseWrapper {
-    
-    // MARK: - Typealias
-    
-    typealias R = DailyCalendarViewReactor
-    typealias V = DailyCalendarViewController
+@Wrapper<DailyCalendarViewReactor, DailyCalendarViewController>
+final class DailyCalendarViewControllerWrapper {
     
     // MARK: - Properties
     
     let date: Date
     let link: NotificationDeepLink? // TODO: - link 지우기
-    
-    var reactor: DailyCalendarViewReactor {
-        makeReactor()
-    }
-    
-    var viewController: DailyCalendarViewController {
-        makeViewController()
-    }
+
     
     // MARK: - Intializer
     
@@ -45,10 +35,6 @@ final class DailyCalendarViewControllerWrapper: BaseWrapper {
             date: date,
             notificationDeepLink: link
         )
-    }
-    
-    func makeViewController() -> DailyCalendarViewController {
-        DailyCalendarViewController(reactor: makeReactor())
     }
     
 }

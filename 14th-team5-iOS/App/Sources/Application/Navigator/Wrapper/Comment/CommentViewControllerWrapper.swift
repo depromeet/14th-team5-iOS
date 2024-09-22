@@ -7,25 +7,14 @@
 
 import Core
 import Foundation
+import MacrosInterface
 
-final class CommentViewControllerWrapper: BaseWrapper {
-    
-    // MARK: - Typealias
-    
-    typealias R = CommentViewReactor
-    typealias V = CommentViewController
-    
+@Wrapper<CommentViewReactor, CommentViewController>
+final class CommentViewControllerWrapper {
+
     // MARK: - Properties
     
     let postId: String
-    
-    var reactor: CommentViewReactor {
-        makeReactor()
-    }
-    
-    var viewController: CommentViewController {
-        makeViewController()
-    }
     
     // MARK: - Intializer
     
@@ -37,10 +26,6 @@ final class CommentViewControllerWrapper: BaseWrapper {
     
     func makeReactor() -> CommentViewReactor {
         CommentViewReactor(postId: postId)
-    }
-    
-    func makeViewController() -> CommentViewController {
-        CommentViewController(reactor: makeReactor())
     }
     
 }

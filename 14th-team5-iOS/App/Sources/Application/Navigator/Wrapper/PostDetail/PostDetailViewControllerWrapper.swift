@@ -5,14 +5,13 @@
 //  Created by 마경미 on 17.06.24.
 //
 
-import Foundation
-
 import Core
+import Foundation
+import MacrosInterface
 
-final class PostDetailViewControllerWrapper: BaseWrapper {
-    typealias R = PostReactor
-    typealias V = PostViewController
-    
+@Wrapper<PostReactor, PostViewController>
+final class PostDetailViewControllerWrapper {
+   
     private let selectedIndex: Int
     private let originPostLists: PostSection.Model
     
@@ -21,19 +20,8 @@ final class PostDetailViewControllerWrapper: BaseWrapper {
         self.originPostLists = originPostLists
     }
     
-    func makeViewController() -> V {
-        return PostViewController(reactor: makeReactor())
-    }
-    
     func makeReactor() -> R {
         return PostReactor(initialState: .init(selectedIndex: selectedIndex, originPostLists: originPostLists))
     }
-    
-    var viewController: V {
-        makeViewController()
-    }
-    
-    var reactor: R {
-        makeReactor()
-    }
+  
 }

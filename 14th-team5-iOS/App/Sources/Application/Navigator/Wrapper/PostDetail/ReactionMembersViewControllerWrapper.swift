@@ -5,14 +5,13 @@
 //  Created by 마경미 on 17.06.24.
 //
 
-import Foundation
-
 import Core
 import Domain
+import Foundation
+import MacrosInterface
 
-final class ReactionMembersViewControllerWrapper: BaseWrapper {
-    typealias R = ReactionMemberViewReactor
-    typealias V = ReactionMembersViewController
+@Wrapper<ReactionMemberViewReactor, ReactionMembersViewController>
+final class ReactionMembersViewControllerWrapper {
     
     private let emojiData: EmojiEntity
     
@@ -20,19 +19,8 @@ final class ReactionMembersViewControllerWrapper: BaseWrapper {
         self.emojiData = emojiData
     }
     
-    func makeViewController() -> V {
-        return ReactionMembersViewController(reactor: makeReactor())
-    }
-    
     func makeReactor() -> R {
         return ReactionMemberViewReactor(initialState: .init(emojiData: emojiData))
     }
     
-    var viewController: V {
-        makeViewController()
-    }
-    
-    var reactor: R {
-        makeReactor()
-    }
 }

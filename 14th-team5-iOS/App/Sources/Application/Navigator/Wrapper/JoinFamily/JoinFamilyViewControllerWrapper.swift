@@ -7,32 +7,15 @@
 
 import Core
 import Foundation
+import MacrosInterface
 
-final class JoinFamilyViewControllerWrapper: BaseWrapper {
-    
-    // MARK: - Typealias
-    
-    typealias R = JoinFamilyReactor
-    typealias V = JoinFamilyViewController
-    
-    // MARK: - Properties
-    
-    var reactor: JoinFamilyReactor {
-        makeReactor()
-    }
-    
-    var viewController: JoinFamilyViewController {
-        makeViewController()
-    }
+@Wrapper<JoinFamilyReactor, JoinFamilyViewController>
+final class JoinFamilyViewControllerWrapper {
     
     // MARK: - Make
     
     func makeReactor() -> JoinFamilyReactor {
         JoinFamilyReactor()
-    }
-    
-    func makeViewController() -> JoinFamilyViewController {
-        JoinFamilyViewController(reactor: makeReactor())
     }
     
 }

@@ -7,28 +7,15 @@
 
 import Core
 import Foundation
+import MacrosInterface
 
-
-final class PrivacyViewControllerWrapper: BaseWrapper {
-    typealias R = PrivacyViewReactor
-    typealias V = PrivacyViewController
+@Wrapper<PrivacyViewReactor, PrivacyViewController>
+final class PrivacyViewControllerWrapper {
     
     private let memberId: String
     
     public init(memberId: String) {
         self.memberId = memberId
-    }
-    
-    var reactor: PrivacyViewReactor {
-        return makeReactor()
-    }
-    
-    var viewController: PrivacyViewController {
-        return makeViewController()
-    }
-    
-    func makeViewController() -> PrivacyViewController {
-        PrivacyViewController(reactor: makeReactor())
     }
     
     func makeReactor() -> PrivacyViewReactor {

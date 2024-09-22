@@ -13,7 +13,6 @@ public class IconToastView: UIStackView, BBToastStackView {
     
     // MARK: - Views
     
-    private let vStack = UIStackView()
     private let imageView = UIImageView()
     private let titleLabel = BBLabel(textAlignment: .center)
 
@@ -25,7 +24,7 @@ public class IconToastView: UIStackView, BBToastStackView {
     // MARK: - Intializer
     
     public init(
-        image: UIImage,
+        image: UIImage? = nil,
         imageTint: UIColor? = nil,
         title: String,
         titleColor: UIColor? = nil,
@@ -35,17 +34,20 @@ public class IconToastView: UIStackView, BBToastStackView {
         super.init(frame: .zero)
         commonInit()
         
+        if let image = image {
+            imageView.image = image
+            imageView.tintColor = imageTint
+            imageView.contentMode = .scaleAspectFit
+            addArrangedSubview(imageView)
+        }
+
         titleLabel.text = title
         titleLabel.textColor = titleColor ?? .bibbiWhite
         titleLabel.fontStyle = titleFontStyle ?? .body1Regular
         titleLabel.numberOfLines = viewConfig.titleNumberOfLines
-        vStack.addArrangedSubview(titleLabel)
+        titleLabel.textAlignment = .left
+        addArrangedSubview(titleLabel)
         
-        imageView.image = image
-        imageView.tintColor = imageTint
-        
-        addArrangedSubview(imageView)
-        addArrangedSubview(vStack)
     }
     
     required init(coder: NSCoder) {
@@ -54,22 +56,9 @@ public class IconToastView: UIStackView, BBToastStackView {
     
     private func commonInit() {
         axis = .horizontal
-        spacing = 15
+        spacing = 10
         alignment = .center
-        distribution = .fill
-        
-        setupAttributes()
-    }
-    
-    
-    // MARK: - Helpers
-    
-    private func setupAttributes() {
-        vStack.do {
-            $0.axis = .vertical
-            $0.spacing = 2
-            $0.alignment = .leading
-        }
+        distribution = .fillProportionally
     }
     
 }

@@ -5,13 +5,12 @@
 //  Created by 김건우 on 12/11/23.
 //
 
+import Core
+import DesignSystem
+import Domain
 import UIKit
 
-import Core
-import Domain
-import Differentiator
 import ReactorKit
-import RxSwift
 
 public final class ManagementReactor: Reactor {
     
@@ -101,24 +100,6 @@ public final class ManagementReactor: Reactor {
     }
     
     
-    public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
-        let eventMutation = provider.managementService.event
-            .withUnretained(self)
-            .flatMap {
-                switch $0.1 {
-                case .didTapCopyUrlAction:
-                    $0.0.navigator.showSuccessToast()
-                    return Observable<Mutation>.empty()
-                    
-                @unknown default:
-                    return Observable<Mutation>.empty()
-                }
-            }
-        
-        return Observable<Mutation>.merge(mutation, eventMutation)
-    }
-    
-    
     // MARK: - Mutate
     
     public func mutate(action: Action) -> Observable<Mutation> {
@@ -135,7 +116,7 @@ public final class ManagementReactor: Reactor {
                     .concatMap {
                         guard let url = $0.1?.url else {
                             Haptic.notification(type: .error)
-                            $0.0.navigator.showErrorToast()
+                            $0.0.provider.bbToastService.show(.error)
                             return Observable<Mutation>.just(.setHiddenSharingProgressHud(true))
                         }
                         
@@ -176,7 +157,7 @@ public final class ManagementReactor: Reactor {
                     .concatMap {
                         guard let results = $0.1?.results else {
                             Haptic.notification(type: .error)
-                            $0.0.navigator.showErrorToast()
+                            $0.0.provider.bbToastService.show(.error)
                             return Observable.concat(
                                 Observable<Mutation>.just(.setMemberDatasource([])),
                                 Observable<Mutation>.just(.setHiddenTableProgressHud(true)),

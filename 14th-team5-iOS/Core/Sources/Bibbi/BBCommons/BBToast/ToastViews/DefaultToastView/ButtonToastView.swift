@@ -16,14 +16,14 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
     // MARK: - Properties
     
     public var toast: BBToast?
-    public var buttonAction: BBToastAction
+    public var action: BBToastActionHandler = nil
     
     private let viewConfig: BBToastViewConfiguration
     
     // MARK: - Intializer
     
     public init(
-        image: UIImage,
+        image: UIImage? = nil,
         imageTint: UIColor? = nil,
         title: String,
         titleColor: UIColor? = nil,
@@ -31,10 +31,11 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
         buttonTitle: String,
         buttonTitleFontStlye: BBFontStyle? = nil,
         buttonTint: UIColor? = nil,
+        action: BBToastActionHandler = nil,
         viewConfig: BBToastViewConfiguration
     ) {
-        self.buttonAction = nil
         self.toast = nil
+        self.action = action
         
         self.viewConfig = viewConfig
         super.init(frame: .zero)
@@ -55,7 +56,7 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
         button.setTitleColor(buttonTint ?? .gray100, for: .normal)
         
         let action = UIAction { [weak self] _ in
-            guard let self = self else { return }
+            guard let self else { return }
             // 델리게이트 실행
             BBToast.multicast.invoke {
                 $0.didTapToastButton(
@@ -65,13 +66,15 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
                 )
             }
             // 액션 클로저 실행
-            buttonAction?(self.toast)
+            self.action?(self.toast)
         }
-        
+                
         button.addAction(action, for: .touchUpInside)
-        
+
         addArrangedSubview(iconView)
         addArrangedSubview(button)
+        
+        setupConstraints()
     }
     
     required init(coder: NSCoder) {
@@ -82,9 +85,14 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
     
     private func commonInit() {
         axis = .horizontal
-        spacing = 6
+        spacing = 0
         alignment = .center
         distribution = .fillProportionally
     }
     
+    private func setupConstraints() {
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.heightAnchor.constraint(equalToConstant: 24).isActive = true
+    }
+
 }

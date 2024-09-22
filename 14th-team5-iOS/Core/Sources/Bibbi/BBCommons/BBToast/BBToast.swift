@@ -10,8 +10,9 @@ import UIKit
 
 // MARK: - Typealias
 
-public typealias BBToastAction = ((BBToast?) -> Void)?
+public typealias BBToastActionHandler = ((BBToast?) -> Void)?
 
+/// 
 public class BBToast {
     
     // MARK: - Properties
@@ -76,7 +77,7 @@ public class BBToast {
     /// - Returns: BBToast
     public static func `default`(
         image: UIImage,
-        imageTint: UIColor = defaultImageTint,
+        imageTint: UIColor? = defaultImageTint,
         title: String,
         titleColor: UIColor? = nil,
         titleFontStyle: BBFontStyle? = nil,
@@ -111,14 +112,15 @@ public class BBToast {
     ///   - config: Toast 설정값
     /// - Returns: BBToast
     public static func button(
-        image: UIImage,
-        imageTint: UIColor = defaultImageTint,
+        image: UIImage? = nil,
+        imageTint: UIColor? = defaultImageTint,
         title: String,
         titleColor: UIColor? = nil,
         titleFontStyle: BBFontStyle? = nil,
         buttonTitle: String,
         buttonTitleFontStyle: BBFontStyle? = nil,
         buttonTint: UIColor? = nil,
+        action: BBToastActionHandler = nil,
         viewConfig: BBToastViewConfiguration = BBToastViewConfiguration(),
         config: BBToastConfiguration = BBToastConfiguration()
     ) -> BBToast {
@@ -132,6 +134,7 @@ public class BBToast {
                 buttonTitle: buttonTitle,
                 buttonTitleFontStlye: buttonTitleFontStyle,
                 buttonTint: buttonTint,
+                action: action,
                 viewConfig: viewConfig
             ),
             viewConfig: viewConfig
@@ -152,7 +155,7 @@ public class BBToast {
         switch style {
         case .error:
             let viewConfig = BBToastViewConfiguration(
-                minWidth: 250
+                minWidth: 100
             )
             let view = DefaultToastView(
                 child: IconToastView(
@@ -180,7 +183,7 @@ public class BBToast {
         haptic type: UINotificationFeedbackGenerator.FeedbackType,
         after time: TimeInterval = 0
     ) {
-        UINotificationFeedbackGenerator().notificationOccurred(type)
+        Haptic.notification(type: type)
         show(after: time)
     }
     
@@ -290,12 +293,13 @@ extension BBToast {
         Self.multicast.add(delegate)
     }
     
-    public func addButtonAction(
-        _ action: BBToastAction = nil
+    ///
+    public func setAction(
+        _ action: BBToastActionHandler = nil
     ) {
         if let view = view as? DefaultToastView,
            let subview = view.child as? ButtonToastView {
-            subview.buttonAction = action
+            subview.action = action
         }
     }
     

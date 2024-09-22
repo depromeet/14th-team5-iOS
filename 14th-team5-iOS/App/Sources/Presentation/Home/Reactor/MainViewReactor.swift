@@ -119,18 +119,7 @@ extension MainViewReactor {
                 }
             }
         
-        let eventMutation = provider.managementService.event
-            .flatMap { event -> Observable<Mutation> in
-                switch event {
-                case .didTapCopyUrlAction:
-                    self.pushViewController(type: .showToastMessage(DesignSystemAsset.link.image, "링크가 복사되었어요"))
-                    return .empty()
-                default:
-                    return .empty()
-                }
-            }
-        
-        return Observable<Mutation>.merge(mutation, eventMutation, homeMutation)
+        return Observable<Mutation>.merge(mutation, homeMutation)
     }
     
     func mutate(action: Action) -> Observable<Mutation> {

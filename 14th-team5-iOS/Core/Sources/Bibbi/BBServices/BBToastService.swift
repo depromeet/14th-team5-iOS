@@ -51,6 +51,13 @@ public protocol BBToastServiceType {
 
 extension BBToastServiceType {
     
+    /// 텍스트가 포함된 Toast를 생성합니다.
+    /// - Parameters:
+    ///   - title: 타이틀 텍스트
+    ///   - titleColor: 타이틀 색상
+    ///   - titleFontStyle: 타이틀의 폰트 스타일
+    ///   - viewConfig: ToastView 설정값
+    ///   - config: Toast 설정값
     public func show(
         _ title: String,
         titleColor: UIColor? = nil,
@@ -67,6 +74,15 @@ extension BBToastServiceType {
         ).show()
     }
     
+    /// 이미지와 텍스트가 포함된 Toast를 생성합니다,
+    /// - Parameters:
+    ///   - image: 이미지
+    ///   - imageTint: 이미지 강조 색상
+    ///   - title: 타이틀 텍스트
+    ///   - titleColor: 타이틀 색상
+    ///   - titleFontStyle: 타이틀의 폰트 스타일
+    ///   - viewConfig: ToastView 설정값
+    ///   - config: Toast 설정값
     public func show(
         image: UIImage,
         imageTint: UIColor? = nil,
@@ -87,6 +103,19 @@ extension BBToastServiceType {
         ).show()
     }
     
+    /// 이미지, 텍스트와 버튼이 포함된 Toast를 생성합니다.
+    /// - Parameters:
+    ///   - image: 이미지
+    ///   - imageTint: 이미지 강조 색상
+    ///   - title: 타이틀 텍스트
+    ///   - titleColor: 타이틀 색상
+    ///   - titleFontStyle: 타이틀의 폰트 스타일
+    ///   - buttonTitle: 버튼 타이틀 텍스트
+    ///   - buttonTitleFontStyle: 버튼 타이틀의 폰트 스타일
+    ///   - buttonTint: 버튼 강조 색상
+    ///   - viewConfig: ToastView 설정값
+    ///   - config: Toast 설정값
+    /// - Returns: Observable
     @discardableResult
     public func show(
         image: UIImage? = nil,
@@ -130,6 +159,10 @@ extension BBToastServiceType {
         
     }
     
+    /// 정해진 Style의 Toast를 생성합니다.
+    /// - Parameters:
+    ///   - style: 스타일
+    ///   - config: Toast 설정값
     public func show(
         _ style: BBToastStyle,
         config: BBToastConfiguration = BBToastConfiguration()
@@ -145,6 +178,7 @@ extension BBToastServiceType {
 
 // MARK: - BBToastService
 
+/// BBToast를 조금 더 Rx스럽게 사용하도록 도와주는 서비스입니다.
 public class BBToastService: BaseService, BBToastServiceType { }
 
 

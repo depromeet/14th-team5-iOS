@@ -10,9 +10,38 @@ import UIKit
 
 // MARK: - Typealias
 
+/// BBToast 버튼의 동작을 정의하는 핸들러입니다.
 public typealias BBToastActionHandler = ((BBToast?) -> Void)?
 
-/// 
+/// BBToast는 BBToast를 화면에 띄우게 도와줍니다.
+///
+///  **show(after:)** 메서드로 BBToastt를 띄울 수 있으며, **close(animated:, completion:)** 메서드로 BBToast를 사라지게 할 수 있습니다.
+///
+/// 아래는 BBToast를 띄우는 가장 기본적인 방법을 보여줍니다.
+///
+/// ```swift
+/// let toast = BBTast.text("Hello, BBToast!")
+/// toast.show()
+/// ```
+///
+/// BBToast는 델리게이트 패턴을 지원합니다. BBToast의 생명 주기에 맞게 필요한 동작을 구현할 수 있습니다. BBToast는 멀티캐스트 델리게이트 패턴으로 구현되어 있습니다.
+///
+/// /아래는 BBToast에 델리게이트 패턴을 구현하는 방법을 보여줍니다.
+///
+///  ```swift
+///  // ViewController.swift
+///  let toast = BBToast.text("Hello, BBToast!")
+///  toast.addDelegate(self)
+///
+///  extension ViewController: BBToastDelegate { ... }
+///  ````
+///
+///  - Note: 지원하는 델리게이트 메서드에 대한 자세한 정보는 ``BBToastDelegate``를 참조하세요.
+///
+/// ``BBToastConfiguration``과 ``BBToastViewConfiguration`` 구조체를 활용하여 BBToast의 애니메이션, 배경 색상 및 BBToast 뷰의 크기, 둥글기 반경을 설정할 수 있습니다.
+///
+/// - Authors: 김소월
+///
 public class BBToast {
     
     // MARK: - Properties
@@ -169,6 +198,11 @@ public class BBToast {
         }
     }
     
+    /// 직접 커스텀한 뷰로 BBToast를 생성합니다.
+    /// - Parameters:
+    ///   - view: BBToastStackView 프로토콜을 준수하는 UIView
+    ///   - config: BBToast 설정값
+    /// - Returns: BBToast
     public static func custom(
         view: BBToastView,
         config: BBToastConfiguration = BBToastConfiguration()
@@ -179,6 +213,10 @@ public class BBToast {
     
     // MARK: - Show
     
+    /// BBToast를 화면에 보이게 합니다.
+    /// - Parameters:
+    ///   - type: HapticFeedback의 타입
+    ///   - time: 지연 시간
     public func show(
         haptic type: UINotificationFeedbackGenerator.FeedbackType,
         after time: TimeInterval = 0
@@ -187,6 +225,8 @@ public class BBToast {
         show(after: time)
     }
     
+    /// BBToast를 화면에 보이게 합니다.
+    /// - Parameter delay: 지연 시간
     public func show(after delay: TimeInterval = 0) {
         if let backgroundView = self.createBackgroundView() {
             self.backgroundView = backgroundView
@@ -231,6 +271,12 @@ public class BBToast {
     
     // MARK: - Close
     
+    /// BBToast를 화면에 사라지게 합니다.
+    ///
+    /// BBToast가 화면에 사라지고 나면 완료 핸들러가 호출됩니다. 완료 핸들러는 델리게이트의 `didCloseToast(_:)` 메서드가 호출되기 전에 실행됩니다.
+    /// - Parameters:
+    ///   - animated: 애니메이션 유무
+    ///   - completion: 완료 핸들러
     public func close(
         animated: Bool = true,
         completion: (() -> Void)? = nil
@@ -289,11 +335,16 @@ public class BBToast {
 
 extension BBToast {
     
+    /// 델리게이트 패턴을 적용합니다.
+    /// - Parameter delegate: BBToastDelegate 프로토콜을 준수하는 객체
     public func addDelegate(_ delegate: BBToastDelegate) {
         Self.multicast.add(delegate)
     }
     
+    /// 버튼을 추가합니다.
     ///
+    /// `BBToast.button` 메서드로 BBToast를 생성하는 경우, 해당 메서드로 버튼의 액션을 정의해주어야 합니다.
+    /// - Parameter action: 버튼의 액션
     public func setAction(
         _ action: BBToastActionHandler = nil
     ) {

@@ -9,6 +9,7 @@ import Foundation
 
 extension BBToast {
     
+    /// Toast가 사라지는 방법을 정의합니다.
     public enum Dismissable {
         case tap
         case longPress

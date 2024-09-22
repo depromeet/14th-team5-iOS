@@ -92,7 +92,11 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
     
     private func setupConstraints() {
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.heightAnchor.constraint(equalToConstant: 24).isActive = true
+        
+        NSLayoutConstraint.activate([
+            button.widthAnchor.constraint(equalToConstant: viewConfig.minWidth),
+            button.heightAnchor.constraint(equalToConstant: viewConfig.minHeight)
+        ])
     }
 
 }

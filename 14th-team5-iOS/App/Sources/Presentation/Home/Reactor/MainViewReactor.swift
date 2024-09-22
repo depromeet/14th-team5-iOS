@@ -281,7 +281,7 @@ extension MainViewReactor {
         case .updateMainNight(let data):
             newState.familyname = data.familyName
             newState.familySection = FamilySection.Model(model: 0, items: data.mainFamilyProfileDatas.map {
-                .main(MainFamilyCellReactor($0, service: provider))
+                .main(MainFamilyCellReactor($0,  service: provider))
             }).items
             newState.contributor = data.familyRankData
         case .setCamerEnabled:

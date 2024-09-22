@@ -5,9 +5,10 @@
 //  Created by 마경미 on 21.04.24.
 //
 
-import Foundation
 
 import Core
+import Foundation
+import DesignSystem
 import Domain
 
 import ReactorKit
@@ -18,18 +19,47 @@ enum RankBadge: Int {
     case three = 3
 }
 
+
+// MARK: - BBAlertActionType
+
+enum PickAlertAction: BBAlertActionType {
+    case pick
+    case cancel
+    
+    var title: String? {
+        switch self {
+        case .pick: return "지금 하기"
+        case .cancel: return "다음에 하기"
+        }
+    }
+    
+    var style: BBAlertActionStyle {
+        switch self {
+        case .pick: return .default
+        case .cancel: return .cancel
+        }
+    }
+}
+
+
+
+
+// MARK: - Reactor
+
 final class MainFamilyCellReactor: Reactor {
     
     // MARK: - Action
     enum Action {
         case fetchData
-        case pickButtonTapped
+        
+        case didTapPickButton
     }
     
     // MARK: - Mutation
     enum Mutation {
         case setData
-        case setPickButtonAppearent(Bool)
+        
+        case setHiddenPickButton(Bool)
     }
     
     // MARK: - State
@@ -38,12 +68,17 @@ final class MainFamilyCellReactor: Reactor {
         var profile: (imageUrl: String?, name: String) = (nil, .none)
         var rank: Int? = nil
         var isShowBirthdayBadge: Bool = false
-        var isShowPickButton: Bool = false
+        
+        var hiddenPickButton: Bool = false
     }
     
     // MARK: - Properties
+    
     let initialState: State
-    let provider: ServiceProviderProtocol
+        
+    @Injected var pickMemberUseCase: PickMemberUseCaseProtocol
+    
+    @Injected var provider: ServiceProviderProtocol
     
     // MARK: - Intializer
     init(_ profileData: FamilyMemberProfileEntity, service provider: ServiceProviderProtocol) {
@@ -60,7 +95,7 @@ final class MainFamilyCellReactor: Reactor {
                     guard id == self.currentState.profileData.memberId else {
                         return Observable<Mutation>.empty()
                     }
-                    return Observable<Mutation>.just(.setPickButtonAppearent(show))
+                    return Observable<Mutation>.just(.setHiddenPickButton(show))
                 
                 default:
                     return Observable<Mutation>.empty()
@@ -76,12 +111,34 @@ final class MainFamilyCellReactor: Reactor {
         case .fetchData:
             return Observable.just(.setData)
             
-        case .pickButtonTapped:
-            provider.mainService.pickButtonTapped(
-                name: currentState.profileData.name,
-                memberId: currentState.profileData.memberId
+        case .didTapPickButton:
+            let actions: [PickAlertAction] = [.pick, .cancel]
+            let memberId = initialState.profileData.memberId
+            let memberName = initialState.profileData.name
+
+            return provider.bbAlertService.show(
+                image: DesignSystemAsset.exhaustedBibbiGraphic.image,
+                title: "생존 확인하기",
+                subtitle: "\(memberName)님의 생존 여부를 물어볼까요?\n지금 알림이 전송됩니다.",
+                actions: actions
             )
-            return Observable<Mutation>.empty()
+            .withUnretained(self)
+            .flatMap {
+                switch $0.1 {
+                case .pick:
+                    return $0.0.pickMemberUseCase.execute(memberId: memberId)
+                        .flatMap {
+                            guard
+                                let entity = $0, entity.success
+                            else { return Observable<Mutation>.empty() }
+                            
+                            return Observable<Mutation>.just(.setHiddenPickButton(true))
+                        }
+                    
+                default:
+                    return Observable<Mutation>.empty()
+                }
+            }
         }
     }
     
@@ -94,10 +151,10 @@ final class MainFamilyCellReactor: Reactor {
             newState.profile = (currentState.profileData.profileImageURL, currentState.profileData.name)
             newState.rank = currentState.profileData.postRank
             newState.isShowBirthdayBadge = currentState.profileData.isShowBirthdayMark
-            newState.isShowPickButton = currentState.profileData.isShowPickIcon
+            newState.hiddenPickButton = !currentState.profileData.isShowPickIcon
             
-        case let .setPickButtonAppearent(show):
-            newState.isShowPickButton = show
+        case let .setHiddenPickButton(hidden):
+            newState.hiddenPickButton = hidden
         }
         
         return newState

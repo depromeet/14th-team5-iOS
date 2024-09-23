@@ -12,6 +12,7 @@ import UIKit
 protocol AccountSignInNavigatorProtocol: BaseNavigator {
     func toMain()
     func toSignUp()
+    func toJoinFamily()
 }
 
 final class AccountSignInNavigator: AccountSignInNavigatorProtocol {
@@ -29,6 +30,11 @@ final class AccountSignInNavigator: AccountSignInNavigatorProtocol {
     
     func toSignUp() {
         let vc = AccountSignUpDIContainer().makeViewController()
+        navigationController.setViewControllers([vc], animated: false)
+    }
+    
+    func toJoinFamily() {
+        let vc = JoinFamilyViewControllerWrapper().viewController
         navigationController.setViewControllers([vc], animated: false)
     }
 }

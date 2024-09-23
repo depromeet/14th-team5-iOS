@@ -7,14 +7,11 @@
 
 import Core
 import Domain
-
 import Foundation
+import MacrosInterface
 
-
-final class CameraDisplayViewControllerWrapper: BaseWrapper {
-    
-    typealias R = CameraDisplayViewReactor
-    typealias V = CameraDisplayViewController
+@Wrapper<CameraDisplayViewReactor, CameraDisplayViewController>
+final class CameraDisplayViewControllerWrapper {
     
     private let displayData: Data
     private let missionTitle: String
@@ -28,19 +25,6 @@ final class CameraDisplayViewControllerWrapper: BaseWrapper {
         self.displayData = displayData
         self.missionTitle = missionTitle
         self.cameraDisplayType = cameraDisplayType
-    }
-    
-    var reactor: CameraDisplayViewReactor {
-        return makeReactor()
-    }
-    
-    var viewController: CameraDisplayViewController {
-        return makeViewController()
-    }
-    
-    
-    func makeViewController() -> CameraDisplayViewController {
-        return CameraDisplayViewController(reactor: reactor)
     }
     
     func makeReactor() -> CameraDisplayViewReactor {

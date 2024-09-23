@@ -7,30 +7,13 @@
 
 import Core
 import Foundation
+import MacrosInterface
 
-final class MonthlyCalendarViewControllerWrapper: BaseWrapper {
-    
-    // MARK: - Typealias
-    
-    typealias R = MonthlyCalendarViewReactor
-    typealias V = MonthlyCalendarViewController
-    
-    // MARK: - Properties
-    
-    var viewController: V {
-        makeViewController()
-    }
-    
-    var reactor: R {
-        makeReactor()
-    }
+@Wrapper<MonthlyCalendarViewReactor, MonthlyCalendarViewController>
+final class MonthlyCalendarViewControllerWrapper {
     
     // MARK: - Make
-    
-    func makeViewController() -> V {
-        return MonthlyCalendarViewController(reactor: makeReactor())
-    }
-    
+
     func makeReactor() -> R {
         return MonthlyCalendarViewReactor()
     }

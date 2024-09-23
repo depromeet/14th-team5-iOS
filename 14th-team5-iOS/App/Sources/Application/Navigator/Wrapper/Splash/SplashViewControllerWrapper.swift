@@ -7,31 +7,15 @@
 
 import Core
 import Foundation
+import MacrosInterface
 
-final class SplashViewControllerWrapper: BaseWrapper {
-    
-    // MARK: - Typealias
-    
-    typealias R = SplashReactor
-    typealias V = SplashViewController
-    
-    // MARK: - Properties
-    
-    var reactor: SplashReactor {
-        makeReactor()
-    }
-    
-    var viewController: SplashViewController {
-        makeViewController()
-    }
+@Wrapper<SplashReactor, SplashViewController>
+final class SplashViewControllerWrapper {
     
     // MARK: - Make
     
     func makeReactor() -> SplashReactor {
         SplashReactor()
     }
-    
-    func makeViewController() -> SplashViewController {
-        SplashViewController(reactor: makeReactor())
-    }
+  
 }

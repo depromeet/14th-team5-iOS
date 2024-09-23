@@ -5,27 +5,15 @@
 //  Created by 마경미 on 17.06.24.
 //
 
-import Foundation
-
 import Core
+import Foundation
+import MacrosInterface
 
-final class MainViewControllerWrapper: BaseWrapper {
-    typealias R = MainViewReactor
-    typealias V = MainViewController
-    
-    func makeViewController() -> V {
-        return MainViewController(reactor: makeReactor())
-    }
-    
+@Wrapper<MainViewReactor, MainViewController>
+final class MainViewControllerWrapper {
+   
     func makeReactor() -> R {
         return MainViewReactor()
     }
     
-    var viewController: V {
-        makeViewController()
-    }
-    
-    var reactor: R {
-        makeReactor()
-    }
 }

@@ -6,20 +6,11 @@
 //
 
 import Core
-
 import Foundation
+import MacrosInterface
 
-final class ProfileDetailViewControllerWrapper: BaseWrapper {
-    typealias R = ProfileDetailViewReactor
-    typealias V = ProfileDetailViewController
-    
-    var reactor: ProfileDetailViewReactor {
-        return makeReactor()
-    }
-    
-    var viewController: ProfileDetailViewController {
-        return makeViewController()
-    }
+@Wrapper<ProfileDetailViewReactor, ProfileDetailViewController>
+final class ProfileDetailViewControllerWrapper {
     
     private let profileURL: URL
     private let userNickname: String
@@ -32,10 +23,5 @@ final class ProfileDetailViewControllerWrapper: BaseWrapper {
     func makeReactor() -> ProfileDetailViewReactor {
         return ProfileDetailViewReactor(profileURL: profileURL, userNickname: userNickname)
     }
-    
-    func makeViewController() -> ProfileDetailViewController {
-        return ProfileDetailViewController(reactor: reactor)
-    }
-    
     
 }

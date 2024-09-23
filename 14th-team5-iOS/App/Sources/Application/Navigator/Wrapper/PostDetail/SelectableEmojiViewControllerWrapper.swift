@@ -11,7 +11,7 @@ import Core
 
 import RxSwift
 
-final class SelectableEmojiViewControllerWrapper: BaseWrapper {
+final class SelectableEmojiViewControllerWrapper {
     typealias R = SelectableEmojiReactor
     typealias V = SelectableEmojiViewController
     

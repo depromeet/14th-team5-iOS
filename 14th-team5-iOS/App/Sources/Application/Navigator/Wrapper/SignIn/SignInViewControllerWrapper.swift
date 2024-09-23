@@ -7,34 +7,18 @@
 
 import Core
 import Foundation
+import MacrosInterface
 
 // TODO: - SignInViewReactor로 이름 수정하기
 // TODO: - SignInViewController로 이름 수정하기
-final class SignInViewControllerWrapper: BaseWrapper {
-    
-    // MARK: - Typealias
-    
-    typealias R = AccountSignInReactor
-    typealias V = AccountSignInViewController
-    
-    // MARK: - Properties
-    
-    var reactor: AccountSignInReactor {
-        makeReactor()
-    }
-    
-    var viewController: AccountSignInViewController {
-        makeViewController()
-    }
+
+@Wrapper<AccountSignInReactor, AccountSignInViewController>
+final class SignInViewControllerWrapper {
     
     // MARK: - Make
     
     func makeReactor() -> AccountSignInReactor {
         AccountSignInReactor()
-    }
-    
-    func makeViewController() -> AccountSignInViewController {
-        AccountSignInViewController(reactor: makeReactor())
     }
     
 }

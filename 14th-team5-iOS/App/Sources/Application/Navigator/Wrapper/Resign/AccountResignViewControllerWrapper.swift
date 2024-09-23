@@ -7,24 +7,10 @@
 
 import Core
 import Foundation
+import MacrosInterface
 
-final class AccountResignViewControllerWrapper: BaseWrapper {
-    
-    typealias R = AccountResignViewReactor
-    typealias V = AccountResignViewCotroller
-    
-    
-    var reactor: AccountResignViewReactor {
-        return makeReactor()
-    }
-    
-    var viewController: AccountResignViewCotroller {
-        return makeViewController()
-    }
-    
-    func makeViewController() -> AccountResignViewCotroller {
-        return AccountResignViewCotroller(reactor: makeReactor())
-    }
+@Wrapper<AccountResignViewReactor, AccountResignViewCotroller>
+final class AccountResignViewControllerWrapper {
     
     func makeReactor() -> AccountResignViewReactor {
         return AccountResignViewReactor()

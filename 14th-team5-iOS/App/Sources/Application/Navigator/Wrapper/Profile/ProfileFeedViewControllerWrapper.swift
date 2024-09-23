@@ -7,22 +7,11 @@
 
 import Core
 import Domain
-
 import Foundation
+import MacrosInterface
 
-
-final class ProfileFeedViewControllerWrapper: BaseWrapper {
-    
-    typealias R = ProfileFeedViewReactor
-    typealias V = ProfileFeedViewController
-        
-    var reactor: ProfileFeedViewReactor {
-        return makeReactor()
-    }
-    
-    var viewController: ProfileFeedViewController {
-        return makeViewController()
-    }
+@Wrapper<ProfileFeedViewReactor, ProfileFeedViewController>
+final class ProfileFeedViewControllerWrapper {
     
     private let postType: PostType
     private let memberId: String
@@ -36,8 +25,5 @@ final class ProfileFeedViewControllerWrapper: BaseWrapper {
     func makeReactor() -> ProfileFeedViewReactor {
         return ProfileFeedViewReactor(type: postType, memberId: memberId)
     }
-    
-    func makeViewController() -> ProfileFeedViewController {
-        return ProfileFeedViewController(reactor: reactor)
-    }
+
 }

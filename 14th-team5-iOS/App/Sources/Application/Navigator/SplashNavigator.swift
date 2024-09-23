@@ -13,6 +13,7 @@ protocol SplashNavigatorProtocol: BaseNavigator {
     func toJoined()
     func toSignIn()
     func toOnboarding()
+    func toJoinFamily()
 }
 
 final class SplashNavigator: SplashNavigatorProtocol {
@@ -45,6 +46,11 @@ final class SplashNavigator: SplashNavigatorProtocol {
     
     func toOnboarding() {
         let vc = SplashViewControllerWrapper().viewController
+        navigationController.setViewControllers([vc], animated: false)
+    }
+    
+    func toJoinFamily() {
+        let vc = JoinFamilyViewControllerWrapper().viewController
         navigationController.setViewControllers([vc], animated: false)
     }
     

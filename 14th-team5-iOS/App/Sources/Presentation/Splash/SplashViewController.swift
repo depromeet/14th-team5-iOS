@@ -93,31 +93,22 @@ public final class SplashViewController: BaseViewController<SplashReactor> {
     
     private func showNextPage(with member: MemberInfo?) {
         @Navigator var splashNavigator: SplashNavigatorProtocol
-        
+        print("memberId: \(member)")
         guard let member = member else {
             splashNavigator.toSignIn()
-//            container = UINavigationController(rootViewController: AccountSignInDIContainer().makeViewController())
-//            sceneDelegate.window?.rootViewController = container
-//            sceneDelegate.window?.makeKeyAndVisible()
             return
         }
-        
+        print("member FamilYId: \(member.familyId)")
         if let _ = member.familyId {
             if UserDefaults.standard.inviteCode != nil {
                 splashNavigator.toJoined()
-//                container = UINavigationController(rootViewController: JoinedFamilyDIContainer().makeViewController())
             } else {
                 splashNavigator.toHome()
-//                container = UINavigationController(rootViewController: MainViewControllerWrapper().makeViewController())
+                return
             }
-//            sceneDelegate.window?.rootViewController = container
-//            sceneDelegate.window?.makeKeyAndVisible()
             return
         } else {
-            splashNavigator.toOnboarding()
-//            container = UINavigationController(rootViewController: OnBoardingDIContainer().makeViewController())
-//            sceneDelegate.window?.rootViewController = container
-//            sceneDelegate.window?.makeKeyAndVisible()
+            splashNavigator.toJoinFamily()
             return
         }
     }

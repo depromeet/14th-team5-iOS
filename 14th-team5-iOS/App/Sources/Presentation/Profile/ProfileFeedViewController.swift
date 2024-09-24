@@ -68,12 +68,6 @@ final class ProfileFeedViewController: BaseViewController<ProfileFeedViewReactor
     override func bind(reactor: ProfileFeedViewReactor) {
         
         
-        Observable.just(())
-            .map { Reactor.Action.reloadFeedItems }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-
-        
         profileFeedCollectionView.rx
             .setDelegate(self)
             .disposed(by: disposeBag)

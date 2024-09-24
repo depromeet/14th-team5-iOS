@@ -83,12 +83,6 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
             .bind(onNext: { $0.0.newGroupAlertController()})
             .disposed(by: disposeBag)
         
-        NotificationCenter.default
-            .rx.notification(.didTapCreatFamilyGroupButton)
-            .map { _ in Reactor.Action.makeFamily }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
         joinFamilyButton.rx.tap
             .map { Reactor.Action.joinFamily }
             .bind(to: reactor.action)
@@ -137,9 +131,10 @@ extension JoinFamilyViewController {
         )
         
         let cancelAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)
-        let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
+        let confirmAction = UIAlertAction(title: "확인", style: .default) { [weak self] _ in
+            guard let self else { return }
             MPEvent.Account.creatGroupFinished.track(with: nil)
-            NotificationCenter.default.post(name: .didTapCreatFamilyGroupButton, object: nil, userInfo: nil)
+            self.reactor?.action.onNext(.makeFamily)
         }
         
         [cancelAction, confirmAction].forEach(resignAlertController.addAction(_:))

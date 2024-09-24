@@ -121,20 +121,7 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
                 @Navigator var privacyNavigator: PrivacyNavigatorProtocol
                 privacyNavigator.toSignIn()
             }.disposed(by: disposeBag)
-        
-        NotificationCenter.default
-            .rx.notification(.UserAccountLogout)
-            .map { _ in Reactor.Action.didTapLogoutButton }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        NotificationCenter.default
-            .rx.notification(.UserFamilyResign)
-            .map { _ in Reactor.Action.didTapFamilyUserResign }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        
+
         inquiryBannerView
             .rx.tap
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
@@ -233,8 +220,9 @@ extension PrivacyViewController {
         
         let cancelAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)
         
-        let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
-            NotificationCenter.default.post(name: .UserAccountLogout, object: nil, userInfo: nil)
+        let confirmAction = UIAlertAction(title: "확인", style: .default) { [weak self]_ in
+            guard let self else { return }
+            self.reactor?.action.onNext(.didTapLogoutButton)
         }
         
         [cancelAction, confirmAction].forEach(logoutAlertController.addAction(_:))
@@ -251,8 +239,9 @@ extension PrivacyViewController {
         
         let cancelAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)
         
-        let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
-            NotificationCenter.default.post(name: .UserFamilyResign, object: nil, userInfo: nil)
+        let confirmAction = UIAlertAction(title: "확인", style: .default) { [weak self ]_ in
+            guard let self else { return }
+            self.reactor?.action.onNext(.didTapFamilyUserResign)
         }
         
         [cancelAction, confirmAction].forEach(resignAlertController.addAction(_:))

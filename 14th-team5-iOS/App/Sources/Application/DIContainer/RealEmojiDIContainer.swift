@@ -25,6 +25,10 @@ final class RealEmojiDIContainer: BaseContainer {
     private func makeFetchRealEmojiListUseCase() -> FetchRealEmojiListUseCaseProtocol {
         return FetchRealEmojiListUseCase(realEmojiRepository: repository)
     }
+    
+    private func makeFetchMyRealEmojiUseCase() -> FetchMyRealEmojiUseCaseProtocol {
+        return FetchMyRealEmojiUseCase(realEmojiRepository: repository)
+    }
 }
 
 extension RealEmojiDIContainer {
@@ -39,6 +43,10 @@ extension RealEmojiDIContainer {
         
         container.register(type: FetchRealEmojiListUseCaseProtocol.self) { _ in
             self.makeFetchRealEmojiListUseCase()
+        }
+        
+        container.register(type: FetchMyRealEmojiUseCaseProtocol.self) { _ in
+            self.makeFetchMyRealEmojiUseCase()
         }
     }
 }

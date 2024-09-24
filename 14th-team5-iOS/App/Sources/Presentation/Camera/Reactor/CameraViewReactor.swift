@@ -221,7 +221,7 @@ extension CameraViewReactor {
         case .realEmoji:
             
             return .concat(
-                fetchRealEmojiListUseCase.execute(memberId: memberId)
+                fetchRealEmojiListUseCase.execute()
                     .asObservable()
                     .withUnretained(self)
                     .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
@@ -373,7 +373,7 @@ extension CameraViewReactor {
                                             .flatMap { realEmojiEntity -> Observable<CameraViewReactor.Mutation> in
                                                 guard let createRealEmojiEntity = realEmojiEntity else { return .just(.setErrorAlert(true))}
                                                 owner.provider.realEmojiGlobalState.createRealEmojiImage(indexPath: owner.currentState.emojiType.rawValue - 1, image: createRealEmojiEntity.realEmojiImageURL, emojiType: createRealEmojiEntity.realEmojiType)
-                                                return owner.fetchRealEmojiListUseCase.execute(memberId: owner.memberId)
+                                                return owner.fetchRealEmojiListUseCase.execute()
                                                     .asObservable()
                                                     .flatMap { reloadEntity -> Observable<CameraViewReactor.Mutation> in
                                                         return .concat(

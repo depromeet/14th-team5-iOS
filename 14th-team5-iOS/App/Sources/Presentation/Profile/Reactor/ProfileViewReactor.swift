@@ -86,6 +86,7 @@ public final class ProfileViewReactor: Reactor {
         //TODO: Keychain, UserDefaults 추가
         switch action {
         case .viewDidLoad:
+            provider.profileGlobalState.fetchMemberdId(memberId: currentState.memberId)
             return fetchMembersProfileUseCase.execute(memberId: currentState.memberId)
                 .asObservable()
                 .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in

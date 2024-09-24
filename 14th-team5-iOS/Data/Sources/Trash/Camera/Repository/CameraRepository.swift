@@ -54,22 +54,22 @@ extension CameraRepository: CameraRepositoryProtocol {
     }
     
     public func fetchRealEmojiImageURL(memberId: String, parameters: CameraRealEmojiParameters) -> Single<CameraRealEmojiPreSignedEntity?> {
-        return cameraAPIWorker.createRealEmojiPresignedURL(accessToken: accessToken, memberId: memberId, parameters: parameters)
+        return cameraAPIWorker.createRealEmojiPresignedURL(accessToken: accessToken, parameters: parameters)
             .map { $0?.toDomain() }
     }
     
     public func uploadRealEmojiImageToS3(memberId: String, parameters: CameraCreateRealEmojiParameters) -> Single<CameraCreateRealEmojiEntity?> {
-        return cameraAPIWorker.uploadRealEmojiImageToS3(accessToken: accessToken, memberId: memberId, parameters: parameters)
+        return cameraAPIWorker.uploadRealEmojiImageToS3(accessToken: accessToken, parameters: parameters)
             .map { $0?.toDomain() }
     }
     
-    public func fetchRealEmojiItems(memberId: String) -> Single<[CameraRealEmojiImageItemEntity?]> {
-        return cameraAPIWorker.loadRealEmojiImage(accessToken: accessToken, memberId: memberId)
+    public func fetchRealEmojiItems() -> Single<[CameraRealEmojiImageItemEntity?]> {
+        return cameraAPIWorker.loadRealEmojiImage(accessToken: accessToken)
             .map { $0?.toDomain() ?? [] }
     }
     
     public func updateRealEmojiImage(memberId: String, realEmojiId: String, parameters: CameraUpdateRealEmojiParameters) -> Single<CameraUpdateRealEmojiEntity?> {
-        return cameraAPIWorker.updateRealEmojiImage(accessToken: accessToken, memberId: memberId, realEmojiId: realEmojiId, parameters: parameters)
+        return cameraAPIWorker.updateRealEmojiImage(accessToken: accessToken, realEmojiId: realEmojiId, parameters: parameters)
             .map { $0?.toDomain() }
     }
   

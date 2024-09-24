@@ -11,6 +11,7 @@ import RxSwift
 
 public enum ProfileEvent {
     case refreshFamilyMembers
+    case fetchMemberId(String)
 }
 
 public protocol ProfileGlobalStateType {
@@ -18,6 +19,8 @@ public protocol ProfileGlobalStateType {
     
     @discardableResult
     func refreshFamilyMembers() -> Observable<Void>
+    @discardableResult
+    func fetchMemberdId(memberId: String) -> Observable<String>
 }
 
 final public class ProfileGlobalState: BaseService, ProfileGlobalStateType {
@@ -26,6 +29,11 @@ final public class ProfileGlobalState: BaseService, ProfileGlobalStateType {
     public func refreshFamilyMembers() -> Observable<Void> {
         event.onNext(.refreshFamilyMembers)
         return Observable<Void>.just(())
+    }
+    
+    public func fetchMemberdId(memberId: String) -> Observable<String> {
+        event.onNext(.fetchMemberId(memberId))
+        return Observable<String>.just(memberId)
     }
 }
 

@@ -49,7 +49,7 @@ public protocol BBToastServiceType {
     )
 }
 
-extension BBToastServiceType {
+public extension BBToastServiceType {
     
     /// 텍스트가 포함된 Toast를 생성합니다.
     /// - Parameters:
@@ -58,7 +58,7 @@ extension BBToastServiceType {
     ///   - titleFontStyle: 타이틀의 폰트 스타일
     ///   - viewConfig: ToastView 설정값
     ///   - config: Toast 설정값
-    public func show(
+    func show(
         _ title: String,
         titleColor: UIColor? = nil,
         titleFontStyle: BBFontStyle? = nil,
@@ -83,7 +83,7 @@ extension BBToastServiceType {
     ///   - titleFontStyle: 타이틀의 폰트 스타일
     ///   - viewConfig: ToastView 설정값
     ///   - config: Toast 설정값
-    public func show(
+    func show(
         image: UIImage,
         imageTint: UIColor? = nil,
         title: String,
@@ -117,7 +117,7 @@ extension BBToastServiceType {
     ///   - config: Toast 설정값
     /// - Returns: Observable
     @discardableResult
-    public func show(
+    func show(
         image: UIImage? = nil,
         imageTint: UIColor? = nil,
         title: String,
@@ -163,7 +163,7 @@ extension BBToastServiceType {
     /// - Parameters:
     ///   - style: 스타일
     ///   - config: Toast 설정값
-    public func show(
+    func show(
         _ style: BBToastStyle,
         config: BBToastConfiguration = BBToastConfiguration()
     ) {

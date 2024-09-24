@@ -12,6 +12,7 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
     // MARK: - Views
     
     private let button: BBButton = BBButton()
+    private let container: UIView = UIView()
     
     // MARK: - Properties
     
@@ -40,7 +41,7 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
         self.viewConfig = viewConfig
         super.init(frame: .zero)
         commonInit()
-        
+
         let iconView = IconToastView(
             image: image,
             imageTint: imageTint,
@@ -54,27 +55,16 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
         button.setTitle(buttonTitle, for: .normal)
         button.setTitleFontStyle(buttonTitleFontStlye ?? .body1Regular)
         button.setTitleColor(buttonTint ?? .gray100, for: .normal)
-        
-        let action = UIAction { [weak self] _ in
-            guard let self else { return }
-            // 델리게이트 실행
-            BBToast.multicast.invoke {
-                $0.didTapToastButton(
-                    self.toast,
-                    index: self.button.id,
-                    button: self.button
-                )
-            }
-            // 액션 클로저 실행
-            self.action?(self.toast)
-        }
-                
-        button.addAction(action, for: .touchUpInside)
+        container.addSubview(button)
 
         addArrangedSubview(iconView)
-        addArrangedSubview(button)
+        addArrangedSubview(container)
         
         setupConstraints()
+        setupAttributes()
+        
+        layoutIfNeeded()
+        setNeedsLayout()
     }
     
     required init(coder: NSCoder) {
@@ -92,11 +82,35 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
     
     private func setupConstraints() {
         button.translatesAutoresizingMaskIntoConstraints = false
-        
         NSLayoutConstraint.activate([
-            button.widthAnchor.constraint(equalToConstant: viewConfig.minWidth),
-            button.heightAnchor.constraint(equalToConstant: viewConfig.minHeight)
+            button.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            button.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            button.topAnchor.constraint(equalTo: container.topAnchor),
+            button.bottomAnchor.constraint(equalTo: container.bottomAnchor)
         ])
+        
+        container.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            container.widthAnchor.constraint(equalToConstant: viewConfig.minButtonWidth),
+            container.heightAnchor.constraint(equalToConstant: viewConfig.minButtonHeight)
+        ])
+    }
+    
+    private func setupAttributes() {
+        let action = UIAction { [weak self] _ in
+            guard let self else { return }
+            // 델리게이트 실행
+            BBToast.multicast.invoke {
+                $0.didTapToastButton(
+                    self.toast,
+                    index: self.button.id,
+                    button: self.button
+                )
+            }
+            // 액션 클로저 실행
+            self.action?(self.toast)
+        }
+        button.addAction(action, for: .touchUpInside)
     }
 
 }

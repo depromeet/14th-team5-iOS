@@ -53,7 +53,7 @@ public struct BBToastViewConfiguration {
     public init(
         minWidth: CGFloat = 300,
         minHeight: CGFloat = 56,
-        minButtonWidth: CGFloat = 50,
+        minButtonWidth: CGFloat = 30,
         minButtonHeight: CGFloat = 24,
         backgroundColor: UIColor = .gray900,
         titleNumberOfLines: Int = 1,

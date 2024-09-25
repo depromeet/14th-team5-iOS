@@ -24,7 +24,7 @@ extension CommentAPIWorker {
     
     // MARK: - Fetch Comment
     
-    public func fetchComment(
+    func fetchComment(
         postId: String,
         query: PostCommentPaginationQuery
     ) -> Observable<PaginationResponsePostCommentResponseDTO> {
@@ -39,7 +39,7 @@ extension CommentAPIWorker {
     
     // MARK: - Create Comment
     
-    public func createComment(
+    func createComment(
         postId: String,
         body: CreatePostCommentReqeustDTO
     ) -> Observable<PostCommentResponseDTO> {
@@ -51,7 +51,7 @@ extension CommentAPIWorker {
     
     // MARK: - Update Comment
     
-    public func updateComment(
+    func updateComment(
         postId: String,
         commentId: String,
         body: UpdatePostCommentReqeustDTO
@@ -64,7 +64,7 @@ extension CommentAPIWorker {
     
     // MARK: - Delete Comment
     
-    public func deleteComment(
+    func deleteComment(
         postId: String,
         commentId: String
     ) -> Observable<PostCommentDeleteResponseDTO> {

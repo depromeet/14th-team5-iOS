@@ -5,8 +5,9 @@
 //  Created by 김건우 on 9/25/24.
 //
 
-import Alamofire
 import Foundation
+
+import Alamofire
 
 /// 서버가 수행해야 할 동작입니다.
 public enum BBAPIMethod {

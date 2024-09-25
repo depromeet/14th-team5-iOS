@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import RegexBuilder
 
 /// API 요청에 필요한 재료 묶음인 Spec입니다.
 ///

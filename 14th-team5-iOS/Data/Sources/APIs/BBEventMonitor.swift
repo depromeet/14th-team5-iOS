@@ -25,7 +25,7 @@ final class BBEventMonitor: EventMonitor {
         print("- URL : \((request.request?.url?.absoluteString ?? ""))")
         print("     - Results : \((response.result))")
         print("     - StatusCode : \(response.response?.statusCode ?? 0)")
-//        print("     - Data : \(response.data?.toPrettyPrintedString ?? "")")
+        print("     - Data : \(response.data?.toPrettyPrintedString ?? "")")
     }
     
 }

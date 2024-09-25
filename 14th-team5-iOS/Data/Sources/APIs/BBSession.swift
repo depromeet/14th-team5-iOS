@@ -10,7 +10,7 @@ import Foundation
 
 // MARK: - BBSession
 
-public struct BBSession {
+struct BBSession {
     
     static let `default`: Session = {
         let eventMonitor = BBEventMonitor()

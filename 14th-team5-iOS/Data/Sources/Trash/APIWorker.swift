@@ -16,6 +16,7 @@ import RxSwift
 
 // MARK: - Base API Worker
 
+@available(*, deprecated, renamed: "BBAPIWorker")
 public class APIWorker: NSObject {
     
     // MARK: - Identifier

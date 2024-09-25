@@ -6,3 +6,20 @@
 //
 
 import Foundation
+
+public struct OldAccessToken: Codable, Equatable {
+    
+    public let accessToken: String?
+    public let refreshToken: String?
+    public let isTemporaryToken: Bool?
+    
+    public init(
+        accessToken: String?,
+        refreshToken: String?,
+        isTemporaryToken: Bool?
+    ) {
+        self.accessToken = accessToken
+        self.refreshToken = refreshToken
+        self.isTemporaryToken = isTemporaryToken
+    }
+}

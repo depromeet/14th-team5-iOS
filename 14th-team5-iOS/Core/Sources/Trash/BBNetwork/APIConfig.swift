@@ -11,6 +11,7 @@ public protocol BibbiAPIConfigType {
     var hostApi: String { get }
 }
 
+@available(*, deprecated, renamed: "BBAPIConfiguration")
 public struct BibbiAPIConfig: BibbiAPIConfigType {
     #if PRD
     public var hostApi: String = "https://api.no5ing.kr/v1"

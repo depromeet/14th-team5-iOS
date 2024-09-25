@@ -10,6 +10,7 @@ import Foundation
 import RxCocoa
 import RxSwift
 
+// 이게 왜 여기 있는데!!!!!!!
 public struct AccessToken: Codable, Equatable {
     public var accessToken: String?
     public var refreshToken: String?
@@ -22,6 +23,7 @@ public struct AccessToken: Codable, Equatable {
     }
 }
 
+@available(*, deprecated, renamed: "TokenKeychain")
 public class TokenRepository: RxObject {
     public lazy var keychain = KeychainWrapper(serviceName: "Bibbi", accessGroup: "P9P4WJ623F.com.5ing.bibbi")
     

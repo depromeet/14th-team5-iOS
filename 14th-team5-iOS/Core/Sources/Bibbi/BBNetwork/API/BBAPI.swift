@@ -8,10 +8,6 @@
 import Alamofire
 import Foundation
 
-
-// MARK: - BBAPI
-
-///
 public protocol BBAPI {
     var spec: BBAPISpec { get }
 }

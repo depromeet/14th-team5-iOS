@@ -58,7 +58,7 @@ public extension BBAPISpec {
         return BBAPIConfiguration.baseUrl
     }
     
-    /// 정제된 Url 문자열을 반환합니다.
+    /// 정제된 URL 문자열을 반환합니다.
     var urlString: String {
         var urlString: String = url
         urlString = normalizeUrl(urlString)

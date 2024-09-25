@@ -22,8 +22,8 @@ public protocol TokenKeychainType: KeychainType {
     func saveIsTemporaryToken(_ isTemporary: Bool?)
     func loadIsTemporaryToken() -> Bool?
     
-    func saveOldAccessToken(_ tokenResult: AccessToken?)
-    func loadOldAccessToken() -> AccessToken?
+    func saveOldAccessToken(_ tokenResult: OldAccessToken?)
+    func loadOldAccessToken() -> OldAccessToken?
     
     func saveRefreshToken(_ refreshToken: String?)
     func loadRefreshToken() -> String?
@@ -122,8 +122,7 @@ final public class TokenKeychain: TokenKeychainType {
     // MARK: - Old AccessToken
     
     @available(*, deprecated)
-    public func saveOldAccessToken(_ tokenResult: AccessToken?) {
-        // 🔵Info: AccessToken은 Core 모듈의 TokenRepository.swift에 정의되어 있음
+    public func saveOldAccessToken(_ tokenResult: OldAccessToken?) {
         guard
             let data = try? JSONEncoder().encode(tokenResult),
             let str = String(data: data, encoding: .utf8)
@@ -132,11 +131,11 @@ final public class TokenKeychain: TokenKeychainType {
     }
     
     @available(*, deprecated)
-    public func loadOldAccessToken() -> AccessToken? {
+    public func loadOldAccessToken() -> OldAccessToken? {
         guard
             let str: String = keychain[.accessToken],
             let data = str.data(using: .utf8),
-            let tokenResult = try? JSONDecoder().decode(AccessToken.self, from: data)
+            let tokenResult = try? JSONDecoder().decode(OldAccessToken.self, from: data)
         else { return nil }
         return tokenResult
     }

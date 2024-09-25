@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol CommentRepositoryProtocol {
-    func fetchPostComment(postId: String, query: PostCommentPaginationQuery) -> Observable<PaginationResponsePostCommentEntity?>
+    func fetchPostComment(postId: String, query: PostCommentPaginationQuery) -> Observable<PaginationResponsePostCommentEntity>
     func createPostComment(postId: String, body: CreatePostCommentRequest) -> Observable<PostCommentEntity?>
     func updatePostComment(postId: String, commentId: String, body: UpdatePostCommentRequest) -> Observable<PostCommentEntity?>
     func deletePostComment(postId: String, commentId: String) -> Observable<PostCommentDeleteEntity?>

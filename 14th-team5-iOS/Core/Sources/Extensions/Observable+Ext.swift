@@ -2,13 +2,14 @@
 //  Observable+Ext.swift
 //  Core
 //
-//  Created by 김건우 on 9/25/24.
+//  Created by 김건우 on 9/26/24.
 //
 
 import Foundation
 
+import Alamofire
 import RxSwift
-import RxCocoa
+
 
 public extension Observable where Element == (HTTPURLResponse, Data) {
     
@@ -26,7 +27,7 @@ public extension Observable where Element == (HTTPURLResponse, Data) {
                 if range ~= statusCode {
                     observer.onNext(element.1)
                 } else {
-                    observer.onError(BBAPIError.statusCode(statusCode))
+                    observer.onError(AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: statusCode)))
                 }
                 return Disposables.create()
             }
@@ -55,7 +56,7 @@ public extension Observable where Element == Data {
                     let decodedData = try decoder.decode(type, from: element)
                     observer.onNext(decodedData)
                 } catch {
-                    observer.onError(BBAPIError.canNotDecode)
+                    observer.onError(AFError.responseSerializationFailed(reason: .decodingFailed(error: NSError())))
                 }
                 return Disposables.create()
             }

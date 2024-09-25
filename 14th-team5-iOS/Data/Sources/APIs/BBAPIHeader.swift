@@ -74,19 +74,33 @@ public extension BBAPIHeader {
 private extension BBAPIHeader {
     
     func fetchXppKey() -> String {
-        return "XAppKey Value"
+        // TODO: - 번들로 가져오게 수정하기
+        return "7c5aaa36-570e-491f-b18a-26a1a0b72959"
     }
 
     func fetchXAuthTokenValue() -> String {
-        return "XAuthToken Value"
+        // TODO: - 코드 리팩토링하기
+        let tokenKeychain = TokenKeychain()
+        guard
+            let tokenResult: OldAccessToken? = tokenKeychain.loadOldAccessToken(),
+            let accessToken: String = tokenResult?.accessToken
+        else { return "" }
+        
+        return accessToken
     }
 
     func fetchXUserPlatform() -> String {
-        return "XUserPlatform Value"
+        return "iOS"
     }
     
     func fetchXuserId() -> String {
-        return "XUserId Value"
+        // TODO: - 코드 리팩토링하기
+        let myUserDefaults = MyUserDefaults()
+        guard
+            let memberId: String = myUserDefaults.loadMemberId()
+        else { return "" }
+        
+        return memberId
     }
     
 }

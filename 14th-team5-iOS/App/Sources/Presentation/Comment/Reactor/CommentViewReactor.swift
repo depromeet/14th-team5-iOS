@@ -6,6 +6,7 @@
 //
 
 import Core
+import Data
 import Domain
 import Foundation
 
@@ -109,22 +110,9 @@ final public class CommentViewReactor: Reactor {
                 Observable<Mutation>.just(.setEnableCommentTextField(false)),
                 
                 fetchCommentUseCase.execute(postId: postId, query: query)
-                    .withUnretained(self)
                     .concatMap {
-                        // 통신에 실패한다면
-                        guard let comments = $0.1 else {
-                            Haptic.notification(type: .error)
-                            $0.0.navigator.showFetchFailureToast()
-                            return Observable.concat(
-                                Observable<Mutation>.just(.setComments([])),
-                                Observable<Mutation>.just(.setHiddenTablePrgressHud(true)),
-                                Observable<Mutation>.just(.setHiddenNoneCommentView(true)),
-                                Observable<Mutation>.just(.setHiddenFetchFailureView(false))
-                            )
-                        }
-                        
                         // 댓글이 없다면
-                        if comments.results.isEmpty  {
+                        if $0.results.isEmpty  {
                             return Observable.concat(
                                 Observable<Mutation>.just(.setComments([])),
                                 Observable<Mutation>.just(.setBecomeFirstResponder(true)),
@@ -136,7 +124,7 @@ final public class CommentViewReactor: Reactor {
                             )
                         }
                         
-                        let cells = comments.results
+                        let cells = $0.results
                             .map { CommentCellReactor($0) }
                         
                         return Observable.concat(
@@ -148,6 +136,16 @@ final public class CommentViewReactor: Reactor {
                             Observable<Mutation>.just(.setEnableConfirmButton(true)),
                             Observable<Mutation>.just(.setEnableCommentTextField(true)),
                             Observable<Mutation>.just(.scrollTableToLast(true))
+                        )
+                    }
+                    .catch { [weak self] error -> Observable<Mutation> in
+                        Haptic.notification(type: .error)
+                        self?.navigator.showFetchFailureToast()
+                        return Observable.concat(
+                            Observable<Mutation>.just(.setComments([])),
+                            Observable<Mutation>.just(.setHiddenTablePrgressHud(true)),
+                            Observable<Mutation>.just(.setHiddenNoneCommentView(true)),
+                            Observable<Mutation>.just(.setHiddenFetchFailureView(false))
                         )
                     }
             )

@@ -8,22 +8,22 @@
 import Core
 import Foundation
 
-enum CommentAPIs: API {
-    case fetchPostComment(String, Int, Int, String)
-    case createPostComment(String)
-    case updatePostComment(String, String)
-    case deletePostComment(String, String)
+enum CommentAPIs: BBAPI {
+    case fetchPostComment(postId: String, page: Int, size: Int, sort: String)
+    case createPostComment(postId: String, body: CreatePostCommentReqeustDTO)
+    case updatePostComment(postId: String, commentId: String)
+    case deletePostComment(postId: String, commentId: String)
     
-    var spec: APISpec {
+    var spec: BBAPISpec {
         switch self {
         case let .fetchPostComment(postId, page, size, sort):
-            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/posts/\(postId)/comments?page=\(page)&size=\(size)&sort=\(sort)")
-        case let .createPostComment(postId):
-            return APISpec(method: .post, url: "\(BibbiAPI.hostApi)/posts/\(postId)/comments")
+            return BBAPISpec(method: .get, url: "/posts/\(postId)/comments?page=\(page)&size=\(size)&sort=\(sort)")
+        case let .createPostComment(postId, body):
+            return BBAPISpec(method: .post, url: "/posts/\(postId)/comments", requestBody: body)
         case let .updatePostComment(postId, commentId):
-            return APISpec(method: .put, url: "\(BibbiAPI.hostApi)/posts/\(postId)/comments/\(commentId)")
+            return BBAPISpec(method: .put, url: "/posts/\(postId)/comments/\(commentId)")
         case let .deletePostComment(postId, commentId):
-            return APISpec(method: .delete, url: "\(BibbiAPI.hostApi)/posts/\(postId)/comments/\(commentId)")
+            return BBAPISpec(method: .delete, url: "/posts/\(postId)/comments/\(commentId)")
         }
     }
 }

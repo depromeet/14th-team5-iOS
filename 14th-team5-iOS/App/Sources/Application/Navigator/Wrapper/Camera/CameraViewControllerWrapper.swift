@@ -7,20 +7,11 @@
 
 import Core
 import Domain
-
 import Foundation
+import MacrosInterface
 
-final class CameraViewControllerWrapper: BaseWrapper {
-
-    typealias R = CameraViewReactor
-    typealias V = CameraViewController
-    
-    var reactor: CameraViewReactor {
-        return makeReactor()
-    }
-    var viewController: CameraViewController {
-        return makeViewController()
-    }
+@Wrapper<CameraViewReactor, CameraViewController>
+final class CameraViewControllerWrapper {
     
     private let cameraType: UploadLocation
     private let memberId: String
@@ -43,10 +34,6 @@ final class CameraViewControllerWrapper: BaseWrapper {
             memberId: memberId,
             emojiType: realEmojiType
         )
-    }
-    
-    func makeViewController() -> CameraViewController {
-        return CameraViewController(reactor: reactor)
     }
     
 }

@@ -7,32 +7,15 @@
 
 import Core
 import Foundation
+import MacrosInterface
 
-final class ManagementViewControllerWrapper: BaseWrapper {
-    
-    // MARK: - Typealias
-    
-    typealias R = ManagementReactor
-    typealias V = ManagementViewController
-    
-    // MARK: - Properties
-    
-    var reactor: ManagementReactor {
-        makeReactor()
-    }
-    
-    var viewController: ManagementViewController {
-        makeViewController()
-    }
+@Wrapper<ManagementReactor, ManagementViewController>
+final class ManagementViewControllerWrapper {
     
     // MARK: - Make
     
     func makeReactor() -> ManagementReactor {
         ManagementReactor()
-    }
-    
-    func makeViewController() -> ManagementViewController {
-        ManagementViewController(reactor: makeReactor())
     }
     
 }

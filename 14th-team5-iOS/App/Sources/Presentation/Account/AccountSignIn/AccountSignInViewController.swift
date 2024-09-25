@@ -146,6 +146,10 @@ extension AccountSignInViewController {
         }
         
         if isFirstOnboarding || isTemporaryToken == false {
+            if App.Repository.member.familyId.value == nil {
+                signInNavigator.toJoinFamily()
+                return
+            }
             signInNavigator.toMain()
             return
         }

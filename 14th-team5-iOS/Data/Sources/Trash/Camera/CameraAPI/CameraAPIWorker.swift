@@ -91,7 +91,9 @@ extension CameraAPIWorker {
         
     }
     
-    public func createRealEmojiPresignedURL(accessToken: String, memberId: String, parameters: Encodable) -> Single<CameraRealEmojiPreSignedResponseDTO?> {
+    public func createRealEmojiPresignedURL(accessToken: String, parameters: Encodable) -> Single<CameraRealEmojiPreSignedResponseDTO?> {
+        //TODO: Repository로 코드 원복
+        let memberId = App.Repository.member.memberID.value ?? ""
         let spec = CameraAPIs.uploadRealEmojiURL(memberId).spec
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
@@ -102,7 +104,9 @@ extension CameraAPIWorker {
         
     }
     
-    public func uploadRealEmojiImageToS3(accessToken: String, memberId: String, parameters: Encodable) -> Single<CameraCreateRealEmojiResponseDTO?> {
+    public func uploadRealEmojiImageToS3(accessToken: String, parameters: Encodable) -> Single<CameraCreateRealEmojiResponseDTO?> {
+        //TODO: Repository로 코드 원복
+        let memberId = App.Repository.member.memberID.value ?? ""
         let spec = CameraAPIs.updateRealEmojiImage(memberId).spec
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
@@ -112,7 +116,9 @@ extension CameraAPIWorker {
             .asSingle()
     }
     
-    public func loadRealEmojiImage(accessToken: String, memberId: String) -> Single<CameraRealEmojiImageItemResponseDTO?> {
+    public func loadRealEmojiImage(accessToken: String) -> Single<CameraRealEmojiImageItemResponseDTO?> {
+        //TODO: Repository로 코드 원복
+        let memberId = App.Repository.member.memberID.value ?? ""
         let spec = CameraAPIs.reloadRealEmoji(memberId).spec
         
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)])
@@ -122,7 +128,9 @@ extension CameraAPIWorker {
             .asSingle()
     }
     
-    public func updateRealEmojiImage(accessToken: String, memberId: String, realEmojiId: String, parameters: Encodable) -> Single<CameraUpdateRealEmojiResponseDTO?> {
+    public func updateRealEmojiImage(accessToken: String, realEmojiId: String, parameters: Encodable) -> Single<CameraUpdateRealEmojiResponseDTO?> {
+        //TODO: Repository로 코드 원복
+        let memberId = App.Repository.member.memberID.value ?? ""
         let spec = CameraAPIs.modifyRealEmojiImage(memberId, realEmojiId).spec
         return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
             .subscribe(on: Self.queue)

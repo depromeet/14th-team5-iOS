@@ -41,7 +41,7 @@ public struct PostListQuery {
     public var page: Int
     public let size: Int
     public let date: String
-    public let memberId: String?
+    public var memberId: String?
     public let type: PostType
     public let sort: String
     

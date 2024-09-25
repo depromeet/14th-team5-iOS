@@ -7,32 +7,15 @@
 
 import Core
 import Foundation
+import MacrosInterface
 
-final class FamilyEntranceControllerWrapper: BaseWrapper {
-    
-    // MARK: - Typealias
-    
-    typealias R = FamilyEntranceReactor
-    typealias V = FamilyEntranceViewController
-    
-    // MARK: - Properties
-    
-    var reactor: FamilyEntranceReactor {
-        makeReactor()
-    }
-    
-    var viewController: FamilyEntranceViewController {
-        makeViewController()
-    }
+@Wrapper<FamilyEntranceReactor, FamilyEntranceViewController>
+final class FamilyEntranceControllerWrapper {
     
     // MARK: - Make
     
     func makeReactor() -> FamilyEntranceReactor {
         FamilyEntranceReactor()
-    }
-    
-    func makeViewController() -> FamilyEntranceViewController {
-        FamilyEntranceViewController(reactor: makeReactor())
     }
     
 }

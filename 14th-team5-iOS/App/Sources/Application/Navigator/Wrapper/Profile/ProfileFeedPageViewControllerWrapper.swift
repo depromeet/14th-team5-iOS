@@ -9,7 +9,7 @@ import Core
 
 import Foundation
 
-final class ProfileFeedPageViewControllerWrapper: BaseWrapper {
+final class ProfileFeedPageViewControllerWrapper {
     typealias R = ProfileFeedPageViewReactor
     typealias V = ProfileFeedPageViewController
 

@@ -16,9 +16,9 @@ import ReactorKit
 final class ProfileFeedViewReactor: Reactor {
     var initialState: State
     @Injected private var feedUseCase: FetchMembersPostListUseCaseProtocol
-    
+    @Injected private var provider: ServiceProviderProtocol
     enum Action {
-        case reloadFeedItems
+        case reloadFeedItems(String)
         case fetchMoreFeedItems
         case didTapProfileFeedItem(IndexPath, [PostEntity])
     }
@@ -59,12 +59,27 @@ final class ProfileFeedViewReactor: Reactor {
     }
     
     
+    func transform(action: Observable<Action>) -> Observable<Action> {
+        let fetchMemberIdMutation = provider.profileGlobalState.event
+            .flatMap { event -> Observable<Action> in
+                switch event {
+                case let .fetchMemberId(memberId):
+                    return .just(.reloadFeedItems(memberId))
+                default:
+                    return .empty()
+                }
+            }
+        
+        return .merge(fetchMemberIdMutation, action)
+    }
+    
     func mutate(action: Action) -> Observable<Mutation> {
         
         var query: PostListQuery = PostListQuery(page: currentState.feedPage, size: 10, date: "", memberId: currentState.memberId, type: currentState.type, sort: .desc)
         
         switch action {
-        case .reloadFeedItems:
+        case let .reloadFeedItems(memberId):
+            query.memberId = memberId
             return feedUseCase.execute(query: query)
                 .asObservable()
                 .flatMap { entity -> Observable<ProfileFeedViewReactor.Mutation> in

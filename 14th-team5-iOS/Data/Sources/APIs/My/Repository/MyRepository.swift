@@ -34,7 +34,6 @@ extension MyRepository {
     }
     
     public func fetchUserName(memberId: String) -> String? {
-        print("================= \(familyUserDefaults.loadFamilyMember(memberId)?.name)")
         return familyUserDefaults.loadFamilyMember(memberId)?.name
     }
     

@@ -126,7 +126,7 @@ public final class CameraViewReactor: Reactor {
         case .didTapToggleButton:
             return Observable.just(.setPosition(!self.currentState.isSwitchPosition))
         case .didTapFlashButton:
-            return Observable.just(.setFlashMode(self.currentState.isFlashMode))
+            return Observable.just(.setFlashMode(!self.currentState.isFlashMode))
         case let .didTapZoomButton(scale):
             if self.currentState.zoomScale == 2.0 {
                 return .just(.setZoomScale(self.currentState.zoomScale - scale))

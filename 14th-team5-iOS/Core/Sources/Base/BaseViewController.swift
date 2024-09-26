@@ -16,7 +16,6 @@ open class BaseViewController<R>: UIViewController, ReactorKit.View where R: Rea
     public typealias Reactor = R
     
     // MARK: - Properties
-    private var initialReactor: Reactor?
     public var disposeBag: RxSwift.DisposeBag = DisposeBag()
     public let navigationBarView: BibbiNavigationBarView = BibbiNavigationBarView()
     
@@ -27,7 +26,7 @@ open class BaseViewController<R>: UIViewController, ReactorKit.View where R: Rea
     
     public convenience init(reactor: Reactor? = nil) {
         self.init()
-        self.initialReactor = reactor
+        self.reactor = reactor
     }
     
     required public init?(coder: NSCoder) {
@@ -40,7 +39,6 @@ open class BaseViewController<R>: UIViewController, ReactorKit.View where R: Rea
         setupUI()
         setupAutoLayout()
         setupAttributes()
-        setupReactor()
     }
     
     // MARK: - Helpers
@@ -60,12 +58,6 @@ open class BaseViewController<R>: UIViewController, ReactorKit.View where R: Rea
                 }
             })
             .disposed(by: disposeBag)
-    }
-    
-    open func setupReactor() {
-        if let reactor = initialReactor {
-            self.reactor = reactor
-        }
     }
     
     /// 서브 뷰 추가를 위한 메서드

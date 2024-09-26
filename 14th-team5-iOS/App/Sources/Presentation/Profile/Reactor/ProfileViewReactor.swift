@@ -19,6 +19,7 @@ public final class ProfileViewReactor: Reactor {
     @Injected private var createProfilePresignedUseCase: CreateCameraUseCaseProtocol
     @Injected private var uploadProfileImageUseCase: FetchCameraUploadImageUseCaseProtocol
     @Injected private var updateProfileUseCase: UpdateMembersProfileUseCaseProtocol
+    @Injected private var deleteProfileImageUseCase: DeleteMembersProfileUseCaseProtocol
     
     
     
@@ -176,19 +177,16 @@ public final class ProfileViewReactor: Reactor {
                             }
                     }
             )
-            
         case .didTapInitProfile:
-            return fetchMembersProfileUseCase.execute(memberId: memberId)
+            return deleteProfileImageUseCase.execute(memberId: memberId)
                 .asObservable()
-                .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
+                .flatMap { entity -> Observable<Mutation> in
                     return .concat(
                         .just(.setLoading(false)),
                         .just(.setProfileMemberItems(entity)),
                         .just(.setLoading(true))
                     )
-                    
                 }
-            
         case let .didTapSegementControl(feedType):
             provider.profilePageGlobalState.didTapSegmentedPageType(type: feedType)
             return .just(.setProfileFeedType(feedType))

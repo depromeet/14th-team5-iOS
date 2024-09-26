@@ -57,14 +57,12 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
         button.setTitleColor(buttonTint ?? .gray100, for: .normal)
         container.addSubview(button)
 
-        addArrangedSubview(iconView)
-        addArrangedSubview(container)
+        addArrangedSubviews(iconView, container)
         
         setupConstraints()
         setupAttributes()
         
         layoutIfNeeded()
-        setNeedsLayout()
     }
     
     required init(coder: NSCoder) {

@@ -6,7 +6,10 @@
 //
 
 import Core
+import DesignSystem
 import UIKit
+
+import RxSwift
 
 // TODO: - 코드 리팩토링하기
 
@@ -48,8 +51,14 @@ public class CopyInvitationUrlActivity: UIActivity {
     }
     
     public override func perform() {
+        let viewConfig = BBToastViewConfiguration(minWidth: 100)
+        provider.bbToastService.show(
+            image: DesignSystemAsset.link.image,
+            title: "링크가 복사되었어요",
+            viewConfig: viewConfig
+        )
+        
         UIPasteboard.general.string = url.description
-        provider.managementService.didTapCopUrlAction() // TODO: - 오타 수정
     }
     
 }

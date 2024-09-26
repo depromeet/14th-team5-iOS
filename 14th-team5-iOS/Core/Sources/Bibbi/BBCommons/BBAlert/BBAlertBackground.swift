@@ -17,7 +17,7 @@ extension BBAlert {
         /// 아무런 배경 색상을 적용하지 않습니다.
         case none
         
-        // 특정 색상을 배경 색상으로 적용합니다.
+        /// 특정 색상을 배경 색상으로 적용합니다.
         case color(color: UIColor = defaultImageTint.withAlphaComponent(0.25))
     }
     

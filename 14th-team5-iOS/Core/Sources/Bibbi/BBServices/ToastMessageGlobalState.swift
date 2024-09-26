@@ -9,6 +9,7 @@ import Foundation
 
 import RxSwift
 
+@available(*, deprecated, renamed: "BBToastService")
 public enum ToastMessageEvent {
     case showAllFamilyUploadedToastView(Bool)
 }
@@ -24,6 +25,7 @@ public protocol ToastMessageGlobalStateType {
     func clearLastSelectedDate()
 }
 
+@available(*, deprecated, renamed: "BBToastService")
 final public class ToastMessageGlobalState: BaseService, ToastMessageGlobalStateType {
     public var lastSelectedDate: Date = .distantFuture
     public var event: BehaviorSubject<ToastMessageEvent> = BehaviorSubject<ToastMessageEvent>(value: .showAllFamilyUploadedToastView(false))

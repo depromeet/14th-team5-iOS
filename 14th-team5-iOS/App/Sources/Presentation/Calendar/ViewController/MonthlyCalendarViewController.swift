@@ -16,12 +16,8 @@ import RxDataSources
 import SnapKit
 import Then
 
-import MacrosInterface
-
-@Codable
-struct MemberDTO {
-    var name: String
-}
+// 지금 당장 BBNavigationViewController로 바꿔도 안됨
+// 왜냐하면, PopoverViewController Delegate 문제가 발생하기 때문!
 
 fileprivate typealias _Str = CalendarStrings
 public final class MonthlyCalendarViewController: TempNavigationViewController<MonthlyCalendarViewReactor> {
@@ -52,7 +48,7 @@ public final class MonthlyCalendarViewController: TempNavigationViewController<M
             .bind(with: self) { owner, _ in
                 UIView.transition(
                     with: owner.calendarCollectionView,
-                    duration: 0.15,
+                    duration: 0.25,
                     options: .transitionCrossDissolve
                 ) { [weak self] in
                     self?.calendarCollectionView.isHidden = false
@@ -60,13 +56,15 @@ public final class MonthlyCalendarViewController: TempNavigationViewController<M
             }
             .disposed(by: disposeBag)
         
-        App.Repository.member.familyCreatedAt
+        App.Repository.member.familyCreatedAt // 캘린더 페이지를 생성하는 코드 ex) 2024년 3월 ~ 9월
             .withUnretained(self)
             .map {
                 guard let createdAt = $0.1 else {
                     let _20230101 = Date._20230101
                     return $0.0.createCalendarItems(from: _20230101)
                 }
+                print("======= \(createdAt)")
+                print("======= \($0.0.createCalendarItems(from: createdAt))")
                 return $0.0.createCalendarItems(from: createdAt)
             }
             .map { Reactor.Action.addCalendarItems($0)}
@@ -83,6 +81,12 @@ public final class MonthlyCalendarViewController: TempNavigationViewController<M
     private func bindOutput(reactor: MonthlyCalendarViewReactor) {
         reactor.pulse(\.$displayCalendar)
             .bind(to: calendarCollectionView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        reactor.state.compactMap { $0.initalCalendarPageIndexPath }
+            .bind(with: self) { owner, indexPath in
+                owner.scrollToLastIndexPath(indexPath)
+            }
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$shouldPushDailyCalendarViewController).compactMap { $0 }
@@ -134,7 +138,6 @@ public final class MonthlyCalendarViewController: TempNavigationViewController<M
             $0.backgroundColor = UIColor.clear
             $0.register(CalendarCell.self, forCellWithReuseIdentifier: CalendarCell.id)
         }
-        scrollToLastIndexPath()
     }
 }
 
@@ -174,9 +177,7 @@ extension MonthlyCalendarViewController {
     private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<MonthlyCalendarSectionModel> {
         return RxCollectionViewSectionedReloadDataSource<MonthlyCalendarSectionModel> { datasource, collectionView, indexPath, yearMonth in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarCell.id, for: indexPath) as! CalendarCell
-            cell.reactor = CalendarCellDIContainer(
-                yearMonth: yearMonth
-            ).makeReactor()
+            cell.reactor = CalendarCellReactor(yearMonth: yearMonth)
             return cell
         }
     }
@@ -190,12 +191,11 @@ extension MonthlyCalendarViewController {
         )
     }
     
-    private func scrollToLastIndexPath() {
+    private func scrollToLastIndexPath(_ indexPath: IndexPath) {
         calendarCollectionView.layoutIfNeeded()
-        let indexPath: IndexPath = IndexPath(
-            item: dataSource[0].items.count - 1,
-            section: 0
-        )
+        
+        print("======= \(dataSource[0].items.count - 1)")
+        
         calendarCollectionView.scrollToItem(
             at: indexPath,
             at: .centeredHorizontally,

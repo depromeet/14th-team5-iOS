@@ -47,7 +47,7 @@ final public class CommentViewReactor: Reactor {
     // MARK: - State
     
     public struct State {
-        @Pulse var commentDatasource: [CommentSectionModel] = [.init(model: "", items: [])]
+        @Pulse var commentDatasource: [CommentSectionModel] = []
     
         var hiddenTableProgressHud: Bool = false
         var hiddenFetchFailureView: Bool = true
@@ -233,7 +233,7 @@ final public class CommentViewReactor: Reactor {
         
         switch mutation {
         case let .setComments(comments):
-            let dataSource: CommentSectionModel = .init(model: "", items: comments)
+            let dataSource = CommentSectionModel(model: "", items: comments)
             newState.commentDatasource = [dataSource]
             
         case let .appendComment(comment):

@@ -62,11 +62,6 @@ public final class SplashViewController: BaseViewController<SplashReactor> {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        Observable.just(())
-            .map { Reactor.Action.fetchFamily }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
         NotificationCenter.default
             .rx.notification(.didTapUpdateButton)
             .withUnretained(self)

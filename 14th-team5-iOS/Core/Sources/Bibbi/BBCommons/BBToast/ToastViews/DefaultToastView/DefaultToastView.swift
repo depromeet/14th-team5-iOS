@@ -93,8 +93,8 @@ public class DefaultToastView: UIView, BBToastView {
         child.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            child.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 15),
-            child.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -15),
+            child.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20),
+            child.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20),
             child.topAnchor.constraint(equalTo: self.topAnchor, constant: 15),
             child.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -15)
         ])

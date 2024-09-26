@@ -73,7 +73,7 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
     
     private func commonInit() {
         axis = .horizontal
-        spacing = 0
+        spacing = 5
         alignment = .center
         distribution = .fillProportionally
     }

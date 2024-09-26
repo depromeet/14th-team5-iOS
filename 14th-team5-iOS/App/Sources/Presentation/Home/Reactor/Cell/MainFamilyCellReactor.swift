@@ -7,7 +7,7 @@
 
 
 import Core
-import Foundation
+import UIKit
 import DesignSystem
 import Domain
 
@@ -127,11 +127,20 @@ final class MainFamilyCellReactor: Reactor {
                 switch $0.1 {
                 case .pick:
                     return $0.0.pickMemberUseCase.execute(memberId: memberId)
+                        .withUnretained(self)
                         .flatMap {
                             guard
-                                let entity = $0, entity.success
-                            else { return Observable<Mutation>.empty() }
+                                let entity = $0.1, entity.success
+                            else {
+                                $0.0.provider.bbToastService.show(.error)
+                                return Observable<Mutation>.empty()
+                            }
                             
+                            $0.0.provider.bbToastService.show(
+                                image: DesignSystemAsset.yellowPaperPlane.image,
+                                imageTint: UIColor.mainYellow,
+                                title: "\(memberName)님에게 생존신고 알림을 보냈어요"
+                            )
                             return Observable<Mutation>.just(.setHiddenPickButton(true))
                         }
                     

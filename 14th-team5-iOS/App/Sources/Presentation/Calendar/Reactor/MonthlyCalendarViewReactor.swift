@@ -26,6 +26,8 @@ public final class MonthlyCalendarViewReactor: Reactor {
         case pushDailyCalendarViewController(Date)
         case setInfoPopover(UIView)
         case setCalendarItems([String])
+        // TODO: - 싹다 코드 리팩토링하기
+        case setCalendarPageIndexPath(IndexPath)
     }
     
     // MARK: - State
@@ -34,6 +36,8 @@ public final class MonthlyCalendarViewReactor: Reactor {
         @Pulse var shouldPushDailyCalendarViewController: Date?
         @Pulse var shouldPresnetInfoPopover: UIView?
         @Pulse var displayCalendar: [MonthlyCalendarSectionModel]
+        
+        var initalCalendarPageIndexPath: IndexPath? = nil
     }
     
     
@@ -80,7 +84,12 @@ public final class MonthlyCalendarViewReactor: Reactor {
             return Observable<Mutation>.just(.popViewController)
             
         case let .addCalendarItems(items):
-            return Observable<Mutation>.just(.setCalendarItems(items))
+            let indexPath = IndexPath(item: items.count-1, section: 0)
+            
+            return Observable<Mutation>.concat(
+                Observable<Mutation>.just(.setCalendarItems(items)),
+                Observable<Mutation>.just(.setCalendarPageIndexPath(indexPath))
+            )
             
         }
     }
@@ -104,7 +113,12 @@ public final class MonthlyCalendarViewReactor: Reactor {
                 items: items
             )
             newState.displayCalendar = [newDatasource]
+            
+        case let .setCalendarPageIndexPath(indexPath):
+            newState.initalCalendarPageIndexPath = indexPath
         }
+    
+        
         return newState
     }
 }

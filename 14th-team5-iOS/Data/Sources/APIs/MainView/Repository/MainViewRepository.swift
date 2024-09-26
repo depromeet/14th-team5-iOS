@@ -16,12 +16,19 @@ public final class MainViewRepository: MainViewRepositoryProtocol {
     
     private let mainApiWorker: MainAPIWorker = MainAPIWorker()
     
+    private let familyUserDefaults = FamilyInfoUserDefaults()
+    
     public init() { }
 }
 
 extension MainViewRepository {
     public func fetchMain() -> Observable<MainViewEntity?> {
         return mainApiWorker.fetchMain()
+            .do(onSuccess: { [weak self] in
+                if let profiles = $0?.mainFamilyProfileDatas {
+                    self?.familyUserDefaults.saveFamilyMembers(profiles)
+                }
+            })
             .asObservable()
 
     }

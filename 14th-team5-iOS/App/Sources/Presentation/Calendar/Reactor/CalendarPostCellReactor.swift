@@ -39,6 +39,8 @@ public final class CalendarPostCellReactor: Reactor {
     // MARK: - Properties
     public var initialState: State
     
+    @Injected var fetchUserNameUseCase: FetchUserNameUseCaseProtocol
+    
     @Injected var meUseCase: MemberUseCaseProtocol
     @Injected var provider: ServiceProviderProtocol
     
@@ -72,9 +74,9 @@ public final class CalendarPostCellReactor: Reactor {
             
         case .requestAuthorName:
             let authorId = initialState.post.authorId
-            let authorName = meUseCase.executeFetchUserName(memberId: authorId)
+            let authorName = fetchUserNameUseCase.execute(memberId: authorId) ?? "알 수 없음"
             return Observable<Mutation>.just(.setAuthorName(authorName))
-            
+       
         case .requestAuthorImageUrl:
             let authorId = initialState.post.authorId
             let authorImageUrl = meUseCase.executeProfileImageUrlString(memberId: authorId)

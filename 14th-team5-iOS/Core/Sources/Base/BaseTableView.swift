@@ -16,7 +16,6 @@ open class BaseTableView<R>: UITableView, ReactorKit.View where R: Reactor {
     
     // MARK: - Properties
     
-    private var initialReactor: Reactor?
     
     public var disposeBag: RxSwift.DisposeBag = DisposeBag()
     
@@ -24,7 +23,7 @@ open class BaseTableView<R>: UITableView, ReactorKit.View where R: Reactor {
     
     public convenience init(reactor: Reactor? = nil) {
         self.init(frame: .zero, style: .plain)
-        self.initialReactor = reactor
+        self.reactor = reactor
     }
     
     public override init(frame: CGRect, style: UITableView.Style) {
@@ -32,7 +31,6 @@ open class BaseTableView<R>: UITableView, ReactorKit.View where R: Reactor {
         setupUI()
         setupAutoLayout()
         setupAttributes()
-        setupReactor()
     }
     
     public required init?(coder: NSCoder) {
@@ -52,8 +50,4 @@ open class BaseTableView<R>: UITableView, ReactorKit.View where R: Reactor {
     
     // 뷰의 속성 설정을 위한 메서드
     open func setupAttributes() { }
-    
-    open func setupReactor() {
-        self.reactor = initialReactor
-    }
 }

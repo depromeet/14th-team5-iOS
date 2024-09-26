@@ -77,6 +77,12 @@ final class NavigatorDIContainer: BaseContainer {
             )
         }
         
+        container.register(type: CameraDisplayNavigatorProtocol.self) { _ in
+            CameraDisplayNavigator(
+                navigationController: makeUINavigationController()
+            )
+        }
+        
         container.register(type: ManagementNavigatorProtocol.self) { _ in
             ManagementNavigator(
                 navigationController: makeUINavigationController()

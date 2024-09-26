@@ -200,7 +200,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         archiveButton
             .rx.tap
-            .throttle(.seconds(1), scheduler: MainScheduler.instance)
+            .throttle(RxInterval._600milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.didTapArchiveButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -245,21 +245,24 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         displayEditTextField.rx
             .text.orEmpty
             .filter { $0.contains(" ")}
-            .map { $0.trimmingCharacters(in: .whitespaces)}
+            .map { Reactor.Action.showInputBlankTextError($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$displayText)
             .bind(to: displayEditTextField.rx.text)
             .disposed(by: disposeBag)
         
         displayEditTextField.rx
-            .text.orEmpty
-            .map { $0.contains(" ") }
+            .text.changed
+            .compactMap { $0 }
+            .filter { $0.contains(" ") }
+            .debug("카메라 상세 공백 체크")
             .distinctUntilChanged()
-            .debounce(.seconds(1), scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind { owner, isShow in
-                guard isShow == true else { return }
-                owner.makeBibbiToastView(text: "띄어쓰기는 할 수 없어요", image: DesignSystemAsset.warning.image, duration: 1, delay: 1, offset: 400)
-            }.disposed(by: disposeBag)
-        
+            .map { _ in Reactor.Action.showInputTextError }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+
         reactor.pulse(\.$isError)
             .filter { $0 }
             .withUnretained(self)
@@ -268,16 +271,16 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         displayEditTextField.rx
             .text.orEmpty
-            .map { ($0.count > 8) }
-            .debounce(.milliseconds(300), scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind { owner, isShow in
-                guard isShow == true else { return }
-                owner.makeBibbiToastView(text: "8자까지 입력가능해요", image: DesignSystemAsset.warning.image, offset: 400)
-            }.disposed(by: disposeBag)
+            .filter{ $0.count > 8 }
+            .debounce(RxInterval._600milliseconds, scheduler: RxScheduler.main)
+            .map { _ in Reactor.Action.showInputTextError }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
         displayEditTextField.rx
             .text.orEmpty
+            .filter { !$0.contains(" ")}
+            .debounce(RxInterval._600milliseconds, scheduler: RxScheduler.main)
             .scan("") { previous, new -> String in
                 if new.count > 8 {
                   return previous
@@ -290,7 +293,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         confirmButton.rx
             .tap
-            .throttle(.seconds(1), scheduler: MainScheduler.instance)
+            .throttle(RxInterval._600milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.didTapConfirmButton}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -303,7 +306,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         displayEditButton
             .rx.tap
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .throttle(RxInterval._600milliseconds, scheduler: RxScheduler.main)
             .withLatestFrom(reactor.state.map{ $0.displayDescrption })
             .filter { $0.isValidation() }
             .withUnretained(self)
@@ -314,15 +317,14 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         displayEditCollectionView
             .rx.tap
             .observe(on: MainScheduler.instance)
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .withUnretained(self)
             .bind(onNext: { $0.0.didTapCollectionViewTransition()})
             .disposed(by: disposeBag)
         
         displayDimView
             .rx.tap
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-            .observe(on: MainScheduler.instance)
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .withUnretained(self)
             .bind { owner, _ in
                 owner.view.endEditing(true)
@@ -388,12 +390,6 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .drive(displayIndicatorView.rx.isHidden)
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$displayData)
-            .skip(until: rx.methodInvoked(#selector(viewWillAppear(_:))))
-            .withUnretained(self)
-            .bind(onNext: { $0.0.setupCameraDisplayPermission($0.1) })
-            .disposed(by: disposeBag)
-        
         displayEditCollectionView.rx
             .setDelegate(self)
             .disposed(by: disposeBag)
@@ -403,14 +399,6 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .asDriver(onErrorJustReturn: [])
             .drive(displayEditCollectionView.rx.items(dataSource: displayEditDataSources))
             .disposed(by: disposeBag)
-        
-        reactor.state
-            .compactMap { $0.displayPostEntity?.postId }
-            .filter { !$0.isEmpty }
-            .withUnretained(self)
-            .bind(onNext: { $0.0.transitionToHomeViewController()})
-            .disposed(by: disposeBag)
-        
     }
 }
 
@@ -423,10 +411,6 @@ extension CameraDisplayViewController {
                 guard let `self` = self else { return }
                 let creationRequest = PHAssetCreationRequest.forAsset()
                 creationRequest.addResource(with: .photo, data: originalData, options: nil)
-                self.makeBibbiToastView(
-                    text: "사진이 저장되었습니다.",
-                    image: DesignSystemAsset.camera.image.withTintColor(DesignSystemAsset.gray300.color)
-                )
             }
         } else {
             PHPhotoLibrary.requestAuthorization(for: .addOnly) { stauts in
@@ -506,9 +490,6 @@ extension CameraDisplayViewController {
         present(permissionAlertController, animated: true)
     }
     
-    private func transitionToHomeViewController() {
-        self.navigationController?.popToRootViewController(animated: true)
-    }
 }
 
 extension CameraDisplayViewController: UICollectionViewDelegateFlowLayout {

@@ -84,12 +84,12 @@ private extension BBToastConfiguration {
         switch direction {
         case let .top(yOffset):
             return .custom(
-                transformation: CGAffineTransform(scaleX: 0.9, y: 0.9).translatedBy(x: 0, y: -yOffset - 100)
+                transformation: CGAffineTransform(scaleX: 0.9, y: 0.9).translatedBy(x: 0, y: -yOffset - 300)
             )
             
         case let .bottom(yOffset):
             return .custom(
-                transformation: CGAffineTransform(scaleX: 0.9, y: 0.9).translatedBy(x: 0, y: +yOffset + 100)
+                transformation: CGAffineTransform(scaleX: 0.9, y: 0.9).translatedBy(x: 0, y: -yOffset + 300)
             )
 
         case .center:

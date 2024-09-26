@@ -160,6 +160,7 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         }
         
         profileImage.do {
+            $0.layer.masksToBounds = true
             $0.layer.cornerRadius = 44 / 2
             $0.contentMode = .scaleAspectFill
         }

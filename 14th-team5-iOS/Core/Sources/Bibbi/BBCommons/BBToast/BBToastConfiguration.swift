@@ -56,7 +56,7 @@ public struct BBToastConfiguration {
     public init(
         direction: BBToast.Direction = .bottom(yOffset: 0),
         dismissables: [BBToast.Dismissable] = [.time(time: 2.5), .swipe(direction: .natural)],
-        animationTime: TimeInterval = 0.6,
+        animationTime: TimeInterval = 0.8,
         enteringAnimation: BBToast.Animation = .default,
         exitingAnimation: BBToast.Animation = .default,
         attachTo view: UIView? = nil,
@@ -84,12 +84,12 @@ private extension BBToastConfiguration {
         switch direction {
         case let .top(yOffset):
             return .custom(
-                transformation: CGAffineTransform(scaleX: 0.9, y: 0.9).translatedBy(x: 0, y: -yOffset - 100)
+                transformation: CGAffineTransform(scaleX: 0.9, y: 0.9).translatedBy(x: 0, y: -yOffset - 300)
             )
             
         case let .bottom(yOffset):
             return .custom(
-                transformation: CGAffineTransform(scaleX: 0.9, y: 0.9).translatedBy(x: 0, y: +yOffset + 100)
+                transformation: CGAffineTransform(scaleX: 0.9, y: 0.9).translatedBy(x: 0, y: -yOffset + 300)
             )
 
         case .center:

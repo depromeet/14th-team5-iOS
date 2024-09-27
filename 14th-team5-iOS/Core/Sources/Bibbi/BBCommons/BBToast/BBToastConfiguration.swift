@@ -56,7 +56,7 @@ public struct BBToastConfiguration {
     public init(
         direction: BBToast.Direction = .bottom(yOffset: 0),
         dismissables: [BBToast.Dismissable] = [.time(time: 2.5), .swipe(direction: .natural)],
-        animationTime: TimeInterval = 0.6,
+        animationTime: TimeInterval = 0.8,
         enteringAnimation: BBToast.Animation = .default,
         exitingAnimation: BBToast.Animation = .default,
         attachTo view: UIView? = nil,

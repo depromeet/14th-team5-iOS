@@ -65,6 +65,7 @@ final public class CommentViewController: ReactorViewController<CommentViewReact
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
         
+        // TODO: - 코드 리팩토링하기
         commentTableView.rx.itemDeleted
             .withUnretained(self)
             .bind { $0.0.reactor?.action.onNext(.deleteComment($0.0.dataSource[$0.1].currentState.comment.commentId)) }
@@ -187,12 +188,6 @@ final public class CommentViewController: ReactorViewController<CommentViewReact
     
     public override func setupAttributes() {
         super.setupAttributes()
-        // TODO: - App.Repository 제거하기
-        dataSource.canEditRowAtIndexPath = {
-            let myMemberId = App.Repository.member.memberID.value
-            let commentMemberId = $0[$1].currentState.comment.memberId
-            return myMemberId == commentMemberId
-        }
     }
 }
 
@@ -214,13 +209,21 @@ extension CommentViewController {
     }
     
     private func prepareDatasource() -> RxDataSource {
-        return RxDataSource { dataSource, tableView, indexPath, reactor in
+        let dataSource = RxDataSource { dataSource, tableView, indexPath, reactor in
             let cell = tableView.dequeueReusableCell(
                 withIdentifier: CommentCell.id
             ) as! CommentCell
             cell.reactor = reactor
             return cell
         }
+        
+        dataSource.canEditRowAtIndexPath = {
+            let myMemberId = App.Repository.member.memberID.value
+            let commentMemberId = $0[$1].currentState.comment.memberId
+            return myMemberId == commentMemberId
+        }
+        
+        return  dataSource
     }
     
 }

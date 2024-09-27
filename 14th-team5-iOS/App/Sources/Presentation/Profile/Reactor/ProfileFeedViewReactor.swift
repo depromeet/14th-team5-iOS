@@ -15,7 +15,7 @@ import ReactorKit
 
 final class ProfileFeedViewReactor: Reactor {
     var initialState: State
-    @Injected private var feedUseCase: FetchMembersPostListUseCaseProtocol
+    @Injected private var feedUseCase: FetchPostListUseCaseProtocol
     @Injected private var provider: ServiceProviderProtocol
     enum Action {
         case reloadFeedItems
@@ -146,8 +146,8 @@ final class ProfileFeedViewReactor: Reactor {
                         missionType: $0.missionType,
                         author: FamilyMemberProfileEntity(
                             memberId: currentState.memberId,
-                            profileImageURL: $0.author?.profileImageURL,
-                            name: $0.author?.name ?? ""),
+                            profileImageURL: $0.author.profileImageURL,
+                            name: $0.author.name),
                         commentCount: $0.commentCount,
                         emojiCount: $0.emojiCount,
                         imageURL: $0.imageURL,

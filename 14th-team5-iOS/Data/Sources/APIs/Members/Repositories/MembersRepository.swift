@@ -16,6 +16,8 @@ import RxCocoa
 public final class MembersRepository {
         
     public var disposeBag: DisposeBag = DisposeBag()
+    
+    private let familyUserDefaults: FamilyInfoUserDefaults = FamilyInfoUserDefaults()
     private let membersAPIWorker: MembersAPIWorker = MembersAPIWorker()
     private let accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
     public init() { }
@@ -35,7 +37,7 @@ extension MembersRepository: MembersRepositoryProtocol {
         return membersAPIWorker.updateProfileAlbumImageToS3(accessToken: accessToken, memberId: memberId, parameter: parameter)
             .do {
                 guard let userEntity = $0?.toProfileEntity() else { return }
-                FamilyUserDefaults.saveMemberToUserDefaults(familyMember: userEntity)
+                self.familyUserDefaults.updateFamilyMember(userEntity)
             }
             .map { $0?.toDomain() }
             .catchAndReturn(nil)
@@ -45,7 +47,7 @@ extension MembersRepository: MembersRepositoryProtocol {
         return membersAPIWorker.deleteProfileImageToS3(accessToken: accessToken, memberId: memberId)
             .do {
                 guard let userEntity = $0?.toProfileEntity() else { return }
-                FamilyUserDefaults.saveMemberToUserDefaults(familyMember: userEntity)
+                self.familyUserDefaults.updateFamilyMember(userEntity)
             }
             .map { $0?.toDomain() }
             .catchAndReturn(nil)

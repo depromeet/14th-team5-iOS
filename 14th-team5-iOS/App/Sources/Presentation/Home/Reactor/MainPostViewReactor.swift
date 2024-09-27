@@ -57,14 +57,14 @@ extension MainPostViewReactor {
                 .asObservable()
                 .flatMap { (postList) -> Observable<Mutation> in
                     guard let postList = postList,
-                          !postList.postLists.isEmpty else {
+                          !postList.isEmpty else {
                         return Observable.from([
                             Mutation.setNoPostTodayView(true),
                             Mutation.updateRefreshEnd(true),
                         ])
                     }
-    
-                    let postSectionItem = postList.postLists.map(PostSection.Item.main)
+                    
+                    let postSectionItem = postList.map(PostSection.Item.main)
                     let mutations = [
                         Mutation.updatePostDataSource(postSectionItem),
                         Mutation.setNoPostTodayView(false),
@@ -83,7 +83,6 @@ extension MainPostViewReactor {
         case .updatePostDataSource(let postSectionItem):
             newState.isRefreshEnd = true
             newState.postSection.items = postSectionItem
-            App.Repository.member.postId.accept(UserDefaults.standard.postId)
         case .setNoPostTodayView(let isShow):
             newState.isShowingNoPostTodayView = isShow
         case .updateRefreshEnd(let status):

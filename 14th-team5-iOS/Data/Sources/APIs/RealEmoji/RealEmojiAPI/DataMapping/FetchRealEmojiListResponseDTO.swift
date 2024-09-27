@@ -23,7 +23,8 @@ struct FetchRealEmojiListResponseDTO: Codable {
     let results: [RealEmojiListResult]
     
     func toDomain() -> [EmojiEntity]? {
-        let myMemberId = FamilyUserDefaults.returnMyMemberId()
+        let myUserDefaults = MyUserDefaults()
+        let myMemberId = myUserDefaults.loadMemberId() ?? "NONE"
         let groupedByEmojiType = Dictionary(grouping: results, by: { $0.realEmojiId })
 
         let fetchedEmojiDataArray = groupedByEmojiType.map { (emojiType, responses) in

@@ -102,7 +102,7 @@ extension FamilyAPIWorker {
     
     // MARK: - Fetch Family Member
     
-    public func fetchPaginationFamilyMember(familyId: String, query: FamilyPaginationQuery) -> Single<PaginationResponseFamilyMemberProfileDTO?> {
+    public func fetchPaginationFamilyMember(query: FamilyPaginationQuery) -> Single<PaginationResponseFamilyMemberProfileDTO?> {
         let page = query.page
         let size = query.size
         let spec = FamilyAPIs.fetchPaginationFamilyMembers(page, size).spec

@@ -16,9 +16,7 @@ protocol ManagementNavigatorProtocol: BaseNavigator {
     func toFamilyNameSetting()
     
     func presentSharingSheet(url: URL?)
-    
-    func showSuccessToast()
-    func showErrorToast()
+
 }
 
 final class ManagementNavigator: ManagementNavigatorProtocol {
@@ -70,20 +68,6 @@ final class ManagementNavigator: ManagementNavigatorProtocol {
         )
         activityVC.excludedActivityTypes = [.addToReadingList, .copyToPasteboard]
         navigationController.present(activityVC, animated: true)
-    }
-    
-    
-    // MARK: - Show
-    
-    func showSuccessToast() {
-        BBToast.default(
-            image: DesignSystemAsset.link.image,
-            title: "링크가 복사되었어요"
-        ).show()
-    }
-    
-    func showErrorToast() {
-        BBToast.style(.error).show()
     }
     
 }

@@ -9,10 +9,8 @@ import UIKit
 
 import SnapKit
 
-extension UIControl.State: Hashable {
-    
-}
 
+/// BBButton은 `titleLabel`이 BBFontStyle에 맞게 커스텀되어 있는 버튼입니다.
 public class BBButton: UIButton {
     
     // MARK: - Views
@@ -120,3 +118,6 @@ public class BBButton: UIButton {
     }
     
 }
+
+
+extension UIControl.State: Hashable { }

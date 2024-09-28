@@ -12,18 +12,19 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
     // MARK: - Views
     
     private let button: BBButton = BBButton()
+    private let container: UIView = UIView()
     
     // MARK: - Properties
     
     public var toast: BBToast?
-    public var buttonAction: BBToastAction
+    public var action: BBToastActionHandler = nil
     
     private let viewConfig: BBToastViewConfiguration
     
     // MARK: - Intializer
     
     public init(
-        image: UIImage,
+        image: UIImage? = nil,
         imageTint: UIColor? = nil,
         title: String,
         titleColor: UIColor? = nil,
@@ -31,15 +32,16 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
         buttonTitle: String,
         buttonTitleFontStlye: BBFontStyle? = nil,
         buttonTint: UIColor? = nil,
+        action: BBToastActionHandler = nil,
         viewConfig: BBToastViewConfiguration
     ) {
-        self.buttonAction = nil
         self.toast = nil
+        self.action = action
         
         self.viewConfig = viewConfig
         super.init(frame: .zero)
         commonInit()
-        
+
         let iconView = IconToastView(
             image: image,
             imageTint: imageTint,
@@ -53,25 +55,14 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
         button.setTitle(buttonTitle, for: .normal)
         button.setTitleFontStyle(buttonTitleFontStlye ?? .body1Regular)
         button.setTitleColor(buttonTint ?? .gray100, for: .normal)
+        container.addSubview(button)
+
+        addArrangedSubviews(iconView, container)
         
-        let action = UIAction { [weak self] _ in
-            guard let self = self else { return }
-            // 델리게이트 실행
-            BBToast.multicast.invoke {
-                $0.didTapToastButton(
-                    self.toast,
-                    index: self.button.id,
-                    button: self.button
-                )
-            }
-            // 액션 클로저 실행
-            buttonAction?(self.toast)
-        }
+        setupConstraints()
+        setupAttributes()
         
-        button.addAction(action, for: .touchUpInside)
-        
-        addArrangedSubview(iconView)
-        addArrangedSubview(button)
+        layoutIfNeeded()
     }
     
     required init(coder: NSCoder) {
@@ -82,9 +73,42 @@ final public class ButtonToastView: UIStackView, BBToastStackView {
     
     private func commonInit() {
         axis = .horizontal
-        spacing = 6
+        spacing = 0
         alignment = .center
         distribution = .fillProportionally
     }
     
+    private func setupConstraints() {
+        button.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            button.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            button.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            button.topAnchor.constraint(equalTo: container.topAnchor),
+            button.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+        ])
+        
+        container.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            container.widthAnchor.constraint(equalToConstant: viewConfig.minButtonWidth),
+            container.heightAnchor.constraint(equalToConstant: viewConfig.minButtonHeight)
+        ])
+    }
+    
+    private func setupAttributes() {
+        let action = UIAction { [weak self] _ in
+            guard let self else { return }
+            // 델리게이트 실행
+            BBToast.multicast.invoke {
+                $0.didTapToastButton(
+                    self.toast,
+                    index: self.button.id,
+                    button: self.button
+                )
+            }
+            // 액션 클로저 실행
+            self.action?(self.toast)
+        }
+        button.addAction(action, for: .touchUpInside)
+    }
+
 }

@@ -19,8 +19,6 @@ open class ReactorViewController<R>: UIViewController, ReactorKit.View where R: 
     
     // MARK: - Properties
 
-    private var initialReactor: Reactor?
-
     public var disposeBag: RxSwift.DisposeBag = DisposeBag()
     
     // MARK: - Intializer
@@ -31,7 +29,7 @@ open class ReactorViewController<R>: UIViewController, ReactorKit.View where R: 
     
     public convenience init(reactor: Reactor? = nil) {
         self.init()
-        self.initialReactor = reactor
+        self.reactor = reactor
     }
     
     required public init?(coder: NSCoder) {
@@ -45,7 +43,6 @@ open class ReactorViewController<R>: UIViewController, ReactorKit.View where R: 
         setupUI()
         setupAutoLayout()
         setupAttributes()
-        setupReactor()
     }
     
     // MARK: - Helpers
@@ -60,7 +57,4 @@ open class ReactorViewController<R>: UIViewController, ReactorKit.View where R: 
         view.backgroundColor = .bibbiBlack
     }
     
-    open func setupReactor() {
-        self.reactor = initialReactor
-    }
 }

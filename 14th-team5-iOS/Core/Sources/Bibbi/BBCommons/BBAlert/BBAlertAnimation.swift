@@ -16,7 +16,7 @@ extension BBAlert {
     /// 예를 들어, BBAlert 뷰가 나타나거나 사라질 때 페이드 효과를 주기 원한다면 아래와 같이 ``BBAlertConfiguration``을 설정해야 합니다.
     ///
     /// ```swift
-    /// let config = BBConfiguration(
+    /// let config = BBAlertConfiguration(
     ///     enteringAnimation: .fade(alpha: 0),
     ///     exitingAnimation: .fade(alpha: 0)
     /// )

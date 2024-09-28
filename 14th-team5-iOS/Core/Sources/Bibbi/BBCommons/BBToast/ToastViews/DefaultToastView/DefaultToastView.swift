@@ -73,7 +73,7 @@ public class DefaultToastView: UIView, BBToastView {
             centerYAnchor.constraint(equalTo: superview.layoutMarginsGuide.centerYAnchor, constant: yOffset).isActive = true
         }
         
-        setupSubviewConstraints()
+        setupSubviewConstraints(superview: superview)
     }
     
     private func setupAttributes() {
@@ -89,11 +89,15 @@ public class DefaultToastView: UIView, BBToastView {
     
     // MARK: - Helpers
     
-    private func setupSubviewConstraints() {
-        child.snp.makeConstraints {
-            $0.verticalEdges.equalToSuperview().inset(10)
-            $0.horizontalEdges.equalToSuperview().inset(25)
-        }
+    private func setupSubviewConstraints(superview: UIView) {
+        child.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            child.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 15),
+            child.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -15),
+            child.topAnchor.constraint(equalTo: self.topAnchor, constant: 15),
+            child.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -15)
+        ])
     }
     
     private func addShadow() {

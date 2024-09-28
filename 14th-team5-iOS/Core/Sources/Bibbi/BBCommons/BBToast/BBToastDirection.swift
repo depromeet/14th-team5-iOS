@@ -9,12 +9,14 @@ import UIKit
 
 extension BBToast {
     
+    /// Toast가 나타나는 방향을 정의합니다.
     public enum Direction {
         case top(yOffset: CGFloat = 0)
         case bottom(yOffset: CGFloat = 0)
         case center(xOffset: CGFloat = 0, yOffset: CGFloat = 0)
     }
     
+    /// Toast가 어느 방향으로 스와이프하면 사라지는지 정의합니다.
     public enum DismissSwipeDirection: Equatable {
         case toTop
         case toBottom

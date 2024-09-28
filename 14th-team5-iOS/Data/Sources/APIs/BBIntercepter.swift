@@ -46,6 +46,7 @@ final class BBIntercepter: Interceptor {
             return
         }
         
+        // Refresh Token 갱신 코드 때문에 BBNetwork를 Core에다 둘 수 없음!
         let body = RefreshAccessTokenRequestDTO(refreshToken: refreshToken)
         oAuthAPIWorker.refreshAccessToken(body: body)
             .map { $0?.toDomain() }

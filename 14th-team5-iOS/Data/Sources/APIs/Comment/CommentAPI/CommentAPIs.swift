@@ -17,13 +17,34 @@ enum CommentAPIs: BBAPI {
     var spec: BBAPISpec {
         switch self {
         case let .fetchPostComment(postId, page, size, sort):
-            return BBAPISpec(method: .get, url: "/posts/\(postId)/comments?page=\(page)&size=\(size)&sort=\(sort)")
+            return BBAPISpec(
+                method: .get,
+                path: "/posts/\(postId)/comments",
+                parameters: [
+                    .page: "\(page)",
+                    .size: "\(size)",
+                    .sort: "\(sort)"
+                ]
+            )
+            
         case let .createPostComment(postId, body):
-            return BBAPISpec(method: .post, url: "/posts/\(postId)/comments", requestBody: body)
+            return BBAPISpec(
+                method: .post,
+                path: "/posts/\(postId)/comments",
+                requestBody: body
+            )
+            
         case let .updatePostComment(postId, commentId):
-            return BBAPISpec(method: .put, url: "/posts/\(postId)/comments/\(commentId)")
+            return BBAPISpec(
+                method: .put,
+                path: "/posts/\(postId)/comments/\(commentId)"
+            )
+            
         case let .deletePostComment(postId, commentId):
-            return BBAPISpec(method: .delete, url: "/posts/\(postId)/comments/\(commentId)")
+            return BBAPISpec(
+                method: .delete,
+                path: "/posts/\(postId)/comments/\(commentId)"
+            )
         }
     }
 }

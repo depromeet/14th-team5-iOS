@@ -5,6 +5,7 @@
 //  Created by 김건우 on 9/25/24.
 //
 
+import Core
 import Foundation
 
 import Alamofire
@@ -75,19 +76,18 @@ public extension BBAPIHeader {
 private extension BBAPIHeader {
     
     func fetchXppKey() -> String {
-        // TODO: - 번들로 가져오게 수정하기
+        // TODO: - 코드 리팩토링하기
         return "7c5aaa36-570e-491f-b18a-26a1a0b72959"
     }
 
     func fetchXAuthTokenValue() -> String {
         // TODO: - 코드 리팩토링하기
-        let tokenKeychain = TokenKeychain()
         guard
-            let tokenResult: OldAccessToken? = tokenKeychain.loadOldAccessToken(),
-            let accessToken: String = tokenResult?.accessToken
-        else { return "" }
+            let data: Data = KeychainWrapper.standard.string(forKey: .accessToken)?.data(using: .utf8),
+            let tokenResult: AccessToken = try? JSONDecoder().decode(AccessToken.self, from: data)
+        else { fatalError("🔴 Error: 액세스 토큰을 가져올 수 없습니다.") }
         
-        return accessToken
+        return tokenResult.accessToken!
     }
 
     func fetchXUserPlatform() -> String {
@@ -96,10 +96,9 @@ private extension BBAPIHeader {
     
     func fetchXuserId() -> String {
         // TODO: - 코드 리팩토링하기
-        let myUserDefaults = MyUserDefaults()
         guard
-            let memberId: String = myUserDefaults.loadMemberId()
-        else { return "" }
+            let memberId: String = UserDefaultsWrapper.standard.string(forKey: .memberId)
+        else { fatalError("🔴 Error: 유저 ID를 가져올 수 없습니다.") }
         
         return memberId
     }

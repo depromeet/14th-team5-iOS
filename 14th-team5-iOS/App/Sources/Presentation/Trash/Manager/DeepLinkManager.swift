@@ -32,14 +32,16 @@ final class DeepLinkManager {
     // 이번 3차 끝나고, postdetailviewcontroller에서 post 불러오는 형태로 바꿔보겠습니다.
     let disposeBag: DisposeBag = DisposeBag()
     let postRepository: PostListRepositoryProtocol = PostRepository()
-    lazy var postUseCase: FetchPostListUseCaseProtocol = FetchPostListUseCase(postListRepository: postRepository)
+    let familyRepository: FamilyRepositoryProtocol = FamilyRepository()
+    lazy var postUseCase: FetchPostListUseCaseProtocol = FetchPostListUseCase(
+        postListRepository: postRepository, familyRepository: familyRepository)
     
     private init() {}
     
     private func todayDeepLink(type: PostType, data: NotificationDeepLink) {
         fetchTodayPost(type: type) { result in
             guard let result = result else { return }
-            let items = result.postLists.map(PostSection.Item.main)
+            let items = result.map(PostSection.Item.main)
             
             items.enumerated().forEach { (index, item) in
                 switch item {
@@ -56,7 +58,7 @@ final class DeepLinkManager {
     private func todayCommentDeepLink(type: PostType, data: NotificationDeepLink) {
         fetchTodayPost(type: type) { result in
             guard let result = result else { return }
-            let items = result.postLists.map(PostSection.Item.main)
+            let items = result.map(PostSection.Item.main)
             
             items.enumerated().forEach { (index, item) in
                 switch item {
@@ -71,12 +73,12 @@ final class DeepLinkManager {
         
     }
 
-    private func fetchTodayPost(type: PostType, completion: @escaping (PostListPageEntity?) -> Void) {
+    private func fetchTodayPost(type: PostType, completion: @escaping ([PostEntity]?) -> Void) {
         let dateString = Date().toFormatString(with: "yyyy-MM-dd")
         let query = PostListQuery(date: dateString, type: type)
         
         postUseCase.execute(query: query)
-            .subscribe(onSuccess: { result in
+            .subscribe(onNext: { result in
                 completion(result)
             })
             .disposed(by: disposeBag)
@@ -112,7 +114,7 @@ extension DeepLinkManager {
     func handleWidgetDeepLink(data: WidgetDeepLink) {
         fetchTodayPost(type: .survival) { result in
             guard let result = result else { return }
-            let items = result.postLists.map(PostSection.Item.main)
+            let items = result.map(PostSection.Item.main)
             
             items.enumerated().forEach { (index, item) in
                 switch item {

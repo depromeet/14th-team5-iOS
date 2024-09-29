@@ -101,7 +101,7 @@ extension MainPostCollectionViewCell {
         }
         
         missionBadge.isHidden = data.missionId == nil ? true : false
-        nameLabel.text = data.author?.name ?? "알 수 없음"
+        nameLabel.text = data.author.name
         timeLabel.text = data.time.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter()
     }
     

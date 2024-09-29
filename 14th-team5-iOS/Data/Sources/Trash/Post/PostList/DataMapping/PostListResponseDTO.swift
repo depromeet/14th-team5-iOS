@@ -23,12 +23,11 @@ struct PostListResultsDTO: Codable {
 
 extension PostListResultsDTO {
     func toDomain() -> PostEntity {
-        let author = FamilyUserDefaults.load(memberId: authorId)
         return .init(
             postId: postId,
             missionId: missionId,
             missionType: type,
-            author: author,
+            author: .init(memberId: authorId),
             commentCount: commentCount,
             emojiCount: emojiCount,
             imageURL: imageUrl,

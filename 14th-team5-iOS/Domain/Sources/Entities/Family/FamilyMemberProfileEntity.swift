@@ -29,7 +29,7 @@ public struct FamilyMemberProfileEntity: Equatable, Hashable, Codable {
     public init(
         memberId: String,
         profileImageURL: String? = nil,
-        name: String,
+        name: String? = nil,
         dayOfBirth: Date? = .distantFuture,
         isShowBirthdayMark: Bool = false,
         isShowPickIcon: Bool = false,
@@ -37,7 +37,7 @@ public struct FamilyMemberProfileEntity: Equatable, Hashable, Codable {
     ) {
         self.memberId = memberId
         self.profileImageURL = profileImageURL
-        self.name = name
+        self.name = name ?? "알 수 없음"
         self.dayOfBirth = dayOfBirth
         self.isShowBirthdayMark = isShowBirthdayMark
         self.isShowPickIcon = isShowPickIcon

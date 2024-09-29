@@ -41,25 +41,22 @@ extension OnBoardingReactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .permissionTapped:
-            self.updateIsFirstOnboardingUseCase.execute(true)
-            return Observable.zip(
-                Observable.create { observer in
-                    MPEvent.Account.invitedGroupFinished.track(with: nil)
-                    UNUserNotificationCenter.current().requestAuthorization(
-                        options: [.alert, .badge, .sound],
-                        completionHandler: { granted, error in
-                            if granted {
-                                MPEvent.Account.allowNotification.track(with: nil)
-                            }
-                            observer.onNext(granted)
-                            observer.onCompleted()
+            Observable.create { [weak self] observer in
+                self?.updateIsFirstOnboardingUseCase.execute(true)
+                MPEvent.Account.invitedGroupFinished.track(with: nil)
+                UNUserNotificationCenter.current().requestAuthorization(
+                    options: [.alert, .badge, .sound],
+                    completionHandler: { granted, error in
+                        if granted {
+                            MPEvent.Account.allowNotification.track(with: nil)
                         }
-                    )
-                    return Disposables.create()
-                },
-                familyUseCase.executeFetchPaginationFamilyMembers(query: .init())
-            )
-            .flatMap { [weak self] (granted: Bool, _) -> Observable<Mutation> in
+                        observer.onNext(granted)
+                        observer.onCompleted()
+                    }
+                )
+                return Disposables.create()
+            }
+            .flatMap { [weak self] (granted: Bool) -> Observable<Mutation> in
                 if granted {
                     return Observable.just(.permissionTapped)
                 } else {

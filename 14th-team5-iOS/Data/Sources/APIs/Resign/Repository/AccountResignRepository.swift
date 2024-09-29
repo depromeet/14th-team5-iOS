@@ -20,7 +20,10 @@ public final class AccountResignRepository: AccountResignRepositoryProtocol {
 extension AccountResignRepository {
     
     public func deleteAccountResignItem() -> Observable<AccountResignEntity?> {
-        return resignApiWorker.resignUser(memberId: FamilyUserDefaults.getMyMemberId())
+        let myUserDefaults = MyUserDefaults()
+        let currentMemberId = myUserDefaults.loadMemberId() ?? "NONE"
+        
+        return resignApiWorker.resignUser(memberId: currentMemberId)
             .compactMap { $0?.toDomain() }
             .asObservable()
             

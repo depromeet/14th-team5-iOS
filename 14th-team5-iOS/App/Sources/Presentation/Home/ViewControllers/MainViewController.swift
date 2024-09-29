@@ -30,8 +30,6 @@ final class MainViewController: BBNavigationViewController<MainViewReactor>, UIC
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        UserDefaults.standard.inviteCode = nil
     }
     
     override func bind(reactor: MainViewReactor) {

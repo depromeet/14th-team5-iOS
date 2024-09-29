@@ -104,13 +104,11 @@ extension AccountSignInReactor {
 
 extension AccountSignInReactor {
     private func transitionViewController() -> Observable<Mutation> {
-        let isFirstOnboarding = self.fetchIsFirstOnboardingUseCase.execute() == nil ? false : true
+        let isFirstOnboarding = self.fetchIsFirstOnboardingUseCase.execute()
         return App.Repository.token.accessToken
             .skip(1)
             .withUnretained(self)
             .flatMapLatest { owner, token -> Observable<Mutation> in
-                print("token : \(token) or fisrtOnboarding: \(isFirstOnboarding)")
-                
                 guard let token,
                       let isTemporaryToken = token.isTemporaryToken else {
                     return .empty()
@@ -121,28 +119,18 @@ extension AccountSignInReactor {
                     return .empty()
                 }
             
-                
                 return owner.meUseCase.getMemberInfo()
                     .asObservable()
                     .flatMap { memberInfo -> Observable<Mutation> in
-                        
-                        // 사용자가 AccessToken 값은
-                        // 기존 사용자가 회원 탈퇴를 하지 않은 상태에서 앱을 삭제 (App.Repostiroy x, isFirstOnboaring, false)
-                        // isTemporaryToken(true) 임시 계정
-                        
-                        if isTemporaryToken == false || isFirstOnboarding == false {
-                            print("go to Onboarding")
-                            owner.signInNavigator.toOnboarding()
+                        if isFirstOnboarding {
+                            if memberInfo?.familyId == nil {
+                                owner.signInNavigator.toJoinFamily()
+                                return .empty()
+                            }
+                            owner.signInNavigator.toMain()
                             return .empty()
                         }
-                        
-                        if memberInfo?.familyId == nil || isFirstOnboarding {
-                            print("go to JoinFamily ")
-                            owner.signInNavigator.toJoinFamily()
-                            return .empty()
-                        }
-                        
-                        owner.signInNavigator.toMain()
+                        owner.signInNavigator.toOnboarding()
                         return .empty()
                     }
             }

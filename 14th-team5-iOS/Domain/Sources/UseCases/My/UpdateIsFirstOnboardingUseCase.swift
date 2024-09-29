@@ -9,7 +9,7 @@ import Foundation
 
 
 public protocol UpdateIsFirstOnboardingUseCaseProtocol {
-    func execute(_ isFirstOnboarding: Bool?)
+    func execute(_ isFirstOnboarding: Bool)
 }
 
 public final class UpdateIsFirstOnboardingUseCase: UpdateIsFirstOnboardingUseCaseProtocol {
@@ -20,7 +20,7 @@ public final class UpdateIsFirstOnboardingUseCase: UpdateIsFirstOnboardingUseCas
         self.myRepository = myRepository
     }
     
-    public func execute(_ isFirstOnboarding: Bool?) {
+    public func execute(_ isFirstOnboarding: Bool) {
         myRepository.updateIsFirstOnboarding(isFirstOnboarding)
     }
 }

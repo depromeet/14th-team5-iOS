@@ -11,8 +11,9 @@ import Core
 import Domain
 
 
-public protocol FamilyInfoUserDefaultsType: UserDefaultsType {    
+public protocol FamilyInfoUserDefaultsType: UserDefaultsType {
     func loadFamilyMember(_ memberId: String) -> Profile?
+    func updateFamilyMember(_ member: Profile)
     
     func saveFamilyMembers(_ members: [Profile])
     func loadFamilyMembers() -> [Profile]?
@@ -33,7 +34,6 @@ public protocol FamilyInfoUserDefaultsType: UserDefaultsType {
 
 
 final public class FamilyInfoUserDefaults: FamilyInfoUserDefaultsType {
-  
     
     // MARK: - Intializer
     
@@ -48,6 +48,18 @@ final public class FamilyInfoUserDefaults: FamilyInfoUserDefaultsType {
         
         let member = familyMembers.filter { $0.memberId == memberId }
         return member.first
+    }
+    
+    public func updateFamilyMember(_ member: Profile) {
+        guard var familyMembers = loadFamilyMembers() else {
+            return
+        }
+        
+        if let index = familyMembers.firstIndex(where: { $0.memberId == member.memberId }) {
+            familyMembers[index] = member
+        }
+        
+        saveFamilyMembers(familyMembers)
     }
     
     // MARK: - FamilyMembers

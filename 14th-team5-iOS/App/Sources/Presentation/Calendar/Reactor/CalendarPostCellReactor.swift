@@ -74,6 +74,7 @@ public final class CalendarPostCellReactor: Reactor {
             
         case .requestAuthorName:
             let authorId = initialState.post.authorId
+
             let authorName = fetchUserNameUseCase.execute(memberId: authorId) ?? "알 수 없음"
             return Observable<Mutation>.just(.setAuthorName(authorName))
        

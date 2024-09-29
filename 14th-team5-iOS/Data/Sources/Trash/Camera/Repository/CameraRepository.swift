@@ -48,7 +48,8 @@ extension CameraRepository: CameraRepositoryProtocol {
         return cameraAPIWorker.editProfileImageToS3(accessToken: accessToken, memberId: memberId, parameters: parameter)
             .do {
                 guard let userEntity = $0?.toProfileEntity() else { return }
-                FamilyUserDefaults.saveMemberToUserDefaults(familyMember: userEntity)
+                let familyUserDefaults = FamilyInfoUserDefaults()
+                familyUserDefaults.updateFamilyMember(userEntity)
             }
             .map { $0?.toDomain() }
     }

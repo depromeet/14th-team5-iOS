@@ -17,7 +17,8 @@ struct FetchReactionResult: Codable {
     let emojiType: String
     
     private func containsCurrentUser(memberIds: [String]) -> Bool {
-        let currentMemberId = FamilyUserDefaults.returnMyMemberId()
+        let myUserDefaults = MyUserDefaults()
+        let currentMemberId = myUserDefaults.loadMemberId() ?? "NONE"
         return memberIds.contains(currentMemberId)
     }
 }
@@ -26,7 +27,8 @@ struct FetchReactionResponseDTO: Codable {
     let results: [FetchReactionResult]
     
     func toDomain() -> [EmojiEntity] {
-        let myMemberId = FamilyUserDefaults.returnMyMemberId()
+        let myUserDefaults = MyUserDefaults()
+        let myMemberId = myUserDefaults.loadMemberId() ?? "NONE"
         let groupedByEmojiType = Dictionary(grouping: results, by: { $0.emojiType })
 
         let fetchedEmojiDataArray = groupedByEmojiType.map { (emojiType, responses) in

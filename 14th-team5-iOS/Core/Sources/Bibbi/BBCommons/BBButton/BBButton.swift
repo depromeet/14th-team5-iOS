@@ -107,6 +107,7 @@ public class BBButton: UIButton {
         self.id = id
     }
     
+    /// 버튼의 이미지를 변경합니다.
     public func setImage(_ image: UIImage?) {
         mainImageView.image = image
     }

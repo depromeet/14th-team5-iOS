@@ -98,7 +98,6 @@ final class MainViewReactor: Reactor {
     @Injected var fetchMainUseCase: FetchMainUseCaseProtocol
     @Injected var fetchMainNightUseCase: FetchNightMainViewUseCaseProtocol
     @Injected var pickUseCase: PickUseCaseProtocol
-    @Injected var updateIsFirstOnboardingUseCase: any UpdateIsFirstOnboardingUseCaseProtocol
     @Injected var checkMissionAlertShowUseCase: CheckMissionAlertShowUseCaseProtocol
     @Injected var checkFamilyManagementUseCase: FetchIsFirstFamilyManagementUseCaseProtocol
     @Injected var saveFamilyManagementUseCase: UpdateFamilyManagementUseCaseProtocol
@@ -170,7 +169,6 @@ extension MainViewReactor {
             }
         case .calculateTime:
             let (isInTime, time) = self.calculateRemainingTime()
-            self.updateIsFirstOnboardingUseCase.execute(true)
             if isInTime {
                 return Observable.concat([
                     .just(.setInTime(true)),

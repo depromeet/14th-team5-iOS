@@ -98,10 +98,7 @@ final public class AppUserDefaults: AppUserDefaultsType {
     }
     
     public func loadIsFirstOnboarding() -> Bool? {
-        guard let isFirstOnboarding: Bool = userDefaults[.isFirstOnboarding] else {
-            return nil
-        }
-        return isFirstOnboarding
+        return userDefaults[.isFirstOnboarding]
     }
     
     // MARK: - FamilyManagement

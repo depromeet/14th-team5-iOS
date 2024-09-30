@@ -129,39 +129,6 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
             .map { Reactor.Action.appleLoginTapped(.apple, self) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
-        
-        Observable
-            .combineLatest(
-                App.Repository.token.accessToken.distinctUntilChanged(),
-                reactor.pulse(\.$isFirstOnboarding).distinctUntilChanged()
-            )
-            .skip(1)
-            .observe(on: RxScheduler.main)
-            .bind(with: self) { owner, response in
-                let (token, isFirstOnboarding) = response
-                owner.showNextPage(token: token, isFirstOnboarding)
-            }
-            .disposed(by: disposeBag)
     }
 }
 
-extension AccountSignInViewController {
-    private func showNextPage(token: AccessToken?, _ isFirstOnboarding: Bool) {
-        @Navigator var signInNavigator: AccountSignInNavigatorProtocol
-        guard let token = token, let isTemporaryToken = token.isTemporaryToken else { return }
-        if isTemporaryToken {
-            signInNavigator.toSignUp()
-            return
-        }
-        
-        if isFirstOnboarding || isTemporaryToken == false {
-            if App.Repository.member.familyId.value == nil {
-                signInNavigator.toJoinFamily()
-                return
-            }
-            signInNavigator.toMain()
-            return
-        }
-    }
-}

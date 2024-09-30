@@ -18,6 +18,7 @@ public final class OnBoardingReactor: Reactor {
     
     public var initialState: State = State()
     @Injected var familyUseCase: FamilyUseCaseProtocol
+    @Injected var updateIsFirstOnboardingUseCase: any UpdateIsFirstOnboardingUseCaseProtocol
     
     public enum Action {
         case permissionTapped
@@ -40,7 +41,8 @@ extension OnBoardingReactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .permissionTapped:
-            Observable.create { observer in
+            Observable.create { [weak self] observer in
+                self?.updateIsFirstOnboardingUseCase.execute(true)
                 MPEvent.Account.invitedGroupFinished.track(with: nil)
                 UNUserNotificationCenter.current().requestAuthorization(
                     options: [.alert, .badge, .sound],

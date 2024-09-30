@@ -46,7 +46,7 @@ extension MyRepository {
     }
     
     public func updateIsFirstOnboarding(_ isFirstOnboarding: Bool?) {
-        appUserDefaults.saveIsFirstOnboarding(isFirstOnboarding)
+        return appUserDefaults.saveIsFirstOnboarding(isFirstOnboarding)
     }
     
 }

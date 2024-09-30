@@ -25,7 +25,7 @@ public class FetchFamilyManagementUseCase: FetchIsFirstFamilyManagementUseCasePr
         repository.fetchIsFirstFamilyManagement()
             .map { isFirst in
                 guard let isFirst else {
-                    return false
+                    return true
                 }
                 return isFirst
             }

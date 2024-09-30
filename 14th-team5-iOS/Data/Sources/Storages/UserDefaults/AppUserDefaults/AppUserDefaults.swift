@@ -42,10 +42,7 @@ final public class AppUserDefaults: AppUserDefaultsType {
     }
     
     public func loadIsFirstLaunchApp() -> Bool? {
-        guard
-            let value: Bool? = userDefaults[.isFirstLaunchApp]
-        else { return nil }
-        return value
+        return userDefaults[.isFirstLaunchApp]
     }
     
     
@@ -56,10 +53,7 @@ final public class AppUserDefaults: AppUserDefaultsType {
     }
     
     public func loadIsFirstChangeFamilyName() -> Bool? {
-        guard
-            let value: Bool? = userDefaults[.isFirstChangeFamilyName]
-        else { return nil }
-        return value
+        return userDefaults[.isFirstChangeFamilyName]
     }
     
     
@@ -70,10 +64,7 @@ final public class AppUserDefaults: AppUserDefaultsType {
     }
     
     public func loadIsFirstShowWidgetAlert() -> Bool? {
-        guard
-            let value: Bool? = userDefaults[.isFirstShowWidgetAlert]
-        else { return nil }
-        return value
+        return userDefaults[.isFirstShowWidgetAlert]
     }
     
     
@@ -84,10 +75,7 @@ final public class AppUserDefaults: AppUserDefaultsType {
     }
     
     public func loadInviteCode() -> String? {
-        guard
-            let inviteCode: String? = userDefaults[.inviteCode]
-        else { return nil }
-        return inviteCode
+        return userDefaults[.inviteCode]
     }
     
     

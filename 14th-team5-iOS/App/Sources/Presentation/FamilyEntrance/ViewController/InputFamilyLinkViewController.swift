@@ -22,37 +22,13 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        linkTextField.becomeFirstResponder()
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        linkTextField.resignFirstResponder()
     }
     
     override func setupUI() {
         super.setupUI()
         view.addSubviews(backButton, titleLabel, linkTextField, joinFamilyButton)
     }
-    
-    @objc func keyboardWillShow(_ notification: Notification) {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            self.keyboardHeight = keyboardSize.height
-        }
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
+ 
     override func setupAutoLayout() {
         super.setupAutoLayout()
         
@@ -149,14 +125,6 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
     
     private func bindOutput(reactor: InputFamilyLinkReactor) {
         reactor.state
-            .map { $0.isShowHome }
-            .filter { $0 }
-            .distinctUntilChanged()
-            .withUnretained(self)
-            .bind(onNext: { $0.0.showHomeViewController() })
-            .disposed(by: disposeBag)
-        
-        reactor.state
             .map { $0.linkString }
             .filter { !$0.isEmpty }
             .distinctUntilChanged()
@@ -172,14 +140,6 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
             .filter { $0.count > 0 }
             .withUnretained(self)
             .bind(onNext: { $0.0.makeBibbiToastView(text: $0.1, image: DesignSystemAsset.warning.image, offset: $0.0.keyboardHeight + 90) })
-            .disposed(by: disposeBag)
-        
-        reactor.state
-            .map { $0.isPoped }
-            .filter { $0 }
-            .distinctUntilChanged()
-            .withUnretained(self)
-            .bind(onNext: { $0.0.navigationController?.popViewController(animated: true) })
             .disposed(by: disposeBag)
     }
 }

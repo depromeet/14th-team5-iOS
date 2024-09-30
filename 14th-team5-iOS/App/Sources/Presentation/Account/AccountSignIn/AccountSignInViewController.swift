@@ -73,10 +73,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
         }
         
         kakaoLoginButton.do {
-            $0.setImageWithTitle(
-                image: DesignSystemAsset.kakao.image,
-                title: "Kakao로 계속하기"
-            )
+            $0.setImage(DesignSystemAsset.kakao.image)
             $0.setTitle("Kakao로 계속하기", for: .normal)
             $0.backgroundColor = UIColor(red: 254/255, green: 229/255, blue: 0/255, alpha: 1)
             $0.layer.cornerRadius = 8
@@ -85,10 +82,8 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
         }
         
         appleLoginButton.do {
-            $0.setImageWithTitle(
-                image: DesignSystemAsset.apple.image,
-                title: "Apple로 계속하기"
-            )
+            $0.setImage(DesignSystemAsset.apple.image)
+            $0.setTitle("Apple로 계속하기", for: .normal)
             $0.backgroundColor = UIColor(red: 254/255, green: 254/255, blue: 254/255, alpha: 1)
             $0.layer.cornerRadius = 8
             $0.setTitleColor(.bibbiBlack, for: .normal)

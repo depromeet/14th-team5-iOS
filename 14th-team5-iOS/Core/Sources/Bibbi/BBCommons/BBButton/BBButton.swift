@@ -14,7 +14,7 @@ import SnapKit
 public class BBButton: UIButton {
     
     // MARK: - Views
-    public var mainStackView: UIStackView = UIStackView()
+    private var mainStackView: UIStackView = UIStackView()
     public var mainImageView: UIImageView = UIImageView()
     public var mainTitleLabel: BBLabel = BBLabel()
     
@@ -67,7 +67,7 @@ public class BBButton: UIButton {
     
     private func setupUI() {
         addSubviews(mainStackView)
-        mainStackView.addArrangedSubview(mainTitleLabel)
+        mainStackView.addArrangedSubviews(mainImageView, mainTitleLabel)
     }
     
     private func setupConstraints() {
@@ -107,12 +107,8 @@ public class BBButton: UIButton {
         self.id = id
     }
     
-    public func setImageWithTitle(image: UIImage?, title: String?) {
-        mainStackView.removeAllArrangedSubviews()
-        mainStackView.addArrangedSubviews(mainImageView, mainTitleLabel)
-        
+    public func setImage(_ image: UIImage?) {
         mainImageView.image = image
-        mainTitleLabel.text = title
     }
     
     /// 버튼의 타이틀을 변경합니다.

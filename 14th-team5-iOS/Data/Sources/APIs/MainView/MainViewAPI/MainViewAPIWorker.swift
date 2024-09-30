@@ -39,23 +39,21 @@ extension MainViewAPIs {
 }
 
 extension MainAPIWorker {
-    func fetchMain() -> Single<MainViewEntity?> {
+    func fetchMain() -> Single<MainResponseDTO?> {
         let spec = MainViewAPIs.fetchMain.spec
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .map(MainResponseDTO.self)
             .catchAndReturn(nil)
-            .map { $0?.toDomain() }
             .asSingle()
     }
     
-    func fetchMainNight() -> Single<NightMainViewEntity?> {
+    func fetchMainNight() -> Single<MainNightResponseDTO?> {
         let spec = MainViewAPIs.fetchMainNight.spec
         return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .map(MainNightResponseDTO.self)
             .catchAndReturn(nil)
-            .map { $0?.toDomain() }
             .asSingle()
     }
 }

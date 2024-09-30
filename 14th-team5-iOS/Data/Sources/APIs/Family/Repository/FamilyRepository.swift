@@ -129,20 +129,27 @@ extension FamilyRepository {
         return familyApiWorker.fetchPaginationFamilyMember(query: query)
             .map { $0?.toDomain() }
             .do(onSuccess: { [weak self] in
-                guard let self else { return }
-                
-                if let profiles = $0?.results {
-                    self.familyUserDefaults.saveFamilyMembers(profiles)
+                guard let self,
+                      let profiles = $0?.results else {
+                    return
                 }
+                
+                self.familyUserDefaults.saveFamilyMembers(profiles)
             })
             .asObservable()
     }
     
     public func fetchAllFamilyMembers() -> Observable<[FamilyMemberProfileEntity]?> {
         return familyApiWorker.fetchPaginationFamilyMember(query: .init())
-            .map { response in
-                return response?.results.map { $0.toDomain() }
-            }
+            .map { $0?.results.map{ $0.toDomain() }}
+            .do(onSuccess: { [weak self] in
+                guard let self,
+                      let profiles = $0 else {
+                    return
+                }
+                
+                self.familyUserDefaults.saveFamilyMembers(profiles)
+            })
             .asObservable()
     }
     

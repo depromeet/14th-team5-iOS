@@ -14,7 +14,8 @@ import SnapKit
 public class BBButton: UIButton {
     
     // MARK: - Views
-    
+    private var mainStackView: UIStackView = UIStackView()
+    public var mainImageView: UIImageView = UIImageView()
     public var mainTitleLabel: BBLabel = BBLabel()
     
     // MARK: - Properties
@@ -65,17 +66,23 @@ public class BBButton: UIButton {
     // MARK: - Helpers
     
     private func setupUI() {
-        addSubview(mainTitleLabel)
-        
+        addSubviews(mainStackView)
+        mainStackView.addArrangedSubviews(mainImageView, mainTitleLabel)
     }
     
     private func setupConstraints() {
-        mainTitleLabel.snp.makeConstraints {
+        mainStackView.snp.makeConstraints {
             $0.center.equalToSuperview()
         }
     }
     
     private func setupAttributes() {
+        mainStackView.do {
+            $0.spacing = 4
+            $0.distribution = .fillProportionally
+            $0.axis = .horizontal
+        }
+        
         mainTitleLabel.do {
             $0.numberOfLines = 1
         }
@@ -98,6 +105,10 @@ public class BBButton: UIButton {
     /// 버튼이 가진 고유한 ID값을 변경합니다.
     public func setId(_ id: Int) {
         self.id = id
+    }
+    
+    public func setImage(_ image: UIImage?) {
+        mainImageView.image = image
     }
     
     /// 버튼의 타이틀을 변경합니다.

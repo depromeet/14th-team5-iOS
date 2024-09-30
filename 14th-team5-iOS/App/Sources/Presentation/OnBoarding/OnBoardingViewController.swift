@@ -145,7 +145,6 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
         @Navigator var onboardingNavigator: OnboardingNavigatorProtocol
         
         if App.Repository.member.familyId.value == nil {
-            print("Onboarding ViewController to Join Family")
             onboardingNavigator.toJoinFamily()
         } else {
             if let _ = UserDefaults.standard.inviteCode {

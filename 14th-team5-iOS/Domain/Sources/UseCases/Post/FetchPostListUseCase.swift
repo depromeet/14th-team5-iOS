@@ -25,6 +25,8 @@ public class FetchPostListUseCase: FetchPostListUseCaseProtocol {
         self.familyRepository = familyRepository
     }
 
+    /// postList를 불러옵니다. - 메인 화면에서 사용 중 입니다.
+    /// 만약, userdefaults에 저장된 가족 멤버가 없다면, fetchFamily를 한 번 실행하여 post 정보를 가져옵니다.
     public func execute(query: PostListQuery) -> Observable<[PostEntity]?> {
         return postListRepository.fetchTodayPostList(query: query)
             .flatMap { posts -> Single<[PostEntity]?> in
@@ -37,36 +39,7 @@ public class FetchPostListUseCase: FetchPostListUseCaseProtocol {
             .asObservable()
     }
 
-    private func loadFamilyMembersAndUpdatePosts(posts: [PostEntity]) -> Single<[PostEntity]?> {
-        let members = self.familyRepository.loadAllFamilyMembers()
-
-        if let members = members {
-            return self.updatePostsWithMembers(posts: posts, members: members)
-        } else {
-            return self.familyRepository.fetchAllFamilyMembers()
-                .flatMap { membersFromApi -> Single<[PostEntity]?> in
-                    return self.updatePostsWithMembers(posts: posts, members: membersFromApi)
-                }
-                .asSingle()
-        }
-    }
-
-    private func updatePostsWithMembers(posts: [PostEntity], members: [Profile]?) -> Single<[PostEntity]?> {
-        guard let members = members else {
-            return Single.just(nil)
-        }
-        
-        let updatedPosts = posts.map { post in
-            var updatedPost = post
-            if let member = members.first(where: { $0.memberId == updatedPost.author.memberId }) {
-                updatedPost.author = member
-            }
-            return updatedPost
-        }
-        
-        return Single.just(updatedPosts) // updatedPosts를 Single로 반환
-    }
-    
+    /// PostList를 페이지네이션 형태로 불러옵니다 - 프로필 조회에서 사용 중 입니다.
     public func execute(query: PostListQuery) -> Observable<PostListPageEntity?> {
         return postListRepository.fetchTodayPostList(query: query)
             .flatMap { posts -> Single<PostListPageEntity?> in
@@ -89,5 +62,37 @@ public class FetchPostListUseCase: FetchPostListUseCaseProtocol {
                 return Single.just(updatedPosts)
             }
             .asObservable()
+    }
+}
+
+extension FetchPostListUseCase {
+    private func loadFamilyMembersAndUpdatePosts(posts: [PostEntity]) -> Single<[PostEntity]?> {
+        let members = self.familyRepository.loadAllFamilyMembers()
+
+        if let members = members {
+            return self.updatePostsWithMembers(posts: posts, members: members)
+        } else {
+            return self.familyRepository.fetchAllFamilyMembers()
+                .flatMap { membersFromApi -> Single<[PostEntity]?> in
+                    return self.updatePostsWithMembers(posts: posts, members: membersFromApi)
+                }
+                .asSingle()
+        }
+    }
+    
+    private func updatePostsWithMembers(posts: [PostEntity], members: [Profile]?) -> Single<[PostEntity]?> {
+        guard let members = members else {
+            return Single.just(nil)
+        }
+        
+        let updatedPosts = posts.map { post in
+            var updatedPost = post
+            if let member = members.first(where: { $0.memberId == updatedPost.author.memberId }) {
+                updatedPost.author = member
+            }
+            return updatedPost
+        }
+        
+        return Single.just(updatedPosts)
     }
 }

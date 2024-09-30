@@ -112,10 +112,6 @@ final class FamilyNameSettingViewController: BBNavigationViewController<FamilyNa
             $0.text = "홈 화면에 가족 이름이 추가돼요 "
         }
         
-        groupEditerView.do {
-            $0.isHidden = true
-        }
-        
         groupConfirmButton.do {
             $0.setTitle("저장", for: .normal)
             $0.setTitleFontStyle(.body1Bold)
@@ -146,14 +142,14 @@ final class FamilyNameSettingViewController: BBNavigationViewController<FamilyNa
         groupTextField.rx.text
             .orEmpty
             .skip(1)
-            .debounce(.milliseconds(300), scheduler: MainScheduler.instance)
+            .debounce(RxInterval._100milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.didChangeFamilyGroupNickname($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         groupConfirmButton.rx
             .tap
-            .throttle(.microseconds(300), scheduler: MainScheduler.instance)
+            .throttle(RxInterval._100milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.didTapUpdateFamilyGroupNickname(.update) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)

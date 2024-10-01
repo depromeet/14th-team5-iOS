@@ -284,12 +284,11 @@ extension CameraViewReactor {
             
         case  .profile:
             //Profile 관련 이미지 업로드 Mutation
-            let profileImage = "\(imageData.hash).jpg"
+            let profileImage = "\(imageData.hashValue).jpg"
             let profileParameter = CameraDisplayImageParameters(imageName: profileImage)
             
             return .concat(
                 .just(.setLoading(false)),
-                
                 createProfileImageUseCase.execute(parameter: profileParameter)
                     .asObservable()
                     .withUnretained(self)

@@ -19,7 +19,6 @@ public final class MembersRepository {
     
     private let familyUserDefaults: FamilyInfoUserDefaults = FamilyInfoUserDefaults()
     private let membersAPIWorker: MembersAPIWorker = MembersAPIWorker()
-    private let accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
     public init() { }
     
 }
@@ -28,13 +27,13 @@ public final class MembersRepository {
 extension MembersRepository: MembersRepositoryProtocol {
         
     public func fetchProfileMemberItems(memberId: String) -> Single<MembersProfileEntity?> {
-        return membersAPIWorker.fetchProfileMember(accessToken: accessToken, memberId: memberId)
+        return membersAPIWorker.fetchProfileMember(memberId: memberId)
             .map { $0?.toDomain() }
             .catchAndReturn(nil)
     }
     
     public func updataProfileImageToS3(memberId: String, parameter: ProfileImageEditParameter) -> Single<MembersProfileEntity?> {
-        return membersAPIWorker.updateProfileAlbumImageToS3(accessToken: accessToken, memberId: memberId, parameter: parameter)
+        return membersAPIWorker.updateProfileAlbumImageToS3(memberId: memberId, parameter: parameter)
             .do {
                 guard let userEntity = $0?.toProfileEntity() else { return }
                 self.familyUserDefaults.updateFamilyMember(userEntity)
@@ -44,7 +43,7 @@ extension MembersRepository: MembersRepositoryProtocol {
     }
     
     public func deleteProfileImageToS3(memberId: String) -> Single<MembersProfileEntity?> {
-        return membersAPIWorker.deleteProfileImageToS3(accessToken: accessToken, memberId: memberId)
+        return membersAPIWorker.deleteProfileImageToS3(memberId: memberId)
             .do {
                 guard let userEntity = $0?.toProfileEntity() else { return }
                 self.familyUserDefaults.updateFamilyMember(userEntity)

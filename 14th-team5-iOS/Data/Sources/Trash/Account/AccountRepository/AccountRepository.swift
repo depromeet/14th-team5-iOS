@@ -125,13 +125,13 @@ public final class AccountRepository: AccountImpl {
     }
     
     public func executePresignedImageURLCreate(parameter: CameraDisplayImageParameters) -> Observable<CameraPreSignedEntity?> {
-        return profileWorker.createProfileImagePresingedURL(accessToken: accessToken, parameters: parameter)
+        return profileWorker.createProfileImagePresingedURL(parameters: parameter)
             .compactMap { $0?.toDomain() }
             .asObservable()
     }
     
     public func executeProfileImageUpload(to url: String, data: Data) -> Observable<Bool> {
-        return profileWorker.uploadToProfilePresingedURL(accessToken: accessToken, toURL: url, with: data)
+        return profileWorker.uploadToProfilePresingedURL(toURL: url, with: data)
             .asObservable()
     }
     

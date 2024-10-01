@@ -67,7 +67,6 @@ public enum UploadLocation {
 public protocol CameraRepositoryProtocol {
     var disposeBag: DisposeBag { get }
     
-    var accessToken: String { get }
     func addPresignedeImageURL(parameters: CameraDisplayImageParameters) -> Single<CameraPreSignedEntity?>
     func uploadImageToS3(to url: String, from image: Data) -> Single<Bool>
     func editProfleImageToS3(memberId: String, parameter: ProfileImageEditParameter) -> Single<MembersProfileEntity?>

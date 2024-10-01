@@ -17,7 +17,6 @@ typealias MembersAPIWorker = MembersAPIs.Worker
 
 extension MembersAPIs {
     final class Worker: APIWorker {
-        
         static let queue = {
             ConcurrentDispatchQueueScheduler(queue: DispatchQueue(label: "ProfileAPIQueue", qos: .utility))
         }()
@@ -33,10 +32,11 @@ extension MembersAPIs {
 
 extension MembersAPIWorker {
     
-    public func fetchProfileMember(accessToken: String, memberId: String) -> Single<MembersProfileResponseDTO?> {
+    public func fetchProfileMember(memberId: String) -> Single<MembersProfileResponseDTO?> {
         let spec = MembersAPIs.profileMember(memberId).spec
-
-        return request(spec: spec, headers: [BibbiAPI.Header.xAppVersion, BibbiAPI.Header.xUserPlatform, BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)])
+        let accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
+        let headers = BibbiHeader.commonHeaders(accessToken: accessToken)
+        return request(spec: spec, headers: headers)
             .subscribe(on: Self.queue)
             .map(MembersProfileResponseDTO.self)
             .catchAndReturn(nil)
@@ -44,39 +44,41 @@ extension MembersAPIWorker {
         
     }
     
-    public func createProfileImagePresingedURL(accessToken: String, parameters: Encodable) -> Single<CameraDisplayImageResponseDTO?> {
+    public func createProfileImagePresingedURL(parameters: Encodable) -> Single<CameraDisplayImageResponseDTO?> {
         let spec = MembersAPIs.profileAlbumUploadImageURL.spec
-        
-        return request(spec: spec, headers: [BibbiAPI.Header.xAppVersion, BibbiAPI.Header.xUserPlatform, BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameters)
+        let accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
+        let headers = BibbiHeader.commonHeaders(accessToken: accessToken)
+        return request(spec: spec, headers: headers, jsonEncodable: parameters)
             .subscribe(on: Self.queue)
             .map(CameraDisplayImageResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
     }
     
-    public func uploadToProfilePresingedURL(accessToken: String, toURL url: String, with imageData: Data) -> Single<Bool> {
+    public func uploadToProfilePresingedURL(toURL url: String, with imageData: Data) -> Single<Bool> {
         let spec = MembersAPIs.profileUploadToPreSignedURL(url).spec
-        
-        return upload(spec: spec, headers: [BibbiAPI.Header.xAppVersion, BibbiAPI.Header.xUserPlatform, BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(accessToken)], image: imageData)
+        let accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
+        let headers = BibbiHeader.commonHeaders(accessToken: accessToken)
+        return upload(spec: spec, headers: headers, image: imageData)
             .subscribe(on: Self.queue)
             .catchAndReturn(false)
             .map { _ in true }
     }
     
-    public func updateProfileAlbumImageToS3(accessToken: String, memberId: String, parameter: Encodable) -> Single<MembersProfileResponseDTO?> {
+    public func updateProfileAlbumImageToS3(memberId: String, parameter: Encodable) -> Single<MembersProfileResponseDTO?> {
         let spec = MembersAPIs.profileEditImage(memberId).spec
-        
-        return request(spec: spec, headers: [BibbiAPI.Header.xAppVersion, BibbiAPI.Header.xUserPlatform, BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson, BibbiAPI.Header.xAuthToken(accessToken)], jsonEncodable: parameter)
+        let accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
+        let headers = BibbiHeader.commonHeaders(accessToken: accessToken)
+        return request(spec: spec, headers: headers, jsonEncodable: parameter)
             .subscribe(on: Self.queue)
             .map(MembersProfileResponseDTO.self)
             .catchAndReturn(nil)
             .asSingle()
     }
     
-    public func deleteProfileImageToS3(accessToken: String, memberId: String) -> Single<MembersProfileResponseDTO?> {
+    public func deleteProfileImageToS3(memberId: String) -> Single<MembersProfileResponseDTO?> {
         let spec = MembersAPIs.profileDeleteImage(memberId).spec
-        
-        return request(spec: spec,headers: [BibbiAPI.Header.xAppVersion, BibbiAPI.Header.xUserPlatform, BibbiAPI.Header.xAppKey, BibbiAPI.Header.acceptJson])
+        return request(spec: spec)
             .subscribe(on: Self.queue)
             .map(MembersProfileResponseDTO.self)
             .catchAndReturn(nil)

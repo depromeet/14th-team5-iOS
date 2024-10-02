@@ -138,15 +138,20 @@ final public class CommentViewReactor: Reactor {
                             Observable<Mutation>.just(.scrollTableToLast(true))
                         )
                     }
-                    .catch { [weak self] error -> Observable<Mutation> in
-                        Haptic.notification(type: .error)
-                        self?.navigator.showFetchFailureToast()
-                        return Observable.concat(
-                            Observable<Mutation>.just(.setComments([])),
-                            Observable<Mutation>.just(.setHiddenTablePrgressHud(true)),
-                            Observable<Mutation>.just(.setHiddenNoneCommentView(true)),
-                            Observable<Mutation>.just(.setHiddenFetchFailureView(false))
-                        )
+                    .catchWorkerError(with: self) {
+                        switch $1 {
+                        case .networkFailure:
+                            Haptic.notification(type: .error)
+                            $0.navigator.showFetchFailureToast()
+                            return Observable.concat(
+                                Observable<Mutation>.just(.setComments([])),
+                                Observable<Mutation>.just(.setHiddenTablePrgressHud(true)),
+                                Observable<Mutation>.just(.setHiddenNoneCommentView(true)),
+                                Observable<Mutation>.just(.setHiddenFetchFailureView(false))
+                            )
+                            
+                        default: return Observable<Mutation>.empty()
+                        }
                     }
             )
                                                          

@@ -10,14 +10,14 @@ import Foundation
 import Alamofire
 import RxSwift
 
-final class BBIntercepter: Interceptor {
+
+// MARK: - Default Interceptor
+
+final class BBNetworkInterceptor: Interceptor {
     
     // MARK: - Properties
     
     private let disposeBag = DisposeBag()
-    
-    private var retryCount = 0
-    private var retryLimit = 3
     
     private let tokenKeychain = TokenKeychain()
     

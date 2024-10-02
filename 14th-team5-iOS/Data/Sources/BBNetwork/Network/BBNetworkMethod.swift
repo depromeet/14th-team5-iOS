@@ -10,7 +10,7 @@ import Foundation
 import Alamofire
 
 /// 서버가 수행해야 할 동작입니다.
-public enum BBAPIMethod {
+public enum BBNetworkMethod {
     
     /// 데이터 조회
     case get
@@ -26,7 +26,7 @@ public enum BBAPIMethod {
     
 }
 
-public extension BBAPIMethod {
+public extension BBNetworkMethod {
     
     /// `BBAPIMethod`를 Alamofire의 `HTTPMethod` 타입으로 변환합니다.
     var asHTTPMethod: HTTPMethod {

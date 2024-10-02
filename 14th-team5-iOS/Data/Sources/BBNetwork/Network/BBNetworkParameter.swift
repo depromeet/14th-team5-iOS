@@ -9,14 +9,14 @@ import Foundation
 
 // MARK: - Typealias
 
-public typealias BBParameters = [BBParameter.Key: BBParameter.Value]
-public typealias BBParameterKey = BBParameter.Key
-public typealias BBParameterValue = BBParameter.Value
+public typealias BBNetworkParameters = [BBNetworkParameter.Key: BBNetworkParameter.Value]
+public typealias BBNetworkParameterKey = BBNetworkParameter.Key
+public typealias BBNetworkParameterValue = BBNetworkParameter.Value
 
 
 // MARK: - BBParameter
 
-public struct BBParameter {
+public struct BBNetworkParameter {
     
     
     // MARK: - Key
@@ -62,11 +62,11 @@ public struct BBParameter {
 
 // MARK: - Extensions
 
-extension BBParameterKey: Hashable { }
+extension BBNetworkParameterKey: Hashable { }
 
 
 
-extension BBParameterKey {
+extension BBNetworkParameterKey {
     
     static var page: Self = "page"
     static var size: Self = "size"
@@ -78,7 +78,7 @@ extension BBParameterKey {
     
 }
 
-extension BBParameterValue {
+extension BBNetworkParameterValue {
     
     static var asc: Self = "ASC"
     static var desc: Self = "DESC"

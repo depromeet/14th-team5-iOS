@@ -33,7 +33,7 @@ extension CommentAPIWorker {
         let sort = query.sort.rawValue
         let spec = CommentAPIs.fetchPostComment(postId: postId, page: page, size: size, sort: sort).spec
         
-        return request(spec, of: PaginationResponsePostCommentResponseDTO.self)
+        return request(spec)
     }
     
     
@@ -45,7 +45,7 @@ extension CommentAPIWorker {
     ) -> Observable<PostCommentResponseDTO> {
         let spec = CommentAPIs.createPostComment(postId: postId, body: body).spec
        
-        return request(spec, of: PostCommentResponseDTO.self)
+        return request(spec)
     }
     
     
@@ -58,7 +58,7 @@ extension CommentAPIWorker {
     ) -> Observable<PostCommentResponseDTO> {
         let spec = CommentAPIs.updatePostComment(postId: postId, commentId: commentId).spec
         
-        return request(spec, of: PostCommentResponseDTO.self)
+        return request(spec)
     }
     
     
@@ -70,7 +70,7 @@ extension CommentAPIWorker {
     ) -> Observable<PostCommentDeleteResponseDTO> {
         let spec = CommentAPIs.deletePostComment(postId: postId, commentId: commentId).spec
         
-        return request(spec, of: PostCommentDeleteResponseDTO.self)
+        return request(spec)
     }
     
 }

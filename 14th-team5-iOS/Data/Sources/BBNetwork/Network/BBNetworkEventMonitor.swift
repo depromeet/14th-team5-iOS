@@ -9,7 +9,10 @@ import Foundation
 
 import Alamofire
 
-final class BBEventMonitor: EventMonitor {
+
+// MARK: - Default Event Monitor
+
+final class BBNetworkEventMonitor: EventMonitor {
     
     func requestDidFinish(_ request: Request) {
         print("[Reqeust BibbiNetwork LOG]")

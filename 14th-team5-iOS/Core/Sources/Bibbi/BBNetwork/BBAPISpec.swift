@@ -110,7 +110,7 @@ extension APISpecable {
         
         guard
             let queryParameters = try? queryParametersEncodable?.toDictionary()
-        ?? self.queryParameters?.toDictionary() ?? [:]
+            ?? self.queryParameters?.toDictionary() ?? [:]
         else { throw URLGenerationError.invalidUrl }
         queryParameters.forEach {
             urlQueryItems.append(URLQueryItem(name: $0.key, value: "\($0.value)"))

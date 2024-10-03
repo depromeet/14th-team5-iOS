@@ -10,7 +10,7 @@ import Foundation
 import RxCocoa
 import RxSwift
 
-// 이게 왜 여기 있는데!!!!!!!
+@available(*, deprecated, renamed: "AuthToken")
 public struct AccessToken: Codable, Equatable {
     public var accessToken: String?
     public var refreshToken: String?

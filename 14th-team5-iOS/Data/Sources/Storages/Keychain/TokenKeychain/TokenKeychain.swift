@@ -15,18 +15,12 @@ public protocol TokenKeychainType: KeychainType {
     
     func saveSignInType(_ type: SignInType?)
     func loadSignInType() -> SignInType?
+
+    func saveAuthToken(_ authToken: AuthToken?)
+    func loadAuthToken() -> AuthToken?
     
-    func saveAccessToken(_ accessToken: String?)
-    func loadAccessToken() -> String?
-    
-    func saveIsTemporaryToken(_ isTemporary: Bool?)
-    func loadIsTemporaryToken() -> Bool?
-    
-    func saveOldAccessToken(_ tokenResult: OldAccessToken?)
-    func loadOldAccessToken() -> OldAccessToken?
-    
-    func saveRefreshToken(_ refreshToken: String?)
-    func loadRefreshToken() -> String?
+    func saveAccessToken(_ accessToken: AccessToken?)
+    func loadAccessToken() -> AccessToken?
     
     func saveFCMToken(_ fcmToken: String?)
     func loadFCMToken() -> String?
@@ -68,43 +62,6 @@ final public class TokenKeychain: TokenKeychainType {
     }
     
     
-    // MARK: - AccessToken
-    
-    /// 삐삐 서버로부터 발급받은 접근 토큰을 저장합니다.
-    public func saveAccessToken(_ accessToken: String?) {
-        keychain[.newAccessToken] = accessToken
-    }
-    
-    /// 삐삐 서버로부터 발급받은 접근 토큰을 불러옵니다.
-    public func loadAccessToken() -> String? {
-        keychain[.newAccessToken]
-    }
-    
-    
-    // MARK: - RefreshToken
-    
-    /// 삐삐 서버로부터 발급받은 리프레시 토큰을 저장합니다.
-    public func saveRefreshToken(_ refreshToken: String?) {
-        keychain[.newRefreshToken] = refreshToken
-    }
-    
-    /// 삐삐 서버로부터 발급받은 리프레시 토큰을 불러옵니다.
-    public func loadRefreshToken() -> String? {
-        keychain[.newRefreshToken]
-    }
-    
-    
-    // MARK: - Is Temporary Token
-    
-    public func saveIsTemporaryToken(_ isTemporary: Bool?) {
-        keychain[.newIsTemporaryToken] = isTemporary
-    }
-    
-    public func loadIsTemporaryToken() -> Bool? {
-        keychain[.newIsTemporaryToken]
-    }
-    
-    
     // MARK: - FCM Token
     
     /// FCM 서버로부터 발급받은 FCM 토큰을 저장합니다.
@@ -119,25 +76,28 @@ final public class TokenKeychain: TokenKeychainType {
     
     
     
-    // MARK: - Old AccessToken
+    // MARK: - Auth AccessToken
     
-    @available(*, deprecated)
-    public func saveOldAccessToken(_ tokenResult: OldAccessToken?) {
-        guard
-            let data = try? JSONEncoder().encode(tokenResult),
-            let str = String(data: data, encoding: .utf8)
-        else { return }
-        keychain[.accessToken] = str
+    public func saveAuthToken(_ authToken: AuthToken?) {
+        keychain[.accessToken] = authToken
     }
     
-    @available(*, deprecated)
-    public func loadOldAccessToken() -> OldAccessToken? {
-        guard
-            let str: String = keychain[.accessToken],
-            let data = str.data(using: .utf8),
-            let tokenResult = try? JSONDecoder().decode(OldAccessToken.self, from: data)
-        else { return nil }
-        return tokenResult
+    public func loadAuthToken() -> AuthToken? {
+        keychain[.accessToken]
+    }
+    
+    
+    
+    // MARK: - Old AccessToken
+    
+    @available(*, deprecated, renamed: "saveAuthToken")
+    public func saveAccessToken(_ accessToken: AccessToken?) {
+        keychain[.accessToken] = accessToken
+    }
+    
+    @available(*, deprecated, renamed: "loadAuthToken")
+    public func loadAccessToken() -> AccessToken? {
+        keychain[.accessToken]
     }
     
 }

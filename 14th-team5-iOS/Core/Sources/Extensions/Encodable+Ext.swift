@@ -14,33 +14,36 @@ public extension Encodable {
     /// - Returns: Data?
     ///
     /// - Authors: 김소월
-    func encodeToData(using encoder: JSONEncoder = JSONEncoder()) -> Data? {
-        guard
-            let data = try? encoder.encode(self)
-        else { return nil }
-        return data
+    func toData(using encoder: JSONEncoder = JSONEncoder()) -> Data? {
+        var res: Data? = nil
+        do {
+            res = try encoder.encode(self)
+        } catch {
+            // MARK: - Logger로 로그 출력하기
+            debugPrint("\(Self.self) Data Parsing Error: \(error)")
+        }
+        return res
     }
     
     /// 인코딩이 가능한 객체를 String으로 변환합니다.
     /// - Parameter encoder: JSONEncoder 객체
     /// - Returns: String?
-    func encodeToString(
+    ///
+    /// - Authors: 김소월
+    func toString(
         using encoder: JSONEncoder = JSONEncoder(),
         encoding: String.Encoding = .utf8
     ) -> String? {
-        guard
-            let data = self.encodeToData(using: encoder)
-        else { return nil }
-        
-        return String(data: data, encoding: encoding)
+        guard let data = self.toData() else { return nil }
+        return String(data: data, encoding: .utf8)
     }
     
     /// 인코딩이 가능한 객체를 딕셔너리로 변환합니다.
     /// - Returns: [String: Any]?
     /// 
     /// - Authors: 김소월
-    func toDictionary() throws -> [String: Any]? {
-        let data = try JSONEncoder().encode(self)
+    func toDictionary(using encoder: JSONEncoder = JSONEncoder()) throws -> [String: Any]? {
+        let data = try encoder.encode(self)
         let jsonData = try JSONSerialization.jsonObject(with: data)
         return jsonData as? [String: Any]
     }

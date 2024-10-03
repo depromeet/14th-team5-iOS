@@ -78,19 +78,16 @@ public extension BBNetworkHeader {
 private extension BBNetworkHeader {
     
     func fetchXAppKey() -> String {
-        // TODO: - Bundle에서 Key를 가져오도록 코드 수정하기
+        // TODO: - Bundle에서 가져오도록 코드 수정하기
         return "7c5aaa36-570e-491f-b18a-26a1a0b72959"
     }
 
     func fetchXAuthTokenValue() -> String {
         let keychain = KeychainWrapper.standard
-        guard
-            let string = keychain.string(forKey: .accessToken),
-            let encodedData = string.data(using: .utf8),
-            let accessToken = encodedData.decode(AccessToken.self)
-        else { return "" /* 예외 코드 작성 */ }
-        
-        return accessToken.accessToken ?? "" /* 예외 코드 작성 */
+        if let authToken: AuthToken = keychain[.accessToken] {
+            return authToken.refreshToken
+        }
+        return "" // TODO: - 예외 코드 작성하기
     }
 
     func fetchXUserPlatform() -> String {
@@ -100,11 +97,10 @@ private extension BBNetworkHeader {
     
     func fetchXuserId() -> String {
         let userDefaults = UserDefaultsWrapper.standard
-        guard
-            let memberId = userDefaults.string(forKey: .memberId)
-        else { return "" /* 예외 코드 작성 */ }
-        
-        return memberId /* 예외 코드 작성 */
+        if let memberId: String = userDefaults[.memberId] {
+            return memberId
+        }
+        return "" // TODO: - 예외 코드 작성하기
     }
     
     func fetchContentType() -> String {

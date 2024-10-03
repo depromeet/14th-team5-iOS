@@ -39,12 +39,12 @@ extension OAuthRepository {
                 guard
                     let keychain = self?.tokenKeychainStorage
                 else { return }
-                let accessToken = OldAccessToken(
+                let accessToken = AccessToken(
                     accessToken: $0?.accessToken,
                     refreshToken: $0?.refreshToken,
                     isTemporaryToken: $0?.isTemporaryToken
                 )
-                keychain.saveOldAccessToken(accessToken)
+                keychain.saveAccessToken(accessToken)
             })
             .asObservable()
     }
@@ -65,12 +65,12 @@ extension OAuthRepository {
                 guard
                     let keychain = self?.tokenKeychainStorage
                 else { return }
-                let accessToken = OldAccessToken(
+                let accessToken = AccessToken(
                     accessToken: $0?.accessToken,
                     refreshToken: $0?.refreshToken,
                     isTemporaryToken: $0?.isTemporaryToken
                 )
-                keychain.saveOldAccessToken(accessToken)
+                keychain.saveAccessToken(accessToken)
             })
             .asObservable()
     }
@@ -89,12 +89,12 @@ extension OAuthRepository {
                 guard
                     let keychain = self?.tokenKeychainStorage
                 else { return }
-                let accessToken = OldAccessToken(
+                let accessToken = AccessToken(
                     accessToken: $0?.accessToken,
                     refreshToken: $0?.refreshToken,
                     isTemporaryToken: $0?.isTemporaryToken
                 )
-                keychain.saveOldAccessToken(accessToken)
+                keychain.saveAccessToken(accessToken)
             })
             .asObservable()
     }

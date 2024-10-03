@@ -31,7 +31,7 @@ enum CommentAPIs: BBAPI {
             return BBAPISpec(
                 method: .post,
                 path: "/posts/\(postId)/comments",
-                bodyParametersEncodable: body
+                bodyParameters: ["content": "\(body.content)"]
             )
             
         case let .updatePostComment(postId, commentId):

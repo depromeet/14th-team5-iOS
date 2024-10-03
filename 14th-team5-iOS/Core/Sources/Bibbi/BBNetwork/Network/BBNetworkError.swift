@@ -38,6 +38,9 @@ public enum BBNetworkError: Error {
 
 }
 
+
+// MARK: - Extensions
+
 extension BBNetworkError {
     
     /// HTTP 상태 코드를 기반으로 BBNetworkError를 반환하는 메서드입니다.
@@ -53,4 +56,21 @@ extension BBNetworkError {
         default:  return .error(statusCode: statusCode)
         }
     }
+}
+
+extension BBNetworkError: CustomStringConvertible {
+    
+    public var description: String {
+        switch self {
+        case .noContent: return "No Content"
+        case .badRequest: return "Bad Request"
+        case .unauthorized: return "Unauthorized"
+        case .forbidden: return "Forbidden"
+        case .notFound: return "Not Found"
+        case .internalServerError: return "Internal Server Error"
+        case .serviceUnavailable: return "Service Unavailable"
+        case let .error(statusCode): return "Status Code Error: \(statusCode)"
+        }
+    }
+    
 }

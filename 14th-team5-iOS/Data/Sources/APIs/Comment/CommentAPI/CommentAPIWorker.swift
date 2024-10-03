@@ -13,7 +13,7 @@ import RxSwift
 
 typealias CommentAPIWorker = CommentAPIs.Worker
 extension CommentAPIs {
-    final class Worker: BBAPIWorker { }
+    final class Worker: Workable { }
 }
 
 

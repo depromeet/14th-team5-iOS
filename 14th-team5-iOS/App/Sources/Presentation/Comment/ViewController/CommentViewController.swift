@@ -187,12 +187,6 @@ final public class CommentViewController: ReactorViewController<CommentViewReact
     
     public override func setupAttributes() {
         super.setupAttributes()
-        // TODO: - App.Repository 제거하기
-        dataSource.canEditRowAtIndexPath = {
-            let myMemberId = App.Repository.member.memberID.value
-            let commentMemberId = $0[$1].currentState.comment.memberId
-            return myMemberId == commentMemberId
-        }
     }
 }
 
@@ -214,13 +208,19 @@ extension CommentViewController {
     }
     
     private func prepareDatasource() -> RxDataSource {
-        return RxDataSource { dataSource, tableView, indexPath, reactor in
+        let dataSource = RxDataSource { dataSource, tableView, indexPath, reactor in
             let cell = tableView.dequeueReusableCell(
                 withIdentifier: CommentCell.id
             ) as! CommentCell
             cell.reactor = reactor
             return cell
         }
+        dataSource.canEditRowAtIndexPath = {
+            let myMemberId = App.Repository.member.memberID.value
+            let commentMemberId = $0[$1].currentState.comment.memberId
+            return myMemberId == commentMemberId
+        }
+        return dataSource
     }
     
 }

@@ -9,8 +9,15 @@ import Foundation
 
 public extension Dictionary where Key: RawRepresentable, Value: RawRepresentable {
     
-    func toQueryParameters() -> String {
-        map { (key, value) in "\(key.rawValue)=\(value.rawValue)" }.joined(separator: "&")
+    /// RawReprsentable 프로토콜을 준수하는 Key와 Value를 가진 딕셔너리를 [String: Any]로 변환합니다.
+    /// - Returns: [String: Any]
+    /// - Authors: 김소월
+    func toDictionary() -> [String: Any] {
+        var dict = [String: Any]()
+        self.forEach { key, value in
+            dict.updateValue(value.rawValue as Any, forKey: "\(key)")
+        }
+        return dict
     }
     
 }

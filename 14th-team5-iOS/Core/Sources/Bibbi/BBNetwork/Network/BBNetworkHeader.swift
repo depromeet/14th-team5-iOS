@@ -5,7 +5,6 @@
 //  Created by 김건우 on 9/25/24.
 //
 
-import Core
 import Foundation
 
 import Alamofire
@@ -31,7 +30,7 @@ public enum BBNetworkHeader {
 
 // MARK: - Extensions
 
-public extension BBNetworkHeader {
+public extension BBNetworkHeaders {
     
     /// 가장 일반적인 헤더 모음입니다.
     static var `default`: [BBNetworkHeader] {
@@ -79,31 +78,33 @@ public extension BBNetworkHeader {
 private extension BBNetworkHeader {
     
     func fetchXAppKey() -> String {
-        // TODO: - 코드 리팩토링하기
+        // TODO: - Bundle에서 Key를 가져오도록 코드 수정하기
         return "7c5aaa36-570e-491f-b18a-26a1a0b72959"
     }
 
     func fetchXAuthTokenValue() -> String {
-        // TODO: - 코드 리팩토링하기
+        let keychain = KeychainWrapper.standard
         guard
-            let data: Data = KeychainWrapper.standard.string(forKey: .accessToken)?.data(using: .utf8),
-            let tokenResult: AccessToken = try? JSONDecoder().decode(AccessToken.self, from: data)
+            let string = keychain.string(forKey: .accessToken),
+            let encodedData = string.data(using: .utf8),
+            let accessToken = encodedData.decode(AccessToken.self)
         else { return "" /* 예외 코드 작성 */ }
         
-        return tokenResult.accessToken!
+        return accessToken.accessToken ?? "" /* 예외 코드 작성 */
     }
 
     func fetchXUserPlatform() -> String {
+        // TODO: - Bundle에서 Platform을 가져오도록 코드 수정하기
         return "iOS"
     }
     
     func fetchXuserId() -> String {
-        // TODO: - 코드 리팩토링하기
+        let userDefaults = UserDefaultsWrapper.standard
         guard
-            let memberId: String = UserDefaultsWrapper.standard.string(forKey: .memberId)
+            let memberId = userDefaults.string(forKey: .memberId)
         else { return "" /* 예외 코드 작성 */ }
         
-        return memberId
+        return memberId /* 예외 코드 작성 */
     }
     
     func fetchContentType() -> String {

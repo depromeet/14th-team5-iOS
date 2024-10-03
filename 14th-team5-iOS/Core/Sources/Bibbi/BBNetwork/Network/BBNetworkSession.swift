@@ -16,7 +16,7 @@ public protocol BBNetworkSession {
 }
 
 
-// MARK: - BBDefaultSession
+// MARK: - Default Session
 
 public struct BBDefaultNetworkSession: BBNetworkSession {
     
@@ -29,4 +29,17 @@ public struct BBDefaultNetworkSession: BBNetworkSession {
     
     public init() { }
     
+}
+
+// MARK: - No Interceptor Session
+
+public struct BBNoInterceptorNetworkSession: BBNetworkSession {
+    
+    public let session: Session = {
+        let eventMonitor = BBNetworkEventMonitor()
+        let session = Session(eventMonitors: [eventMonitor])
+        return session
+    }()
+    
+    public init() { }
 }

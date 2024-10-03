@@ -66,7 +66,7 @@ extension BBNetworkParameterKey: Hashable { }
 
 
 
-extension BBNetworkParameterKey {
+public extension BBNetworkParameterKey {
     
     static var page: Self = "page"
     static var size: Self = "size"
@@ -78,7 +78,7 @@ extension BBNetworkParameterKey {
     
 }
 
-extension BBNetworkParameterValue {
+public extension BBNetworkParameterValue {
     
     static var asc: Self = "ASC"
     static var desc: Self = "DESC"

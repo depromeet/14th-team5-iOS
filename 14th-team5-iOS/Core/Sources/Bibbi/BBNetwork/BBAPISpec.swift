@@ -40,9 +40,9 @@ extension URLGenerationError: CustomStringConvertible {
 }
 
 
-// MARK: - APISpecable
+// MARK: - Requestable
 
-public protocol APISpecable {
+public protocol Requestable {
     var method: BBNetworkMethod { get }
     var path: String { get }
     var queryParameters: BBNetworkParameters? { get }
@@ -52,12 +52,12 @@ public protocol APISpecable {
     var headers: BBNetworkHeaders { get }
     var bodyEncoder: any BBBodyEncoder { get }
     
-    func urlRequest(_ config: any NetworkConfigurable) throws -> URLRequest
+    func urlRequest(_ config: any BBNetworkConfigurable) throws -> URLRequest
 }
 
-extension APISpecable {
-    
-    public func urlRequset(_ config: any NetworkConfigurable = BBDefaultNetworkConfiguration()) -> Observable<URLRequest> {
+extension Requestable {
+     
+    public func urlRequset(_ config: any BBNetworkConfigurable = BBNetworkDefaultConfiguration()) -> Observable<URLRequest> {
         Observable.create { observer in
             do {
                 let urlRequest = try urlRequest(config)
@@ -73,7 +73,7 @@ extension APISpecable {
     /// 주어진 Spec을 바탕으로 URLRequeset를 생성합니다.
     /// - Parameter config: 네트워크 설정값
     /// - Returns: URLRequest
-    public func urlRequest(_ config: any NetworkConfigurable = BBDefaultNetworkConfiguration()) throws -> URLRequest {
+    public func urlRequest(_ config: any BBNetworkConfigurable = BBNetworkDefaultConfiguration()) throws -> URLRequest {
         let url = try self.url(config)
         var urlRequest = URLRequest(url: url)
         
@@ -87,13 +87,13 @@ extension APISpecable {
         
         urlRequest.headers = headers.asHTTPHeaders
         urlRequest.httpMethod = method.asHTTPMethod.rawValue
-        urlRequest.timeoutInterval = config.timeoutInterval
+        urlRequest.timeoutInterval = 10
         return urlRequest
     }
     
     /// 정제된 URL 문자열을 반환합니다.
-    private func url(_ config: any NetworkConfigurable) throws -> URL {
-        var baseUrl = config.baseUrl
+    private func url(_ config: any BBNetworkConfigurable) throws -> URL {
+        let baseUrl = config.baseUrl
         
         var urlString: String = path.hasPrefix(baseUrl)
         ? path
@@ -123,7 +123,7 @@ extension APISpecable {
     
 }
 
-extension APISpecable {
+extension Requestable {
     
     private func replaceRegex(
         _ pattern: String,
@@ -139,6 +139,12 @@ extension APISpecable {
     
 }
 
+// MARK: - ResponseRequestable
+
+public protocol ResponseRequestable: Requestable {
+    var responseDecoder: any BBResponseDecoder  { get }
+}
+
 
 // MARK: - BBAPISpec
 
@@ -148,7 +154,7 @@ extension APISpecable {
 /// 호출 메소드, 호출 경로와 쿼리 파라미터 및 요청 바디가 포함되어 있습니다.
 ///
 /// - Authors: 김소월
-public struct BBAPISpec: APISpecable {
+public struct BBAPISpec: ResponseRequestable {
     
     /// API 호출 메서드입니다.
     public let method: BBNetworkMethod
@@ -183,6 +189,9 @@ public struct BBAPISpec: APISpecable {
     /// 요청 바디를 인코딩하는 인코더입니다. BBBodyEncoder 프로토콜을 준수하는 객체여야 합니다.
     public let bodyEncoder: any BBBodyEncoder
     
+    /// 요청 결과 Data를 디코딩하는 디코더입니다. BBResponseDecoder 프로토콜을 준수하는 객체여야 합니다.
+    public let responseDecoder: any BBResponseDecoder
+    
     /// HTTP 통신에 필요한 재료 보따리를 만듭니다.
     /// - Parameters:
     ///   - method: HTTP 메서드
@@ -201,7 +210,8 @@ public struct BBAPISpec: APISpecable {
         bodyParameters: BBNetworkParameters? = nil,
         bodyParametersEncodable: (any Encodable)? = nil,
         headers: BBNetworkHeaders = BBNetworkHeaders.default,
-        bodyEncoder: any BBBodyEncoder = BBDefaultBodyEncoder()
+        bodyEncoder: any BBBodyEncoder = BBDefaultBodyEncoder(),
+        responseDecoder: any BBResponseDecoder = BBDefaultResponderDecoder()
     ) {
         self.method = method
         self.path = path
@@ -211,6 +221,7 @@ public struct BBAPISpec: APISpecable {
         self.bodyParametersEncodable = bodyParametersEncodable
         self.headers = headers
         self.bodyEncoder = bodyEncoder
+        self.responseDecoder = responseDecoder
     }
     
 }

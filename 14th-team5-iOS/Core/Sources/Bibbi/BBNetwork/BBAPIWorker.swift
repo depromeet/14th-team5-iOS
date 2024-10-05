@@ -11,16 +11,16 @@ import Alamofire
 import RxAlamofire
 import RxSwift
 
-// MARK: - API Worker Error
+// MARK: - Error
 
 /// 디코딩 및 네트워크 통신 중 발생하는 예외입니다.
 public enum APIWorkerError: Error {
     
-    /// 파싱 중 에러가 발생했음을 나타냅니다.
-    case parsing(Error)
+    /// 알 수 없는 에러가 발생했음을 나타냅니다.
+    case unknown
     
-    /// URLRequest 생성 중 에러가 발생했음을 나타냅니다.
-    case urlGeneration(reason: URLGenerationError)
+    /// 파싱 중 에러가 발생했음을 나타냅니다.
+    case parsing
 
     /// 네트워크 통신 중 문제가 발생했음을 나타냅니다.
     case networkFailure(reason: BBNetworkError)
@@ -31,9 +31,12 @@ extension APIWorkerError: CustomStringConvertible {
     
     public var description: String {
         switch self {
-        case .parsing(let error): return "Parsing Error: \(error)"
-        case .urlGeneration(reason: let error): return "URL Generation Error: \(error.description)"
-        case .networkFailure(reason: let error): return "Network Failure: \(error.description)"
+        case .unknown:
+            return "Unknown Error"
+        case .parsing:
+            return "Parsing Error"
+        case .networkFailure(reason: let error):
+            return "Network Failure - \(error.localizedDescription)"
         }
     }
     
@@ -45,88 +48,116 @@ extension APIWorkerError: CustomStringConvertible {
 public protocol Workable: AnyObject {
     @discardableResult
     func request<D>(
-        _ spec: any APISpecable,
-        on queue: any SchedulerType,
-        using decoder: any ResponseDecoder,
-        config: any NetworkConfigurable
+        _ spec: any ResponseRequestable,
+        on queue: any SchedulerType
     ) -> Observable<D> where D: Decodable
     
     @discardableResult
     func request<D>(
-        _ spec: any APISpecable,
-        config: any NetworkConfigurable
+        _ spec: any ResponseRequestable
     ) -> Observable<D> where D: Decodable
 }
 
 
-// MARK: - API Worker
+// MARK: - Default API Worker
 
-extension Workable {
+open class BBDefaultAPIWorker {
+    
+    private let service: any BBNetworkService
+    private let errorResolver: any APIErrorResolver
+    private let errorLogger: any APIErrorLogger
+    
+    public init(
+        with networkService: any BBNetworkService = BBNetworkDefaultService(),
+        errorResolver: any APIErrorResolver = APIDefaultErrorResolver(),
+        errorLogger: any APIErrorLogger = APIDefaultErrorLogger()
+    ) {
+        self.service = networkService
+        self.errorResolver = errorResolver
+        self.errorLogger = errorLogger
+    }
+    
+}
+
+extension BBDefaultAPIWorker: Workable {
     
     /// 주어진 Spec을 토대로 HTTP 통신을 수행합니다.
     ///
     /// HTTP 통신에 성공한다면 next 항목을 방출하고, 실패한다면 error 항목을 방출합니다.
     ///
-    /// 해당 메서드가 반환되는 시점에서 스트림이 queue 매개변수로 주어진 쓰레드로 바뀌며 `observe(on:)` 연산자를 호출할 필요가 없습니다.
+    /// 반환되는 시점에서 스트림이 queue 매개변수로 주어진 쓰레드로 바뀌며 `observe(on:)` 연산자를 호출할 필요가 없습니다.
     ///
     /// - Parameters:
     ///   - spec: BBAPISepc 타입 객체
     ///   - queue: 스트림 쓰레드
-    ///   - decoder: JSONDecoder 객체
-    ///   - config: 네트워크 설정값
     /// - Returns: Observable\<D\>
     public func request<D>(
-        _ spec: any APISpecable,
-        on queue: any SchedulerType = RxScheduler.main,
-        using decoder: any ResponseDecoder = BBDefaultResponderDecoder(),
-        config: any NetworkConfigurable = BBDefaultNetworkConfiguration()
+        _ spec: any ResponseRequestable,
+        on queue: any SchedulerType = RxScheduler.main
     ) -> Observable<D> where D: Decodable {
-        let urlRequest = spec.urlRequset(config)
         
-        return urlRequest
-            .flatMap(with: self) {
-                $0.request($1, on: queue, using: decoder, config: config)
+        Observable<D>.create { [self] observer in
+            let sessionDataTask = self.service.request(with: spec) { result in
+                switch result {
+                case let .success(data):
+                    if let decodedData: D = self.decode(data, using: spec.responseDecoder) {
+                        return observer.onNext(decodedData)
+                    } else {
+                        return observer.onError(APIWorkerError.parsing)
+                    }
+                    
+                case let .failure(error):
+                    self.errorLogger.log(error: error)
+                    let resolvedError = self.resolve(networkError: error)
+                    return observer.onError(resolvedError)
+                }
             }
+            
+            return Disposables.create {
+                sessionDataTask?.cancel()
+            }
+        }
+        .observe(on: queue)
+        
     }
     
     /// 주어진 Spec을 토대로 HTTP 통신을 수행합니다.
     ///
-    /// HTTP 통신에 성공한다면 next 항목을 방출하고, 실패한다면 error 항목을 방출합니다.
-    ///
-    /// 해당 메서드가 반환되는 시점에서 스트림이 메인 쓰레드로 바뀌며 `observe(on:)` 연산자를 호출할 필요가 없습니다.
+    /// HTTP 통신에 성공한다면 next 항목을 방출하고, 실패한다면 error 항목을 방출합니다. 반환되는 시점에서 스트림이 메인 쓰레드로 바뀝니다.
     ///
     /// - Parameters:
     ///   - spec: BBAPISepc 타입 객체
-    ///   - config: 네트워크 설정값
     /// - Returns: Observable\<D\>
+    @discardableResult
     public func request<D>(
-        _ spec: any APISpecable,
-        config: any NetworkConfigurable
-    ) -> RxSwift.Observable<D> where D: Decodable {
-        let urlRequest = spec.urlRequset(config)
+        _ spec: any ResponseRequestable
+    ) -> Observable<D> where D: Decodable {
         
-        return urlRequest
-            .flatMap(with: self) {
-                $0.request($1, on: RxScheduler.main, using: BBDefaultResponderDecoder(), config: config)
-            }
+        request(spec, on: RxScheduler.main)
+        
     }
     
     
-    private func request<D>(
-        _ urlRequest: any URLRequestConvertible,
-        on queue: any SchedulerType,
-        using decoder: any ResponseDecoder,
-        config: any NetworkConfigurable
-    ) -> Observable<D> where D: Decodable {
-        let network = config.session
-        
-        return network.session.rx.request(urlRequest: urlRequest)
-            .responseData()
-            .observe(on: queue)
-            .tryFilterSuccessfulStatusCode()
-            .tryDecode(using: decoder)
-            .mapToAPIWorkerError()
-            .printAPIWorkerError()
+    // MARK: - Private
+    private func decode<T>(
+        _ data: Data?,
+        using decoder: any BBResponseDecoder
+    ) -> T? where T: Decodable {
+        do {
+            guard let data = data else { return nil }
+            let decodedData: T? = try decoder.decode(from: data)
+            return decodedData
+        } catch {
+            self.errorLogger.log(error: error)
+            return nil
+        }
+    }
+    
+    private func resolve(networkError error: BBNetworkError) -> APIWorkerError {
+        let resolvedError = self.errorResolver.resolve(networkError: error)
+        return resolvedError is BBNetworkError
+        ? .networkFailure(reason: error)
+        : .unknown
     }
     
 }

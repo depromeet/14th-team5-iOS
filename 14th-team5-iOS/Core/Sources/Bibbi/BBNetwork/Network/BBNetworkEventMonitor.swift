@@ -1,20 +1,21 @@
 //
-//  EEAPIEventMonitor.swift
-//  BBNetwork
+//  BBNetworkInterceptor.swift
+//  Core
 //
-//  Created by 김건우 on 9/25/24.
+//  Created by 김건우 on 10/5/24.
 //
 
 import Foundation
 
 import Alamofire
 
+// MARK: - Default EventMonitor
 
-// MARK: - Event Monitor
-
-final class BBNetworkEventMonitor: EventMonitor {
+public final class BBNetworkDefaultEventMonitor: EventMonitor {
     
-    func requestDidFinish(_ request: Request) {
+    public init() { }
+    
+    public func requestDidFinish(_ request: Request) {
         // TODO: - Logger로 로그 출력하기
         print("[Reqeust BibbiNetwork LOG]")
         print("- URL : \((request.request?.url?.absoluteString ?? ""))")
@@ -35,4 +36,3 @@ final class BBNetworkEventMonitor: EventMonitor {
     }
     
 }
-

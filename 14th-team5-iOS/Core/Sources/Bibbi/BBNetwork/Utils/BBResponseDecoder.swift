@@ -9,14 +9,14 @@ import Foundation
 
 // MARK: - Response Decoder
 
-public protocol ResponseDecoder {
-    func decode<T: Decodable>(from data: Data) throws -> T
+public protocol BBResponseDecoder {
+    func decode<T>(from data: Data) throws -> T where T: Decodable
 }
 
 
 // MARK: - JSON Default Response Decoder
 
-public struct BBDefaultResponderDecoder: ResponseDecoder {
+public struct BBDefaultResponderDecoder: BBResponseDecoder {
     private let decoder = JSONDecoder()
     public init() { }
     public func decode<T>(from data: Data) throws -> T where T : Decodable {
@@ -27,7 +27,7 @@ public struct BBDefaultResponderDecoder: ResponseDecoder {
 
 // MARK: - JSON Iso8601 Response Decoder
 
-public struct BBIso8601ResponderDecoder: ResponseDecoder {
+public struct BBIso8601ResponderDecoder: BBResponseDecoder {
     private let decoder = {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601

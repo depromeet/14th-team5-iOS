@@ -84,17 +84,17 @@ public extension ObservableType {
     //}
     
     /// 네트워크 준비 중 발생하는 에러를 APIWorkerError로 치환합니다.
-    func mapToAPIWorkerError() -> Observable<Element> {
-        return `catch` { error in
-            if let error = error as? BBNetworkError {
-                return Observable.error(APIWorkerError.networkFailure(reason: error))
-            } else if let error = error as? URLGenerationError {
-                return Observable.error(APIWorkerError.urlGeneration(reason: error))
-            } else {
-                return Observable.error(error)
-            }
-        }
-    }
+//    func mapToAPIWorkerError() -> Observable<Element> {
+//        return `catch` { error in
+//            if let error = error as? BBNetworkError {
+//                return Observable.error(APIWorkerError.networkFailure(reason: error))
+//            } else if let error = error as? URLGenerationError {
+//                return Observable.error(APIWorkerError.urlGeneration(reason: error))
+//            } else {
+//                return Observable.error(error)
+//            }
+//        }
+//    }
     
     /// APIWorker 디버그를 출력합니다.
     func printAPIWorkerError() -> Observable<Element> {
@@ -123,27 +123,27 @@ public extension ObservableType where Element == (HTTPURLResponse, Data) {
     /// - Returns: Observable\<Data\>
     ///
     /// - Authors: 김소월
-    func tryFilterSuccessfulStatusCode(statusCode range: Range<Int> = 200..<300) -> Observable<Data> {
-        flatMap { element -> Observable<Data> in
-            let data = element.1
-            let statusCode = element.0.statusCode
-            
-            return Observable<Data>.create { observer in
-                if statusCode == 204 {
-                    observer.onError(BBNetworkError.noContent)
-                    observer.onCompleted()
-                }
-                else if range ~= statusCode {
-                    observer.onNext(data)
-                    observer.onCompleted()
-                } else {
-                    observer.onError(BBNetworkError.resolve(statusCode))
-                }
-
-                return Disposables.create()
-            }
-        }
-    }
+//    func tryFilterSuccessfulStatusCode(statusCode range: Range<Int> = 200..<300) -> Observable<Data> {
+//        flatMap { element -> Observable<Data> in
+//            let data = element.1
+//            let statusCode = element.0.statusCode
+//            
+//            return Observable<Data>.create { observer in
+//                if statusCode == 204 {
+//                    observer.onError(BBNetworkError.noContent)
+//                    observer.onCompleted()
+//                }
+//                else if range ~= statusCode {
+//                    observer.onNext(data)
+//                    observer.onCompleted()
+//                } else {
+//                    observer.onError(BBNetworkError.resolve(statusCode))
+//                }
+//
+//                return Disposables.create()
+//            }
+//        }
+//    }
     
 }
 
@@ -160,7 +160,7 @@ public extension ObservableType where Element == Data {
     ///
     /// - Authors: 김소월
     func tryDecode<T: Decodable>(
-        using decoder: any ResponseDecoder = BBDefaultResponderDecoder()
+        using decoder: any BBResponseDecoder = BBDefaultResponderDecoder()
     ) -> Observable<T> {
         flatMap { data -> Observable<T> in
             Observable<T>.create { observer in
@@ -168,7 +168,7 @@ public extension ObservableType where Element == Data {
                     let decodedData: T = try decoder.decode(from: data)
                     observer.onNext(decodedData)
                 } catch {
-                    observer.onError(APIWorkerError.parsing(error))
+                    observer.onError(APIWorkerError.parsing)
                 }
                 return Disposables.create()
             }

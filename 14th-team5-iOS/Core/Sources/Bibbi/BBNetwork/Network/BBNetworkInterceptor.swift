@@ -12,13 +12,25 @@ import RxSwift
 
 // MARK: - Default Interceptor
 
-final class BBNetworkInterceptor: Interceptor {
-
+public final class BBNetworkDefaultInterceptor: Interceptor {
+    
     // MARK: - Properties
     
-    private let network = BBNoInterceptorNetworkSession()
-    private let keychain = KeychainWrapper.standard
-
+    private let logger: any BBNetworkErrorLogger
+    private let session: any BBNetworkSession
+    
+    
+    // MARK: - Intializer
+    
+    public init(
+        logger: any BBNetworkErrorLogger = BBNetworkDefaultErrorLogger(),
+        session: any BBNetworkSession = BBNetworkRefreshSession()
+    ) {
+        self.logger = logger
+        self.session = session
+        super.init()
+    }
+    
     
     // MARK: - Retry
     
@@ -55,15 +67,9 @@ final class BBNetworkInterceptor: Interceptor {
 }
 
 
-// MARK: - Private Extensions
+// MARK: - Extensions
 
-private extension BBNetworkInterceptor {
-    
-    /// 키체인에 토큰 정보를 저장합니다.
-    @discardableResult
-    func saveAuthToken(_ token: AuthToken) -> Bool {
-        KeychainWrapper.standard.set(token, forKey: "accessToken")
-    }
+private extension BBNetworkDefaultInterceptor {
     
     /// 키체인으로부터 토큰 정보를 불러옵니다.
     func fetchAuthToken() -> AuthToken? {
@@ -86,20 +92,26 @@ private extension BBNetworkInterceptor {
             return nil
         }
         
-        var tokenResult: AuthToken? = nil
-        network.session.request(urlRequest).validate().response { response in
-            switch response.result {
-            case let .success(data):
-                if let accessToken = data?.decode(AuthToken.self) {
-                    tokenResult = accessToken
+        var authToken: AuthToken? = nil
+        let _ = session.request(with: urlRequest) { data, response, error in
+            
+            if let requestError = error {
+                if let _ = response as? HTTPURLResponse {
+                    self.logger.log(error: requestError)
                 }
-            case let .failure(error):
-                // MARK: - Logger로 로그 출력하기
-                debugPrint("🔴리프레시 실패: \(String(describing: error.errorDescription))")
+            } else {
+                authToken = data?.decode(AuthToken.self)
             }
+            
         }
-
-        return tokenResult
+        
+        return authToken
     }
+    
+    /// 키체인에 토큰 정보를 저장합니다.
+    @discardableResult
+    func saveAuthToken(_ token: AuthToken) -> Bool {
+        KeychainWrapper.standard.set(token, forKey: "accessToken")
+    }
+    
 }
-

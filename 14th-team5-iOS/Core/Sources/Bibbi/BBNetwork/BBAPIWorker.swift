@@ -13,33 +13,46 @@ import RxSwift
 
 // MARK: - Error
 
-/// 디코딩 및 네트워크 통신 중 발생하는 예외입니다.
+/// HTTP 통신 및 디코딩, 쓰래드 전환 등 부가 기능 수행 중 발생하는 에러입니다.
 public enum APIWorkerError: Error {
     
-    /// 알 수 없는 에러가 발생했음을 나타냅니다.
-    case unknown
+    /// 알 수 없는 에러가 발생했음을 의미합니다.
+    case unknown(Error)
     
-    /// 파싱 중 에러가 발생했음을 나타냅니다.
+    /// 파싱에 실패했음을 의미합니다.
     case parsing
 
-    /// 네트워크 통신 중 문제가 발생했음을 나타냅니다.
+    /// 네트워크 통신 중 문제가 발생했음을 의미합니다.
     case networkFailure(reason: BBNetworkError)
 
 }
 
-extension APIWorkerError: CustomStringConvertible {
+extension APIWorkerError {
     
-    public var description: String {
-        switch self {
-        case .unknown:
-            return "Unknown Error"
-        case .parsing:
-            return "Parsing Error"
-        case .networkFailure(reason: let error):
-            return "Network Failure - \(error.localizedDescription)"
+    /// 발생한 에러가 네트워크 오류인 경우 해당 오류 원인을 반환합니다.
+    ///
+    /// - Returns: `BBNetworkError` 타입의 네트워크 에러 또는 `nil`
+    var underlyingError: BBNetworkError? {
+        if case let .networkFailure(reason) = self {
+            return reason
         }
+        return nil
     }
     
+}
+
+extension APIWorkerError: LocalizedError {
+    
+    public var errorDescription: String? {
+        switch self {
+        case .unknown(let error):
+            return "알 수 없는 오류가 발생했습니다 [이유: \(error.localizedDescription)]"
+        case .parsing:
+            return "데이터를 처리하는 중에 문제가 발생했습니다. 서버에서 반환된 데이터가 예상한 형식과 맞지 않습니다."
+        case .networkFailure(let reason):
+            return "네트워크 통신 중 오류가 발생했습니다. [이유: \(reason.localizedDescription)]"
+        }
+    }
 }
 
 
@@ -67,12 +80,18 @@ open class BBDefaultAPIWorker {
     private let errorResolver: any APIErrorResolver
     private let errorLogger: any APIErrorLogger
     
+    /// APIWorker 인스턴스를 생성합니다.
+    ///
+    /// - Parameters:
+    ///   - service: 이 인스턴스가 사용하기를 원하는 `NetworkService`입니다. 기본값은 `BBNetworkDefaultService()`입니다.
+    ///   - errorResolver: 이 인스턴스가 사용하기를 원하는 `ErrorResolver`입니다. 기본값은 `APIDefaultErrorResolver()`입니다.
+    ///   - errorLogger: 이 인스턴스가 사용하기를 원하는 `APIErrorLogger`입니다. 기본값은 `APIDefaultErrorLogger()`입니다.
     public init(
-        with networkService: any BBNetworkService = BBNetworkDefaultService(),
+        with service: any BBNetworkService = BBNetworkDefaultService(),
         errorResolver: any APIErrorResolver = APIDefaultErrorResolver(),
         errorLogger: any APIErrorLogger = APIDefaultErrorLogger()
     ) {
-        self.service = networkService
+        self.service = service
         self.errorResolver = errorResolver
         self.errorLogger = errorLogger
     }
@@ -81,22 +100,21 @@ open class BBDefaultAPIWorker {
 
 extension BBDefaultAPIWorker: Workable {
     
-    /// 주어진 Spec을 토대로 HTTP 통신을 수행합니다.
+    /// 매개변수로 주어진 스펙(spec) 정보를 바탕으로 HTTP 통신을 수행합니다.
     ///
-    /// HTTP 통신에 성공한다면 next 항목을 방출하고, 실패한다면 error 항목을 방출합니다.
-    ///
-    /// 반환되는 시점에서 스트림이 queue 매개변수로 주어진 쓰레드로 바뀌며 `observe(on:)` 연산자를 호출할 필요가 없습니다.
+    /// HTTP 통신에 성공하면 디코딩된 값을 next 항목으로 방출하고, 실패한다면 `APIWorkerError` 타입의 에러가 담긴 error 항목을 방출합니다.
+    /// HTTP 통신 결과를 방출 할 때 스트림은 `queue` 매개변수로 주어진 쓰레드로 바뀝니다.
     ///
     /// - Parameters:
-    ///   - spec: BBAPISepc 타입 객체
-    ///   - queue: 스트림 쓰레드
+    ///   - spec: `ResponseRequestable` 프로토콜을 준수하는 스펙(spec)입니다.
+    ///   - queue: HTTP 통신이 끝나면 흐르게 하는 쓰레드를 지정합니다. 기본값은 `RxScheduler.main`입니다.
     /// - Returns: Observable\<D\>
     public func request<D>(
         _ spec: any ResponseRequestable,
         on queue: any SchedulerType = RxScheduler.main
     ) -> Observable<D> where D: Decodable {
         
-        Observable<D>.create { [self] observer in
+        Observable<D>.create { [unowned self] observer in
             let sessionDataTask = self.service.request(with: spec) { result in
                 switch result {
                 case let .success(data):
@@ -107,26 +125,27 @@ extension BBDefaultAPIWorker: Workable {
                     }
                     
                 case let .failure(error):
-                    self.errorLogger.log(error: error)
-                    let resolvedError = self.resolve(networkError: error)
+                    let resolvedError = self.errorResolver.resolve(networkError: error)
+                    self.errorLogger.log(error: resolvedError)
                     return observer.onError(resolvedError)
                 }
             }
             
             return Disposables.create {
-                sessionDataTask?.cancel()
+                let _ = sessionDataTask?.cancel()
             }
         }
         .observe(on: queue)
         
     }
     
-    /// 주어진 Spec을 토대로 HTTP 통신을 수행합니다.
+    /// 매개변수로 주어진 스펙(spec) 정보를 바탕으로 HTTP 통신을 수행합니다.
     ///
-    /// HTTP 통신에 성공한다면 next 항목을 방출하고, 실패한다면 error 항목을 방출합니다. 반환되는 시점에서 스트림이 메인 쓰레드로 바뀝니다.
+    /// HTTP 통신에 성공하면 디코딩된 값을 next 항목으로 방출하고, 실패한다면 `APIWorkerError` 타입의 에러가 담긴 error 항목을 방출합니다.
+    /// HTTP 통신 결과를 방출 할 때 스트림은 메인 쓰레드로 바뀝니다.
     ///
     /// - Parameters:
-    ///   - spec: BBAPISepc 타입 객체
+    ///   - spec: `ResponseRequestable` 프로토콜을 준수하는 스펙(spec)입니다.
     /// - Returns: Observable\<D\>
     @discardableResult
     public func request<D>(
@@ -137,8 +156,6 @@ extension BBDefaultAPIWorker: Workable {
         
     }
     
-    
-    // MARK: - Private
     private func decode<T>(
         _ data: Data?,
         using decoder: any BBResponseDecoder
@@ -148,16 +165,9 @@ extension BBDefaultAPIWorker: Workable {
             let decodedData: T? = try decoder.decode(from: data)
             return decodedData
         } catch {
-            self.errorLogger.log(error: error)
+            self.errorLogger.log(error: APIWorkerError.parsing)
             return nil
         }
-    }
-    
-    private func resolve(networkError error: BBNetworkError) -> APIWorkerError {
-        let resolvedError = self.errorResolver.resolve(networkError: error)
-        return resolvedError is BBNetworkError
-        ? .networkFailure(reason: error)
-        : .unknown
     }
     
 }

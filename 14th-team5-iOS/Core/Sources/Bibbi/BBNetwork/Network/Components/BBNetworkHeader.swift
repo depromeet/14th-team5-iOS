@@ -30,20 +30,6 @@ public enum BBNetworkHeader {
 
 // MARK: - Extensions
 
-public extension BBNetworkHeaders {
-    
-    /// 가장 일반적인 헤더 모음입니다.
-    static var `default`: [BBNetworkHeader] {
-        [.xAppKey, .xAuthToken, .xUserPlatform, .xUserId, .contentType]
-    }
-    
-    /// 인증이 필요없는 API 요청에 사용되는 헤더 모음입니다.
-    static var unAuthorized: [BBNetworkHeader] {
-        [.xAppKey, .xUserPlatform, .contentType]
-    }
-    
-}
-
 public extension BBNetworkHeader {
     
     /// 헤더의 키입니다.
@@ -68,39 +54,53 @@ public extension BBNetworkHeader {
         }
     }
     
-    /// `BBNetworkHeader`를 Alamofire의 `HTTPHeader` 타입으로 변환합니다.
+    /// `BBNetworkHeader`를 `HTTPHeader` 타입으로 변환합니다.
     var asHTTPHeader: HTTPHeader {
         HTTPHeader(name: key, value: value)
     }
     
 }
 
+public extension BBNetworkHeaders {
+    
+    /// 가장 일반적인 헤더 모음입니다.
+    static var `default`: [BBNetworkHeader] {
+        [.xAppKey, .xAuthToken, .xUserPlatform, .xUserId, .contentType]
+    }
+    
+    /// 인증이 필요없는 API 요청에 사용되는 헤더 모음입니다.
+    static var unAuthorized: [BBNetworkHeader] {
+        [.xAppKey, .xUserPlatform, .contentType]
+    }
+    
+}
+
+
+
+
+
 private extension BBNetworkHeader {
     
     func fetchXAppKey() -> String {
-        // TODO: - Bundle에서 가져오도록 코드 수정하기
-        return "7c5aaa36-570e-491f-b18a-26a1a0b72959"
+        Bundle.main.xAppKey
     }
 
     func fetchXAuthTokenValue() -> String {
-        let keychain = KeychainWrapper.standard
-        if let authToken: AuthToken = keychain[.accessToken] {
-            return authToken.refreshToken
+        if let authToken: AuthToken = KeychainWrapper.standard[.accessToken] {
+            return authToken.accessToken
         }
-        return "" // TODO: - 예외 코드 작성하기
-    }
-
-    func fetchXUserPlatform() -> String {
-        // TODO: - Bundle에서 Platform을 가져오도록 코드 수정하기
-        return "iOS"
+        return ""
     }
     
     func fetchXuserId() -> String {
-        let userDefaults = UserDefaultsWrapper.standard
-        if let memberId: String = userDefaults[.memberId] {
+        if let memberId: String = UserDefaultsWrapper.standard[.memberId] {
             return memberId
         }
-        return "" // TODO: - 예외 코드 작성하기
+        return ""
+    }
+
+    func fetchXUserPlatform() -> String {
+        return "iOS"
     }
     
     func fetchContentType() -> String {
@@ -111,7 +111,7 @@ private extension BBNetworkHeader {
 
 public extension Array where Element == BBNetworkHeader {
     
-    /// `[BBNetworkHeader]`를 Alamofire의 `HTTPHeaders` 타입으로 변환합니다.
+    /// `[BBNetworkHeader]`를 `HTTPHeaders` 타입으로 변환합니다.
     var asHTTPHeaders: HTTPHeaders {
         HTTPHeaders(self.map { $0.asHTTPHeader })
     }

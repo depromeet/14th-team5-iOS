@@ -28,7 +28,7 @@ public enum BBNetworkMethod {
 
 public extension BBNetworkMethod {
     
-    /// `BBAPIMethod`를 Alamofire의 `HTTPMethod` 타입으로 변환합니다.
+    /// `BBAPIMethod`를 `HTTPMethod` 타입으로 변환합니다.
     var asHTTPMethod: HTTPMethod {
         switch self {
         case .get: return HTTPMethod.get

@@ -10,7 +10,7 @@ import Foundation
 // MARK: - Erorr Logger
 
 public protocol APIErrorLogger {
-    func log(error: Error)
+    func log<E>(error: E) where E: LocalizedError
 }
 
 
@@ -20,8 +20,13 @@ public struct APIDefaultErrorLogger: APIErrorLogger {
     
     public init() { }
     
-    public func log(error: any Error) {
-        debugPrint("\(error.localizedDescription)")
+    /// 매개변수로 주어진 `Error`의 로그를 출력합니다.
+    /// - Parameter error: `Error` 프로토콜을 준수하는 에러입니다.
+    public func log<E>(error: E) where E: LocalizedError {
+        // TODO: - Logger로 로그 출력하기
+        print("----------------------------------------")
+        print("\(error.localizedDescription)")
+        print("----------------------------------------")
     }
     
 }

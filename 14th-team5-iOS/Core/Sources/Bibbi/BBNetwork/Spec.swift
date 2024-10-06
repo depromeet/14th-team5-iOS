@@ -18,7 +18,6 @@ public protocol BBAPI {
 
 // MARK: - URL Generation Error
 
-/// URL 및 URLRequest 생성 중 발생하는 에러입니다.
 public enum RequestGenerationError: Error {
     
     /// 잘못된 URL이 생성됨을 의미합니다.
@@ -54,8 +53,8 @@ public protocol Requestable {
 
 extension Requestable {
     
-    /// 전달된 구성 요소를 바탕으로 URLRequest를 생성합니다.
-    /// - Parameter config: HTTP 통신에 필요한 설정값입니다. 기본값은 `BBNetworkDefaultConfiguration()`입니다.
+    /// 주어진 Spec을 바탕으로 URLRequeset를 생성합니다.
+    /// - Parameter config: 네트워크 설정값
     /// - Returns: URLRequest
     public func urlRequest(_ config: any BBNetworkConfigurable = BBNetworkDefaultConfiguration()) throws -> URLRequest {
         let url = try self.url(config)
@@ -71,10 +70,10 @@ extension Requestable {
         
         urlRequest.headers = headers.asHTTPHeaders
         urlRequest.httpMethod = method.asHTTPMethod.rawValue
-        urlRequest.timeoutInterval = 10
         return urlRequest
     }
     
+    /// 정제된 URL 문자열을 반환합니다.
     private func url(_ config: any BBNetworkConfigurable) throws -> URL {
         let baseUrl = config.baseUrl
         
@@ -124,60 +123,68 @@ extension Requestable {
 
 // MARK: - ResponseRequestable
 
+/// <#Description#>
 public protocol ResponseRequestable: Requestable {
     var responseDecoder: any BBResponseDecoder  { get }
 }
 
 
-// MARK: - Spec
+// MARK: - BBAPISpec
 
+
+/// API 요청에 필요한 재료 묶음인 Spec입니다.
+/// 
+/// 호출 메소드, 호출 경로와 쿼리 파라미터 및 요청 바디가 포함되어 있습니다.
+///
+/// - Authors: 김소월
 public struct Spec: ResponseRequestable {
     
-    /// HTTP 호출 메서드입니다.
+    /// API 호출 메서드입니다.
     public let method: BBNetworkMethod
     
-    /// 호출하고자 하는 URL의 경로입니다.
+    /// 호출하고자 하는 API의 경로입니다.
     ///
-    /// 베이스 URL을 제외한 나머지 URL만 작성해야 합니다.
-    /// 예를 들어, 전체 URL이 **https://api.oing.kr/v1/families**라면 베이스 URL을 제외한 **/families**만 작성해야 합니다.
+    /// 베이스 URL을 제외한 나머지 URL만 작성해야 합니다. 예를 들어, 전체 URL이 **https://api.oing.kr/v1/families**라면 베이스 URL을 제외한 **/families**만 작성해야 합니다.
+    ///
+    /// - Warning: 쿼리 파라미터는 `queryParameters`나 `queryParametersEncodable` 프로퍼티로 전달해야 합니다.
+    ///
     public let path: String
     
     /// 호출하고자 하는 API의 쿼리 파라미터입니다.
     public let queryParameters: BBNetworkParameters?
     
-    /// 호출하고자 하는 API의 쿼리 파라미터입니다.
+    /// 호출하고자 하는 API의 쿼리 파라미터입니다. Encodable 프로토콜을 준수하는 객체여야 합니다.
     ///
-    /// - Warning: 이 프로퍼티에 값이 있다면 `bodyParametersEncodable` 프로퍼티는 무시됩니다.
+    /// - Warning: 이 프로퍼티에 값이 존재한다면 `bodyParametersEncodable` 프로퍼티는 무시됩니다.
     public let queryParametersEncodable: (any Encodable)?
 
     /// 호출하고자 하는 API의 요청 바디입니다.
     ///
-    /// - Warning: 이 프로퍼티에 값이 있다면 `bodyParametersEncodable` 프로퍼티는 무시됩니다.
+    /// - Warning: 이 프로퍼티에 값이 존재한다면 `bodyParametersEncodable` 프로퍼티는 무시됩니다.
     public let bodyParameters: BBNetworkParameters?
     
     /// 호출하고자 하는 API의 요청 바디입니다. Encodable 프로토콜을 준수하는 객체여야 합니다.
     public let bodyParametersEncodable: (any Encodable)?
     
-    /// 요청 헤더입니다.
+    /// 요청 헤더입니다. 기본값으로 X-App-Key, X-Auth-Token, X-UserId, X-User-Platform이 포함되어 있습니다.
     public let headers: BBNetworkHeaders
     
-    /// 요청 바디를 인코딩하는 인코더입니다.
+    /// 요청 바디를 인코딩하는 인코더입니다. BBBodyEncoder 프로토콜을 준수하는 객체여야 합니다.
     public let bodyEncoder: any BBBodyEncoder
     
-    /// HTTP 통신 결과로 받은 Data를 디코딩하는 디코더입니다.
+    /// 요청 결과 Data를 디코딩하는 디코더입니다. BBResponseDecoder 프로토콜을 준수하는 객체여야 합니다.
     public let responseDecoder: any BBResponseDecoder
     
     /// HTTP 통신에 필요한 재료 보따리를 만듭니다.
     /// - Parameters:
-    ///   - method: HTTP 메서드입니다.
-    ///   - path: 베이스 URL을 제외한 나머지 경로입니다.
-    ///   - queryParameters: 쿼리 파라미터입니다. 기본값은 `nil`입니다.
-    ///   - queryParametersEncodable: 쿼리 파라미터입니다. `Encodable` 프로토콜을 준수해야 합니다. 기본값은 `nil`입니다.
-    ///   - bodyParameters: 요청 바디입니다. 기본값은 `nil`입니다.
-    ///   - bodyParametersEncodable: 요청 바디입니다. `Encodable` 프로토콜을 준수해야 합니다. 기본값은 `nil`입니다.
-    ///   - headers: HTTP 요청 헤더입니다. 기본값은 `BBNetworkHeaders.default`입니다.
-    ///   - bodyEncoder: 요청 바디 인코딩을 위한 인코더입니다. 기본값은 `BBDefaultBodyEncoder()`입니다.
-    ///   - responseDecoder: HTTP 통신 결과로 받은 Data를 디코딩하는 디코더입니다. 기본값은 `BBDefaultResponderDecoder()`입니다.
+    ///   - method: HTTP 메서드
+    ///   - path: 주소 경로
+    ///   - queryParameters: 쿼리 파라미터
+    ///   - queryParametersEncodable: Encodable 프로토콜을 준수하는 쿼리 파라미터
+    ///   - bodyParameters: 요청 바디
+    ///   - bodyParametersEncodable: Encodable 프로토콜을 준수하는 요청 바디
+    ///   - headers: HTTP 헤더
+    ///   - bodyEncoder: 요청 바디 인코더
     public init(
         method: BBNetworkMethod,
         path: String,
@@ -208,6 +215,10 @@ public struct Spec: ResponseRequestable {
 
 private extension Dictionary where Key == BBNetworkParameterKey, Value == BBNetworkParameterValue {
     
+    /// BBParameter 타입인 Key와 Value를 가진 딕셔너리를 [String: Any]로 변환합니다.
+    /// - Returns: [String: Any]
+    ///
+    /// - Authors: 김소월
     func toDictionary() -> [String: Any] {
         var dict = [String: Any]()
         self.forEach { key, value in

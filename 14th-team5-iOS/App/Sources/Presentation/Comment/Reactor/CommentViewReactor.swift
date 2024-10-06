@@ -138,7 +138,7 @@ final public class CommentViewReactor: Reactor {
                             Observable<Mutation>.just(.scrollTableToLast(true))
                         )
                     }
-                    .catchAPIWorkerError(with: self) {
+                    .catchError(with: self, of: APIWorkerError.self) {
                         switch $1 {
                         case .networkFailure:
                             Haptic.notification(type: .error)

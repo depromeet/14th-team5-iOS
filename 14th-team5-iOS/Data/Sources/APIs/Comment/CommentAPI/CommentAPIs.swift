@@ -14,10 +14,10 @@ enum CommentAPIs: BBAPI {
     case updatePostComment(postId: String, commentId: String)
     case deletePostComment(postId: String, commentId: String)
     
-    var spec: BBAPISpec {
+    var spec: Spec {
         switch self {
         case let .fetchPostComment(postId, page, size, sort):
-            return BBAPISpec(
+            return Spec(
                 method: .get,
                 path: "/posts/\(postId)/comments",
                 queryParameters: [
@@ -28,20 +28,20 @@ enum CommentAPIs: BBAPI {
             )
             
         case let .createPostComment(postId, body):
-            return BBAPISpec(
+            return Spec(
                 method: .post,
                 path: "/posts/\(postId)/comments",
                 bodyParameters: ["content": "\(body.content)"]
             )
             
         case let .updatePostComment(postId, commentId):
-            return BBAPISpec(
+            return Spec(
                 method: .put,
                 path: "/posts/\(postId)/comments/\(commentId)"
             )
             
         case let .deletePostComment(postId, commentId):
-            return BBAPISpec(
+            return Spec(
                 method: .delete,
                 path: "/posts/\(postId)/comments/\(commentId)"
             )

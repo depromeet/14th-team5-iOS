@@ -72,13 +72,6 @@ public class WebContentViewController: BaseViewController<WebContentReactor> {
             .disposed(by: disposeBag)
         
         reactor.state
-            .compactMap { $0.url?.lastPathComponent == "privacy" ? "개인정보처리방침" : "이용 약관" }
-            .distinctUntilChanged()
-            .withUnretained(self)
-            .bind(onNext: { $0.0.navigationBarView.setNavigationTitle(title: $0.1) })
-            .disposed(by: disposeBag)
-        
-        reactor.state
             .map { $0.isLoading }
             .distinctUntilChanged()
             .asDriver(onErrorJustReturn: false)

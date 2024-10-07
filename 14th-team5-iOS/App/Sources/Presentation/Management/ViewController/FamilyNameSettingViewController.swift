@@ -36,12 +36,12 @@ final class FamilyNameSettingViewController: BBNavigationViewController<FamilyNa
         groupNameLabel.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(130)
             $0.height.equalTo(25)
-            $0.centerX.equalToSuperview().inset(20)
+            $0.centerX.equalToSuperview()
         }
         
         groupTextField.snp.makeConstraints {
             $0.top.equalTo(groupNameLabel.snp.bottom).offset(8)
-            $0.centerX.equalToSuperview().inset(20)
+            $0.centerX.equalToSuperview()
         }
         
         groupErrorStackView.snp.makeConstraints {

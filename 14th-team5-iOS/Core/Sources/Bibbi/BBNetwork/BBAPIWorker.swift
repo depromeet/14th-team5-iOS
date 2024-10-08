@@ -8,6 +8,7 @@
 import Foundation
 
 import Alamofire
+import Combine
 import RxAlamofire
 import RxSwift
 
@@ -88,18 +89,18 @@ open class BBRxAPIWorker {
     
     private let service: any BBNetworkService
     private let errorMapper: any APIErrorMapper
-    private let errorLogger: any APIErrorLogger
+    private let errorLogger: any BBErrorLogger
     
     /// APIWorker 인스턴스를 생성합니다.
     ///
     /// - Parameters:
     ///   - service: 이 인스턴스가 사용하기를 원하는 `NetworkService`입니다. 기본값은 `BBNetworkDefaultService()`입니다.
-    ///   - errorResolver: 이 인스턴스가 사용하기를 원하는 `ErrorResolver`입니다. 기본값은 `APIDefaultErrorResolver()`입니다.
+    ///   - errorResolver: 이 인스턴스가 사용하기를 원하는 `APIErrorMapper`입니다. 기본값은 `APIDefaultErrorMapper()`입니다.
     ///   - errorLogger: 이 인스턴스가 사용하기를 원하는 `APIErrorLogger`입니다. 기본값은 `APIDefaultErrorLogger()`입니다.
     public init(
         with service: any BBNetworkService = BBNetworkDefaultService(),
-        errorMapper: any APIErrorMapper = APIDefaultErrorResolver(),
-        errorLogger: any APIErrorLogger = APIDefaultErrorLogger()
+        errorMapper: any APIErrorMapper = APIDefaultErrorMapper(),
+        errorLogger: any BBErrorLogger = APIWorkerErrorLogger()
     ) {
         self.service = service
         self.errorMapper = errorMapper
@@ -134,13 +135,13 @@ extension BBRxAPIWorker: Workable {
                         observer.onCompleted()
                     } catch {
                         let apiError = self.map(error: error)
-                        self.errorLogger.log(error: apiError)
+                        self.errorLogger.log(localizedError: apiError)
                         observer.onError(error)
                     }
                     
                 case let .failure(error):
                     let mappedError = self.errorMapper.map(networkError: error)
-                    self.errorLogger.log(error: mappedError)
+                    self.errorLogger.log(localizedError: mappedError)
                     observer.onError(mappedError)
                 }
             }

@@ -14,9 +14,11 @@ import Alamofire
 public protocol BBNetworkSessionManager {
     typealias CompletionHandler = (AFDataResponse<Data?>) -> Void
     
-    var af: Session { get }
+    func request(
+        with request: URLRequest,
+        completion: @escaping CompletionHandler
+    ) -> BBNetworkCancellable
     
-    func request(with request: URLRequest, completion: @escaping CompletionHandler) -> BBNetworkCancellable
 }
 
 
@@ -24,9 +26,16 @@ public protocol BBNetworkSessionManager {
 
 public class BBNetworkSession {
     
+    /// 가장 기본적인 네트워크 세션입니다.
+    public static let `default`: BBNetworkSession = BBNetworkSession()
+    
+    /// 토큰 리프레시용 네트워크 세션입니다.
+    public static let refresh: BBNetworkSession = BBNetworkSession(interceptor: nil)
+    
     /// 세션은 생명 주기 동안 Alamofire의 `Request` 타입을 생성하고 관리합니다.
     /// 또한, 세션은 큐잉(queuing), 인터셉터, 신뢰 관리, 리다이렉트와 캐시 응답 처리를 포함한 모든 요청에 대한 보편적인 기능을 제공합니다.
-    private let session: Session
+    private var session: Session = .default
+    
     
     /// 네트워크 세션을 만듭니다.
     ///
@@ -61,11 +70,11 @@ public class BBNetworkSession {
         startRequestsImmediately: Bool = true,
         requestQueue: DispatchQueue? = nil,
         serializtionQueue: DispatchQueue? = nil,
-        interceptor: (any RequestInterceptor)? = nil,
+        interceptor: (any RequestInterceptor)? = BBNetworkDefaultInterceptor(),
         serverTrustManger: ServerTrustManager? = nil,
         redirectHandler: (any RedirectHandler)? = nil,
         cachedResponseHandler: (any CachedResponseHandler)? = nil,
-        eventMonitors: [any EventMonitor] = []
+        eventMonitors: [any BBNetworkEventMonitor] =  [BBNetworkDefaultLogger()]
     ) {
         self.session = Session(
             configuration: configuration,
@@ -86,72 +95,18 @@ public class BBNetworkSession {
 
 extension BBNetworkSession: BBNetworkSessionManager {
     
-    /// 세션을 생성합니다.
-    public var af: Session {
-        session
-    }
-    
     /// 전달된 URLRequest를 바탕으로 HTTP 통신을 수행합니다.
     /// - Parameters:
-    ///   - request: 통신에 사용할 `URLRequset`
-    ///   - completion: 통신이 완료되면 처리할 핸들러
+    ///   - request: 통신에 사용할 `URLRequset`입니다.
+    ///   - completion: 통신이 완료되면 처리할 핸들러입니다.
     /// - Returns: `any BBNetworkCancellable`
     public func request(
         with request: URLRequest,
         completion: @escaping CompletionHandler
     ) -> any BBNetworkCancellable {
-        let dataRequest = af.request(request).response(completionHandler: completion)
+        let dataRequest = session.request(request).response(completionHandler: completion)
         dataRequest.resume()
         return dataRequest
     }
     
-}
-
-
-// MARK: - Default Session
-
-public class BBNetworkDefaultSession: BBNetworkSession {
-    public init(
-        config: URLSessionConfiguration = .default,
-        interceptor: (any RequestInterceptor)? = BBNetworkDefaultInterceptor(),
-        cachedResponseHandler: (any CachedResponseHandler)? = nil,
-        eventMonitors: [any EventMonitor] = [BBNetworkDefaultLogger()]
-    ) {
-        super.init(
-            configuration: config,
-            interceptor: interceptor,
-            cachedResponseHandler: cachedResponseHandler,
-            eventMonitors: eventMonitors
-        )
-    }
-}
-
-// MARK: - Caching Session
-
-//public final class BBNetworkCachingSession: BBNetworkDefaultSession {
-//    public typealias Megabyte = Int
-//    let urlCache: URLCache
-//    public init(urlCache: URLCache) {
-//        self.urlCache = urlCache
-//        let cachingConfig = URLSessionConfiguration.af.default
-//        cachingConfig.urlCache = urlCache
-//        cachingConfig.requestCachePolicy = .returnCacheDataElseLoad
-//        
-//        super.init(config: cachingConfig)
-//    }
-//    public convenience init(memoryCapacity: Megabyte = 10, diskCapacity: Megabyte = 10) {
-//        self.init(urlCache: URLCache(memoryCapacity: memoryCapacity.toMegaByte, diskCapacity: diskCapacity.toMegaByte))
-//    }
-//    public func clearAllCache() {
-//        self.urlCache.removeAllCachedResponses()
-//    }
-//}
-
-
-// MARK: - Refresh Session
-
-public final class BBNetworkRefreshSession: BBNetworkSession {
-    public init(eventMonitors: [any EventMonitor] = [BBNetworkDefaultLogger()]) {
-        super.init(eventMonitors: eventMonitors)
-    }
 }

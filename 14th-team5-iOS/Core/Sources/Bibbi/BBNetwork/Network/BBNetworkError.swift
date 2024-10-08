@@ -106,27 +106,7 @@ extension BBNetworkError: LocalizedError {
         case .urlGeneration:
             return "유효하지 않은 URL이 생성되었습니다. 요청 URL을 확인하세요."
         case .error(let statusCode):
-            return "HTTP 오류가 발생했습니다. (상태 코드: \(statusCode))"
+            return "알 수 없는 HTTP 오류가 발생했습니다. (상태 코드: \(statusCode))"
         }
     }
-}
-
-
-// MARK: - Error Logger
-
-public protocol BBNetworkErrorLogger {
-    func log<E>(error: E) where E: LocalizedError
-}
-
-
-// MARK: - Default Error Logger
-
-public struct BBNetworkDefaultErrorLogger: BBNetworkErrorLogger {
-    
-    public init() { }
-    
-    /// 매개변수로 주어진 `Error`의 로그를 출력합니다.
-    /// - Parameter error: `Error` 프로토콜을 준수하는 에러입니다.
-    public func log<E>(error: E) where E: LocalizedError { }
-    
 }

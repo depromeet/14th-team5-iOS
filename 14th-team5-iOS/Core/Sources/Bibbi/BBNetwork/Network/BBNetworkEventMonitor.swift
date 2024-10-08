@@ -9,15 +9,12 @@ import Foundation
 
 import Alamofire
 
-// MARK: - Default Logger
+// MARK: - Event Monitor
 
-public final class BBNetworkDefaultLogger {
-    
-    public init() { }
-    public var queue = DispatchQueue(label: "com.bibbi.logger.queue")
-    
-    // MARK: - Private
-    private func isSuccessfulStatusCode(_ dataRespnse: DataResponse<Data?, AFError>) -> Bool {
+public protocol BBNetworkEventMonitor: EventMonitor { }
+
+extension BBNetworkEventMonitor {
+    func isSuccessfulStatusCode(_ dataRespnse: DataResponse<Data?, AFError>) -> Bool {
         guard
             let statusCode = dataRespnse.response?.statusCode,
             (200..<300) ~= statusCode else {
@@ -25,13 +22,20 @@ public final class BBNetworkDefaultLogger {
         }
         return true
     }
-    
 }
 
-extension BBNetworkDefaultLogger: EventMonitor {
+
+// MARK: - Default Logger
+
+public final class BBNetworkDefaultLogger {
+    public init() { }
+    public var queue = DispatchQueue(label: "com.bibbi.logger.queue")
+}
+
+extension BBNetworkDefaultLogger: BBNetworkEventMonitor {
     
     public func requestDidFinish(_ request: Request) {
-        var httpLog = "[BBNetwork Request Log]\n"
+        var httpLog = "-- [BBNetwork Request Log] ----------------------------\n"
         
         let urlString = request.request?.url?.absoluteString ?? "(unknown)"
         let httpMethod = request.request?.httpMethod ?? "(unknown)"
@@ -41,7 +45,7 @@ extension BBNetworkDefaultLogger: EventMonitor {
             .forEach { allHeadersString.append("\t ・ \($0.key): \($0.value)\n") }
         allHeadersString.append("]")
         
-        var httpBody = request.request?.httpBody?.toPrettyPrintedString
+        let httpBody = request.request?.httpBody?.toPrettyPrintedString
         
         httpLog.append("- URL: \(urlString)\n")
         httpLog.append("- METHOD: \(httpMethod)\n")
@@ -50,7 +54,8 @@ extension BBNetworkDefaultLogger: EventMonitor {
             httpLog.append("- HTTP BODY: \(httpBody)\n")
         }
         
-        print(httpLog + "\n")
+        // TODO: - Logger로 로그 출력하기
+        print(httpLog + "\n--------------------------------------------------------\n")
     }
     
     public func request(
@@ -63,7 +68,7 @@ extension BBNetworkDefaultLogger: EventMonitor {
         let statusCode = response.response?.statusCode.description ?? "(unknown)"
         let httpMethod = request.request?.httpMethod ?? "(unknown)"
 
-        var httpLog = "[BBNetwork Response Log]\n"
+        var httpLog = "-- [BBNetwork Response Log] ----------------------------\n"
         
         var allHeadersString = "[\n"
         request.request?.allHTTPHeaderFields?
@@ -80,7 +85,13 @@ extension BBNetworkDefaultLogger: EventMonitor {
         httpLog.append("- RESONSE DATA: \(responseDataString)\n")
         
         // TODO: - Logger로 로그 출력하기
-        print(httpLog + "\n")
+        print(httpLog + "\n--------------------------------------------------------\n")
     }
+    
+    public func request(
+        _ request: Request,
+        didFailTask task: URLSessionTask,
+        earlyWithError error: AFError
+    ) { }
     
 }

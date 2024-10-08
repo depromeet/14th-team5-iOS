@@ -7,20 +7,20 @@
 
 import Foundation
 
-// MARK: - API Error Resolver
+// MARK: - API Error Mapper
 
 public protocol APIErrorMapper {
     func map(networkError error: any Error) -> APIWorkerError
 }
 
 
-// MARK: - Default API Error Resolver
+// MARK: - Default API Error Mapper
 
-public struct APIDefaultErrorResolver: APIErrorMapper {
+public struct APIDefaultErrorMapper: APIErrorMapper {
     
     public init() { }
     
-    /// `Error` 타입의 에러를 `APIWorkerError` 타입의 에러로 변환합니다.
+    /// `BBNetworkError` 타입의 에러를 `APIWorkerError` 타입의 에러로 변환합니다.
     ///
     /// 적합한 케이스로 변환이 어렵다면 `.unknown` 에러로 변환합니다.
     ///

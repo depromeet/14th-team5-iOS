@@ -14,7 +14,7 @@ import RxSwift
 
 public final class BBNetworkDefaultInterceptor {
     public init() { }
-    private let af = BBNetworkRefreshSession()
+    private let session: BBNetworkSession = .refresh
 }
 
 extension BBNetworkDefaultInterceptor: RequestInterceptor {
@@ -79,7 +79,7 @@ extension BBNetworkDefaultInterceptor {
         guard let urlRequest = try? endpoint.urlRequest() else {
             return
         }
-        let _ = af.request(with: urlRequest, completion: completion)
+        let _ = session.request(with: urlRequest, completion: completion)
     }
     
 }

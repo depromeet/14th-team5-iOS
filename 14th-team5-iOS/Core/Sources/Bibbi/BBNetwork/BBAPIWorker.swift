@@ -16,11 +16,14 @@ import RxSwift
 /// HTTP 통신 및 디코딩, 쓰래드 전환 등 부가 기능 수행 중 발생하는 에러입니다.
 public enum APIWorkerError: Error {
     
+    /// 받아온 데이터가 없음을 의미합니다.
+    case noResponse
+    
     /// 알 수 없는 에러가 발생했음을 의미합니다.
     case unknown(Error)
     
     /// 파싱에 실패했음을 의미합니다.
-    case parsing
+    case parsing(Error)
 
     /// 네트워크 통신 중 문제가 발생했음을 의미합니다.
     case networkFailure(reason: BBNetworkError)
@@ -45,6 +48,8 @@ extension APIWorkerError: LocalizedError {
     
     public var errorDescription: String? {
         switch self {
+        case .noResponse:
+            return "서버로부터 받아온 데이터가 없습니다."
         case .unknown(let error):
             return "알 수 없는 오류가 발생했습니다 [이유: \(error.localizedDescription)]"
         case .parsing:
@@ -71,13 +76,18 @@ public protocol Workable: AnyObject {
     ) -> Observable<D> where D: Decodable
 }
 
-
 // MARK: - Default API Worker
 
-open class BBDefaultAPIWorker {
+
+// MARK: - Combine API Worker
+
+
+// MARK: - Rx API Worker
+
+open class BBRxAPIWorker {
     
     private let service: any BBNetworkService
-    private let errorResolver: any APIErrorResolver
+    private let errorMapper: any APIErrorMapper
     private let errorLogger: any APIErrorLogger
     
     /// APIWorker 인스턴스를 생성합니다.
@@ -88,17 +98,17 @@ open class BBDefaultAPIWorker {
     ///   - errorLogger: 이 인스턴스가 사용하기를 원하는 `APIErrorLogger`입니다. 기본값은 `APIDefaultErrorLogger()`입니다.
     public init(
         with service: any BBNetworkService = BBNetworkDefaultService(),
-        errorResolver: any APIErrorResolver = APIDefaultErrorResolver(),
+        errorMapper: any APIErrorMapper = APIDefaultErrorResolver(),
         errorLogger: any APIErrorLogger = APIDefaultErrorLogger()
     ) {
         self.service = service
-        self.errorResolver = errorResolver
+        self.errorMapper = errorMapper
         self.errorLogger = errorLogger
     }
     
 }
 
-extension BBDefaultAPIWorker: Workable {
+extension BBRxAPIWorker: Workable {
     
     /// 매개변수로 주어진 스펙(spec) 정보를 바탕으로 HTTP 통신을 수행합니다.
     ///
@@ -115,24 +125,28 @@ extension BBDefaultAPIWorker: Workable {
     ) -> Observable<D> where D: Decodable {
         
         Observable<D>.create { [unowned self] observer in
-            let sessionDataTask = self.service.request(with: spec) { result in
+            let dataRequest = self.service.request(with: spec) { result in
                 switch result {
                 case let .success(data):
-                    if let decodedData: D = self.decode(data, using: spec.responseDecoder) {
-                        return observer.onNext(decodedData)
-                    } else {
-                        return observer.onError(APIWorkerError.parsing)
+                    do {
+                        let decoded: D = try self.decode(data, using: spec.responseDecoder)
+                        observer.onNext(decoded)
+                        observer.onCompleted()
+                    } catch {
+                        let apiError = self.map(error: error)
+                        self.errorLogger.log(error: apiError)
+                        observer.onError(error)
                     }
                     
                 case let .failure(error):
-                    let resolvedError = self.errorResolver.resolve(networkError: error)
-                    self.errorLogger.log(error: resolvedError)
-                    return observer.onError(resolvedError)
+                    let mappedError = self.errorMapper.map(networkError: error)
+                    self.errorLogger.log(error: mappedError)
+                    observer.onError(mappedError)
                 }
             }
             
             return Disposables.create {
-                let _ = sessionDataTask?.cancel()
+                let _ = dataRequest?.cancel()
             }
         }
         .observe(on: queue)
@@ -156,17 +170,24 @@ extension BBDefaultAPIWorker: Workable {
         
     }
     
+}
+
+extension BBRxAPIWorker {
+    
+    private func map(error: any Error) -> APIWorkerError {
+        (error as? APIWorkerError) ?? APIWorkerError.unknown(error)
+    }
+    
     private func decode<T>(
         _ data: Data?,
         using decoder: any BBResponseDecoder
-    ) -> T? where T: Decodable {
+    ) throws -> T where T: Decodable {
         do {
-            guard let data = data else { return nil }
-            let decodedData: T? = try decoder.decode(from: data)
+            guard let data = data else { throw APIWorkerError.noResponse }
+            let decodedData: T = try decoder.decode(from: data)
             return decodedData
         } catch {
-            self.errorLogger.log(error: APIWorkerError.parsing)
-            return nil
+            throw APIWorkerError.parsing(error)
         }
     }
     

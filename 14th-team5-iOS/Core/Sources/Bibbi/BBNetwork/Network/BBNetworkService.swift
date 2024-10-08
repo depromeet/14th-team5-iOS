@@ -63,7 +63,7 @@ public final class BBNetworkDefaultService {
             
             if let statusCode = dataResponse.response?.statusCode {
                 guard (200..<300) ~= statusCode else {
-                    let networkError = self.resolve(statusCode: statusCode)
+                    let networkError = self.map(statusCode: statusCode)
                     completion(.failure(networkError))
                     return
                 }
@@ -76,7 +76,7 @@ public final class BBNetworkDefaultService {
         
     }
     
-    private func resolve(statusCode code: Int) -> BBNetworkError {
+    private func map(statusCode code: Int) -> BBNetworkError {
         switch code {
         case 400:
             return .badRequest

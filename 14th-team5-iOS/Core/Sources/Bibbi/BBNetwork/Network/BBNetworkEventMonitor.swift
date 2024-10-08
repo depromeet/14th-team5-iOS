@@ -9,30 +9,78 @@ import Foundation
 
 import Alamofire
 
-// MARK: - Default EventMonitor
+// MARK: - Default Logger
 
-public final class BBNetworkDefaultEventMonitor: EventMonitor {
+public final class BBNetworkDefaultLogger {
     
     public init() { }
+    public var queue = DispatchQueue(label: "com.bibbi.logger.queue")
+    
+    // MARK: - Private
+    private func isSuccessfulStatusCode(_ dataRespnse: DataResponse<Data?, AFError>) -> Bool {
+        guard
+            let statusCode = dataRespnse.response?.statusCode,
+            (200..<300) ~= statusCode else {
+            return false
+        }
+        return true
+    }
+    
+}
+
+extension BBNetworkDefaultLogger: EventMonitor {
     
     public func requestDidFinish(_ request: Request) {
-        // TODO: - Logger로 로그 출력하기
-        print("[Reqeust BibbiNetwork LOG]")
-        print("- URL : \((request.request?.url?.absoluteString ?? ""))")
-        print("     - Method : \((request.request?.httpMethod ?? ""))")
-        print("     - Headers \((request.request?.headers) ?? .default):")
+        var httpLog = "[BBNetwork Request Log]\n"
+        
+        let urlString = request.request?.url?.absoluteString ?? "(unknown)"
+        let httpMethod = request.request?.httpMethod ?? "(unknown)"
+        
+        var allHeadersString = "[\n"
+        request.request?.allHTTPHeaderFields?
+            .forEach { allHeadersString.append("\t ・ \($0.key): \($0.value)\n") }
+        allHeadersString.append("]")
+        
+        var httpBody = request.request?.httpBody?.toPrettyPrintedString
+        
+        httpLog.append("- URL: \(urlString)\n")
+        httpLog.append("- METHOD: \(httpMethod)\n")
+        httpLog.append("- HEADERS: \(allHeadersString)\n")
+        if let httpBody = httpBody {
+            httpLog.append("- HTTP BODY: \(httpBody)\n")
+        }
+        
+        print(httpLog + "\n")
     }
     
     public func request(
         _ request: DataRequest,
         didParseResponse response: DataResponse<Data?, AFError>
     ) {
+        guard isSuccessfulStatusCode(response) else { return }
+        
+        let urlString = request.request?.url?.absoluteString ?? "(unknown)"
+        let statusCode = response.response?.statusCode.description ?? "(unknown)"
+        let httpMethod = request.request?.httpMethod ?? "(unknown)"
+
+        var httpLog = "[BBNetwork Response Log]\n"
+        
+        var allHeadersString = "[\n"
+        request.request?.allHTTPHeaderFields?
+            .forEach { allHeadersString.append("\t ・ \($0.key): \($0.value)\n") }
+        allHeadersString.append("]")
+        
+        var responseDataString = ""
+        responseDataString.append(response.data?.toPrettyPrintedString ?? "(unknown)")
+        
+        httpLog.append("- URL: \(urlString)\n")
+        httpLog.append("- METHOD: \(httpMethod)\n")
+        httpLog.append("- HEADERS: \(allHeadersString)\n")
+        httpLog.append("- STATUS CODE: \(statusCode)\n")
+        httpLog.append("- RESONSE DATA: \(responseDataString)\n")
+        
         // TODO: - Logger로 로그 출력하기
-        print("[Response BibbiNetwork LOG]")
-        print("- URL : \((request.request?.url?.absoluteString ?? ""))")
-        print("     - Results : \((response.result))")
-        print("     - StatusCode : \(response.response?.statusCode ?? 0)")
-        print("     - Data : \(response.data?.toPrettyPrintedString ?? "")")
+        print(httpLog + "\n")
     }
     
 }

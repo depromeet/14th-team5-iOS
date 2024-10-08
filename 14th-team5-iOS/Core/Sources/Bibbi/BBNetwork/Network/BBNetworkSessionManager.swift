@@ -115,7 +115,7 @@ public class BBNetworkDefaultSession: BBNetworkSession {
         config: URLSessionConfiguration = .default,
         interceptor: (any RequestInterceptor)? = BBNetworkDefaultInterceptor(),
         cachedResponseHandler: (any CachedResponseHandler)? = nil,
-        eventMonitors: [any EventMonitor] = [BBNetworkDefaultEventMonitor()]
+        eventMonitors: [any EventMonitor] = [BBNetworkDefaultLogger()]
     ) {
         super.init(
             configuration: config,
@@ -151,7 +151,7 @@ public class BBNetworkDefaultSession: BBNetworkSession {
 // MARK: - Refresh Session
 
 public final class BBNetworkRefreshSession: BBNetworkSession {
-    public init(eventMonitors: [any EventMonitor] = [BBNetworkDefaultEventMonitor()]) {
+    public init(eventMonitors: [any EventMonitor] = [BBNetworkDefaultLogger()]) {
         super.init(eventMonitors: eventMonitors)
     }
 }

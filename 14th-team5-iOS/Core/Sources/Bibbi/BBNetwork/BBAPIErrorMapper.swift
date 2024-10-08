@@ -9,14 +9,14 @@ import Foundation
 
 // MARK: - API Error Resolver
 
-public protocol APIErrorResolver {
-    func resolve(networkError error: any Error) -> APIWorkerError
+public protocol APIErrorMapper {
+    func map(networkError error: any Error) -> APIWorkerError
 }
 
 
 // MARK: - Default API Error Resolver
 
-public struct APIDefaultErrorResolver: APIErrorResolver {
+public struct APIDefaultErrorResolver: APIErrorMapper {
     
     public init() { }
     
@@ -26,7 +26,7 @@ public struct APIDefaultErrorResolver: APIErrorResolver {
     ///
     /// - Parameter error: `Error` 프로토콜을 준수하는 에러입니다.
     /// - Returns: `APIWorkerError`
-    public func resolve(networkError error: any Error) -> APIWorkerError {
+    public func map(networkError error: any Error) -> APIWorkerError {
         if let error = error as? BBNetworkError {
             return .networkFailure(reason: error)
         }

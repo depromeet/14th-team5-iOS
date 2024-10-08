@@ -23,10 +23,10 @@ public struct APIDefaultErrorLogger: APIErrorLogger {
     /// 매개변수로 주어진 `Error`의 로그를 출력합니다.
     /// - Parameter error: `Error` 프로토콜을 준수하는 에러입니다.
     public func log<E>(error: E) where E: LocalizedError {
-        // TODO: - Logger로 로그 출력하기
-        print("----------------------------------------")
-        print("\(error.localizedDescription)")
-        print("----------------------------------------")
+        var errorLog: String = "[BBNetwork Error Log]\n"
+        let description = " - DESCRIPTION: \(error.localizedDescription)\n"
+        errorLog.append(description)
+        print(errorLog + "\n")
     }
     
 }

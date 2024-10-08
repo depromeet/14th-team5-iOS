@@ -1,17 +1,18 @@
 //
 //  BibbiMissionView.swift
-//  Core
+//  App
 //
-//  Created by Kim dohyun on 5/1/24.
+//  Created by Kim dohyun on 10/9/24.
 //
 
 import UIKit
 
+import Core
 import DesignSystem
 import SnapKit
 
 
-public final class BibbiMissionView: UIView {
+final class BibbiMissionView: UIView {
     
     public let missionBadgeView: UIImageView = UIImageView()
     public let missionTitleView: BBLabel = BBLabel(.body2Bold, textAlignment: .center, textColor: .mainYellow)

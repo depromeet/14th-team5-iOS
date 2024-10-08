@@ -1,8 +1,8 @@
 //
-//  BibbiTermsView.swift
-//  Core
+//  BibbiCheckBoxView.swift
+//  App
 //
-//  Created by Kim dohyun on 1/2/24.
+//  Created by Kim dohyun on 10/9/24.
 //
 
 import UIKit
@@ -20,9 +20,9 @@ enum ReasonTypes: String, CaseIterable {
 }
 
 
-public final class BibbiCheckBoxView: UIView {
+final class BibbiCheckBoxView: UIView {
     private let checkStackView: UIStackView = UIStackView()
-    public var checkButtons: [UIButton] = []
+    var checkButtons: [UIButton] = []
     
     
     
@@ -85,3 +85,4 @@ public final class BibbiCheckBoxView: UIView {
     }
     
 }
+

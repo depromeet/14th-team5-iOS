@@ -1,38 +1,36 @@
 //
 //  BibbiProfileView.swift
-//  Core
+//  App
 //
-//  Created by Kim dohyun on 12/17/23.
+//  Created by Kim dohyun on 10/9/24.
 //
 
 import UIKit
 
+import Core
 import DesignSystem
-import RxSwift
-import RxCocoa
-import ReactorKit
 import SnapKit
 import Then
 
 
 
 
-public class BibbiProfileView: UIView {
-    public let profileImageView: UIImageView = UIImageView()
-    public let profileDefaultLabel: BBLabel = BBLabel(.head1, textAlignment: .center, textColor: .gray200)
-    public let circleButton: UIButton = UIButton.createCircleButton(radius: 15)
-    public let birthDayView: UIImageView = UIImageView()
-    public let profileNickNameButton: UIButton = UIButton()
-    public let profileCreateLabel: UILabel = BBLabel(.caption, textAlignment: .center ,textColor: .gray400)
+final class BibbiProfileView: UIView {
+    let profileImageView: UIImageView = UIImageView()
+    let profileDefaultLabel: BBLabel = BBLabel(.head1, textAlignment: .center, textColor: .gray200)
+    let circleButton: UIButton = UIButton.createCircleButton(radius: 15)
+    let birthDayView: UIImageView = UIImageView()
+    let profileNickNameButton: UIButton = UIButton()
+    let profileCreateLabel: UILabel = BBLabel(.caption, textAlignment: .center ,textColor: .gray400)
     
     
-    public var isSetting: Bool = false {
+    var isSetting: Bool = false {
         didSet {
             setupUserProfile(isUser: isSetting)
         }
     }
     
-    public var isBirthDay: Bool = false {
+    var isBirthDay: Bool = false {
         didSet {
             setupBirtyDay(isBirtyDay: isBirthDay)
         }
@@ -175,3 +173,4 @@ public class BibbiProfileView: UIView {
         birthDayView.isHidden = !isBirtyDay
     }
 }
+

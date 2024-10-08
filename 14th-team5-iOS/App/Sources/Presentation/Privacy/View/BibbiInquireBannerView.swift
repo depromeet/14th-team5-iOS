@@ -1,17 +1,18 @@
 //
 //  BibbiInquireBannerView.swift
-//  Core
+//  App
 //
-//  Created by Kim dohyun on 3/20/24.
+//  Created by Kim dohyun on 10/9/24.
 //
 
 import UIKit
 
+import Core
 import DesignSystem
 import SnapKit
 import Then
 
-public final class BibbiInquireBannerView: UIView {
+final class BibbiInquireBannerView: UIView {
     
     
     private let mainLogoView: UIImageView = UIImageView()
@@ -113,5 +114,7 @@ public final class BibbiInquireBannerView: UIView {
     
     
 }
+
+
 
 

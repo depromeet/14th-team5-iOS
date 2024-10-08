@@ -36,12 +36,12 @@ final class FamilyNameSettingViewController: BBNavigationViewController<FamilyNa
         groupNameLabel.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(130)
             $0.height.equalTo(25)
-            $0.centerX.equalToSuperview().inset(20)
+            $0.centerX.equalToSuperview()
         }
         
         groupTextField.snp.makeConstraints {
             $0.top.equalTo(groupNameLabel.snp.bottom).offset(8)
-            $0.centerX.equalToSuperview().inset(20)
+            $0.centerX.equalToSuperview()
         }
         
         groupErrorStackView.snp.makeConstraints {
@@ -61,7 +61,6 @@ final class FamilyNameSettingViewController: BBNavigationViewController<FamilyNa
         }
         
         groupEditerView.snp.makeConstraints {
-            $0.width.equalTo(171)
             $0.height.equalTo(24)
             $0.bottom.equalTo(groupConfirmButton.snp.top).offset(-14)
             $0.centerX.equalToSuperview()
@@ -142,7 +141,6 @@ final class FamilyNameSettingViewController: BBNavigationViewController<FamilyNa
         groupTextField.rx.text
             .orEmpty
             .skip(1)
-            .debounce(RxInterval._100milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.didChangeFamilyGroupNickname($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)

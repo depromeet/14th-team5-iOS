@@ -256,9 +256,9 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         displayEditTextField.rx
             .text.changed
             .compactMap { $0 }
-            .filter { $0.contains(" ") }
-            .debug("카메라 상세 공백 체크")
+            .filter { $0.contains(" ") || $0.count > 8 }
             .distinctUntilChanged()
+            .debounce(RxInterval._600milliseconds, scheduler: RxScheduler.main)
             .map { _ in Reactor.Action.showInputTextError }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -271,16 +271,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         displayEditTextField.rx
             .text.orEmpty
-            .filter{ $0.count > 8 }
-            .debounce(RxInterval._600milliseconds, scheduler: RxScheduler.main)
-            .map { _ in Reactor.Action.showInputTextError }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        displayEditTextField.rx
-            .text.orEmpty
             .filter { !$0.contains(" ")}
-            .debounce(RxInterval._600milliseconds, scheduler: RxScheduler.main)
             .scan("") { previous, new -> String in
                 if new.count > 8 {
                   return previous

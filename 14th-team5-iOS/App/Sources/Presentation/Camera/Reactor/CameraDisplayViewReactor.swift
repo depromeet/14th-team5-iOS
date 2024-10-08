@@ -141,7 +141,7 @@ public final class CameraDisplayViewReactor: Reactor {
                     }
             )
         case .didTapArchiveButton:
-            let config = BBToastConfiguration(direction: .bottom(yOffset: -360), animationTime: 1.0)
+            let config = BBToastConfiguration(direction: .bottom(yOffset: -20), animationTime: 1.0)
             let viewConfig = BBToastViewConfiguration(minWidth: 207)
             provider.bbToastService.show(
                 image:DesignSystemAsset.camera.image.withTintColor(DesignSystemAsset.gray300.color),

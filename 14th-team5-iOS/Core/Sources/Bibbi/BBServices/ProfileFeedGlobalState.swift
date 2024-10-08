@@ -9,6 +9,11 @@ import Foundation
 
 import RxSwift
 
+public enum BibbiFeedType: Int {
+    case survival = 0
+    case mission = 1
+}
+
 public enum ProfileFeedEvent {
     case didTapSegmentedPage(BibbiFeedType)
     case didReceiveMemberId(BibbiFeedType)

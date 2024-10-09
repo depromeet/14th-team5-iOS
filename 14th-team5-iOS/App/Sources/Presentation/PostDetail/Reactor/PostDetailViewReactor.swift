@@ -65,7 +65,7 @@ extension PostDetailViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .didTapProfileImageView:
-            let memberId = initialState.post.author?.memberId ?? .none
+            let memberId = initialState.post.author.memberId
             if memberUseCase.executeCheckIsValidMember(memberId: memberId) {
                 provider.postGlobalState.pushProfileViewController(memberId)
             }

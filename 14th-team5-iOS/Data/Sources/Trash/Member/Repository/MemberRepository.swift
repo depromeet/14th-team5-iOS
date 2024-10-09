@@ -10,34 +10,38 @@ import Foundation
 
 public final class MemberRepository: MemberRepositoryProtocol {
     public init() { }
+    
+    let familyUserDefaults = FamilyInfoUserDefaults()
+    let myUserDefaults = MyUserDefaults()
 }
 
 extension MemberRepository {
     public func fetchFamilyNameEditorId() -> String {
-        return FamilyUserDefaults.loadFamilyNameEditorId() 
+        return familyUserDefaults.loadFamilyNameEditorId() ?? "알 수 없음"
     }
     
     public func fetchUserName(memberId: String) -> String {
-        return FamilyUserDefaults.load(memberId: memberId)?.name ?? .unknown
+        return familyUserDefaults.loadFamilyMember(memberId)?.name ?? "알 수 없음"
     }
     
     public func fetchProfileImageUrlString(memberId: String) -> String {
-        return FamilyUserDefaults.load(memberId: memberId)?.profileImageURL ?? .unknown
+        return familyUserDefaults.loadFamilyMember(memberId)?.profileImageURL ?? .unknown
     }
     
     public func checkIsMe(memberId: String) -> Bool {
-        return FamilyUserDefaults.checkIsMyMemberId(memberId: memberId)
+        return myUserDefaults.loadMemberId() == memberId
     }
     
     public func checkIsValidMember(memberId: String) -> Bool {
-        let memberIds: [String] = FamilyUserDefaults.loadMemberIds()
-        for id in memberIds where id == memberId {
-            return true
+        if let familyMembers = familyUserDefaults.loadFamilyMembers() {
+            let ids = familyMembers.map { $0.memberId }
+            
+            return ids.contains(memberId)
         }
         return false
     }
     
     public func fetchMyMemberId() -> String {
-        return FamilyUserDefaults.getMyMemberId()
+        return myUserDefaults.loadMemberId() ?? .unknown
     }
 }

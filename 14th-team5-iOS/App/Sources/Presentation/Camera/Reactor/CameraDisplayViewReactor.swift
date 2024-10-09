@@ -9,6 +9,7 @@ import Foundation
 
 import Data
 import Domain
+import DesignSystem
 import ReactorKit
 import Core
 
@@ -19,6 +20,7 @@ public final class CameraDisplayViewReactor: Reactor {
     @Injected private var createPresignedCameraUseCase: CreateCameraUseCaseProtocol
     @Injected private var uploadImageUseCase: FetchCameraUploadImageUseCaseProtocol
     @Injected private var fetchCameraImageUseCase: CreateCameraImageUseCaseProtocol
+    @Navigator private var cameraDisplayNavigator: CameraDisplayNavigatorProtocol
     
     public enum Action {
         case viewDidLoad
@@ -26,6 +28,8 @@ public final class CameraDisplayViewReactor: Reactor {
         case fetchDisplayImage(String)
         case didTapConfirmButton
         case hideDisplayEditCell
+        case showInputTextError
+        case showInputBlankTextError(String)
     }
     
     public enum Mutation {
@@ -35,6 +39,7 @@ public final class CameraDisplayViewReactor: Reactor {
         case setRenderImage(Data)
         case saveDeviceimage(Data)
         case setDescription(String)
+        case setTrimedText(String)
         case setDisplayEntity(CameraPreSignedEntity?)
         case setDisplayOriginalEntity(Bool)
         case setPostEntity(CameraPostEntity?)
@@ -51,6 +56,7 @@ public final class CameraDisplayViewReactor: Reactor {
         @Pulse var displayEntity: CameraPreSignedEntity?
         @Pulse var displayOringalEntity: Bool
         @Pulse var displayPostEntity: CameraPostEntity?
+        @Pulse var displayText: String
     }
     
     
@@ -70,7 +76,8 @@ public final class CameraDisplayViewReactor: Reactor {
             displaySection: [.displayKeyword([])],
             displayEntity: nil,
             displayOringalEntity: false,
-            displayPostEntity: nil
+            displayPostEntity: nil,
+            displayText: ""
         )
     }
     
@@ -134,6 +141,14 @@ public final class CameraDisplayViewReactor: Reactor {
                     }
             )
         case .didTapArchiveButton:
+            let config = BBToastConfiguration(direction: .bottom(yOffset: -360), animationTime: 1.0)
+            let viewConfig = BBToastViewConfiguration(minWidth: 207)
+            provider.bbToastService.show(
+                image:DesignSystemAsset.camera.image.withTintColor(DesignSystemAsset.gray300.color),
+                title: "사진이 저장되었습니다.",
+                viewConfig: viewConfig,
+                config: config
+                )
             return .concat(
                 .just(.setLoading(false)),
                 .just(.saveDeviceimage(currentState.displayData)),
@@ -157,16 +172,18 @@ public final class CameraDisplayViewReactor: Reactor {
             return fetchCameraImageUseCase.execute(parameter: parameters, query: cameraQuery)
                 .asObservable()
                 .catchAndReturn(nil)
-                .flatMap { entity -> Observable<CameraDisplayViewReactor.Mutation> in
+                .withUnretained(self)
+                .flatMap { owner, entity -> Observable<CameraDisplayViewReactor.Mutation> in
                     if entity == nil  {
                         return .just(.setError(true))
                     } else {
+                        owner.cameraDisplayNavigator.toHome()
                         return .concat(
                             .just(.setLoading(false)),
                             .just(.setPostEntity(entity)),
                             .just(.setLoading(true)),
                             .just(.setError(false)),
-                            self.provider.mainService.refreshMain()
+                            owner.provider.mainService.refreshMain()
                                 .flatMap { _ in Observable<Mutation>.empty() }
                         )
                     }
@@ -176,6 +193,28 @@ public final class CameraDisplayViewReactor: Reactor {
                 .just(.setDescription("")),
                 .just(.setDisplayEditSection([]))
             )
+        case .showInputTextError:
+            let config = BBToastConfiguration(direction: .bottom(yOffset: -360), animationTime: 1.0)
+            let viewConfig = BBToastViewConfiguration(minWidth: 207)
+            provider.bbToastService.show(
+                image: DesignSystemAsset.warning.image,
+                title: "8자까지 입력 가능해요",
+                viewConfig: viewConfig,
+                config: config
+            )
+            return .empty()
+            
+        case let .showInputBlankTextError(displayText):
+            let config = BBToastConfiguration(direction: .bottom(yOffset: -360), animationTime: 1.0)
+            let viewConfig = BBToastViewConfiguration(minWidth: 207)
+            provider.bbToastService.show(
+                image: DesignSystemAsset.warning.image,
+                title: "띄어쓰기는 할 수 없어요",
+                viewConfig: viewConfig,
+                config: config
+            )
+            let generateText = displayText.trimmingCharacters(in: .whitespaces)
+            return .just(.setTrimedText(generateText))
         }
     }
     
@@ -202,6 +241,8 @@ public final class CameraDisplayViewReactor: Reactor {
             newState.displayPostEntity = entity
         case let .setError(isError):
             newState.isError = isError
+        case let .setTrimedText(displayText):
+            newState.displayText = displayText
         }
         return newState
     }

@@ -56,7 +56,7 @@ public class IconToastView: UIStackView, BBToastStackView {
     
     private func commonInit() {
         axis = .horizontal
-        spacing = 10
+        spacing = 5
         alignment = .center
         distribution = .fillProportionally
     }

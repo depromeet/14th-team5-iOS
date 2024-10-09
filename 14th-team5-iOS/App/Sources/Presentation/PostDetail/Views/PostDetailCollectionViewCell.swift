@@ -34,7 +34,7 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<PostDetailViewR
         self.init(frame: .zero)
         self.reactor = reacter
     }
-
+    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -50,7 +50,7 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<PostDetailViewR
         profileImageView.image = nil
         postImageView.image = nil
     }
-
+    
     override func bind(reactor: PostDetailViewReactor) {
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
@@ -64,7 +64,7 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<PostDetailViewR
         profileStackView.addArrangedSubviews(containerView, userNameLabel)
         postImageView.addSubviews(contentCollectionView, missionTextView)
     }
-
+    
     override func setupAutoLayout() {
         super.setupAutoLayout()
         
@@ -197,7 +197,7 @@ extension PostDetailCollectionViewCell {
             .bind(to: contentCollectionView.rx.items(dataSource: contentDatasource))
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.post.author?.name[0] ?? "알" }
+        reactor.state.map { $0.post.author.name[0] ?? "알" }
             .distinctUntilChanged()
             .bind(to: firstNameLabel.rx.text)
             .disposed(by: disposeBag)
@@ -234,7 +234,7 @@ extension PostDetailCollectionViewCell {
             ]
         )
         
-        if let imageUrl = post.author?.profileImageURL {
+        if let imageUrl = post.author.profileImageURL {
             profileImageView.kf.setImage(
                 with: URL(string: imageUrl),
                 options: [
@@ -243,9 +243,8 @@ extension PostDetailCollectionViewCell {
             )
         }
         
-        if let name = post.author?.name {
-            userNameLabel.text = name
-        }
+        userNameLabel.text = post.author.name
+        
     }
 }
 
@@ -272,10 +271,10 @@ extension PostDetailCollectionViewCell: UICollectionViewDelegateFlowLayout {
         
         let totalCellWidth = 28 * cellCount
         let totalSpacingWidth = 2 * (cellCount - 1)
-
+        
         let leftInset = (collectionView.frame.width - CGFloat(totalCellWidth + totalSpacingWidth)) / 2
         let rightInset = leftInset
-
+        
         return UIEdgeInsets(top: 0, left: leftInset, bottom: 0, right: rightInset)
     }
 }

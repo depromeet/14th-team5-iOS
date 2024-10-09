@@ -14,6 +14,7 @@ import RxSwift
 public final class MainViewRepository: MainViewRepositoryProtocol {
     public let disposeBag: DisposeBag = DisposeBag()
     
+    private let familyUserDefaults: FamilyInfoUserDefaults = FamilyInfoUserDefaults()
     private let mainApiWorker: MainAPIWorker = MainAPIWorker()
     
     public init() { }
@@ -22,12 +23,29 @@ public final class MainViewRepository: MainViewRepositoryProtocol {
 extension MainViewRepository {
     public func fetchMain() -> Observable<MainViewEntity?> {
         return mainApiWorker.fetchMain()
+            .map { $0?.toDomain() }
+            .do(onSuccess: { [weak self] in
+                guard 
+                    let self,
+                    let profiles = $0?.mainFamilyProfileDatas else {
+                    return
+                }
+                self.familyUserDefaults.saveFamilyMembers(profiles)
+            })
             .asObservable()
-
     }
     
     public func fetchMainNight() -> Observable<NightMainViewEntity?> {
         return mainApiWorker.fetchMainNight()
+            .map { $0?.toDomain() }
+            .do(onSuccess: { [weak self] in
+                guard
+                    let self,
+                    let profiles = $0?.mainFamilyProfileDatas else {
+                    return
+                }
+                self.familyUserDefaults.saveFamilyMembers(profiles)
+            })
             .asObservable()
     }
 }

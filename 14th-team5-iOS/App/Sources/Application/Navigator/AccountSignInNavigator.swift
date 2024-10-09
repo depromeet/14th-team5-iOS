@@ -13,6 +13,7 @@ protocol AccountSignInNavigatorProtocol: BaseNavigator {
     func toMain()
     func toSignUp()
     func toJoinFamily()
+    func toOnboarding()
 }
 
 final class AccountSignInNavigator: AccountSignInNavigatorProtocol {
@@ -35,6 +36,11 @@ final class AccountSignInNavigator: AccountSignInNavigatorProtocol {
     
     func toJoinFamily() {
         let vc = JoinFamilyViewControllerWrapper().viewController
+        navigationController.setViewControllers([vc], animated: false)
+    }
+    
+    func toOnboarding() {
+        let vc = OnboardingViewControllerWrapper().viewController
         navigationController.setViewControllers([vc], animated: false)
     }
 }

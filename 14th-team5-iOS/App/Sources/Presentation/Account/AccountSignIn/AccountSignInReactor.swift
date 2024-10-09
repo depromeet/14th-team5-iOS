@@ -17,7 +17,9 @@ public final class AccountSignInReactor: Reactor {
     public var initialState: State
     @Injected var fetchIsFirstOnboardingUseCase: any FetchIsFirstOnboardingUseCaseProtocol
     private var accountRepository: AccountImpl = AccountRepository()
+    private let meUseCase: MeUseCaseProtocol = MeUseCase(meRepository: MeAPIs.Worker())
     private let fcmUseCase: FCMUseCaseProtocol = FCMUseCase(FCMRepository: MeAPIs.Worker())
+    @Navigator var signInNavigator: AccountSignInNavigatorProtocol
     private let disposeBag = DisposeBag()
     
     public enum Action {
@@ -26,14 +28,10 @@ public final class AccountSignInReactor: Reactor {
     }
     
     public enum Mutation {
-        case kakaoLogin(Bool)
-        case appleLogin(Bool)
         case setIsFirstOnboarding(Bool)
-        
     }
     
     public struct State {
-        var pushAccountSingUpVC: Bool
         @Pulse var isFirstOnboarding: Bool
     }
     
@@ -41,7 +39,6 @@ public final class AccountSignInReactor: Reactor {
 //        self.accountRepository = accountRepository
 //        self.fcmUseCase = fcmUseCase
         self.initialState = State(
-            pushAccountSingUpVC: false,
             isFirstOnboarding: false
         )
     }
@@ -49,36 +46,31 @@ public final class AccountSignInReactor: Reactor {
 
 extension AccountSignInReactor {
     public func mutate(action: Action) -> Observable<Mutation> {
-        let isFirstOnboarding = self.fetchIsFirstOnboardingUseCase.execute() == nil ? false : true
         switch action {
         case .kakaoLoginTapped(let sns, let vc):
             return accountRepository.kakaoLogin(with: sns, vc: vc)
-                .flatMap { result -> Observable<Mutation> in
+                .withUnretained(self)
+                .flatMap { owner, result -> Observable<Mutation> in
                     switch result {
                     case .success:
-                        self.saveFCM()
-                        return .concat(
-                            .just(.kakaoLogin(true)),
-                            .just(.setIsFirstOnboarding(isFirstOnboarding))
-                        )
+                        owner.saveFCM()
+                        return owner.transitionViewController()
                     case .failed:
-                        return .just(.kakaoLogin(false))
+                        return .empty()
                     }
                 }
             
             
         case .appleLoginTapped(let sns, let vc):
             return accountRepository.appleLogin(with: sns, vc: vc)
-                .flatMap { result -> Observable<Mutation> in
+                .withUnretained(self)
+                .flatMap { owner, result -> Observable<Mutation> in
                     switch result {
                     case .success:
                         self.saveFCM()
-                        return .concat(
-                            .just(.appleLogin(true)),
-                            .just(.setIsFirstOnboarding(isFirstOnboarding))
-                        )
+                        return owner.transitionViewController()
                     case .failed:
-                        return .just(.appleLogin(false))
+                        return .empty()
                     }
                 }
         }
@@ -87,10 +79,6 @@ extension AccountSignInReactor {
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
-        case .kakaoLogin(let result):
-            newState.pushAccountSingUpVC = result
-        case .appleLogin(let result):
-            newState.pushAccountSingUpVC = result
         case let .setIsFirstOnboarding(isFirstOnboarding):
             newState.isFirstOnboarding = isFirstOnboarding
         }
@@ -111,4 +99,41 @@ extension AccountSignInReactor {
           }
         }
     }
+}
+
+
+extension AccountSignInReactor {
+    private func transitionViewController() -> Observable<Mutation> {
+        let isFirstOnboarding = self.fetchIsFirstOnboardingUseCase.execute()
+        return App.Repository.token.accessToken
+            .skip(1)
+            .withUnretained(self)
+            .flatMapLatest { owner, token -> Observable<Mutation> in
+                guard let token,
+                      let isTemporaryToken = token.isTemporaryToken else {
+                    return .empty()
+                }
+                
+                if isTemporaryToken {
+                    owner.signInNavigator.toSignUp()
+                    return .empty()
+                }
+            
+                return owner.meUseCase.getMemberInfo()
+                    .asObservable()
+                    .flatMap { memberInfo -> Observable<Mutation> in
+                        if isFirstOnboarding {
+                            if memberInfo?.familyId == nil {
+                                owner.signInNavigator.toJoinFamily()
+                                return .empty()
+                            }
+                            owner.signInNavigator.toMain()
+                            return .empty()
+                        }
+                        owner.signInNavigator.toOnboarding()
+                        return .empty()
+                    }
+            }
+    }
+    
 }

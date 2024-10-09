@@ -11,14 +11,15 @@ import Domain
 
 
 final class PostDIContainer: BaseContainer {
-    private let repository: PostListRepositoryProtocol = PostRepository()
+    private let familyRepository: FamilyRepositoryProtocol = FamilyRepository()
+    private let postListRepository: PostListRepositoryProtocol = PostRepository()
 
     private func makePostUseCase() -> FetchPostListUseCaseProtocol {
-        return FetchPostListUseCase(postListRepository: repository)
+        return FetchPostListUseCase(postListRepository: postListRepository, familyRepository: familyRepository)
     }
     
     private func makeFetchMembersPostListUseCase() -> FetchMembersPostListUseCaseProtocol {
-        return FetchMembersPostListUseCase(postListRepository: repository)
+        return FetchMembersPostListUseCase(postListRepository: postListRepository)
     }
 }
 

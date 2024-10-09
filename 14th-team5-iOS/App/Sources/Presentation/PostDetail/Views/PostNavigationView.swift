@@ -10,6 +10,8 @@ import Core
 import Domain
 
 import SnapKit
+import RxSwift
+import RxCocoa
 import Then
 
 final class PostNavigationView: BaseView<PostReactor> {
@@ -25,7 +27,7 @@ final class PostNavigationView: BaseView<PostReactor> {
         self.init(frame: .zero)
         self.reactor = reactor
     }
-
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
     }
@@ -42,9 +44,9 @@ final class PostNavigationView: BaseView<PostReactor> {
         
         reactor.state
             .map { $0.selectedPost }
-            .debug("selectedPost")
             .asObservable()
             .withUnretained(self)
+            .observe(on: MainScheduler.instance)
             .bind(onNext: { $0.0.setData(data: $0.1) })
             .disposed(by: disposeBag)
     }
@@ -92,6 +94,7 @@ final class PostNavigationView: BaseView<PostReactor> {
         }
         
         profileImageView.do {
+            $0.isHidden = true
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = Layout.ProfileImageView.cornerRadius
@@ -101,25 +104,21 @@ final class PostNavigationView: BaseView<PostReactor> {
 
 extension PostNavigationView {
     private func setData(data: PostEntity) {
-        if let author = data.author,
-           let profileImageURL = author.profileImageURL,
-           let url = URL(string: profileImageURL), !profileImageURL.isEmpty {
-            profileImageView.kf.setImage(with: url)
-            defaultNameLabel.isHidden = true
-        } else {
-            if let author = data.author,
-               let first = author.name.first {
-                defaultNameLabel.text = "\(first)"
+        if let profileImageURL =  data.author.profileImageURL,
+           let url = URL(string: profileImageURL),
+            !profileImageURL.isEmpty {
+                profileImageView.kf.setImage(with: url)
+                defaultNameLabel.isHidden = true
             } else {
-                defaultNameLabel.text = "알"
+                defaultNameLabel.text = "\(data.author.name.first ?? "알")"
+                profileImageView.kf.base.image = nil
+                defaultNameLabel.isHidden = false
+                profileImageView.backgroundColor = .gray800
             }
-            
-            profileImageView.kf.base.image = nil
-            defaultNameLabel.isHidden = false
-            profileImageView.backgroundColor = .gray800
-        }
-
-        nameLabel.text = data.author?.name ?? "알 수 없음"
+        
+        nameLabel.text = data.author.name
         dateLabel.text = data.time.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter()
+        
+        profileImageView.isHidden = false
     }
 }

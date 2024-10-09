@@ -9,7 +9,7 @@ import Foundation
 
 
 public protocol FetchIsFirstOnboardingUseCaseProtocol {
-    func execute() -> Bool?
+    func execute() -> Bool
 }
 
 
@@ -21,7 +21,10 @@ public final class FetchIsFirstOnboardingUseCase: FetchIsFirstOnboardingUseCaseP
         self.myRepository = myRepository
     }
     
-    public func execute() -> Bool? {
-        return myRepository.fetchIsFirstOnboarding()
+    public func execute() -> Bool {
+        guard let isFirstOnboarding = myRepository.fetchIsFirstOnboarding() else {
+            return false
+        }
+        return isFirstOnboarding
     }
 }

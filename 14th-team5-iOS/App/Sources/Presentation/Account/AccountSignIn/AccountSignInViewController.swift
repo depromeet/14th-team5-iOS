@@ -32,8 +32,8 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
     private let titleLabel = BBLabel(.body1Bold, textAlignment: .center, textColor: .gray200)
     private let loginImageView = UIImageView()
     
-    private let kakaoLoginButton = UIButton()
-    private let appleLoginButton = UIButton()
+    private let kakaoLoginButton = BBButton()
+    private let appleLoginButton = BBButton()
     private let loginStack = UIStackView()
     
     override public func viewWillAppear(_ animated: Bool) {
@@ -69,16 +69,25 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
         loginStack.do {
             $0.axis = .vertical
             $0.spacing = Metric.spacing
-            $0.alignment = .fill
-            $0.distribution = .fill
+            $0.distribution = .fillEqually
         }
         
         kakaoLoginButton.do {
-            $0.setImage(DesignSystemAsset.kakaoLogin.image, for: .normal)
+            $0.setImage(DesignSystemAsset.kakao.image)
+            $0.setTitle("Kakao로 계속하기", for: .normal)
+            $0.backgroundColor = UIColor(red: 254/255, green: 229/255, blue: 0/255, alpha: 1)
+            $0.layer.cornerRadius = 8
+            $0.setTitleColor(.bibbiBlack, for: .normal)
+            $0.setTitleFontStyle(.head2Bold)
         }
         
         appleLoginButton.do {
-            $0.setImage(DesignSystemAsset.appleLogin.image, for: .normal)
+            $0.setImage(DesignSystemAsset.apple.image)
+            $0.setTitle("Apple로 계속하기", for: .normal)
+            $0.backgroundColor = UIColor(red: 254/255, green: 254/255, blue: 254/255, alpha: 1)
+            $0.layer.cornerRadius = 8
+            $0.setTitleColor(.bibbiBlack, for: .normal)
+            $0.setTitleFontStyle(.head2Bold)
         }
     }
     
@@ -102,8 +111,9 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
         }
         
         loginStack.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview().inset(Metric.inset)
-            $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(Metric.loginOffset)
+            $0.height.equalTo(124)
+            $0.horizontalEdges.equalToSuperview().inset(20)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(12)
         }
     }
     
@@ -119,39 +129,6 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
             .map { Reactor.Action.appleLoginTapped(.apple, self) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
-        
-        Observable
-            .combineLatest(
-                App.Repository.token.accessToken.distinctUntilChanged(),
-                reactor.pulse(\.$isFirstOnboarding).distinctUntilChanged()
-            )
-            .skip(1)
-            .observe(on: RxScheduler.main)
-            .bind(with: self) { owner, response in
-                let (token, isFirstOnboarding) = response
-                owner.showNextPage(token: token, isFirstOnboarding)
-            }
-            .disposed(by: disposeBag)
     }
 }
 
-extension AccountSignInViewController {
-    private func showNextPage(token: AccessToken?, _ isFirstOnboarding: Bool) {
-        @Navigator var signInNavigator: AccountSignInNavigatorProtocol
-        guard let token = token, let isTemporaryToken = token.isTemporaryToken else { return }
-        if isTemporaryToken {
-            signInNavigator.toSignUp()
-            return
-        }
-        
-        if isFirstOnboarding || isTemporaryToken == false {
-            if App.Repository.member.familyId.value == nil {
-                signInNavigator.toJoinFamily()
-                return
-            }
-            signInNavigator.toMain()
-            return
-        }
-    }
-}

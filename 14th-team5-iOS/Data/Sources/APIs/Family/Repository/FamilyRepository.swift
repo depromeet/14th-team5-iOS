@@ -12,11 +12,10 @@ import Foundation
 import RxSwift
 
 public final class FamilyRepository: FamilyRepositoryProtocol {
-    
     // MARK: - Properties
     
     public let disposeBag: DisposeBag = DisposeBag()
-    
+
     private let familyApiWorker: FamilyAPIWorker = FamilyAPIWorker()
     
     private let familyUserDefaults: FamilyInfoUserDefaultsType = FamilyInfoUserDefaults()
@@ -127,14 +126,29 @@ extension FamilyRepository {
             let familyId = familyUserDefaults.loadFamilyId()
         else { return .error(NSError()) } // TODO: - Error 타입 정의하기
         
-        return familyApiWorker.fetchPaginationFamilyMember(familyId: familyId, query: query)
+        return familyApiWorker.fetchPaginationFamilyMember(query: query)
             .map { $0?.toDomain() }
             .do(onSuccess: { [weak self] in
-                guard let self else { return }
-                
-                if let profiles = $0?.results {
-                    self.familyUserDefaults.saveFamilyMembers(profiles)
+                guard let self,
+                      let profiles = $0?.results else {
+                    return
                 }
+                
+                self.familyUserDefaults.saveFamilyMembers(profiles)
+            })
+            .asObservable()
+    }
+    
+    public func fetchAllFamilyMembers() -> Observable<[FamilyMemberProfileEntity]?> {
+        return familyApiWorker.fetchPaginationFamilyMember(query: .init())
+            .map { $0?.results.map{ $0.toDomain() }}
+            .do(onSuccess: { [weak self] in
+                guard let self,
+                      let profiles = $0 else {
+                    return
+                }
+                
+                self.familyUserDefaults.saveFamilyMembers(profiles)
             })
             .asObservable()
     }
@@ -150,6 +164,9 @@ extension FamilyRepository {
         return results
     }
     
+    public func loadAllFamilyMembers() -> [FamilyMemberProfileEntity]? {
+        return familyUserDefaults.loadFamilyMembers()
+    }
     
     // MARK: - Fetch Family Name
     

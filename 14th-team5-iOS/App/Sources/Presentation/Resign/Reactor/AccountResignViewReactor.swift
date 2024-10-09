@@ -61,7 +61,7 @@ final class AccountResignViewReactor: Reactor {
                 .withUnretained(self)
                 .flatMap { owner, entity -> Observable<Mutation> in
                     if entity.isSuccess {
-                        owner.updateIsFirstOnboardingUseCase.execute(nil)
+                        owner.updateIsFirstOnboardingUseCase.execute(false)
                         return .concat(
                             .just(.setLoading(true)),
                             .just(.setResignEntity(entity.isSuccess)),

@@ -36,19 +36,22 @@ public final class BBNetworkDefaultService {
     
     private let config: any BBNetworkConfigurable
     private let sessionManager: any BBNetworkSessionManager
+    private let errorLogger: any BBErrorLogger
     
     
     /// 네트워크 통신을 위한 Network 서비스를 만듭니다.
     /// - Parameters:
     ///   - config: HTTP 통신에 필요한 설정값입니다. 기본값은 `BBNetworkDefaultConfigraion()`입니다.
     ///   - sessionManager: HTTP 통신에 쓰이는 세션입니다. 기본값은 `BBNetworkDefaultSession()`입니다.
-    ///   - logger: HTTP 통신 시 쓰이는 로거입니다. 기본값은 `BBNetwortDefaultLogger()`입니다.
+    ///   - logger: HTTP 통신 시 쓰이는 로거입니다. 기본값은 `BBNetwortErrorLogger()`입니다.
     public init(
         config: any BBNetworkConfigurable = BBNetworkDefaultConfiguration(),
-        sessionManager: any BBNetworkSessionManager = BBNetworkSession.default
+        sessionManager: any BBNetworkSessionManager = BBNetworkSession.default,
+        errorLogger: any BBErrorLogger = BBNetworkErrorLogger()
     ) {
         self.config = config
         self.sessionManager = sessionManager
+        self.errorLogger = errorLogger
     }
     
     private func request(

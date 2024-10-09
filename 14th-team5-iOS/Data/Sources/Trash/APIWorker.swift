@@ -133,7 +133,7 @@ public class APIWorker: NSObject {
         headers: [APIHeader]? = nil,
         jsonEncodable: Encodable
     ) -> Observable<(HTTPURLResponse, Data)> {
-        guard let jsonData = jsonEncodable.toData() else {
+        guard let jsonData = try? jsonEncodable.toData() else {
             return Observable.error(AFError.explicitlyCancelled)
         }
         

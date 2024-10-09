@@ -12,7 +12,7 @@ import RxSwift
 
 @available(*, deprecated)
 public protocol PostCommentUseCaseProtocol {
-    func executeFetchPostComment(postId: String, query: PostCommentPaginationQuery) -> Observable<PaginationResponsePostCommentEntity?>
+    func executeFetchPostComment(postId: String, query: PostCommentPaginationQuery) -> Observable<PaginationResponsePostCommentEntity>
     func executeCreatePostComment(postId: String, body: CreatePostCommentRequest) -> Observable<PostCommentEntity?>
     func executeDeletePostComment(postId: String, commentId: String) -> Observable<PostCommentDeleteEntity?>
 }
@@ -27,7 +27,7 @@ public final class PostCommentUseCase: PostCommentUseCaseProtocol {
         self.commentRepository = commentRepository
     }
     
-    public func executeFetchPostComment(postId: String, query: PostCommentPaginationQuery) -> Observable<PaginationResponsePostCommentEntity?> {
+    public func executeFetchPostComment(postId: String, query: PostCommentPaginationQuery) -> Observable<PaginationResponsePostCommentEntity> {
         return commentRepository.fetchPostComment(postId: postId, query: query)
     }
     

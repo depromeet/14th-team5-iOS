@@ -108,6 +108,7 @@ extension AppDelegate {
             return
         }
         App.Repository.token.clearAccessToken()
+        KeychainWrapper.standard.removeAllKeys()
     }
 }
 

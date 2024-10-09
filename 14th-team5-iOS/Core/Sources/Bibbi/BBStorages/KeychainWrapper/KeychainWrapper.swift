@@ -10,6 +10,7 @@ import Foundation
 final public class KeychainWrapper {
     
     // MARK: - Properties
+    
     public static let standard = KeychainWrapper()
     
     private let SecMatchLimit: String! = kSecMatchLimit as String
@@ -30,7 +31,9 @@ final public class KeychainWrapper {
         return Bundle.main.bundleIdentifier ?? "KeychainWrapper"
     }()
     
+    
     // MARK: - Intializer
+    
     public init(
         serviceName: String,
         accessGroup: String? = nil
@@ -131,7 +134,7 @@ final public class KeychainWrapper {
         forKey key: String,
         withAccessibility accessibility: KeychainItemAccessibility? = nil,
         isSynchronizable: Bool = false
-    ) -> NSCoding? {
+    ) -> (any NSCoding)? {
         guard let keychainData = data(
             forKey: key,
             withAccessibility: accessibility,
@@ -141,6 +144,22 @@ final public class KeychainWrapper {
         }
         
         return try? NSKeyedUnarchiver.unarchivedObject(ofClass: NSNumber.self, from: keychainData)
+    }
+    
+    public func object<T>(
+        forKey key: String,
+        withAccessibility accessibility: KeychainItemAccessibility? = nil,
+        isSynchronizable: Bool = false
+    ) -> T? where T: Decodable {
+        guard let keychainData = data(
+            forKey: key,
+            withAccessibility: accessibility,
+            isSynchronizable: isSynchronizable
+        ) else {
+            return nil
+        }
+        
+        return try? JSONDecoder().decode(T.self, from: keychainData)
     }
     
     public func data(
@@ -251,7 +270,7 @@ final public class KeychainWrapper {
     
     @discardableResult
     public func set(
-        _ value: NSCoding,
+        _ value: any NSCoding,
         forKey key: String,
         withAccessibility accessibiilty: KeychainItemAccessibility? = nil,
         isSynchronizable: Bool = false
@@ -260,6 +279,25 @@ final public class KeychainWrapper {
             withRootObject: value,
             requiringSecureCoding: false
         ) {
+            return set(
+                data,
+                forKey: key,
+                withAccessibility: accessibiilty,
+                isSynchronizable: isSynchronizable
+            )
+        } else {
+            return false
+        }
+    }
+    
+    @discardableResult
+    public func set(
+        _ value: any Encodable,
+        forKey key: String,
+        withAccessibility accessibiilty: KeychainItemAccessibility? = nil,
+        isSynchronizable: Bool = false
+    ) -> Bool {
+        if let data = try? JSONEncoder().encode(value) {
             return set(
                 data,
                 forKey: key,
@@ -384,7 +422,8 @@ final public class KeychainWrapper {
     }
     
     
-    // MARK: - KeychainQueryDictionary
+    // MARK: - Keychain Query Dictionary
+    
     private func setupKeychainQueryDictionary(
         forkey key: String,
         withAccessibility accessibility: KeychainItemAccessibility? = nil,

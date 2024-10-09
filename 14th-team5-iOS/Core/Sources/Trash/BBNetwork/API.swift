@@ -15,12 +15,14 @@ public typealias BibbiNoResponse = BibbiAPI.NoResponse
 public typealias BibbiBoolResponse = BibbiAPI.BoolResponse
 public typealias BibbiCodableResponse = BibbiAPI.CodableResponse
 
-
+@available(*, deprecated, renamed: "BBAPI")
 public enum BibbiAPI {
     private static let _config: BibbiAPIConfigType = BibbiAPIConfig()
     public static let hostApi: String = _config.hostApi
     
     // MARK: Common Headers
+    
+    @available(*, deprecated, renamed: "BBAPIHeader")
     public enum Header: APIHeader {
         case auth(String)
         case xAppKey

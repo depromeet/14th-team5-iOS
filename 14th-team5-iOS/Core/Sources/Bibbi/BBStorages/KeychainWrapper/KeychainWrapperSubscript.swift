@@ -49,7 +49,15 @@ public extension KeychainWrapper {
         }
     }
     
-    subscript(key: Key) -> NSCoding? {
+    subscript(key: Key) -> (any NSCoding)? {
+        get { object(forKey: key) }
+        set {
+            guard let value = newValue else { return }
+            set(value, forKey: key.rawValue)
+        }
+    }
+    
+    subscript<T>(key: Key) -> T? where T: Codable {
         get { object(forKey: key) }
         set {
             guard let value = newValue else { return }
@@ -89,7 +97,11 @@ public extension KeychainWrapper {
         string(forKey: key.rawValue)
     }
     
-    func object(forKey key: Key) -> NSCoding? {
+    func object(forKey key: Key) -> (any NSCoding)? {
+        object(forKey: key.rawValue)
+    }
+    
+    func object<T>(forKey key: Key) -> T? where T: Decodable {
         object(forKey: key.rawValue)
     }
     

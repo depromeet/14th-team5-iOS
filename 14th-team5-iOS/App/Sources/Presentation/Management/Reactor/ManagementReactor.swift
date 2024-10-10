@@ -137,12 +137,11 @@ public final class ManagementReactor: Reactor {
             
         case .fetchFamilyGroupInfo:
             return fetchFamilyGroupInfoUseCase.execute()
-                .withUnretained(self)
                 .flatMap {
-                    guard let familyInfo = $0.1 else {
+                    guard let familyName = $0?.familyName else {
                         return Observable<Mutation>.just(.setFamilyName("나의 가족"))
                     }
-                    return Observable<Mutation>.just(.setFamilyName(familyInfo.familyName))
+                    return Observable<Mutation>.just(.setFamilyName(familyName))
                 }
             
         case let .fetchPaginationFamilyMemeber(refresh):

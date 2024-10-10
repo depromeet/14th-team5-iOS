@@ -96,7 +96,7 @@ open class BBRxAPIWorker {
     /// - Parameters:
     ///   - service: 이 인스턴스가 사용하기를 원하는 `NetworkService`입니다. 기본값은 `BBNetworkDefaultService()`입니다.
     ///   - errorResolver: 이 인스턴스가 사용하기를 원하는 `APIErrorMapper`입니다. 기본값은 `APIDefaultErrorMapper()`입니다.
-    ///   - errorLogger: 이 인스턴스가 사용하기를 원하는 `APIErrorLogger`입니다. 기본값은 `APIDefaultErrorLogger()`입니다.
+    ///   - errorLogger: 이 인스턴스가 사용하기를 원하는 `BBErrorLogger`입니다. 기본값은 `APIWorkerErrorLogger()`입니다.
     public init(
         with service: any BBNetworkService = BBNetworkDefaultService(),
         errorMapper: any APIErrorMapper = APIDefaultErrorMapper(),

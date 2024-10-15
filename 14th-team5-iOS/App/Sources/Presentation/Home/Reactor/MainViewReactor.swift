@@ -43,8 +43,8 @@ final class MainViewReactor: Reactor {
         case fetchMainUseCase
         case fetchMainNightUseCase
         
-        case checkWidgetAlert
-        case checkFamilyManagement
+        case checkIsFirstWidgetAlert
+        case checkIsFirstFamilyManagement
         case checkMissionAlert(Bool, Bool)
         
         case openNextViewController(TapAction)
@@ -252,12 +252,12 @@ extension MainViewReactor {
                     self.pushViewController(type: .missionUnlockedAlert)
                     return .empty()
                 }
-        case .checkFamilyManagement:
+        case .checkIsFirstFamilyManagement:
             return isFirstFamilyManagementUseCase.execute()
                 .flatMap {
                     return Observable<Mutation>.just(.setFamilyManagement($0))
                 }
-        case .checkWidgetAlert:
+        case .checkIsFirstWidgetAlert:
             return isFirstWidgetAlertUseCase.execute()
                 .filter { $0 }
                 .withUnretained(self)

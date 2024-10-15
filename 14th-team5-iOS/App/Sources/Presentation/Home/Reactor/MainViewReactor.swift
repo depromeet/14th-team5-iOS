@@ -27,6 +27,7 @@ final class MainViewReactor: Reactor {
         case cameraViewController(UploadLocation)
         case survivalAlert
         case pickAlert(String, String)
+        case widgetAlert
         case missionUnlockedAlert
         case weeklycalendarViewController(String)
         case familyManagementViewController
@@ -42,6 +43,7 @@ final class MainViewReactor: Reactor {
         case fetchMainUseCase
         case fetchMainNightUseCase
         
+        case checkWidgetAlert
         case checkFamilyManagement
         case checkMissionAlert(Bool, Bool)
         
@@ -59,6 +61,7 @@ final class MainViewReactor: Reactor {
         case setCamerEnabled
         case setBalloonText
         case setDescriptionText
+        
         case setFamilyManagement(Bool)
         
         case setPickMember(String, String)
@@ -94,13 +97,15 @@ final class MainViewReactor: Reactor {
     
     @Navigator var navigator: MainNavigatorProtocol
     
+    @Injected var pickUseCase: PickUseCaseProtocol
     @Injected var provider: ServiceProviderProtocol
     @Injected var fetchMainUseCase: FetchMainUseCaseProtocol
+    @Injected var checkWidgetAlertUseCase: CheckWidgetAlertUseCaseProtocol
     @Injected var fetchMainNightUseCase: FetchNightMainViewUseCaseProtocol
-    @Injected var pickUseCase: PickUseCaseProtocol
     @Injected var checkMissionAlertShowUseCase: CheckMissionAlertShowUseCaseProtocol
-    @Injected var checkFamilyManagementUseCase: FetchIsFirstFamilyManagementUseCaseProtocol
+    @Injected var checkFamilyManagementUseCase: IsFirstFamilyManagementUseCaseProtocol
     @Injected var saveFamilyManagementUseCase: UpdateFamilyManagementUseCaseProtocol
+    @Injected var saveWidgetAlertUseCase: UpdateWidgetAlertUseCaseProtocol
 }
 
 extension MainViewReactor {
@@ -252,6 +257,15 @@ extension MainViewReactor {
                 .flatMap {
                     return Observable<Mutation>.just(.setFamilyManagement($0))
                 }
+        case .checkWidgetAlert:
+            return checkWidgetAlertUseCase.execute()
+                .filter { $0 }
+                .withUnretained(self)
+                .flatMap { _ -> Observable<Mutation> in
+                    self.pushViewController(type: .widgetAlert)
+                    self.saveWidgetAlertUseCase.execute(false)
+                    return .empty()
+                }
         }
     }
     
@@ -309,6 +323,8 @@ extension MainViewReactor {
             navigator.showToast(image, message)
         case .showErrorToast:
             navigator.showToast(DesignSystemAsset.warning.image, "에러가 발생했습니다")
+        case .widgetAlert:
+            navigator.showWidgetAlert()
         }
     }
 }

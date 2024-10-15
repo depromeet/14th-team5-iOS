@@ -19,8 +19,16 @@ final class AppDIContainer: BaseContainer {
         )
     }
     
-    private func makeFetchFamilyManagementUseCase() -> FetchIsFirstFamilyManagementUseCaseProtocol {
-        FetchFamilyManagementUseCase(repository: makeAppRepository())
+    private func makeCheckWidgetAlertUseCase() -> CheckWidgetAlertUseCaseProtocol {
+        CheckWidgetAlertUseCase(repository: makeAppRepository())
+    }
+    
+    private func makeSaveWidgetAlertUseCase() -> UpdateWidgetAlertUseCaseProtocol {
+        UpdateWidgetAlertUseCase(repository: makeAppRepository())
+    }
+    
+    private func makeFetchFamilyManagementUseCase() -> IsFirstFamilyManagementUseCaseProtocol {
+        IsFirstFamilyManagementUseCase(repository: makeAppRepository())
     }
     
     private func makeSaveFamilyManagementUseCase() -> UpdateFamilyManagementUseCaseProtocol {
@@ -38,7 +46,11 @@ final class AppDIContainer: BaseContainer {
     // MARK: - Register
     
     func registerDependencies() {
-        container.register(type: FetchIsFirstFamilyManagementUseCaseProtocol.self) { _ in
+        container.register(type: CheckWidgetAlertUseCaseProtocol.self) { _ in
+            self.makeCheckWidgetAlertUseCase()
+        }
+        
+        container.register(type: IsFirstFamilyManagementUseCaseProtocol.self) { _ in
             self.makeFetchFamilyManagementUseCase()
         }
         
@@ -57,6 +69,10 @@ final class AppDIContainer: BaseContainer {
         
         container.register(type: AppUserDefaultsType.self) { _ in
             return AppUserDefaults()
+        }
+        
+        container.register(type: UpdateWidgetAlertUseCaseProtocol.self) { _ in
+            return self.makeSaveWidgetAlertUseCase()
         }
     }
     

@@ -133,6 +133,11 @@ extension MainViewController {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        Observable.just(())
+            .map { Reactor.Action.checkWidgetAlert }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         Observable.merge(
             segmentControl.survivalButton.rx.tap.map { Reactor.Action.didTapSegmentControl(.survival) },
             segmentControl.missionButton.rx.tap.map { Reactor.Action.didTapSegmentControl(.mission) },

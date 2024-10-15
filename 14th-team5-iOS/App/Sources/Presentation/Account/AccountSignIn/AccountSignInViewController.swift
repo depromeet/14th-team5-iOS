@@ -113,7 +113,7 @@ public final class AccountSignInViewController: BaseViewController<AccountSignIn
         loginStack.snp.makeConstraints {
             $0.height.equalTo(124)
             $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(12)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(12)
         }
     }
     

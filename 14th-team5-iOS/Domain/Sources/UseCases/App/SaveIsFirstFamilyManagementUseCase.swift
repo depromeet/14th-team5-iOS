@@ -9,11 +9,11 @@ import Foundation
 
 import RxSwift
 
-public protocol UpdateFamilyManagementUseCaseProtocol {
+public protocol SaveIsFirstFamilyManagementUseCaseProtocol {
     func execute(_ isFirst: Bool)
 }
 
-public class UpdateFamilyManagementUseCase: UpdateFamilyManagementUseCaseProtocol {
+public class SaveIsFirstFamilyManagementUseCase: SaveIsFirstFamilyManagementUseCaseProtocol {
     
     private let repository: AppRepositoryProtocol
     

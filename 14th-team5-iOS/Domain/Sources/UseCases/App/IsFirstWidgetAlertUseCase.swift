@@ -7,11 +7,11 @@
 
 import RxSwift
 
-public protocol CheckWidgetAlertUseCaseProtocol {
+public protocol IsFirstWidgetAlertUseCaseProtocol {
     func execute() -> Observable<Bool>
 }
 
-public class CheckWidgetAlertUseCase: CheckWidgetAlertUseCaseProtocol {
+public class IsFirstWidgetAlertUseCase: IsFirstWidgetAlertUseCaseProtocol {
     
     private let repository: AppRepositoryProtocol
     

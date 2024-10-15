@@ -100,12 +100,12 @@ final class MainViewReactor: Reactor {
     @Injected var pickUseCase: PickUseCaseProtocol
     @Injected var provider: ServiceProviderProtocol
     @Injected var fetchMainUseCase: FetchMainUseCaseProtocol
-    @Injected var checkWidgetAlertUseCase: CheckWidgetAlertUseCaseProtocol
+    @Injected var isFirstWidgetAlertUseCase: IsFirstWidgetAlertUseCaseProtocol
     @Injected var fetchMainNightUseCase: FetchNightMainViewUseCaseProtocol
     @Injected var checkMissionAlertShowUseCase: CheckMissionAlertShowUseCaseProtocol
-    @Injected var checkFamilyManagementUseCase: IsFirstFamilyManagementUseCaseProtocol
-    @Injected var saveFamilyManagementUseCase: UpdateFamilyManagementUseCaseProtocol
-    @Injected var saveWidgetAlertUseCase: UpdateWidgetAlertUseCaseProtocol
+    @Injected var isFirstFamilyManagementUseCase: IsFirstFamilyManagementUseCaseProtocol
+    @Injected var saveIsFirstFamilyManagementUseCase: SaveIsFirstFamilyManagementUseCaseProtocol
+    @Injected var saveIsFirstWidgetAlertUseCase: SaveIsFirstWidgetAlertUseCaseProtocol
 }
 
 extension MainViewReactor {
@@ -231,7 +231,7 @@ extension MainViewReactor {
                 self.pushViewController(type: .familyManagementViewController)
                 
                 if currentState.isFirstFamilyManagement {
-                    saveFamilyManagementUseCase.execute(false)
+                    saveIsFirstFamilyManagementUseCase.execute(false)
                     return Observable<Mutation>.just(.setFamilyManagement(false))
                 }
             case .contributorNextButtonTap:
@@ -253,17 +253,17 @@ extension MainViewReactor {
                     return .empty()
                 }
         case .checkFamilyManagement:
-            return checkFamilyManagementUseCase.execute()
+            return isFirstFamilyManagementUseCase.execute()
                 .flatMap {
                     return Observable<Mutation>.just(.setFamilyManagement($0))
                 }
         case .checkWidgetAlert:
-            return checkWidgetAlertUseCase.execute()
+            return isFirstWidgetAlertUseCase.execute()
                 .filter { $0 }
                 .withUnretained(self)
                 .flatMap { _ -> Observable<Mutation> in
                     self.pushViewController(type: .widgetAlert)
-                    self.saveWidgetAlertUseCase.execute(false)
+                    self.saveIsFirstWidgetAlertUseCase.execute(false)
                     return .empty()
                 }
         }

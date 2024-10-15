@@ -9,11 +9,11 @@ import Foundation
 
 import RxSwift
 
-public protocol UpdateWidgetAlertUseCaseProtocol {
+public protocol SaveIsFirstWidgetAlertUseCaseProtocol {
     func execute(_ isFirst: Bool)
 }
 
-public class UpdateWidgetAlertUseCase: UpdateWidgetAlertUseCaseProtocol {
+public class SaveIsFirstWidgetAlertUseCase: SaveIsFirstWidgetAlertUseCaseProtocol {
     
     private let repository: AppRepositoryProtocol
     

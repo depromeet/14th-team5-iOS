@@ -95,9 +95,9 @@ public class DefaultAlertView: UIView, BBAlertView {
     private func setupSubviewConstraints() {
         buttonStack.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            buttonStack.bottomAnchor.constraint(equalTo: self.layoutMarginsGuide.bottomAnchor),
-            buttonStack.leadingAnchor.constraint(equalTo: self.layoutMarginsGuide.leadingAnchor),
-            buttonStack.trailingAnchor.constraint(equalTo: self.layoutMarginsGuide.trailingAnchor),
+            buttonStack.bottomAnchor.constraint(equalTo: self.layoutMarginsGuide.bottomAnchor, constant: -4),
+            buttonStack.leadingAnchor.constraint(equalTo: self.layoutMarginsGuide.leadingAnchor, constant: 8),
+            buttonStack.trailingAnchor.constraint(equalTo: self.layoutMarginsGuide.trailingAnchor, constant: -8),
         ])
         
         if case .vertical = viewConfig.buttonAxis {

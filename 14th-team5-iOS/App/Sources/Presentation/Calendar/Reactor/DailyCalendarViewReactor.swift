@@ -16,7 +16,9 @@ import ReactorKit
 import RxSwift
 
 public final class DailyCalendarViewReactor: Reactor {
+    
     // MARK: - Action
+    
     public enum Action {
         case dateSelected(Date)
         case requestDailyCalendar(Date)
@@ -26,11 +28,13 @@ public final class DailyCalendarViewReactor: Reactor {
         case popViewController
     }
     
+    
     // MARK: - Mutation
+    
     public enum Mutation {
         case setAllUploadedToastMessageView(Bool)
         case setDailyCalendar([DailyCalendarEntity])
-        case setMonthlyCalendar(String, ArrayResponseCalendarEntity)
+        case setMonthlyCalendar(String, [MonthlyCalendarEntity])
         case setImageIndex(Int)
         case setVisiblePost(DailyCalendarEntity)
         case setSelectionHaptic
@@ -41,7 +45,9 @@ public final class DailyCalendarViewReactor: Reactor {
         case clearNotificationDeepLink
     }
     
+    
     // MARK: - State
+    
     public struct State {
         var date: Date
         
@@ -49,7 +55,7 @@ public final class DailyCalendarViewReactor: Reactor {
         var visiblePost: DailyCalendarEntity?
         
         @Pulse var displayDailyCalendar: [DailyCalendarSectionModel]
-        @Pulse var displayMonthlyCalendar: [String: [CalendarEntity]]
+        @Pulse var displayMonthlyCalendar: [String: [MonthlyCalendarEntity]]
         @Pulse var shouldPresentAllUploadedToastMessageView: Bool
         @Pulse var shouldGenerateSelectionHaptic: Bool
         @Pulse var shouldPushProfileViewController: String?
@@ -58,8 +64,14 @@ public final class DailyCalendarViewReactor: Reactor {
         var notificationDeepLink: NotificationDeepLink? // 댓글 푸시 알림 체크 변수
     }
     
+    
     // MARK: - Properties
+    
     @Injected var provider: ServiceProviderProtocol
+    
+    @Injected var fetchDailyCalendarUseCase: FetchDailyCalendarUseCaseProtocol
+    @Injected var fetchMonthlyCalendarUseCase: FetchMonthlyCalendarUseCaseProtocol
+    
     @Injected var calendarUseCase: CalendarUseCaseProtocol
     
     public var initialState: State
@@ -69,7 +81,9 @@ public final class DailyCalendarViewReactor: Reactor {
     private var hasFetchedCalendarResponse: [String] = []
     private var hasThumbnailImages: [Date] = []
     
+    
     // MARK: - Intializer
+    
     init(
         date: Date,
         notificationDeepLink deepLink: NotificationDeepLink?
@@ -86,7 +100,9 @@ public final class DailyCalendarViewReactor: Reactor {
         )
     }
     
+    
     // MARK: - Transfor
+    
     public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
         let toastMutation = provider.toastGlobalState.event
             .flatMap { event -> Observable<Mutation> in
@@ -111,7 +127,9 @@ public final class DailyCalendarViewReactor: Reactor {
         return Observable<Mutation>.merge(mutation, toastMutation, postMutation)
     }
     
+    
     // MARK: - Mutate
+    
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .popViewController:
@@ -123,7 +141,7 @@ public final class DailyCalendarViewReactor: Reactor {
             if !hasReceivedSelectionEvent || hasThumbnailImages.contains(date) {
                 hasReceivedSelectionEvent = true
                 // 셀 클릭 이벤트 방출
-                provider.calendarGlabalState.didSelectDate(date)
+                provider.calendarService.didSelectDate(date)
                 return Observable<Mutation>.just(.setSelectionHaptic)
             }
             return Observable<Mutation>.empty()
@@ -134,14 +152,11 @@ public final class DailyCalendarViewReactor: Reactor {
                 hasReceivedPostEvent = true
                 // 가족이 게시한 포스트 가져오기
                 let yearMonthDay: String = date.toFormatString(with: .dashYyyyMMdd)
-                return calendarUseCase.executeFetchDailyCalendarResponse(yearMonthDay: yearMonthDay)
+                return fetchDailyCalendarUseCase.execute(yearMonthDay: yearMonthDay)
                     .flatMap { entity in
-                        guard let posts: [DailyCalendarEntity] = entity?.results else {
-                            return Observable<Mutation>.empty()
-                        }
                         
                         return Observable.concat(
-                            Observable<Mutation>.just(.setDailyCalendar(posts)),
+                            Observable<Mutation>.just(.setDailyCalendar(entity.results)),
                             Observable<Mutation>.just(.setImageIndex(0)),
                             Observable<Mutation>.just(.clearNotificationDeepLink)
                         )
@@ -152,18 +167,15 @@ public final class DailyCalendarViewReactor: Reactor {
         case let .requestMonthlyCalendar(yearMonth):
             // 이전에 불러온 적이 없다면
             if !hasFetchedCalendarResponse.contains(yearMonth) {
-                return calendarUseCase.executeFetchCalednarResponse(yearMonth: yearMonth)
+                return fetchMonthlyCalendarUseCase.execute(yearMonth: yearMonth)
                     .withUnretained(self)
-                    .map {
-                        guard let arrayCalendarResponse = $0.1 else {
-                            return .setMonthlyCalendar(yearMonth, .init(results: []))
-                        }
+                    .map { // map with: 연산자 구현하기
                         $0.0.hasFetchedCalendarResponse.append(yearMonth)
                         $0.0.hasThumbnailImages.append(
-                            contentsOf: arrayCalendarResponse.results.map { $0.date }
+                            contentsOf: $0.1.results.map { $0.date }
                         )
                         // NOTE: - 썸네일 이미지가 존재하는 일(日)자에 한하여 데이터를 불러옴
-                        return .setMonthlyCalendar(yearMonth, arrayCalendarResponse)
+                        return .setMonthlyCalendar(yearMonth, $0.1.results)
                     }
             // 이전에 불러온 적이 있다면
             } else {
@@ -212,7 +224,7 @@ public final class DailyCalendarViewReactor: Reactor {
             newState.shouldPresentAllUploadedToastMessageView = uploaded
             
         case let .setMonthlyCalendar(yearMonth, arrayCalendarResponse):
-            newState.displayMonthlyCalendar[yearMonth] = arrayCalendarResponse.results
+            newState.displayMonthlyCalendar[yearMonth] = arrayCalendarResponse
             
         case let .setDailyCalendar(postResponse):
             newState.displayDailyCalendar = [DailyCalendarSectionModel(model: (), items: postResponse)]

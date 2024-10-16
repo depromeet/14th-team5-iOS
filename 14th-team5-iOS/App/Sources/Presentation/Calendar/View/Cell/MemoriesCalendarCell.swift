@@ -17,21 +17,28 @@ import RxSwift
 import SnapKit
 import Then
 
-final public class CalendarImageCell: FSCalendarCell, ReactorKit.View {   
+final public class MemoriesCalendarCell: FSCalendarCell, ReactorKit.View {
+    
     // MARK: - Id
+    
     static let id: String = "ImageCalendarCell"
     
     // MARK: - Views
+    
     private let dayLabel: BBLabel = BBLabel(.body1Regular, textAlignment: .center)
     private let containerView: UIView = UIView()
     private let thumbnailView: UIImageView = UIImageView()
     private let todayStrokeView: UIView = UIView()
     private let allFamilyUploadedBadge: UIImageView = UIImageView()
     
+    
     // MARK: - Properties
+    
     public var disposeBag: RxSwift.DisposeBag = DisposeBag()
     
+    
     // MARK: - Intializer
+    
     public override init!(frame: CGRect) {
         super.init(frame: .zero)
         setupUI()
@@ -43,7 +50,9 @@ final public class CalendarImageCell: FSCalendarCell, ReactorKit.View {
         fatalError("init(coder:) has not been implemented")
     }
     
+    
     // MARK: - LifeCycles
+    
     public override func prepareForReuse() {
         dayLabel.textColor = UIColor.bibbiWhite
         thumbnailView.image = nil
@@ -53,21 +62,23 @@ final public class CalendarImageCell: FSCalendarCell, ReactorKit.View {
         allFamilyUploadedBadge.isHidden = true
     }
     
+    
     // MARK: - Helpers
-    public func bind(reactor: CalendarImageCellReactor) {
+    
+    public func bind(reactor: MemoriesCalendarCellReactor) {
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: CalendarImageCellReactor) { }
+    private func bindInput(reactor: MemoriesCalendarCellReactor) { }
     
-    private func bindOutput(reactor: CalendarImageCellReactor) {
-        reactor.state.map { "\($0.date.day)" }
+    private func bindOutput(reactor: MemoriesCalendarCellReactor) {
+        reactor.state.map { "\($0.model.date.day)" }
             .distinctUntilChanged()
             .bind(to: dayLabel.rx.text)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.date.isToday }
+        reactor.state.map { $0.model.date.isToday }
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
@@ -78,12 +89,12 @@ final public class CalendarImageCell: FSCalendarCell, ReactorKit.View {
             }
             .disposed(by: disposeBag)
             
-        reactor.state.map { !$0.allFamilyMemebersUploaded }
+        reactor.state.map { !$0.model.allFamilyMemebersUploaded }
             .distinctUntilChanged()
             .bind(to: allFamilyUploadedBadge.rx.isHidden)
             .disposed(by: disposeBag)
         
-        reactor.state.compactMap { $0.representativeThumbnailUrl }
+        reactor.state.compactMap { $0.model.representativeThumbnailUrl }
             .distinctUntilChanged()
             .bind(to: thumbnailView.rx.kingfisherImage)
             .disposed(by: disposeBag)
@@ -93,7 +104,7 @@ final public class CalendarImageCell: FSCalendarCell, ReactorKit.View {
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe {
-                if reactor.type == .week {
+                if reactor.type == .daily {
                     if $0.1 {
                         $0.0.todayStrokeView.isHidden = true
                         
@@ -106,7 +117,7 @@ final public class CalendarImageCell: FSCalendarCell, ReactorKit.View {
                         $0.0.containerView.alpha = 0.3
                         $0.0.thumbnailView.layer.borderWidth = 0
                         
-                        if reactor.currentState.date.isToday {
+                        if reactor.currentState.model.date.isToday {
                             $0.0.todayStrokeView.isHidden = false
                             $0.0.dayLabel.textColor = UIColor.mainYellow
                         }
@@ -184,9 +195,13 @@ final public class CalendarImageCell: FSCalendarCell, ReactorKit.View {
     }
 }
 
+
 // MARK: - Extensions
-extension CalendarImageCell {
+
+extension MemoriesCalendarCell {
+    
     var hasThumbnailImage: Bool {
         return thumbnailView.image != nil ? true : false
     }
+    
 }

@@ -14,15 +14,15 @@ import Domain
 @available(*, deprecated)
 final public class CalendarImageCellDIContainer {
     // MARK: - Properties
-    public let type: CalendarImageCellReactor.CalendarType
-    public let monthlyEntity: CalendarEntity
+    public let type: MomoriesCalendarType
+    public let monthlyEntity: MonthlyCalendarEntity
     public let isSelected: Bool
 
     
     // MARK: - Intializer
     public init(
-        type: CalendarImageCellReactor.CalendarType,
-        monthlyEntity: CalendarEntity,
+        type: MomoriesCalendarType,
+        monthlyEntity: MonthlyCalendarEntity,
         isSelected: Bool = false
     ) {
         self.type = type
@@ -39,10 +39,10 @@ final public class CalendarImageCellDIContainer {
         return CalendarRepository()
     }
     
-    public func makeReactor() -> CalendarImageCellReactor {
-        return CalendarImageCellReactor(
-            type: type,
-            monthlyEntity: monthlyEntity,
+    public func makeReactor() -> MemoriesCalendarCellReactor {
+        return MemoriesCalendarCellReactor(
+            of: type,
+            with: monthlyEntity,
             isSelected: isSelected
         )
     }

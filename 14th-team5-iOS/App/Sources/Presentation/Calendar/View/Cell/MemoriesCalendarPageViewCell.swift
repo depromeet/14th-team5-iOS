@@ -18,11 +18,15 @@ import RxSwift
 import SnapKit
 import Then
 
-final class CalendarCell: BaseCollectionViewCell<CalendarCellReactor> {
+final class MemoriesCalendarPageViewCell: BaseCollectionViewCell<MemoriesCalendarPageReactor> {
+    
     // MARK: - Id
+    
     static var id: String = "CalendarCell"
     
+    
     // MARK: - Views
+    
     private lazy var labelStack: UIStackView = UIStackView()
     private let titleLabel: BBLabel = BBLabel(.head2Bold, textAlignment: .center, textColor: .gray200)
     private let countLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray200)
@@ -33,49 +37,53 @@ final class CalendarCell: BaseCollectionViewCell<CalendarCellReactor> {
     
     private let calendarView: FSCalendar = FSCalendar()
     
+    
     // MARK: - Properties
+    
     private let infoImage: UIImage = DesignSystemAsset.infoCircleFill.image
         .withRenderingMode(.alwaysTemplate)
     private lazy var bannerViewModel: BannerViewModel = BannerViewModel(reactor: reactor, state: .init())
     
+    
     // MARK: - Helpers
-    override func bind(reactor: CalendarCellReactor) {
+    
+    override func bind(reactor: MemoriesCalendarPageReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: CalendarCellReactor) {
+    private func bindInput(reactor: MemoriesCalendarPageReactor) {
         Observable<Void>.just(())
-            .map { Reactor.Action.requestBanner }
+            .map { Reactor.Action.fetchBannerInfo }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         Observable<Void>.just(())
-            .map { Reactor.Action.requestStatistics }
+            .map { Reactor.Action.fetchStatisticsSummary }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         Observable<Void>.just(())
-            .map { Reactor.Action.requestMonthlyCalendar }
+            .map { Reactor.Action.fetchMonthlyCalendar }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         infoButton.rx.tap
             .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
             .withUnretained(self)
-            .map { Reactor.Action.infoButtonTapped($0.0.infoButton) }
+            .map { _ in Reactor.Action.didTapTipButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         calendarView.rx.didSelect
-            .map { Reactor.Action.dateSelected($0) }
+            .map { Reactor.Action.select($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
     
-    private func bindOutput(reactor: CalendarCellReactor) {
-        reactor.state.compactMap { $0.displayBanner }
+    private func bindOutput(reactor: MemoriesCalendarPageReactor) {
+        reactor.state.compactMap { $0.banner }
             .distinctUntilChanged(\.familyTopPercentage)
             .withUnretained(self)
             .subscribe {
@@ -83,12 +91,12 @@ final class CalendarCell: BaseCollectionViewCell<CalendarCellReactor> {
             }
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.displayMemoryCount }
+        reactor.state.compactMap { $0.memoryCount }
             .distinctUntilChanged()
             .bind(to: countLabel.rx.memoryCountText)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.displayMonthlyCalendar }
+        reactor.state.map { $0.monthlyCalendar }
             .withUnretained(self)
             .subscribe { $0.0.calendarView.reloadData() }
             .disposed(by: disposeBag)
@@ -188,8 +196,8 @@ final class CalendarCell: BaseCollectionViewCell<CalendarCellReactor> {
             $0.backgroundColor = UIColor.clear
             
             $0.locale = Locale(identifier: "ko_kr")
-            $0.register(CalendarImageCell.self, forCellReuseIdentifier: CalendarImageCell.id)
-            $0.register(CalendarPlaceholderCell.self, forCellReuseIdentifier: CalendarPlaceholderCell.id)
+            $0.register(MemoriesCalendarCell.self, forCellReuseIdentifier: MemoriesCalendarCell.id)
+            $0.register(MemoriesCalendarPlaceholderCell.self, forCellReuseIdentifier: MemoriesCalendarPlaceholderCell.id)
             
             $0.delegate = self
             $0.dataSource = self
@@ -202,12 +210,14 @@ final class CalendarCell: BaseCollectionViewCell<CalendarCellReactor> {
 }
 
 // MARK: - Extensions
-extension CalendarCell: FSCalendarDelegate {
+
+extension MemoriesCalendarPageViewCell: FSCalendarDelegate {
+    
     func calendar(_ calendar: FSCalendar, shouldSelect date: Date, at monthPosition: FSCalendarMonthPosition) -> Bool {
         let month = date.month
         let currentMonth = calendar.currentPage.month
         
-        if let calendarCell = calendar.cell(for: date, at: monthPosition) as? CalendarImageCell {
+        if let calendarCell = calendar.cell(for: date, at: monthPosition) as? MemoriesCalendarCell {
             // 셀의 날짜가 현재 월(月)과 동일하고, 썸네일 이미지가 있다면
             if month == currentMonth && calendarCell.hasThumbnailImage {
                 return true
@@ -216,23 +226,25 @@ extension CalendarCell: FSCalendarDelegate {
         
         return false
     }
+    
 }
 
-extension CalendarCell: FSCalendarDataSource {
+extension MemoriesCalendarPageViewCell: FSCalendarDataSource {
+    
     func calendar(_ calendar: FSCalendar, cellFor date: Date, at position: FSCalendarMonthPosition) -> FSCalendarCell {
         let calendarMonth = calendar.currentPage.month
         let positionMonth = date.month
         // 셀의 날짜가 현재 월(月)과 동일하다면
         if calendarMonth == positionMonth {
             let cell = calendar.dequeueReusableCell(
-                withIdentifier: CalendarImageCell.id,
+                withIdentifier: MemoriesCalendarCell.id,
                 for: date,
                 at: position
-            ) as! CalendarImageCell
+            ) as! MemoriesCalendarCell
             
             // 해당 일자에 데이터가 존재하지 않는다면
-            guard let dayResponse = reactor?.currentState.displayMonthlyCalendar?.results.filter({ $0.date == date }).first else {
-                let emptyResponse = CalendarEntity(
+            guard let dayResponse = reactor?.currentState.monthlyCalendar?.results.filter({ $0.date == date }).first else {
+                let emptyResponse = MonthlyCalendarEntity(
                     date: date,
                     representativePostId: .none,
                     representativeThumbnailUrl: .none,
@@ -253,11 +265,12 @@ extension CalendarCell: FSCalendarDataSource {
         // 셀의 날짜가 현재 월(月)과 동일하지 않다면
         } else {
             let cell = calendar.dequeueReusableCell(
-                withIdentifier: CalendarPlaceholderCell.id,
+                withIdentifier: MemoriesCalendarPlaceholderCell.id,
                 for: date,
                 at: position
-            ) as! CalendarPlaceholderCell
+            ) as! MemoriesCalendarPlaceholderCell
             return cell
         }
     }
+    
 }

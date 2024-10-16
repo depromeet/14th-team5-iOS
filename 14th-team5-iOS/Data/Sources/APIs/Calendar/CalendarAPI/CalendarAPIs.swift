@@ -8,28 +8,42 @@
 import Core
 import Foundation
 
-public enum CalendarAPIs: API {
-    @available(*, deprecated)
-    case calendarResponse(String)
-    
+enum CalendarAPIs: BBAPI {
+    case fetchBannerInfo(String)
+    case fetchStatisticsSummary(String)
     case fetchMonthlyCalendar(String)
     case fetchDailyCalendar(String)
-    case fetchStatisticsSummary(String)
-    case fetchBanner(String)
     
-    public var spec: APISpec {
+    var spec: Spec {
         switch self {
-        case let .calendarResponse(yearMonth):
-            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar?type=MONTHLY&yearMonth=\(yearMonth)")
-            
         case let .fetchMonthlyCalendar(yearMonth):
-            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar/monthly?yearMonth=\(yearMonth)")
+            return Spec(
+                method: .get,
+                path: "/calendar",
+                queryParameters: ["yearMonth": "\(yearMonth)", .type: "MONTHLY"]
+            )
+            
         case let .fetchDailyCalendar(yearMonthDay):
-            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar/daily?yearMonthDay=\(yearMonthDay)")
+            return Spec(
+                method: .get,
+                path: "/calendar/daily",
+                queryParameters: ["yearMonthDay": "\(yearMonthDay)"]
+            )
+            
         case let .fetchStatisticsSummary(yearMonth):
-            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar/summary?yearMonth=\(yearMonth)")
-        case let .fetchBanner(yearMonth):
-            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/calendar/banner?yearMonth=\(yearMonth)")
+            return Spec(
+                method: .get,
+                path: "/calendar/summary",
+                queryParameters: ["yearMonth": "\(yearMonth)"]
+            )
+            
+        case let .fetchBannerInfo(yearMonth):
+            return Spec(
+                method: .get,
+                path: "/calendar/banner",
+                queryParameters: ["yearMonth": "\(yearMonth)"]
+            )
         }
     }
+    
 }

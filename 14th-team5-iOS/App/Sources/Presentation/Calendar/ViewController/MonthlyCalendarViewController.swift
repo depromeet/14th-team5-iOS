@@ -16,10 +16,6 @@ import RxDataSources
 import SnapKit
 import Then
 
-// 지금 당장 BBNavigationViewController로 바꿔도 안됨
-// 왜냐하면, PopoverViewController Delegate 문제가 발생하기 때문!
-
-fileprivate typealias _Str = CalendarStrings
 public final class MonthlyCalendarViewController: TempNavigationViewController<MonthlyCalendarViewReactor> {
     // MARK: - Views
     private lazy var calendarCollectionView: UICollectionView = UICollectionView(
@@ -100,7 +96,7 @@ public final class MonthlyCalendarViewController: TempNavigationViewController<M
                 $0.0.makeDescriptionPopoverView(
                     $0.0,
                     sourceView: $0.1,
-                    text: _Str.infoText,
+                    text: "모두가 참여한 날과 업로드한 사진 수로\n이 달의 친밀도를 측정합니다",
                     popoverSize: CGSize(width: 260, height: 62),
                     permittedArrowDrections: [.up]
                 )
@@ -136,7 +132,7 @@ public final class MonthlyCalendarViewController: TempNavigationViewController<M
             $0.isHidden = true
             $0.isScrollEnabled = false
             $0.backgroundColor = UIColor.clear
-            $0.register(CalendarCell.self, forCellWithReuseIdentifier: CalendarCell.id)
+            $0.register(MemoriesCalendarPageViewCell.self, forCellWithReuseIdentifier: MemoriesCalendarPageViewCell.id)
         }
     }
 }
@@ -176,8 +172,8 @@ extension MonthlyCalendarViewController {
 extension MonthlyCalendarViewController {
     private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<MonthlyCalendarSectionModel> {
         return RxCollectionViewSectionedReloadDataSource<MonthlyCalendarSectionModel> { datasource, collectionView, indexPath, yearMonth in
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarCell.id, for: indexPath) as! CalendarCell
-            cell.reactor = CalendarCellReactor(yearMonth: yearMonth)
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MemoriesCalendarPageViewCell.id, for: indexPath) as! MemoriesCalendarPageViewCell
+            cell.reactor = MemoriesCalendarPageReactor(yearMonth: yearMonth)
             return cell
         }
     }
@@ -193,8 +189,6 @@ extension MonthlyCalendarViewController {
     
     private func scrollToLastIndexPath(_ indexPath: IndexPath) {
         calendarCollectionView.layoutIfNeeded()
-        
-        print("======= \(dataSource[0].items.count - 1)")
         
         calendarCollectionView.scrollToItem(
             at: indexPath,

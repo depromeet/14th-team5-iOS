@@ -16,7 +16,7 @@ public enum CalendarEvent {
     case none
 }
 
-public protocol CalendarGlobalStateType {
+public protocol CalendarServiceType {
     var event: BehaviorSubject<CalendarEvent> { get }
     
     @discardableResult
@@ -28,7 +28,7 @@ public protocol CalendarGlobalStateType {
     func didTapCalendarInfoButton(_ sourceView: UIView) -> Observable<Void>
 }
 
-final public class CalendarGlobalState: BaseService, CalendarGlobalStateType {
+final public class CalendarGlobalState: BaseService, CalendarServiceType {
     public var event: BehaviorSubject<CalendarEvent> = BehaviorSubject<CalendarEvent>(value: .none)
     
     public func pushCalendarPostVC(_ date: Date) -> Observable<Date> {

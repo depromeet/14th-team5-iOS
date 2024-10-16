@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol FetchStatisticsSummaryUseCaseProtocol {
-    func execute(yearMonth: String) -> Observable<FamilyMonthlyStatisticsEntity?>
+    func execute(yearMonth: String) -> Observable<FamilyMonthlyStatisticsEntity>
 }
 
 
@@ -25,7 +25,7 @@ public class FetchStatisticsSummaryUseCase: FetchStatisticsSummaryUseCaseProtoco
     }
     
     // MARK: - Execute
-    public func execute(yearMonth: String) -> Observable<FamilyMonthlyStatisticsEntity?> {
+    public func execute(yearMonth: String) -> Observable<FamilyMonthlyStatisticsEntity> {
         calendarRepository.fetchStatisticsSummary(yearMonth: yearMonth)
     }
 }

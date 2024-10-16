@@ -59,7 +59,7 @@ public final class MonthlyCalendarViewReactor: Reactor {
     
     // MARK: - Transform
     public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
-        let eventMutation = provider.calendarGlabalState.event
+        let eventMutation = provider.calendarService.event
             .flatMap { event -> Observable<Mutation> in
                 switch event {
                 case let .pushCalendarPostVC(date):

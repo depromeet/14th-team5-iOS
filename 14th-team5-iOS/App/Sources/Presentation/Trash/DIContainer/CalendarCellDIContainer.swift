@@ -30,8 +30,8 @@ public final class CalendarCellDIContainer {
         return CalendarRepository()
     }
     
-    public func makeReactor() -> CalendarCellReactor {
-        return CalendarCellReactor(
+    public func makeReactor() -> MemoriesCalendarPageReactor {
+        return MemoriesCalendarPageReactor(
             yearMonth: yearMonth
         )
     }

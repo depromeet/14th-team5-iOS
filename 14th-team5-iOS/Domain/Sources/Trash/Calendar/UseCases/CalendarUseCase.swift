@@ -12,10 +12,10 @@ import RxSwift
 
 @available(*, deprecated)
 public protocol CalendarUseCaseProtocol {
-    func executeFetchCalednarResponse(yearMonth: String) -> Observable<ArrayResponseCalendarEntity?>
-    func executeFetchDailyCalendarResponse(yearMonthDay: String) -> Observable<ArrayResponseDailyCalendarEntity?>
-    func executeFetchStatisticsSummary(yearMonth: String) -> Observable<FamilyMonthlyStatisticsEntity?>
-    func executeFetchCalendarBenner(yearMonth: String) -> Observable<BannerEntity?>
+    func executeFetchCalednarResponse(yearMonth: String) -> Observable<ArrayResponseCalendarEntity>
+    func executeFetchDailyCalendarResponse(yearMonthDay: String) -> Observable<ArrayResponseDailyCalendarEntity>
+    func executeFetchStatisticsSummary(yearMonth: String) -> Observable<FamilyMonthlyStatisticsEntity>
+    func executeFetchCalendarBenner(yearMonth: String) -> Observable<BannerEntity>
 }
 
 
@@ -27,19 +27,19 @@ public final class CalendarUseCase: CalendarUseCaseProtocol {
         self.calendarRepository = calendarRepository
     }
 
-    public func executeFetchCalednarResponse(yearMonth: String) -> Observable<ArrayResponseCalendarEntity?> {
-        return calendarRepository.fetchCalendarResponse(yearMonth: yearMonth)
+    public func executeFetchCalednarResponse(yearMonth: String) -> Observable<ArrayResponseCalendarEntity> {
+        return .empty()
     }
     
-    public func executeFetchDailyCalendarResponse(yearMonthDay: String) -> Observable<ArrayResponseDailyCalendarEntity?> {
+    public func executeFetchDailyCalendarResponse(yearMonthDay: String) -> Observable<ArrayResponseDailyCalendarEntity> {
         return calendarRepository.fetchDailyCalendarResponse(yearMonthDay: yearMonthDay)
     }
     
-    public func executeFetchStatisticsSummary(yearMonth: String) -> Observable<FamilyMonthlyStatisticsEntity?> {
+    public func executeFetchStatisticsSummary(yearMonth: String) -> Observable<FamilyMonthlyStatisticsEntity> {
         return calendarRepository.fetchStatisticsSummary(yearMonth: yearMonth)
     }
     
-    public func executeFetchCalendarBenner(yearMonth: String) -> Observable<BannerEntity?> {
-        return calendarRepository.fetchCalendarBanner(yearMonth: yearMonth)
+    public func executeFetchCalendarBenner(yearMonth: String) -> Observable<BannerEntity> {
+        return calendarRepository.fetchCalendarBannerInfo(yearMonth: yearMonth)
     }
 }

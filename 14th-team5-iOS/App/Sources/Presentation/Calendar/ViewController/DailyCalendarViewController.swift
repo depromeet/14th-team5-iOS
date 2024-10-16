@@ -19,7 +19,6 @@ import RxDataSources
 import SnapKit
 import Then
 
-fileprivate typealias _Str = CalendarStrings
 public final class DailyCalendarViewController: TempNavigationViewController<DailyCalendarViewReactor> {
     // MARK: - Views
     private let imageView: UIImageView = UIImageView()
@@ -217,7 +216,7 @@ public final class DailyCalendarViewController: TempNavigationViewController<Dai
             .delay(RxConst.milliseconds100Interval)
             .drive(with: self, onNext: { owner, _ in
                 owner.makeBibbiToastView(
-                    text: _Str.allFamilyUploadedText,
+                    text: "우리 가족 모두가 사진을 올린 날",
                     image: DesignSystemAsset.fire.image
                 )
             })
@@ -332,8 +331,8 @@ public final class DailyCalendarViewController: TempNavigationViewController<Dai
             $0.appearance.titleSelectionColor = UIColor.bibbiWhite
             
             $0.backgroundColor = UIColor.clear
-            $0.register(CalendarImageCell.self, forCellReuseIdentifier: CalendarImageCell.id)
-            $0.register(CalendarPlaceholderCell.self, forCellReuseIdentifier: CalendarPlaceholderCell.id)
+            $0.register(MemoriesCalendarCell.self, forCellReuseIdentifier: MemoriesCalendarCell.id)
+            $0.register(MemoriesCalendarPlaceholderCell.self, forCellReuseIdentifier: MemoriesCalendarPlaceholderCell.id)
             
             $0.dataSource = self
         }
@@ -342,8 +341,8 @@ public final class DailyCalendarViewController: TempNavigationViewController<Dai
             $0.isScrollEnabled = false
             $0.backgroundColor = UIColor.clear
             $0.register(
-                CalendarPostCell.self,
-                forCellWithReuseIdentifier: CalendarPostCell.id
+                MemoriesCalendarPostCell.self,
+                forCellWithReuseIdentifier: MemoriesCalendarPostCell.id
             )
         }
         
@@ -404,9 +403,9 @@ extension DailyCalendarViewController {
     private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<DailyCalendarSectionModel> {
         return RxCollectionViewSectionedReloadDataSource<DailyCalendarSectionModel> { datasource, collectionView, indexPath, post in
             let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: CalendarPostCell.id,
+                withReuseIdentifier: MemoriesCalendarPostCell.id,
                 for: indexPath
-            ) as! CalendarPostCell
+            ) as! MemoriesCalendarPostCell
             cell.reactor = CalendarPostCellDIContainer(post: post).makeReactor()
             return cell
         }
@@ -466,32 +465,32 @@ extension DailyCalendarViewController {
 extension DailyCalendarViewController: FSCalendarDataSource {
     public func calendar(_ calendar: FSCalendar, cellFor date: Date, at position: FSCalendarMonthPosition) -> FSCalendarCell {
         let cell = calendar.dequeueReusableCell(
-            withIdentifier: CalendarImageCell.id,
+            withIdentifier: MemoriesCalendarCell.id,
             for: date,
             at: position
-        ) as! CalendarImageCell
+        ) as! MemoriesCalendarCell
         
         // 해당 일에 불러온 데이터가 없다면
         let yearMonth: String = date.toFormatString(with: .dashYyyyMM)
         guard let currentState = reactor?.currentState,
               let monthlyEntity = currentState.displayMonthlyCalendar[yearMonth]?.filter({ $0.date.isEqual(with: date) }).first
         else {
-            let emptyEntity = CalendarEntity(
+            let emptyEntity = MonthlyCalendarEntity(
                 date: date,
                 representativePostId: .none,
                 representativeThumbnailUrl: .none,
                 allFamilyMemebersUploaded: false
             )
             cell.reactor = CalendarImageCellDIContainer(
-                type: .week,
+                type: .daily,
                 monthlyEntity: emptyEntity
             ).makeReactor()
             return cell
         }
         
         cell.reactor = CalendarImageCellDIContainer(
-            type: .week,
-            monthlyEntity: monthlyEntity, 
+            type: .daily,
+            monthlyEntity: monthlyEntity,
             isSelected: currentState.date.isEqual(with: date)
         ).makeReactor()
         return cell

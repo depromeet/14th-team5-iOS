@@ -10,39 +10,22 @@ import UIKit
 import RxSwift
 
 public enum CalendarEvent {
-    case pushCalendarPostVC(Date)
-    case didSelectDate(Date)
-    case didTapInfoButton(UIView)
-    case none
+    case didSelect(date: Date)
 }
 
 public protocol CalendarServiceType {
     var event: BehaviorSubject<CalendarEvent> { get }
-    
+
     @discardableResult
-    func pushCalendarPostVC(_ date: Date) -> Observable<Date>
-    
-    @discardableResult
-    func didSelectDate(_ date: Date) -> Observable<Date>
-    
-    func didTapCalendarInfoButton(_ sourceView: UIView) -> Observable<Void>
+    func didSelect(date: Date) -> Observable<Date>
 }
 
 final public class CalendarGlobalState: BaseService, CalendarServiceType {
-    public var event: BehaviorSubject<CalendarEvent> = BehaviorSubject<CalendarEvent>(value: .none)
+    public var event = BehaviorSubject<CalendarEvent>(value: .didSelect(date: .distantPast))
     
-    public func pushCalendarPostVC(_ date: Date) -> Observable<Date> {
-        event.onNext(.pushCalendarPostVC(date))
+    public func didSelect(date: Date) -> Observable<Date> {
+        event.onNext(.didSelect(date: date))
         return Observable<Date>.just(date)
     }
-    
-    public func didSelectDate(_ date: Date) -> Observable<Date> {
-        event.onNext(.didSelectDate(date))
-        return Observable<Date>.just(date)
-    }
-    
-    public func didTapCalendarInfoButton(_ sourceView: UIView) -> Observable<Void> {
-        event.onNext(.didTapInfoButton(sourceView))
-        return Observable<Void>.just(())
-    }
+
 }

@@ -27,9 +27,9 @@ final public class MemoriesCalendarCell: FSCalendarCell, ReactorKit.View {
     
     private let dayLabel: BBLabel = BBLabel(.body1Regular, textAlignment: .center)
     private let containerView: UIView = UIView()
-    private let thumbnailView: UIImageView = UIImageView()
-    private let todayStrokeView: UIView = UIView()
-    private let allFamilyUploadedBadge: UIImageView = UIImageView()
+    private let thumbnailImage: UIImageView = UIImageView()
+    private let todayStroke: UIView = UIView()
+    private let allMemberUploadedBadge: UIImageView = UIImageView()
     
     
     // MARK: - Properties
@@ -54,83 +54,63 @@ final public class MemoriesCalendarCell: FSCalendarCell, ReactorKit.View {
     // MARK: - LifeCycles
     
     public override func prepareForReuse() {
+        super.prepareForReuse()
+        
         dayLabel.textColor = UIColor.bibbiWhite
-        thumbnailView.image = nil
-        thumbnailView.layer.borderWidth = .zero
-        thumbnailView.layer.borderColor = UIColor.bibbiWhite.cgColor
-        todayStrokeView.isHidden = true
-        allFamilyUploadedBadge.isHidden = true
+        thumbnailImage.image = nil
+        thumbnailImage.layer.borderWidth = .zero
+        thumbnailImage.layer.borderColor = UIColor.bibbiWhite.cgColor
+        todayStroke.isHidden = true
+        allMemberUploadedBadge.isHidden = true
     }
     
     
     // MARK: - Helpers
     
     public func bind(reactor: MemoriesCalendarCellReactor) {
-        bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: MemoriesCalendarCellReactor) { }
-    
     private func bindOutput(reactor: MemoriesCalendarCellReactor) {
-        reactor.state.map { "\($0.model.date.day)" }
+        let date = reactor.state.map { $0.entity.date }
+            .asDriver(onErrorJustReturn: .now)
+        
+        date.map { "\($0.day)" }
             .distinctUntilChanged()
-            .bind(to: dayLabel.rx.text)
+            .drive(dayLabel.rx.text)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.model.date.isToday }
+        date.map { $0.isToday }
+            .filter { $0 }
             .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe {
-                if $0.1 {
-                    $0.0.todayStrokeView.isHidden = false
-                    $0.0.dayLabel.textColor = UIColor.mainYellow
-                }
-            }
-            .disposed(by: disposeBag)
-            
-        reactor.state.map { !$0.model.allFamilyMemebersUploaded }
-            .distinctUntilChanged()
-            .bind(to: allFamilyUploadedBadge.rx.isHidden)
+            .drive(with: self, onNext: { owner, _ in
+                owner.todayStroke.isHidden = false
+                owner.dayLabel.textColor = UIColor.mainYellow
+            })
             .disposed(by: disposeBag)
         
-        reactor.state.compactMap { $0.model.representativeThumbnailUrl }
-            .distinctUntilChanged()
-            .bind(to: thumbnailView.rx.kingfisherImage)
+        reactor.state.map { $0.entity.allFamilyMemebersUploaded }
+            .map { !$0 }
+            .bind(to: allMemberUploadedBadge.rx.isHidden)
             .disposed(by: disposeBag)
         
-        // 최초 셀 생성 시, 클릭 이벤트 발생 시 하이라이트를 위해 실행됨
+        reactor.state.compactMap { $0.entity.representativeThumbnailUrl }
+            .compactMap { URL(string: $0) }
+            .distinctUntilChanged()
+            .bind(to: thumbnailImage.rx.kfImage)
+            .disposed(by: disposeBag)
+        
         reactor.state.map { $0.isSelected }
+            .filter { _ in reactor.type == .daily }
             .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe {
-                if reactor.type == .daily {
-                    if $0.1 {
-                        $0.0.todayStrokeView.isHidden = true
-                        
-                        $0.0.thumbnailView.alpha = 1
-                        $0.0.containerView.alpha = 1
-                        $0.0.thumbnailView.layer.borderWidth = 1
-                        $0.0.thumbnailView.layer.borderColor = UIColor.bibbiWhite.cgColor
-                    } else {
-                        $0.0.thumbnailView.alpha = 0.3
-                        $0.0.containerView.alpha = 0.3
-                        $0.0.thumbnailView.layer.borderWidth = 0
-                        
-                        if reactor.currentState.model.date.isToday {
-                            $0.0.todayStrokeView.isHidden = false
-                            $0.0.dayLabel.textColor = UIColor.mainYellow
-                        }
-                    }
-                }
-            }
+            .bind(with: self) { $0.setHighlight(with: $1) }
             .disposed(by: disposeBag)
     }
     
     private func setupUI() {
-        contentView.insertSubview(thumbnailView, at: 0)
+        contentView.insertSubview(thumbnailImage, at: 0)
         contentView.insertSubview(containerView, at: 0)
-        contentView.addSubviews(dayLabel, todayStrokeView, allFamilyUploadedBadge)
+        contentView.addSubviews(dayLabel, todayStroke, allMemberUploadedBadge)
     }
     
     private func setupAutoLayout() {
@@ -143,17 +123,17 @@ final public class MemoriesCalendarCell: FSCalendarCell, ReactorKit.View {
             $0.size.equalTo(contentView.snp.width).inset(2.25)
         }
         
-        thumbnailView.snp.makeConstraints {
+        thumbnailImage.snp.makeConstraints {
             $0.center.equalTo(contentView.snp.center)
             $0.size.equalTo(contentView.snp.width).inset(2.25)
         }
         
-        todayStrokeView.snp.makeConstraints {
+        todayStroke.snp.makeConstraints {
             $0.center.equalTo(contentView.snp.center)
             $0.size.equalTo(contentView.snp.width).inset(2.25)
         }
         
-        allFamilyUploadedBadge.snp.makeConstraints {
+        allMemberUploadedBadge.snp.makeConstraints {
             $0.top.equalToSuperview().offset(5)
             $0.trailing.equalToSuperview().offset(-5)
             $0.size.equalTo(17)
@@ -171,7 +151,7 @@ final public class MemoriesCalendarCell: FSCalendarCell, ReactorKit.View {
             $0.backgroundColor = .gray900
         }
         
-        thumbnailView.do {
+        thumbnailImage.do {
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = 13
@@ -180,14 +160,14 @@ final public class MemoriesCalendarCell: FSCalendarCell, ReactorKit.View {
             $0.alpha = 0.8
         }
         
-        todayStrokeView.do {
+        todayStroke.do {
             $0.isHidden = true
             $0.layer.cornerRadius = 13
             $0.layer.borderWidth = 1
             $0.layer.borderColor = UIColor.mainYellow.cgColor
         }
         
-        allFamilyUploadedBadge.do {
+        allMemberUploadedBadge.do {
             $0.image = DesignSystemAsset.fire.image
             $0.isHidden = true
             $0.backgroundColor = UIColor.clear
@@ -201,7 +181,27 @@ final public class MemoriesCalendarCell: FSCalendarCell, ReactorKit.View {
 extension MemoriesCalendarCell {
     
     var hasThumbnailImage: Bool {
-        return thumbnailView.image != nil ? true : false
+        return thumbnailImage.image != nil ? true : false
+    }
+    
+    func setHighlight(with selection: Bool) {
+        if selection {
+            todayStroke.isHidden = true
+            
+            thumbnailImage.alpha = 1
+            containerView.alpha = 1
+            thumbnailImage.layer.borderWidth = 1
+            thumbnailImage.layer.borderColor = UIColor.bibbiWhite.cgColor
+        } else {
+            thumbnailImage.alpha = 0.3
+            containerView.alpha = 0.3
+            thumbnailImage.layer.borderWidth = 0
+            
+            if reactor?.currentState.entity.date.isToday == true {
+                todayStroke.isHidden = false
+                dayLabel.textColor = UIColor.mainYellow
+            }
+        }
     }
     
 }

@@ -8,11 +8,10 @@
 import Core
 import Data
 import Domain
-import UIKit // 삭제하기
+import Foundation
 import MacrosInterface
 
 import ReactorKit
-import RxSwift
 
 @Reactor
 public final class MemoriesCalendarPageReactor {
@@ -20,11 +19,10 @@ public final class MemoriesCalendarPageReactor {
     // MARK: - Action
     
     public enum Action {
-        case select(Date)
+        case didSelect(Date)
         case fetchBannerInfo
         case fetchStatisticsSummary
         case fetchMonthlyCalendar
-        case didTapTipButton
     }
     
     
@@ -41,9 +39,9 @@ public final class MemoriesCalendarPageReactor {
     
     public struct State {
         var yearMonth: String
-        var banner: BannerViewModel.State?
-        var memoryCount: Int?
-        var monthlyCalendar: ArrayResponseMonthlyCalendarEntity?
+        var bannerInfo: BannerViewModel.State?
+        var imageCount: Int?
+        var calendarEntity: ArrayResponseMonthlyCalendarEntity?
     }
     
     
@@ -58,40 +56,32 @@ public final class MemoriesCalendarPageReactor {
     
     @Navigator var navigator: MonthlyCalendarNavigatorProtocol
     
-    public let yearMonth: String
-    
     // MARK: - Intializer
     
     init(yearMonth: String) {
-        self.yearMonth = yearMonth
         self.initialState = State(yearMonth: yearMonth)
     }
     
-    
-    // 추가 구현: 월 뷰컨에 정의되어 있는 월 데이터 가져오는 로직을 여기로 옮기기
     
     // MARK: - Mutate
     
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case let .select(date):
+        case let .didSelect(date):
             navigator.toDailyCalendar(selection: date)
             return Observable<Mutation>.empty()
             
         case .fetchBannerInfo:
-            return fetchCalendarBannerUseCase.execute(yearMonth: yearMonth)
+            return fetchCalendarBannerUseCase.execute(yearMonth: initialState.yearMonth)
                 .flatMap { Observable<Mutation>.just(.setBannerInfo($0)) }
             
         case .fetchStatisticsSummary:
-            return fetchStatisticsSummaryUseCase.execute(yearMonth: yearMonth)
+            return fetchStatisticsSummaryUseCase.execute(yearMonth: initialState.yearMonth)
                 .flatMap { Observable<Mutation>.just(.setStatisticsSummary($0)) }
             
         case .fetchMonthlyCalendar:
-            return fetchMonthlyCalendarUseCase.execute(yearMonth: yearMonth)
+            return fetchMonthlyCalendarUseCase.execute(yearMonth: initialState.yearMonth)
                 .flatMap { Observable<Mutation>.just(.setMonthlyCalendar($0)) }
-            
-        case .didTapTipButton:
-            return Observable<Mutation>.empty() // info button이 BBTooltip을 뜨도록 리팩토링
         }
     }
     
@@ -109,13 +99,13 @@ public final class MemoriesCalendarPageReactor {
                 bannerString: banner.bannerString,
                 bannerColor: banner.bannerColor
             )
-            newState.banner = bannerState
+            newState.bannerInfo = bannerState
             
         case let .setStatisticsSummary(statistics):
-            newState.memoryCount = statistics.totalImageCnt
+            newState.imageCount = statistics.totalImageCnt
             
         case let .setMonthlyCalendar(arrayCalendarResponse):
-            newState.monthlyCalendar = arrayCalendarResponse
+            newState.calendarEntity = arrayCalendarResponse
         }
         return newState
     }

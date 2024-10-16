@@ -56,25 +56,6 @@ public final class MonthlyCalendarViewReactor: Reactor {
             displayCalendar: [.init(model: (), items: [])]
         )
     }
-    
-    // MARK: - Transform
-    public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
-        let eventMutation = provider.calendarService.event
-            .flatMap { event -> Observable<Mutation> in
-                switch event {
-                case let .pushCalendarPostVC(date):
-                    return Observable<Mutation>.just(.pushDailyCalendarViewController(date))
-                    
-                case let .didTapInfoButton(sourceView):
-                    return Observable<Mutation>.just(.setInfoPopover(sourceView))
-                    
-                default:
-                    return Observable<Mutation>.empty()
-                }
-            }
-        
-        return Observable<Mutation>.merge(mutation, eventMutation)
-    }
 
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {

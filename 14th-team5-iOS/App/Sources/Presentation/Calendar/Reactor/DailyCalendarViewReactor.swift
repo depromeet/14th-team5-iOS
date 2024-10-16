@@ -141,7 +141,7 @@ public final class DailyCalendarViewReactor: Reactor {
             if !hasReceivedSelectionEvent || hasThumbnailImages.contains(date) {
                 hasReceivedSelectionEvent = true
                 // 셀 클릭 이벤트 방출
-                provider.calendarService.didSelectDate(date)
+                provider.calendarService.didSelect(date: date)
                 return Observable<Mutation>.just(.setSelectionHaptic)
             }
             return Observable<Mutation>.empty()

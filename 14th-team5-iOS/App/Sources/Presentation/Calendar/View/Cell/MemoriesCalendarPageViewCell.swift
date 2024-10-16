@@ -27,14 +27,8 @@ final class MemoriesCalendarPageViewCell: BaseCollectionViewCell<MemoriesCalenda
     
     // MARK: - Views
     
-    private lazy var labelStack: UIStackView = UIStackView()
-    private let titleLabel: BBLabel = BBLabel(.head2Bold, textAlignment: .center, textColor: .gray200)
-    private let countLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray200)
-    private let infoButton: UIButton = UIButton(type: .system)
-    
-    private lazy var bannerView: BannerView = BannerView(viewModel: bannerViewModel)
-    private lazy var bannerController: UIHostingController = UIHostingController(rootView: bannerView)
-    
+    private lazy var titleView = makeMemoriesCalendarTitleView()
+    private lazy var bannerViewController = BannerHostingViewController(reactor: reactor)
     private let calendarView: FSCalendar = FSCalendar()
     
     
@@ -42,104 +36,70 @@ final class MemoriesCalendarPageViewCell: BaseCollectionViewCell<MemoriesCalenda
     
     private let infoImage: UIImage = DesignSystemAsset.infoCircleFill.image
         .withRenderingMode(.alwaysTemplate)
-    private lazy var bannerViewModel: BannerViewModel = BannerViewModel(reactor: reactor, state: .init())
     
     
     // MARK: - Helpers
     
     override func bind(reactor: MemoriesCalendarPageReactor) {
         super.bind(reactor: reactor)
+        
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
     private func bindInput(reactor: MemoriesCalendarPageReactor) {
-        Observable<Void>.just(())
-            .map { Reactor.Action.fetchBannerInfo }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        Observable<Void>.just(())
-            .map { Reactor.Action.fetchStatisticsSummary }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        Observable<Void>.just(())
-            .map { Reactor.Action.fetchMonthlyCalendar }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        infoButton.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .map { _ in Reactor.Action.didTapTipButton }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
+        Observable<Reactor.Action>.merge([
+            Observable<Reactor.Action>.just(.fetchBannerInfo),
+            Observable<Reactor.Action>.just(.fetchStatisticsSummary),
+            Observable<Reactor.Action>.just(.fetchMonthlyCalendar),
+        ])
+        .bind(to: reactor.action)
+        .disposed(by: disposeBag)
+    
         calendarView.rx.didSelect
-            .map { Reactor.Action.select($0) }
+            .map { Reactor.Action.didSelect($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: MemoriesCalendarPageReactor) {
-        reactor.state.compactMap { $0.banner }
-            .distinctUntilChanged(\.familyTopPercentage)
-            .withUnretained(self)
-            .subscribe {
-                $0.0.bannerViewModel.updateState(state: $0.1)
-            }
+        reactor.state.map { $0.yearMonth }
+            .map { $0.toDate(with: .dashYyyyMM) }
+            .bind(with: self) { $0.titleView.setTitle($1.toFormatString(with: "yyyy년 M월")) }
             .disposed(by: disposeBag)
         
-        reactor.state.compactMap { $0.memoryCount }
+        reactor.state.compactMap { $0.imageCount }
             .distinctUntilChanged()
-            .bind(to: countLabel.rx.memoryCountText)
+            .bind(with: self) { $0.titleView.setMemoryCount($1) }
+            .disposed(by: disposeBag)
+
+        reactor.state.compactMap { $0.bannerInfo }
+            .distinctUntilChanged(\.familyTopPercentage)
+            .bind(with: self) { $0.bannerViewController.updateState($1) }
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.monthlyCalendar }
+        reactor.state.map { $0.calendarEntity }
             .withUnretained(self)
             .subscribe { $0.0.calendarView.reloadData() }
-            .disposed(by: disposeBag)
-        
-        let currentDate = reactor.state.map { $0.yearMonth }
-            .map { $0.toDate(with: .dashYyyyMM) }
-            .asDriver(onErrorJustReturn: .now)
-        
-        currentDate
-            .distinctUntilChanged()
-            .drive(calendarView.rx.currentPage)
-            .disposed(by: disposeBag)
-        
-        currentDate
-            .distinctUntilChanged()
-            .drive(titleLabel.rx.calendarTitleText)
             .disposed(by: disposeBag)
     }
     
     override func setupUI() {
         super.setupUI()
-        contentView.addSubviews(
-            labelStack, countLabel, bannerController.view, calendarView
-        )
-        labelStack.addArrangedSubviews(
-            titleLabel, infoButton
-        )
+        contentView.addSubviews(bannerViewController.view, calendarView, titleView)
     }
     
     override func setupAutoLayout() {
         super.setupAutoLayout()
-        labelStack.snp.makeConstraints {
+
+        titleView.snp.makeConstraints {
             $0.top.equalToSuperview().offset(24)
-            $0.leading.equalToSuperview().offset(24)
+            $0.horizontalEdges.equalToSuperview().inset(24)
+            $0.height.equalTo(24)
         }
         
-        countLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(24)
-            $0.trailing.equalToSuperview().offset(-24)
-        }
-        
-        bannerController.view.snp.makeConstraints {
-            $0.top.equalTo(labelStack.snp.bottom).offset(22)
+        bannerViewController.view.snp.makeConstraints {
+            $0.top.equalTo(titleView.snp.bottom).offset(22)
             $0.horizontalEdges.equalToSuperview().inset(20)
             $0.bottom.equalTo(calendarView.snp.top).offset(-28)
         }
@@ -149,32 +109,14 @@ final class MemoriesCalendarPageViewCell: BaseCollectionViewCell<MemoriesCalenda
             $0.horizontalEdges.equalToSuperview().inset(0.5)
             $0.height.equalTo(contentView.snp.width).multipliedBy(0.98)
         }
-        
-        infoButton.snp.makeConstraints {
-            $0.size.equalTo(20)
-        }
     }
     
     override func setupAttributes() {
         super.setupAttributes()
-        infoButton.do {
-            $0.setImage(
-                infoImage,
-                for: .normal
-            )
-            $0.tintColor = .gray300
-        }
-        
-        labelStack.do {
-            $0.axis = .horizontal
-            $0.spacing = 10.0
-            $0.alignment = .fill
-            $0.distribution = .fill
-        }
-        
+
         calendarView.do {
-            $0.headerHeight = 0.0
-            $0.weekdayHeight = 40.0
+            $0.headerHeight = 0
+            $0.weekdayHeight = 40
             
             $0.today = nil
             $0.scrollEnabled = false
@@ -202,10 +144,7 @@ final class MemoriesCalendarPageViewCell: BaseCollectionViewCell<MemoriesCalenda
             $0.delegate = self
             $0.dataSource = self
         }
-        
-        bannerController.view.do {
-            $0.backgroundColor = UIColor.clear
-        }
+
     }
 }
 
@@ -214,16 +153,14 @@ final class MemoriesCalendarPageViewCell: BaseCollectionViewCell<MemoriesCalenda
 extension MemoriesCalendarPageViewCell: FSCalendarDelegate {
     
     func calendar(_ calendar: FSCalendar, shouldSelect date: Date, at monthPosition: FSCalendarMonthPosition) -> Bool {
-        let month = date.month
-        let currentMonth = calendar.currentPage.month
+        let currentMonth = date.month
+        let visibleMonth = calendar.currentPage.month
         
-        if let calendarCell = calendar.cell(for: date, at: monthPosition) as? MemoriesCalendarCell {
-            // 셀의 날짜가 현재 월(月)과 동일하고, 썸네일 이미지가 있다면
-            if month == currentMonth && calendarCell.hasThumbnailImage {
+        if let cell = calendar.cell(for: date, at: monthPosition) as? MemoriesCalendarCell {
+            if visibleMonth == currentMonth && cell.hasThumbnailImage {
                 return true
             }
         }
-        
         return false
     }
     
@@ -232,37 +169,40 @@ extension MemoriesCalendarPageViewCell: FSCalendarDelegate {
 extension MemoriesCalendarPageViewCell: FSCalendarDataSource {
     
     func calendar(_ calendar: FSCalendar, cellFor date: Date, at position: FSCalendarMonthPosition) -> FSCalendarCell {
-        let calendarMonth = calendar.currentPage.month
-        let positionMonth = date.month
-        // 셀의 날짜가 현재 월(月)과 동일하다면
-        if calendarMonth == positionMonth {
+        let currentMonth = date.month
+        let visibleMonth = calendar.currentPage.month
+        
+        if visibleMonth == currentMonth {
             let cell = calendar.dequeueReusableCell(
                 withIdentifier: MemoriesCalendarCell.id,
                 for: date,
                 at: position
             ) as! MemoriesCalendarCell
             
-            // 해당 일자에 데이터가 존재하지 않는다면
-            guard let dayResponse = reactor?.currentState.monthlyCalendar?.results.filter({ $0.date == date }).first else {
-                let emptyResponse = MonthlyCalendarEntity(
+            guard
+                let entity = reactor?.currentState
+                    .calendarEntity?.results
+                    .first(where: { $0.date == date })
+            else {
+                let entity = MonthlyCalendarEntity(
                     date: date,
-                    representativePostId: .none,
-                    representativeThumbnailUrl: .none,
+                    representativePostId: "",
+                    representativeThumbnailUrl: "",
                     allFamilyMemebersUploaded: false
                 )
-                cell.reactor = CalendarImageCellDIContainer(
-                    type: .month,
-                    monthlyEntity: emptyResponse
-                ).makeReactor()
+                cell.reactor = MemoriesCalendarCellReactor(
+                    of: .month,
+                    with: entity
+                )
                 return cell
             }
             
-            cell.reactor = CalendarImageCellDIContainer(
-                type: .month,
-                monthlyEntity: dayResponse
-            ).makeReactor()
+            cell.reactor = MemoriesCalendarCellReactor(
+                of: .month,
+                with: entity
+            )
             return cell
-        // 셀의 날짜가 현재 월(月)과 동일하지 않다면
+            
         } else {
             let cell = calendar.dequeueReusableCell(
                 withIdentifier: MemoriesCalendarPlaceholderCell.id,
@@ -271,6 +211,14 @@ extension MemoriesCalendarPageViewCell: FSCalendarDataSource {
             ) as! MemoriesCalendarPlaceholderCell
             return cell
         }
+    }
+    
+}
+
+extension MemoriesCalendarPageViewCell {
+    
+    private func makeMemoriesCalendarTitleView() -> MemoriesCalendarPageTitleView {
+        MemoriesCalendarPageTitleView(reactor: .init())
     }
     
 }

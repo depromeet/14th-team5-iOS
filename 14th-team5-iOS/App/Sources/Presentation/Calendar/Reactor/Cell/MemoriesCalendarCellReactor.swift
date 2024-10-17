@@ -6,11 +6,11 @@
 //
 
 import Core
+import DesignSystem
 import Domain
 import Foundation
 
 import ReactorKit
-import RxSwift
 import MacrosInterface
 
 @Reactor
@@ -29,21 +29,21 @@ final public class MemoriesCalendarCellReactor {
     // MARK: - State
     
     public struct State {
-        var entity: MonthlyCalendarEntity
+        var date: Date
+        var thumbnailUrl: String
+        var allMemebersUploaded: Bool
         var isSelected: Bool
     }
     
     
     // MARK: - Properties
     
+    public let type: MomoriesCalendarType
     public var initialState: State
     
     @Injected var provider: ServiceProviderProtocol
     
-    public let type: MomoriesCalendarType
-    public var latestSelectedDate: Date? = nil
-    
-    
+        
     // MARK: - Intializer
     
     init(
@@ -52,7 +52,11 @@ final public class MemoriesCalendarCellReactor {
         isSelected selection: Bool = false
     ) {
         self.type = type
-        self.initialState = State(entity: entity, isSelected: selection)
+        self.initialState = State(
+            date: entity.date,
+            thumbnailUrl: entity.representativeThumbnailUrl,
+            allMemebersUploaded: entity.allFamilyMemebersUploaded,
+            isSelected: selection)
     }
     
     // MARK: - Transform
@@ -61,21 +65,28 @@ final public class MemoriesCalendarCellReactor {
         let eventMutation = provider.calendarService.event
             .flatMap(with: self) {
                 switch $1 {
-                case let .didSelect(date):
-                    if $0.initialState.entity.date.isEqual(with: date) {
-                        let lastSelectedDate: Date = $0.provider.toastGlobalState.lastSelectedDate
-                        // 이전에 선택된 날짜와 같지 않다면 (셀이 재사용되더라도 ToastView가 다시 뜨게 하지 않기 위함)
-                        if !lastSelectedDate.isEqual(with: date) && $0.initialState.entity.allFamilyMemebersUploaded {
-                            // 전체 가족 업로드 유무에 따른 토스트 뷰 출력 이벤트 방출함
-                            $0.provider.toastGlobalState.showAllFamilyUploadedToastMessageView(selection: date)
+                case let .didSelect(current):
+                    let cellDate =  $0.initialState.date
+                    // 셀 내 날짜와 선택한 날짜가 동일하면
+                    if cellDate.isEqual(with: current) {
+                        // 이전에 선택된 날짜 불러오기
+                        let previous = $0.provider.calendarService.getPreviousSelection()
+                        // 모든 가족 구성원이 게시물을 업로드하고,
+                        // 셀 내 날짜와 이전에 선택된 날짜가 동일하지 않다면 (캘린더를 스크롤하더라도 토스트가 다시 뜨지 않게)
+                        print("cellDate: \(cellDate), current: \(current), previous: \(previous)")
+                        if !cellDate.isEqual(with: previous) && $0.initialState.allMemebersUploaded {
+                        // TODO: - 로직 간소화하기         
+                            let viewConfig = BBToastViewConfiguration(minWidth: 100)
+                            $0.provider.bbToastService.show(
+                                image: DesignSystemAsset.fire.image,
+                                title: "우리 가족 모두가 사진을 올린 날",
+                                viewConfig: viewConfig
+                            )
                         }
                         return Observable<Mutation>.just(.select(true))
                     } else {
                         return Observable<Mutation>.just(.select(false))
                     }
-                    
-                default:
-                    return Observable<Mutation>.empty()
                 }
             }
 

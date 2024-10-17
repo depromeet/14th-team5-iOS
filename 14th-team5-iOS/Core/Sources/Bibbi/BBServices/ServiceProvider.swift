@@ -29,7 +29,7 @@ final public class ServiceProvider: ServiceProviderProtocol {
     public lazy var bbAlertService: any BBAlertServiceType = BBAlertService(provider: self)
     public lazy var bbToastService: any BBToastServiceType = BBToastService(provider: self)
     
-    public lazy var calendarService: CalendarServiceType = CalendarGlobalState(provider: self)
+    public lazy var calendarService: CalendarServiceType = CalendarService(provider: self)
     public lazy var mainService: MainServiceType = MainService(provider: self)
     public lazy var managementService: any ManagementServiceType = ManagementService(provider: self)
     

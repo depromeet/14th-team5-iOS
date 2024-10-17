@@ -63,9 +63,17 @@ final class MemoriesCalendarPageViewCell: BaseCollectionViewCell<MemoriesCalenda
     }
     
     private func bindOutput(reactor: MemoriesCalendarPageReactor) {
-        reactor.state.map { $0.yearMonth }
+        
+        let yearMonth = reactor.state.map { $0.yearMonth }
             .map { $0.toDate(with: .dashYyyyMM) }
-            .bind(with: self) { $0.titleView.setTitle($1.toFormatString(with: "yyyy년 M월")) }
+            .asDriver(onErrorJustReturn: .distantPast)
+        
+        yearMonth
+            .drive(with: self, onNext: { $0.titleView.setTitle($1.toFormatString(with: "yyyy년 M월")) })
+            .disposed(by: disposeBag)
+        
+        yearMonth
+            .drive(calendarView.rx.currentPage)
             .disposed(by: disposeBag)
         
         reactor.state.compactMap { $0.imageCount }

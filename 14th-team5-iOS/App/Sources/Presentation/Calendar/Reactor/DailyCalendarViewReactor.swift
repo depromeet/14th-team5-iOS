@@ -32,17 +32,17 @@ public final class DailyCalendarViewReactor: Reactor {
     // MARK: - Mutation
     
     public enum Mutation {
-        case setAllUploadedToastMessageView(Bool)
+        case setAllUploadedToastMessageView(Bool) // 삭제
         case setDailyCalendar([DailyCalendarEntity])
         case setMonthlyCalendar(String, [MonthlyCalendarEntity])
         case setImageIndex(Int)
         case setVisiblePost(DailyCalendarEntity)
-        case setSelectionHaptic
+        case setSelectionHaptic // 삭제
         case renewCommentCount(Int)
-        case pushProfileViewController(String)
-        case popViewController
+        case pushProfileViewController(String) // 삭제
+        case popViewController // 삭제
         
-        case clearNotificationDeepLink
+        case clearNotificationDeepLink // 삭제
     }
     
     
@@ -56,10 +56,10 @@ public final class DailyCalendarViewReactor: Reactor {
         
         @Pulse var displayDailyCalendar: [DailyCalendarSectionModel]
         @Pulse var displayMonthlyCalendar: [String: [MonthlyCalendarEntity]]
-        @Pulse var shouldPresentAllUploadedToastMessageView: Bool
-        @Pulse var shouldGenerateSelectionHaptic: Bool
-        @Pulse var shouldPushProfileViewController: String?
-        @Pulse var shouldPopViewController: Bool
+        @Pulse var shouldPresentAllUploadedToastMessageView: Bool // 삭제
+        @Pulse var shouldGenerateSelectionHaptic: Bool // 삭제
+        @Pulse var shouldPushProfileViewController: String? // 삭제
+        @Pulse var shouldPopViewController: Bool // 삭제
         
         var notificationDeepLink: NotificationDeepLink? // 댓글 푸시 알림 체크 변수
     }
@@ -86,7 +86,7 @@ public final class DailyCalendarViewReactor: Reactor {
     
     init(
         date: Date,
-        notificationDeepLink deepLink: NotificationDeepLink?
+        notificationDeepLink deepLink: NotificationDeepLink? // 삭제
     ) {
         self.initialState = State(
             date: date,
@@ -104,7 +104,7 @@ public final class DailyCalendarViewReactor: Reactor {
     // MARK: - Transfor
     
     public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
-        let toastMutation = provider.toastGlobalState.event
+        let toastMutation = provider.toastGlobalState.event // 삭제
             .flatMap { event -> Observable<Mutation> in
                 switch event {
                 case let .showAllFamilyUploadedToastView(uploaded):
@@ -115,7 +115,7 @@ public final class DailyCalendarViewReactor: Reactor {
         let postMutation = provider.postGlobalState.event
             .flatMap { event -> Observable<Mutation> in
                 switch event {
-                case let .pushProfileViewController(memberId):
+                case let .pushProfileViewController(memberId): // 삭제
                     return Observable<Mutation>.just(.pushProfileViewController(memberId))
                 case let .renewalPostCommentCount(count):
                     return Observable<Mutation>.just(.renewCommentCount(count))
@@ -132,7 +132,7 @@ public final class DailyCalendarViewReactor: Reactor {
     
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .popViewController:
+        case .popViewController: // 삭제
             provider.toastGlobalState.clearToastMessageEvent()
             return Observable<Mutation>.just(.popViewController)
             

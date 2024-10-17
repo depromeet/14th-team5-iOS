@@ -10,7 +10,7 @@ import UIKit
 import RxSwift
 
 public enum CalendarEvent {
-    case didSelect(date: Date)
+    case didSelect(currentDate: Date)
 }
 
 public protocol CalendarServiceType {
@@ -18,14 +18,26 @@ public protocol CalendarServiceType {
 
     @discardableResult
     func didSelect(date: Date) -> Observable<Date>
+    func getPreviousSelection() -> Date
 }
 
-final public class CalendarGlobalState: BaseService, CalendarServiceType {
-    public var event = BehaviorSubject<CalendarEvent>(value: .didSelect(date: .distantPast))
+final public class CalendarService: BaseService, CalendarServiceType {
     
+    public var previousDate: Date = .distantPast
+    public var event = BehaviorSubject<CalendarEvent>(value: .didSelect(currentDate: .distantPast))
+    
+    /// 현재 선택한 날짜를 Reactor 전역에 방출합니다.
+    /// - Parameter date: 현재 선택한 날짜입니다.
+    /// - Returns: 현재 선택한 날짜를 담은 `Observable`을 반환합니다.
+    @discardableResult
     public func didSelect(date: Date) -> Observable<Date> {
-        event.onNext(.didSelect(date: date))
+        defer { self.previousDate = date }
+        event.onNext(.didSelect(currentDate: date))
         return Observable<Date>.just(date)
+    }
+    
+    public func getPreviousSelection() -> Date {
+        return previousDate
     }
 
 }

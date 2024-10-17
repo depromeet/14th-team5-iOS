@@ -25,11 +25,12 @@ final public class MemoriesCalendarCell: FSCalendarCell, ReactorKit.View {
     
     // MARK: - Views
     
-    private let dayLabel: BBLabel = BBLabel(.body1Regular, textAlignment: .center)
-    private let containerView: UIView = UIView()
+    private let backgroundGray: UIView = UIView()
     private let thumbnailImage: UIImageView = UIImageView()
-    private let todayStroke: UIView = UIView()
-    private let allMemberUploadedBadge: UIImageView = UIImageView()
+    private let todayStrokeView: UIView = UIView()
+    private let dayLabel: BBLabel = BBLabel(.body1Regular, textAlignment: .center)
+    
+    private let allMembersUploadedBadge: UIImageView = UIImageView()
     
     
     // MARK: - Properties
@@ -56,12 +57,12 @@ final public class MemoriesCalendarCell: FSCalendarCell, ReactorKit.View {
     public override func prepareForReuse() {
         super.prepareForReuse()
         
-        dayLabel.textColor = UIColor.bibbiWhite
+        todayStrokeView.isHidden = true
         thumbnailImage.image = nil
         thumbnailImage.layer.borderWidth = .zero
         thumbnailImage.layer.borderColor = UIColor.bibbiWhite.cgColor
-        todayStroke.isHidden = true
-        allMemberUploadedBadge.isHidden = true
+        dayLabel.textColor = UIColor.bibbiWhite
+        allMembersUploadedBadge.isHidden = true
     }
     
     
@@ -72,10 +73,10 @@ final public class MemoriesCalendarCell: FSCalendarCell, ReactorKit.View {
     }
     
     private func bindOutput(reactor: MemoriesCalendarCellReactor) {
-        let date = reactor.state.map { $0.entity.date }
+        let date = reactor.state.map { $0.date }
             .asDriver(onErrorJustReturn: .now)
         
-        date.map { "\($0.day)" }
+        date.map { $0.day.description }
             .distinctUntilChanged()
             .drive(dayLabel.rx.text)
             .disposed(by: disposeBag)
@@ -83,18 +84,15 @@ final public class MemoriesCalendarCell: FSCalendarCell, ReactorKit.View {
         date.map { $0.isToday }
             .filter { $0 }
             .distinctUntilChanged()
-            .drive(with: self, onNext: { owner, _ in
-                owner.todayStroke.isHidden = false
-                owner.dayLabel.textColor = UIColor.mainYellow
-            })
+            .drive(with: self, onNext: { owner, _ in owner.setTodayHighlight() })
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.entity.allFamilyMemebersUploaded }
+        reactor.state.map { $0.allMemebersUploaded }
             .map { !$0 }
-            .bind(to: allMemberUploadedBadge.rx.isHidden)
+            .bind(to: allMembersUploadedBadge.rx.isHidden)
             .disposed(by: disposeBag)
         
-        reactor.state.compactMap { $0.entity.representativeThumbnailUrl }
+        reactor.state.compactMap { $0.thumbnailUrl }
             .compactMap { URL(string: $0) }
             .distinctUntilChanged()
             .bind(to: thumbnailImage.rx.kfImage)
@@ -108,9 +106,7 @@ final public class MemoriesCalendarCell: FSCalendarCell, ReactorKit.View {
     }
     
     private func setupUI() {
-        contentView.insertSubview(thumbnailImage, at: 0)
-        contentView.insertSubview(containerView, at: 0)
-        contentView.addSubviews(dayLabel, todayStroke, allMemberUploadedBadge)
+        contentView.addSubviews(backgroundGray, thumbnailImage, dayLabel, todayStrokeView, allMembersUploadedBadge)
     }
     
     private func setupAutoLayout() {
@@ -118,7 +114,7 @@ final public class MemoriesCalendarCell: FSCalendarCell, ReactorKit.View {
             $0.center.equalTo(contentView.snp.center)
         }
         
-        containerView.snp.makeConstraints {
+        backgroundGray.snp.makeConstraints {
             $0.center.equalTo(contentView.snp.center)
             $0.size.equalTo(contentView.snp.width).inset(2.25)
         }
@@ -128,12 +124,12 @@ final public class MemoriesCalendarCell: FSCalendarCell, ReactorKit.View {
             $0.size.equalTo(contentView.snp.width).inset(2.25)
         }
         
-        todayStroke.snp.makeConstraints {
+        todayStrokeView.snp.makeConstraints {
             $0.center.equalTo(contentView.snp.center)
             $0.size.equalTo(contentView.snp.width).inset(2.25)
         }
         
-        allMemberUploadedBadge.snp.makeConstraints {
+        allMembersUploadedBadge.snp.makeConstraints {
             $0.top.equalToSuperview().offset(5)
             $0.trailing.equalToSuperview().offset(-5)
             $0.size.equalTo(17)
@@ -145,7 +141,7 @@ final public class MemoriesCalendarCell: FSCalendarCell, ReactorKit.View {
             $0.isHidden = true
         }
         
-        containerView.do {
+        backgroundGray.do {
             $0.clipsToBounds = true
             $0.layer.cornerRadius = 13
             $0.backgroundColor = .gray900
@@ -160,14 +156,14 @@ final public class MemoriesCalendarCell: FSCalendarCell, ReactorKit.View {
             $0.alpha = 0.8
         }
         
-        todayStroke.do {
+        todayStrokeView.do {
             $0.isHidden = true
             $0.layer.cornerRadius = 13
             $0.layer.borderWidth = 1
             $0.layer.borderColor = UIColor.mainYellow.cgColor
         }
         
-        allMemberUploadedBadge.do {
+        allMembersUploadedBadge.do {
             $0.image = DesignSystemAsset.fire.image
             $0.isHidden = true
             $0.backgroundColor = UIColor.clear
@@ -186,22 +182,23 @@ extension MemoriesCalendarCell {
     
     func setHighlight(with selection: Bool) {
         if selection {
-            todayStroke.isHidden = true
-            
+            backgroundGray.alpha = 1
             thumbnailImage.alpha = 1
-            containerView.alpha = 1
             thumbnailImage.layer.borderWidth = 1
             thumbnailImage.layer.borderColor = UIColor.bibbiWhite.cgColor
+            todayStrokeView.isHidden = true
         } else {
+            backgroundGray.alpha = 0.3
             thumbnailImage.alpha = 0.3
-            containerView.alpha = 0.3
             thumbnailImage.layer.borderWidth = 0
-            
-            if reactor?.currentState.entity.date.isToday == true {
-                todayStroke.isHidden = false
-                dayLabel.textColor = UIColor.mainYellow
-            }
+            if reactor!.initialState.date.isToday { setTodayHighlight() }
         }
     }
+    
+    func setTodayHighlight() {
+        todayStrokeView.isHidden = false
+        dayLabel.textColor = UIColor.mainYellow
+    }
+    
     
 }

@@ -357,7 +357,10 @@ public final class DailyCalendarViewController: TempNavigationViewController<Dai
 }
 
 // MARK: - Extensions
+
 extension DailyCalendarViewController {
+    
+    // 이름 바꾸기
     private var orthogonalCompositionalLayout: UICollectionViewCompositionalLayout {
         // item
         let itemSize: NSCollectionLayoutSize = NSCollectionLayoutSize(
@@ -388,7 +391,7 @@ extension DailyCalendarViewController {
             
             if fractionPart <= 0.0 {
                 let index: Int = Int(floorPosition)
-                visibleCellIndex.accept(index)
+                visibleCellIndex.accept(index) // reactor.onNext로 리팩토링하기
             }
         }
         
@@ -397,9 +400,11 @@ extension DailyCalendarViewController {
         
         return layout
     }
+    
 }
 
 extension DailyCalendarViewController {
+    
     private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<DailyCalendarSectionModel> {
         return RxCollectionViewSectionedReloadDataSource<DailyCalendarSectionModel> { datasource, collectionView, indexPath, post in
             let cell = collectionView.dequeueReusableCell(
@@ -411,6 +416,7 @@ extension DailyCalendarViewController {
         }
     }
     
+    // 익스텐션으로 빼기
     private func setupBlurEffect() {
         let blurEffect = UIBlurEffect(style: .systemThinMaterialDark)
         let visualEffectView = UIVisualEffectView(effect: blurEffect)
@@ -418,6 +424,7 @@ extension DailyCalendarViewController {
         imageView.insertSubview(visualEffectView, at: 0)
     }
     
+    // 이름 바꾸기
     private func setupNavigationTitle(_ date: Date) {
         navigationBar.navigationTitle = date.toFormatString(with: .yyyyM)
     }
@@ -429,6 +436,7 @@ extension DailyCalendarViewController {
         view.layoutIfNeeded()
     }
     
+    // 삭제하기
     private func pushCameraViewController(cameraType type: UploadLocation) {
         let cameraViewController = CameraViewControllerWrapper(cameraType: type).viewController
         
@@ -438,6 +446,7 @@ extension DailyCalendarViewController {
         )
     }
     
+    // 삭제하기
     private func pushProfileViewController(memberId: String) {
         let profileController = ProfileViewControllerWrapper(
             memberId: memberId
@@ -451,6 +460,8 @@ extension DailyCalendarViewController {
 }
 
 extension DailyCalendarViewController {
+    
+    // 삭제하기
     private func didTapCameraButtonNotifcationHandler() {
         NotificationCenter.default
             .rx.notification(.didTapSelectableCameraButton)
@@ -460,15 +471,21 @@ extension DailyCalendarViewController {
             }
             .disposed(by: disposeBag)
     }
+    
+    
 }
 
 extension DailyCalendarViewController: FSCalendarDataSource {
+    
     public func calendar(_ calendar: FSCalendar, cellFor date: Date, at position: FSCalendarMonthPosition) -> FSCalendarCell {
         let cell = calendar.dequeueReusableCell(
             withIdentifier: MemoriesCalendarCell.id,
             for: date,
             at: position
         ) as! MemoriesCalendarCell
+        
+        
+        // 추후 캐시 기능 도입 감안해서 리팩토링하기
         
         // 해당 일에 불러온 데이터가 없다면
         let yearMonth: String = date.toFormatString(with: .dashYyyyMM)
@@ -495,4 +512,5 @@ extension DailyCalendarViewController: FSCalendarDataSource {
         ).makeReactor()
         return cell
     }
+    
 }

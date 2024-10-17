@@ -8,10 +8,12 @@
 import Core
 import Domain
 import Foundation
+import MacrosInterface
 
 import ReactorKit
 
-public final class CalendarPostCellReactor: Reactor {
+@Reactor
+public final class MemoriesCalendarPostCellReactor {
     
     // MARK: - Action
     public enum Action {

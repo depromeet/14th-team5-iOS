@@ -38,11 +38,11 @@ final class CalendarDIContainer: BaseContainer {
     }
     
     // Deprecated
-    private func makeOldCalendarUseCase() -> CalendarUseCaseProtocol {
-        CalendarUseCase(
-            calendarRepository: makeCalendarRepository()
-        )
-    }
+//    private func makeOldCalendarUseCase() -> CalendarUseCaseProtocol {
+//        CalendarUseCase(
+//            calendarRepository: makeCalendarRepository()
+//        )
+//    }
     
     
     
@@ -74,9 +74,9 @@ final class CalendarDIContainer: BaseContainer {
         
         
         // Deprecated
-        container.register(type: CalendarUseCaseProtocol.self) { _ in
-            self.makeOldCalendarUseCase()
-        }
+//        container.register(type: CalendarUseCaseProtocol.self) { _ in
+//            self.makeOldCalendarUseCase()
+//        }
         
     }
     

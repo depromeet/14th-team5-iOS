@@ -11,7 +11,7 @@ import RxSwift
 
 public enum PostEvent {
     case pushProfileViewController(String)
-    case renewalPostCommentCount(Int)
+    case renewalCommentCount(Int)
     case receiveMissionContent(String)
 }
 
@@ -43,7 +43,7 @@ final public class PostGlobalState: BaseService, PostGlobalStateType {
     }
     
     public func renewalPostCommentCount(_ count: Int) -> Observable<Int> {
-        event.onNext(.renewalPostCommentCount(count))
+        event.onNext(.renewalCommentCount(count))
         return Observable<Int>.just(count)
     }
     

@@ -105,6 +105,8 @@ extension Reactive where Base: WKWebView {
 }
 
 extension Reactive where Base: UIImageView {
+    
+    @available(*, deprecated, renamed: "kfImage")
     public var kingfisherImage: Binder<String> {
         Binder(self.base) { imageView, urlString in
             imageView.kf.setImage(
@@ -115,4 +117,21 @@ extension Reactive where Base: UIImageView {
             )
         }
     }
+    
+    public var kfImage: Binder<URL> {
+        Binder(self.base) { imageView, url in
+            // 이미지 메모리, 디시크 캐시 되도록 코드 수정하기
+            imageView.kf.setImage(
+                with: url,
+                options: [.targetCache(.default)]) { result in
+                    switch result {
+                    case let .success(result):
+                        imageView.image = result.image
+                    case .failure:
+                        imageView.image = nil
+                    }
+                }
+        }
+    }
+    
 }

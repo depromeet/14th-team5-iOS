@@ -16,7 +16,7 @@ import RxCocoa
 import RxDataSources
 import Kingfisher
 
-final class CalendarPostCell: BaseCollectionViewCell<CalendarPostCellReactor> {
+final class MemoriesCalendarPostCell: BaseCollectionViewCell<MemoriesCalendarPostCellReactor> {
     
     // MARK: - Id
     static let id = "CalendarPostCell"
@@ -51,13 +51,13 @@ final class CalendarPostCell: BaseCollectionViewCell<CalendarPostCellReactor> {
     }
     
     // MARK: - Helpers
-    override func bind(reactor: CalendarPostCellReactor) {
+    override func bind(reactor: MemoriesCalendarPostCellReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: CalendarPostCellReactor) {
+    private func bindInput(reactor: MemoriesCalendarPostCellReactor) {
         Observable<Void>.just(())
             .flatMap { _ in
                 Observable<Reactor.Action>.concat(
@@ -76,7 +76,7 @@ final class CalendarPostCell: BaseCollectionViewCell<CalendarPostCellReactor> {
             .disposed(by: disposeBag)
     }
     
-    private func bindOutput(reactor: CalendarPostCellReactor) {
+    private func bindOutput(reactor: MemoriesCalendarPostCellReactor) {
         
         let post = reactor.state.map { $0.post }
             .asDriver(onErrorDriveWith: .empty())
@@ -233,7 +233,7 @@ final class CalendarPostCell: BaseCollectionViewCell<CalendarPostCellReactor> {
 }
 
 // MARK: - Extensions
-extension CalendarPostCell {
+extension MemoriesCalendarPostCell {
     private func prepareContentDatasource() -> RxCollectionViewSectionedReloadDataSource<DisplayEditSectionModel> {
         return RxCollectionViewSectionedReloadDataSource<DisplayEditSectionModel> { datasources, collectionView, indexPath, sectionItem in
             switch sectionItem {
@@ -251,7 +251,7 @@ extension CalendarPostCell {
     }
 }
 
-extension CalendarPostCell: UICollectionViewDelegateFlowLayout {
+extension MemoriesCalendarPostCell: UICollectionViewDelegateFlowLayout {
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         guard let count = reactor?.currentState.post.postContent.count else {
             return .zero

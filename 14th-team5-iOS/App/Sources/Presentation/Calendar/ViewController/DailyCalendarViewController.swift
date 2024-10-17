@@ -20,30 +20,33 @@ import SnapKit
 import Then
 
 public final class DailyCalendarViewController: TempNavigationViewController<DailyCalendarViewReactor> {
+    
+    // MARK: - Typealias
+    
+    typealias RxDataSource = RxCollectionViewSectionedReloadDataSource<DailyCalendarSectionModel>
+    
+    
     // MARK: - Views
-    private let imageView: UIImageView = UIImageView()
+    
+    private let backgroundImage: UIImageView = UIImageView()
     private let calendarView: FSCalendar = FSCalendar()
-    private lazy var postCollectionView: UICollectionView = UICollectionView(
-        frame: .zero,
-        collectionViewLayout: orthogonalCompositionalLayout
-    )
-    private let reactionViewController: ReactionViewController = ReactionViewControllerWrapper(type: .calendar, postListData: .empty).makeViewController()
-    private let fireLottieView: LottieView = LottieView(with: .fire, contentMode: .scaleAspectFill)
+    private lazy var collectionView: UICollectionView = UICollectionView(frame: .zero,collectionViewLayout: compositionalLayout)
+    
+    private lazy var reactionViewController: ReactionViewController = makeReactionViewController()
+    
     
     // MARK: - Properties
-    private let visibleCellIndex: PublishRelay<Int> = PublishRelay<Int>()
+    
     private lazy var dataSource = prepareDatasource()
     
-    private let deepLinkRepo = DeepLinkRepository()
+    private let deepLinkRepo = DeepLinkRepository() // 삭제하기
+    
     
     // MARK: - Lifecycles
-    public override func viewDidLoad() {
-        super.viewDidLoad()
-    }
     
     public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        App.Repository.deepLink.notification.accept(nil)
+        App.Repository.deepLink.notification.accept(nil) // 삭제하기
     }
 
     // MARK: - Helpers
@@ -54,96 +57,67 @@ public final class DailyCalendarViewController: TempNavigationViewController<Dai
     }
     
     private func bindInput(reactor: DailyCalendarViewReactor) {
-        Observable<Date>.just(reactor.initialState.date)
-            .flatMap {
-                Observable.merge(
-                    Observable.just(Reactor.Action.dateSelected($0)),
-                    Observable.just(Reactor.Action.requestDailyCalendar($0))
-                )
-            }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        let previousNextMonths: [String] = reactor.currentState.date.makePreviousNextMonth()
-        Observable<String>.from(previousNextMonths)
-            .map { Reactor.Action.requestMonthlyCalendar($0) }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        navigationBar.rx.didTapLeftBarButton
-            .map { _ in Reactor.Action.popViewController }
+        Observable.just(())
+            .map { Reactor.Action.viewDidLoad }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         calendarView.rx.didSelect
             .distinctUntilChanged()
-            .flatMap {
-                Observable.merge(
-                    Observable.just(Reactor.Action.dateSelected($0)),
-                    Observable.just(Reactor.Action.requestDailyCalendar($0))
-                )
-            }
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
+            .map { Reactor.Action.didSelect(date: $0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        calendarView.rx.calendarCurrentPageDidChange
+        let currentPageDidChange = calendarView.rx.calendarCurrentPageDidChange
+            .asDriver(onErrorJustReturn: .now)
+        
+        currentPageDidChange
             .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe {
-                $0.0.setupNavigationTitle($0.1)
-            }
+            .map { Reactor.Action.fetchMonthlyCalendar(date: $0) }
+            .drive(reactor.action)
             .disposed(by: disposeBag)
         
-        calendarView.rx.fetchCalendarResponseDidChange
+        currentPageDidChange
             .distinctUntilChanged()
-            .flatMap {
-                Observable<String>.from($0)
-                    .map { Reactor.Action.requestMonthlyCalendar($0) }
-            }
-            .bind(to: reactor.action)
+            .drive(with: self, onNext: { $0.setNavigationTitle($1) })
             .disposed(by: disposeBag)
         
         calendarView.rx.boundingRectWillChange
             .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe { $0.0.updateCalendarViewConstraints($0.1) }
+            .bind(with: self) { $0.updateCalendarViewConstraints($1) }
             .disposed(by: disposeBag)
         
-        visibleCellIndex
-            .flatMap {
-                Observable.merge(
-                    Observable.just(Reactor.Action.imageIndex($0)),
-                    Observable.just(Reactor.Action.renewEmoji($0))
-                )
-            }
+        navigationBar.rx.didTapLeftBarButton
+            .map { _ in Reactor.Action.backToMonthly }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
     }
     
     private func bindOutput(reactor: DailyCalendarViewReactor) {
-        reactor.state.map { $0.date }
+        reactor.state.map { $0.initialSelection }
             .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe { $0.0.calendarView.select($0.1, scrollToDate: true) }
+            .bind(with: self) { $0.calendarView.select($1, scrollToDate: true) }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$displayMonthlyCalendar)
-            .withUnretained(self)
-            .subscribe { $0.0.calendarView.reloadData() }
+        reactor.pulse(\.$monthlyCalendars)
+            .bind(with: self) { owner, _ in owner.calendarView.reloadData() }
             .disposed(by: disposeBag)
 
-        let postResponse = reactor.pulse(\.$displayDailyCalendar).asDriver(onErrorJustReturn: [])
+        let dailyPosts = reactor.pulse(\.$dailyPostsDataSource)
+            .asDriver(onErrorJustReturn: [])
         
-        postResponse
-            .drive(postCollectionView.rx.items(dataSource: dataSource))
+        dailyPosts
+            .drive(collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
-        postResponse
-            .drive(with: self) {
-                guard let items = $1.first?.items else { return }
+        dailyPosts // 삭제하기
+            .drive(with: self, onNext: {
+                guard let items = $1.first?.items,
+                      let index = items.firstIndex(where:  {  $0.postId == reactor.currentState.visiblePost?.postId })
+                else { return }
 
-                var indexPath = IndexPath(item: 0, section: 0)
+                var indexPath = IndexPath(item: index, section: 0)
                 // 알림으로 화면에 진입하면
                 if let deepLink = reactor.currentState.notificationDeepLink {
                     let postId = deepLink.postId
@@ -152,130 +126,57 @@ public final class DailyCalendarViewController: TempNavigationViewController<Dai
                           }) else { return }
                     indexPath = IndexPath(item: index, section: 0)
                 }
-                
                 // 일반 루트로 화면에 진입하면
-                $0.postCollectionView.scrollToItem(
+                $0.collectionView.scrollToItem(
                     at: indexPath,
                     at: .centeredHorizontally,
                     animated: false
                 )
-            }
+            })
             .disposed(by: disposeBag)
         
-        reactor.state.compactMap { $0.imageUrl }
+        reactor.state.compactMap { $0.visiblePost }
+            .compactMap { URL(string: $0.postImageUrl) }
             .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe {
-                guard let url: URL = URL(string: $0.1) else { return }
-                KingfisherManager.shared.retrieveImage(with: url) { [unowned self] result in
-                    switch result {
-                    case let .success(value):
-                        UIView.transition(
-                            with: self.imageView,
-                            duration: 0.15,
-                            options: [.transitionCrossDissolve, .allowUserInteraction]) {
-                                self.imageView.image = value.image
-                            }
-                    case .failure:
-                        print("Kingfisher RetrieveImage Error")
-                    }
-                }
-            }
+            .bind(to: backgroundImage.rx.kfImage)
             .disposed(by: disposeBag)
         
         reactor.state.compactMap { $0.visiblePost }
             .distinctUntilChanged()
-            .withUnretained(self)
-            .bind { owner, post in
-                let postListData = PostEntity(
-                    postId: post.postId,
-                    author: FamilyMemberProfileEntity(memberId: post.authorId, name: ""),
-                    commentCount: post.commentCount,
-                    emojiCount: post.emojiCount,
-                    imageURL: post.postImageUrl,
-                    content: post.postContent,
-                    time: post.createdAt.toFormatString(with: .dashYyyyMMdd)
-                )
-                owner.reactionViewController.postListData.accept(postListData)
-            }
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$shouldPushProfileViewController)
-            .delay(.milliseconds(500), scheduler: RxSchedulers.main)
-            .compactMap { $0 }
-            .bind(with: self) { owner, id in
-                owner.pushProfileViewController(memberId: id)
-            }
-            .disposed(by: disposeBag)
-        
-        let allUploadedToastMessageView = reactor.pulse(\.$shouldPresentAllUploadedToastMessageView)
-            .asDriver(onErrorJustReturn: false)
-        
-        allUploadedToastMessageView
-            .filter { $0 }
-            .delay(RxConst.milliseconds100Interval)
-            .drive(with: self, onNext: { owner, _ in
-                owner.makeBibbiToastView(
-                    text: "우리 가족 모두가 사진을 올린 날",
-                    image: DesignSystemAsset.fire.image
-                )
-            })
-            .disposed(by: disposeBag)
-        
-        allUploadedToastMessageView
-            .filter { $0 }
-            .delay(RxConst.milliseconds100Interval)
-            .drive(with: self, onNext: { owner, _ in
-                // 애니메이션 중이 아니라면
-                if !owner.fireLottieView.isPlay {
-                    owner.fireLottieView.play()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.9) {
-                        owner.fireLottieView.stop()
-                    }
-                }
-            })
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$shouldGenerateSelectionHaptic)
-            .filter { $0 }
-            .subscribe(onNext: { _ in Haptic.selection() })
-            .disposed(by: disposeBag)
-        
-        // TODO: - 딥링크 코드 개선하기
-        reactor.state.compactMap { $0.notificationDeepLink }
-            .distinctUntilChanged(at: \.postId)
-            .filter { $0.openComment }
-            .bind(with: self) { owner, deepLink in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    let postCommentViewController = PostCommentDIContainer(
-                        postId: deepLink.postId
-                    ).makeViewController()
-                    
-                    owner.presentPostCommentSheet(
-                        postCommentViewController,
-                        from: .calendar
+            .bind(with: self) {
+                $0.reactionViewController.postListData.accept(
+                    PostEntity(
+                        postId: $1.postId,
+                        author: .init(memberId: $1.authorId, name: ""),
+                        commentCount: $1.commentCount,
+                        emojiCount: $1.emojiCount,
+                        imageURL: $1.postImageUrl,
+                        content: $1.postContent,
+                        time: $1.createdAt.toFormatString(with: .dashYyyyMMdd)
                     )
-                }
+                )
             }
             .disposed(by: disposeBag)
-
-        didTapCameraButtonNotifcationHandler()
+        
+        NotificationCenter.default
+            .rx.notification(.didTapSelectableCameraButton)
+            .bind(with: self) { owner, _ in owner.pushCameraViewController(cameraType: .realEmoji)}
+            .disposed(by: disposeBag)
     }
     
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(imageView)
-        imageView.addSubviews(calendarView, postCollectionView)
-        view.addSubview(fireLottieView)
+        view.addSubviews(backgroundImage)
+        backgroundImage.addSubviews(calendarView, collectionView)
         
         addChild(reactionViewController)
-        imageView.addSubview(reactionViewController.view)
+        backgroundImage.addSubview(reactionViewController.view)
         reactionViewController.didMove(toParent: self)
     }
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
-        imageView.snp.makeConstraints {
+        backgroundImage.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
         
@@ -285,18 +186,14 @@ public final class DailyCalendarViewController: TempNavigationViewController<Dai
             $0.height.equalTo(350)
         }
         
-        postCollectionView.snp.makeConstraints {
+        collectionView.snp.makeConstraints {
             $0.top.equalTo(calendarView.snp.bottom).offset(16)
-            $0.height.equalTo(postCollectionView.snp.width).multipliedBy(1.15)
+            $0.height.equalTo(collectionView.snp.width).multipliedBy(1.15)
             $0.horizontalEdges.equalToSuperview()
         }
         
-        fireLottieView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
-        
         reactionViewController.view.snp.makeConstraints {
-            $0.top.equalTo(postCollectionView.snp.bottom)
+            $0.top.equalTo(collectionView.snp.bottom)
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalToSuperview()
         }
@@ -306,14 +203,14 @@ public final class DailyCalendarViewController: TempNavigationViewController<Dai
     
     public override func setupAttributes() {
         super.setupAttributes()
-        imageView.do {
+        
+        navigationBar.leftBarButtonItem = .arrowLeft
+        
+        backgroundImage.do {
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
             $0.isUserInteractionEnabled = true
-        }
-        
-        navigationBar.do {
-            $0.leftBarButtonItem = .arrowLeft
+            $0.setBlurEffect(style: .systemThinMaterialDark)
         }
         
         calendarView.do {
@@ -325,7 +222,6 @@ public final class DailyCalendarViewController: TempNavigationViewController<Dai
             $0.allowsMultipleSelection = false
             
             $0.appearance.selectionColor = UIColor.clear
-            
             $0.appearance.titleFont = UIFont.style(.body1Regular)
             $0.appearance.titleDefaultColor = UIColor.bibbiWhite
             $0.appearance.titleSelectionColor = UIColor.bibbiWhite
@@ -337,22 +233,13 @@ public final class DailyCalendarViewController: TempNavigationViewController<Dai
             $0.dataSource = self
         }
         
-        postCollectionView.do {
+        collectionView.do {
             $0.isScrollEnabled = false
             $0.backgroundColor = UIColor.clear
-            $0.register(
-                MemoriesCalendarPostCell.self,
-                forCellWithReuseIdentifier: MemoriesCalendarPostCell.id
-            )
+            $0.register(MemoriesCalendarPostCell.self, forCellWithReuseIdentifier: MemoriesCalendarPostCell.id)
         }
         
-        fireLottieView.do {
-            $0.stop()
-            $0.isUserInteractionEnabled = false
-        }
-        
-        setupBlurEffect()
-        setupNavigationTitle(calendarView.currentPage)
+        setNavigationTitle(calendarView.currentPage)
     }
 }
 
@@ -360,16 +247,13 @@ public final class DailyCalendarViewController: TempNavigationViewController<Dai
 
 extension DailyCalendarViewController {
     
-    // 이름 바꾸기
-    private var orthogonalCompositionalLayout: UICollectionViewCompositionalLayout {
-        // item
+    private var compositionalLayout: UICollectionViewCompositionalLayout {
         let itemSize: NSCollectionLayoutSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1),
             heightDimension: .fractionalHeight(1)
         )
         let item: NSCollectionLayoutItem = NSCollectionLayoutItem(layoutSize: itemSize)
         
-        // group
         let groupSize: NSCollectionLayoutSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1),
             heightDimension: .fractionalHeight(1)
@@ -380,24 +264,21 @@ extension DailyCalendarViewController {
             count: 1
         )
         
-        // section
         let section: NSCollectionLayoutSection = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .groupPaging
         
         section.visibleItemsInvalidationHandler = { [unowned self] visibleItems, offset, environment in
-            let position: CGFloat =  offset.x / postCollectionView.frame.width
+            let position: CGFloat =  offset.x / collectionView.frame.width
             let floorPosition: CGFloat = floor(position)
             let fractionPart: CGFloat = position - floorPosition
             
             if fractionPart <= 0.0 {
                 let index: Int = Int(floorPosition)
-                visibleCellIndex.accept(index) // reactor.onNext로 리팩토링하기
+                reactor?.action.onNext(.updateVisiblePost(index: index))
             }
         }
         
-        // layout
         let layout: UICollectionViewCompositionalLayout = UICollectionViewCompositionalLayout(section: section)
-        
         return layout
     }
     
@@ -405,27 +286,18 @@ extension DailyCalendarViewController {
 
 extension DailyCalendarViewController {
     
-    private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<DailyCalendarSectionModel> {
-        return RxCollectionViewSectionedReloadDataSource<DailyCalendarSectionModel> { datasource, collectionView, indexPath, post in
+    private func prepareDatasource() -> RxDataSource {
+        return RxDataSource { datasource, collectionView, indexPath, post in
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: MemoriesCalendarPostCell.id,
                 for: indexPath
             ) as! MemoriesCalendarPostCell
-            cell.reactor = CalendarPostCellDIContainer(post: post).makeReactor()
+            cell.reactor = MemoriesCalendarPostCellReactor(post: post)
             return cell
         }
     }
     
-    // 익스텐션으로 빼기
-    private func setupBlurEffect() {
-        let blurEffect = UIBlurEffect(style: .systemThinMaterialDark)
-        let visualEffectView = UIVisualEffectView(effect: blurEffect)
-        visualEffectView.frame = view.frame
-        imageView.insertSubview(visualEffectView, at: 0)
-    }
-    
-    // 이름 바꾸기
-    private func setupNavigationTitle(_ date: Date) {
+    private func setNavigationTitle(_ date: Date) {
         navigationBar.navigationTitle = date.toFormatString(with: .yyyyM)
     }
     
@@ -436,40 +308,18 @@ extension DailyCalendarViewController {
         view.layoutIfNeeded()
     }
     
-    // 삭제하기
+    @available(*, deprecated, message: "삭제하기")
     private func pushCameraViewController(cameraType type: UploadLocation) {
-        let cameraViewController = CameraViewControllerWrapper(cameraType: type).viewController
-        
-        navigationController?.pushViewController(
-            cameraViewController,
-            animated: true
-        )
+        let vc = CameraViewControllerWrapper(cameraType: type).viewController
+        navigationController?.pushViewController(vc, animated: true)
     }
-    
-    // 삭제하기
-    private func pushProfileViewController(memberId: String) {
-        let profileController = ProfileViewControllerWrapper(
-            memberId: memberId
-        ).viewController
-        
-        navigationController?.pushViewController(
-            profileController,
-            animated: true
-        )
-    }
+
 }
 
 extension DailyCalendarViewController {
     
-    // 삭제하기
-    private func didTapCameraButtonNotifcationHandler() {
-        NotificationCenter.default
-            .rx.notification(.didTapSelectableCameraButton)
-            .withUnretained(self)
-            .bind { owner, _ in
-                owner.pushCameraViewController(cameraType: .realEmoji)
-            }
-            .disposed(by: disposeBag)
+    private func makeReactionViewController() -> ReactionViewController {
+        return ReactionViewControllerWrapper(type: .calendar, postListData: .empty).makeViewController()
     }
     
     
@@ -484,32 +334,21 @@ extension DailyCalendarViewController: FSCalendarDataSource {
             at: position
         ) as! MemoriesCalendarCell
         
-        
-        // 추후 캐시 기능 도입 감안해서 리팩토링하기
-        
-        // 해당 일에 불러온 데이터가 없다면
-        let yearMonth: String = date.toFormatString(with: .dashYyyyMM)
+        let yearMonth = date.toFormatString(with: .dashYyyyMM)
         guard let currentState = reactor?.currentState,
-              let monthlyEntity = currentState.displayMonthlyCalendar[yearMonth]?.filter({ $0.date.isEqual(with: date) }).first
+              let entity = currentState.monthlyCalendars[yearMonth]?.first(where: { $0.date.isEqual(with: date) })
         else {
-            let emptyEntity = MonthlyCalendarEntity(
+            let entity = MonthlyCalendarEntity(
                 date: date,
                 representativePostId: .none,
                 representativeThumbnailUrl: .none,
                 allFamilyMemebersUploaded: false
             )
-            cell.reactor = CalendarImageCellDIContainer(
-                type: .daily,
-                monthlyEntity: emptyEntity
-            ).makeReactor()
+            cell.reactor = MemoriesCalendarCellReactor(of: .daily, with: entity)
             return cell
         }
         
-        cell.reactor = CalendarImageCellDIContainer(
-            type: .daily,
-            monthlyEntity: monthlyEntity,
-            isSelected: currentState.date.isEqual(with: date)
-        ).makeReactor()
+        cell.reactor = MemoriesCalendarCellReactor(of: .daily, with: entity, isSelected: currentState.initialSelection.isEqual(with: date))
         return cell
     }
     

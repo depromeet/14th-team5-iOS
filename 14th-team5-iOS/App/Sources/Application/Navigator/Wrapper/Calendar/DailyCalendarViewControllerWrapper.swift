@@ -32,7 +32,7 @@ final class DailyCalendarViewControllerWrapper {
     
     func makeReactor() -> DailyCalendarViewReactor {
         DailyCalendarViewReactor(
-            date: date,
+            initialSelection: date,
             notificationDeepLink: link
         )
     }

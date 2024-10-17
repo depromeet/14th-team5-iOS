@@ -19,6 +19,7 @@ public protocol CalendarServiceType {
     @discardableResult
     func didSelect(date: Date) -> Observable<Date>
     func getPreviousSelection() -> Date
+    func removePreviousSelection()
 }
 
 final public class CalendarService: BaseService, CalendarServiceType {
@@ -36,8 +37,16 @@ final public class CalendarService: BaseService, CalendarServiceType {
         return Observable<Date>.just(date)
     }
     
+    /// 이전에 선택된 날짜를 반환합니다.
+    /// - Returns: 이전에 선택된 날짜입니다.
+    @available(*, deprecated)
     public func getPreviousSelection() -> Date {
         return previousDate
+    }
+    
+    @available(*, deprecated)
+    public func removePreviousSelection() {
+        self.previousDate = .distantPast
     }
 
 }

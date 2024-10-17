@@ -48,19 +48,4 @@ extension Reactive where Base: FSCalendar {
             .map { ($0[0] as! FSCalendar).currentPage }
     }
     
-    // 이거 삭제하기
-    var fetchCalendarResponseDidChange: Observable<[String]> {
-        return delegate.methodInvoked(#selector(FSCalendarDelegate.calendarCurrentPageDidChange(_:)))
-            .map {
-                let fsCalendar: FSCalendar = $0[0] as! FSCalendar
-                let currentPage: Date = fsCalendar.currentPage
-                
-                let previousMonth: String = (currentPage - 1.month).toFormatString()
-                let currentMonth: String = currentPage.toFormatString()
-                let nextMonth: String = (currentPage + 1.month).toFormatString()
-                
-                return [previousMonth, currentMonth, nextMonth]
-            }
-    }
-    
 }

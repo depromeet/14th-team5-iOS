@@ -11,6 +11,16 @@ import RxSwift
 
 public extension ObservableType {
     
+    func map<O, E>(
+        with object: O,
+        _ handler: @escaping (O, Element) -> E
+    ) -> Observable<E> where O: AnyObject {
+        flatMap { [weak object] element in
+            guard let object else { return Observable<E>.empty() }
+            return Observable<E>.just(handler(object, element))
+        }
+    }
+    
     /// 기존 `flatMap` 연산자에 with 매개변수를 붙인 새로운 연산자입니다.
     /// - Parameters:
     ///   - object: 약한 참조하고자 하는 객체

@@ -23,7 +23,7 @@ public class APIWorker: NSObject {
     
     var id: String = "APIWorker"
     private static let session: Session = {
-        let networkMonitor: BibbiNetworkMonitor = BibbiNetworkMonitor()
+        let networkMonitor: BBNetworkEventMonitor = BBNetworkDefaultLogger()
         let networkConfiguration: URLSessionConfiguration = AF.session.configuration
         let networkInterceptor: RequestInterceptor = NetworkInterceptor()
         let networkSession: Session = Session(

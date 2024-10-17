@@ -20,7 +20,7 @@ private let targets: [Target] = [
                 "CFBundleVersion": .string("1"),
                 "CFBuildVersion": .string("0"),
                 "CFBundleShortVersionString": .string("1.2.3"),
-                "UILaunchStoryboardName": .string("LaunchScreen.storyboard"),
+                "UILaunchStoryboardName": .string("LaunchScreen"),
                 "UISupportedInterfaceOrientations": .array([.string("UIInterfaceOrientationPortrait")]),
                 "UIUserInterfaceStyle": .string("Dark"),
                 "NSPhotoLibraryAddUsageDescription" : .string("프로필 사진, 피드 업로드를 위한 사진 촬영을 위해 Bibbi가 앨범에 접근할 수 있도록 허용해 주세요"),

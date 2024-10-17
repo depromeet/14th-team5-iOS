@@ -54,8 +54,7 @@ extension BBNetworkDefaultLogger: BBNetworkEventMonitor {
             httpLog.append("- HTTP BODY: \(httpBody)\n")
         }
         
-        // TODO: - Logger로 로그 출력하기
-        print(httpLog + "\n--------------------------------------------------------\n")
+        BBLogger.logInfo(category: "Network", message: httpLog)
     }
     
     public func request(
@@ -84,8 +83,7 @@ extension BBNetworkDefaultLogger: BBNetworkEventMonitor {
         httpLog.append("- STATUS CODE: \(statusCode)\n")
         httpLog.append("- RESONSE DATA: \(responseDataString)\n")
         
-        // TODO: - Logger로 로그 출력하기
-        print(httpLog + "\n--------------------------------------------------------\n")
+        BBLogger.logInfo(category: "Network", message: httpLog)
     }
     
     public func request(

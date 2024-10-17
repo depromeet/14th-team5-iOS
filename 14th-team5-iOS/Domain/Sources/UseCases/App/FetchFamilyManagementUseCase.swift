@@ -9,11 +9,11 @@ import Foundation
 
 import RxSwift
 
-public protocol FetchIsFirstFamilyManagementUseCaseProtocol {
+public protocol IsFirstFamilyManagementUseCaseProtocol {
     func execute() -> Observable<Bool>
 }
 
-public class FetchFamilyManagementUseCase: FetchIsFirstFamilyManagementUseCaseProtocol {
+public class IsFirstFamilyManagementUseCase: IsFirstFamilyManagementUseCaseProtocol {
     
     private let repository: AppRepositoryProtocol
     
@@ -22,10 +22,10 @@ public class FetchFamilyManagementUseCase: FetchIsFirstFamilyManagementUseCasePr
     }
     
     public func execute() -> Observable<Bool> {
-        repository.fetchIsFirstFamilyManagement()
+        repository.loadIsFirstFamilyManagement()
             .map { isFirst in
                 guard let isFirst else {
-                    return false
+                    return true
                 }
                 return isFirst
             }

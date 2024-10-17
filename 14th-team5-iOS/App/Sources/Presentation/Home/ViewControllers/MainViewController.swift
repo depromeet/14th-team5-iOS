@@ -129,7 +129,12 @@ extension MainViewController {
         .disposed(by: disposeBag)
         
         Observable.just(())
-            .map { Reactor.Action.checkFamilyManagement }
+            .map { Reactor.Action.checkIsFirstFamilyManagement }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        Observable.just(())
+            .map { Reactor.Action.checkIsFirstWidgetAlert }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         

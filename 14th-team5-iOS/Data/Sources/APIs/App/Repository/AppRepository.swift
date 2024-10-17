@@ -40,12 +40,21 @@ extension AppRepository {
             .asObservable()
     }
     
-    public func fetchIsFirstFamilyManagement() -> RxSwift.Observable<Bool?> {
+    public func loadIsFirstFamilyManagement() -> RxSwift.Observable<Bool?> {
         let isFirstFamily = appUserDefaults.loadIsFirstFamilyManagement()
         return .just(isFirstFamily)
     }
     
     public func saveIsFirstFamilyManagement(isFirst: Bool) {
         appUserDefaults.saveIsFirstFamilyManagement(isFirst)
+    }
+    
+    public func loadIsFirstWidgetAlert() -> Observable<Bool?> {
+        let isFirstWidgetAlert = appUserDefaults.loadIsFirstShowWidgetAlert()
+        return .just(isFirstWidgetAlert)
+    }
+    
+    public func saveIsFirstWidgetAlert(isFirst: Bool) {
+        appUserDefaults.saveIsFirstShowWidgetAlert(isFirst)
     }
 }

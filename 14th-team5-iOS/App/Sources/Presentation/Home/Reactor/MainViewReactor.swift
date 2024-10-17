@@ -27,6 +27,7 @@ final class MainViewReactor: Reactor {
         case cameraViewController(UploadLocation)
         case survivalAlert
         case pickAlert(String, String)
+        case widgetAlert
         case missionUnlockedAlert
         case weeklycalendarViewController(String)
         case familyManagementViewController
@@ -42,7 +43,8 @@ final class MainViewReactor: Reactor {
         case fetchMainUseCase
         case fetchMainNightUseCase
         
-        case checkFamilyManagement
+        case checkIsFirstWidgetAlert
+        case checkIsFirstFamilyManagement
         case checkMissionAlert(Bool, Bool)
         
         case openNextViewController(TapAction)
@@ -59,6 +61,7 @@ final class MainViewReactor: Reactor {
         case setCamerEnabled
         case setBalloonText
         case setDescriptionText
+        
         case setFamilyManagement(Bool)
         
         case setPickMember(String, String)
@@ -94,13 +97,15 @@ final class MainViewReactor: Reactor {
     
     @Navigator var navigator: MainNavigatorProtocol
     
+    @Injected var pickUseCase: PickUseCaseProtocol
     @Injected var provider: ServiceProviderProtocol
     @Injected var fetchMainUseCase: FetchMainUseCaseProtocol
+    @Injected var isFirstWidgetAlertUseCase: IsFirstWidgetAlertUseCaseProtocol
     @Injected var fetchMainNightUseCase: FetchNightMainViewUseCaseProtocol
-    @Injected var pickUseCase: PickUseCaseProtocol
     @Injected var checkMissionAlertShowUseCase: CheckMissionAlertShowUseCaseProtocol
-    @Injected var checkFamilyManagementUseCase: FetchIsFirstFamilyManagementUseCaseProtocol
-    @Injected var saveFamilyManagementUseCase: UpdateFamilyManagementUseCaseProtocol
+    @Injected var isFirstFamilyManagementUseCase: IsFirstFamilyManagementUseCaseProtocol
+    @Injected var saveIsFirstFamilyManagementUseCase: SaveIsFirstFamilyManagementUseCaseProtocol
+    @Injected var saveIsFirstWidgetAlertUseCase: SaveIsFirstWidgetAlertUseCaseProtocol
 }
 
 extension MainViewReactor {
@@ -226,7 +231,7 @@ extension MainViewReactor {
                 self.pushViewController(type: .familyManagementViewController)
                 
                 if currentState.isFirstFamilyManagement {
-                    saveFamilyManagementUseCase.execute(false)
+                    saveIsFirstFamilyManagementUseCase.execute(false)
                     return Observable<Mutation>.just(.setFamilyManagement(false))
                 }
             case .contributorNextButtonTap:
@@ -247,10 +252,19 @@ extension MainViewReactor {
                     self.pushViewController(type: .missionUnlockedAlert)
                     return .empty()
                 }
-        case .checkFamilyManagement:
-            return checkFamilyManagementUseCase.execute()
+        case .checkIsFirstFamilyManagement:
+            return isFirstFamilyManagementUseCase.execute()
                 .flatMap {
                     return Observable<Mutation>.just(.setFamilyManagement($0))
+                }
+        case .checkIsFirstWidgetAlert:
+            return isFirstWidgetAlertUseCase.execute()
+                .filter { $0 }
+                .withUnretained(self)
+                .flatMap { _ -> Observable<Mutation> in
+                    self.pushViewController(type: .widgetAlert)
+                    self.saveIsFirstWidgetAlertUseCase.execute(false)
+                    return .empty()
                 }
         }
     }
@@ -309,6 +323,8 @@ extension MainViewReactor {
             navigator.showToast(image, message)
         case .showErrorToast:
             navigator.showToast(DesignSystemAsset.warning.image, "에러가 발생했습니다")
+        case .widgetAlert:
+            navigator.showWidgetAlert()
         }
     }
 }

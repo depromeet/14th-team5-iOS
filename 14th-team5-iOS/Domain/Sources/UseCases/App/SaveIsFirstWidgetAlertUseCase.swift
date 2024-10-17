@@ -1,19 +1,19 @@
 //
-//  SaveFamilyManagementUseCase.swift
+//  UpdateWidgetAlertUseCase.swift
 //  Domain
 //
-//  Created by 마경미 on 16.09.24.
+//  Created by 마경미 on 16.10.24.
 //
 
 import Foundation
 
 import RxSwift
 
-public protocol UpdateFamilyManagementUseCaseProtocol {
+public protocol SaveIsFirstWidgetAlertUseCaseProtocol {
     func execute(_ isFirst: Bool)
 }
 
-public class UpdateFamilyManagementUseCase: UpdateFamilyManagementUseCaseProtocol {
+public class SaveIsFirstWidgetAlertUseCase: SaveIsFirstWidgetAlertUseCaseProtocol {
     
     private let repository: AppRepositoryProtocol
     
@@ -22,6 +22,6 @@ public class UpdateFamilyManagementUseCase: UpdateFamilyManagementUseCaseProtoco
     }
     
     public func execute(_ isFirst: Bool) {
-        repository.saveIsFirstFamilyManagement(isFirst: isFirst)
+        repository.saveIsFirstWidgetAlert(isFirst: isFirst)
     }
 }

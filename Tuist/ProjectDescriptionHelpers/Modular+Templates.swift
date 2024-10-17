@@ -79,7 +79,7 @@ extension Target {
         case .App:
             return .target(
                 name: layer.rawValue,
-                destinations: .iOS,
+                destinations: [.iPhone],
                 product: factory.products.isApp ? .app : .staticFramework,
                 bundleId: factory.bundleId.lowercased(),
                 deploymentTargets: factory.deploymentTargets,

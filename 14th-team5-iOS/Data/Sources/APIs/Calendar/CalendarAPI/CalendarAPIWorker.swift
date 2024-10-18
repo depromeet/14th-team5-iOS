@@ -11,93 +11,49 @@ import Foundation
 
 import RxSwift
 
-public typealias CalendarAPIWorker = CalendarAPIs.Worker
+typealias CalendarAPIWorker = CalendarAPIs.Worker
 extension CalendarAPIs {
-    public final class Worker: APIWorker {
-        static let queue = {
-            ConcurrentDispatchQueueScheduler(queue: DispatchQueue(label: "CalendarAPIQueue", qos: .utility))
-        }()
-        
-        public override init() {
-            super.init()
-            self.id = "CalendarAPIWorker"
-        }
-    }
+    final class Worker: BBRxAPIWorker { }
 }
 
 // MARK: - Extensions
 
 extension CalendarAPIWorker {
     
+    // MARK: - Fetch Banner Info
     
-    // MARK: - Fetch Calendar
-
-    @available(*, deprecated)
-    public func fetchCalendarResponse(yearMonth: String) -> Single<ArrayResponseCalendarResponseDTO?> {
-        let spec = CalendarAPIs.calendarResponse(yearMonth).spec
+    public func fetchCalendarBanner(yearMonth: String) -> Observable<BannerResponseDTO> {
+        let spec = CalendarAPIs.fetchBannerInfo(yearMonth).spec
         
-        return request(spec: spec)
-            .subscribe(on: Self.queue)
-            .map(ArrayResponseCalendarResponseDTO.self)
-            .catchAndReturn(nil)
-            .asSingle()
+        return request(spec)
     }
-    
-    
     
     // MARK: - Fetch Statistics Summary
     
-    public func fetchStatisticsSummary(yearMonth: String) -> Single<FamilyMonthlyStatisticsResponseDTO?> {
+    public func fetchStatisticsSummary(yearMonth: String) -> Observable<FamilyMonthlyStatisticsResponseDTO> {
         let spec = CalendarAPIs.fetchStatisticsSummary(yearMonth).spec
         
-        return request(spec: spec)
-            .subscribe(on: Self.queue)
-            .map(FamilyMonthlyStatisticsResponseDTO.self)
-            .catchAndReturn(nil)
-            .asSingle()
+        return request(spec)
     }
     
     
     
     // MARK: - Fetch Monthly Calendar
     
-    public func fetchMonthlyCalendar(yearMonth: String) -> Single<ArrayResponseMonthlyCalendarResponseDTO?> {
+    public func fetchMonthlyCalendar(yearMonth: String) -> Observable<ArrayResponseMonthlyCalendarResponseDTO> {
         let spec = CalendarAPIs.fetchMonthlyCalendar(yearMonth).spec
         
-        return request(spec: spec)
-            .subscribe(on: Self.queue)
-            .map(ArrayResponseMonthlyCalendarResponseDTO.self)
-            .catchAndReturn(nil)
-            .asSingle()
+        return request(spec)
     }
     
     
     
     // MARK: - Fetch Daily Calendar
     
-    public func fetchDailyCalendar(yearMonthDay: String) -> Single<ArrayResponseDailyCalendarResponseDTO?> {
+    public func fetchDailyCalendar(yearMonthDay: String) -> Observable<ArrayResponseDailyCalendarResponseDTO> {
         let spec = CalendarAPIs.fetchDailyCalendar(yearMonthDay).spec
         
-        return request(spec: spec)
-            .subscribe(on: Self.queue)
-            .map(ArrayResponseDailyCalendarResponseDTO.self)
-            .catchAndReturn(nil)
-            .asSingle()
-    }
-    
-    
-    
-    
-    // MARK: - Fetch Banner
-    
-    public func fetchCalendarBanner(yearMonth: String) -> Single<BannerResponseDTO?> {
-        let spec = CalendarAPIs.fetchBanner(yearMonth).spec
-        
-        return request(spec: spec)
-            .subscribe(on: Self.queue)
-            .map(BannerResponseDTO.self)
-            .catchAndReturn(nil)
-            .asSingle()
+        return request(spec)
     }
     
 }

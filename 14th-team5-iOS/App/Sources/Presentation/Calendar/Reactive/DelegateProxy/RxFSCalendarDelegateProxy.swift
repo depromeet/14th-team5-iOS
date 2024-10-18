@@ -5,9 +5,9 @@
 //  Created by 김건우 on 12/9/23.
 //
 
+import Core
 import Foundation
 
-import Core
 import FSCalendar
 import RxSwift
 import RxCocoa
@@ -25,40 +25,27 @@ extension FSCalendar: HasDelegate {
 }
 
 extension Reactive where Base: FSCalendar {
+    
     var delegate: DelegateProxy<FSCalendar, FSCalendarDelegate> {
         return RxFSCalendarDelegateProxy.proxy(for: self.base)
     }
     
+    /// 캘린더에서 셀을 선택하면 Date가 담긴 스트림이 흐릅니다.
     var didSelect: Observable<Date> {
         return delegate.methodInvoked(#selector(FSCalendarDelegate.calendar(_:didSelect:at:)))
-            .debug("calendar(_:didSelect:at:) 메서드 호출 성공")
             .map { $0[1] as! Date }
     }
     
+    /// 캘린더의 바운즈(bounds)가 변하면 CGRect이 담긴 스트림이 흐릅니다.
     var boundingRectWillChange: Observable<CGRect> {
         return delegate.methodInvoked(#selector(FSCalendarDelegate.calendar(_:boundingRectWillChange:animated:)))
-            .debug("calendar(_:boundingRectWillChange:animated:) 메서드 호출 성공")
             .map { $0[1] as! CGRect }
     }
     
+    /// 캘린더의 현재 보이는 페이지가 변하면 Date가 담긴 스트림이 흐릅니다.
     var calendarCurrentPageDidChange: Observable<Date> {
         return delegate.methodInvoked(#selector(FSCalendarDelegate.calendarCurrentPageDidChange(_:)))
-            .debug("calendarCurrentPageDidChange(_:) 메서드 호출 성공")
             .map { ($0[0] as! FSCalendar).currentPage }
     }
     
-    var fetchCalendarResponseDidChange: Observable<[String]> {
-        return delegate.methodInvoked(#selector(FSCalendarDelegate.calendarCurrentPageDidChange(_:)))
-            .debug("calendarCurrentPageDidChange(_:) 메서드 호출 성공")
-            .map {
-                let fsCalendar: FSCalendar = $0[0] as! FSCalendar
-                let currentPage: Date = fsCalendar.currentPage
-                
-                let previousMonth: String = (currentPage - 1.month).toFormatString()
-                let currentMonth: String = currentPage.toFormatString()
-                let nextMonth: String = (currentPage + 1.month).toFormatString()
-                
-                return [previousMonth, currentMonth, nextMonth]
-            }
-    }
 }

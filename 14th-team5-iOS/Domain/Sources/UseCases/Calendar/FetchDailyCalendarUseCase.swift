@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol FetchDailyCalendarUseCaseProtocol {
-    func execute(yearMonthDay: String) -> Observable<ArrayResponseDailyCalendarEntity?>
+    func execute(yearMonthDay: String) -> Observable<ArrayResponseDailyCalendarEntity>
 }
 
 public class FetchDailyCalendarUseCase: FetchDailyCalendarUseCaseProtocol {
@@ -24,7 +24,7 @@ public class FetchDailyCalendarUseCase: FetchDailyCalendarUseCaseProtocol {
     }
     
     // MARK: - Execute
-    public func execute(yearMonthDay: String) -> Observable<ArrayResponseDailyCalendarEntity?> {
+    public func execute(yearMonthDay: String) -> Observable<ArrayResponseDailyCalendarEntity> {
         calendarRepository.fetchDailyCalendarResponse(yearMonthDay: yearMonthDay)
     }
     

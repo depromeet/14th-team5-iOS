@@ -60,15 +60,11 @@ final class MemoriesCalendarPostCell: BaseCollectionViewCell<MemoriesCalendarPos
     }
     
     private func bindInput(reactor: MemoriesCalendarPostCellReactor) {
-        // 수정하기
-        Observable<Reactor.Action>.concat(
-            Observable<Reactor.Action>.just(.showPostContent),
-            Observable<Reactor.Action>.just(.fetchMemberName),
-            Observable<Reactor.Action>.just(.fetchProfileImageUrl)
-        )
-        .bind(to: reactor.action)
-        .disposed(by: disposeBag)
-        
+        Observable.just(())
+            .map { Reactor.Action.viewDidLoad }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+            
         headerView.rx.didTapProfileImageButton
             .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.didTapProfileImageButton }
@@ -98,8 +94,7 @@ final class MemoriesCalendarPostCell: BaseCollectionViewCell<MemoriesCalendarPos
         
         reactor.state.map { $0.profileImageUrl }
             .distinctUntilChanged()
-            .compactMap { $0 } // 연산자 최대한 리액터 속으로 집어넣기
-            .compactMap { URL(string: $0) }
+            .compactMap { $0 }
             .bind(with: self) { $0.headerView.setProfileImage(imageUrl: $1) }
             .disposed(by: disposeBag)
         

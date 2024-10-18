@@ -64,6 +64,7 @@ extension MemoriesCalendarPostImageView {
     
     func prepareForReuse() {
         imageView.image = nil
+        missionText.setHidden(hidden: true)
     }
     
     func setPostImage(imageUrl url: String) {

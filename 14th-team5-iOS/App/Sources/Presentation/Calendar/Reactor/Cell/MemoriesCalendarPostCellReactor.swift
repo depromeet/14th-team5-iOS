@@ -18,9 +18,7 @@ public final class MemoriesCalendarPostCellReactor {
     // MARK: - Action
     
     public enum Action {
-        case showPostContent
-        case fetchMemberName
-        case fetchProfileImageUrl
+        case viewDidLoad
         case didTapProfileImageButton
     }
     
@@ -28,7 +26,7 @@ public final class MemoriesCalendarPostCellReactor {
     
     public enum Mutation {
         case setMemberName(String)
-        case setProfileImageUrl(String)
+        case setProfileImageUrl(URL)
         case setContentDatasource([DisplayEditItemModel])
     }
     
@@ -37,11 +35,12 @@ public final class MemoriesCalendarPostCellReactor {
     public struct State {
         var dailyPost: DailyCalendarEntity
         var memberName: String?
-        var profileImageUrl: String?
+        var profileImageUrl: URL?
         var contentDatasource: [DisplayEditSectionModel]?
     }
     
     // MARK: - Properties
+    
     public var initialState: State
     
     @Injected var fetchUserNameUseCase: FetchUserNameUseCaseProtocol
@@ -50,6 +49,7 @@ public final class MemoriesCalendarPostCellReactor {
     @Injected var provider: ServiceProviderProtocol
     
     @Navigator var navigator: DailyCalendarNavigatorProtocol
+    
     
     // MARK: - Intializer
     
@@ -61,23 +61,13 @@ public final class MemoriesCalendarPostCellReactor {
     
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .showPostContent:
-            let content = currentState.dailyPost.postContent
-            var sectionItem: [DisplayEditItemModel] = []
-            content?.forEach {
-                sectionItem.append(.fetchDisplayItem(DisplayEditCellReactor(title: String($0), radius: 10, font: .head2Bold)))
-            }
-            return Observable<Mutation>.just(.setContentDatasource(sectionItem))
-            
-        case .fetchMemberName:
+        case .viewDidLoad:
             let memberId = initialState.dailyPost.authorId
-            let memberName = fetchUserNameUseCase.execute(memberId: memberId) ?? "알 수 없음" // USeCase에서 예외 처리하기
-            return Observable<Mutation>.just(.setMemberName(memberName))
-       
-        case .fetchProfileImageUrl:
-            let memberId = initialState.dailyPost.authorId
-            let imageUrl = fetchProfileImageUrlUseCase.execute(memberId: memberId) ?? "" // USeCase에서 예외 처리하기
-            return Observable<Mutation>.just(.setProfileImageUrl(imageUrl))
+            return Observable<Mutation>.concat(
+                setMemberName(memberId: memberId),
+                setProfileImageUrl(memberId: memberId),
+                setContentDatasource(post: initialState.dailyPost)
+            )
             
         case .didTapProfileImageButton:
             let memberId = initialState.dailyPost.authorId
@@ -103,6 +93,34 @@ public final class MemoriesCalendarPostCellReactor {
             newState.contentDatasource = [.displayKeyword(section)]
         }
         return newState
+    }
+    
+}
+
+
+// MARK: - Extensions
+
+private extension MemoriesCalendarPostCellReactor {
+    
+    func setMemberName(memberId: String) -> Observable<Mutation> {
+        let memberName = fetchUserNameUseCase.execute(memberId: memberId)
+        return Observable<Mutation>.just(.setMemberName(memberName))
+    }
+    
+    func setProfileImageUrl(memberId: String) -> Observable<Mutation> {
+        let imageUrl = fetchProfileImageUrlUseCase.execute(memberId: memberId)
+        if let url = imageUrl {
+            return Observable<Mutation>.just(.setProfileImageUrl(url))
+        }
+        return Observable<Mutation>.empty()
+    }
+    
+    func setContentDatasource(post: DailyCalendarEntity) -> Observable<Mutation> {
+        var sectionItem: [DisplayEditItemModel] = []
+        post.postContent?.forEach {
+            sectionItem.append(.fetchDisplayItem(.init(title: String($0), radius: 10, font: .head2Bold)))
+        }
+        return Observable<Mutation>.just(.setContentDatasource(sectionItem))
     }
     
 }

@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol FetchUserNameUseCaseProtocol {
-    func execute(memberId: String) -> String?
+    func execute(memberId: String) -> String
 }
 
 public class FetchUserNameUseCase: FetchUserNameUseCaseProtocol {
@@ -22,8 +22,12 @@ public class FetchUserNameUseCase: FetchUserNameUseCaseProtocol {
     }
     
     // MARK: - Execute
-    public func execute(memberId: String) -> String? {
-        myRepository.fetchUserName(memberId: memberId)
+    
+    /// <#Description#>
+    /// - Parameter memberId: <#memberId description#>
+    /// - Returns: <#description#>
+    public func execute(memberId: String) -> String {
+        myRepository.fetchUserName(memberId: memberId) ?? "알 수 없음"
     }
     
 }

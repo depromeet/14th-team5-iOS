@@ -3,11 +3,8 @@ name: Bibbi
 on:
   push:
     branches:
-      - feat/*
-      - fix/*
+      - release
   pull_request:
-    types:
-      - closed
     branches:
       - release
       - develop
@@ -63,10 +60,7 @@ jobs:
         run: tuist generate
         
       - name: fastlane upload_prd_testflight
-        if: > 
-          github.event.pull_request.merged == true &&
-          github.event.pull_request.base.ref == 'release' &&
-          github.event.pull_request.head.ref == 'develop'
+        if: ${{ github.ref == 'refs/heads/release' && github.event_name == 'push' }}
         env:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
@@ -87,9 +81,7 @@ jobs:
 
 
       - name: fastlane upload_stg_testflight
-        if: >
-          github.event.pull_request.merged == true && 
-          github.event.pull_request.base.ref == 'develop'
+        if: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'develop' }}
         env:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}

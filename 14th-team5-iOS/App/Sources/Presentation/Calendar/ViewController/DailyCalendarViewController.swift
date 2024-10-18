@@ -111,28 +111,8 @@ public final class DailyCalendarViewController: TempNavigationViewController<Dai
             .drive(collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
-        dailyPosts // 삭제하기
-            .drive(with: self, onNext: {
-                guard let items = $1.first?.items,
-                      let index = items.firstIndex(where:  {  $0.postId == reactor.currentState.visiblePost?.postId })
-                else { return }
-
-                var indexPath = IndexPath(item: index, section: 0)
-                // 알림으로 화면에 진입하면
-                if let deepLink = reactor.currentState.notificationDeepLink {
-                    let postId = deepLink.postId
-                    guard let index = items.firstIndex(where: { post in
-                              post.postId == postId
-                          }) else { return }
-                    indexPath = IndexPath(item: index, section: 0)
-                }
-                // 일반 루트로 화면에 진입하면
-                $0.collectionView.scrollToItem(
-                    at: indexPath,
-                    at: .centeredHorizontally,
-                    animated: false
-                )
-            })
+        dailyPosts
+            .drive(with: self, onNext: { owner, _ in owner.scrollCollectionView() })
             .disposed(by: disposeBag)
         
         reactor.state.compactMap { $0.visiblePost }
@@ -266,7 +246,6 @@ extension DailyCalendarViewController {
         
         let section: NSCollectionLayoutSection = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .groupPaging
-        
         section.visibleItemsInvalidationHandler = { [unowned self] visibleItems, offset, environment in
             let position: CGFloat =  offset.x / collectionView.frame.width
             let floorPosition: CGFloat = floor(position)
@@ -286,17 +265,6 @@ extension DailyCalendarViewController {
 
 extension DailyCalendarViewController {
     
-    private func prepareDatasource() -> RxDataSource {
-        return RxDataSource { datasource, collectionView, indexPath, post in
-            let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: MemoriesCalendarPostCell.id,
-                for: indexPath
-            ) as! MemoriesCalendarPostCell
-            cell.reactor = MemoriesCalendarPostCellReactor(post: post)
-            return cell
-        }
-    }
-    
     private func setNavigationTitle(_ date: Date) {
         navigationBar.navigationTitle = date.toFormatString(with: .yyyyM)
     }
@@ -306,6 +274,38 @@ extension DailyCalendarViewController {
             $0.height.equalTo(bounds.height)
         }
         view.layoutIfNeeded()
+    }
+    
+    // TODO: - 다시 리팩토링하기
+    private func scrollCollectionView() {
+        guard
+            let datasource = reactor?.currentState.dailyPostsDataSource.first,
+            let index = datasource.items.firstIndex(where: {
+                $0.postId == reactor?.currentState.visiblePost?.postId
+        }) else { return }
+        var indexPath = IndexPath(item: index, section: 0)
+        
+        // 삭제하기
+        if let deepLink = reactor?.currentState.notificationDeepLink {
+            let postId = deepLink.postId
+            guard let index = datasource.items.firstIndex(where: { post in
+                      post.postId == postId
+                  }) else { return }
+            indexPath = IndexPath(item: index, section: 0)
+        }
+        
+        collectionView.scroll(to: indexPath)
+    }
+    
+    private func prepareDatasource() -> RxDataSource {
+        return RxDataSource { datasource, collectionView, indexPath, post in
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: MemoriesCalendarPostCell.id,
+                for: indexPath
+            ) as! MemoriesCalendarPostCell
+            cell.reactor = MemoriesCalendarPostCellReactor(postEntity: post)
+            return cell
+        }
     }
     
     @available(*, deprecated, message: "삭제하기")

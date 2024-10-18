@@ -73,9 +73,8 @@ final public class MemoriesCalendarCellReactor {
                         let previous = $0.provider.calendarService.getPreviousSelection()
                         // 모든 가족 구성원이 게시물을 업로드하고,
                         // 셀 내 날짜와 이전에 선택된 날짜가 동일하지 않다면 (캘린더를 스크롤하더라도 토스트가 다시 뜨지 않게)
-                        print("cellDate: \(cellDate), current: \(current), previous: \(previous)")
                         if !cellDate.isEqual(with: previous) && $0.initialState.allMemebersUploaded {
-                        // TODO: - 로직 간소화하기         
+                            // TODO: - 로직 간소화하기         
                             let viewConfig = BBToastViewConfiguration(minWidth: 100)
                             $0.provider.bbToastService.show(
                                 image: DesignSystemAsset.fire.image,

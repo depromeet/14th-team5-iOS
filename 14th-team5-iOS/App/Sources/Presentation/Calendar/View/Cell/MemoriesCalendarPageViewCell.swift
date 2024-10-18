@@ -132,15 +132,12 @@ final class MemoriesCalendarPageViewCell: BaseCollectionViewCell<MemoriesCalenda
             $0.adjustsBoundingRectWhenChangingMonths = true
             
             $0.appearance.selectionColor = UIColor.clear
-            
             $0.appearance.titleFont = UIFont.style(.body1Regular)
             $0.appearance.titleDefaultColor = UIColor.bibbiWhite
             $0.appearance.titleSelectionColor = UIColor.bibbiWhite
-            
             $0.appearance.weekdayFont = UIFont.style(.caption)
             $0.appearance.weekdayTextColor = UIColor.gray300
             $0.appearance.caseOptions = .weekdayUsesSingleUpperCase
-            
             $0.appearance.titlePlaceholderColor = UIColor.gray700
             
             $0.backgroundColor = UIColor.clear

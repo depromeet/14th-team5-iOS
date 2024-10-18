@@ -30,7 +30,7 @@ public final class CalendarPostCellDIContainer {
     
     public func makeReactor() -> MemoriesCalendarPostCellReactor {
         return MemoriesCalendarPostCellReactor(
-            post: post
+            postEntity: post
         )
     }
 }

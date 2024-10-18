@@ -16,41 +16,43 @@ import RxCocoa
 import RxDataSources
 import Kingfisher
 
+// 여기 코드 리팩토링
+
 final class MemoriesCalendarPostCell: BaseCollectionViewCell<MemoriesCalendarPostCellReactor> {
     
+    // MARK: - Typealias
+    
+    typealias RxDataSource = RxCollectionViewSectionedReloadDataSource<DisplayEditSectionModel>
+    
+    
     // MARK: - Id
+    
     static let id = "CalendarPostCell"
     
+    
     // MARK: - Views
-    private let authorStackView: UIStackView = UIStackView()
-    private let authorImageContainerView: UIView = UIView()
-    private let authorImageView: UIImageView = UIImageView()
-    private let authorNameLabel: BBLabel = BBLabel(.caption, textColor: .gray200)
-    private let authorFirstNameLabel: BBLabel = BBLabel(.caption, textColor: .bibbiWhite)
-    private let postImageView: UIImageView = UIImageView()
-    private let missionTextView: MissionTextView = MissionTextView()
-    private let contentCollectionView: UICollectionView = UICollectionView(
-        frame: .zero,
-        collectionViewLayout: UICollectionViewFlowLayout()
-    )
+    
+    private lazy var headerView = makeMemoriesCalendarPostHeaderView()
+    private lazy var postImageView = makeMemoriesCalendarPostImageView()
+    private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    
     
     // MARK: - Properties
+    
     private lazy var datasource = prepareContentDatasource()
-    private let flowLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     
-    // MARK: - Intializer
-    
-    
+
     // MARK: - LifeCycles
+    
     override func prepareForReuse() {
         super.prepareForReuse()
-        authorNameLabel.text = .unknown
-        authorFirstNameLabel.text = "알"
-        authorImageView.image = nil
-        postImageView.image = nil
+        headerView.prepareForReuse()
+        postImageView.prepareForReuse()
     }
     
+    
     // MARK: - Helpers
+    
     override func bind(reactor: MemoriesCalendarPostCellReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
@@ -58,184 +60,106 @@ final class MemoriesCalendarPostCell: BaseCollectionViewCell<MemoriesCalendarPos
     }
     
     private func bindInput(reactor: MemoriesCalendarPostCellReactor) {
-        Observable<Void>.just(())
-            .flatMap { _ in
-                Observable<Reactor.Action>.concat(
-                    Observable<Reactor.Action>.just(.requestDisplayContent),
-                    Observable<Reactor.Action>.just(.requestAuthorName),
-                    Observable<Reactor.Action>.just(.requestAuthorImageUrl)
-                )
-            }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
+        // 수정하기
+        Observable<Reactor.Action>.concat(
+            Observable<Reactor.Action>.just(.showPostContent),
+            Observable<Reactor.Action>.just(.fetchMemberName),
+            Observable<Reactor.Action>.just(.fetchProfileImageUrl)
+        )
+        .bind(to: reactor.action)
+        .disposed(by: disposeBag)
         
-        authorImageContainerView.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
-            .map { Reactor.Action.authorImageButtonTapped }
+        headerView.rx.didTapProfileImageButton
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
+            .map { Reactor.Action.didTapProfileImageButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: MemoriesCalendarPostCellReactor) {
+        let dailyPost = reactor.state.map { $0.dailyPost }
+          .asDriver(onErrorDriveWith: .empty())
         
-        let post = reactor.state.map { $0.post }
-            .asDriver(onErrorDriveWith: .empty())
-        
-        post
+        dailyPost
             .distinctUntilChanged()
-            .drive(with: self) { owner, post in
-                owner.postImageView.kf.setImage(
-                    with: URL(string: post.postImageUrl),
-                    options: [.transition(.fade(0.15))]
-                )
-            }
+            .compactMap { $0.missionContent }
+            .drive(with: self, onNext: { $0.postImageView.setMissionText(text: $1) })
             .disposed(by: disposeBag)
         
-        post
-            .map { $0.missionContent}
+        dailyPost
             .distinctUntilChanged()
-            .drive(missionTextView.missionLabel.rx.text)
+            .drive(with: self, onNext: { $0.postImageView.setPostImage(imageUrl: $1.postImageUrl) })
             .disposed(by: disposeBag)
         
-        post
-            .map { $0.missionContent.isEmpty }
+        reactor.state.map { $0.memberName }
             .distinctUntilChanged()
-            .drive(missionTextView.rx.isHidden)
+            .bind(with: self) { $0.headerView.setMemberName(text: $1) }
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.authorName }
+        reactor.state.map { $0.profileImageUrl }
             .distinctUntilChanged()
-            .bind(to: authorNameLabel.rx.text)
-            .disposed(by: disposeBag)
-
-        reactor.state.compactMap { $0.authorName }
-            .distinctUntilChanged()
-            .bind(to: authorFirstNameLabel.rx.firstLetterText)
+            .compactMap { $0 } // 연산자 최대한 리액터 속으로 집어넣기
+            .compactMap { URL(string: $0) }
+            .bind(with: self) { $0.headerView.setProfileImage(imageUrl: $1) }
             .disposed(by: disposeBag)
         
-        reactor.state.compactMap { $0.authorImageUrl }
-            .distinctUntilChanged()
-            .bind(with: self) { owner, url in
-                owner.authorImageView.kf.setImage(
-                    with: URL(string: url)
-                )
-            }
-            .disposed(by: disposeBag)
-        
-        reactor.state.compactMap { $0.content }
-            .bind(to: contentCollectionView.rx.items(dataSource: datasource))
+        reactor.state.compactMap { $0.contentDatasource }
+            .bind(to: collectionView.rx.items(dataSource: datasource))
             .disposed(by: disposeBag)
     }
     
     override func setupUI() {
         super.setupUI()
         
-        contentView.addSubviews(authorStackView, postImageView)
-        authorImageContainerView.addSubviews(authorFirstNameLabel, authorImageView)
-        authorStackView.addArrangedSubviews(authorImageContainerView, authorNameLabel)
-        postImageView.addSubviews(contentCollectionView, missionTextView)
+        contentView.addSubviews(headerView, postImageView, collectionView)
     }
     
     override func setupAutoLayout() {
         super.setupAutoLayout()
         
-        authorStackView.snp.makeConstraints {
+        headerView.snp.makeConstraints {
+            $0.top.equalTo(self.snp.top).offset(8)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(34)
         }
         
-        authorImageContainerView.snp.makeConstraints {
-            $0.size.equalTo(34)
-        }
-        
-        authorFirstNameLabel.snp.makeConstraints {
-            $0.center.equalToSuperview()
-        }
-        
-        authorImageView.snp.makeConstraints {
-            $0.size.equalTo(34)
-        }
-        
-        contentCollectionView.snp.makeConstraints {
+        collectionView.snp.makeConstraints {
             $0.height.equalTo(41)
             $0.bottom.equalTo(postImageView.snp.bottom).offset(-20)
             $0.horizontalEdges.equalToSuperview()
         }
         
-        missionTextView.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(16)
-            $0.horizontalEdges.equalToSuperview().inset(32)
-            $0.height.equalTo(41)
-        }
-        
         postImageView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(postImageView.snp.width)
-            $0.top.equalTo(authorStackView.snp.bottom).offset(8)
+            $0.horizontalEdges.equalToSuperview().inset(1)
+            $0.top.equalTo(headerView.snp.bottom).offset(8)
         }
     }
     
     override func setupAttributes() {
         super.setupAttributes()
         
-        authorStackView.do {
-            $0.axis = .horizontal
-            $0.spacing = 12
-        }
-        
-        authorImageContainerView.do {
-            $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = 34 / 2
-            $0.backgroundColor = UIColor.gray800
-            $0.isUserInteractionEnabled = true
-        }
-        
-        authorImageView.do {
-            $0.contentMode = .scaleAspectFill
-            $0.layer.masksToBounds = true
-            $0.layer.cornerRadius = 34 / 2
-        }
-        
-        authorNameLabel.do {
-            $0.text = String.unknown
-        }
-        
-        authorFirstNameLabel.do {
-            $0.text = "알"
-        }
-        
-        postImageView.do {
-            $0.clipsToBounds = true
-            $0.backgroundColor = UIColor.gray100
-            $0.contentMode = .scaleAspectFill
-            $0.layer.cornerRadius = 48
-        }
-        
-        contentCollectionView.do {
+        collectionView.do {
             $0.backgroundColor = .clear
             $0.isScrollEnabled = false
             $0.showsVerticalScrollIndicator = false
             $0.showsHorizontalScrollIndicator = false
-            $0.collectionViewLayout = flowLayout
-            $0.register(
-                DisplayEditCollectionViewCell.self,
-                forCellWithReuseIdentifier: DisplayEditCollectionViewCell.id
-            )
+            $0.collectionViewLayout = UICollectionViewFlowLayout()
+            $0.register(DisplayEditCollectionViewCell.self, forCellWithReuseIdentifier: DisplayEditCollectionViewCell.id)
             $0.delegate = self
-        }
-        
-        flowLayout.do {
-            $0.itemSize = CGSize(width: 28, height: 41)
-            $0.minimumInteritemSpacing = 2
         }
     }
 
 }
 
+
 // MARK: - Extensions
+
 extension MemoriesCalendarPostCell {
-    private func prepareContentDatasource() -> RxCollectionViewSectionedReloadDataSource<DisplayEditSectionModel> {
-        return RxCollectionViewSectionedReloadDataSource<DisplayEditSectionModel> { datasources, collectionView, indexPath, sectionItem in
+    
+    private func prepareContentDatasource() -> RxDataSource {
+        return RxDataSource { datasources, collectionView, indexPath, sectionItem in
             switch sectionItem {
             case let .fetchDisplayItem(reactor):
                 guard let cell = collectionView.dequeueReusableCell(
@@ -249,11 +173,33 @@ extension MemoriesCalendarPostCell {
             }
         }
     }
+    
+}
+
+extension MemoriesCalendarPostCell {
+    
+    func makeMemoriesCalendarPostHeaderView() -> MemoriesCalendarPostHeaderView {
+        return MemoriesCalendarPostHeaderView(reactor: MemoriesCalendarPostHeaderReactor())
+    }
+    
+    func makeMemoriesCalendarPostImageView() -> MemoriesCalendarPostImageView {
+        return MemoriesCalendarPostImageView(reactor: MemoriesCalendarPostImageReactor())
+    }
+    
 }
 
 extension MemoriesCalendarPostCell: UICollectionViewDelegateFlowLayout {
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: 28, height: 41)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 2
+    }
+    
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        guard let count = reactor?.currentState.post.postContent.count else {
+        guard let count = reactor?.currentState.dailyPost.postContent?.count else {
             return .zero
         }
         
@@ -265,4 +211,5 @@ extension MemoriesCalendarPostCell: UICollectionViewDelegateFlowLayout {
 
         return UIEdgeInsets(top: 0, left: leftInset, bottom: 0, right: rightInset)
     }
+    
 }

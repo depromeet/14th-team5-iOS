@@ -119,18 +119,9 @@ extension Reactive where Base: UIImageView {
     }
     
     public var kfImage: Binder<URL> {
+        // TODO: - 이미지 캐시, 트랜지션 효과 추가 구현하기
         Binder(self.base) { imageView, url in
-            // 이미지 메모리, 디시크 캐시 되도록 코드 수정하기
-            imageView.kf.setImage(
-                with: url,
-                options: [.targetCache(.default)]) { result in
-                    switch result {
-                    case let .success(result):
-                        imageView.image = result.image
-                    case .failure:
-                        imageView.image = nil
-                    }
-                }
+            imageView.kf.setImage(with: url)
         }
     }
     

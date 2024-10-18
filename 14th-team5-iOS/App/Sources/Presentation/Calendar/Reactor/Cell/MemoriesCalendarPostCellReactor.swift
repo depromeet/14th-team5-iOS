@@ -16,97 +16,92 @@ import ReactorKit
 public final class MemoriesCalendarPostCellReactor {
     
     // MARK: - Action
+    
     public enum Action {
-        case requestDisplayContent
-        case requestAuthorName
-        case requestAuthorImageUrl
-        case authorImageButtonTapped
+        case showPostContent
+        case fetchMemberName
+        case fetchProfileImageUrl
+        case didTapProfileImageButton
     }
     
     // MARK: - Mutation
+    
     public enum Mutation {
-        case setAuthorName(String)
-        case setAuthorImageUrl(String)
-        case setContent([DisplayEditItemModel])
+        case setMemberName(String)
+        case setProfileImageUrl(String)
+        case setContentDatasource([DisplayEditItemModel])
     }
     
     // MARK: - State
+    
     public struct State {
-        var post: DailyCalendarEntity
-        var authorName: String?
-        var authorImageUrl: String?
-        var content: [DisplayEditSectionModel]?
+        var dailyPost: DailyCalendarEntity
+        var memberName: String?
+        var profileImageUrl: String?
+        var contentDatasource: [DisplayEditSectionModel]?
     }
     
     // MARK: - Properties
     public var initialState: State
     
     @Injected var fetchUserNameUseCase: FetchUserNameUseCaseProtocol
-    
-    @Injected var meUseCase: MemberUseCaseProtocol
+    @Injected var fetchProfileImageUrlUseCase: FetchProfileImageUrlUseCaseProtocol
+    @Injected var checkIsVaildMemberUseCase: CheckIsVaildMemberUseCaseProtocol
     @Injected var provider: ServiceProviderProtocol
     
+    @Navigator var navigator: DailyCalendarNavigatorProtocol
+    
     // MARK: - Intializer
-    public init(
-        post: DailyCalendarEntity
-    ) {
-        self.initialState = State(
-            post: post
-        )
+    
+    public init(postEntity entity: DailyCalendarEntity) {
+        self.initialState = State(dailyPost: entity)
     }
     
     // MARK: - Mutate
+    
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .requestDisplayContent:
-            let content: String = currentState.post.postContent
+        case .showPostContent:
+            let content = currentState.dailyPost.postContent
             var sectionItem: [DisplayEditItemModel] = []
-            content.forEach {
-                sectionItem.append(
-                    .fetchDisplayItem(
-                        DisplayEditCellReactor(
-                            title: String($0),
-                            radius: 10,
-                            font: .head2Bold
-                        )
-                    )
-                )
+            content?.forEach {
+                sectionItem.append(.fetchDisplayItem(DisplayEditCellReactor(title: String($0), radius: 10, font: .head2Bold)))
             }
-            return Observable<Mutation>.just(.setContent(sectionItem))
+            return Observable<Mutation>.just(.setContentDatasource(sectionItem))
             
-        case .requestAuthorName:
-            let authorId = initialState.post.authorId
-
-            let authorName = fetchUserNameUseCase.execute(memberId: authorId) ?? "알 수 없음"
-            return Observable<Mutation>.just(.setAuthorName(authorName))
+        case .fetchMemberName:
+            let memberId = initialState.dailyPost.authorId
+            let memberName = fetchUserNameUseCase.execute(memberId: memberId) ?? "알 수 없음" // USeCase에서 예외 처리하기
+            return Observable<Mutation>.just(.setMemberName(memberName))
        
-        case .requestAuthorImageUrl:
-            let authorId = initialState.post.authorId
-            let authorImageUrl = meUseCase.executeProfileImageUrlString(memberId: authorId)
-            return Observable<Mutation>.just(.setAuthorImageUrl(authorImageUrl))
+        case .fetchProfileImageUrl:
+            let memberId = initialState.dailyPost.authorId
+            let imageUrl = fetchProfileImageUrlUseCase.execute(memberId: memberId) ?? "" // USeCase에서 예외 처리하기
+            return Observable<Mutation>.just(.setProfileImageUrl(imageUrl))
             
-        case .authorImageButtonTapped:
-            let authorId = initialState.post.authorId
-            provider.postGlobalState.pushProfileViewController(authorId)
+        case .didTapProfileImageButton:
+            let memberId = initialState.dailyPost.authorId
+            if checkIsVaildMemberUseCase.execute(memberId: memberId) {
+                navigator.toProfile(memberId: memberId)
+            }
             return Observable<Mutation>.empty()
         }
     }
     
     // MARK: - Reduce
+    
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
-        
         switch mutation {
-        case let .setAuthorName(name):
-            newState.authorName = name
+        case let .setMemberName(name):
+            newState.memberName = name
             
-        case let .setAuthorImageUrl(url):
-            newState.authorImageUrl = url
+        case let .setProfileImageUrl(url):
+            newState.profileImageUrl = url
             
-        case let .setContent(section):
-            newState.content = [.displayKeyword(section)]
+        case let .setContentDatasource(section):
+            newState.contentDatasource = [.displayKeyword(section)]
         }
-        
         return newState
     }
     

@@ -48,13 +48,10 @@ final class MemoriesCalendarPageViewCell: BaseCollectionViewCell<MemoriesCalenda
     }
     
     private func bindInput(reactor: MemoriesCalendarPageReactor) {
-        Observable<Reactor.Action>.merge([
-            Observable<Reactor.Action>.just(.fetchBannerInfo),
-            Observable<Reactor.Action>.just(.fetchStatisticsSummary),
-            Observable<Reactor.Action>.just(.fetchMonthlyCalendar),
-        ])
-        .bind(to: reactor.action)
-        .disposed(by: disposeBag)
+        Observable.just(())
+            .map { Reactor.Action.viewDidLoad }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     
         calendarView.rx.didSelect
             .map { Reactor.Action.didSelect($0) }

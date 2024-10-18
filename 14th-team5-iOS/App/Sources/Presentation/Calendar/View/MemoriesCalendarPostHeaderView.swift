@@ -116,7 +116,7 @@ extension MemoriesCalendarPostHeaderView {
     
     func setMemberName(text: String?) {
         memberNameLabel.text = text
-        firstNameLetter.text = String(text?.first ?? "알") // 첫 글자만 잘 넣을수 있도록 extension 만들기
+        firstNameLetter.text = text?[0]
     }
     
     func setProfileImage(imageUrl url: URL) {

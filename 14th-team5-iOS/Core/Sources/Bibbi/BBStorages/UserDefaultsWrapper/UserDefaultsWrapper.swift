@@ -79,7 +79,7 @@ final public class UserDefaultsWrapper {
         _ value: T,
         forKey key: String
     ) where T: Encodable {
-        if let data = try? PropertyListEncoder().encode(value) {
+        if let data = try? JSONEncoder().encode(value) {
             set(data, forKey: key)
         } else {
             return
@@ -144,7 +144,7 @@ final public class UserDefaultsWrapper {
             return nil
         }
         
-        if let value = try? PropertyListDecoder().decode(type, from: data) {
+        if let value = try? JSONDecoder().decode(type, from: data) {
             return value
         } else {
             return nil

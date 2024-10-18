@@ -16,8 +16,6 @@ import RxCocoa
 import RxDataSources
 import Kingfisher
 
-// 여기 코드 리팩토링
-
 final class MemoriesCalendarPostCell: BaseCollectionViewCell<MemoriesCalendarPostCellReactor> {
     
     // MARK: - Typealias

@@ -43,14 +43,17 @@ public final class MonthlyCalendarViewController: BBNavigationViewController<Mon
     
     private func bindInput(reactor: MonthlyCalendarViewReactor) {
         Observable.just(())
-            .map { Reactor.Action.addCalendarPage }
+            .map { Reactor.Action.viewDidLoad }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: MonthlyCalendarViewReactor) {
-        reactor.pulse(\.$calendarPage)
-            .bind(to: collectionView.rx.items(dataSource: dataSource))
+        let pageDatasource = reactor.pulse(\.$pageDatasource)
+            .asDriver(onErrorDriveWith: .empty())
+        
+        pageDatasource
+            .drive(collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
     }
     
@@ -83,8 +86,10 @@ public final class MonthlyCalendarViewController: BBNavigationViewController<Mon
             $0.backgroundColor = UIColor.clear
             $0.register(MemoriesCalendarPageViewCell.self, forCellWithReuseIdentifier: MemoriesCalendarPageViewCell.id)
         }
+        
+        
         collectionView.layoutIfNeeded()
-        collectionView.scroll(to: IndexPath(item: reactor!.currentState.calendarPage[0].items.count - 1, section: 0))
+        collectionView.scroll(to: IndexPath(item: reactor!.currentState.pageDatasource.first!.items.count - 1, section: 0)) // 다시 리팩토링하기
     }
 }
 

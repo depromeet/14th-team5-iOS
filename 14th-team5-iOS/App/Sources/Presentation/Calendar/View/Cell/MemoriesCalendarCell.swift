@@ -92,7 +92,7 @@ final public class MemoriesCalendarCell: FSCalendarCell, ReactorKit.View {
             .bind(to: allMembersUploadedBadge.rx.isHidden)
             .disposed(by: disposeBag)
         
-        reactor.state.compactMap { $0.thumbnailUrl }
+        reactor.state.compactMap { $0.thumbnailImageUrl }
             .compactMap { URL(string: $0) }
             .distinctUntilChanged()
             .bind(to: thumbnailImage.rx.kfImage)
@@ -176,10 +176,6 @@ final public class MemoriesCalendarCell: FSCalendarCell, ReactorKit.View {
 
 extension MemoriesCalendarCell {
     
-    var hasThumbnailImage: Bool {
-        return thumbnailImage.image != nil ? true : false
-    }
-    
     func setHighlight(with selection: Bool) {
         if selection {
             backgroundGray.alpha = 1
@@ -200,5 +196,8 @@ extension MemoriesCalendarCell {
         dayLabel.textColor = UIColor.mainYellow
     }
     
+    var hasThumbnailImage: Bool {
+        return thumbnailImage.image != nil ? true : false
+    }
     
 }

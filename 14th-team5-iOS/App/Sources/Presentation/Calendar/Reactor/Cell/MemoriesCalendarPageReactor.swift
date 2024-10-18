@@ -20,9 +20,7 @@ public final class MemoriesCalendarPageReactor {
     
     public enum Action {
         case didSelect(Date)
-        case fetchBannerInfo
-        case fetchStatisticsSummary
-        case fetchMonthlyCalendar
+        case viewDidLoad
     }
     
     
@@ -67,21 +65,17 @@ public final class MemoriesCalendarPageReactor {
     
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
+        case .viewDidLoad:
+            let yearMonth = initialState.yearMonth
+            return Observable<Mutation>.merge(
+                setCalendarBannrInfo(yearMonth: yearMonth),
+                setStatisticsSummary(yearMonth: yearMonth),
+                setMonthlyCalendar(yearMonth: yearMonth)
+            )
+            
         case let .didSelect(date):
             navigator.toDailyCalendar(selection: date)
             return Observable<Mutation>.empty()
-            
-        case .fetchBannerInfo:
-            return fetchCalendarBannerUseCase.execute(yearMonth: initialState.yearMonth)
-                .flatMap { Observable<Mutation>.just(.setBannerInfo($0)) }
-            
-        case .fetchStatisticsSummary:
-            return fetchStatisticsSummaryUseCase.execute(yearMonth: initialState.yearMonth)
-                .flatMap { Observable<Mutation>.just(.setStatisticsSummary($0)) }
-            
-        case .fetchMonthlyCalendar:
-            return fetchMonthlyCalendarUseCase.execute(yearMonth: initialState.yearMonth)
-                .flatMap { Observable<Mutation>.just(.setMonthlyCalendar($0)) }
         }
     }
     
@@ -108,6 +102,28 @@ public final class MemoriesCalendarPageReactor {
             newState.calendarEntity = arrayCalendarResponse
         }
         return newState
+    }
+    
+}
+
+
+// MARK: - Extensions
+
+private extension MemoriesCalendarPageReactor {
+    
+    func setCalendarBannrInfo(yearMonth: String) -> Observable<Mutation> {
+        return fetchCalendarBannerUseCase.execute(yearMonth: yearMonth)
+            .flatMap { Observable<Mutation>.just(.setBannerInfo($0)) }
+    }
+    
+    func setStatisticsSummary(yearMonth: String) -> Observable<Mutation> {
+        return fetchStatisticsSummaryUseCase.execute(yearMonth: yearMonth)
+            .flatMap { Observable<Mutation>.just(.setStatisticsSummary($0)) }
+    }
+    
+    func setMonthlyCalendar(yearMonth: String) -> Observable<Mutation> {
+        return fetchMonthlyCalendarUseCase.execute(yearMonth: yearMonth)
+            .flatMap { Observable<Mutation>.just(.setMonthlyCalendar($0)) }
     }
     
 }

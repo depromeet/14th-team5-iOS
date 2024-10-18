@@ -12,7 +12,7 @@ struct BannerView: View {
     
     // MARK: - Mertic
     
-    private enum Metric { // TODO: - `isPhoneSE` 프로퍼티 개선하기
+    private enum Metric { // `isPhoneSE` 프로퍼티 개선하기
         static var topPadding: CGFloat = UIScreen.isPhoneSE ? 12 : 18
         static var vSpacing: CGFloat = UIScreen.isPhoneSE ? 1 : 6
         static var scaleWidth: CGFloat = UIScreen.isPhoneSE ? 0.5 : 1

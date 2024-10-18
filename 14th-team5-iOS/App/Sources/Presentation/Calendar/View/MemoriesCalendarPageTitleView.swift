@@ -81,7 +81,7 @@ final public class MemoriesCalendarPageTitleView: BaseView<MemoriesCalendarTitle
         
         toolTipView.snp.makeConstraints {
             $0.top.equalTo(tipButton.snp.bottom).offset(4)
-            $0.leading.equalToSuperview().offset(58)
+            $0.leading.equalToSuperview().offset(57.5)
         }
     }
 

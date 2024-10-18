@@ -59,6 +59,7 @@ public final class DailyCalendarViewReactor: Reactor {
     @Injected var fetchDailyPostsUseCase: FetchDailyCalendarUseCaseProtocol
     @Injected var fetchMonthlyCalendarUseCase: FetchMonthlyCalendarUseCaseProtocol
     @Injected var provider: ServiceProviderProtocol
+    @Navigator var navigator: DailyCalendarNavigatorProtocol
         
     private var hasFetchedDailyPosts: [Date] = []
     private var hasFetchedMonthlyCalendars: [Date] = []
@@ -79,6 +80,7 @@ public final class DailyCalendarViewReactor: Reactor {
             initialSelection: date,
             dailyPostsDataSource: [],
             monthlyCalendars: [:],
+            
             notificationDeepLink: deepLink // 삭제하기
         )
     }
@@ -129,6 +131,7 @@ public final class DailyCalendarViewReactor: Reactor {
             
         case .backToMonthly:
             provider.calendarService.removePreviousSelection()
+            navigator.backToMonthly()
             return Observable<Mutation>.empty()
         }
         

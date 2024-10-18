@@ -19,7 +19,7 @@ import RxDataSources
 import SnapKit
 import Then
 
-public final class DailyCalendarViewController: TempNavigationViewController<DailyCalendarViewReactor> {
+public final class DailyCalendarViewController: BBNavigationViewController<DailyCalendarViewReactor> {
     
     // MARK: - Typealias
     
@@ -184,6 +184,7 @@ public final class DailyCalendarViewController: TempNavigationViewController<Dai
     public override func setupAttributes() {
         super.setupAttributes()
         
+        enableAutoPopViewController = false
         navigationBar.leftBarButtonItem = .arrowLeft
         
         backgroundImage.do {
@@ -276,7 +277,7 @@ extension DailyCalendarViewController {
         view.layoutIfNeeded()
     }
     
-    // TODO: - 다시 리팩토링하기
+    // 다시 리팩토링하기
     private func scrollCollectionView() {
         guard
             let datasource = reactor?.currentState.dailyPostsDataSource.first,

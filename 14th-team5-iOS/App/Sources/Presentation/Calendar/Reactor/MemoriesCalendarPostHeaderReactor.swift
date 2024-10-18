@@ -13,9 +13,7 @@ import ReactorKit
 
 final public class MemoriesCalendarPostHeaderReactor: Reactor {
     
-    // MARK: - Action
-    
-    public enum Action { }
+    public typealias Action = NoAction
     
     // MARK: - Mutate
     

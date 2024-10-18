@@ -20,7 +20,7 @@ final public class MemoriesCalendarTitleViewReactor {
     // MARK: - Mutation
     
     public enum Mutation {
-        case setTooltipVisible(hidden: Bool)
+        case setTooltipHidden(hidden: Bool)
     }
     
     // MARK: - State
@@ -45,7 +45,7 @@ final public class MemoriesCalendarTitleViewReactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .didTapTipButton:
-            return Observable<Mutation>.just(.setTooltipVisible(hidden: !currentState.hiddenTooltipView))
+            return Observable<Mutation>.just(.setTooltipHidden(hidden: !currentState.hiddenTooltipView))
         }
     }
     
@@ -55,7 +55,7 @@ final public class MemoriesCalendarTitleViewReactor {
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
-        case let .setTooltipVisible(hidden):
+        case let .setTooltipHidden(hidden):
             newState.hiddenTooltipView = hidden
         }
         return newState

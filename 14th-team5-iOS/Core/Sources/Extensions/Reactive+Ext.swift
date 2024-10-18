@@ -73,25 +73,6 @@ extension Reactive where Base: UILabel {
         }
     }
     
-    @available(*, deprecated, message: "삭제")
-    public var calendarTitleText: Binder<Date> {
-        Binder(self.base) { label, date in
-            var formatString: String = .none
-            if date.isEqual([.year], with: Date()) {
-                formatString = date.toFormatString(with: .m)
-            } else {
-                formatString = date.toFormatString(with: .yyyyM)
-            }
-            label.text = formatString
-        }
-    }
-    
-    @available(*, deprecated, message: "삭제")
-    public var memoryCountText: Binder<Int> {
-        Binder(self.base) { label, count in
-            label.text = "\(count)개의 추억"
-        }
-    }
 }
 
 extension Reactive where Base: WKWebView {

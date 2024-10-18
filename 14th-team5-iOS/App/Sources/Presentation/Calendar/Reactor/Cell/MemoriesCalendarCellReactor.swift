@@ -23,14 +23,14 @@ final public class MemoriesCalendarCellReactor {
     // MARK: - Mutate
     
     public enum Mutation {
-        case select(Bool)
+        case didSelect(Bool)
     }
     
     // MARK: - State
     
     public struct State {
         var date: Date
-        var thumbnailUrl: String
+        var thumbnailImageUrl: String
         var allMemebersUploaded: Bool
         var isSelected: Bool
     }
@@ -54,9 +54,10 @@ final public class MemoriesCalendarCellReactor {
         self.type = type
         self.initialState = State(
             date: entity.date,
-            thumbnailUrl: entity.representativeThumbnailUrl,
+            thumbnailImageUrl: entity.representativeThumbnailUrl,
             allMemebersUploaded: entity.allFamilyMemebersUploaded,
-            isSelected: selection)
+            isSelected: selection
+        )
     }
     
     // MARK: - Transform
@@ -82,9 +83,9 @@ final public class MemoriesCalendarCellReactor {
                                 viewConfig: viewConfig
                             )
                         }
-                        return Observable<Mutation>.just(.select(true))
+                        return Observable<Mutation>.just(.didSelect(true))
                     } else {
-                        return Observable<Mutation>.just(.select(false))
+                        return Observable<Mutation>.just(.didSelect(false))
                     }
                 }
             }
@@ -98,7 +99,7 @@ final public class MemoriesCalendarCellReactor {
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
-        case let .select(bool):
+        case let .didSelect(bool):
             newState.isSelected = bool
         }
         return newState

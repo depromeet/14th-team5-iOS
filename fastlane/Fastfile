@@ -63,7 +63,8 @@ platform :ios do
     )
 
     build_num = app_store_build_number(
-      api_key: api_key
+      api_key: api_key,
+      live: false
     )
 
     new_build_number = build_num + 1
@@ -149,7 +150,8 @@ platform :ios do
     )
 
     build_num = app_store_build_number(
-      api_key: api_key
+      api_key: api_key,
+      live: false
     )
 
     new_build_number = build_num + 1

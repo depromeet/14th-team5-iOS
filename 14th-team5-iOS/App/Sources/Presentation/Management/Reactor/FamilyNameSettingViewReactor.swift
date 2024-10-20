@@ -69,14 +69,14 @@ public final class FamilyNameSettingViewReactor: Reactor {
                 .compactMap { $0 }
                 .withUnretained(self)
                 .flatMap { owner, familyGroupInfo -> Observable<Mutation> in
-                    if familyGroupInfo.familyNameEditorId.isEmpty {
+                    if familyGroupInfo.familyNameEditorId == nil {
                         return .concat(
                             .just(.setFamilyNickNameVaildation(false)),
                             .just(.setFamilyGroupEditValidation(true)),
                             .just(.setFamilyGroupInfoItem(familyGroupInfo))
                         )
                     }
-                    let editorId = familyGroupInfo.familyNameEditorId
+                    let editorId = familyGroupInfo.familyNameEditorId ?? ""
                     return owner.fetchFamilyEditerUseCase.execute(memberId: editorId)
                         .asObservable()
                         .compactMap { $0 }

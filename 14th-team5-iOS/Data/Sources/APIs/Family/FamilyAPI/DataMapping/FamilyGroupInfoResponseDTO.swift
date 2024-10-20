@@ -20,8 +20,8 @@ extension FamilyGroupInfoResponseDTO {
     func toDomain() -> FamilyGroupInfoEntity {
         return .init(
             familyId: familyId,
-            familyName: familyName ?? "",
-            familyNameEditorId: familyNameEditorId ?? "",
+            familyName: familyName,
+            familyNameEditorId: familyNameEditorId,
             createdAt: createdAt.iso8601ToDate()
         )
     }

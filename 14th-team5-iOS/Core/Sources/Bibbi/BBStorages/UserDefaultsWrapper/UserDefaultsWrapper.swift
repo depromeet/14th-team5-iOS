@@ -10,6 +10,7 @@ import Foundation
 final public class UserDefaultsWrapper {
     
     // MARK: - Properties
+    
     public static let standard = UserDefaultsWrapper()
     
     private let userDefaults: UserDefaults!
@@ -20,7 +21,9 @@ final public class UserDefaultsWrapper {
         "UserDefaultsWrapper"
     }()
     
+    
     // MARK: - Intializer
+    
     convenience init() {
         self.init(suitName: UserDefaultsWrapper.defaultSuitName)
     }
@@ -164,6 +167,27 @@ final public class UserDefaultsWrapper {
     
     public func removeAll() {
         userDefaults.removePersistentDomain(forName: suitName)
+    }
+    
+    
+    // MARK: - Register
+    
+    /// 해당 키에 값이 비어있다면 넣을 기본 값을 등록합니다.
+    ///
+    /// 앱 델리게이트의 `application(_ application:didFinishLaunchingWithOptions:)` 메서드에서 등록해야 합니다.
+    /// - Parameter values: [UserDefaultsWrapper.Key: Any]
+    public func register(_ values: [Key: Any]) {
+        var newValues = [String: Any]()
+        values.forEach { newValues.updateValue($0.value, forKey: $0.key.rawValue) }
+        register(newValues)
+    }
+    
+    /// 해당 키에 값이 비어있다면 넣을 기본 값을 등록합니다.
+    ///
+    /// 앱 델리게이트의 `application(_ application:didFinishLaunchingWithOptions:)` 메서드에서 등록해야 합니다.
+    /// - Parameter values: [String: Any]
+    public func register(_ values: [String: Any]) {
+        userDefaults.register(defaults: values)
     }
     
 }

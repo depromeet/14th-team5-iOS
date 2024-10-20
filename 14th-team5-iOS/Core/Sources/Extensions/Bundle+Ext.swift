@@ -63,4 +63,8 @@ extension Bundle {
             return 0
         }
     }
+    
+    public var xAppKey: String {
+        "db3ca026-0f9c-415a-a250-c97807f54add"
+    }
 }

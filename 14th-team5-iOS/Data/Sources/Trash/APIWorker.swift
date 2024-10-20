@@ -16,13 +16,14 @@ import RxSwift
 
 // MARK: - Base API Worker
 
+@available(*, deprecated, renamed: "BBAPIWorker")
 public class APIWorker: NSObject {
     
     // MARK: - Identifier
     
     var id: String = "APIWorker"
     private static let session: Session = {
-        let networkMonitor: BibbiNetworkMonitor = BibbiNetworkMonitor()
+        let networkMonitor: BBNetworkEventMonitor = BBNetworkDefaultLogger()
         let networkConfiguration: URLSessionConfiguration = AF.session.configuration
         let networkInterceptor: RequestInterceptor = NetworkInterceptor()
         let networkSession: Session = Session(
@@ -132,7 +133,7 @@ public class APIWorker: NSObject {
         headers: [APIHeader]? = nil,
         jsonEncodable: Encodable
     ) -> Observable<(HTTPURLResponse, Data)> {
-        guard let jsonData = jsonEncodable.encodeData() else {
+        guard let jsonData = try? jsonEncodable.toData() else {
             return Observable.error(AFError.explicitlyCancelled)
         }
         

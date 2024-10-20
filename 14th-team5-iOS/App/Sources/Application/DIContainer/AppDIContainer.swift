@@ -19,12 +19,20 @@ final class AppDIContainer: BaseContainer {
         )
     }
     
-    private func makeFetchFamilyManagementUseCase() -> FetchIsFirstFamilyManagementUseCaseProtocol {
-        FetchFamilyManagementUseCase(repository: makeAppRepository())
+    private func makeCheckIsFirstWidgetAlertUseCase() -> IsFirstWidgetAlertUseCaseProtocol {
+        IsFirstWidgetAlertUseCase(repository: makeAppRepository())
     }
     
-    private func makeSaveFamilyManagementUseCase() -> UpdateFamilyManagementUseCaseProtocol {
-        UpdateFamilyManagementUseCase(repository: makeAppRepository())
+    private func makeSaveWidgetAlertUseCase() -> SaveIsFirstWidgetAlertUseCaseProtocol {
+        SaveIsFirstWidgetAlertUseCase(repository: makeAppRepository())
+    }
+    
+    private func makeFetchFamilyManagementUseCase() -> IsFirstFamilyManagementUseCaseProtocol {
+        IsFirstFamilyManagementUseCase(repository: makeAppRepository())
+    }
+    
+    private func makeSaveFamilyManagementUseCase() -> SaveIsFirstFamilyManagementUseCaseProtocol {
+        SaveIsFirstFamilyManagementUseCase(repository: makeAppRepository())
     }
     
     
@@ -38,11 +46,15 @@ final class AppDIContainer: BaseContainer {
     // MARK: - Register
     
     func registerDependencies() {
-        container.register(type: FetchIsFirstFamilyManagementUseCaseProtocol.self) { _ in
+        container.register(type: IsFirstWidgetAlertUseCaseProtocol.self) { _ in
+            self.makeCheckIsFirstWidgetAlertUseCase()
+        }
+        
+        container.register(type: IsFirstFamilyManagementUseCaseProtocol.self) { _ in
             self.makeFetchFamilyManagementUseCase()
         }
         
-        container.register(type: UpdateFamilyManagementUseCaseProtocol.self) { _ in
+        container.register(type: SaveIsFirstFamilyManagementUseCaseProtocol.self) { _ in
             self.makeSaveFamilyManagementUseCase()
         }
         
@@ -57,6 +69,10 @@ final class AppDIContainer: BaseContainer {
         
         container.register(type: AppUserDefaultsType.self) { _ in
             return AppUserDefaults()
+        }
+        
+        container.register(type: SaveIsFirstWidgetAlertUseCaseProtocol.self) { _ in
+            return self.makeSaveWidgetAlertUseCase()
         }
     }
     

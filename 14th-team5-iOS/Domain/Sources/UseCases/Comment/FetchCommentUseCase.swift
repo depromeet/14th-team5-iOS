@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol FetchCommentUseCaseProtocol {
-    func execute(postId: String, query: PostCommentPaginationQuery) -> Observable<PaginationResponsePostCommentEntity?>
+    func execute(postId: String, query: PostCommentPaginationQuery) -> Observable<PaginationResponsePostCommentEntity>
 }
 
 public final class FetchCommentUseCase: FetchCommentUseCaseProtocol {
@@ -27,7 +27,7 @@ public final class FetchCommentUseCase: FetchCommentUseCaseProtocol {
     public func execute(
         postId: String,
         query: PostCommentPaginationQuery
-    ) -> Observable<PaginationResponsePostCommentEntity?> {
+    ) -> Observable<PaginationResponsePostCommentEntity> {
         return commentRepository.fetchPostComment(postId: postId, query: query)
     }
     

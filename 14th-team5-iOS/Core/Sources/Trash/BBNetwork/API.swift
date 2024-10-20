@@ -15,12 +15,14 @@ public typealias BibbiNoResponse = BibbiAPI.NoResponse
 public typealias BibbiBoolResponse = BibbiAPI.BoolResponse
 public typealias BibbiCodableResponse = BibbiAPI.CodableResponse
 
-
+@available(*, deprecated, renamed: "BBAPI")
 public enum BibbiAPI {
     private static let _config: BibbiAPIConfigType = BibbiAPIConfig()
     public static let hostApi: String = _config.hostApi
     
     // MARK: Common Headers
+    
+    @available(*, deprecated, renamed: "BBAPIHeader")
     public enum Header: APIHeader {
         case auth(String)
         case xAppKey
@@ -51,7 +53,7 @@ public enum BibbiAPI {
         public var value: String {
             switch self {
             case let .auth(token): return "Bearer \(token)"
-            case .xAppKey: return "7b159d28-b106-4b6d-a490-1fd654ce40c2" // TODO: - 번들에서 가져오기
+            case .xAppKey: return "db3ca026-0f9c-415a-a250-c97807f54add" // TODO: - 번들에서 가져오기
             case let .xAuthToken(token): return "\(token)"
             case .contentForm: return "application/x-www-form-urlencoded"
             case .contentJson: return "application/json"

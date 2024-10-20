@@ -23,28 +23,20 @@ public final class InputFamilyLinkReactor: Reactor {
     // MARK: - Mutate
     public enum Mutation {
         case setLinkString(String)
-        case setShowHome(Bool)
         case setToastMessage(String)
-        case setPoped(Bool)
     }
     
     // MARK: - State
     public struct State {
         var linkString: String = ""
-        var isShowHome: Bool = false
         @Pulse var showToastMessage: String = ""
-        var isPoped: Bool = false
     }
     
     // MARK: - Properties
-    public let initialState: State
+    public let initialState: State = State()
     @Injected var familyUseCase: FamilyUseCaseProtocol
-    
     @Injected var joinFamilyUseCase: JoinFamilyUseCaseProtocol
-    
-    init() {
-        self.initialState = State()
-    }
+    @Navigator var navigator: InputFamilyLinkNavigatorProtocol
 }
 
 extension InputFamilyLinkReactor {
@@ -65,7 +57,9 @@ extension InputFamilyLinkReactor {
                 // Repository에서 이미 UserDefaults와 App.Repository에 저장하고 있음
                 App.Repository.member.familyId.accept(joinFamilyData.familyId)
                 App.Repository.member.familyCreatedAt.accept(joinFamilyData.createdAt)
-                return Observable.just(Mutation.setShowHome(true))
+                
+                self.navigator.toHome()
+                return .empty()
             }
 
             if App.Repository.member.familyId.value != nil {
@@ -93,7 +87,8 @@ extension InputFamilyLinkReactor {
                     }
             }
         case .tapPopButton:
-            return Observable.just(Mutation.setPoped(true))
+            navigator.pop()
+            return .empty()
         }
     }
     
@@ -103,12 +98,8 @@ extension InputFamilyLinkReactor {
         switch mutation {
         case let .setLinkString(link):
             newState.linkString = link
-        case let .setShowHome(isShow):
-            newState.isShowHome = isShow
         case let .setToastMessage(message):
             newState.showToastMessage = message
-        case let .setPoped(isPop):
-            newState.isPoped = isPop
         }
         return newState
     }

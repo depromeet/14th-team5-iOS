@@ -216,14 +216,12 @@ extension CommentViewController {
             cell.reactor = reactor
             return cell
         }
-        
         dataSource.canEditRowAtIndexPath = {
             let myMemberId = App.Repository.member.memberID.value
             let commentMemberId = $0[$1].currentState.comment.memberId
             return myMemberId == commentMemberId
         }
-        
-        return  dataSource
+        return dataSource
     }
     
 }

@@ -10,7 +10,10 @@ import Alamofire
 import RxSwift
 
 // MARK: API Protocol
+@available(*, deprecated, renamed: "BBAPI")
 public typealias BaseAPI = API
+
+@available(*, deprecated, renamed: "BBAPI")
 public protocol API {
     var spec: APISpec { get }
 }
@@ -50,9 +53,13 @@ public  enum APIResult {
 }
 
 // MARK: API Error Protocol
+
+@available(*, deprecated, renamed: "BBAPIError")
 public protocol APIError: CustomNSError, Equatable {}
 
 // MARK: API Specification
+
+@available(*, deprecated, renamed: "BBAPISpec")
 public struct APISpec {
     public let method: HTTPMethod
     public let url: String

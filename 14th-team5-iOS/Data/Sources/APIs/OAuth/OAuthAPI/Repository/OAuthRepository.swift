@@ -33,7 +33,7 @@ extension OAuthRepository {
             refreshToken: body.refreshToken
         )
         return oAuthApiWorker.refreshAccessToken(body: body)
-            .observe(on: RxSchedulers.main)
+            .observe(on: RxScheduler.main)
             .map { $0?.toDomain() }
             .do(onSuccess: { [weak self] in
                 guard
@@ -44,7 +44,7 @@ extension OAuthRepository {
                     refreshToken: $0?.refreshToken,
                     isTemporaryToken: $0?.isTemporaryToken
                 )
-                keychain.saveOldAccessToken(accessToken)
+                keychain.saveAccessToken(accessToken)
             })
             .asObservable()
     }
@@ -59,7 +59,7 @@ extension OAuthRepository {
             profileImageUrl: body.profileImageUrl
         )
         return oAuthApiWorker.registerNewMember(body: body)
-            .observe(on: RxSchedulers.main)
+            .observe(on: RxScheduler.main)
             .map { $0?.toDomain() }
             .do(onSuccess: { [weak self] in
                 guard
@@ -70,7 +70,7 @@ extension OAuthRepository {
                     refreshToken: $0?.refreshToken,
                     isTemporaryToken: $0?.isTemporaryToken
                 )
-                keychain.saveOldAccessToken(accessToken)
+                keychain.saveAccessToken(accessToken)
             })
             .asObservable()
     }
@@ -83,7 +83,7 @@ extension OAuthRepository {
             accessToken: body.accessToken
         )
         return oAuthApiWorker.signIn(type, body: body)
-            .observe(on: RxSchedulers.main)
+            .observe(on: RxScheduler.main)
             .map { $0?.toDomain() }
             .do(onSuccess: { [weak self] in
                 guard
@@ -94,7 +94,7 @@ extension OAuthRepository {
                     refreshToken: $0?.refreshToken,
                     isTemporaryToken: $0?.isTemporaryToken
                 )
-                keychain.saveOldAccessToken(accessToken)
+                keychain.saveAccessToken(accessToken)
             })
             .asObservable()
     }
@@ -107,7 +107,7 @@ extension OAuthRepository {
             fcmToken: body.fcmToken
         )
         return oAuthApiWorker.registerNewFCMToken(body: body)
-            .observe(on: RxSchedulers.main)
+            .observe(on: RxScheduler.main)
             .map { $0?.toDomain() }
             .asObservable()
     }
@@ -124,7 +124,7 @@ extension OAuthRepository {
         }
         
         return oAuthApiWorker.deleteFCMToken(fcmToken: fcmToken)
-            .observe(on: RxSchedulers.main)
+            .observe(on: RxScheduler.main)
             .map { $0?.toDomain() }
             .asObservable()
         

@@ -15,6 +15,7 @@ protocol MainNavigatorProtocol: BaseNavigator {
     // alert
     func showSurvivalAlert()
     func pickAlert(_ name: String)
+    func showWidgetAlert()
     func missionUnlockedAlert()
     
     
@@ -51,7 +52,14 @@ final class MainNavigator: MainNavigatorProtocol {
     }
     
     func missionUnlockedAlert() {
-        BBAlert.style(.mission).show()
+        let handler: BBAlertActionHandler = { [weak self] alert in
+            self?.toCamera(.survival)
+        }
+        BBAlert.style(.takePhoto, primaryAction: handler).show()
+    }
+    
+    func showWidgetAlert() {
+        BBAlert.style(.widget).show()
     }
     
     func showToast(_ image: UIImage?, _ message: String) {

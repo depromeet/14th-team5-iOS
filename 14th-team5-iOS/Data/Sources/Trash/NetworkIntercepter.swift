@@ -13,6 +13,7 @@ import Alamofire
 import RxCocoa
 import RxSwift
 
+@available(*, deprecated, renamed: "BBInterceptor")
 public final class NetworkInterceptor: RequestInterceptor {
     
     // MARK: - Properties

@@ -38,7 +38,7 @@ final class NavigatorDIContainer: BaseContainer {
         }
         
         container.register(type: MainNavigatorProtocol.self) { _ in
-                MainNavigator(navigationController: makeUINavigationController())
+            MainNavigator(navigationController: makeUINavigationController())
         }
         
         container.register(type: SplashNavigatorProtocol.self) { _ in
@@ -90,7 +90,7 @@ final class NavigatorDIContainer: BaseContainer {
         }
         
         container.register(type: FamilyEntranceNavigatorProtocol.self) { _ in
-                FamilyEntranceNavigator(navigationController: makeUINavigationController())
+            FamilyEntranceNavigator(navigationController: makeUINavigationController())
         }
         
         container.register(type: JoinFamilyNavigatorProtocol.self) { _ in
@@ -115,6 +115,10 @@ final class NavigatorDIContainer: BaseContainer {
             AccountResignNavigator(
                 navigationController: makeUINavigationController()
             )
+        }
+        
+        container.register(type: InputFamilyLinkNavigatorProtocol.self) { _ in
+            InputFamilyLInkNavigator(navigationController: makeUINavigationController())
         }
     }
     

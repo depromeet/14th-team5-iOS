@@ -9,6 +9,7 @@ import Foundation
 
 public protocol ServiceProviderProtocol: AnyObject {
     
+    var alertService: AlertServiceType { get }
     var bbAlertService: BBAlertServiceType { get }
     var bbToastService: BBToastServiceType { get }
     
@@ -24,6 +25,7 @@ public protocol ServiceProviderProtocol: AnyObject {
 
 final public class ServiceProvider: ServiceProviderProtocol {
     
+    public lazy var alertService: any AlertServiceType = AlertService(provider: self)
     public lazy var bbAlertService: any BBAlertServiceType = BBAlertService(provider: self)
     public lazy var bbToastService: any BBToastServiceType = BBToastService(provider: self)
     

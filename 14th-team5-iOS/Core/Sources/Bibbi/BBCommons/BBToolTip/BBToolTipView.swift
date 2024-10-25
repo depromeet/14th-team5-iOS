@@ -13,22 +13,92 @@ import SnapKit
 import Then
 
 
-public final class BBToolTipView: UIView, BBDrawable, BBComponentPresentable {
+public class BBThumbnailToolTipView: BBBaseToolTipView {
+    private let stackView: UIStackView = UIStackView()
     
-    //MARK: Properties
-    private let contentLabel: BBLabel = BBLabel()
-    private let profileStackView: UIStackView = UIStackView()
-    public var toolTipType: BBToolTipType = .activeCameraTime {
-        didSet {
-            setupToolTipContent()
-            setupAutoLayout(toolTipType)
-            setNeedsDisplay()
+    public override init(toolTipType: BBToolTipType) {
+        super.init(toolTipType: toolTipType)
+        guard case let .waitingSurvivalImage(_, imageURLs) = toolTipType else {
+            return
+        }
+        setupThumbnailImageView(imageURL: imageURLs)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    
+    public override func setupToolTipUI() {
+        super.setupToolTipUI()
+        addSubview(stackView)
+    }
+    
+    
+    public override func setupAutoLayount() {
+        super.setupAutoLayount()
+        let arrowHeight: CGFloat = toolTipType.configure.arrowHeight
+        let textPadding: CGFloat = 10
+        guard case let .waitingSurvivalImage(contentText, imageURLs) = toolTipType else {
+            return
+        }
+        
+        stackView.snp.makeConstraints {
+            $0.width.equalTo(24 * imageURLs.count)
+            $0.height.equalTo(24)
+            $0.left.equalToSuperview().inset(16)
+            $0.centerY.equalTo(contentLabel)
+        }
+        
+        
+        contentLabel.snp.makeConstraints {
+            $0.left.equalTo(stackView.snp.right).offset(22)
+            $0.right.equalToSuperview().inset(16)
+            $0.bottom.equalToSuperview().inset(arrowHeight + textPadding)
+            $0.top.equalToSuperview().inset(textPadding)
+        }
+        
+        
+    }
+    
+    public override func setupToolTipContent() {
+        super.setupToolTipContent()
+        stackView.do {
+            $0.spacing = -4
+            $0.distribution = .fillEqually
         }
     }
     
-    public init() {
+    
+    private func setupThumbnailImageView(imageURL: [URL]) {
+        imageURL.forEach {
+            let imageView: UIImageView = UIImageView(frame: .init(x: 0, y: 0, width: 20, height: 20))
+            imageView.contentMode = .scaleAspectFill
+            imageView.layer.borderColor = UIColor.mainYellow.cgColor
+            imageView.layer.borderWidth = 2
+            imageView.layer.cornerRadius = 10
+            imageView.clipsToBounds = true
+            imageView.kf.setImage(with: $0)
+            stackView.addArrangedSubview(imageView)
+        }
+    }
+    
+}
+
+
+public class BBBaseToolTipView: UIView, BBDrawable {
+    
+    public private(set) var toolTipType: BBToolTipType {
+        didSet {
+            setupToolTipContent()
+            setupAutoLayount()
+        }
+    }
+    public private(set) var contentLabel: BBLabel = BBLabel()
+    
+    public init(toolTipType: BBToolTipType) {
+        self.toolTipType = toolTipType
         super.init(frame: .zero)
-        setupToolTipUI()
     }
     
     required init?(coder: NSCoder) {
@@ -43,14 +113,11 @@ public final class BBToolTipView: UIView, BBDrawable, BBComponentPresentable {
         context.restoreGState()
     }
     
-    //MARK: Configure
-    private func setupToolTipContent() {
-        
-        profileStackView.do {
-            $0.spacing = -4
-            $0.distribution = .fillEqually
-        }
-        
+    public func setupToolTipUI() {
+        addSubview(contentLabel)
+    }
+    
+    public func setupToolTipContent() {
         contentLabel.do {
             $0.text = toolTipType.configure.contentText
             $0.fontStyle = toolTipType.configure.font
@@ -65,63 +132,71 @@ public final class BBToolTipView: UIView, BBDrawable, BBComponentPresentable {
         }
     }
     
-    private func setupToolTipUI() {
-        addSubviews(contentLabel, profileStackView)
+    public func setupAutoLayount() {
+        let arrowHeight: CGFloat = toolTipType.configure.arrowHeight
+        let textPadding: CGFloat = 10
+        contentLabel.snp.makeConstraints {
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.top.equalToSuperview().inset(arrowHeight + textPadding)
+            $0.bottom.equalToSuperview().inset(textPadding)
+        }
     }
+}
+
+
+public final class BBToolTip: AnyObject, BBComponentPresentable {
+
     
     
-    private func setupWaitingToolTipUI(imageURL: [URL]) {
-        imageURL.forEach {
-            createProfileImageView(imageURL: $0)
+    public var contentView: UIView?
+    private let superview: UIView?
+    public var configure: BBToolTipType {
+        didSet {
+            switch configure {
+            case .waitingSurvivalImage:
+                contentView = createThumbnailToolTipView()
+            default:
+                contentView = createTextToolTipView()
+            }
         }
     }
     
-    private func createProfileImageView(imageURL: URL) {
-        let imageView = UIImageView(frame: .init(x: 0, y: 0, width: 20, height: 20))
-        imageView.contentMode = .scaleAspectFill
-        imageView.layer.borderColor = UIColor.mainYellow.cgColor
-        imageView.layer.borderWidth = 2
-        imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 10
-        imageView.kf.setImage(with: imageURL)
-        profileStackView.addArrangedSubview(imageView)
+    
+    public init(configure: BBToolTipType, superView: UIView) {
+        self.configure = configure
+        self.superview = superView
     }
     
-    private func setupAutoLayout(_ type: BBToolTipType) {
-        let arrowHeight = toolTipType.configure.arrowHeight
-        let textPadding: CGFloat = 10
+    private func updateConstraints() {
+        guard let superview else {
+            fatalError("SuperView not Created")
+        }
         
-        switch type {
-        case .monthlyCalendar, .contributor:
-            contentLabel.snp.remakeConstraints {
-                $0.left.equalToSuperview().inset(16)
-                $0.right.equalToSuperview().inset(16)
-                $0.top.equalToSuperview().inset((arrowHeight + textPadding))
-                $0.bottom.equalToSuperview().inset(textPadding)
+        switch configure {
+        case .contributor, .monthlyCalendar:
+            contentView?.snp.makeConstraints {
+                $0.top.equalTo(superview.snp.bottom)
+                $0.left.equalToSuperview().offset(20)
             }
-        case let .waitingSurvivalImage(_ ,imageURL):
-            setupWaitingToolTipUI(imageURL: imageURL)
-            
-            profileStackView.snp.remakeConstraints {
-                $0.width.equalTo(24 * imageURL.count)
-                $0.left.equalToSuperview().offset(16)
-                $0.height.equalTo(24)
-                $0.centerY.equalTo(contentLabel)
-            }
-            
-            contentLabel.snp.remakeConstraints {
-                $0.left.equalTo(profileStackView.snp.right).offset(2)
-                $0.right.equalToSuperview().inset(16)
-                $0.bottom.equalToSuperview().inset((arrowHeight + textPadding))
-                $0.top.equalToSuperview().inset(textPadding)
+        case .familyNameEdit:
+            contentView?.snp.makeConstraints {
+                $0.bottom.equalTo(superview.snp.top)
+                $0.left.equalToSuperview()
             }
         default:
-            contentLabel.snp.remakeConstraints {
-                $0.left.equalToSuperview().inset(16)
-                $0.right.equalToSuperview().inset(16)
-                $0.bottom.equalToSuperview().inset((arrowHeight + textPadding))
-                $0.top.equalToSuperview().inset(textPadding)
+            contentView?.snp.makeConstraints {
+                $0.bottom.equalTo(superview.snp.top)
+                $0.centerX.equalToSuperview()
             }
         }
     }
+    
+    private func createTextToolTipView() -> BBBaseToolTipView {
+        return BBBaseToolTipView(toolTipType: configure)
+    }
+    
+    private func createThumbnailToolTipView() -> BBThumbnailToolTipView {
+        return BBThumbnailToolTipView(toolTipType: configure)
+    }
+    
 }

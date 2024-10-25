@@ -17,8 +17,10 @@ public struct BBToolTipConfiguration {
     public var foregroundColor: UIColor
     /// TooTip Background Color
     public var backgroundColor: UIColor
-    /// ToolTip Arrow Position
-    public var position: BBToolTipVerticalPosition
+    /// ToolTip Arrow YPosition
+    public var yPosition: BBToolTipVerticalPosition
+    /// ToolTip Arrow XPosition
+    public var xPosition: BBToolTipHorizontalPosition
     /// ToolTip Text Font
     public var font: BBFontStyle
     /// ToolTip Content Text
@@ -32,7 +34,8 @@ public struct BBToolTipConfiguration {
         cornerRadius: CGFloat = 12,
         foregroundColor: UIColor = .bibbiBlack,
         backgroundColor: UIColor = .mainYellow,
-        position: BBToolTipVerticalPosition = .top,
+        yPosition: BBToolTipVerticalPosition = .bottom,
+        xPosition: BBToolTipHorizontalPosition = .center,
         font: BBFontStyle = .body2Regular,
         contentText: String = "",
         arrowWidth: CGFloat = 15,
@@ -41,7 +44,8 @@ public struct BBToolTipConfiguration {
         self.cornerRadius = cornerRadius
         self.foregroundColor = foregroundColor
         self.backgroundColor = backgroundColor
-        self.position = position
+        self.xPosition = xPosition
+        self.yPosition = yPosition
         self.font = font
         self.contentText = contentText
         self.arrowWidth = arrowWidth

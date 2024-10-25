@@ -46,7 +46,7 @@ extension BBDrawable {
     /// **BBToolTipType** 에 따라 Arrow의 위치가 배치됩니다.
     func drawToolTipArrowShape(_ frame: CGRect, type: BBToolTipType, path: CGMutablePath) {
         let margin: CGFloat = 16
-        let arrowTipXPosition = type.xPosition.rawValue * frame.width
+        let arrowTipXPosition = type.configure.xPosition.rawValue * frame.width
         let adjustedArrowTipXPosition = min(max(arrowTipXPosition, margin + type.configure.arrowWidth / 2), frame.width - margin - type.configure.arrowWidth / 2)
         let arrowLeft = adjustedArrowTipXPosition - type.configure.arrowWidth / 2
         let arrowRight = adjustedArrowTipXPosition + type.configure.arrowWidth / 2

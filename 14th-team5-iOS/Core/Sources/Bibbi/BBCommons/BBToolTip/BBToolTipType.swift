@@ -9,6 +9,12 @@ import UIKit
 
 import DesignSystem
 
+
+public enum BBToolTipAction: String {
+    case show
+    case hide
+}
+
 /// BBToolTip의 Style을 설정하기 위한  Nested types입니다.
 /// 해당 **BBToolTipType** 을 통해 BBToolTip의 Layout을 구성합니다.
 public enum BBToolTipType {
@@ -52,70 +58,80 @@ public enum BBToolTipType {
             return .init(
                 foregroundColor: .bibbiWhite,
                 backgroundColor: .gray700,
-                position: .bottom,
+                yPosition: .bottom,
+                xPosition: .center,
                 contentText: "오늘의 생존신고는 완료되었어요"
             )
         case .activeCameraTime:
             return .init(
                 foregroundColor: .bibbiWhite,
                 backgroundColor: .gray700,
-                position: .bottom,
+                yPosition: .bottom,
+                xPosition: .center,
                 contentText: "하루에 한 번 사진을 올릴 수 있어요"
             )
         case .familyNameEdit:
             return .init(
                 foregroundColor: .bibbiBlack,
                 backgroundColor: .mainYellow,
-                position: .bottom,
+                yPosition: .bottom,
+                xPosition: .right,
                 contentText: "가족 방 이름을 변경해보세요!"
             )
         case .inactiveSurvivalCameraNoUpload:
             return .init(
                 foregroundColor: .bibbiWhite,
                 backgroundColor: .gray700,
-                position: .bottom,
+                yPosition: .bottom,
+                xPosition: .center,
                 contentText: "생존신고 후 미션 사진을 올릴 수 있어요"
             )
         case .inactiveMissionCameraPostUpload:
             return .init(
                 foregroundColor: .bibbiWhite,
                 backgroundColor: .gray700,
-                position: .bottom,
+                yPosition: .bottom,
+                xPosition: .center,
                 contentText: "오늘의 미션은 완료되었어요"
             )
         case .inactiveMissionCamera:
             return .init(
                 foregroundColor: .bibbiWhite,
                 backgroundColor: .gray700,
-                position: .bottom,
+                yPosition: .bottom,
+                xPosition: .center,
                 contentText: "아직 미션 사진을 찍을 수 없어요"
             )
         case .activeMissionCamera:
             return .init(
                 foregroundColor: .bibbiWhite,
                 backgroundColor: .gray700,
-                position: .bottom,
+                yPosition: .bottom,
+                xPosition: .center,
                 contentText: "미션 사진을 찍으러 가볼까요?"
             )
         case .contributor:
             return .init(
                 foregroundColor: .bibbiWhite,
                 backgroundColor: .gray700,
-                position: .top,
+                yPosition: .top,
+                xPosition: .midLeft,
                 contentText: "생존신고 횟수가 동일한 경우\n이모지, 댓글 수를 합산해서 등수를 정해요"
             )
         case .monthlyCalendar:
             return .init(
                 foregroundColor: .bibbiWhite,
                 backgroundColor: .gray700,
-                position: .top,
+                yPosition: .top,
+                xPosition: .midLeft,
                 contentText: "모두가 참여한 날과 업로드한 사진 수로\n이 달의 친밀도를 측정합니다"
             )
         case let .waitingSurvivalImage(contentText, profile):
             return .init(
                 foregroundColor: .bibbiBlack,
                 backgroundColor: .mainYellow,
-                position: .bottom,
+                yPosition: .bottom,
+                xPosition: .center,
                 contentText: "\(contentText)님 외 \(profile.count - 1)명이 기다리고 있어요"
             )
         }

@@ -18,13 +18,14 @@ public final class BBToolTip: NSObject, BBComponentPresentable {
     public var toolTipStyle: BBToolTipType {
         didSet {
             contentView?.removeFromSuperview()
-            createToolTipContent(toolTipStyle)
             
-            guard let superview else { return }
-            if let contentView = contentView {
+            createToolTipContent(toolTipStyle) { [weak self] in
+                guard let superview = self?.superview,
+                        let contentView = self?.contentView
+                else { return }
                 superview.addSubview(contentView)
-                updateLayout()
-                contentView.layoutIfNeeded()
+                self?.updateLayout()
+                self?.contentView?.layoutIfNeeded()
             }
         }
     }
@@ -65,13 +66,14 @@ public final class BBToolTip: NSObject, BBComponentPresentable {
         }
     }
     
-    
-    private func createToolTipContent(_ style: BBToolTipType) {
+    private func createToolTipContent(_ style: BBToolTipType, completion: (() -> Void)? = nil) {
         switch style {
         case .waitingSurvivalImage:
             self.contentView = BBThumbnailToolTipView(toolTipType: style)
         default:
             self.contentView = BBTextToolTipView(toolTipType: style)
         }
+        
+        completion?()
     }
 }

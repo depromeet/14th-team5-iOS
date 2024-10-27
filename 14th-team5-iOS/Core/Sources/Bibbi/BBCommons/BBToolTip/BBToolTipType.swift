@@ -17,7 +17,7 @@ public enum BBToolTipAction: String {
 
 /// BBToolTip의 Style을 설정하기 위한  Nested types입니다.
 /// 해당 **BBToolTipType** 을 통해 BBToolTip의 Layout을 구성합니다.
-public enum BBToolTipType {
+public enum BBToolTipType: Equatable {
     /// 홈 화면 inactive Camera Button State ToolTip Type
     case inactiveCameraTime
     /// 홈 화면 active Camera Button State ToolTip Type

@@ -16,7 +16,7 @@ public typealias BBComponentPresentable = BBComponentShowable & BBComponentClosa
 /// **Animate**, **CGAffineTransform**, **CABasicAnimation** 을 활용한 Animation 메서드를 정의하는 Protocol 입니다.
 ///  해당 **BBComponentShowable** 프로토콜은 Component 객체를 보여주는 애니메이션을 정의하는 프로토콜입니다.
 public protocol BBComponentShowable {
-    func showPopover(duration: TimeInterval, options: UIView.AnimationOptions, transform: CGAffineTransform, alpha: CGFloat)
+    func show(duration: TimeInterval, options: UIView.AnimationOptions, transform: CGAffineTransform, alpha: CGFloat)
 }
 
 /// **Animate**, **CGAffineTransform**, **CABasicAnimation** 을 활용한 Animation 메서드를 정의하는 Protocol 입니다.
@@ -29,10 +29,11 @@ public protocol BBComponentClosable {
 //MARK: - Extensions
 
 public extension BBComponentShowable where Self: BBToolTip {
-    func showPopover(duration: TimeInterval = 0.3, options: UIView.AnimationOptions = [.curveEaseInOut], transform: CGAffineTransform = CGAffineTransform(scaleX: 0.1, y: 0.1), alpha: CGFloat = 1) {
+    func show(duration: TimeInterval = 0.3, options: UIView.AnimationOptions = [.curveEaseInOut], transform: CGAffineTransform = CGAffineTransform(scaleX: 0.1, y: 0.1), alpha: CGFloat = 1) {
         
         guard let contentView else {
-            fatalError("contentView is Not Created")
+            assertionFailure("No contentView assigned to BBToolTip")
+            return
         }
         
         superview?.addSubview(contentView)
@@ -63,7 +64,6 @@ public extension BBComponentClosable where Self: BBToolTip {
             self?.contentView?.transform = .identity
         })
         
-        print("hide popover: \(self.contentView)")
         self.contentView?.layoutIfNeeded()
     }
 }

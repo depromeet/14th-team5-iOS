@@ -11,9 +11,12 @@ import SnapKit
 import Then
 
 public class BBThumbnailToolTipView: BBBaseToolTipView {
+    // MARK: - Properties
     private let stackView: UIStackView = UIStackView()
     private let contentLabel: BBLabel = BBLabel()
     
+    
+    // MARK: - Intializer
     public override init(toolTipType: BBToolTipType) {
         super.init(toolTipType: toolTipType)
         guard case let .waitingSurvivalImage(_, imageURLs) = toolTipType else {
@@ -30,6 +33,7 @@ public class BBThumbnailToolTipView: BBBaseToolTipView {
     }
     
     
+    // MARK: - Configure
     public func setupToolTipUI() {
         addSubviews(stackView, contentLabel)
     }

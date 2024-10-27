@@ -10,9 +10,8 @@ import UIKit
 import SnapKit
 
 public final class BBToolTip: NSObject, BBComponentPresentable {
-    typealias Content = BBBaseToolTipView
     
-    //MARK: Properties
+    // MARK: - Properties
     public var contentView: BBBaseToolTipView?
     public let superview: UIView?
     public var toolTipStyle: BBToolTipType {
@@ -30,7 +29,7 @@ public final class BBToolTip: NSObject, BBComponentPresentable {
         }
     }
     
-    
+    // MARK: - Intializer
     public init(
         _ toolTipStyle: BBToolTipType = .activeCameraTime,
         superView: UIView
@@ -41,9 +40,11 @@ public final class BBToolTip: NSObject, BBComponentPresentable {
         createToolTipContent(toolTipStyle)
     }
     
+    // MARK: - Configure
     public func updateLayout() {
         guard let superview else {
-            fatalError("SuperView not Created")
+            assertionFailure("No superview assigned to BBToolTip")
+            return
         }
         
         switch toolTipStyle {

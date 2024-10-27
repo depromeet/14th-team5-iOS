@@ -9,12 +9,6 @@ import UIKit
 
 import DesignSystem
 
-
-public enum BBToolTipAction: String {
-    case show
-    case hide
-}
-
 /// BBToolTip의 Style을 설정하기 위한  Nested types입니다.
 /// 해당 **BBToolTipType** 을 통해 BBToolTip의 Layout을 구성합니다.
 public enum BBToolTipType: Equatable {

@@ -11,8 +11,10 @@ import SnapKit
 import Then
 
 public class BBBaseToolTipView: UIView {
+    // MARK: - Properties
     public var toolTipType: BBToolTipType
     
+    // MARK: - Intializer
     public init(toolTipType: BBToolTipType) {
         self.toolTipType = toolTipType
         super.init(frame: .zero)
@@ -30,7 +32,8 @@ public class BBBaseToolTipView: UIView {
         context.restoreGState()
     }
     
-    func drawToolTip(_ frame: CGRect, type: BBToolTipType, context: CGContext) {
+    // MARK: - Configure
+    private func drawToolTip(_ frame: CGRect, type: BBToolTipType, context: CGContext) {
         let toolTipPath = CGMutablePath()
         
         switch type {
@@ -48,7 +51,7 @@ public class BBBaseToolTipView: UIView {
         context.fillPath()
     }
 
-    func drawToolTipArrowShape(_ frame: CGRect, type: BBToolTipType, path: CGMutablePath) {
+    private func drawToolTipArrowShape(_ frame: CGRect, type: BBToolTipType, path: CGMutablePath) {
         let margin: CGFloat = 16
         let arrowTipXPosition = type.configure.xPosition.rawValue * frame.width
         let adjustedArrowTipXPosition = min(max(arrowTipXPosition, margin + type.configure.arrowWidth / 2), frame.width - margin - type.configure.arrowWidth / 2)
@@ -67,7 +70,7 @@ public class BBBaseToolTipView: UIView {
         }
     }
 
-    func drawToolTipTopShape(_ frame: CGRect, toolTipType: BBToolTipType, cornerRadius: CGFloat, path: CGMutablePath) {
+    private func drawToolTipTopShape(_ frame: CGRect, toolTipType: BBToolTipType, cornerRadius: CGFloat, path: CGMutablePath) {
         path.addArc(tangent1End: CGPoint(x: frame.maxX, y: toolTipType.configure.arrowHeight), tangent2End: CGPoint(x: frame.maxX, y: frame.maxY + frame.height), radius: cornerRadius)
         path.addArc(tangent1End: CGPoint(x: frame.maxX, y: frame.maxY), tangent2End: CGPoint(x: frame.minX, y: frame.maxY), radius: cornerRadius)
         
@@ -75,7 +78,7 @@ public class BBBaseToolTipView: UIView {
         path.addArc(tangent1End: CGPoint(x: frame.minX, y: toolTipType.configure.arrowHeight), tangent2End: CGPoint(x: frame.maxX, y: toolTipType.configure.arrowHeight), radius: cornerRadius)
     }
     
-    func drawToolTipBottomShape(_ frame: CGRect, toolTipType: BBToolTipType, cornerRadius: CGFloat, path: CGMutablePath) {
+    private func drawToolTipBottomShape(_ frame: CGRect, toolTipType: BBToolTipType, cornerRadius: CGFloat, path: CGMutablePath) {
         path.addArc(tangent1End: CGPoint(x: frame.maxX, y: frame.height - toolTipType.configure.arrowHeight), tangent2End: CGPoint(x: frame.maxX, y: 0), radius: cornerRadius)
         path.addArc(tangent1End: CGPoint(x: frame.maxX, y: 0), tangent2End: CGPoint(x: frame.minX, y: 0), radius: cornerRadius)
         path.addArc(tangent1End: CGPoint(x: frame.minX, y: 0), tangent2End: CGPoint(x: frame.minX, y: frame.height - toolTipType.configure.arrowHeight), radius: cornerRadius)

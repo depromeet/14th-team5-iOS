@@ -12,10 +12,11 @@ import Then
 
 
 public class BBTextToolTipView: BBBaseToolTipView {
-    
+    // MARK: - Properties
     private var contentLabel: BBLabel = BBLabel()
     private let touchControl: UIControl = UIControl()
     
+    // MARK: - Intializer
     public override init(toolTipType: BBToolTipType) {
         super.init(toolTipType: toolTipType)
         setupToolTipUI()
@@ -27,6 +28,7 @@ public class BBTextToolTipView: BBBaseToolTipView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Configure
     private func setupToolTipUI() {
         addSubview(contentLabel)
         if toolTipType == .contributor || toolTipType == .monthlyCalendar {

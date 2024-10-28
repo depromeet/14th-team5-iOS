@@ -12,23 +12,27 @@ import DesignSystem
 /// BBToolTip에 (UI, Width, Height) Properties를 설정하기 위한 구조체입니다.
 public struct BBToolTipConfiguration {
     /// ToolTip Corner Radius
-    public var cornerRadius: CGFloat
+    public let cornerRadius: CGFloat
     /// TooTip TextFont Foreground Color
-    public var foregroundColor: UIColor
+    public let foregroundColor: UIColor
     /// TooTip Background Color
-    public var backgroundColor: UIColor
+    public let backgroundColor: UIColor
     /// ToolTip Arrow YPosition
-    public var yPosition: BBToolTipVerticalPosition
+    public let yPosition: BBToolTipVerticalPosition
     /// ToolTip Arrow XPosition
-    public var xPosition: BBToolTipHorizontalPosition
+    public let xPosition: BBToolTipHorizontalPosition
     /// ToolTip Text Font
-    public var font: BBFontStyle
+    public let font: BBFontStyle
     /// ToolTip Content Text
-    public var contentText: String
+    public let contentText: String
     /// ToolTip Arrow Width
-    public var arrowWidth: CGFloat
+    public let arrowWidth: CGFloat
     /// ToolTip Arrow Height
-    public var arrowHeight: CGFloat
+    public let arrowHeight: CGFloat
+    
+    public let maxWidth: CGFloat
+    
+    public let maxHeight: CGFloat
     
     public init(
         cornerRadius: CGFloat = 12,
@@ -39,7 +43,9 @@ public struct BBToolTipConfiguration {
         font: BBFontStyle = .body2Regular,
         contentText: String = "",
         arrowWidth: CGFloat = 15,
-        arrowHeight: CGFloat = 12
+        arrowHeight: CGFloat = 12,
+        maxWidth: CGFloat = 222,
+        maxHeight: CGFloat = 40
     ) {
         self.cornerRadius = cornerRadius
         self.foregroundColor = foregroundColor
@@ -50,5 +56,7 @@ public struct BBToolTipConfiguration {
         self.contentText = contentText
         self.arrowWidth = arrowWidth
         self.arrowHeight = arrowHeight
+        self.maxWidth = maxWidth
+        self.maxHeight = maxHeight
     }
 }

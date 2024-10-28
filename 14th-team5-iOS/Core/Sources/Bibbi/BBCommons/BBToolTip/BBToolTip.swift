@@ -17,14 +17,12 @@ public final class BBToolTip: NSObject, BBComponentPresentable {
     public var toolTipStyle: BBToolTipType {
         didSet {
             contentView?.removeFromSuperview()
-            
             createToolTipContent(toolTipStyle) { [weak self] in
                 guard let superview = self?.superview,
                         let contentView = self?.contentView
                 else { return }
                 superview.addSubview(contentView)
                 self?.updateLayout()
-                self?.contentView?.layoutIfNeeded()
             }
         }
     }
@@ -42,30 +40,45 @@ public final class BBToolTip: NSObject, BBComponentPresentable {
     
     // MARK: - Configure
     public func updateLayout() {
-        guard let superview else {
-            assertionFailure("No superview assigned to BBToolTip")
+        guard let superview = superview, let contentView = contentView else {
+            assertionFailure("No superview or contentView assigned to BBToolTip")
             return
         }
         
+        superview.layoutIfNeeded()
+
+        contentView.frame.size = CGSize(width: toolTipStyle.configure.maxWidth, height: toolTipStyle.configure.maxHeight)
+        
+
+        let superviewCenterX = superview.bounds.midX
+        let contentViewWidth = contentView.frame.width
+        let arrowTipXPosition = toolTipStyle.configure.xPosition.rawValue * contentViewWidth
+
+        let horizontalOffset = superviewCenterX - arrowTipXPosition
+ 
+        var contentViewFrame = contentView.frame
         switch toolTipStyle {
         case .contributor, .monthlyCalendar:
-            
-            contentView?.snp.makeConstraints {
-                $0.top.equalTo(superview.snp.bottom)
-                $0.left.equalToSuperview().offset(20)
-            }
+            contentViewFrame.origin = CGPoint(
+                x: horizontalOffset,
+                y: superview.bounds.origin.y + superview.frame.height
+            )
         case .familyNameEdit:
-            contentView?.snp.makeConstraints {
-                $0.bottom.equalTo(superview.snp.top)
-                $0.left.equalToSuperview()
-            }
+            contentViewFrame.origin = CGPoint(
+                x: horizontalOffset + superview.bounds.midX,
+                y: superview.bounds.minY - contentView.frame.height
+            )
         default:
-            contentView?.snp.makeConstraints {
-                $0.bottom.equalTo(superview.snp.top)
-                $0.centerX.equalToSuperview()
-            }
+            contentViewFrame.origin = CGPoint(
+                x: horizontalOffset,
+                y: superview.bounds.minY - contentView.frame.height
+            )
         }
+        
+        contentView.frame = contentViewFrame
+        print("contentView frame: \(contentView.frame)")
     }
+
     
     private func createToolTipContent(_ style: BBToolTipType, completion: (() -> Void)? = nil) {
         switch style {

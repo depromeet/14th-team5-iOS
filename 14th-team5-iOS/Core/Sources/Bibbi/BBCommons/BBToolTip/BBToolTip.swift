@@ -46,9 +46,9 @@ public final class BBToolTip: NSObject, BBComponentPresentable {
         }
         
         superview.layoutIfNeeded()
-
-        contentView.frame.size = CGSize(width: toolTipStyle.configure.maxWidth, height: toolTipStyle.configure.maxHeight)
+        contentView.layoutIfNeeded()
         
+        contentView.frame.size = contentView.intrinsicContentSize
 
         let superviewCenterX = superview.bounds.midX
         let contentViewWidth = contentView.frame.width
@@ -76,7 +76,6 @@ public final class BBToolTip: NSObject, BBComponentPresentable {
         }
         
         contentView.frame = contentViewFrame
-        print("contentView frame: \(contentView.frame)")
     }
 
     

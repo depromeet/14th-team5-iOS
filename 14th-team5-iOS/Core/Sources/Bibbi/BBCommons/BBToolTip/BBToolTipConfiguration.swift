@@ -30,10 +30,6 @@ public struct BBToolTipConfiguration {
     /// ToolTip Arrow Height
     public let arrowHeight: CGFloat
     
-    public let maxWidth: CGFloat
-    
-    public let maxHeight: CGFloat
-    
     public init(
         cornerRadius: CGFloat = 12,
         foregroundColor: UIColor = .bibbiBlack,
@@ -43,9 +39,7 @@ public struct BBToolTipConfiguration {
         font: BBFontStyle = .body2Regular,
         contentText: String = "",
         arrowWidth: CGFloat = 15,
-        arrowHeight: CGFloat = 12,
-        maxWidth: CGFloat = 222,
-        maxHeight: CGFloat = 40
+        arrowHeight: CGFloat = 12
     ) {
         self.cornerRadius = cornerRadius
         self.foregroundColor = foregroundColor
@@ -56,7 +50,5 @@ public struct BBToolTipConfiguration {
         self.contentText = contentText
         self.arrowWidth = arrowWidth
         self.arrowHeight = arrowHeight
-        self.maxWidth = maxWidth
-        self.maxHeight = maxHeight
     }
 }

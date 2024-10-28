@@ -17,6 +17,13 @@ public class BBTextToolTipView: BBBaseToolTipView {
     private let touchControl: UIControl = UIControl()
     
     // MARK: - Intializer
+    public override var intrinsicContentSize: CGSize {
+        let contentWidth = contentLabel.intrinsicContentSize.width + 32
+        let contentHeight = contentLabel.intrinsicContentSize.height + toolTipType.configure.arrowHeight + 20
+        return CGSize(width: contentWidth, height: contentHeight)
+    }
+    
+    
     public override init(toolTipType: BBToolTipType) {
         super.init(toolTipType: toolTipType)
         setupToolTipUI()

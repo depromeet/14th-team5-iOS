@@ -17,6 +17,18 @@ public class BBThumbnailToolTipView: BBBaseToolTipView {
     
     
     // MARK: - Intializer
+    public override var intrinsicContentSize: CGSize {
+        guard case let .waitingSurvivalImage(_, imageURLs) = toolTipType else {
+            return .zero
+        }
+        let thumbnailWidth = CGFloat(24 * imageURLs.count)
+        let labelWidth = contentLabel.intrinsicContentSize.width
+        let contentWidth = thumbnailWidth + labelWidth + 38
+        let contentHeight = max(stackView.intrinsicContentSize.height, contentLabel.intrinsicContentSize.height) + toolTipType.configure.arrowHeight + 20
+        
+        return CGSize(width: contentWidth, height: contentHeight)
+    }
+    
     public override init(toolTipType: BBToolTipType) {
         super.init(toolTipType: toolTipType)
         guard case let .waitingSurvivalImage(_, imageURLs) = toolTipType else {
@@ -75,6 +87,10 @@ public class BBThumbnailToolTipView: BBBaseToolTipView {
             $0.numberOfLines = 0
             $0.textColor = toolTipType.configure.foregroundColor
             $0.sizeToFit()
+        }
+        
+        self.do {
+            $0.backgroundColor = .clear
         }
     }
     

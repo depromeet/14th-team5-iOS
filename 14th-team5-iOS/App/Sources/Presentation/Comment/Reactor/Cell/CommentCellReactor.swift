@@ -28,7 +28,7 @@ final public class CommentCellReactor: Reactor {
     
     public enum Mutation {
         case setMemberName(String)
-        case setProfileImageUrl(String?)
+        case setProfileImageUrl(URL?)
     }
     
     
@@ -36,9 +36,8 @@ final public class CommentCellReactor: Reactor {
     
     public struct State {
         let comment: PostCommentEntity
-        
-        var memberName: String? = nil
-        var profileImageUrl: String? = nil
+        var memberName: String?
+        var profileImageUrl: URL?
     }
     
     
@@ -69,7 +68,7 @@ final public class CommentCellReactor: Reactor {
         
         switch action {
         case .fetchUserName:
-            let memberName = fetchUserNameUseCase.execute(memberId: memberId) ?? "알 수 없음"
+            let memberName = fetchUserNameUseCase.execute(memberId: memberId)
             return Observable<Mutation>.just(.setMemberName(memberName))
             
         case .fetchProfileImage:

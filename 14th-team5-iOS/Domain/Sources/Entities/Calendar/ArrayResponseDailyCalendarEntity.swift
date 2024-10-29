@@ -20,8 +20,8 @@ public struct DailyCalendarEntity {
     public var type: PostType
     public var postId: String
     public var postImageUrl: String
-    public var postContent: String
-    public var missionContent: String
+    public var postContent: String?
+    public var missionContent: String?
     public var authorId: String
     public var commentCount: Int
     public var emojiCount: Int
@@ -33,8 +33,8 @@ public struct DailyCalendarEntity {
         type: PostType,
         postId: String,
         postImageUrl: String,
-        postContent: String,
-        missionContent: String,
+        postContent: String?,
+        missionContent: String?,
         authorId: String,
         commentCount: Int,
         emojiCount: Int,

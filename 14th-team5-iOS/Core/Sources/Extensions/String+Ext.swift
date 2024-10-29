@@ -47,6 +47,9 @@ extension String {
 }
 
 extension String {
+    
+    /// 특정 `Index`에 위치한 문자열을 반환합니다.
+    ///  - Returns: 해당 위치에 문자열이 있다면 `String?`을, 없다면 `nil`을 반환합니다.
     public subscript(_ index: Int) -> String? {
         guard index >= 0 && index < count else {
             return nil
@@ -55,4 +58,5 @@ extension String {
         let index = self.index(self.startIndex, offsetBy: index)
         return String(self[index])
     }
+    
 }

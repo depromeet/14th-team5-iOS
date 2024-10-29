@@ -91,20 +91,20 @@ extension FamilyRepository {
     // MARK: - Fetch Family CreatedAt
     
     public func fetchFamilyCreatedAt() -> Observable<FamilyCreatedAtEntity?> {
-        guard
-            let familyId = familyUserDefaults.loadFamilyId()
-        else { return .error(NSError()) } // TODO: - Error 타입 정의하기
-        
-        return familyApiWorker.fetchFamilyCreatedAt(familyId: familyId)
-            .map { $0?.toDomain() }
-            .do(onSuccess: { [weak self] in
-                guard let self else { return }
-                self.familyUserDefaults.saveFamilyCreatedAt($0?.createdAt)
-                
-                // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
-                App.Repository.member.familyCreatedAt.accept($0?.createdAt)
-            })
-            .asObservable()
+        // 다시 리팩토링하기
+        if let createdAt = familyUserDefaults.loadFamilyCreatedAt() {
+            return Observable.just(FamilyCreatedAtEntity(createdAt: createdAt))
+        } else {
+            guard let familyId = familyUserDefaults.loadFamilyId()
+            else { return .error(NSError()) } // 에러 타입 다시 정의하기
+            return familyApiWorker.fetchFamilyCreatedAt(familyId: familyId)
+                .map { $0?.toDomain() }
+                .do(onSuccess: { [weak self] in
+                    guard let self else { return }
+                    self.familyUserDefaults.saveFamilyCreatedAt($0?.createdAt)
+                })
+                .asObservable()
+        }
     }
     
     // MARK: - Fetch Invitation Url

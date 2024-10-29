@@ -85,7 +85,8 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         
         reactor.state.compactMap { $0.profileImageUrl }
             .distinctUntilChanged()
-            .bind(to: profileImage.rx.kingfisherImage)
+            .compactMap { $0 }
+            .bind(to: profileImage.rx.kfImage)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.comment.createdAt }

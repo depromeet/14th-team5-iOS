@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol FetchCalendarBannerUseCaseProtocol {
-    func execute(yearMonth: String) -> Observable<BannerEntity?>
+    func execute(yearMonth: String) -> Observable<BannerEntity>
 }
 
 public class FetchCalendarBannerUseCase: FetchCalendarBannerUseCaseProtocol {
@@ -25,7 +25,7 @@ public class FetchCalendarBannerUseCase: FetchCalendarBannerUseCaseProtocol {
     
     // MARK: - Execute
     
-    public func execute(yearMonth: String) -> Observable<BannerEntity?> {
-        calendarRepository.fetchCalendarBanner(yearMonth: yearMonth)
+    public func execute(yearMonth: String) -> Observable<BannerEntity> {
+        calendarRepository.fetchCalendarBannerInfo(yearMonth: yearMonth)
     }
 }

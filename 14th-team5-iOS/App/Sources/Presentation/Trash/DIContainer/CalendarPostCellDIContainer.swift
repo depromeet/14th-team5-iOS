@@ -28,9 +28,9 @@ public final class CalendarPostCellDIContainer {
         return MemberRepository()
     }
     
-    public func makeReactor() -> CalendarPostCellReactor {
-        return CalendarPostCellReactor(
-            post: post
+    public func makeReactor() -> MemoriesCalendarPostCellReactor {
+        return MemoriesCalendarPostCellReactor(
+            postEntity: post
         )
     }
 }

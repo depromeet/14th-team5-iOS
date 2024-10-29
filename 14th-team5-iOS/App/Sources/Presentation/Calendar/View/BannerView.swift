@@ -5,14 +5,14 @@
 //  Created by 김건우 on 1/26/24.
 //
 
-
-import UIKit
 import DesignSystem
 import SwiftUI
 
 struct BannerView: View {
+    
     // MARK: - Mertic
-    private enum Metric {
+    
+    private enum Metric { // `isPhoneSE` 프로퍼티 개선하기
         static var topPadding: CGFloat = UIScreen.isPhoneSE ? 12 : 18
         static var vSpacing: CGFloat = UIScreen.isPhoneSE ? 1 : 6
         static var scaleWidth: CGFloat = UIScreen.isPhoneSE ? 0.5 : 1
@@ -21,17 +21,22 @@ struct BannerView: View {
     }
     
     // MARK: - Properties
+    
     @ObservedObject var viewModel: BannerViewModel
     
     private let bold = DesignSystemFontFamily.Pretendard.bold
     private let regular = DesignSystemFontFamily.Pretendard.regular
     
+    
     // MARK: - Intializer
+    
     init(viewModel: BannerViewModel) {
         self.viewModel = viewModel
     }
     
+    
     // MARK: - Body
+    
     var body: some View {
         banner
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -50,7 +55,9 @@ struct BannerView: View {
     }
 }
 
+
 // MARK: - Extensions
+
 extension BannerView {
     var banner: some View {
         VStack {
@@ -112,7 +119,9 @@ extension BannerView {
     }
 }
 
+
 // MARK: - Preview
+
 struct BannerView_Previews: PreviewProvider {
     static let viewModel = BannerViewModel(state:
         .init(

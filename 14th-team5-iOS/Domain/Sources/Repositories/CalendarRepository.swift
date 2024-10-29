@@ -10,11 +10,8 @@ import Foundation
 import RxSwift
 
 public protocol CalendarRepositoryProtocol {
-    @available(*, deprecated, renamed: "fetchMonthlyCalendarResponse")
-    func fetchCalendarResponse(yearMonth: String) -> Observable<ArrayResponseCalendarEntity?>
-    
-    func fetchMonthyCalendarResponse(yearMonth: String) -> Observable<ArrayResponseMonthlyCalendarEntity?>
-    func fetchDailyCalendarResponse(yearMonthDay: String) -> Observable<ArrayResponseDailyCalendarEntity?>
-    func fetchStatisticsSummary(yearMonth: String) -> Observable<FamilyMonthlyStatisticsEntity?>
-    func fetchCalendarBanner(yearMonth: String) -> Observable<BannerEntity?>
+    func fetchCalendarBannerInfo(yearMonth: String) -> Observable<BannerEntity>
+    func fetchStatisticsSummary(yearMonth: String) -> Observable<FamilyMonthlyStatisticsEntity>
+    func fetchMonthyCalendarResponse(yearMonth: String) -> Observable<ArrayResponseMonthlyCalendarEntity>
+    func fetchDailyCalendarResponse(yearMonthDay: String) -> Observable<ArrayResponseDailyCalendarEntity>
 }

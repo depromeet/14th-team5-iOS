@@ -11,6 +11,7 @@ import UIKit
 protocol DailyCalendarNavigatorProtocol: BaseNavigator {
     func toProfile(memberId: String)
     func toComment(postId: String)
+    func backToMonthly()
 }
 
 final class DailyCalendarNavigator: DailyCalendarNavigatorProtocol {
@@ -35,7 +36,12 @@ final class DailyCalendarNavigator: DailyCalendarNavigatorProtocol {
     func toComment(postId: String) {
         let vc = CommentViewControllerWrapper(postId: postId).viewController
         navigationController.presentPostCommentSheet(vc, from: .calendar)
-        // TODO: - present 메서드 수정하기
+    }
+    
+    // MARK: - Back
+    
+    func backToMonthly() {
+        navigationController.popViewController(animated: true)
     }
     
 }

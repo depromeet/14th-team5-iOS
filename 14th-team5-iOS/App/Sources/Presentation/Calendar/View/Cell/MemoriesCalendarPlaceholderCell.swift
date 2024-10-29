@@ -16,11 +16,15 @@ import RxSwift
 import SnapKit
 import Then
 
-final class CalendarPlaceholderCell: FSCalendarCell {
+final class MemoriesCalendarPlaceholderCell: FSCalendarCell {
+    
     // MARK: - Properties
+    
     static let id: String = "CalendarPlaceholderCell"
     
+    
     // MARK: - Intializer
+    
     override init(frame: CGRect) {
         super.init(frame: .zero)
         setupAutoLayout()
@@ -30,7 +34,9 @@ final class CalendarPlaceholderCell: FSCalendarCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    
     // MARK: - Helpers
+    
     func setupAutoLayout() {
         titleLabel.snp.makeConstraints {
             $0.center.equalTo(contentView.snp.center)

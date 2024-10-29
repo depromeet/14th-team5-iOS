@@ -37,14 +37,6 @@ final class CalendarDIContainer: BaseContainer {
         )
     }
     
-    // Deprecated
-    private func makeOldCalendarUseCase() -> CalendarUseCaseProtocol {
-        CalendarUseCase(
-            calendarRepository: makeCalendarRepository()
-        )
-    }
-    
-    
     
     // MARK: - Make Repository
     
@@ -71,13 +63,6 @@ final class CalendarDIContainer: BaseContainer {
         container.register(type: FetchMonthlyCalendarUseCaseProtocol.self) { _ in
             self.makeFetchMonthlyCalendarUseCase()
         }
-        
-        
-        // Deprecated
-        container.register(type: CalendarUseCaseProtocol.self) { _ in
-            self.makeOldCalendarUseCase()
-        }
-        
     }
     
     

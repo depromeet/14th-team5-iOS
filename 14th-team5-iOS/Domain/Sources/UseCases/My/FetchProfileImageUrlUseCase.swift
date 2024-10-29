@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol FetchProfileImageUrlUseCaseProtocol {
-    func execute(memberId: String) -> String?
+    func execute(memberId: String) -> URL?
 }
 
 public class FetchProfileImageUrlUseCase: FetchProfileImageUrlUseCaseProtocol {
@@ -22,8 +22,15 @@ public class FetchProfileImageUrlUseCase: FetchProfileImageUrlUseCaseProtocol {
     }
     
     // MARK: - Execute
-    public func execute(memberId: String) -> String? {
-        myRepository.fetchProfileImageUrl(memberId: memberId)
+    
+    /// 주어진 멤버ID를 바탕으로 멤버 프로필 이미지 URL을 반환합니다.
+    /// - Parameter memberId: 멤버 ID입니다.
+    /// - Returns: 이미지 URL이 있다면 `URL?`을, 그렇지 않으면 `nil`을 반환합니다.
+    public func execute(memberId: String) -> URL? {
+        if let urlString = myRepository.fetchProfileImageUrl(memberId: memberId) {
+            return URL(string: urlString)
+        }
+        return nil
     }
     
 }

@@ -16,26 +16,25 @@ import RxDataSources
 import SnapKit
 import Then
 
-// 지금 당장 BBNavigationViewController로 바꿔도 안됨
-// 왜냐하면, PopoverViewController Delegate 문제가 발생하기 때문!
-
-fileprivate typealias _Str = CalendarStrings
-public final class MonthlyCalendarViewController: TempNavigationViewController<MonthlyCalendarViewReactor> {
+public final class MonthlyCalendarViewController: BBNavigationViewController<MonthlyCalendarViewReactor> {
+    
+    // MARK: - Typealias
+    
+    typealias RxDataSource = RxCollectionViewSectionedReloadDataSource<MonthlyCalendarSectionModel>
+    
+    
     // MARK: - Views
-    private lazy var calendarCollectionView: UICollectionView = UICollectionView(
-        frame: .zero,
-        collectionViewLayout: orthogonalCompositionalLayout
-    )
+    
+    private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: compositionalLayout)
+    
     
     // MARK: - Properties
-    private lazy var dataSource: RxCollectionViewSectionedReloadDataSource<MonthlyCalendarSectionModel> = prepareDatasource()
     
-    // MARK: - Lifecycles
-    public override func viewDidLoad() {
-        super.viewDidLoad()
-    }
+    private lazy var dataSource: RxDataSource = prepareDatasource()
+    
     
     // MARK: - Helpers
+    
     public override func bind(reactor: MonthlyCalendarViewReactor) {
         super.bind(reactor: reactor)
         bindInput(reactor: reactor)
@@ -43,80 +42,30 @@ public final class MonthlyCalendarViewController: TempNavigationViewController<M
     }
     
     private func bindInput(reactor: MonthlyCalendarViewReactor) {
-        Observable<Void>.just(())
-            .delay(RxConst.milliseconds100Interval, scheduler: RxSchedulers.main)
-            .bind(with: self) { owner, _ in
-                UIView.transition(
-                    with: owner.calendarCollectionView,
-                    duration: 0.25,
-                    options: .transitionCrossDissolve
-                ) { [weak self] in
-                    self?.calendarCollectionView.isHidden = false
-                }
-            }
-            .disposed(by: disposeBag)
-        
-        App.Repository.member.familyCreatedAt // 캘린더 페이지를 생성하는 코드 ex) 2024년 3월 ~ 9월
-            .withUnretained(self)
-            .map {
-                guard let createdAt = $0.1 else {
-                    let _20230101 = Date._20230101
-                    return $0.0.createCalendarItems(from: _20230101)
-                }
-                print("======= \(createdAt)")
-                print("======= \($0.0.createCalendarItems(from: createdAt))")
-                return $0.0.createCalendarItems(from: createdAt)
-            }
-            .map { Reactor.Action.addCalendarItems($0)}
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-         
-
-        navigationBar.rx.didTapLeftBarButton
-            .map { _ in Reactor.Action.popViewController }
+        Observable.just(())
+            .map { Reactor.Action.viewDidLoad }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: MonthlyCalendarViewReactor) {
-        reactor.pulse(\.$displayCalendar)
-            .bind(to: calendarCollectionView.rx.items(dataSource: dataSource))
-            .disposed(by: disposeBag)
+        let pageDatasource = reactor.pulse(\.$pageDatasource)
+            .asDriver(onErrorDriveWith: .empty())
         
-        reactor.state.compactMap { $0.initalCalendarPageIndexPath }
-            .bind(with: self) { owner, indexPath in
-                owner.scrollToLastIndexPath(indexPath)
-            }
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$shouldPushDailyCalendarViewController).compactMap { $0 }
-            .withUnretained(self)
-            .subscribe { $0.0.pushWeeklyCalendarViewController($0.1) }
-            .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$shouldPresnetInfoPopover)
-            .withUnretained(self)
-            .subscribe {
-                $0.0.makeDescriptionPopoverView(
-                    $0.0,
-                    sourceView: $0.1,
-                    text: _Str.infoText,
-                    popoverSize: CGSize(width: 260, height: 62),
-                    permittedArrowDrections: [.up]
-                )
-            }
+        pageDatasource
+            .drive(collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
     }
     
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(calendarCollectionView)
+        view.addSubviews(collectionView)
     }
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         
-        calendarCollectionView.snp.makeConstraints {
+        collectionView.snp.makeConstraints {
             $0.top.equalTo(navigationBar.snp.bottom)
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalToSuperview()
@@ -132,26 +81,30 @@ public final class MonthlyCalendarViewController: TempNavigationViewController<M
             $0.rightBarButtonItem = nil
         }
         
-        calendarCollectionView.do {
-            $0.isHidden = true
+        collectionView.do {
             $0.isScrollEnabled = false
             $0.backgroundColor = UIColor.clear
-            $0.register(CalendarCell.self, forCellWithReuseIdentifier: CalendarCell.id)
+            $0.register(MemoriesCalendarPageViewCell.self, forCellWithReuseIdentifier: MemoriesCalendarPageViewCell.id)
         }
+        
+        
+        collectionView.layoutIfNeeded()
+        collectionView.scroll(to: IndexPath(item: reactor!.currentState.pageDatasource.first!.items.count - 1, section: 0)) // 다시 리팩토링하기
     }
 }
 
+
 // MARK: - Extensions
+
 extension MonthlyCalendarViewController {
-    private var orthogonalCompositionalLayout: UICollectionViewCompositionalLayout {
-        // item
+    
+    private var compositionalLayout: UICollectionViewCompositionalLayout {
         let itemSize: NSCollectionLayoutSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
             heightDimension: .fractionalHeight(1.0)
         )
         let item: NSCollectionLayoutItem = NSCollectionLayoutItem(layoutSize: itemSize)
         
-        // group
         let groupSize: NSCollectionLayoutSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
             heightDimension: .fractionalHeight(1.0)
@@ -162,82 +115,23 @@ extension MonthlyCalendarViewController {
             count: 1
         )
         
-        // section
         let section: NSCollectionLayoutSection = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .groupPaging
         
-        // layout
         let layout: UICollectionViewCompositionalLayout = UICollectionViewCompositionalLayout(section: section)
-        
         return layout
     }
+    
 }
 
 extension MonthlyCalendarViewController {
-    private func prepareDatasource() -> RxCollectionViewSectionedReloadDataSource<MonthlyCalendarSectionModel> {
-        return RxCollectionViewSectionedReloadDataSource<MonthlyCalendarSectionModel> { datasource, collectionView, indexPath, yearMonth in
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarCell.id, for: indexPath) as! CalendarCell
-            cell.reactor = CalendarCellReactor(yearMonth: yearMonth)
+    
+    private func prepareDatasource() -> RxDataSource {
+        return RxDataSource { datasource, collectionView, indexPath, yearMonth in
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MemoriesCalendarPageViewCell.id, for: indexPath) as! MemoriesCalendarPageViewCell
+            cell.reactor = MemoriesCalendarPageReactor(yearMonth: yearMonth)
             return cell
         }
     }
     
-    private func pushWeeklyCalendarViewController(_ date: Date) {
-        navigationController?.pushViewController(
-            WeeklyCalendarDIConatainer(
-                date: date
-            ).makeViewController(),
-            animated: true
-        )
-    }
-    
-    private func scrollToLastIndexPath(_ indexPath: IndexPath) {
-        calendarCollectionView.layoutIfNeeded()
-        
-        print("======= \(dataSource[0].items.count - 1)")
-        
-        calendarCollectionView.scrollToItem(
-            at: indexPath,
-            at: .centeredHorizontally,
-            animated: false
-        )
-    }
-}
-
-extension MonthlyCalendarViewController {
-    // TODO: - Item 생성 로직을 다른 곳으로 이동하기
-    private func createCalendarItems(from startDate: Date, to endDate: Date = Date()) -> [String] {
-        var items: [String] = []
-        let calendar: Calendar = Calendar.current
-        
-        let monthInterval: Int = getMonthInterval(from: startDate, to: endDate)
-        
-        for value in 0...monthInterval {
-            if let date = calendar.date(byAdding: .month, value: value, to: startDate) {
-                let yyyyMM = date.toFormatString(with: .dashYyyyMM)
-                items.append(yyyyMM)
-            }
-        }
-
-        return items
-    }
-    
-    private func getMonthInterval(from startDate: Date, to endDate: Date) -> Int {
-        let calendar: Calendar = Calendar.current
-        
-        let startComponents = calendar.dateComponents([.year, .month], from: startDate)
-        let endComponents = calendar.dateComponents([.year, .month], from: endDate)
-        
-        let yearDifference = endComponents.year! - startComponents.year!
-        let monthDifference = endComponents.month! - startComponents.month!
-        
-        let monthInterval = yearDifference * 12 + monthDifference
-        return monthInterval
-    }
-}
-
-extension MonthlyCalendarViewController: UIPopoverPresentationControllerDelegate {
-    public func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
-        return .none
-    }
 }

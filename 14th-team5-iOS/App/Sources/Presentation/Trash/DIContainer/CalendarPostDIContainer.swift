@@ -49,7 +49,7 @@ public final class WeeklyCalendarDIConatainer {
     
     public func makeReactor() -> DailyCalendarViewReactor {
         return DailyCalendarViewReactor(
-            date: date,
+            initialSelection: date,
             notificationDeepLink: deepLink
 //            calendarUseCase: makeCalendarUseCase(),
 //            provider: globalState

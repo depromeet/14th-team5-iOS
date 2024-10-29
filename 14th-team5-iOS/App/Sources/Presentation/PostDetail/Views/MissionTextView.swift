@@ -89,3 +89,18 @@ final class MissionTextView: UIView {
         }
     }
 }
+
+
+// MARK: - Extensions
+
+extension MissionTextView {
+    
+    func setHidden(hidden: Bool) {
+        self.isHidden = hidden
+    }
+    
+    func setMissionText(text: String?) {
+        missionLabel.text = text
+    }
+    
+}

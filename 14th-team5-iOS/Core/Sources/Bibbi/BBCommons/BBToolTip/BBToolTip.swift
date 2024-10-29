@@ -13,7 +13,7 @@ public final class BBToolTip: NSObject, BBComponentPresentable {
     
     // MARK: - Properties
     public var contentView: BBBaseToolTipView?
-    public let superview: UIView?
+    public var superview: UIView?
     public var toolTipStyle: BBToolTipType {
         didSet {
             contentView?.removeFromSuperview()
@@ -29,11 +29,9 @@ public final class BBToolTip: NSObject, BBComponentPresentable {
     
     // MARK: - Intializer
     public init(
-        _ toolTipStyle: BBToolTipType = .activeCameraTime,
-        superView: UIView
+        _ toolTipStyle: BBToolTipType = .activeCameraTime
     ) {
         self.toolTipStyle = toolTipStyle
-        self.superview = superView
         super.init()
         createToolTipContent(toolTipStyle)
     }

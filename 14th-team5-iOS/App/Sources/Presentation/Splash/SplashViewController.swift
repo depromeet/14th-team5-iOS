@@ -93,17 +93,17 @@ public final class SplashViewController: BaseViewController<SplashReactor> {
     
     private func showNextPage(with member: MemberInfo?) {
         @Navigator var splashNavigator: SplashNavigatorProtocol
-        print("memberId: \(member)")
+        
         guard let member = member else {
             splashNavigator.toSignIn()
             return
         }
-        print("member FamilYId: \(member.familyId)")
+        
         if let _ = member.familyId {
             if UserDefaults.standard.inviteCode != nil {
                 splashNavigator.toJoined()
             } else {
-                splashNavigator.toHome()
+                splashNavigator.toSignIn()
                 return
             }
             return

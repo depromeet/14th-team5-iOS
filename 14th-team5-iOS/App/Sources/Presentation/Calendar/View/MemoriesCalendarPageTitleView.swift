@@ -21,7 +21,7 @@ final public class MemoriesCalendarPageTitleView: BaseView<MemoriesCalendarTitle
     private let memoryCountLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray200)
     private let tipButton: UIButton = UIButton(type: .system)
     
-    private let toolTipView: BBToolTipView = BBToolTipView()
+    private let toolTipView: BBToolTip = BBToolTip(.monthlyCalendar)
     
     // MARK: - Properties
     
@@ -48,8 +48,8 @@ final public class MemoriesCalendarPageTitleView: BaseView<MemoriesCalendarTitle
     private func bindOutput(reactor: Reactor) {
         reactor.pulse(\.$hiddenTooltipView)
             .bind(with: self) {
-                $1 ? $0.toolTipView.hidePopover()
-                : $0.toolTipView.showPopover()
+                $1 ? $0.toolTipView.hide()
+                : $0.toolTipView.show()
             }
             .disposed(by: disposeBag)
     }
@@ -58,7 +58,7 @@ final public class MemoriesCalendarPageTitleView: BaseView<MemoriesCalendarTitle
     public override func setupUI() {
         super.setupUI()
         
-        self.addSubviews(labelStack, memoryCountLabel, toolTipView)
+        self.addSubviews(labelStack, memoryCountLabel)
         labelStack.addArrangedSubviews(titleLabel, tipButton)
     }
     
@@ -79,10 +79,6 @@ final public class MemoriesCalendarPageTitleView: BaseView<MemoriesCalendarTitle
             $0.size.equalTo(20)
         }
         
-        toolTipView.snp.makeConstraints {
-            $0.top.equalTo(tipButton.snp.bottom).offset(4)
-            $0.leading.equalToSuperview().offset(57.5)
-        }
     }
 
     public override func setupAttributes() {
@@ -102,9 +98,10 @@ final public class MemoriesCalendarPageTitleView: BaseView<MemoriesCalendarTitle
             $0.distribution = .fill
         }
         
-        toolTipView.hidePopover()
-        toolTipView.toolTipType = .monthlyCalendar
-//        toolTipView.anchorPoint = CGPoint(x: 0.3, y: 0)
+        toolTipView.do {
+            $0.superview = tipButton
+            $0.hide()
+        }
     }
     
 }

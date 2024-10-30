@@ -14,7 +14,6 @@ import Then
 public class BBTextToolTipView: BBBaseToolTipView {
     // MARK: - Properties
     private var contentLabel: BBLabel = BBLabel()
-    private let touchControl: UIControl = UIControl()
     
     // MARK: - Intializer
     public override var intrinsicContentSize: CGSize {
@@ -38,9 +37,6 @@ public class BBTextToolTipView: BBBaseToolTipView {
     // MARK: - Configure
     private func setupToolTipUI() {
         addSubview(contentLabel)
-        if toolTipType == .contributor || toolTipType == .monthlyCalendar {
-            addTouchControl()
-        }
     }
     
     private func setupToolTipContent() {
@@ -51,10 +47,6 @@ public class BBTextToolTipView: BBBaseToolTipView {
             $0.numberOfLines = 0
             $0.textColor = toolTipType.configure.foregroundColor
             $0.sizeToFit()
-        }
-        
-        touchControl.do {
-            $0.frame = UIScreen.main.bounds
         }
         
         self.do {
@@ -82,34 +74,4 @@ public class BBTextToolTipView: BBBaseToolTipView {
             }
         }
     }
-    
-    private func addTouchControl() {
-
-        BBHelper.topMostController()?.view.addSubview(self.touchControl)
-        self.touchControl.addTarget(self, action: #selector(didTappedContainerView), for: .touchDown)
-    }
-    
-    @objc private func didTappedContainerView() {
-        self.touchesBeganHide()
-    }
-    
-    private func touchesBeganHide(
-        duration: TimeInterval = 0.3,
-        options: UIView.AnimationOptions = [.curveEaseInOut],
-        transform: CGAffineTransform = CGAffineTransform(scaleX: 0.1, y: 0.1),
-        alpha: CGFloat = 0
-    ) {
-        UIView.animate(withDuration: duration, delay: 0, options: options, animations: { [weak self] in
-            guard let self = self else { return }
-            self.transform = transform
-            self.alpha = 0
-        }, completion: { _ in
-            self.removeFromSuperview()
-            self.touchControl.removeFromSuperview()
-            self.transform = .identity
-        })
-
-        self.layoutIfNeeded()
-    }
-    
 }

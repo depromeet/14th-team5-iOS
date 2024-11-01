@@ -193,7 +193,7 @@ extension AccountSignUpReactor {
         case .setDayValue(let day):
             if let day = day {
                 newState.day = day
-                newState.isValidDay = day < 31
+                newState.isValidDay = day <= 31
             } else {
                 newState.isValidDay = false
             }

@@ -277,7 +277,7 @@ public class BBAlert {
             
         case .takePhoto:
             let actions = [
-                BBAlertAction(title: "셍존 신고 먼저하기", handler: action),
+                BBAlertAction(title: "생존 신고 먼저하기", handler: action),
                 BBAlertAction(title: "다음에 하기", style: .cancel)
             ]
             let viewConfig = BBAlertViewConfiguration(

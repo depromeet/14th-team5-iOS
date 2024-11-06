@@ -32,7 +32,7 @@ final public class MyUserDefaults: MyUserDefaultsType {
     
     public func loadMemberId() -> String? {
         guard
-            let memberId: String? = userDefaults[.memberId]
+            let memberId: String = userDefaults[.memberId]
         else { return nil }
         return memberId
     }
@@ -46,7 +46,7 @@ final public class MyUserDefaults: MyUserDefaultsType {
     
     public func loadUserName() -> String? {
         guard
-            let userName: String? = userDefaults[.userName]
+            let userName: String = userDefaults[.userName]
         else { return nil }
         return userName
     }

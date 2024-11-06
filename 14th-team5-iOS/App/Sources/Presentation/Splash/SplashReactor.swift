@@ -86,7 +86,7 @@ public final class SplashReactor: Reactor {
                                                             owner.splashNavigator.toJoined()
                                                             return .just(.setMemberInfo(memberInfo))
                                                         } else {
-                                                            owner.splashNavigator.toSignIn()
+                                                            owner.splashNavigator.toHome()
                                                             return .just(.setMemberInfo(nil))
                                                         }
                                                     }

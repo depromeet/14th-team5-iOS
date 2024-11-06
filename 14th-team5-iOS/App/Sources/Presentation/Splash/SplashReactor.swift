@@ -61,6 +61,7 @@ public final class SplashReactor: Reactor {
                             Observable.just(Mutation.setUpdateNeeded(appVersionInfo)),
                             
                             App.Repository.token.accessToken
+                                .take(1)
                                 .flatMap { token -> Observable<Mutation> in
                                     guard let _ = token else {
                                         owner.splashNavigator.toSignIn()

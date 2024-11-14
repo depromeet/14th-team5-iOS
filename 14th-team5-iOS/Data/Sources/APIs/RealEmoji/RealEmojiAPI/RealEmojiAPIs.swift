@@ -32,3 +32,52 @@ enum RealEmojiAPIs: API {
         }
     }
 }
+
+enum PostRealEmojiAPI: BBAPI {
+    /// 게시물에 리얼 이모지 등록
+    case addRealEmojiReaction(_ postId: String)
+    /// 게시물에서 리얼 이모지 삭제
+    case removeRealEmojiReactions(_ postId: String, _ realEmojiId: String)
+    /// 게시물의 리얼 이모지 전체 조회
+    case fetchRealEomjiReactions(_ postId: String)
+    
+    var spec: Spec {
+        switch self {
+        case .addRealEmojiReaction(let postId):
+            return .init(method: .post, path: "/posts/\(postId)/real-emoji")
+        case .removeRealEmojiReactions(let postId, let realEmojiId):
+            return .init(method: .delete, path: "/posts/\(postId)/real-emoji/\(realEmojiId)")
+        case .fetchRealEomjiReactions(let postId):
+            return .init(method: .get, path: "/posts/\(postId)/real-emoji")
+        }
+    }
+}
+
+enum MemberRealEmojiAPI: BBAPI {
+    struct UploadRealEmojiRequest: Encodable {
+        let imageName: String
+    }
+    
+    /// 회원의 리얼 이모지 조회
+    case fetchMemberRealEmoji(_ memberId: String)
+    /// 회원의 리얼 이모지 추가
+    case addMemberRealEmoji(_ mbmerId: String)
+    /// 회원의 리얼 이모지 변경
+    case updateMemberRealEmoji(_ memberId: String)
+    /// 리얼 이모지 사진 presigned url 요청
+    case uploadRealEmoji(_ mebmerId: String, _ body: UploadRealEmojiRequest)
+    
+    var spec: Spec {
+        switch self {
+        case .fetchMemberRealEmoji(let memberId):
+            return .init(method: .get, path: "/members/\(memberId)/real-emoji")
+        case .addMemberRealEmoji(let memberId):
+            return .init(method: .post, path: "/members/\(memberId)/real-emoji")
+        case .updateMemberRealEmoji(let memberId):
+            return .init(method: .put, path: "/members/\(memberId)/real-emoji")
+        case .uploadRealEmoji(let memberId, let body):
+            return .init(method: .post, path: "/members/\(memberId)/real-emoji/image-upload-request"
+)
+        }
+    }
+}

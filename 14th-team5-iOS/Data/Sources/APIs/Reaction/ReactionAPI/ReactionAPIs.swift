@@ -27,3 +27,23 @@ enum ReactionAPIs: API {
         }
     }
 }
+
+enum ReactionAPI: BBAPI {
+    /// 게시물 일반 반응 추가
+    case addReactions(_ postId: String)
+    /// 게시물 일반 반응 삭제
+    case removeReactions(_ postId: String)
+    /// 게시물 일반 반응 전체 조회
+    case fetchReactions(_ postId: String)
+    
+    var spec: Spec {
+        switch self {
+        case .addReactions(let postId):
+            return .init(method: .post, path: "/posts/\(postId)/reactions")
+        case .removeReactions(let postId):
+            return .init(method: .delete, path: "/posts/\(postId)/reactions")
+        case .fetchReactions(let postId):
+            return .init(method: .get, path: "/posts/\(postId)/reactions")
+        }
+    }
+}

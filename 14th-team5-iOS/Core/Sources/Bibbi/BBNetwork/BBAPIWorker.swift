@@ -75,6 +75,14 @@ public protocol Workable: AnyObject {
     func request<D>(
         _ spec: any ResponseRequestable
     ) -> Observable<D> where D: Decodable
+    
+    @discardableResult
+    func upload(
+        _ presignedURL: String,
+        with binaryData: Data,
+        serializer: BBUploadResponseSerializer,
+        on queue: any SchedulerType
+    ) -> Observable<Bool>
 }
 
 // MARK: - Default API Worker
@@ -152,6 +160,50 @@ extension BBRxAPIWorker: Workable {
         }
         .observe(on: queue)
         
+    }
+    
+    /// presignedURL을 바탕으로 URLRequest로 Convert 하여 S3 Bucket으로 요청하는 메서드 입니다.
+    ///
+    /// HTTP 통신을에 성공을 하게 되면 `BBUploadResponseSerializer`을 통해 True 값을 반환하며, 실패한다면  `APIWorkerError`를 방출 합니다.
+    /// - Parameters:
+    ///   - presignedURL: 서버에서 발급 받은 `Presigned URL` 입니다.
+    ///   - binaryData : 이미지를 `데이터` 타입으로 변환한 값 입니다.
+    ///   - serializer : `DataResponseSerializerProtocol`을 채택한 응답 핸들러입니다. 
+    /// - Returns: Observable<Bool>
+    public func upload(
+        _ presignedURL: String,
+        with binaryData: Data,
+        serializer: BBUploadResponseSerializer = BBUploadResponseSerializer(),
+        on queue: any SchedulerType = RxScheduler.main
+    ) -> Observable<Bool> {
+        
+        guard let remoteURL = URL(string: presignedURL) else {
+            return .just(false)
+        }
+        
+        var request = URLRequest(url: remoteURL)
+        request.method = .put
+        request.httpBody = binaryData
+        request.headers = BBNetworkHeaders.default.asHTTPHeaders
+        
+        return Observable<Bool>.create { [unowned self] observer in
+            let uploadRequest = self.service.upload(request, with: binaryData, serializer: serializer) { result in
+                switch result {
+                case let .success(isUpload):
+                    observer.onNext(isUpload ?? false)
+                    observer.onCompleted()
+                case let .failure(error):
+                    let mappedError = self.errorMapper.map(networkError: error)
+                    self.errorLogger.log(localizedError: mappedError)
+                    observer.onError(mappedError)
+                }
+            }
+            
+            return Disposables.create {
+                let _ = uploadRequest?.cancel()
+            }
+        }
+        .observe(on: queue)
     }
     
     /// 매개변수로 주어진 스펙(spec) 정보를 바탕으로 HTTP 통신을 수행합니다.

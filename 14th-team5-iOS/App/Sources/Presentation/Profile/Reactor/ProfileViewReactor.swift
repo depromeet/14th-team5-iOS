@@ -84,7 +84,6 @@ public final class ProfileViewReactor: Reactor {
     
     
     public func mutate(action: Action) -> Observable<Mutation> {
-        //TODO: Keychain, UserDefaults 추가
         switch action {
         case .viewDidLoad:
             return fetchMembersProfileUseCase.execute(memberId: currentState.memberId)
@@ -92,22 +91,20 @@ public final class ProfileViewReactor: Reactor {
                 .flatMap { entity -> Observable<ProfileViewReactor.Mutation> in
                     .just(.setProfileMemberItems(entity))
             }
-        case let .updateNickNameProfile(nickNameFileData):
-            let nickNameProfileImage: String = "\(nickNameFileData.hashValue).jpg"
-            let nickNameImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: nickNameProfileImage)
+        case let .updateNickNameProfile(imageData):
+            let profileImage = "\(imageData.hashValue).jpg"
+            let createPresignedURL = CreatePresignedURLRequest(imageName: profileImage)
             return .concat(
                 .just(.setLoading(false)),
-                createProfilePresignedUseCase.execute(parameter: nickNameImageEditParameter)
-                    .asObservable()
+                createProfilePresignedUseCase.execute(body: createPresignedURL)
                     .withUnretained(self)
                     .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                     .flatMap { owner, entity -> Observable<ProfileViewReactor.Mutation> in
-                        guard let profilePresingedURL = entity?.imageURL else { return .empty() }
-                        return owner.uploadProfileImageUseCase.execute(to: profilePresingedURL, from: nickNameFileData)
+                        guard let remoteURL = entity?.imageURL else { return .empty() }
+                        return owner.uploadProfileImageUseCase.execute(remoteURL, image: imageData)
                             .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
-                            .asObservable()
                             .flatMap { isSuccess -> Observable<ProfileViewReactor.Mutation> in
-                                let originalPath = owner.configureProfileOriginalS3URL(url: profilePresingedURL)
+                                let originalPath = owner.configureProfileOriginalS3URL(url: remoteURL)
                                 let profileEditParameter: ProfileImageEditParameter = ProfileImageEditParameter(profileImageUrl: originalPath)
                                 if isSuccess {
                                     return owner.updateProfileUseCase.execute(memberId: owner.currentState.memberId, parameter: profileEditParameter)
@@ -140,22 +137,20 @@ public final class ProfileViewReactor: Reactor {
                         )
                 }
         
-        case let .didSelectPHAssetsImage(fileData):
-            let profileImage: String = "\(fileData.hashValue).jpg"
-            let profileImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: profileImage)
+        case let .didSelectPHAssetsImage(assetImage):
+            let imageName: String = "\(assetImage.hashValue).jpg"
+            let createPresignedURL = CreatePresignedURLRequest(imageName: imageName)
             return .concat(
                 .just(.setLoading(false)),
-                createProfilePresignedUseCase.execute(parameter: profileImageEditParameter)
-                    .asObservable()
+                createProfilePresignedUseCase.execute(body: createPresignedURL)
                     .withUnretained(self)
                     .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                     .flatMap { owner, entity -> Observable<ProfileViewReactor.Mutation> in
-                        guard let profilePresingedURL = entity?.imageURL else { return .empty() }
-                        return owner.uploadProfileImageUseCase.execute(to: profilePresingedURL, from: fileData)
+                        guard let remoteURL = entity?.imageURL else { return .empty() }
+                        return owner.uploadProfileImageUseCase.execute(remoteURL, image: assetImage)
                             .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
-                            .asObservable()
                             .flatMap { isSuccess -> Observable<ProfileViewReactor.Mutation> in
-                                let originalPath = owner.configureProfileOriginalS3URL(url: profilePresingedURL)
+                                let originalPath = owner.configureProfileOriginalS3URL(url: remoteURL)
                                 let profileEditParameter: ProfileImageEditParameter = ProfileImageEditParameter(profileImageUrl: originalPath)
                                 if isSuccess {
                                     return owner.updateProfileUseCase.execute(memberId: owner.currentState.memberId, parameter: profileEditParameter)

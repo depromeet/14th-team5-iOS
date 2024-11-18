@@ -10,7 +10,7 @@ import Foundation
 import Domain
 
 
-struct MembersProfileResponseDTO: Decodable {
+public struct MembersProfileResponseDTO: Decodable {
     let memberId: String
     let name: String
     let imageUrl: String?

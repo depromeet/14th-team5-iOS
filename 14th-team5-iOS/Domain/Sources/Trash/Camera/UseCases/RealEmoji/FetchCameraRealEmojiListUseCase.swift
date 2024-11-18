@@ -12,7 +12,7 @@ import RxCocoa
 
 
 public protocol FetchCameraRealEmojiListUseCaseProtocol {
-    func execute() -> Single<[CameraRealEmojiImageItemEntity?]>
+    func execute(memberId: String) -> Observable<[CameraRealEmojiImageItemEntity?]>
 }
 
 
@@ -24,8 +24,8 @@ public final class FetchCameraRealEmojiListUseCase: FetchCameraRealEmojiListUseC
         self.cameraRepository = cameraRepository
     }
     
-    public func execute() -> Single<[CameraRealEmojiImageItemEntity?]> {
-        return cameraRepository.fetchRealEmojiItems()
+    public func execute(memberId: String) -> Observable<[CameraRealEmojiImageItemEntity?]> {
+        return cameraRepository.fetchEmojiList(memberId: memberId)
     }
     
 }

@@ -12,11 +12,8 @@ import RxCocoa
 
 
 public protocol FetchCameraRealEmojiUseCaseProtocol {
-    func execute(memberId: String, parameter: CameraRealEmojiParameters) -> Single<CameraRealEmojiPreSignedEntity?>
-    
+    func execute(memberId: String, body: CreatePresignedURLRequest) -> Observable<CameraRealEmojiPreSignedEntity?>
 }
-
-
 
 public final class FetchCameraRealEmojiUseCase: FetchCameraRealEmojiUseCaseProtocol {
     
@@ -26,9 +23,7 @@ public final class FetchCameraRealEmojiUseCase: FetchCameraRealEmojiUseCaseProto
         self.cameraRepository = cameraRepository
     }
     
-    
-    public func execute(memberId: String, parameter: CameraRealEmojiParameters) -> Single<CameraRealEmojiPreSignedEntity?> {
-        return cameraRepository.fetchRealEmojiImageURL(memberId: memberId, parameters: parameter)
+    public func execute(memberId: String, body: CreatePresignedURLRequest) -> Observable<CameraRealEmojiPreSignedEntity?> {
+        return cameraRepository.createEmojiImagePresignedURL(memberID: memberId, body: body)
     }
-    
 }

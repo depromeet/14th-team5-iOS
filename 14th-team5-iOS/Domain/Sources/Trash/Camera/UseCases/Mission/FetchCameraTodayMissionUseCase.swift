@@ -12,7 +12,7 @@ import RxCocoa
 
 
 public protocol FetchCameraTodayMissionUseCaseProtocol {
-    func execute() -> Single<CameraTodayMssionEntity?>
+    func execute() -> Observable<CameraTodayMssionEntity?>
 }
 
 
@@ -24,9 +24,7 @@ public final class FetchCameraTodayMissionUseCase: FetchCameraTodayMissionUseCas
         self.cameraRepository = cameraRepository
     }
     
-    public func execute() -> Single<CameraTodayMssionEntity?> {
-        return cameraRepository.fetchTodayMissionItem()
+    public func execute() -> Observable<CameraTodayMssionEntity?> {
+        return cameraRepository.fetchDailyMissonItem()
     }
-    
-    
 }

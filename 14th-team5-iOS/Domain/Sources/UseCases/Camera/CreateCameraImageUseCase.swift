@@ -12,18 +12,18 @@ import RxCocoa
 
 
 public protocol CreateCameraImageUseCaseProtocol {
-    func execute(parameter: CameraDisplayPostParameters, query: CameraMissionFeedQuery) -> Single<CameraPostEntity?>
+    func execute(query: CreateFeedQuery, body: CreateFeedRequest) -> Observable<CameraPostEntity?>
 }
 
 public final class CreateCameraImageUseCase: CreateCameraImageUseCaseProtocol {
-    
+        
     private let cameraRepository: any CameraRepositoryProtocol
     
     public init(cameraRepository: any CameraRepositoryProtocol) {
         self.cameraRepository = cameraRepository
     }
     
-    public func execute(parameter: CameraDisplayPostParameters, query: CameraMissionFeedQuery) -> Single<CameraPostEntity?> {
-        return cameraRepository.combineWithTextImage(parameters: parameter, query: query)
+    public func execute(query: CreateFeedQuery, body: CreateFeedRequest) -> Observable<CameraPostEntity?> {
+        return cameraRepository.createFeedImage(query: query, body: body)
     }
 }

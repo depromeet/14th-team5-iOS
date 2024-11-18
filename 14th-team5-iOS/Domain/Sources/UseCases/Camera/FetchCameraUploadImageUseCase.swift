@@ -12,7 +12,7 @@ import RxCocoa
 
 
 public protocol FetchCameraUploadImageUseCaseProtocol {
-    func execute(to url: String, from image: Data) -> Single<Bool>
+    func execute(_ presignedURL: String, image: Data) -> Observable<Bool>
 }
 
 
@@ -24,7 +24,7 @@ public final class FetchCameraUploadImageUseCase: FetchCameraUploadImageUseCaseP
         self.cameraRepository = cameraRepository
     }
     
-    public func execute(to url: String, from image: Data) -> Single<Bool> {
-        return cameraRepository.uploadImageToS3(to: url, from: image)
+    public func execute(_ presignedURL: String, image: Data) -> Observable<Bool> {
+        return cameraRepository.uploadImageToS3Bucket(presignedURL, image: image)
     }
 }

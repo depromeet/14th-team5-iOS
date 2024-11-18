@@ -85,27 +85,23 @@ public final class CameraDisplayViewReactor: Reactor {
         switch action {
         case .viewDidLoad:
             let fileName = "\(currentState.displayData.hashValue).jpg"
-            let parameters: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: "\(fileName)")
-            
+            let body = CreatePresignedURLRequest(imageName: fileName)
             return .concat(
                 .just(.setLoading(false)),
                 .just(.setError(false)),
                 .just(.setRenderImage(currentState.displayData)),
-                createPresignedCameraUseCase.execute(parameter: parameters)
-                    .asObservable()
+                createPresignedCameraUseCase.execute(body: body)
                     .withUnretained(self)
                     .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
-                    .asObservable()
                     .flatMap { owner, entity -> Observable<CameraDisplayViewReactor.Mutation> in
-                        guard let originalURL = entity?.imageURL else {
+                        guard let remoteURL = entity?.imageURL else {
                             return .concat(
                                 .just(.setLoading(true)),
                                 .just(.setError(true))
                             )
                         }
-                        return owner.uploadImageUseCase.execute(to: originalURL, from: owner.currentState.displayData)
+                        return owner.uploadImageUseCase.execute(remoteURL, image: owner.currentState.displayData)
                             .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
-                            .asObservable()
                             .flatMap { isSuccess -> Observable<CameraDisplayViewReactor.Mutation> in
                                 if isSuccess {
                                     return .concat(
@@ -160,17 +156,12 @@ public final class CameraDisplayViewReactor: Reactor {
             MPEvent.Camera.uploadPhoto.track(with: nil)
             
             guard let presingedURL = currentState.displayEntity?.imageURL else { return .just(.setError(true)) }
-            let originURL = configureOriginalS3URL(url: presingedURL)
-            let cameraQuery = CameraMissionFeedQuery(type: currentState.cameraType.rawValue, isUploded: true)
+            let remoteURL = configureOriginalS3URL(url: presingedURL)
             
-            let parameters: CameraDisplayPostParameters = CameraDisplayPostParameters(
-                imageUrl: originURL,
-                content: currentState.displayDescrption,
-                uploadTime: DateFormatter.yyyyMMddTHHmmssXXX.string(from: Date())
-            )
-            
-            return fetchCameraImageUseCase.execute(parameter: parameters, query: cameraQuery)
-                .asObservable()
+            let query = CreateFeedQuery(type: currentState.cameraType.rawValue)
+            let body = CreateFeedRequest(imageUrl: remoteURL, content: currentState.displayDescrption, uploadTime: DateFormatter.yyyyMMddTHHmmssXXX.string(from: .now))
+        
+            return fetchCameraImageUseCase.execute(query: query, body: body)
                 .catchAndReturn(nil)
                 .withUnretained(self)
                 .flatMap { owner, entity -> Observable<CameraDisplayViewReactor.Mutation> in

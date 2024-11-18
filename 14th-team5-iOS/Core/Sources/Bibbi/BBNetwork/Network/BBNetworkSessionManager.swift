@@ -13,12 +13,19 @@ import Alamofire
 
 public protocol BBNetworkSessionManager {
     typealias CompletionHandler = (AFDataResponse<Data?>) -> Void
+    typealias UploadHandler = (AFDataResponse<Bool>) -> Void
     
     func request(
         with request: URLRequest,
         completion: @escaping CompletionHandler
     ) -> BBNetworkCancellable
     
+    func upload(
+        with request: URLRequest,
+        data: Data,
+        serializer: BBUploadResponseSerializer,
+        completion: @escaping UploadHandler
+    ) -> BBNetworkCancellable
 }
 
 
@@ -109,4 +116,17 @@ extension BBNetworkSession: BBNetworkSessionManager {
         return dataRequest
     }
     
+    public func upload(
+        with request: URLRequest,
+        data: Data,
+        serializer: BBUploadResponseSerializer,
+        completion: @escaping UploadHandler
+    ) -> any BBNetworkCancellable {
+        let uploadRequest = session.upload(data, with: request)
+
+        uploadRequest.response(responseSerializer: serializer) { response in
+            completion(response)
+        }
+        return uploadRequest
+    }
 }

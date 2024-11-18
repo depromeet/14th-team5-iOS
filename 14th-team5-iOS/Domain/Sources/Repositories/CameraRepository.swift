@@ -1,14 +1,13 @@
 //
-//  CameraRepositoryProtocol.swift
+//  CameraRepository.swift
 //  Domain
 //
-//  Created by Kim dohyun on 6/7/24.
+//  Created by 김도현 on 11/18/24.
 //
 
 import Foundation
 
 import RxSwift
-import RxCocoa
 
 public enum UploadLocation {
     case survival
@@ -62,18 +61,23 @@ public enum UploadLocation {
     }
 }
 
-
-
 public protocol CameraRepositoryProtocol {
     var disposeBag: DisposeBag { get }
     
-    func addPresignedeImageURL(parameters: CameraDisplayImageParameters) -> Single<CameraPreSignedEntity?>
-    func uploadImageToS3(to url: String, from image: Data) -> Single<Bool>
-    func editProfleImageToS3(memberId: String, parameter: ProfileImageEditParameter) -> Single<MembersProfileEntity?>
-    func fetchRealEmojiImageURL(memberId: String, parameters: CameraRealEmojiParameters) -> Single<CameraRealEmojiPreSignedEntity?>
-    func uploadRealEmojiImageToS3(memberId: String, parameters: CameraCreateRealEmojiParameters) -> Single<CameraCreateRealEmojiEntity?>
-    func fetchRealEmojiItems() -> Single<[CameraRealEmojiImageItemEntity?]>
-    func updateRealEmojiImage(memberId: String, realEmojiId: String, parameters: CameraUpdateRealEmojiParameters) -> Single<CameraUpdateRealEmojiEntity?>
-    func fetchTodayMissionItem() -> Single<CameraTodayMssionEntity?>
-    func combineWithTextImage(parameters: CameraDisplayPostParameters, query: CameraMissionFeedQuery) -> Single<CameraPostEntity?>
+    /// CREATE 메서드
+    func createFeedImage(query: CreateFeedQuery, body: CreateFeedRequest) -> Observable<CameraPostEntity?>
+    func createProfileImagePresignedURL(body: CreatePresignedURLRequest) -> Observable<CameraPreSignedEntity?>
+    func createEmojiImagePresignedURL(memberID: String, body: CreatePresignedURLRequest) -> Observable<CameraRealEmojiPreSignedEntity?>
+    func createEmojiImage(memberId: String, body: CreateEmojiImageRequest) -> Observable<CameraCreateRealEmojiEntity?>
+    
+    /// FETCH 메서드
+    func fetchEmojiList(memberId: String) -> Observable<[CameraRealEmojiImageItemEntity?]>
+    func fetchDailyMissonItem() -> Observable<CameraTodayMssionEntity?>
+    
+    /// UPDATE 메서드
+    func updateUserProfileImage(memberId: String, body: UpdateProfileImageRequest) -> Observable<MembersProfileEntity?>
+    func updateEmojiImage(memberId: String, realEmojiId: String, body: UpdateRealEmojiImageRequest) -> Observable<CameraUpdateRealEmojiEntity?>
+    
+    /// UPLOAD 메서드
+    func uploadImageToS3Bucket(_ presignedURL: String, image: Data) -> Observable<Bool>
 }

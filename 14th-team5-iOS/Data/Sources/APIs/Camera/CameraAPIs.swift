@@ -56,7 +56,7 @@ enum CameraAPIs: BBAPI {
         case let .createRealEmojiImage(memberId, body):
             return Spec(method: .post, path: "/members/\(memberId)/real-emoji", bodyParametersEncodable: body)
         case let .fetchRealEmojiImage(memberId):
-            return Spec(method: .get, path: "/members/\(memberId)/real-emoj")
+            return Spec(method: .get, path: "/members/\(memberId)/real-emoji")
         case let .updateRealEmojiImage(memberId, realEmojiId, body):
             return Spec(method: .put, path: "/members/\(memberId)/real-emoji/\(realEmojiId)", bodyParametersEncodable: body)
         case .fetchTodayMission:

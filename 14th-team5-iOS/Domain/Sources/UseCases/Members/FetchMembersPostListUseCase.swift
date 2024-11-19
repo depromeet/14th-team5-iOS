@@ -11,7 +11,7 @@ import RxSwift
 import RxCocoa
 
 public protocol FetchMembersPostListUseCaseProtocol {
-    func execute(query: PostListQuery) -> Single<PostListPageEntity?>
+    func execute(query: PostListQuery) -> Observable<PostListPageEntity?>
 }
 
 
@@ -24,8 +24,8 @@ public final class FetchMembersPostListUseCase: FetchMembersPostListUseCaseProto
         self.postListRepository = postListRepository
     }
     
-    public func execute(query: PostListQuery) -> Single<PostListPageEntity?> {
-        return postListRepository.fetchTodayPostList(query: query)
+    public func execute(query: PostListQuery) -> Observable<PostListPageEntity?> {
+        return postListRepository.fetchPostList(query: query)
     }
     
     

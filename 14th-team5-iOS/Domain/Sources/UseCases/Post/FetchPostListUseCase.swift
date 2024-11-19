@@ -28,7 +28,7 @@ public class FetchPostListUseCase: FetchPostListUseCaseProtocol {
     /// postList를 불러옵니다. - 메인 화면에서 사용 중 입니다.
     /// 만약, userdefaults에 저장된 가족 멤버가 없다면, fetchFamily를 한 번 실행하여 post 정보를 가져옵니다.
     public func execute(query: PostListQuery) -> Observable<[PostEntity]?> {
-        return postListRepository.fetchTodayPostList(query: query)
+        return postListRepository.fetchPostList(query: query)
             .flatMap { posts -> Single<[PostEntity]?> in
                 guard let posts = posts else {
                     return Single.just(nil)
@@ -41,7 +41,7 @@ public class FetchPostListUseCase: FetchPostListUseCaseProtocol {
 
     /// PostList를 페이지네이션 형태로 불러옵니다 - 프로필 조회에서 사용 중 입니다.
     public func execute(query: PostListQuery) -> Observable<PostListPageEntity?> {
-        return postListRepository.fetchTodayPostList(query: query)
+        return postListRepository.fetchPostList(query: query)
             .flatMap { posts -> Single<PostListPageEntity?> in
                 let members = self.familyRepository.loadAllFamilyMembers()
                 

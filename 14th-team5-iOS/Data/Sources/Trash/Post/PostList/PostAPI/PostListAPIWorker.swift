@@ -22,8 +22,8 @@ extension PostAPIWorker {
     
     /// 게시물 전체 조회하기 위한 Method 입니다.
     /// HTTP Method : GET
-    /// - Parameters : PostListRequestDTO
-    func fetchPostList(query: PostListRequestDTO) -> Observable<PostListResponseDTO?>
+    /// - Parameters : PostListQueryDTO
+    func fetchPostList(query: PostListQueryDTO) -> Observable<PostListResponseDTO?>
     {
         let spec = PostsAPIs.fetchPostList(query: query).spec
         

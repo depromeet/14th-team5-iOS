@@ -1,14 +1,13 @@
 //
-//  PostListRequestDTO.swift
+//  PostListQueryDTO.swift
 //  Data
 //
-//  Created by 김도현 on 11/19/24.
+//  Created by 김도현 on 11/20/24.
 //
 
 import Foundation
 
-
-public struct PostListRequestDTO: Encodable {
+public struct PostListQueryDTO: Encodable {
     public let page: Int
     public let size: Int
     public let date: String

@@ -11,7 +11,7 @@ import Foundation
 /// 해당 Posts API는 Swagger에 있는 **게시물 API** 기준으로 사용되는 API 입니다.
 enum PostsAPIs: BBAPI {
     /// 게시물 조회 API
-    case fetchPostList(query: PostListRequestDTO)
+    case fetchPostList(query: PostListQueryDTO)
     /// 게시물 생성 API
     case createPost(type: String, body: CreatePostRequestDTO)
     /// 게시물 단일 조회 API

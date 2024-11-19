@@ -21,7 +21,7 @@ public final class PostRepository: PostListRepositoryProtocol {
 
 extension PostRepository {
     public func fetchPostList(query: PostListQuery) -> Observable<PostListPageEntity?> {
-        let query = PostListRequestDTO(
+        let query = PostListQueryDTO(
             page: query.page,
             size: query.size,
             date: query.date,

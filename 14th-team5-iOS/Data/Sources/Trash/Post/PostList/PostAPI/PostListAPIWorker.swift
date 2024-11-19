@@ -13,31 +13,33 @@ import Domain
 import Alamofire
 import RxSwift
 
-public typealias PostAPIWorker = PostAPIs.Worker
-extension PostAPIs {
-    public final class Worker: APIWorker {
-        static let queue = {
-            ConcurrentDispatchQueueScheduler(queue: DispatchQueue(label: "PostListAPIQueue", qos: .utility))
-        }()
-        
-        public override init() {
-            super.init()
-            self.id = "PostListAPIWorker"
-        }
-    }
-}
+
+typealias PostAPIWorker = PostsAPIs.Worker
+
+
 
 extension PostAPIWorker {
-    public func fetchTodayPostList(query: Domain.PostListQuery) -> RxSwift.Single<Domain.PostListPageEntity?> {
-        let requestDTO = PostListRequestDTO(page: query.page, size: query.size, date: query.date, memberId: query.memberId, sort: query.sort, type: query.type.rawValue)
-        let spec = PostAPIs.fetchPostList.spec
-        return request(spec: spec, parameters: requestDTO)
-            .subscribe(on: Self.queue)
-            .map(PostListResponseDTO.self)
-            .map {
-                return $0?.toDomain()
-            }
-            .catchAndReturn(nil)
-            .asSingle()
+    
+    func fetchPostList(query: PostListQuery) -> Observable<PostListResponseDTO?>
+    {
+        let spec = PostsAPIs.fetchPostList(
+            page: query.page,
+            size: query.size,
+            date: query.date,
+            memberId: query.memberId,
+            sort: query.sort,
+            type: query.type.rawValue
+        ).spec
+        
+        return request(spec)
     }
+    
+//    func createPost(type: String) -> Observable<>
 }
+
+
+
+
+
+
+

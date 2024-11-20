@@ -10,17 +10,23 @@ import Foundation
 import Core
 import Domain
 
-enum MissionAPIs: API {
-    case getTodayMission
-    case getMissionContent(String)
-
-    var spec: APISpec {
+enum MissionAPIs: BBAPI {
+    /// 미션 정보 조회 API
+    case fetchMissonContent(missonId: String)
+    /// 미션 일일  정보 조회 API
+    case fetchDailyMisson
+    
+    var spec: Spec {
         switch self {
-        case .getTodayMission:
-            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/missions/today")
-        case let .getMissionContent(missionId):
-            return APISpec(method: .get, url: "\(BibbiAPI.hostApi)/missions/\(missionId)")
+        case let .fetchMissonContent(missionId):
+            return Spec(method: .get, path: "/missions/\(missionId)")
+        case .fetchDailyMisson:
+            return Spec(method: .get, path: "/missions/today")
         }
+    }
+    
+    final class Worker: BBRxAPIWorker {
+        init() { }
     }
 }
 

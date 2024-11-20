@@ -12,7 +12,7 @@ import RxCocoa
 
 
 public protocol FetchMissionContentUseCaseProtocol {
-    func execute(missionId: String) -> Single<MissionContentEntity?>
+    func execute(missionId: String) -> Observable<MissionContentEntity?>
 }
 
 public final class FetchMissionContentUseCase: FetchMissionContentUseCaseProtocol {
@@ -22,8 +22,8 @@ public final class FetchMissionContentUseCase: FetchMissionContentUseCaseProtoco
         self.missionRepository = missionRepository
     }
     
-    public func execute(missionId: String) -> Single<MissionContentEntity?> {
-        return missionRepository.getMissionContent(missionId: missionId)
+    public func execute(missionId: String) -> Observable<MissionContentEntity?> {
+        return missionRepository.fetchMissonContentItem(missonId: missionId)
     }
     
 }

@@ -30,6 +30,18 @@ final class ProfileDIContainer: BaseContainer {
         return UpdateMembersProfileUseCase(membersRepository: makeRepository())
     }
     
+    private func makeCreateMemberPickUseCase() -> CreateMembersPickUseCaseProtocol {
+        return CreateMembersPickUseCase(membersRepository: makeRepository())
+    }
+    
+    private func makeDeleteMembersUseCase() -> DeleteMembersUseCaseProtocol {
+        return DeleteMembersUseCase(membersRepository: makeRepository())
+    }
+    
+    private func makeUpdateMembersNameUseCase() -> UpdateMembersNameUseCaseProtocol {
+        return UpdateMembersNameUseCase(membersRepository: makeRepository())
+    }
+    
     //TODO: FetchMembersPostListUseCaseProtocol는 PostDIContainer에 추가하기
     
     
@@ -44,6 +56,18 @@ final class ProfileDIContainer: BaseContainer {
         
         container.register(type: UpdateMembersProfileUseCaseProtocol.self) { _ in
             self.makeUpdateMembersProfileUseCase()
+        }
+        
+        container.register(type: CreateMembersPickUseCaseProtocol.self) { _ in
+            self.makeCreateMemberPickUseCase()
+        }
+        
+        container.register(type: DeleteMembersUseCaseProtocol.self) { _ in
+            self.makeDeleteMembersUseCase()
+        }
+        
+        container.register(type: UpdateMembersNameUseCaseProtocol.self) { _ in
+            self.makeUpdateMembersNameUseCase()
         }
     }
     

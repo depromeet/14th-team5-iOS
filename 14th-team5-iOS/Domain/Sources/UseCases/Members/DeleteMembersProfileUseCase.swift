@@ -11,7 +11,7 @@ import RxSwift
 import RxCocoa
 
 public protocol DeleteMembersProfileUseCaseProtocol {
-    func execute(memberId: String) -> Single<MembersProfileEntity?>
+    func execute(memberId: String) -> Observable<MembersProfileEntity?>
 }
 
 
@@ -24,7 +24,7 @@ public final class DeleteMembersProfileUseCase: DeleteMembersProfileUseCaseProto
         self.membersRepository = membersRepository
     }
     
-    public func execute(memberId: String) -> Single<MembersProfileEntity?> {
-        return membersRepository.deleteProfileImageToS3(memberId: memberId)
+    public func execute(memberId: String) -> Observable<MembersProfileEntity?> {
+        return membersRepository.deleteMemberProfileImageItem(memberId: memberId)
     }
 }

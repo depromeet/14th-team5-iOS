@@ -18,6 +18,7 @@ public final class AccountSignUpReactor: Reactor {
     private var accountRepository: AccountImpl
     private let memberId: String
     private let profileType: AccountLoaction
+    @Injected var updateMembersNameUseCase: UpdateMembersNameUseCaseProtocol
     
     public enum Action {
         case setNickname(String)
@@ -42,7 +43,7 @@ public final class AccountSignUpReactor: Reactor {
         case setMonthValue(Int?)
         case setDayValue(Int?)
         case didTapDateNextButton
-        case setEditNickName(AccountNickNameEditResponse?)
+        case setEditNickName(UpdateMemberNameEntity?)
         
         case setprofilePresignedURL(String)
         case setprofileImage(Data)
@@ -57,7 +58,7 @@ public final class AccountSignUpReactor: Reactor {
         @Pulse var nicknameButtonTappedFinish: Bool = false
         
         var memberId: String
-        var profileNickNameEditEntity: AccountNickNameEditResponse?
+        var profileNickNameEditEntity: UpdateMemberNameEntity?
         var year: Int?
         var isValidYear: Bool = false
         var month: Int = 0
@@ -113,11 +114,11 @@ extension AccountSignUpReactor {
                 .just(.setprofileImage(originImage))
             )
         case let .didTapNickNameButton(nickName):
-            let parameters: AccountNickNameEditParameter = AccountNickNameEditParameter(name: nickName)
-            return accountRepository.executeNicknameUpdate(memberId: currentState.memberId, parameter: parameters)
-                .asObservable()
-                .flatMap { entity -> Observable<AccountSignUpReactor.Mutation> in
-                        .just(.setEditNickName(entity))
+            let body = UpdateMemberNameRequest(name: nickName)
+            return updateMembersNameUseCase.execute(memberId: currentState.memberId, body: body)
+                .flatMap { entity -> Observable<Mutation> in
+                    return .just(.setEditNickName(entity))
+                    
                 }
             
         case .didTapCompletehButton:
@@ -138,30 +139,7 @@ extension AccountSignUpReactor {
             let originalImage: String = "\(profileImage.hashValue).jpg"
             let profileImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: originalImage)
             
-            return .concat(
-                accountRepository.executePresignedImageURLCreate(parameter: profileImageEditParameter)
-                    .withUnretained(self)
-                    .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
-                    .asObservable()
-                    .flatMap { owner, entity -> Observable<AccountSignUpReactor.Mutation> in
-                        guard let accountPresignedURL = entity?.imageURL else { return .empty() }
-                        return owner.accountRepository.executeProfileImageUpload(to: accountPresignedURL, data: profileImage)
-                            .asObservable()
-                            .flatMap { isSuccess -> Observable<AccountSignUpReactor.Mutation> in
-                                let originalPath = owner.configureAccountOriginalS3URL(url: accountPresignedURL)
-                                
-                                if isSuccess {
-                                   return  .concat(
-                                    .just(.setprofilePresignedURL(originalPath)),
-                                    .just(.setprofileImage(profileImage))
-                                )
-                                } else {
-                                    return .empty()
-                                }
-                                
-                            }
-                    }
-            )
+            return .empty()
         }
     }
     

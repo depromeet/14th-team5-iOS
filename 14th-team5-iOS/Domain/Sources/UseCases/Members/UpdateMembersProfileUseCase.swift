@@ -11,7 +11,7 @@ import RxSwift
 import RxCocoa
 
 public protocol UpdateMembersProfileUseCaseProtocol {
-    func execute(memberId: String, parameter: ProfileImageEditParameter) -> Single<MembersProfileEntity?>
+    func execute(memberId: String, parameter: ProfileImageEditParameter) -> Observable<MembersProfileEntity?>
 }
 
 
@@ -24,7 +24,7 @@ public final class UpdateMembersProfileUseCase: UpdateMembersProfileUseCaseProto
         self.membersRepository = membersRepository
     }
     
-    public func execute(memberId: String, parameter: ProfileImageEditParameter) -> Single<MembersProfileEntity?> {
-        return membersRepository.updataProfileImageToS3(memberId: memberId, parameter: parameter)
+    public func execute(memberId: String, parameter: ProfileImageEditParameter) -> Observable<MembersProfileEntity?> {
+        return membersRepository.updateMemberProfileImageItem(memberId: memberId)
     }
 }

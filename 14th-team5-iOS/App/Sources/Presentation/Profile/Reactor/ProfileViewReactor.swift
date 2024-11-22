@@ -179,7 +179,6 @@ public final class ProfileViewReactor: Reactor {
             )
         case .didTapInitProfile:
             return deleteProfileImageUseCase.execute(memberId: memberId)
-                .asObservable()
                 .flatMap { entity -> Observable<Mutation> in
                     return .concat(
                         .just(.setLoading(false)),

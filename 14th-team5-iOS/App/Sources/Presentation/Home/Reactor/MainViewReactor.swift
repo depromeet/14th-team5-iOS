@@ -97,7 +97,7 @@ final class MainViewReactor: Reactor {
     
     @Navigator var navigator: MainNavigatorProtocol
     
-    @Injected var pickUseCase: PickUseCaseProtocol
+    @Injected var createPickUseCase: CreateMembersPickUseCaseProtocol
     @Injected var provider: ServiceProviderProtocol
     @Injected var fetchMainUseCase: FetchMainUseCaseProtocol
     @Injected var isFirstWidgetAlertUseCase: IsFirstWidgetAlertUseCaseProtocol
@@ -200,7 +200,7 @@ extension MainViewReactor {
             guard let pickedMember = currentState.pickedMember else {
                 return .empty()
             }
-            return pickUseCase.executePickMember(memberId: pickedMember.memberId)
+            return createPickUseCase.execute(memberId: pickedMember.memberId)
                 .compactMap { $0 }
                 .flatMap { response -> Observable<Mutation> in
                     if !response.success {

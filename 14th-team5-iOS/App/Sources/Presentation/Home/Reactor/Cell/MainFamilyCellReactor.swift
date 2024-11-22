@@ -76,7 +76,7 @@ final class MainFamilyCellReactor: Reactor {
     
     let initialState: State
         
-    @Injected var pickMemberUseCase: PickMemberUseCaseProtocol
+    @Injected var pickMemberUseCase: CreateMembersPickUseCaseProtocol
     
     @Injected var provider: ServiceProviderProtocol
     

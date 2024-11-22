@@ -13,10 +13,17 @@ import RxSwift
 
 public protocol MembersRepositoryProtocol {
     var disposeBag: DisposeBag { get }
-    
-    func fetchProfileMemberItems(memberId: String) -> Single<MembersProfileEntity?>
-    func updataProfileImageToS3(memberId: String, parameter: ProfileImageEditParameter) -> Single<MembersProfileEntity?>
-    func deleteProfileImageToS3(memberId: String) -> Single<MembersProfileEntity?>
+    /// FETCH
+    func fetchProfileMemberItem(memberId: String) -> Observable<MembersProfileEntity?>
+    /// UPDATE
+    func updateMemberNameItem(memberId: String, body: UpdateMemberNameRequest) -> Observable<UpdateMemberNameEntity?>
+    func updateMemberProfileImageItem(memberId: String) -> Observable<MembersProfileEntity?>
+    /// CREATE
+    func createMemberPickItem(memberId: String) -> Observable<CreateMemberPickEntity?>
+    func creteMemberImagePresignedURL(memberId: String) -> Observable<CameraPreSignedEntity?>
+    func deleteMemberProfileImageItem(memberId: String) -> Observable<MembersProfileEntity?>
+    /// DELETE
+    func deleteMemberItem(memberId: String, body: DeleteMemberRequest) -> Observable<DeleteMemberEntity?>
 }
 
 

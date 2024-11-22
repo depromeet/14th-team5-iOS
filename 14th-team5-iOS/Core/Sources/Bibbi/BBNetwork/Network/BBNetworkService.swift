@@ -8,6 +8,7 @@
 import Foundation
 
 import Alamofire
+import RxSwift
 
 // MARK: - Cancellable
 
@@ -22,10 +23,18 @@ extension Alamofire.Request: BBNetworkCancellable { }
 
 public protocol BBNetworkService {
     typealias CompletionHandler = (Result<Data?, BBNetworkError>) -> Void
+    typealias UploadHandler = (Result<Bool?, BBNetworkError>) -> Void
     
     func request(
         with spec: any Requestable,
         completion: @escaping CompletionHandler
+    ) -> (any BBNetworkCancellable)?
+    
+    func upload(
+        _ spec: URLRequest,
+        with binaryData: Data,
+        serializer: BBUploadResponseSerializer,
+        completion: @escaping UploadHandler
     ) -> (any BBNetworkCancellable)?
 }
 
@@ -74,6 +83,25 @@ public final class BBNetworkDefaultService {
         
         return dataRequest
         
+    }
+    
+    public func upload(
+        with spec: URLRequest,
+        data: Data,
+        serializer: BBUploadResponseSerializer,
+        completion: @escaping UploadHandler) -> any BBNetworkCancellable
+    {
+        let uploadRequest = sessionManager.upload(with: spec, data: data, serializer: serializer) { uploadResponse in
+            if let statusCode = uploadResponse.response?.statusCode {
+                guard (200..<300) ~= statusCode else {
+                    let networkError = self.map(statusCode: statusCode)
+                    completion(.failure(networkError))
+                    return
+                }
+                completion(.success(true))
+            }
+        }
+        return uploadRequest
     }
     
     private func map(statusCode code: Int) -> BBNetworkError {
@@ -132,6 +160,15 @@ extension BBNetworkDefaultService: BBNetworkService {
             completion(.failure(.urlGeneration))
             return nil
         }
+    }
+    
+    public func upload(
+        _ spec: URLRequest,
+        with binaryData: Data,
+        serializer: BBUploadResponseSerializer,
+        completion: @escaping UploadHandler
+    ) -> (any BBNetworkCancellable)? {
+        return upload(with: spec, data: binaryData, serializer: serializer, completion: completion)
     }
     
 }

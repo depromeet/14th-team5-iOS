@@ -16,8 +16,38 @@ public final class PostRepository: PostListRepositoryProtocol {
     private let postAPIWorker: PostAPIWorker = PostAPIWorker()
     
     public init() { }
+}
+
+
+extension PostRepository {
+    public func fetchPostList(query: PostListQuery) -> Observable<PostListPageEntity?> {
+        let query = PostListQueryDTO(
+            page: query.page,
+            size: query.size,
+            date: query.date,
+            type: query.type.rawValue,
+            sort: query.type.rawValue
+        )
+        
+        return postAPIWorker.fetchPostList(query: query)
+            .map { $0?.toDomain() }
+    }
     
-    public func fetchTodayPostList(query: Domain.PostListQuery) -> RxSwift.Single<Domain.PostListPageEntity?> {
-        return postAPIWorker.fetchTodayPostList(query: query)
+    public func fetchPostDetailItem(postId: String) -> Observable<PostDetailEntity?> {
+        return postAPIWorker.fetchPostDetail(postId: postId)
+            .map { $0?.toDomain() }
+    }
+    
+    public func createPostItem(query: CreatePostQuery, body: CreatePostRequest) -> Observable<CameraPostEntity?> {
+        let body = CreatePostRequestDTO(imageUrl: body.imageUrl, content: body.content, uploadTime: body.uploadTime)
+        
+        return postAPIWorker.createPost(query: query, body: body)
+            .map { $0.toDomain() }
+    }
+    
+    public func createPostPresignedURLItem(body: CreatePostPresignedURLRequest) -> Observable<CameraPreSignedEntity?> {
+        let body = CreatePresignedURLRequestDTO(imageName: body.imageName)
+        return postAPIWorker.createPostPresignedURL(body: body)
+            .map { $0.toDomain() }
     }
 }

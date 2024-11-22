@@ -27,6 +27,7 @@ public final class CameraViewReactor: Reactor {
     @Injected private var editProfileImageUseCase: EditCameraProfileImageUseCaseProtocol
     @Injected private var fetchRealEmojiListUseCase: FetchCameraRealEmojiListUseCaseProtocol
     @Injected private var fetchRealEmojiPreSignedUseCase: FetchCameraRealEmojiUseCaseProtocol
+    @Injected private var fetchMyMemberIdUseCase: FetchMyMemberIdUseCaseProtocol
     @Injected private var provider: ServiceProviderProtocol
     
     
@@ -220,9 +221,12 @@ extension CameraViewReactor {
         switch cameraType {
         case .realEmoji:
             
+            guard let memberId = fetchMyMemberIdUseCase.execute() else {
+                return .just(.setErrorAlert(true))
+            }
+            
             return .concat(
-                fetchRealEmojiListUseCase.execute()
-                    .asObservable()
+                fetchRealEmojiListUseCase.execute(memberId: memberId)
                     .withUnretained(self)
                     .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
                         var sectionItem: [EmojiSectionItem] = []
@@ -283,28 +287,24 @@ extension CameraViewReactor {
             )
             
         case  .profile:
-            //Profile 관련 이미지 업로드 Mutation
             let profileImage = "\(imageData.hashValue).jpg"
-            let profileParameter = CameraDisplayImageParameters(imageName: profileImage)
+            let body = CreatePresignedURLRequest(imageName: profileImage)
             
             return .concat(
                 .just(.setLoading(false)),
-                createProfileImageUseCase.execute(parameter: profileParameter)
-                    .asObservable()
+                createProfileImageUseCase.execute(body: body)
                     .withUnretained(self)
                     .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                     .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
-                        //TODO: 추후 오류 Alert 추가
-                        guard let presingedURL = entity?.imageURL else {
+                        guard let remoteURL = entity?.imageURL else {
                             return .concat(
                                 .just(.setLoading(true)),
                                 .just(.setErrorAlert(true))
                             )
                         }
                         
-                        return owner.uploadImageUseCase.execute(to: presingedURL, from: imageData)
+                        return owner.uploadImageUseCase.execute(remoteURL, image: imageData)
                             .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
-                            .asObservable()
                             .flatMap { isSuccess -> Observable<CameraViewReactor.Mutation> in
                                 
                                 if owner.memberId.isEmpty {
@@ -316,12 +316,11 @@ extension CameraViewReactor {
                                     )
                                 }
                                 
-                                let originalURL = owner.configureProfileOriginalS3URL(url: presingedURL, with: .profile)
-                                let profileImageEditParameter = ProfileImageEditParameter(profileImageUrl: originalURL)
+                                let originalURL = owner.configureProfileOriginalS3URL(url: remoteURL, with: .profile)
+                                let body = UpdateProfileImageRequest(profileImageUrl: originalURL)
                                 
                                 if isSuccess {
-                                    return owner.editProfileImageUseCase.execute(memberId: owner.memberId, parameter: profileImageEditParameter)
-                                        .asObservable()
+                                    return owner.editProfileImageUseCase.execute(memberId: owner.memberId, body: body)
                                         .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                                         .flatMap { editEntity -> Observable<CameraViewReactor.Mutation> in
                                             
@@ -346,33 +345,33 @@ extension CameraViewReactor {
                 
             )
         case .realEmoji:
-            let realEmojiImage = "\(imageData.hashValue).jpg"
-            let realEmojiParameter = CameraRealEmojiParameters(imageName: realEmojiImage)
+            guard let memberId = fetchMyMemberIdUseCase.execute() else {
+                return .just(.setErrorAlert(true))
+            }
             
+            let realEmojiImage = "\(imageData.hashValue).jpg"
+            let body = CreatePresignedURLRequest(imageName: realEmojiImage)
             if currentState.realEmojiEntity[currentState.emojiType.rawValue - 1] == nil {
                 return .concat(
                     .just(.setLoading(false)),
-                    fetchRealEmojiPreSignedUseCase.execute(memberId: memberId, parameter: realEmojiParameter)
-                        .asObservable()
+                    fetchRealEmojiPreSignedUseCase.execute(memberId: memberId, body: body)
                         .withUnretained(self)
                         .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                         .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
-                            guard let presingedURL = entity?.imageURL else { return .just(.setErrorAlert(true))}
+                            guard let remoteURL = entity?.imageURL else { return .just(.setErrorAlert(true))}
                             
-                            return owner.uploadImageUseCase.execute(to: presingedURL, from: imageData)
+                            return owner.uploadImageUseCase.execute(remoteURL, image: imageData)
                                 .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
-                                .asObservable()
                                 .flatMap { isSuccess -> Observable<CameraViewReactor.Mutation> in
-                                    let originalURL = owner.configureProfileOriginalS3URL(url: presingedURL, with: .realEmoji)
-                                    let realEmojiCreateParameter = CameraCreateRealEmojiParameters(type: owner.currentState.emojiType.emojiString, imageUrl: originalURL)
+                                    let originalURL = owner.configureProfileOriginalS3URL(url: remoteURL, with: .realEmoji)
+                                    let body = CreateEmojiImageRequest(type: owner.currentState.emojiType.emojiString, imageUrl: originalURL)
                                     if isSuccess {
-                                        return owner.fetchRealEmojiCreateUseCase.execute(memberId: owner.memberId, parameter: realEmojiCreateParameter)
-                                            .asObservable()
+                                        return owner.fetchRealEmojiCreateUseCase.execute(memberId: memberId, body: body)
                                             .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                                             .flatMap { realEmojiEntity -> Observable<CameraViewReactor.Mutation> in
                                                 guard let createRealEmojiEntity = realEmojiEntity else { return .just(.setErrorAlert(true))}
                                                 owner.provider.realEmojiGlobalState.createRealEmojiImage(indexPath: owner.currentState.emojiType.rawValue - 1, image: createRealEmojiEntity.realEmojiImageURL, emojiType: createRealEmojiEntity.realEmojiType)
-                                                return owner.fetchRealEmojiListUseCase.execute()
+                                                return owner.fetchRealEmojiListUseCase.execute(memberId: memberId)
                                                     .asObservable()
                                                     .flatMap { reloadEntity -> Observable<CameraViewReactor.Mutation> in
                                                         return .concat(
@@ -397,24 +396,23 @@ extension CameraViewReactor {
                 )
             } else {
                 let realEmojiImage = "\(imageData.hashValue).jpg"
-                let realEmojiParameter = CameraRealEmojiParameters(imageName: realEmojiImage)
+                let body = CreatePresignedURLRequest(imageName: realEmojiImage)
                 return .concat(
                     .just(.setLoading(false)),
-                    fetchRealEmojiPreSignedUseCase.execute(memberId: memberId, parameter: realEmojiParameter)
-                        .asObservable()
+                    fetchRealEmojiPreSignedUseCase.execute(memberId: memberId, body: body)
                         .withUnretained(self)
                         .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                         .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
-                            guard let presingedURL = entity?.imageURL else { return .just(.setErrorAlert(true))}
-                            let originalURL = owner.configureProfileOriginalS3URL(url: presingedURL, with: .realEmoji)
-                            let updateRealEmojiParameter = CameraUpdateRealEmojiParameters(imageUrl: originalURL)
-                            return owner.uploadImageUseCase.execute(to: presingedURL, from: imageData)
+                            guard let remoteURL = entity?.imageURL else { return .just(.setErrorAlert(true))}
+                            let originalURL = owner.configureProfileOriginalS3URL(url: remoteURL, with: .realEmoji)
+
+                            return owner.uploadImageUseCase.execute(remoteURL, image: imageData)
                                 .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
                                 .asObservable()
                                 .flatMap { isSuccess -> Observable<CameraViewReactor.Mutation> in
                                     if isSuccess {
-                                        return owner.fetchRealEmojiUpdateUseCase.execute(memberId: owner.memberId, emojiId: owner.currentState.realEmojiEntity[owner.currentState.emojiType.rawValue - 1]?.realEmojiId ?? "", parameter: updateRealEmojiParameter)
-                                            .asObservable()
+                                        let body = UpdateRealEmojiImageRequest(imageUrl: originalURL)
+                                        return owner.fetchRealEmojiUpdateUseCase.execute(memberId: memberId, realEmojiId: owner.currentState.realEmojiEntity[owner.currentState.emojiType.rawValue - 1]?.realEmojiId ?? "", body: body)
                                             .flatMap { updateRealEmojiEntity -> Observable<CameraViewReactor.Mutation> in
                                                 guard let updateEntity = updateRealEmojiEntity else { return .just(.setErrorAlert(true))}
                                                 owner.provider.realEmojiGlobalState.updateRealEmojiImage(indexPath: owner.currentState.emojiType.rawValue - 1, image: updateEntity.realEmojiImageURL)

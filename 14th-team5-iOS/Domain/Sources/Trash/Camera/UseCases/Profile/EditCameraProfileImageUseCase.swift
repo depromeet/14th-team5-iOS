@@ -11,7 +11,7 @@ import RxSwift
 import RxCocoa
 
 public protocol EditCameraProfileImageUseCaseProtocol {
-    func execute(memberId: String, parameter: ProfileImageEditParameter) -> Single<MembersProfileEntity?>
+    func execute(memberId: String, body: UpdateProfileImageRequest) -> Observable<MembersProfileEntity?>
 }
 
 
@@ -23,12 +23,9 @@ public final class EditCameraProfileImageUseCase: EditCameraProfileImageUseCaseP
         self.cameraRepository = cameraRepository
     }
     
-    
-    public func execute(memberId: String, parameter: ProfileImageEditParameter) -> Single<MembersProfileEntity?> {
-        return cameraRepository.editProfleImageToS3(memberId: memberId, parameter: parameter)
+    public func execute(memberId: String, body: UpdateProfileImageRequest) -> Observable<MembersProfileEntity?> {
+        return cameraRepository.updateUserProfileImage(memberId: memberId, body: body)
     }
-    
-    
     
 }
 

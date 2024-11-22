@@ -12,7 +12,7 @@ import RxCocoa
 
 public protocol FetchCameraRealEmojiUpdateUseCaseProtocol {
 
-    func execute(memberId: String, emojiId: String, parameter: CameraUpdateRealEmojiParameters) -> Single<CameraUpdateRealEmojiEntity?>
+    func execute(memberId: String, realEmojiId: String, body: UpdateRealEmojiImageRequest) -> Observable<CameraUpdateRealEmojiEntity?>
 }
 
 
@@ -23,7 +23,7 @@ public final class FetchCameraRealEmojiUpdateUseCase: FetchCameraRealEmojiUpdate
         self.cameraRepostiroy = cameraRepostiroy
     }
     
-    public func execute(memberId: String, emojiId: String, parameter: CameraUpdateRealEmojiParameters) -> Single<CameraUpdateRealEmojiEntity?> {
-        return cameraRepostiroy.updateRealEmojiImage(memberId: memberId, realEmojiId: emojiId, parameters: parameter)
+    public func execute(memberId: String, realEmojiId: String, body: UpdateRealEmojiImageRequest) -> Observable<CameraUpdateRealEmojiEntity?> {
+        return cameraRepostiroy.updateEmojiImage(memberId: memberId, realEmojiId: realEmojiId, body: body)
     }
 }

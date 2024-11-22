@@ -11,7 +11,7 @@ import RxSwift
 import RxCocoa
 
 public protocol CreateCameraUseCaseProtocol {
-    func execute(parameter: CameraDisplayImageParameters) -> Single<CameraPreSignedEntity?>
+    func execute(body: CreatePresignedURLRequest) -> Observable<CameraPreSignedEntity?>
 }
 
 public final class CreateCameraUseCase: CreateCameraUseCaseProtocol {
@@ -22,8 +22,8 @@ public final class CreateCameraUseCase: CreateCameraUseCaseProtocol {
         self.cameraRepository = cameraRepository
     }
     
-    public func execute(parameter: CameraDisplayImageParameters) -> RxSwift.Single<CameraPreSignedEntity?> {
-        return cameraRepository.addPresignedeImageURL(parameters: parameter)
+    public func execute(body: CreatePresignedURLRequest) -> Observable<CameraPreSignedEntity?> {
+        return cameraRepository.createProfileImagePresignedURL(body: body)
     }
 }
 

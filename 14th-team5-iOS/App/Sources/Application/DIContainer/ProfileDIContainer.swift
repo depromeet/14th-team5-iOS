@@ -69,6 +69,10 @@ final class ProfileDIContainer: BaseContainer {
         container.register(type: UpdateMembersNameUseCaseProtocol.self) { _ in
             self.makeUpdateMembersNameUseCase()
         }
+        
+        container.register(type: UpdateMembersProfileUseCaseProtocol.self) { _ in
+            self.makeUpdateMembersProfileUseCase()
+        }
     }
     
 }

@@ -11,20 +11,20 @@ import RxSwift
 import RxCocoa
 
 
-public protocol FetchCameraTodayMissionUseCaseProtocol {
-    func execute() -> Observable<CameraTodayMssionEntity?>
-}
-
-
-public final class FetchCameraTodayMissionUseCase: FetchCameraTodayMissionUseCaseProtocol {
-    
-    private let cameraRepository: any CameraRepositoryProtocol
-    
-    public init(cameraRepository: any CameraRepositoryProtocol) {
-        self.cameraRepository = cameraRepository
-    }
-    
-    public func execute() -> Observable<CameraTodayMssionEntity?> {
-        return cameraRepository.fetchDailyMissonItem()
-    }
-}
+//public protocol FetchCameraTodayMissionUseCaseProtocol {
+//    func execute() -> Observable<CameraTodayMssionEntity?>
+//}
+//
+//
+//public final class FetchCameraTodayMissionUseCase: FetchCameraTodayMissionUseCaseProtocol {
+//    
+//    private let cameraRepository: any CameraRepositoryProtocol
+//    
+//    public init(cameraRepository: any CameraRepositoryProtocol) {
+//        self.cameraRepository = cameraRepository
+//    }
+//    
+//    public func execute() -> Observable<CameraTodayMssionEntity?> {
+//        return cameraRepository.fetchDailyMissonItem()
+//    }
+//}

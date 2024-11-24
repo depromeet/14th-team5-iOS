@@ -14,6 +14,7 @@ public enum UploadLocation {
     case mission
     case profile
     case realEmoji
+    case account
   
   public var isRealEmojiType: Bool {
     switch self {
@@ -33,6 +34,8 @@ public enum UploadLocation {
             return "images/profile/"
         case .realEmoji:
             return "images/real-emoji/"
+        default:
+            return ""
         }
     }
     
@@ -57,27 +60,19 @@ public enum UploadLocation {
         return "카메라"
       case .realEmoji:
         return "셀피 이미지"
+      default:
+          return ""
       }
     }
 }
 
 public protocol CameraRepositoryProtocol {
     var disposeBag: DisposeBag { get }
-    
-    /// CREATE 메서드
-    func createFeedImage(query: CreateFeedQuery, body: CreateFeedRequest) -> Observable<CameraPostEntity?>
-    func createProfileImagePresignedURL(body: CreatePresignedURLRequest) -> Observable<CameraPreSignedEntity?>
+
     func createEmojiImagePresignedURL(memberID: String, body: CreatePresignedURLRequest) -> Observable<CameraRealEmojiPreSignedEntity?>
     func createEmojiImage(memberId: String, body: CreateEmojiImageRequest) -> Observable<CameraCreateRealEmojiEntity?>
     
     /// FETCH 메서드
     func fetchEmojiList(memberId: String) -> Observable<[CameraRealEmojiImageItemEntity?]>
-    func fetchDailyMissonItem() -> Observable<CameraTodayMssionEntity?>
-    
-    /// UPDATE 메서드
-    func updateUserProfileImage(memberId: String, body: UpdateProfileImageRequest) -> Observable<MembersProfileEntity?>
     func updateEmojiImage(memberId: String, realEmojiId: String, body: UpdateRealEmojiImageRequest) -> Observable<CameraUpdateRealEmojiEntity?>
-    
-    /// UPLOAD 메서드
-    func uploadImageToS3Bucket(_ presignedURL: String, image: Data) -> Observable<Bool>
 }

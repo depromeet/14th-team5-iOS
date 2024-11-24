@@ -49,11 +49,11 @@ extension MembersAPIWorker {
     
     /// 회읜 프로필 이미지 업로드를 하기 위한 Presigned-URL API 요청 Method
     /// HTTP Method : POST
-    /// - Returns : CameraDisplayImageResponseDTO
-    func createMemberPresignedURL() -> Observable<CameraDisplayImageResponseDTO?> {
-        let spec = MembersAPIs.createMemberPresignedURL.spec
+    /// - Returns : CreateMemberPresignedURLResponseDTO
+    func createMemberPresignedURL(body: CreateMemberPresignedURLRequestDTO) -> Observable<CreateMemberPresignedURLResponseDTO?> {
+        let spec = MembersAPIs.createMemberPresignedURL(body: body).spec
         
-        return .empty()
+        return request(spec)
     }
     
     /// 회원 프로필 이름을 수정하기 위한 Method
@@ -73,8 +73,8 @@ extension MembersAPIWorker {
     ///     - memberId (수정할 회원 ID)
     ///     -
     ///- Returns : MembersProfileResponseDTO
-    func updateMemberProfileImage(memberId: String) -> Observable<MembersProfileResponseDTO?> {
-        let spec = MembersAPIs.updateMemberProfileImage(memberId: memberId).spec
+    func updateMemberProfileImage(memberId: String, body: UpdateMemberImageRequestDTO) -> Observable<MembersProfileResponseDTO?> {
+        let spec = MembersAPIs.updateMemberProfileImage(memberId: memberId, body: body).spec
         
         return request(spec)
     }
@@ -87,5 +87,15 @@ extension MembersAPIWorker {
         let spec = MembersAPIs.deleteMemberProfileImage(memberId: memberId).spec
         
         return request(spec)
+    }
+    
+    /// 프로필 이미지를 S3 Bucket에 업로드 하기 위한 Method 입니다.
+    /// HTTP Method : PUT
+    /// - Parameters
+    ///     - presignedURL : 서버에서 발급 받은 Presigned-URL
+    ///     - image : Image Data Type
+    /// - Returns : 업로드 성공 여부 확인 (Bool) Type
+    func updateS3MemberImageUpload(_ presignedURL: String, image: Data) -> Observable<Bool> {
+        return upload(presignedURL, with: image)
     }
 }

@@ -25,6 +25,6 @@ public final class FetchCameraUploadImageUseCase: FetchCameraUploadImageUseCaseP
     }
     
     public func execute(_ presignedURL: String, image: Data) -> Observable<Bool> {
-        return cameraRepository.uploadImageToS3Bucket(presignedURL, image: image)
+        return .empty()
     }
 }

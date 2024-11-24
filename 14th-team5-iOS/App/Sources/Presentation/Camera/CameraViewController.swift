@@ -232,7 +232,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         Observable
             .zip(
-                reactor.state.compactMap { $0.feedImageData }.distinctUntilChanged(),
+                reactor.state.compactMap { $0.imageData }.distinctUntilChanged(),
                 reactor.state.compactMap { $0.cameraType }
             )
             .filter { $0.1.asPostType == .survival }
@@ -243,18 +243,18 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             }.disposed(by: disposeBag)
         
         
-        Observable
-            .zip(
-                reactor.state.compactMap { $0.feedImageData }.distinctUntilChanged(),
-                reactor.state.compactMap { $0.missionEntity?.missionContent },
-                reactor.state.map { $0.cameraType.asPostType }
-            )
-            .withUnretained(self)
-            .bind {
-                let cameraDisplayViewController = CameraDisplayViewControllerWrapper(displayData: $0.1.0, missionTitle: $0.1.1, cameraDisplayType: $0.1.2).viewController
-                $0.0.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
-            }.disposed(by: disposeBag)
-        
+//        Observable
+//            .zip(
+//                reactor.state.compactMap { $0.feedImageData }.distinctUntilChanged(),
+//                reactor.state.compactMap { $0.missionEntity?.missionContent },
+//                reactor.state.map { $0.cameraType.asPostType }
+//            )
+//            .withUnretained(self)
+//            .bind {
+//                let cameraDisplayViewController = CameraDisplayViewControllerWrapper(displayData: $0.1.0, missionTitle: $0.1.1, cameraDisplayType: $0.1.2).viewController
+//                $0.0.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
+//            }.disposed(by: disposeBag)
+//        
         reactor.state
             .map { $0.cameraType.isRealEmojiType }
             .distinctUntilChanged()
@@ -262,12 +262,12 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .bind(onNext: {$0.0.setupRealEmojiLayoutContent(isShow: !$0.1)})
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$missionEntity)
-            .map { $0?.missionContent }
-            .bind(to: missionView.missionTitleView.rx.text)
-            .disposed(by: disposeBag)
+//        reactor.pulse(\.$missionEntity)
+//            .map { $0?.missionContent }
+//            .bind(to: missionView.missionTitleView.rx.text)
+//            .disposed(by: disposeBag)
         
-        //TODO: Navigation Bar 제약 조건 이슈
+
         reactor.pulse(\.$cameraType)
             .map { $0.setTitle() }
             .observe(on: MainScheduler.instance)
@@ -341,14 +341,15 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         
         reactor.state
-            .map { ($0.accountImage, $0.profileImageURLEntity, $0.memberId)}
-            .filter { $0.0 != nil }
-            .withUnretained(self)
-            .subscribe(onNext: { (owner, originEntity) in
-                let userInfo: [AnyHashable: Any] = ["presignedURL": originEntity.1?.imageURL, "originImage": originEntity.0]
+            .filter { $0.cameraType == .account && $0.imageData != nil }
+            .compactMap { $0.imageData}
+            .distinctUntilChanged()
+            .subscribe(with: self) { owner, imageData in
+                let userInfo: [AnyHashable: Any] = ["originImage": imageData]
                 NotificationCenter.default.post(name: .AccountViewPresignURLDismissNotification, object: nil, userInfo: userInfo)
                 owner.dismissCameraViewController()
-            }).disposed(by: disposeBag)
+            }
+            .disposed(by: disposeBag)
         
         
         realEmojiCollectionView

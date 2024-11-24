@@ -7,11 +7,11 @@
 
 import Foundation
 
+import Core
 import RxSwift
-import RxCocoa
 
 public protocol UpdateMembersProfileUseCaseProtocol {
-    func execute(memberId: String, parameter: ProfileImageEditParameter) -> Observable<MembersProfileEntity?>
+    func execute(memberId: String, body: CreateMemberPresignedReqeust, imageData: Data) -> Observable<MembersProfileEntity?>
 }
 
 
@@ -24,7 +24,25 @@ public final class UpdateMembersProfileUseCase: UpdateMembersProfileUseCaseProto
         self.membersRepository = membersRepository
     }
     
-    public func execute(memberId: String, parameter: ProfileImageEditParameter) -> Observable<MembersProfileEntity?> {
-        return membersRepository.updateMemberProfileImageItem(memberId: memberId)
+    public func execute(memberId: String, body: CreateMemberPresignedReqeust, imageData: Data) -> Observable<MembersProfileEntity?> {
+        return membersRepository.creteMemberImagePresignedURL(memberId: memberId, body: body)
+            .flatMap { [unowned self] presignedURL -> Observable<MembersProfileEntity?> in
+                guard let presignedURL = presignedURL?.imageURL else {
+                    return .error(BBUploadError.invalidServerResponse)
+                }
+                
+                let body = UpdateMemberImageRequest(profileImageUrl: presignedURL)
+                return self.membersRepository.uploadMemberImageToS3Bucket(presignedURL, image: imageData)
+                    .flatMap { [unowned self] isSucess -> Observable<MembersProfileEntity?> in
+                        if isSucess {
+                            return self.membersRepository.updateMemberProfileImageItem(memberId: memberId, body: body)
+                                .flatMap { entity -> Observable<MembersProfileEntity?> in
+                                    return .just(entity)
+                                }
+                        } else {
+                            return .error(BBUploadError.uploadFailed)
+                        }
+                    }
+            }
     }
 }

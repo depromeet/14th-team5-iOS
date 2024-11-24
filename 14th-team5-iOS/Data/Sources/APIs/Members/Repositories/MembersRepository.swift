@@ -38,8 +38,10 @@ extension MembersRepository: MembersRepositoryProtocol {
             .map { $0?.toDomain() }
     }
     
-    public func updateMemberProfileImageItem(memberId: String) -> Observable<MembersProfileEntity?> {
-        return membersAPIWorker.updateMemberProfileImage(memberId: memberId)
+    public func updateMemberProfileImageItem(memberId: String, body: UpdateMemberImageRequest) -> Observable<MembersProfileEntity?> {
+        let body = UpdateMemberImageRequestDTO(profileImageUrl: body.profileImageUrl)
+        
+        return membersAPIWorker.updateMemberProfileImage(memberId: memberId, body: body)
             .do {
                 guard let userEntity = $0?.toProfileEntity() else { return }
                 self.familyUserDefaults.updateFamilyMember(userEntity)
@@ -52,8 +54,10 @@ extension MembersRepository: MembersRepositoryProtocol {
             .map { $0?.toDomain() }
     }
     
-    public func creteMemberImagePresignedURL(memberId: String) -> Observable<CameraPreSignedEntity?> {
-        return membersAPIWorker.createMemberPresignedURL()
+    public func creteMemberImagePresignedURL(memberId: String, body: CreateMemberPresignedReqeust) -> Observable<CreateMemberPresignedEntity?> {
+        let body = CreateMemberPresignedURLRequestDTO(imageName: body.imageName)
+        
+        return membersAPIWorker.createMemberPresignedURL(body: body)
             .map { $0?.toDomain() }
     }
     
@@ -71,5 +75,9 @@ extension MembersRepository: MembersRepositoryProtocol {
         
         return membersAPIWorker.deleteMember(memberId: memberId, body: body)
             .map { $0?.toDomain() }
+    }
+    
+    public func uploadMemberImageToS3Bucket(_ presignedURL: String, image: Data) -> Observable<Bool> {
+        return membersAPIWorker.updateS3MemberImageUpload(presignedURL, image: image)
     }
 }

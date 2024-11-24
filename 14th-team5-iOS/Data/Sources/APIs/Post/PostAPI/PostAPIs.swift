@@ -17,7 +17,8 @@ enum PostsAPIs: BBAPI {
     /// 게시물 단일 조회 API
     case fetchPostDetail(postId: String)
     /// 게시물 사진 Presigned URL 요청 API
-    case createPostPresignedURL(body: CreatePresignedURLRequestDTO)
+    case createPostPresignedURL(body: CreatePostPresignedURLReqeustDTO)
+    
     
     var spec: Spec {
         switch self {

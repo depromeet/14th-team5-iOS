@@ -24,8 +24,6 @@ public protocol AccountImpl: AnyObject {
     func kakaoLogin(with snsType: SNS, vc: UIViewController) -> Observable<APIResult>
     func appleLogin(with snsType: SNS, vc: UIViewController) -> Observable<APIResult>
     func signUp(name: String, date: String, photoURL: String?) -> Observable<AccessTokenResponse?>
-//    func executePresignedImageURLCreate(parameter: CameraDisplayImageParameters) -> Observable<CameraPreSignedEntity?>
-//    func executeProfileImageUpload(to url: String, data: Data) -> Observable<Bool>
 }
 
 public final class AccountRepository: AccountImpl {
@@ -117,13 +115,6 @@ public final class AccountRepository: AccountImpl {
         }
     }
     
-    
-    @available(*, deprecated, message: "Member Repository 사용")
-    public func executePresignedImageURLCreate(parameter: CameraDisplayImageParameters) -> Observable<CameraPreSignedEntity?> {
-        return profileWorker.createMemberPresignedURL()
-            .compactMap { $0?.toDomain() }
-            .asObservable()
-    }
     
     private func saveMemberInfo(_ memberInfo: MemberInfo?) {
         

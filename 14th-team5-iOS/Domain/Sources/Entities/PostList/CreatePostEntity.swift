@@ -1,13 +1,14 @@
 //
-//  CameraPostEntity.swift
+//  CreatePostEntity.swift
 //  Domain
 //
-//  Created by Kim dohyun on 6/14/24.
+//  Created by 김도현 on 11/22/24.
 //
 
 import Foundation
 
-public struct CameraPostEntity {
+
+public struct CreatePostEntity {
     public let postId: String
     public let authorId: String
     public let commentCount: Int

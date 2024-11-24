@@ -11,7 +11,7 @@ import Domain
 import RxSwift
 
 public final class PostRepository: PostListRepositoryProtocol {
-    
+        
     private let disposeBag: DisposeBag = DisposeBag()
     private let postAPIWorker: PostAPIWorker = PostAPIWorker()
     
@@ -38,16 +38,20 @@ extension PostRepository {
             .map { $0?.toDomain() }
     }
     
-    public func createPostItem(query: CreatePostQuery, body: CreatePostRequest) -> Observable<CameraPostEntity?> {
+    public func createPostItem(query: CreatePostQuery, body: CreatePostRequest) -> Observable<CreatePostEntity?> {
         let body = CreatePostRequestDTO(imageUrl: body.imageUrl, content: body.content, uploadTime: body.uploadTime)
         
         return postAPIWorker.createPost(query: query, body: body)
-            .map { $0.toDomain() }
+            .map { $0?.toDomain() }
     }
     
-    public func createPostPresignedURLItem(body: CreatePostPresignedURLRequest) -> Observable<CameraPreSignedEntity?> {
-        let body = CreatePresignedURLRequestDTO(imageName: body.imageName)
+    public func createPostPresignedURLItem(body: CreatePostPresignedURLRequest) -> Observable<CreatePostPresignedURLEntity?> {
+        let body = CreatePostPresignedURLReqeustDTO(imageName: body.imageName)
         return postAPIWorker.createPostPresignedURL(body: body)
-            .map { $0.toDomain() }
+            .map { $0?.toDomain() }
+    }
+    
+    public func uploadPostImageToS3Bucket(_ presignedURL: String, image: Data) -> Observable<Bool> {
+        return postAPIWorker.updateS3PostImageUpload(presignedURL, image: image)
     }
 }

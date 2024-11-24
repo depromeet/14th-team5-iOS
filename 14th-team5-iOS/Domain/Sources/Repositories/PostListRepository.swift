@@ -13,6 +13,9 @@ public protocol PostListRepositoryProtocol {
     func fetchPostList(query: PostListQuery) -> Observable<PostListPageEntity?>
     func fetchPostDetailItem(postId: String) -> Observable<PostDetailEntity?>
     /// CREATE
-    func createPostItem(query: CreatePostQuery, body: CreatePostRequest) -> Observable<CameraPostEntity?>
-    func createPostPresignedURLItem(body: CreatePostPresignedURLRequest) -> Observable<CameraPreSignedEntity?>
+    func createPostItem(query: CreatePostQuery, body: CreatePostRequest) -> Observable<CreatePostEntity?>
+    func createPostPresignedURLItem(body: CreatePostPresignedURLRequest) -> Observable<CreatePostPresignedURLEntity?>
+    
+    /// UPLOAD
+    func uploadPostImageToS3Bucket(_ presignedURL: String, image: Data) -> Observable<Bool>
 }

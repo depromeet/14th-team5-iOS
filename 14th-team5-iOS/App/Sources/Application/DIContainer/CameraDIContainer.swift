@@ -19,24 +19,8 @@ final class CameraDIContainer: BaseContainer {
     }
     
     
-    private func makeCreateProfileImageUseCase() -> CreateCameraImageUseCaseProtocol {
-        return CreateCameraImageUseCase(cameraRepository: makeRepository())
-    }
-    
-    private func makeCreateCameraUseCase() -> CreateCameraUseCaseProtocol {
-        return CreateCameraUseCase(cameraRepository: makeRepository())
-    }
-    
-    private func makeEditCameraProfileImageUseCase() -> EditCameraProfileImageUseCaseProtocol {
-        return EditCameraProfileImageUseCase(cameraRepository: makeRepository())
-    }
-    
     private func makeFetchCameraUploadImageUseCase() -> FetchCameraUploadImageUseCaseProtocol {
         return FetchCameraUploadImageUseCase(cameraRepository: makeRepository())
-    }
-    
-    private func makeFetchCameraTodayMissionUseCase() -> FetchCameraTodayMissionUseCaseProtocol {
-        return FetchCameraTodayMissionUseCase(cameraRepository: makeRepository())
     }
     
     private func makeFetchCameraRealEmojiUpdateUseCase() -> FetchCameraRealEmojiUpdateUseCaseProtocol {
@@ -56,24 +40,10 @@ final class CameraDIContainer: BaseContainer {
     }
         
     func registerDependencies() {
-        container.register(type: CreateCameraImageUseCaseProtocol.self) { _ in
-            self.makeCreateProfileImageUseCase()
-        }
         
-        container.register(type: CreateCameraUseCaseProtocol.self) { _ in
-            self.makeCreateCameraUseCase()
-        }
-        
-        container.register(type: EditCameraProfileImageUseCaseProtocol.self) { _ in
-            self.makeEditCameraProfileImageUseCase()
-        }
         
         container.register(type: FetchCameraUploadImageUseCaseProtocol.self) { _ in
             self.makeFetchCameraUploadImageUseCase()
-        }
-        
-        container.register(type: FetchCameraTodayMissionUseCaseProtocol.self) { _ in
-            self.makeFetchCameraTodayMissionUseCase()
         }
         
         container.register(type: FetchCameraRealEmojiUpdateUseCaseProtocol.self) { _ in

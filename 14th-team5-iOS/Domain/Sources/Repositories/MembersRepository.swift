@@ -17,13 +17,15 @@ public protocol MembersRepositoryProtocol {
     func fetchProfileMemberItem(memberId: String) -> Observable<MembersProfileEntity?>
     /// UPDATE
     func updateMemberNameItem(memberId: String, body: UpdateMemberNameRequest) -> Observable<UpdateMemberNameEntity?>
-    func updateMemberProfileImageItem(memberId: String) -> Observable<MembersProfileEntity?>
+    func updateMemberProfileImageItem(memberId: String, body: UpdateMemberImageRequest) -> Observable<MembersProfileEntity?>
     /// CREATE
     func createMemberPickItem(memberId: String) -> Observable<CreateMemberPickEntity?>
-    func creteMemberImagePresignedURL(memberId: String) -> Observable<CameraPreSignedEntity?>
+    func creteMemberImagePresignedURL(memberId: String, body: CreateMemberPresignedReqeust) -> Observable<CreateMemberPresignedEntity?>
     func deleteMemberProfileImageItem(memberId: String) -> Observable<MembersProfileEntity?>
     /// DELETE
     func deleteMemberItem(memberId: String, body: DeleteMemberRequest) -> Observable<DeleteMemberEntity?>
+    /// UPLOAD
+    func uploadMemberImageToS3Bucket(_ presignedURL: String, image: Data) -> Observable<Bool>
 }
 
 

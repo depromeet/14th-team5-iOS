@@ -16,50 +16,7 @@ import RxSwift
 typealias CameraAPIWorker = CameraAPIs.Worker
 
 extension CameraAPIWorker {
-    
-    /// 회읜 프로필 이미지 업로드를 하기 위한 Presigned-URL API 요청 Method
-    /// HTTP Method: POST
-    /// - Parameters : body (업로드 image Name)
-    /// - Returns : CameraDisplayImageResponseDTO
-    public func createProfilePresignedURL(body: CreatePresignedURLReqeustDTO) -> Observable<CameraDisplayImageResponseDTO?> {
-        let spec = CameraAPIs.createProfilePresignedURL(body: body).spec
-        
-        return request(spec)
-    }
-    
-    /// 게시믈 이미지 업로드를 하기 위한 Presigend-URL API 요청 Method 입니다
-    /// HTTP Method : POST
-    /// - Returns : CameraDisplayImageResponseDTO
-    public func createFeedPresignedURL(body: CreatePresignedURLReqeustDTO) -> Observable<CameraDisplayImageResponseDTO?> {
-        let spec = CameraAPIs.createFeedPresignedURL(body: body).spec
-        
-        return request(spec)
-    }
-    
-    /// 사용자 프로필 이미지를 업데이트 하기 위한 Method 입니다.
-    /// HTTP Method : PUT
-    /// - Parameters : MemberId (사용자 멤버 ID)
-    /// - Returns : MembersProfileResponseDTO
-    public func updateProfileImage(memberId: String, body: UpdateProfileImageRequestDTO) -> Observable<MembersProfileResponseDTO?> {
-        let spec = CameraAPIs.updateProfileImage(memberId: memberId, body: body).spec
-        
-        return request(spec)
-    }
-    
-    /// 게시물 생성을 하기 위한 Method 입니다.
-    /// HTTP Method : POST
-    /// - Parameters :
-    ///     - query : CreateFeedQuery
-    ///     - body : CameraFeedRequestDTO
-    ///         - type: String
-    ///         - available : Bool
-    /// - Returns : CameraDisplayPostResponseDTO
-    public func createFeed(query: CreateFeedQuery, body: CreateFeedRequestDTO) -> Observable<CameraDisplayPostResponseDTO?> {
-        let spec = CameraAPIs.createFeed(type: query.type, body: body).spec
-        
-        return request(spec)
-    }
-    
+            
     /// 리얼 이모지를 업로드 하기 위한 Presigend-URL API 요청 Method 입니다
     /// HTTP Method : POST
     /// - Parameters :
@@ -104,15 +61,6 @@ extension CameraAPIWorker {
     ///- Returns : CameraCreateRealEmojiResponseDTO
     public func createRealEmoji(memberId: String, body: CreateEmojiImageReqeustDTO) -> Observable<CameraCreateRealEmojiResponseDTO> {
         let spec = CameraAPIs.createRealEmojiImage(memberId: memberId, body: body).spec
-        
-        return request(spec)
-    }
-    
-    /// 일일 미션 조회를 하기 위한 API Method입니다.
-    /// HTTP Method :  GET
-    /// - Returns : CameraTodayMissionResponseDTO
-    public func fetchDailyMisson() -> Observable<CameraTodayMissionResponseDTO?> {
-        let spec = CameraAPIs.fetchTodayMission.spec
         
         return request(spec)
     }

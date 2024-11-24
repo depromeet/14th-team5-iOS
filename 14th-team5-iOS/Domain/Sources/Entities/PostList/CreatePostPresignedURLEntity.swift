@@ -1,13 +1,14 @@
 //
-//  CameraPreSignedEntity.swift
+//  CreatePostPresignedURLEntity.swift
 //  Domain
 //
-//  Created by Kim dohyun on 6/13/24.
+//  Created by 김도현 on 11/22/24.
 //
 
 import Foundation
 
-public struct CameraPreSignedEntity {
+
+public struct CreatePostPresignedURLEntity {
     public let imageURL: String
     
     public init(imageURL: String) {

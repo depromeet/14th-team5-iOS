@@ -115,8 +115,8 @@ public final class ProfileViewReactor: Reactor {
                         return .error(BBUploadError.invalidServerResponse)
                     }
                     let updateImageURL = owner.configureProfileOriginalS3URL(url: presignedURL)
-                    let updateMemberBody = UpdateMemberImageRequest(profileImageUrl: updateImageURL)
-                    return owner.updateMembersProfileUseCase.execute(memberId: owner.memberId, body: updateMemberBody)
+                    let body = UpdateMemberImageRequest(profileImageUrl: updateImageURL)
+                    return owner.updateMembersProfileUseCase.execute(memberId: owner.memberId, body: body)
                         .flatMap { entity -> Observable<Mutation> in
                             return .concat(
                                 .just(.setLoading(false)),

@@ -142,6 +142,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
                 guard let userInfo = notification.userInfo else { return nil }
                 return userInfo["selectImage"] as? Data
             }
+            .distinctUntilChanged()
             .map { Reactor.Action.didSelectPHAssetsImage($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)

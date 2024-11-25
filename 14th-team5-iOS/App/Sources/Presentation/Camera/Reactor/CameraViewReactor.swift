@@ -298,7 +298,7 @@ extension CameraViewReactor {
                     }
                     let updateImageURL = owner.configureProfileOriginalS3URL(url: presignedURL, with: .profile)
                     let body = UpdateMemberImageRequest(profileImageUrl: updateImageURL)
-                    return owner.updateMembersProfileUseCase.execute(memberId: self.memberId, body: body)
+                    return owner.updateMembersProfileUseCase.execute(memberId: owner.memberId, body: body)
                         .flatMap { entity -> Observable<Mutation> in
                             return .concat(
                                 .just(.setLoading(false)),

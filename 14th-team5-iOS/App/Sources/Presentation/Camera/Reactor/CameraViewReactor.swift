@@ -27,6 +27,7 @@ public final class CameraViewReactor: Reactor {
     @Injected private var fetchRealEmojiPreSignedUseCase: FetchCameraRealEmojiUseCaseProtocol
     @Injected private var fetchMyMemberIdUseCase: FetchMyMemberIdUseCaseProtocol
     @Injected private var provider: ServiceProviderProtocol
+    @Injected private var createPresignedURLUseCase: CreateMembersPresignedURLUseCaseProtocol
     @Injected private var updateMembersProfileUseCase: UpdateMembersProfileUseCaseProtocol
     @Navigator var cameraNavigator: CameraNavigatorProtocol
     
@@ -49,6 +50,7 @@ public final class CameraViewReactor: Reactor {
         case setFlashMode(Bool)
         case setPinchZoomScale(CGFloat)
         case setZoomScale(CGFloat)
+        case setProfilePresignedResponse(CreateMemberPresignedEntity?)
         case setProfileMemberResponse(MembersProfileEntity?)
         case setRealEmojiImageURLResponse(CameraRealEmojiPreSignedEntity?)
         case setRealEmojiImageCreateResponse(CameraCreateRealEmojiEntity?)
@@ -64,6 +66,7 @@ public final class CameraViewReactor: Reactor {
         @Pulse var isLoading: Bool
         @Pulse var isFlashMode: Bool
         @Pulse var isSwitchPosition: Bool
+        @Pulse var memberPresignedEntity: CreateMemberPresignedEntity?
         @Pulse var realEmojiURLEntity: CameraRealEmojiPreSignedEntity?
         @Pulse var realEmojiCreateEntity: CameraCreateRealEmojiEntity?
         @Pulse var realEmojiEntity: [CameraRealEmojiImageItemEntity?]
@@ -91,20 +94,14 @@ public final class CameraViewReactor: Reactor {
             isLoading: true,
             isFlashMode: false,
             isSwitchPosition: false,
-            realEmojiURLEntity: nil,
-            realEmojiCreateEntity: nil,
             realEmojiEntity: [],
             realEmojiSection: [.realEmoji([])],
             zoomScale: 1.0,
             pinchZoomScale: 1.0,
-            imageData: nil,
-            updateEmojiImage: nil,
             emojiType: emojiType,
             cameraType: cameraType,
-            accountImage: nil,
             memberId: memberId,
-            isError: false,
-            profileMemberEntity: nil
+            isError: false
         )
     }
     
@@ -174,6 +171,8 @@ public final class CameraViewReactor: Reactor {
             newState.pinchZoomScale = pinchZoomScale
         case let .setImageData(feedImage):
             newState.imageData = feedImage
+        case let .setProfilePresignedResponse(memberPresignedEntity):
+            newState.memberPresignedEntity = memberPresignedEntity
         }
         
         return newState
@@ -260,26 +259,58 @@ extension CameraViewReactor {
     private func didTapShutterButtonMutation(imageData: Data) -> Observable<CameraViewReactor.Mutation> {
         
         switch cameraType {
-        case .survival, .mission, .account:
+        case .survival, .mission:
             return .concat(
                 .just(.setLoading(false)),
                 .just(.setImageData(imageData)),
                 .just(.setLoading(true))
             )
             
+        case .account:
+            let profileImage = "\(imageData.hashValue).jpg"
+            let body = CreateMemberPresignedReqeust(imageName: profileImage)
+            
+            return createPresignedURLUseCase.execute(body: body, imageData: imageData)
+                .flatMap { entity -> Observable<Mutation> in
+                    guard let _ = entity?.imageURL else {
+                        return .error(BBUploadError.invalidServerResponse)
+                    }
+                    
+                    return .concat(
+                        .just(.setLoading(false)),
+                        .just(.setProfilePresignedResponse(entity)),
+                        .just(.setLoading(true))
+                    )
+                }.catch { [weak self] error in
+                    print("error check : \(error.localizedDescription) or tpye: \(type(of: error))")
+                    self?.cameraNavigator.showErrorToast(error.localizedDescription)
+                    return .empty()
+                }
         case  .profile:
             let profileImage = "\(imageData.hashValue).jpg"
             let body = CreateMemberPresignedReqeust(imageName: profileImage)
             
-            return updateMembersProfileUseCase.execute(memberId: memberId, body: body, imageData: imageData)
-                .flatMap { entity -> Observable<Mutation> in
-                        .concat(
-                            .just(.setLoading(true)),
-                            .just(.setProfileMemberResponse(entity)),
-                            .just(.setLoading(false))
-                        )
-                }.catchError(with: self, of: BBUploadError.self) {
-                    $0.cameraNavigator.showErrorToast($1.localizedDescription)
+            return createPresignedURLUseCase.execute(body: body, imageData: imageData)
+                .withUnretained(self)
+                .flatMap { owner, entity -> Observable<Mutation> in
+                    guard let presignedURL = entity?.imageURL else {
+                        return .error(BBUploadError.invalidServerResponse)
+                    }
+                    let updateImageURL = owner.configureProfileOriginalS3URL(url: presignedURL, with: .profile)
+                    let body = UpdateMemberImageRequest(profileImageUrl: updateImageURL)
+                    return owner.updateMembersProfileUseCase.execute(memberId: self.memberId, body: body)
+                        .flatMap { entity -> Observable<Mutation> in
+                            return .concat(
+                                .just(.setLoading(false)),
+                                .just(.setProfileMemberResponse(entity)),
+                                .just(.setLoading(true))
+                            )
+                        }.catch { [weak self] error in
+                            self?.cameraNavigator.showErrorToast(error.localizedDescription)
+                            return .empty()
+                        }
+                }.catch { [weak self] error in
+                    self?.cameraNavigator.showErrorToast(error.localizedDescription)
                     return .empty()
                 }
         case .realEmoji:
@@ -370,8 +401,6 @@ extension CameraViewReactor {
                 
             }
         }
-        
-        
     }
     
 }

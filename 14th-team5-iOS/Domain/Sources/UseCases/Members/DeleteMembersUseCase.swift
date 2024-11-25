@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol DeleteMembersUseCaseProtocol {
-    func execute(memberId: String, body: DeleteMemberRequest) -> Observable<DeleteMemberEntity?>
+    func execute(memberId: String) -> Observable<DeleteMemberEntity?>
 }
 
 
@@ -23,7 +23,7 @@ public final class DeleteMembersUseCase: DeleteMembersUseCaseProtocol {
         self.membersRepository = membersRepository
     }
     
-    public func execute(memberId: String, body: DeleteMemberRequest) -> Observable<DeleteMemberEntity?> {
-        return membersRepository.deleteMemberItem(memberId: memberId, body: body)
+    public func execute(memberId: String) -> Observable<DeleteMemberEntity?> {
+        return membersRepository.deleteMemberItem(memberId: memberId)
     }
 }

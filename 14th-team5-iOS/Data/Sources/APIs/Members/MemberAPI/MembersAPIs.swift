@@ -15,7 +15,7 @@ enum MembersAPIs: BBAPI {
     /// 회원 프로필 조회 API
     case fetchMember(memberId: String)
     /// 회원 탈퇴 API
-    case deleteMember(memberId: String, body: DeleteMemberRequestDTO)
+    case deleteMember(memberId: String)
     /// 회원 콕 찌르기 API
     case createMemberPick(memberId: String)
     /// 회원 프로필 Presigend URL 요청 API
@@ -32,8 +32,8 @@ enum MembersAPIs: BBAPI {
         switch self {
         case let .fetchMember(memberId):
             return Spec(method: .get, path: "/members/\(memberId)")
-        case let .deleteMember(memberId, body):
-            return Spec(method: .delete, path: "/members/\(memberId)", bodyParametersEncodable: body)
+        case let .deleteMember(memberId):
+            return Spec(method: .delete, path: "/members/\(memberId)")
         case let .createMemberPick(memberId):
             return Spec(method: .post, path: "/members/\(memberId)/pick")
         case let .createMemberPresignedURL(body):

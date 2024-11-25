@@ -18,6 +18,7 @@ public final class AccountSignUpReactor: Reactor {
     private var accountRepository: AccountImpl
     private let memberId: String
     private let profileType: AccountLoaction
+    @Injected var createPresignedURLUseCase: CreateMembersPresignedURLUseCaseProtocol
     @Injected var updateMembersNameUseCase: UpdateMembersNameUseCaseProtocol
     
     public enum Action {
@@ -114,39 +115,37 @@ extension AccountSignUpReactor {
             return updateMembersNameUseCase.execute(memberId: currentState.memberId, body: body)
                 .flatMap { entity -> Observable<Mutation> in
                     return .just(.setEditNickName(entity))
-                    
                 }
             
         case .didTapCompletehButton:
-//            let originProfilePath = configureAccountOriginalS3URL(url: presignedURL)
-            
-            if self.currentState.profileImage == nil {
-                let date = getDateToString(year: currentState.year!, month: currentState.month, day: currentState.day)
+            let originProfilePath = configureAccountOriginalS3URL(url: currentState.profilePresignedURL)
+            let date = getDateToString(year: currentState.year!, month: currentState.month, day: currentState.day)
+            if self.currentState.profilePresignedURL.isEmpty {
                 return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: nil)
                     .withUnretained(self).flatMap { owner, tokenEntity -> Observable<Mutation> in
                     return Observable.just(Mutation.didTapCompletehButton(tokenEntity))
                 }
             } else {
-                return .empty()
+                let date = getDateToString(year: currentState.year!, month: currentState.month, day: currentState.day)
+                return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: originProfilePath)
+                    .withUnretained(self).flatMap { owner, tokenEntity -> Observable<Mutation> in
+                        return Observable.just(Mutation.didTapCompletehButton(tokenEntity))
+                    }
             }
-            
-            
-//            if self.currentState.profilePresignedURL.isEmpty {
-//                return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: nil)
-//                    .withUnretained(self).flatMap { owner, tokenEntity -> Observable<Mutation> in
-//                    return Observable.just(Mutation.didTapCompletehButton(tokenEntity))
-//                }
-//            } else {
-//                return accountRepository.signUp(name: currentState.nickname, date: date, photoURL: currentState.profilePresignedURL)
-//                    .withUnretained(self).flatMap { owner, tokenEntity -> Observable<Mutation> in
-//                    return Observable.just(Mutation.didTapCompletehButton(tokenEntity))
-//                }
-//            }
         case let .didTapPHAssetsImage(profileImage):
             let originalImage: String = "\(profileImage.hashValue).jpg"
-            let profileImageEditParameter: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: originalImage)
-            
-            return .empty()
+            let body = CreateMemberPresignedReqeust(imageName: originalImage)
+            return createPresignedURLUseCase.execute(body: body, imageData: profileImage ?? .empty)
+                .flatMap { presignedURL -> Observable<Mutation> in
+                    guard let presignedURL = presignedURL?.imageURL else {
+                        return .error(BBUploadError.invalidServerResponse)
+                    }
+                    
+                    return .concat(
+                        .just(.setProfilePresignedURL(presignedURL)),
+                        .just(.setProfileImage(profileImage))
+                    )
+                }
         }
     }
     

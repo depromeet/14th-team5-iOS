@@ -29,10 +29,9 @@ extension MembersAPIWorker {
     /// HTTP Method : DELETE
     /// - Parameters:
     ///     - memberId (탈퇴할 회원 ID)
-    ///     - DeleteMemberRequestDTO (탈퇴 사유)
     /// - Returns : AccountResignResponseDTO
-    func deleteMember(memberId: String, body: DeleteMemberRequestDTO) -> Observable<DeleteMemberResponseDTO?> {
-        let spec = MembersAPIs.deleteMember(memberId: memberId, body: body).spec
+    func deleteMember(memberId: String) -> Observable<DeleteMemberResponseDTO?> {
+        let spec = MembersAPIs.deleteMember(memberId: memberId).spec
         
         return request(spec)
     }

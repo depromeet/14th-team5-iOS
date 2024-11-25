@@ -62,8 +62,7 @@ final class AccountResignViewReactor: Reactor {
                 return .empty()
             }
             
-            let body = DeleteMemberRequest(reasonIds: currentState.reasonType.rawValue)
-            return deleteAccountResignUseCase.execute(memberId: memberId, body: body)
+            return deleteAccountResignUseCase.execute(memberId: memberId)
                 .compactMap { $0 }
                 .withUnretained(self)
                 .flatMap { owner, entity -> Observable<Mutation> in

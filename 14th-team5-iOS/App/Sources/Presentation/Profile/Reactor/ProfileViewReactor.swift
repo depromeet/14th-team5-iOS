@@ -18,7 +18,7 @@ public final class ProfileViewReactor: Reactor {
     @Injected private var fetchMembersProfileUseCase: FetchMembersProfileUseCaseProtocol
     @Injected private var updateMembersProfileUseCase :UpdateMembersProfileUseCaseProtocol
     @Injected private var uploadProfileImageUseCase: FetchCameraUploadImageUseCaseProtocol
-    @Injected private var updateProfileUseCase: UpdateMembersProfileUseCaseProtocol
+    @Injected private var createPresignedURLUseCase: CreateMembersPresignedURLUseCaseProtocol
     @Injected private var deleteProfileImageUseCase: DeleteMembersProfileUseCaseProtocol
     @Navigator private var profileNavigator: ProfileNavigatorProtocol
     
@@ -107,17 +107,28 @@ public final class ProfileViewReactor: Reactor {
         case let .didSelectPHAssetsImage(assetImage):
             let imageName: String = "\(assetImage.hashValue).jpg"
             let body = CreateMemberPresignedReqeust(imageName: imageName)
-            return updateMembersProfileUseCase.execute(memberId: memberId, body: body, imageData: assetImage)
-                .flatMap { entity -> Observable<Mutation> in
-                    return .concat(
-                        .just(.setLoading(true)),
-                        .just(.setProfileMemberItems(entity)),
-                        .just(.setLoading(false))
-                    )
-                }.catchError(with: self, of: BBUploadError.self) {
-                    $0.profileNavigator.showErrorToast($1.localizedDescription)
+            
+            return createPresignedURLUseCase.execute(body: body, imageData: assetImage)
+                .withUnretained(self)
+                .flatMap { owner, entity -> Observable<Mutation> in
+                    guard let presignedURL = entity?.imageURL else {
+                        return .error(BBUploadError.invalidServerResponse)
+                    }
+                    let updateImageURL = owner.configureProfileOriginalS3URL(url: presignedURL)
+                    let updateMemberBody = UpdateMemberImageRequest(profileImageUrl: updateImageURL)
+                    return owner.updateMembersProfileUseCase.execute(memberId: owner.memberId, body: updateMemberBody)
+                        .flatMap { entity -> Observable<Mutation> in
+                            return .concat(
+                                .just(.setLoading(false)),
+                                .just(.setProfileMemberItems(entity)),
+                                .just(.setLoading(true))
+                            )
+                        }
+                }.catch { [weak self] error in
+                    self?.profileNavigator.showErrorToast(error.localizedDescription)
                     return .empty()
                 }
+  
         case .didTapInitProfile:
             return deleteProfileImageUseCase.execute(memberId: memberId)
                 .flatMap { entity -> Observable<Mutation> in

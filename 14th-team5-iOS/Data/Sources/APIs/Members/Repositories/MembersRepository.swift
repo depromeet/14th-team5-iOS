@@ -54,7 +54,7 @@ extension MembersRepository: MembersRepositoryProtocol {
             .map { $0?.toDomain() }
     }
     
-    public func creteMemberImagePresignedURL(memberId: String, body: CreateMemberPresignedReqeust) -> Observable<CreateMemberPresignedEntity?> {
+    public func creteMemberImagePresignedURL(body: CreateMemberPresignedReqeust) -> Observable<CreateMemberPresignedEntity?> {
         let body = CreateMemberPresignedURLRequestDTO(imageName: body.imageName)
         
         return membersAPIWorker.createMemberPresignedURL(body: body)
@@ -70,10 +70,9 @@ extension MembersRepository: MembersRepositoryProtocol {
             .map { $0?.toDomain() }
     }
     
-    public func deleteMemberItem(memberId: String, body: DeleteMemberRequest) -> Observable<DeleteMemberEntity?> {
-        let body = DeleteMemberRequestDTO(reasonIds: body.reasonIds)
+    public func deleteMemberItem(memberId: String) -> Observable<DeleteMemberEntity?> {
         
-        return membersAPIWorker.deleteMember(memberId: memberId, body: body)
+        return membersAPIWorker.deleteMember(memberId: memberId)
             .map { $0?.toDomain() }
     }
     

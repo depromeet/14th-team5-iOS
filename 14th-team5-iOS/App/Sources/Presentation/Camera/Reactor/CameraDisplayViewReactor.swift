@@ -85,12 +85,12 @@ public final class CameraDisplayViewReactor: Reactor {
             return createPresignedURLUseCase.execute(body: body, imageData: currentState.displayData)
                 .flatMap { presingedURL -> Observable<Mutation> in
                     return .concat(
-                        .just(.setLoading(true)),
+                        .just(.setLoading(false)),
                         .just(.setDisplayEntity(presingedURL)),
                         .just(.setError(false)),
-                        .just(.setLoading(false))
+                        .just(.setLoading(true))
                     )
-                }.catchError(with: self, of: BBUploadError.self) { _, _ in
+                }.catch { _ in
                     return .just(.setError(true))
                 }
  
@@ -98,7 +98,7 @@ public final class CameraDisplayViewReactor: Reactor {
             return .concat(
                 Observable.of(Array(description))
                     .map { String($0) }
-                    .flatMap { items -> Observable<CameraDisplayViewReactor.Mutation> in
+                    .flatMap { items -> Observable<Mutation> in
                         var sectionItem: [DisplayEditItemModel] = []
                         
                         items.forEach {
@@ -138,7 +138,7 @@ public final class CameraDisplayViewReactor: Reactor {
         
             return createPostUseCase.execute(query: query, body: body)
                 .withUnretained(self)
-                .flatMap { owner, entity -> Observable<CameraDisplayViewReactor.Mutation> in
+                .flatMap { owner, entity -> Observable<Mutation> in
                     if entity == nil  {
                         return .just(.setError(true))
                     } else {

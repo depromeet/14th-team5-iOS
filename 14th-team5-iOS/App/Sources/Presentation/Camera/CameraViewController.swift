@@ -235,7 +235,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
                 reactor.state.compactMap { $0.imageData }.distinctUntilChanged(),
                 reactor.state.compactMap { $0.cameraType }
             )
-            .filter { $0.1.asPostType == .survival }
+            .filter { $0.1 == .survival }
             .withUnretained(self)
             .bind {
                 let cameraDisplayViewController = CameraDisplayViewControllerWrapper(displayData: $0.1.0).viewController
@@ -341,11 +341,10 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         
         reactor.state
-            .filter { $0.cameraType == .account && $0.imageData != nil }
-            .compactMap { $0.imageData}
-            .distinctUntilChanged()
-            .subscribe(with: self) { owner, imageData in
-                let userInfo: [AnyHashable: Any] = ["originImage": imageData]
+            .map { ($0.imageData, $0.memberPresignedEntity) }
+            .filter { $0.1 != nil}
+            .subscribe(with: self) { owner, arguments in
+                let userInfo: [AnyHashable: Any] = ["presignedURL": arguments.1?.imageURL, "originImage": arguments.0]
                 NotificationCenter.default.post(name: .AccountViewPresignURLDismissNotification, object: nil, userInfo: userInfo)
                 owner.dismissCameraViewController()
             }

@@ -279,10 +279,10 @@ extension CameraViewReactor {
                     return .concat(
                         .just(.setLoading(false)),
                         .just(.setProfilePresignedResponse(entity)),
+                        .just(.setImageData(imageData)),
                         .just(.setLoading(true))
                     )
                 }.catch { [weak self] error in
-                    print("error check : \(error.localizedDescription) or tpye: \(type(of: error))")
                     self?.cameraNavigator.showErrorToast(error.localizedDescription)
                     return .empty()
                 }

@@ -13,6 +13,7 @@ import Domain
 import RxSwift
 
 public final class MissionRepository: MissionRepositoryProtocol {
+    
     public let disposeBag: DisposeBag = DisposeBag()
     
     private let lastMissionUploadDateId = "lastMissionUploadDateId"
@@ -22,26 +23,32 @@ public final class MissionRepository: MissionRepositoryProtocol {
 }
 
 extension MissionRepository {
-
-    public func getMissionContent(missionId: String) -> Single<MissionContentEntity?> {
-        return missionAPIWorker.getMissionContent(missionId: missionId)
+    
+    public func fetchMissonContentItem(missonId: String) -> Observable<MissionContentEntity?> {
+        return missionAPIWorker.fetchMissonContent(missonId: missonId)
+            .map { $0?.toDomain() }
+    }
+    
+    public func fetchDailyMissonItem() -> Observable<CameraTodayMssionEntity?> {
+        return missionAPIWorker.fetchDailyMisson()
+            .map { $0?.toDomain() }
     }
     
     public func isAlreadyShowMissionAlert() -> Observable<Bool> {
         guard let lastDate = UserDefaults.standard.string(forKey: lastMissionUploadDateId) else {
-            saveMissionUploadDate()
+            updateMissonUploadDate()
             return .just(false)
         }
         
         if lastDate == Date().toFormatString(with: "yyyy-MM-dd") {
             return .just(true)
         } else {
-            saveMissionUploadDate()
+            updateMissonUploadDate()
             return .just(false)
         }
     }
     
-    private func saveMissionUploadDate() {
+    public func updateMissonUploadDate() {
         let isoDateFormatter = ISO8601DateFormatter()
         isoDateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         

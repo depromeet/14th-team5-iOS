@@ -13,38 +13,25 @@ import Domain
 import RxSwift
 
 typealias MissionAPIWorker = MissionAPIs.Worker
-extension MissionAPIs {
-    public final class Worker: APIWorker {
-        static let queue = {
-            ConcurrentDispatchQueueScheduler(queue: DispatchQueue(label: "MssionAPIQueue", qos: .utility))
-        }()
-        
-        public override init() {
-            super.init()
-            self.id = "MissionAPIWorker"
-        }
-    }
-}
 
 extension MissionAPIWorker {
-    private func getMissionContent(spec: APISpec, headers: [APIHeader]?) -> Single<MissionContentEntity?> {
-        return request(spec: spec, headers: headers)
-            .subscribe(on: Self.queue)
-            .map(MissionContentResponseDTO.self)
-            .catchAndReturn(nil)
-            .map { $0?.toDomain() }
-            .asSingle()
+    
+    /// 미션 정보를 조회하기 위한 API 입니다.
+    /// HTTP Method : GET
+    /// - Parameters : missonid(미션 ID)
+    /// - Returns : MissionContentResponseDTO
+    func fetchMissonContent(missonId: String) -> Observable<MissionContentResponseDTO?> {
+        let spec = MissionAPIs.fetchMissonContent(missonId: missonId).spec
+        
+        return request(spec)
     }
     
-    
-    func getMissionContent(missionId: String) -> Single<MissionContentEntity?> {
-        let spec = MissionAPIs.getMissionContent(missionId).spec
+    /// 미션 일일 정보를 조회하기 위한 API 입니다.
+    /// HTTP Method : GET
+    /// - Returns : CameraTodayMissionResponseDTO
+    func fetchDailyMisson() -> Observable<CameraTodayMissionResponseDTO?> {
+        let spec = MissionAPIs.fetchDailyMisson.spec
         
-        return Observable<Void>.just(())
-            .withLatestFrom(self._headers)
-            .observe(on: Self.queue)
-            .withUnretained(self)
-            .flatMap { $0.0.getMissionContent(spec: spec, headers: $0.1)}
-            .asSingle()
+        return request(spec)
     }
 }

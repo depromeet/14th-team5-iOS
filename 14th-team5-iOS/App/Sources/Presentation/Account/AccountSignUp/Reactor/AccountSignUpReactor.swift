@@ -32,7 +32,7 @@ public final class AccountSignUpReactor: Reactor {
         case didTapDateNextButton
         
         case didTapCompletehButton
-        case profilePresignedURL(Data?)
+        case profilePresignedURL(String ,Data?)
         case didTapPHAssetsImage(Data?)
     }
     
@@ -108,8 +108,12 @@ extension AccountSignUpReactor {
             return Observable.just(Mutation.didTapDateNextButton)
             
             // MARK: Profile
-        case let .profilePresignedURL(originImage):
-            return .just(.setProfileImage(originImage))
+        case let .profilePresignedURL(presignedURL, originImage):
+            let originProfilePath = configureAccountOriginalS3URL(url: presignedURL)
+            return .concat(
+                .just(.setProfileImage(originImage)),
+                .just(.setProfilePresignedURL(originProfilePath))
+            )
         case let .didTapNickNameButton(nickName):
             let body = UpdateMemberNameRequest(name: nickName)
             return updateMembersNameUseCase.execute(memberId: currentState.memberId, body: body)

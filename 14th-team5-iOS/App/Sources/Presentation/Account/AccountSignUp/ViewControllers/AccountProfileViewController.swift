@@ -65,13 +65,14 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
         
         NotificationCenter.default.rx
             .notification(.AccountViewPresignURLDismissNotification)
-            .compactMap { notification -> Data? in
+            .compactMap { notification -> (String, Data)? in
                 guard let userInfo = notification.userInfo,
-                      let originImage = userInfo["originImage"] as? Data else { return nil
-                }
-                return originImage
+                      let presignedURL = userInfo["presignedURL"] as? String,
+                      let originalImage = userInfo["originImage"] as? Data else { return nil
+                    }
+                return (presignedURL, originalImage)
             }
-            .map { Reactor.Action.profilePresignedURL($0)}
+            .map { Reactor.Action.profilePresignedURL($0.0, $0.1)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }

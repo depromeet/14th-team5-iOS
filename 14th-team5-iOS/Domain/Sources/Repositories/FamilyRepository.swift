@@ -25,7 +25,7 @@ public protocol FamilyRepositoryProtocol {
     func updateFamilyName(body: UpdateFamilyNameRequest) -> Observable<FamilyNameEntity?>
     
     func loadAllFamilyMembers() -> [FamilyMemberProfileEntity]?
-    func fetchAllFamilyMembers() -> Observable<[FamilyMemberProfileEntity]?>
+    func fetchFamilyMembers() -> Observable<[FamilyMemberProfileEntity]?>
     func fetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfileEntity?>
     func fetchPaginationFamilyMembers(memberIds: [String]) -> [FamilyMemberProfileEntity]
 }

@@ -10,8 +10,8 @@ import Foundation
 import RxSwift
 
 public protocol RealEmojiRepositoryProtocol {
-    func fetchMyRealEmoji() -> Single<[MyRealEmojiEntity?]>
-    func addRealEmoji(query: CreateReactionQuery, body: CreateReactionRequest) -> Single<Void?>
-    func fetchRealEmoji(query: FetchRealEmojiQuery) -> Single<[EmojiEntity]?>
-    func removeRealEmoji(query: RemoveRealEmojiQuery) -> Single<Void?>
+    func fetchMyRealEmoji() -> Observable<[MyRealEmojiEntity?]>
+    func addRealEmoji(query: CreateReactionQuery, body: CreateReactionRequest) -> Observable<Void?>
+    func fetchRealEmoji(query: FetchRealEmojiQuery) -> Observable<[EmojiEntity]?>
+    func removeRealEmoji(query: RemoveRealEmojiQuery) -> Observable<Void?>
 }

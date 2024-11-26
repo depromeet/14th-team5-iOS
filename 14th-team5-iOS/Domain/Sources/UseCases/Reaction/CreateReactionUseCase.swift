@@ -10,7 +10,10 @@ import Foundation
 import RxSwift
 
 public protocol CreateReactionUseCaseProtocol {
-    func execute(query: CreateReactionQuery, body: CreateReactionRequest) -> Single<Void?>
+    func execute(
+        query: CreateReactionQuery,
+        body: CreateReactionRequest
+    ) -> Observable<Void?>
 }
 
 public final class CreateReactionUseCase: CreateReactionUseCaseProtocol {
@@ -20,7 +23,10 @@ public final class CreateReactionUseCase: CreateReactionUseCaseProtocol {
         self.reactionRepository = reactionRepository
     }
     
-    public func execute(query: CreateReactionQuery, body: CreateReactionRequest) -> Single<Void?> {
+    public func execute(
+        query: CreateReactionQuery,
+        body: CreateReactionRequest
+    ) -> Observable<Void?> {
         return reactionRepository.addReaction(query: query, body: body)
     }
 }

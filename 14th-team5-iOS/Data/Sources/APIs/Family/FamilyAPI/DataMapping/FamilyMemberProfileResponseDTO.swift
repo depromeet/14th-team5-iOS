@@ -8,7 +8,7 @@
 import Domain
 import Foundation
 
-public struct PaginationResponseFamilyMemberProfileDTO: Decodable {
+public struct PaginationResponseMembersDTO: Decodable {
     private enum CodingKeys: String, CodingKey {
         case currentPage
         case totalPage
@@ -20,11 +20,11 @@ public struct PaginationResponseFamilyMemberProfileDTO: Decodable {
     var totalPage: Int
     var itemPerPage: Int
     var hasNext: Bool
-    var results: [FamilyMemberProfileResponseDTO]
+    var results: [MemberProfileResponseDTO]
 }
 
-extension PaginationResponseFamilyMemberProfileDTO {
-    public struct FamilyMemberProfileResponseDTO: Decodable {
+extension PaginationResponseMembersDTO {
+    public struct MemberProfileResponseDTO: Decodable {
         private enum CodingKeys: String, CodingKey {
             case memberId
             case name
@@ -38,7 +38,7 @@ extension PaginationResponseFamilyMemberProfileDTO {
     }
 }
 
-extension PaginationResponseFamilyMemberProfileDTO {
+extension PaginationResponseMembersDTO {
     func toDomain() -> PaginationResponseFamilyMemberProfileEntity {
         return .init(
             results: results.map { $0.toDomain() }
@@ -46,7 +46,7 @@ extension PaginationResponseFamilyMemberProfileDTO {
     }
 }
 
-extension PaginationResponseFamilyMemberProfileDTO.FamilyMemberProfileResponseDTO {
+extension PaginationResponseMembersDTO.MemberProfileResponseDTO {
     func toDomain() -> FamilyMemberProfileEntity {
         return .init(
             memberId: memberId,

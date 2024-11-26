@@ -8,6 +8,10 @@
 import Core
 import Foundation
 
+<<<<<<< HEAD
+=======
+import Alamofire
+>>>>>>> e3016481 (refactor: family, reaction, realemoji api worker(#704))
 import RxSwift
 
 
@@ -96,5 +100,14 @@ extension MembersAPIWorker {
     /// - Returns : 업로드 성공 여부 확인 (Bool) Type
     func updateS3MemberImageUpload(_ presignedURL: String, image: Data) -> Observable<Bool> {
         return upload(presignedURL, with: image)
+    }
+}
+
+typealias MembersWorker = MembersAPI.Worker
+extension MembersWorker {
+    func fetchPaginationMembers(query: FamilyMemberQuery) -> Observable<PaginationResponseMembersDTO?> {
+        let spec = MembersAPI.fetchFamilyMembers(query).spec
+        
+        return request(spec)
     }
 }

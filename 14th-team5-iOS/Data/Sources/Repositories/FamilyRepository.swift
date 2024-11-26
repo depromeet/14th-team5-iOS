@@ -7,7 +7,6 @@
 
 import Core
 import Domain
-import Foundation
 
 import RxSwift
 
@@ -16,8 +15,10 @@ public final class FamilyRepository: FamilyRepositoryProtocol {
     
     public let disposeBag: DisposeBag = DisposeBag()
 
+    private let meWorker: MeeWorker = MeeWorker()
+    private let membersWorker: MembersWorker = MembersWorker()
+    private let familyInviteViewWorker: FamilyInviteViewWorker = FamilyInviteViewWorker()
     private let familyApiWorker: FamilyAPIWorker = FamilyAPIWorker()
-    
     private let familyUserDefaults: FamilyInfoUserDefaultsType = FamilyInfoUserDefaults()
     
     // MARK: - Intializer
@@ -32,9 +33,9 @@ extension FamilyRepository {
     public func joinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyEntity?> {
         let body = JoinFamilyRequestDTO(inviteCode: body.inviteCode)
         
-        return familyApiWorker.joinFamily(body: body)
+        return meWorker.joinFamily(body: body)
             .map { $0?.toDomain() }
-            .do(onSuccess: { [weak self] in
+            .do { [weak self] in
                 guard let self else { return }
                 self.familyUserDefaults.saveFamilyId($0?.familyId)
                 self.familyUserDefaults.saveFamilyCreatedAt($0?.createdAt)
@@ -44,32 +45,30 @@ extension FamilyRepository {
                 App.Repository.member.familyCreatedAt.accept($0?.createdAt)
                 // TODO: - 로직 분리하기
                 fetchPaginationFamilyMembers(query: .init())
-            })
-            .asObservable()
+            }
     }
     
     // MARK: - Resign Family
     
     public func resignFamily() -> Observable<DefaultEntity?> {
-        return familyApiWorker.resignFamily()
+        return meWorker.resignFamily()
             .map { $0?.toDomain() }
-            .do(onSuccess: { [weak self] in
+            .do { [weak self] in
                 guard let self else { return }
                 if let sucess = $0?.success, sucess {
                     self.familyUserDefaults.remove(forKey: .familyId)
                     self.familyUserDefaults.remove(forKey: .familyName)
                     self.familyUserDefaults.remove(forKey: .familyCreatedAt)
                 }
-            })
-            .asObservable()
+            }
     }
     
     // MARK: - Create Family
     
     public func createFamily() -> Observable<CreateFamilyEntity?> {
-        return familyApiWorker.createFamily()
+        return meWorker.createFamily()
             .map { $0?.toDomain() }
-            .do(onSuccess: { [weak self] in
+            .do { [weak self] in
                 guard let self else { return }
                 self.familyUserDefaults.saveFamilyId($0?.familyId)
                 self.familyUserDefaults.saveFamilyCreatedAt($0?.createdAt)
@@ -77,8 +76,7 @@ extension FamilyRepository {
                 // TODO: - 리팩토링된 FamilyUserDefaults로 바꾸기
                 App.Repository.member.familyId.accept($0?.familyId)
                 App.Repository.member.familyCreatedAt.accept($0?.createdAt)
-            })
-            .asObservable()
+            }
     }
     
     // MARK: - Fetch Family ID
@@ -96,14 +94,13 @@ extension FamilyRepository {
             return Observable.just(FamilyCreatedAtEntity(createdAt: createdAt))
         } else {
             guard let familyId = familyUserDefaults.loadFamilyId()
-            else { return .error(NSError()) } // 에러 타입 다시 정의하기
-            return familyApiWorker.fetchFamilyCreatedAt(familyId: familyId)
+            else { return .just(nil) } // 에러 타입 다시 정의하기
+            return familyApiWorker.fetchFamilyCreatedAt(familyId)
                 .map { $0?.toDomain() }
-                .do(onSuccess: { [weak self] in
+                .do { [weak self] in
                     guard let self else { return }
                     self.familyUserDefaults.saveFamilyCreatedAt($0?.createdAt)
-                })
-                .asObservable()
+                }
         }
     }
     
@@ -112,45 +109,55 @@ extension FamilyRepository {
     public func fetchInvitationLink() -> Observable<FamilyInvitationLinkEntity?> {
         guard
             let familyId = familyUserDefaults.loadFamilyId()
-        else { return .error(NSError()) } // TODO: - Error 타입 정의하기
+        else { return .just(nil) } // TODO: - Error 타입 정의하기
         
-        return familyApiWorker.fetchInvitationLink(familyId: familyId)
+        return familyInviteViewWorker.fetchInvitationLink(familyId: familyId)
             .map { $0?.toDomain() }
-            .asObservable()
     }
     
     // MARK: - Fetch Family Members
     
-    public func fetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfileEntity?> {
-        guard
-            let familyId = familyUserDefaults.loadFamilyId()
-        else { return .error(NSError()) } // TODO: - Error 타입 정의하기
+    public func fetchPaginationFamilyMembers(
+        query: FamilyPaginationQuery
+    ) -> Observable<PaginationResponseFamilyMemberProfileEntity?> {
+        guard let familyId = familyUserDefaults.loadFamilyId() else {
+            return .just(nil)
+        } // TODO: - Error 타입 정의하기
         
-        return familyApiWorker.fetchPaginationFamilyMember(query: query)
+        let query: FamilyMemberQuery = .init(
+            type: "FAMILY",
+            page: query.page,
+            size: query.size
+        )
+        return membersWorker.fetchPaginationMembers(query: query)
             .map { $0?.toDomain() }
-            .do(onSuccess: { [weak self] in
+            .do { [weak self] in
                 guard let self,
                       let profiles = $0?.results else {
                     return
                 }
                 
                 self.familyUserDefaults.saveFamilyMembers(profiles)
-            })
-            .asObservable()
+            }
     }
     
-    public func fetchAllFamilyMembers() -> Observable<[FamilyMemberProfileEntity]?> {
-        return familyApiWorker.fetchPaginationFamilyMember(query: .init())
+    public func fetchFamilyMembers() -> Observable<[FamilyMemberProfileEntity]?> {
+        return membersWorker.fetchPaginationMembers(
+            query: .init(
+                type: "FAMILY",
+                page: 0,
+                size: 50
+            )
+        )
             .map { $0?.results.map{ $0.toDomain() }}
-            .do(onSuccess: { [weak self] in
+            .do { [weak self] in
                 guard let self,
                       let profiles = $0 else {
                     return
                 }
                 
                 self.familyUserDefaults.saveFamilyMembers(profiles)
-            })
-            .asObservable()
+            }
     }
     
     public func fetchPaginationFamilyMembers(memberIds: [String]) -> [FamilyMemberProfileEntity] {
@@ -177,34 +184,37 @@ extension FamilyRepository {
     
     // MARK: - Update Family Name
     
-    public func updateFamilyName(body: UpdateFamilyNameRequest) -> Observable<FamilyNameEntity?> {
+    public func updateFamilyName(
+        body: UpdateFamilyNameRequest
+    ) -> Observable<FamilyNameEntity?> {
         let body = UpdateFamilyNameRequestDTO(familyName: body.familyName)
         
-        guard
-            let familyId = familyUserDefaults.loadFamilyId()
-        else { return .error(NSError()) } // TODO: - Error 타입 정의하기
+        guard let familyId = familyUserDefaults.loadFamilyId() else {
+            return .just(nil)
+        } // TODO: - Error 타입 정의하기
         
-        return familyApiWorker.updateFamilyName(familyId: familyId, body: body)
+        return familyApiWorker.updateFamilyName(familyId, body: body)
             .map { $0?.toDomain() }
-            .do(onSuccess: { [weak self] in
+            .do {[weak self] in
                 guard let self else { return }
                 self.familyUserDefaults.saveFamilyId($0?.familyId)
                 self.familyUserDefaults.saveFamilyName($0?.familyName)
                 self.familyUserDefaults.saveFamilyCreatedAt($0?.createdAt)
                 self.familyUserDefaults.saveFamilyNameEditorId($0?.familyNameEditorId)
-            })
+            }
             .asObservable()
     }
     
-    public func fetchFamilyGroupInfo() -> Observable<FamilyGroupInfoEntity?> {
-        return familyApiWorker.fetchFamilyGroupInfo()
+    public func fetchFamilyGroupInfo(
+    ) -> Observable<FamilyGroupInfoEntity?> {
+        return meWorker.fetchFamilyInfo()
             .map { $0?.toDomain() }
-            .do(onSuccess: { [weak self] in
+            .do { [weak self] in
                 guard let self else { return }
                 self.familyUserDefaults.saveFamilyId($0?.familyId)
                 self.familyUserDefaults.saveFamilyName($0?.familyName)
                 self.familyUserDefaults.saveFamilyNameEditorId($0?.familyNameEditorId)
-            })
+            }
             .asObservable()
     }
 }

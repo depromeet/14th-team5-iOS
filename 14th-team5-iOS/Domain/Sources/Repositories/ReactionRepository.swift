@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol ReactionRepositoryProtocol {
-    func addReaction(query: CreateReactionQuery, body: CreateReactionRequest) -> Single<Void?>
-    func removeReaction(query: RemoveReactionQuery, body: RemoveReactionRequest) -> Single<Void?>
-    func fetchReaction(query: FetchReactionQuery) -> Single<[EmojiEntity]?>
+    func addReaction(query: CreateReactionQuery, body: CreateReactionRequest) -> Observable<Void?>
+    func removeReaction(query: RemoveReactionQuery, body: RemoveReactionRequest) -> Observable<Void?>
+    func fetchReaction(query: FetchReactionQuery) -> Observable<[EmojiEntity]?>
 }

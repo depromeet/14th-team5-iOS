@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol RemoveRealEmojiUseCaseProtocol {
-    func execute(query: RemoveRealEmojiQuery) -> Single<Void?>
+    func execute(query: RemoveRealEmojiQuery) -> Observable<Void?>
 }
 
 public class RemoveRealEmojiUseCase: RemoveRealEmojiUseCaseProtocol {
@@ -21,7 +21,7 @@ public class RemoveRealEmojiUseCase: RemoveRealEmojiUseCaseProtocol {
         self.realEmojiRepository = realEmojiRepository
     }
     
-    public func execute(query: RemoveRealEmojiQuery) -> Single<Void?> {
+    public func execute(query: RemoveRealEmojiQuery) -> Observable<Void?> {
         return realEmojiRepository.removeRealEmoji(query: query)
     }
 }

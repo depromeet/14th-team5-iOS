@@ -36,7 +36,7 @@ public final class RealEmojiRepository: RealEmojiRepositoryProtocol {
     ) -> Observable<Void?> {
         let body: AddRealEmojiRequestDTO = .init(realEmojiId: body.emojiId)
         return postRealEmojiWorker.addRealEmoji(query.postId, body: body)
-            .map { $0.toDomain() }
+            .map { $0?.toDomain() }
     }
     
     public func fetchRealEmoji(

@@ -32,7 +32,8 @@ enum MemberRealEmojiAPIs: BBAPI {
         case .uploadRealEmoji(let memberId, let body):
             return .init(
                 method: .post,
-                path: "/members/\(memberId)/real-emoji/image-upload-request"
+                path: "/members/\(memberId)/real-emoji/image-upload-request",
+                bodyParametersEncodable: body
             )
         }
     }

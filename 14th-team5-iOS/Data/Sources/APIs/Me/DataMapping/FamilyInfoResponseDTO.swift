@@ -9,14 +9,14 @@ import Foundation
 import Domain
 
 
-public struct FamilyGroupInfoResponseDTO: Decodable {
+public struct FamilyInfoResponseDTO: Decodable {
     let familyId: String
     let familyName: String?
     let familyNameEditorId: String?
     let createdAt: String
 }
 
-extension FamilyGroupInfoResponseDTO {
+extension FamilyInfoResponseDTO {
     func toDomain() -> FamilyGroupInfoEntity {
         return .init(
             familyId: familyId,

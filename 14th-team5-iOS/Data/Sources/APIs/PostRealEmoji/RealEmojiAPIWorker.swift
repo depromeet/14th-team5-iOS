@@ -18,6 +18,7 @@ extension PostRealEmojiWorker {
     /// post에 등록된 리얼 이모지를 조회합니다.
     /// HTTP Method: GET
     /// - Parameters: FetchRealEmojiQuery
+    /// - Returns: FetchRealEmojiListResponseDTO?
     func fetchRealEmoji(
         _ postId: String
     ) -> Observable<FetchRealEmojiListResponseDTO?> {
@@ -29,10 +30,11 @@ extension PostRealEmojiWorker {
     /// post에 리얼 이모지 리액션을 등록합니다.
     /// HTTP Method: POST
     /// - Parameters: CreateReactionQuery, CreateReactionRequest
+    /// - Returns: AddRealEmojiResponseDTO?
     func addRealEmoji(
         _ postId: String,
         body: AddRealEmojiRequestDTO
-    ) -> Observable<AddRealEmojiResponseDTO> {
+    ) -> Observable<AddRealEmojiResponseDTO?> {
         let spec = PostRealEmojiAPIs.addRealEmojiReaction(postId, body).spec
         
         return request(spec)
@@ -41,6 +43,7 @@ extension PostRealEmojiWorker {
     /// post에 리얼 이모지 리액션을 삭제합니다.
     /// HTTP Method: POST
     /// - Parameters: RemoveRealEmojiQuery
+    /// - Returns: RemoveRealEmojiResponseDTO?
     func removeRealEmoji(
         _ postId: String,
         _ realEmojiId: String

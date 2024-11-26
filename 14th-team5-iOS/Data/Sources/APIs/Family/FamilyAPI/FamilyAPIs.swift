@@ -6,7 +6,6 @@
 //
 
 import Core
-import Foundation
 
 enum FamilyAPIs: BBAPI {
     /// 가족 생성

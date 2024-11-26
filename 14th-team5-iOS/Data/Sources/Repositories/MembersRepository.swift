@@ -18,7 +18,7 @@ public final class MembersRepository {
     public var disposeBag: DisposeBag = DisposeBag()
     
     private let familyUserDefaults: FamilyInfoUserDefaults = FamilyInfoUserDefaults()
-    private let membersAPIWorker: MembersAPIWorker = MembersAPIWorker()
+    private let membersAPIWorker: MembersWorker = MembersWorker()
     public init() { }
     
 }

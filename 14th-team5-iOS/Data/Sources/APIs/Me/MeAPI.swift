@@ -7,7 +7,7 @@
 
 import Core
 
-// TODO: MesAPI로 이름 바꾸기
+// TODO: MeAPIs로 이름 바꾸기 - Trash 지워야 함
 enum MeAPI: BBAPI {
     /// 가족 가입하기
     case joinFamily

@@ -11,6 +11,10 @@ import RxSwift
 
 typealias FamilyAPIWorker = FamilyAPIs.Worker
 extension FamilyAPIWorker {
+    /// 가족이 생성된 날짜를 조회하기 위한 Method입니다.
+    /// HTTP Method: GET
+    /// - Parameters: familyId: String
+    /// - Returns: FamilyCreatedAtResponseDTO?
     func fetchFamilyCreatedAt(
         _ familyId: String
     ) -> Observable<FamilyCreatedAtResponseDTO?> {
@@ -19,6 +23,10 @@ extension FamilyAPIWorker {
         return request(spec)
     }
     
+    /// 가족방 이름을 변경하기 위한 Method입니다.
+    /// HTTP Method: POST
+    /// - Parameters: familyId: String, body: UpdateFamilyNameRequestDTO
+    /// - Returns: FamilyNameResponseDTO?
     func updateFamilyName(
         _ familyId: String,
         body: UpdateFamilyNameRequestDTO

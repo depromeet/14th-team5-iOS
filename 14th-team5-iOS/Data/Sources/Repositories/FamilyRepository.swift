@@ -26,11 +26,11 @@ public final class FamilyRepository: FamilyRepositoryProtocol {
     public init() { }
 }
 
+// TODO: do 뒤에 하는 일 주석으로 적어주세용:)
 extension FamilyRepository {
-    
-    // MARK: - Join Family
-    
-    public func joinFamily(body: JoinFamilyRequest) -> Observable<JoinFamilyEntity?> {
+    public func joinFamily(
+        body: JoinFamilyRequest
+    ) -> Observable<JoinFamilyEntity?> {
         let body = JoinFamilyRequestDTO(inviteCode: body.inviteCode)
         
         return meWorker.joinFamily(body: body)
@@ -48,9 +48,8 @@ extension FamilyRepository {
             }
     }
     
-    // MARK: - Resign Family
-    
-    public func resignFamily() -> Observable<DefaultEntity?> {
+    public func resignFamily(
+    ) -> Observable<DefaultEntity?> {
         return meWorker.resignFamily()
             .map { $0?.toDomain() }
             .do { [weak self] in
@@ -63,9 +62,8 @@ extension FamilyRepository {
             }
     }
     
-    // MARK: - Create Family
-    
-    public func createFamily() -> Observable<CreateFamilyEntity?> {
+    public func createFamily(
+    ) -> Observable<CreateFamilyEntity?> {
         return meWorker.createFamily()
             .map { $0?.toDomain() }
             .do { [weak self] in
@@ -79,16 +77,13 @@ extension FamilyRepository {
             }
     }
     
-    // MARK: - Fetch Family ID
-    
-    public func fetchFamilyId() -> String? {
+    public func fetchFamilyId(
+    ) -> String? {
         familyUserDefaults.loadFamilyId()
     }
     
-    
-    // MARK: - Fetch Family CreatedAt
-    
-    public func fetchFamilyCreatedAt() -> Observable<FamilyCreatedAtEntity?> {
+    public func fetchFamilyCreatedAt(
+    ) -> Observable<FamilyCreatedAtEntity?> {
         // 다시 리팩토링하기
         if let createdAt = familyUserDefaults.loadFamilyCreatedAt() {
             return Observable.just(FamilyCreatedAtEntity(createdAt: createdAt))
@@ -104,9 +99,8 @@ extension FamilyRepository {
         }
     }
     
-    // MARK: - Fetch Invitation Url
-    
-    public func fetchInvitationLink() -> Observable<FamilyInvitationLinkEntity?> {
+    public func fetchInvitationLink(
+    ) -> Observable<FamilyInvitationLinkEntity?> {
         guard
             let familyId = familyUserDefaults.loadFamilyId()
         else { return .just(nil) } // TODO: - Error 타입 정의하기
@@ -115,8 +109,6 @@ extension FamilyRepository {
             .map { $0?.toDomain() }
     }
     
-    // MARK: - Fetch Family Members
-    
     public func fetchPaginationFamilyMembers(
         query: FamilyPaginationQuery
     ) -> Observable<PaginationResponseFamilyMemberProfileEntity?> {
@@ -124,7 +116,7 @@ extension FamilyRepository {
             return .just(nil)
         } // TODO: - Error 타입 정의하기
         
-        let query: FamilyMemberQuery = .init(
+        let query: FamilyMemberQueryDTO = .init(
             type: "FAMILY",
             page: query.page,
             size: query.size
@@ -141,7 +133,8 @@ extension FamilyRepository {
             }
     }
     
-    public func fetchFamilyMembers() -> Observable<[FamilyMemberProfileEntity]?> {
+    public func fetchFamilyMembers(
+    ) -> Observable<[FamilyMemberProfileEntity]?> {
         return membersWorker.fetchPaginationMembers(
             query: .init(
                 type: "FAMILY",
@@ -160,7 +153,9 @@ extension FamilyRepository {
             }
     }
     
-    public func fetchPaginationFamilyMembers(memberIds: [String]) -> [FamilyMemberProfileEntity] {
+    public func fetchPaginationFamilyMembers(
+        memberIds: [String]
+    ) -> [FamilyMemberProfileEntity] {
         var results: [FamilyMemberProfileEntity] = []
         for memberId in memberIds {
             guard
@@ -175,14 +170,9 @@ extension FamilyRepository {
         return familyUserDefaults.loadFamilyMembers()
     }
     
-    // MARK: - Fetch Family Name
-    
     public func fetchFamilyName() -> String? {
         familyUserDefaults.loadFamilyName()
     }
-    
-    
-    // MARK: - Update Family Name
     
     public func updateFamilyName(
         body: UpdateFamilyNameRequest

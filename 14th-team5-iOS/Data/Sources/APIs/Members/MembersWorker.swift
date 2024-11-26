@@ -5,19 +5,14 @@
 //  Created by Kim dohyun on 6/5/24.
 //
 
-import Core
 import Foundation
 
-<<<<<<< HEAD
-=======
-import Alamofire
->>>>>>> e3016481 (refactor: family, reaction, realemoji api worker(#704))
+import Core
+
 import RxSwift
 
-
-typealias MembersAPIWorker = MembersAPIs.Worker
-
-extension MembersAPIWorker {
+typealias MembersWorker = MembersAPIs.Worker
+extension MembersWorker {
     
     /// 회원 프로필 정보를 조회하기 위한 Method 입니다.
     /// HTTP Method : GET
@@ -101,12 +96,16 @@ extension MembersAPIWorker {
     func updateS3MemberImageUpload(_ presignedURL: String, image: Data) -> Observable<Bool> {
         return upload(presignedURL, with: image)
     }
-}
 
-typealias MembersWorker = MembersAPI.Worker
-extension MembersWorker {
-    func fetchPaginationMembers(query: FamilyMemberQuery) -> Observable<PaginationResponseMembersDTO?> {
-        let spec = MembersAPI.fetchFamilyMembers(query).spec
+    /// 가족 프로필 구성원을 조회하기 위한 Method 입니다.
+    /// HTTP Method : GET
+    /// - Parameters
+    ///     - query: 페이지네이션을 위한 query dto
+    /// - Returns : PaginationResponseMembersDTO
+    func fetchPaginationMembers(
+        query: FamilyMemberQueryDTO
+    ) -> Observable<PaginationResponseMembersDTO?> {
+        let spec = MembersAPIs.fetchFamilyMembers(query).spec
         
         return request(spec)
     }

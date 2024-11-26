@@ -7,9 +7,9 @@
 
 import Core
 
-
-
 enum MembersAPIs: BBAPI {
+    /// 가족 구성원 프로필 조회 API
+    case fetchFamilyMembers(_ query: FamilyMemberQueryDTO)
     /// 회원 프로필 조회 API
     case fetchMember(memberId: String)
     /// 회원 탈퇴 API
@@ -28,6 +28,12 @@ enum MembersAPIs: BBAPI {
 
     var spec: Spec {
         switch self {
+        case let .fetchFamilyMembers(query):
+            return .init(
+                method: .get,
+                path: "/members",
+                queryParametersEncodable: query
+            )
         case let .fetchMember(memberId):
             return Spec(method: .get, path: "/members/\(memberId)")
         case let .deleteMember(memberId):
@@ -45,27 +51,6 @@ enum MembersAPIs: BBAPI {
         }
     }
     
-    
-    final class Worker: BBRxAPIWorker {
-        init() { }
-    }
-}
-
-// TODO: MebersAPIs로 이름 바꿔주세요
-enum MembersAPI: BBAPI {
-    /// 가족 구성원 프로필 조회
-    case fetchFamilyMembers(_ query: FamilyMemberQuery)
-    
-    var spec: Spec {
-        switch self {
-        case .fetchFamilyMembers(let query):
-            return .init(
-                method: .get,
-                path: "/members",
-                queryParametersEncodable: query
-            )
-        }
-    }
     
     final class Worker: BBRxAPIWorker {
         init() { }

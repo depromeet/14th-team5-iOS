@@ -9,8 +9,8 @@ import Core
 
 import RxSwift
 
-typealias FamilyAPIWorker = FamilyAPIs.Worker
-extension FamilyAPIWorker {
+typealias FamilyWorker = FamilyAPIs.Worker
+extension FamilyWorker {
     /// 가족이 생성된 날짜를 조회하기 위한 Method입니다.
     /// HTTP Method: GET
     /// - Parameters: familyId: String

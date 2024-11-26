@@ -18,7 +18,7 @@ public final class FamilyRepository: FamilyRepositoryProtocol {
     private let meWorker: MeeWorker = MeeWorker()
     private let membersWorker: MembersWorker = MembersWorker()
     private let familyInviteViewWorker: FamilyInviteViewWorker = FamilyInviteViewWorker()
-    private let familyApiWorker: FamilyAPIWorker = FamilyAPIWorker()
+    private let familyWorker: FamilyWorker = FamilyWorker()
     private let familyUserDefaults: FamilyInfoUserDefaultsType = FamilyInfoUserDefaults()
     
     // MARK: - Intializer
@@ -90,7 +90,7 @@ extension FamilyRepository {
         } else {
             guard let familyId = familyUserDefaults.loadFamilyId()
             else { return .just(nil) } // 에러 타입 다시 정의하기
-            return familyApiWorker.fetchFamilyCreatedAt(familyId)
+            return familyWorker.fetchFamilyCreatedAt(familyId)
                 .map { $0?.toDomain() }
                 .do { [weak self] in
                     guard let self else { return }
@@ -183,7 +183,7 @@ extension FamilyRepository {
             return .just(nil)
         } // TODO: - Error 타입 정의하기
         
-        return familyApiWorker.updateFamilyName(familyId, body: body)
+        return familyWorker.updateFamilyName(familyId, body: body)
             .map { $0?.toDomain() }
             .do {[weak self] in
                 guard let self else { return }

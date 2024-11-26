@@ -20,7 +20,7 @@ public final class CameraViewReactor: Reactor {
     
     
     @Injected private var uploadImageUseCase: FetchCameraUploadImageUseCaseProtocol
-//    @Injected private var fetchMissionUseCase: FetchCameraTodayMissionUseCaseProtocol
+    @Injected private var fetchDailyMissionUseCase: FetchDailyMissonContentUseCaseProtocol
     @Injected private var fetchRealEmojiUpdateUseCase: FetchCameraRealEmojiUpdateUseCaseProtocol
     @Injected private var fetchRealEmojiCreateUseCase: FetchCameraRealEmojiUploadUseCaseProtocol
     @Injected private var fetchRealEmojiListUseCase: FetchCameraRealEmojiListUseCaseProtocol
@@ -50,6 +50,7 @@ public final class CameraViewReactor: Reactor {
         case setFlashMode(Bool)
         case setPinchZoomScale(CGFloat)
         case setZoomScale(CGFloat)
+        case setDailyMissionrResponse(MissonTodayContentEntity?)
         case setProfilePresignedResponse(CreateMemberPresignedEntity?)
         case setProfileMemberResponse(MembersProfileEntity?)
         case setRealEmojiImageURLResponse(CameraRealEmojiPreSignedEntity?)
@@ -66,6 +67,7 @@ public final class CameraViewReactor: Reactor {
         @Pulse var isLoading: Bool
         @Pulse var isFlashMode: Bool
         @Pulse var isSwitchPosition: Bool
+        @Pulse var missionEntity: MissonTodayContentEntity?
         @Pulse var memberPresignedEntity: CreateMemberPresignedEntity?
         @Pulse var realEmojiURLEntity: CameraRealEmojiPreSignedEntity?
         @Pulse var realEmojiCreateEntity: CameraCreateRealEmojiEntity?
@@ -173,6 +175,8 @@ public final class CameraViewReactor: Reactor {
             newState.imageData = feedImage
         case let .setProfilePresignedResponse(memberPresignedEntity):
             newState.memberPresignedEntity = memberPresignedEntity
+        case let .setDailyMissionrResponse(missionEntity):
+            newState.missionEntity = missionEntity
         }
         
         return newState
@@ -238,19 +242,14 @@ extension CameraViewReactor {
                     }
             )
         case .mission:
-            return .empty()
-//            return fetchMissionUseCase.execute()
-//                .asObservable()
-//                .withUnretained(self)
-//                .flatMap { owner, entity -> Observable<CameraViewReactor.Mutation> in
-//                    
-//                    return .concat(
-//                        .just(.setLoading(false)),
-//                        .just(.setLoading(true))
-//                    )
-//                }
-//            
-            
+            return fetchDailyMissionUseCase.execute()
+                .flatMap { entity -> Observable<Mutation> in
+                    return .concat(
+                        .just(.setLoading(false)),
+                        .just(.setDailyMissionrResponse(entity)),
+                        .just(.setLoading(true))
+                    )
+                }
         default:
             return .empty()
         }

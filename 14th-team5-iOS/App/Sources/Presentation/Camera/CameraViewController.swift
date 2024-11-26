@@ -243,18 +243,18 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             }.disposed(by: disposeBag)
         
         
-//        Observable
-//            .zip(
-//                reactor.state.compactMap { $0.feedImageData }.distinctUntilChanged(),
-//                reactor.state.compactMap { $0.missionEntity?.missionContent },
-//                reactor.state.map { $0.cameraType.asPostType }
-//            )
-//            .withUnretained(self)
-//            .bind {
-//                let cameraDisplayViewController = CameraDisplayViewControllerWrapper(displayData: $0.1.0, missionTitle: $0.1.1, cameraDisplayType: $0.1.2).viewController
-//                $0.0.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
-//            }.disposed(by: disposeBag)
-//        
+        Observable
+            .zip(
+                reactor.state.compactMap { $0.imageData }.distinctUntilChanged(),
+                reactor.state.compactMap { $0.missionEntity?.missionContent },
+                reactor.state.map { $0.cameraType.asPostType }
+            )
+            .withUnretained(self)
+            .bind {
+                let cameraDisplayViewController = CameraDisplayViewControllerWrapper(displayData: $0.1.0, missionTitle: $0.1.1, cameraDisplayType: $0.1.2).viewController
+                $0.0.navigationController?.pushViewController(cameraDisplayViewController, animated: true)
+            }.disposed(by: disposeBag)
+        
         reactor.state
             .map { $0.cameraType.isRealEmojiType }
             .distinctUntilChanged()
@@ -262,10 +262,10 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .bind(onNext: {$0.0.setupRealEmojiLayoutContent(isShow: !$0.1)})
             .disposed(by: disposeBag)
         
-//        reactor.pulse(\.$missionEntity)
-//            .map { $0?.missionContent }
-//            .bind(to: missionView.missionTitleView.rx.text)
-//            .disposed(by: disposeBag)
+        reactor.pulse(\.$missionEntity)
+            .map { $0?.missionContent }
+            .bind(to: missionView.missionTitleView.rx.text)
+            .disposed(by: disposeBag)
         
 
         reactor.pulse(\.$cameraType)

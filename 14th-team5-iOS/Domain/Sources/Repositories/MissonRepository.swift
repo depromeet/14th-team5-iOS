@@ -14,7 +14,7 @@ public protocol MissionRepositoryProtocol {
     
     /// FETCH
     func fetchMissonContentItem(missonId: String) -> Observable<MissionContentEntity?>
-    func fetchDailyMissonItem() -> Observable<CameraTodayMssionEntity?>
+    func fetchDailyMissonItem() -> Observable<MissonTodayContentEntity?>
     
     /// LOCAL DB
     func isAlreadyShowMissionAlert() -> Observable<Bool>

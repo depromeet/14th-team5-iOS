@@ -29,7 +29,7 @@ extension MissionAPIWorker {
     /// 미션 일일 정보를 조회하기 위한 API 입니다.
     /// HTTP Method : GET
     /// - Returns : CameraTodayMissionResponseDTO
-    func fetchDailyMisson() -> Observable<CameraTodayMissionResponseDTO?> {
+    func fetchDailyMisson() -> Observable<MissonTodayContentResponseDTO?> {
         let spec = MissionAPIs.fetchDailyMisson.spec
         
         return request(spec)

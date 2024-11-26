@@ -29,7 +29,7 @@ extension MissionRepository {
             .map { $0?.toDomain() }
     }
     
-    public func fetchDailyMissonItem() -> Observable<CameraTodayMssionEntity?> {
+    public func fetchDailyMissonItem() -> Observable<MissonTodayContentEntity?> {
         return missionAPIWorker.fetchDailyMisson()
             .map { $0?.toDomain() }
     }

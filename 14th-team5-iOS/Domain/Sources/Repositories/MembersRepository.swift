@@ -19,11 +19,8 @@ public protocol MembersRepositoryProtocol {
     func updateMemberNameItem(memberId: String, body: UpdateMemberNameRequest) -> Observable<UpdateMemberNameEntity?>
     func updateMemberProfileImageItem(memberId: String, body: UpdateMemberImageRequest) -> Observable<MembersProfileEntity?>
     /// CREATE
-    func createMemberPickItem(memberId: String) -> Observable<CreateMemberPickEntity?>
     func creteMemberImagePresignedURL(body: CreateMemberPresignedReqeust) -> Observable<CreateMemberPresignedEntity?>
     func deleteMemberProfileImageItem(memberId: String) -> Observable<MembersProfileEntity?>
-    /// DELETE
-    func deleteMemberItem(memberId: String) -> Observable<DeleteMemberEntity?>
     /// UPLOAD
     func uploadMemberImageToS3Bucket(_ presignedURL: String, image: Data) -> Observable<Bool>
 }

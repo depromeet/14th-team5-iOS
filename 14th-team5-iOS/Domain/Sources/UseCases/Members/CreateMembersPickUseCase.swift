@@ -16,15 +16,15 @@ public protocol CreateMembersPickUseCaseProtocol {
 
 public final class CreateMembersPickUseCase: CreateMembersPickUseCaseProtocol {
     
-    private let membersRepository: MembersRepositoryProtocol
+    private let pickRepository: PickRepositoryProtocol
     
     
-    public init(membersRepository: MembersRepositoryProtocol) {
-        self.membersRepository = membersRepository
+    public init(pickRepository: PickRepositoryProtocol) {
+        self.pickRepository = pickRepository
     }
     
     public func execute(memberId: String) -> Observable<CreateMemberPickEntity?> {
-        return membersRepository.createMemberPickItem(memberId: memberId)
+        return pickRepository.createMemberPickItem(memberId: memberId)
     }
     
 }

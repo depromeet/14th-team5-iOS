@@ -86,8 +86,8 @@ private extension BBNetworkHeader {
     }
 
     func fetchXAuthTokenValue() -> String {
-        if let authToken: AuthToken = KeychainWrapper.standard[.accessToken] {
-            return authToken.accessToken
+        if let authToken: AccessToken = KeychainWrapper.standard[.accessToken] {
+            return authToken.accessToken ?? ""
         }
         return ""
     }

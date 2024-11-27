@@ -30,14 +30,6 @@ final class ProfileDIContainer: BaseContainer {
         return UpdateMembersProfileUseCase(membersRepository: makeRepository())
     }
     
-    private func makeCreateMemberPickUseCase() -> CreateMembersPickUseCaseProtocol {
-        return CreateMembersPickUseCase(membersRepository: makeRepository())
-    }
-    
-    private func makeDeleteMembersUseCase() -> DeleteMembersUseCaseProtocol {
-        return DeleteMembersUseCase(membersRepository: makeRepository())
-    }
-    
     private func makeUpdateMembersNameUseCase() -> UpdateMembersNameUseCaseProtocol {
         return UpdateMembersNameUseCase(membersRepository: makeRepository())
     }
@@ -64,14 +56,6 @@ final class ProfileDIContainer: BaseContainer {
         
         container.register(type: CreateMembersPresignedURLUseCaseProtocol.self) { _ in
             self.makeCreateMembersPresignedURLUseCase()
-        }
-        
-        container.register(type: CreateMembersPickUseCaseProtocol.self) { _ in
-            self.makeCreateMemberPickUseCase()
-        }
-        
-        container.register(type: DeleteMembersUseCaseProtocol.self) { _ in
-            self.makeDeleteMembersUseCase()
         }
         
         container.register(type: UpdateMembersNameUseCaseProtocol.self) { _ in

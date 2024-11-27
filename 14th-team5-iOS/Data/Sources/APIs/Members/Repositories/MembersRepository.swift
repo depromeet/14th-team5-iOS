@@ -49,11 +49,6 @@ extension MembersRepository: MembersRepositoryProtocol {
             .map { $0?.toDomain() }
     }
     
-    public func createMemberPickItem(memberId: String) -> Observable<CreateMemberPickEntity?> {
-        return membersAPIWorker.createMemberPick(memberId: memberId)
-            .map { $0?.toDomain() }
-    }
-    
     public func creteMemberImagePresignedURL(body: CreateMemberPresignedReqeust) -> Observable<CreateMemberPresignedEntity?> {
         let body = CreateMemberPresignedURLRequestDTO(imageName: body.imageName)
         
@@ -67,12 +62,6 @@ extension MembersRepository: MembersRepositoryProtocol {
                 guard let userEntity = $0?.toProfileEntity() else { return }
                 self.familyUserDefaults.updateFamilyMember(userEntity)
             }
-            .map { $0?.toDomain() }
-    }
-    
-    public func deleteMemberItem(memberId: String) -> Observable<DeleteMemberEntity?> {
-        
-        return membersAPIWorker.deleteMember(memberId: memberId)
             .map { $0?.toDomain() }
     }
     

@@ -70,7 +70,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             MemberDIContainer(),
             MyDIContainer(),
             SignOutDIContainer(),
-            PrivacyDIContainer()
+            PrivacyDIContainer(),
+            PickDICotainer(),
+            ResignDIContainer(),
         ]
         containers.forEach {
             $0.registerDependencies()

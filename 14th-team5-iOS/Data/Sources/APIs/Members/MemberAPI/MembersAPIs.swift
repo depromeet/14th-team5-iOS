@@ -37,7 +37,7 @@ enum MembersAPIs: BBAPI {
         case let .createMemberPick(memberId):
             return Spec(method: .post, path: "/members/\(memberId)/pick")
         case let .createMemberPresignedURL(body):
-            return Spec(method: .post, path: "/members/image-upload-request", bodyParametersEncodable: body)
+            return Spec(method: .post, path: "/members/image-upload-request", bodyParametersEncodable: body, headers: .default)
         case let .updateMemberName(memberId, body):
             return Spec(method: .put, path: "/members/name/\(memberId)", bodyParametersEncodable: body)
         case let .updateMemberProfileImage(memberId, body):

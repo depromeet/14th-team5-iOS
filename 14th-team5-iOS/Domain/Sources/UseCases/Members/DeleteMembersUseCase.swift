@@ -16,14 +16,14 @@ public protocol DeleteMembersUseCaseProtocol {
 
 public final class DeleteMembersUseCase: DeleteMembersUseCaseProtocol {
     
-    private let membersRepository: MembersRepositoryProtocol
+    private let resignRepository: ResignRepositoryProtocol
     
     
-    public init(membersRepository: MembersRepositoryProtocol) {
-        self.membersRepository = membersRepository
+    public init(resignRepository: ResignRepositoryProtocol) {
+        self.resignRepository = resignRepository
     }
     
     public func execute(memberId: String) -> Observable<DeleteMemberEntity?> {
-        return membersRepository.deleteMemberItem(memberId: memberId)
+        return resignRepository.deleteMemberItem(memberId: memberId)
     }
 }

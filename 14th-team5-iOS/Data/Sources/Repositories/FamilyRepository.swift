@@ -15,6 +15,7 @@ public final class FamilyRepository: FamilyRepositoryProtocol {
     
     public let disposeBag: DisposeBag = DisposeBag()
 
+    private let linkWorker: LinkWorker = LinkWorker()
     private let meWorker: MeeWorker = MeeWorker()
     private let membersWorker: MembersWorker = MembersWorker()
     private let familyInviteViewWorker: FamilyInviteViewWorker = FamilyInviteViewWorker()
@@ -105,7 +106,7 @@ extension FamilyRepository {
             let familyId = familyUserDefaults.loadFamilyId()
         else { return .just(nil) } // TODO: - Error 타입 정의하기
         
-        return familyInviteViewWorker.fetchInvitationLink(familyId: familyId)
+        return linkWorker.createFamilyLink(familyId)
             .map { $0?.toDomain() }
     }
     

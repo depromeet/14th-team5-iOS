@@ -8,10 +8,6 @@
 import Core
 
 enum MemberRealEmojiAPIs: BBAPI {
-    struct UploadRealEmojiRequest: Encodable {
-        let imageName: String
-    }
-    
     /// 회원의 리얼 이모지 조회
     case fetchMemberRealEmoji(_ memberId: String)
     /// 회원의 리얼 이모지 추가
@@ -19,7 +15,7 @@ enum MemberRealEmojiAPIs: BBAPI {
     /// 회원의 리얼 이모지 변경
     case updateMemberRealEmoji(_ memberId: String)
     /// 리얼 이모지 사진 presigned url 요청
-    case uploadRealEmoji(_ mebmerId: String, _ body: UploadRealEmojiRequest)
+    case uploadRealEmoji(_ mebmerId: String, _ body: UploadRealEmojiRequestDTO)
     
     var spec: Spec {
         switch self {

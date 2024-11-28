@@ -10,7 +10,10 @@ import Foundation
 import RxSwift
 
 public protocol RemoveReactionUseCaseProtocol {
-    func execute(query: RemoveReactionQuery, body: RemoveReactionRequest) -> Single<Void?>
+    func execute(
+        query: RemoveReactionQuery,
+        body: RemoveReactionRequest
+    ) -> Observable<Void?>
 }
 
 public final class RemoveReactionUseCase: RemoveReactionUseCaseProtocol {
@@ -20,7 +23,10 @@ public final class RemoveReactionUseCase: RemoveReactionUseCaseProtocol {
         self.reactionRepository = reactionRepository
     }
     
-    public func execute(query: RemoveReactionQuery, body: RemoveReactionRequest) -> Single<Void?> {
+    public func execute(
+        query: RemoveReactionQuery,
+        body: RemoveReactionRequest
+    ) -> Observable<Void?> {
         return reactionRepository.removeReaction(query: query, body: body)
     }
 }

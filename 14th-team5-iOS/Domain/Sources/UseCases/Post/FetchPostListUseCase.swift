@@ -72,7 +72,7 @@ extension FetchPostListUseCase {
         if let members = members {
             return self.updatePostsWithMembers(posts: posts, members: members)
         } else {
-            return self.familyRepository.fetchAllFamilyMembers()
+            return self.familyRepository.fetchFamilyMembers()
                 .flatMap { membersFromApi -> Single<[PostEntity]?> in
                     return self.updatePostsWithMembers(posts: posts, members: membersFromApi)
                 }

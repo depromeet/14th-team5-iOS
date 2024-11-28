@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol FetchMyRealEmojiUseCaseProtocol {
-    func execute() -> Single<[MyRealEmojiEntity?]>
+    func execute() -> Observable<[MyRealEmojiEntity?]>
 }
 
 public class FetchMyRealEmojiUseCase: FetchMyRealEmojiUseCaseProtocol {
@@ -21,7 +21,7 @@ public class FetchMyRealEmojiUseCase: FetchMyRealEmojiUseCaseProtocol {
         self.realEmojiRepository = realEmojiRepository
     }
     
-    public func execute() -> Single<[MyRealEmojiEntity?]> {
+    public func execute() -> Observable<[MyRealEmojiEntity?]> {
         return realEmojiRepository.fetchMyRealEmoji()
     }
 }

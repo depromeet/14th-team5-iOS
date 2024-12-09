@@ -25,6 +25,7 @@ extension PostRepository {
             page: query.page,
             size: query.size,
             date: query.date,
+            memberId: query.memberId,
             type: query.type.rawValue,
             sort: query.type.rawValue
         )

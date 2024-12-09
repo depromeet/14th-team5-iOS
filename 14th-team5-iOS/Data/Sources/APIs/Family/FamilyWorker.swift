@@ -31,7 +31,7 @@ extension FamilyWorker {
         _ familyId: String,
         body: UpdateFamilyNameRequestDTO
     ) -> Observable<FamilyNameResponseDTO?> {
-        let spec = FamilyAPIs.updateFamilyName(familyId).spec
+        let spec = FamilyAPIs.updateFamilyName(familyId, body: body).spec
         
         return request(spec)
     }

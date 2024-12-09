@@ -13,7 +13,7 @@ enum FamilyAPIs: BBAPI {
     /// 가족 그룹 생성 시간 조회
     case fetchFamilyCreatedAt(_ familyId: String)
     /// 가족 이름 변경
-    case updateFamilyName(_ familyId: String)
+    case updateFamilyName(_ familyId: String, body: UpdateFamilyNameRequestDTO)
     
     var spec: Spec {
         switch self {
@@ -21,8 +21,8 @@ enum FamilyAPIs: BBAPI {
             return .init(method: .post, path: "/families")
         case .fetchFamilyCreatedAt(let familyId):
             return .init(method: .get, path: "/families/\(familyId)/created-at")
-        case .updateFamilyName(let familyId):
-            return .init(method: .put, path: "/families/\(familyId)/name")
+        case .updateFamilyName(let familyId, let body):
+            return .init(method: .put, path: "/families/\(familyId)/name", bodyParametersEncodable: body)
         }
     }
     

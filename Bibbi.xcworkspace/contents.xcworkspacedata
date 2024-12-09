@@ -27,9 +27,6 @@
          location = "group:Tuist/.build/tuist-derived/Alamofire/Alamofire.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Tuist/.build/tuist-derived/AppCheck/AppCheck.xcodeproj">
-      </FileRef>
-      <FileRef
          location = "group:Tuist/.build/tuist-derived/Bibbi-Package/Bibbi-Package.xcodeproj">
       </FileRef>
       <FileRef
@@ -39,9 +36,6 @@
          location = "group:Tuist/.build/tuist-derived/Firebase/Firebase.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Tuist/.build/tuist-derived/GTMSessionFetcher/GTMSessionFetcher.xcodeproj">
-      </FileRef>
-      <FileRef
          location = "group:Tuist/.build/tuist-derived/GoogleAppMeasurement/GoogleAppMeasurement.xcodeproj">
       </FileRef>
       <FileRef
@@ -49,9 +43,6 @@
       </FileRef>
       <FileRef
          location = "group:Tuist/.build/tuist-derived/GoogleUtilities/GoogleUtilities.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Tuist/.build/tuist-derived/InteropForGoogle/InteropForGoogle.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:Tuist/.build/tuist-derived/KakaoOpenSDK/KakaoOpenSDK.xcodeproj">
@@ -87,25 +78,13 @@
          location = "group:Tuist/.build/tuist-derived/SnapKit/SnapKit.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Tuist/.build/tuist-derived/SwiftProtobuf/SwiftProtobuf.xcodeproj">
-      </FileRef>
-      <FileRef
          location = "group:Tuist/.build/tuist-derived/Then/Then.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:Tuist/.build/tuist-derived/WeakMapTable/WeakMapTable.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Tuist/.build/tuist-derived/abseil/abseil.xcodeproj">
-      </FileRef>
-      <FileRef
          location = "group:Tuist/.build/tuist-derived/combine-schedulers/combine-schedulers.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Tuist/.build/tuist-derived/gRPC/gRPC.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Tuist/.build/tuist-derived/leveldb/leveldb.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:Tuist/.build/tuist-derived/nanopb/nanopb.xcodeproj">

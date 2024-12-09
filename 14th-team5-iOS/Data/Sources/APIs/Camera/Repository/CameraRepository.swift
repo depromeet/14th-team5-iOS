@@ -25,10 +25,10 @@ public final class CameraRepository {
 
 extension CameraRepository: CameraRepositoryProtocol {
     
-    public func createEmojiImagePresignedURL(memberID: String, body: CreatePresignedURLRequest) -> Observable<CameraRealEmojiPreSignedEntity?> {
+    public func createEmojiImagePresignedURL(memberID: String, body: CreatePresignedURLRequest) -> Observable<CameraRealEmojiPreSignedEntity> {
         let body = CreatePresignedURLReqeustDTO(imageName: body.imageName)
         return cameraAPIWorker.createRealEmojiPresignedURL(memberId: memberID, body: body)
-            .map { $0?.toDomain() }
+            .map { $0.toDomain() }
     }
     
     public func createEmojiImage(memberId: String, body: CreateEmojiImageRequest) -> Observable<CameraCreateRealEmojiEntity?> {
@@ -49,4 +49,7 @@ extension CameraRepository: CameraRepositoryProtocol {
             .map { $0?.toDomain() }
     }
     
+    public func uploadEmojiImageToS3Bucket(_ presignedURL: String, image: Data) -> Observable<Bool> {
+        return cameraAPIWorker.upload(presignedURL, with: image)
+    }
 }

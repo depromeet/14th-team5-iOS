@@ -90,8 +90,9 @@ public final class CameraDisplayViewReactor: Reactor {
                         .just(.setError(false)),
                         .just(.setLoading(true))
                     )
-                }.catch { _ in
-                    return .just(.setError(true))
+                }.catchError(with: self) { owner, _ in
+                    owner.cameraDisplayNavigator.showErrorAlert()
+                    return .empty()
                 }
  
         case let .fetchDisplayImage(description):
@@ -149,6 +150,9 @@ public final class CameraDisplayViewReactor: Reactor {
                                 .flatMap { _ in Observable<Mutation>.empty() }
                         )
                     }
+                }.catchError(with: self) { owner, _ in
+                    owner.cameraDisplayNavigator.showErrorAlert()
+                    return .empty()
                 }
         case .hideDisplayEditCell:
             return .concat(

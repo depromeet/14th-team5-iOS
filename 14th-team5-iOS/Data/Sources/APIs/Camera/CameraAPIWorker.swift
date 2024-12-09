@@ -23,7 +23,7 @@ extension CameraAPIWorker {
     ///     - MemberId (사용자 멤버 ID)
     ///     - body: CreatePresignedURLReqeustDTO (업로드 Image Name)
     /// - Returns : CameraRealEmojiPreSignedResponseDTO
-    public func createRealEmojiPresignedURL(memberId: String, body: CreatePresignedURLReqeustDTO) -> Observable<CameraRealEmojiPreSignedResponseDTO?> {
+    public func createRealEmojiPresignedURL(memberId: String, body: CreatePresignedURLReqeustDTO) -> Observable<CameraRealEmojiPreSignedResponseDTO> {
         let spec = CameraAPIs.createRealEmojiPresignedURL(memberID: memberId, body: body).spec
         
         return request(spec)

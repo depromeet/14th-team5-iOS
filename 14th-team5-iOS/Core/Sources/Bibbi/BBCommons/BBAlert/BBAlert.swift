@@ -154,14 +154,15 @@ public class BBAlert {
     /// - Returns: BBAlert
     public static func style(
         _ style: BBAlertStyle,
-        primaryAction action: BBAlertActionHandler = nil,
+        primaryAction primaryHandler: BBAlertActionHandler = nil,
+        secondaryAction secondaryHandler: BBAlertActionHandler = nil,
         config: BBAlertConfiguration = BBAlertConfiguration()
     ) -> BBAlert {
         switch style {
         case .logout:
             let actions = [
                 BBAlertAction(title: "취소", style: .cancel),
-                BBAlertAction(title: "확인", handler: action)
+                BBAlertAction(title: "확인", handler: primaryHandler)
             ]
             let viewConfig = BBAlertViewConfiguration(
                 minHeight: 145,
@@ -180,7 +181,7 @@ public class BBAlert {
         case .makeNewFamily:
             let actions = [
                 BBAlertAction(title: "취소", style: .cancel),
-                BBAlertAction(title: "확인", handler: action)
+                BBAlertAction(title: "확인", handler: primaryHandler)
             ]
             let viewConfig = BBAlertViewConfiguration(
                 minHeight: 181,
@@ -199,7 +200,7 @@ public class BBAlert {
         case .resetFamilyName:
             let actions = [
                 BBAlertAction(title: "취소", style: .cancel),
-                BBAlertAction(title: "확인", handler: action)
+                BBAlertAction(title: "확인", handler: primaryHandler)
             ]
             let viewConfig = BBAlertViewConfiguration(
                 minHeight: 181,
@@ -217,7 +218,7 @@ public class BBAlert {
             
         case .widget:
             let actions = [
-                BBAlertAction(title: "확인하기", handler: action),
+                BBAlertAction(title: "확인하기", handler: primaryHandler),
                 BBAlertAction(title: "닫기", style: .cancel)
             ]
             let viewConfig = BBAlertViewConfiguration(
@@ -237,7 +238,7 @@ public class BBAlert {
             
         case .mission:
             let actions = [
-                BBAlertAction(title: "미션 사진 찍기", handler: action),
+                BBAlertAction(title: "미션 사진 찍기", handler: primaryHandler),
                 BBAlertAction(title: "닫기", style: .cancel)
             ]
             let viewConfig = BBAlertViewConfiguration(
@@ -257,7 +258,7 @@ public class BBAlert {
             
         case let .picking(name):
             let actions = [
-                BBAlertAction(title: "지금 하기", handler: action),
+                BBAlertAction(title: "지금 하기", handler: primaryHandler),
                 BBAlertAction(title: "다음에 하기", style: .cancel)
             ]
             let viewConfig = BBAlertViewConfiguration(
@@ -277,7 +278,7 @@ public class BBAlert {
             
         case .takePhoto:
             let actions = [
-                BBAlertAction(title: "생존 신고 먼저하기", handler: action),
+                BBAlertAction(title: "생존 신고 먼저하기", handler: primaryHandler),
                 BBAlertAction(title: "다음에 하기", style: .cancel)
             ]
             let viewConfig = BBAlertViewConfiguration(
@@ -295,6 +296,34 @@ public class BBAlert {
             )
             return BBAlert(view: view, actions: actions, config: config)
             
+        case .uploadFailed:
+            
+            let actions = [
+                BBAlertAction(title: "다시 촬영하기", handler: primaryHandler),
+                BBAlertAction(
+                    title: "홈으로 이동",
+                    style: .custom(
+                        titleFontStyle: .body1Bold,
+                        titleColor: .gray400,
+                        backgroundColor: .gray700
+                    ),
+                    handler: secondaryHandler
+                )
+            ]
+            let viewConfig = BBAlertViewConfiguration(
+                minHeight: 384,
+                buttonAxis: .vertical
+            )
+            let view = DefaultAlertView(
+                child: ImageAlertView(
+                    image: DesignSystemAsset.uploadFailed.image,
+                    title: "업로드에 실패했어요",
+                    subtitle: "같은 문제가 반복된다면 앱을 껐다 켜거나\n 삭제하고 다시 설치해주세요.",
+                    viewConfig: viewConfig
+                ),
+                viewConfig: viewConfig
+            )
+            return BBAlert(view: view, actions: actions, config: config)
         }
     }
     

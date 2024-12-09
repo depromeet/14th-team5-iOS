@@ -69,10 +69,12 @@ public enum UploadLocation {
 public protocol CameraRepositoryProtocol {
     var disposeBag: DisposeBag { get }
 
-    func createEmojiImagePresignedURL(memberID: String, body: CreatePresignedURLRequest) -> Observable<CameraRealEmojiPreSignedEntity?>
+    func createEmojiImagePresignedURL(memberID: String, body: CreatePresignedURLRequest) -> Observable<CameraRealEmojiPreSignedEntity>
     func createEmojiImage(memberId: String, body: CreateEmojiImageRequest) -> Observable<CameraCreateRealEmojiEntity?>
     
     /// FETCH 메서드
     func fetchEmojiList(memberId: String) -> Observable<[CameraRealEmojiImageItemEntity?]>
     func updateEmojiImage(memberId: String, realEmojiId: String, body: UpdateRealEmojiImageRequest) -> Observable<CameraUpdateRealEmojiEntity?>
+    
+    func uploadEmojiImageToS3Bucket(_ presignedURL: String, image: Data) -> Observable<Bool>
 }

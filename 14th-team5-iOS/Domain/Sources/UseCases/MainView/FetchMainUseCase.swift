@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol FetchMainUseCaseProtocol {
-    func execute() -> Observable<MainViewEntity?>
+    func execute() -> Observable<MainViewEntity>
 }
 
 public final class FetchMainUseCase: FetchMainUseCaseProtocol {
@@ -20,7 +20,7 @@ public final class FetchMainUseCase: FetchMainUseCaseProtocol {
         self.mainRepository = mainRepository
     }
     
-    public func execute() -> Observable<MainViewEntity?> {
+    public func execute() -> Observable<MainViewEntity> {
         return mainRepository.fetchMain()
     }
 }

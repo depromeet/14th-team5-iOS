@@ -12,24 +12,17 @@ import Foundation
 import RxSwift
 
 typealias CommentAPIWorker = CommentAPIs.Worker
-extension CommentAPIs {
-    public final class Worker: BBRxAPIWorker {
-        public init() { super.init() }
-    }
-}
-
-
-// MARK: - Extensions
 
 extension CommentAPIWorker {    
     
-    
-    // MARK: - Fetch Comment
-    
+    /// 게시물에 등록 된 댓글을 페이지네이션으로 조회하는 Method입니다.
+    /// HTTP Method: GET
+    /// - Parameters: postId: String
+    /// - Returns: GetPostCommentResponseDTO
     func fetchComment(
         postId: String,
         query: PostCommentPaginationQuery
-    ) -> Observable<PaginationResponsePostCommentResponseDTO> {
+    ) -> Observable<GetPostCommentResponseDTO> {
         let page = query.page
         let size = query.size
         let sort = query.sort.rawValue
@@ -39,8 +32,10 @@ extension CommentAPIWorker {
     }
     
     
-    // MARK: - Create Comment
-    
+    /// 게시물에 댓글을 등록하는 Method입니다.
+    /// HTTP Method: POST
+    /// - Parameters: postId: String
+    /// - Returns: PostCommentResponseDTO
     func createComment(
         postId: String,
         body: CreatePostCommentReqeustDTO
@@ -51,8 +46,10 @@ extension CommentAPIWorker {
     }
     
     
-    // MARK: - Update Comment
-    
+    /// 게시물에 등록된 댓글을 수정하는 Method입니다.
+    /// HTTP Method: PUT
+    /// - Parameters: postId: String, commentId: String
+    /// - Returns: PostCommentResponseDTO
     func updateComment(
         postId: String,
         commentId: String,
@@ -64,12 +61,14 @@ extension CommentAPIWorker {
     }
     
     
-    // MARK: - Delete Comment
-    
+    /// 게시물에 등록된 댓글을 삭제하는 Method입니다.
+    /// HTTP Method: Delete
+    /// - Parameters: postId: String, commentId: String
+    /// - Returns: DeletePostCommentResponseDTO
     func deleteComment(
         postId: String,
         commentId: String
-    ) -> Observable<PostCommentDeleteResponseDTO> {
+    ) -> Observable<DeletePostCommentResponseDTO> {
         let spec = CommentAPIs.deletePostComment(postId: postId, commentId: commentId).spec
         
         return request(spec)

@@ -9,9 +9,13 @@ import Core
 import Foundation
 
 enum CommentAPIs: BBAPI {
+    /// 게시물 댓글 조회
     case fetchPostComment(postId: String, page: Int, size: Int, sort: String)
+    /// 게시물 댓글 추가
     case createPostComment(postId: String, body: CreatePostCommentReqeustDTO)
+    /// 게시물 댓글 수정
     case updatePostComment(postId: String, commentId: String)
+    /// 게시물 댓글 삭제
     case deletePostComment(postId: String, commentId: String)
     
     var spec: Spec {
@@ -46,5 +50,9 @@ enum CommentAPIs: BBAPI {
                 path: "/posts/\(postId)/comments/\(commentId)"
             )
         }
+    }
+    
+    final class Worker: BBRxAPIWorker {
+        init() { }
     }
 }

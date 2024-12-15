@@ -12,8 +12,8 @@ import RxSwift
 
 public final class PickRepository {
     
-    public let disposeBag: DisposeBag = DisposeBag()
-    private let membersAPIWorker: MembersWorker = MembersWorker()
+    private let disposeBag: DisposeBag = DisposeBag()
+    private let membersAPIWorker: MembersAPIWorker = MembersAPIWorker()
     
     public init() { }
 }

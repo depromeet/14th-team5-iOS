@@ -76,7 +76,6 @@ public final class PrivacyViewReactor: Reactor {
                             owner.fetchPrivacyItemsUseCase.execute()
                                 .asObservable()
                                 .flatMap { privateInfo -> Observable<Mutation> in
-                                    guard let appVersionEntity = appVersionEntity else { return .empty() }
                                     var sectionItem: [PrivacyItemModel] = []
                                     privateInfo.forEach {
                                         sectionItem.append(.privacyWithAuthItem(PrivacyCellReactor(descrption: $0, isCheck: appVersionEntity.latest)))

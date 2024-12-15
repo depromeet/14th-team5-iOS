@@ -13,13 +13,13 @@ import RxSwift
 public final class FamilyRepository: FamilyRepositoryProtocol {
     // MARK: - Properties
     
-    public let disposeBag: DisposeBag = DisposeBag()
+    private let disposeBag: DisposeBag = DisposeBag()
 
-    private let linkWorker: LinkWorker = LinkWorker()
-    private let meWorker: MeeWorker = MeeWorker()
-    private let membersWorker: MembersWorker = MembersWorker()
-    private let familyInviteViewWorker: FamilyInviteViewWorker = FamilyInviteViewWorker()
-    private let familyWorker: FamilyWorker = FamilyWorker()
+    private let linkWorker: LinkAPIWorker = LinkAPIWorker()
+    private let meWorker: MeeAPIWorker = MeeAPIWorker()
+    private let membersWorker: MembersAPIWorker = MembersAPIWorker()
+    private let familyInviteViewWorker: FamilyInviteViewAPIWorker = FamilyInviteViewAPIWorker()
+    private let familyWorker: FamilyAPIWorker = FamilyAPIWorker()
     private let familyUserDefaults: FamilyInfoUserDefaultsType = FamilyInfoUserDefaults()
     
     // MARK: - Intializer

@@ -17,17 +17,51 @@ enum MeAPI: BBAPI {
     case createFamily
     /// 내 가족 정보 조회
     case fetchFamilyInfo
+    /// fcm 토큰 등록
+    case registerFCMToken
+    /// fcm 토큰 삭제
+    case deleteFCMToken(_ token: String)
+    /// 내 접속 버전 조회
+    case appVersion(_ appKey: String)
     
     var spec: Spec {
         switch self {
         case .joinFamily:
-            return .init(method: .post, path: "/me/join-family")
+            return .init(
+                method: .post,
+                path: "/me/join-family"
+            )
         case .resignFamily:
-            return .init(method: .post, path: "/me/quit-family")
+            return .init(
+                method: .post,
+                path: "/me/quit-family"
+            )
         case .createFamily:
-            return .init(method: .post, path: "/me/create-family")
+            return .init(
+                method: .post,
+                path: "/me/create-family"
+            )
         case .fetchFamilyInfo:
-            return .init(method: .get, path: "/me/family-info")
+            return .init(
+                method: .get,
+                path: "/me/family-info"
+            )
+        case .registerFCMToken:
+            return .init(
+                method: .post,
+                path: "/me/fcm"
+            )
+        case let .deleteFCMToken(token):
+            return .init(
+                method: .delete,
+                path: "/me/fcm/\(token)"
+            )
+        case let .appVersion(version):
+            return .init(
+                method: .get,
+                path: "/me/app-version",
+                queryParametersEncodable: version
+            )
         }
     }
     

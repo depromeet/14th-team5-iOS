@@ -9,18 +9,11 @@ import Domain
 import Foundation
 
 public struct PostCommentResponseDTO: Decodable {
-    private enum CodingKeys: String, CodingKey {
-        case commentId
-        case postId
-        case memberId
-        case comment
-        case createdAt
-    }
-    var commentId: String
-    var postId: String
-    var memberId: String
-    var comment: String
-    var createdAt: String
+    let commentId: String
+    let postId: String
+    let memberId: String
+    let comment: String
+    let createdAt: String
 }
 
 extension PostCommentResponseDTO {

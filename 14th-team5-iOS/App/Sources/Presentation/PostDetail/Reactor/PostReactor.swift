@@ -70,10 +70,9 @@ extension PostReactor {
             return fetchMissionUseCase.execute(missionId: missionId)
                 .asObservable()
                 .flatMap { entity -> Observable<Mutation> in
-                    guard let originEntity = entity else { return .empty() }
                     return .concat(
                         .just(.setSelectedPostIndex(index)),
-                        .just(.setMissionContent(originEntity))
+                        .just(.setMissionContent(entity))
                     )
                     
                 }

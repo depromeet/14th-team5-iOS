@@ -47,7 +47,7 @@ final class OAuthDIContainer: BaseContainer {
     // MARK: - Make Repository
     
     private func makeOAuthRepository() -> OAuthRepositoryProtocol {
-        return OAuthRepository()
+        return AuthRepository()
     }
     
     

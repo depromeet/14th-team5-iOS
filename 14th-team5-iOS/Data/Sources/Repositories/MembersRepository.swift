@@ -15,10 +15,10 @@ import RxCocoa
 
 public final class MembersRepository {
         
-    public var disposeBag: DisposeBag = DisposeBag()
+    public let disposeBag: DisposeBag = DisposeBag()
     
     private let familyUserDefaults: FamilyInfoUserDefaults = FamilyInfoUserDefaults()
-    private let membersAPIWorker: MembersWorker = MembersWorker()
+    private let membersAPIWorker: MembersAPIWorker = MembersAPIWorker()
     public init() { }
     
 }

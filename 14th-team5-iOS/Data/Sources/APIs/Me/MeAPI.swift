@@ -10,7 +10,7 @@ import Core
 // TODO: MeAPIs로 이름 바꾸기 - Trash 지워야 함
 enum MeAPI: BBAPI {
     /// 가족 가입하기
-    case joinFamily
+    case joinFamily(_ body: JoinFamilyRequestDTO)
     /// 가족 탈퇴하기
     case resignFamily
     /// 가족 생성 및 가족 정보 조회
@@ -26,13 +26,14 @@ enum MeAPI: BBAPI {
     
     var spec: Spec {
         switch self {
-        case .joinFamily:
+        case let .joinFamily(body):
             return .init(
                 method: .post,
-                path: "/me/join-family"
+                path: "/me/join-family",
+                bodyParametersEncodable: body
             )
         case .resignFamily:
-            return .init(
+            return .init(   
                 method: .post,
                 path: "/me/quit-family"
             )

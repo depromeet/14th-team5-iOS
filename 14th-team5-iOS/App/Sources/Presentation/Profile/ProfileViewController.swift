@@ -263,7 +263,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
 }
 
 // 기본 이미지가 true 이고 닉네임 변경 할 경우 redraw
-extension ProfileViewController {    
+extension ProfileViewController {
     private func setupProfileImage(url: URL) {
         let processor = DownsamplingImageProcessor(size: profileView.bounds.size)
         
@@ -324,10 +324,11 @@ extension ProfileViewController: PHPickerViewControllerDelegate {
         picker.dismiss(animated: true, completion: nil)
         
         if let imageProvider = itemProvider, imageProvider.canLoadObject(ofClass: UIImage.self) {
-            imageProvider.loadObject(ofClass: UIImage.self) { image, error in
-                guard let photoImage: UIImage = image as? UIImage,
+            imageProvider.loadObject(ofClass: UIImage.self) { [weak self] image, error in
+                guard let self = self,
+                      let photoImage: UIImage = image as? UIImage,
                       let originalData: Data = photoImage.jpegData(compressionQuality: 1.0) else { return }
-                imageProvider.didSelectProfileImageWithProcessing(photo: originalData, error: error)
+                self.reactor?.action.onNext(.didSelectPHAssetsImage(originalData))
             }
             
         }

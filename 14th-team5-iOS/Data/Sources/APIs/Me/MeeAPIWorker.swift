@@ -37,7 +37,7 @@ extension MeeAPIWorker {
     func joinFamily(
         body: JoinFamilyRequestDTO
     ) -> Observable<JoinFamilyResponseDTO?> {
-        let spec = MeAPI.joinFamily.spec
+        let spec = MeAPI.joinFamily(body).spec
         
         return request(spec)
     }

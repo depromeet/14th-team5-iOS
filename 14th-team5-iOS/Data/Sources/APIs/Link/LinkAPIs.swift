@@ -14,7 +14,10 @@ enum LinkAPIs: BBAPI {
     var spec: Spec {
         switch self {
         case let .createFamilyLink(familyId):
-            return .init(method: .post, path: "/links/family/\(familyId)")
+            return .init(
+                method: .post,
+                path: "/links/family/\(familyId)"
+            )
         }
     }
     

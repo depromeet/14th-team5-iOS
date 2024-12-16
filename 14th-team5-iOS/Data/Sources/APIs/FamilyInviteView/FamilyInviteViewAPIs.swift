@@ -16,7 +16,10 @@ enum FamilyInviteViewAPIs: BBAPI {
     var spec: Spec {
         switch self {
         case .fetchFamilyInfoWithLink(let linkId):
-            return .init(method: .get, path: "/view/family-invite/\(linkId)")
+            return .init(
+                method: .get,
+                path: "/view/family-invite/\(linkId)"
+            )
         }
     }
     

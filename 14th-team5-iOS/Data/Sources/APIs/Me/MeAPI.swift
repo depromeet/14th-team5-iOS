@@ -60,7 +60,9 @@ enum MeAPI: BBAPI {
             return .init(
                 method: .get,
                 path: "/me/app-version",
-                queryParametersEncodable: version
+                queryParameters: [
+                    "appKey": "\(version)"
+                ]
             )
         }
     }

@@ -13,8 +13,6 @@ import SnapKit
 import Then
 
 final class BibbiInquireBannerView: UIView {
-    
-    
     private let mainLogoView: UIImageView = UIImageView()
     private let subLogoView: UIImageView = UIImageView()
     private let descrptionLabel: UILabel = BBLabel(.body1Bold, textAlignment: .left)
@@ -27,7 +25,6 @@ final class BibbiInquireBannerView: UIView {
         setupUI()
         setupAttributes()
         setupAutoLayout()
-        print("Device Size: \(UIScreen.main.bounds.size.width)")
     }
     
     required init?(coder: NSCoder) {
@@ -37,8 +34,6 @@ final class BibbiInquireBannerView: UIView {
     private func setupUI() {
         addSubviews(mainLogoView, subLogoView, arrowImageView, descrptionLabel, subtitleLabel)
     }
-    
-    
     
     private func setupAttributes() {
         
@@ -68,10 +63,6 @@ final class BibbiInquireBannerView: UIView {
             $0.text = "의견 남기러 가기"
             $0.textColor = .blue500
         }
-        
-        
-        
-        
     }
     
     
@@ -107,12 +98,7 @@ final class BibbiInquireBannerView: UIView {
             $0.width.height.equalTo(11)
             $0.centerY.equalTo(subtitleLabel)
         }
-        
-        
-        
     }
-    
-    
 }
 
 

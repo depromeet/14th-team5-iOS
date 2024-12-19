@@ -14,6 +14,10 @@ public final class BBToolTip: NSObject, BBComponentPresentable {
     // MARK: - Properties
     public var contentView: BBBaseToolTipView?
     public var superview: UIView?
+    public var isHidden: Bool = true {
+        didSet { isHidden ? self.hide() : self.show() }
+    }
+    
     public var toolTipStyle: BBToolTipType {
         didSet {
             contentView?.removeFromSuperview()

@@ -20,7 +20,7 @@ public final class ManagementTableHeaderView: BaseView<ManagementTableHeaderReac
     private let familyNameLabel: BBLabel = BBLabel(.head1, textColor: .gray200)
     private let memberCountLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray400)
     private let familyNameEditButton: BBButton = BBButton()
-    
+    private let familyNameToolTipeView: BBToolTip = BBToolTip(.familyNameEdit)
     
     // MARK: - Properties
     
@@ -58,6 +58,9 @@ public final class ManagementTableHeaderView: BaseView<ManagementTableHeaderReac
             $0.setImage(DesignSystemAsset.edit.image, for: .normal)
             $0.addTarget(self, action: #selector(didTapFamilyNameEditButton(_:event:)), for: .touchUpInside)
         }
+        familyNameToolTipeView.do {
+            $0.superview  = familyNameEditButton
+        }
     }
     
     public override func setupAutoLayout() {
@@ -75,6 +78,18 @@ public final class ManagementTableHeaderView: BaseView<ManagementTableHeaderReac
         }
     }
     
+    public override func bind(reactor: Reactor) {
+        familyNameEditButton.rx.tap
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
+            .map { Reactor.Action.didTappedToolTipButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$isHidden)
+            .bind(to: familyNameToolTipeView.rx.isHidden)
+            .disposed(by: disposeBag)
+    }
+
 }
 
 

@@ -47,10 +47,7 @@ final public class MemoriesCalendarPageTitleView: BaseView<MemoriesCalendarTitle
     
     private func bindOutput(reactor: Reactor) {
         reactor.pulse(\.$hiddenTooltipView)
-            .bind(with: self) {
-                $1 ? $0.toolTipView.hide()
-                : $0.toolTipView.show()
-            }
+            .bind(to: toolTipView.rx.isHidden)
             .disposed(by: disposeBag)
     }
     
@@ -100,7 +97,6 @@ final public class MemoriesCalendarPageTitleView: BaseView<MemoriesCalendarTitle
         
         toolTipView.do {
             $0.superview = tipButton
-            $0.hide()
         }
     }
     

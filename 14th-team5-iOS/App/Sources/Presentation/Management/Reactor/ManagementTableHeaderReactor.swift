@@ -15,17 +15,23 @@ public final class ManagementTableHeaderReactor {
     
     // MARK: - Action
     
-    public enum Action { }
+    public enum Action {
+        case didTappedToolTipButton
+    }
     
     
     // MARK: - Mutation
     
-    public enum Mutation { }
+    public enum Mutation {
+        case setToolTipHidden(Bool)
+    }
     
     
     // MARK: - State
     
-    public struct State { }
+    public struct State {
+        @Pulse var isHidden: Bool = false
+    }
     
     
     // MARK: - Properties
@@ -39,4 +45,19 @@ public final class ManagementTableHeaderReactor {
         self.initialState = State()
     }
     
+    public func mutate(action: Action) -> Observable<Mutation> {
+        switch action {
+        case .didTappedToolTipButton:
+            return .just(.setToolTipHidden(!currentState.isHidden))
+        }
+    }
+    
+    public func reduce(state: State, mutation: Mutation) -> State {
+        var newState = state
+        switch mutation {
+        case let .setToolTipHidden(isHidden):
+            newState.isHidden = isHidden
+        }
+        return newState
+    }
 }

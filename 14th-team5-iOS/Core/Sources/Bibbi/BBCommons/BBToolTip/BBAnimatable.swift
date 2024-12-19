@@ -39,8 +39,7 @@ public extension BBComponentShowable where Self: BBToolTip {
         superview?.addSubview(contentView)
         updateLayout()
         
-        UIView.animate(withDuration: duration, delay: 0, options: options) { [weak self] in
-            guard let self else { return }
+        UIView.animate(withDuration: duration, delay: 0, options: options) {
             self.contentView?.transform = CGAffineTransform.identity
             self.contentView?.alpha = 1
         }
@@ -55,13 +54,12 @@ public extension BBComponentClosable where Self: BBToolTip {
         alpha: CGFloat = 0
     ) {
         
-        UIView.animate(withDuration: duration, delay: 0, options: options, animations: { [weak self] in
-            guard let self = self else { return }
+        UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
             self.contentView?.transform = transform
             self.contentView?.alpha = 0
-        }, completion: { [weak self] _ in
-            self?.contentView?.removeFromSuperview()
-            self?.contentView?.transform = .identity
+        }, completion: { _ in 
+            self.contentView?.removeFromSuperview()
+            self.contentView?.transform = .identity
         })
         
         self.contentView?.layoutIfNeeded()

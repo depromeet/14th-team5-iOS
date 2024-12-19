@@ -36,7 +36,7 @@ public class BBThumbnailToolTipView: BBBaseToolTipView {
         }
         setupToolTipUI()
         setupToolTipContent()
-        setupAutoLayount()
+        setupAutoLayout()
         setupThumbnailImageView(imageURL: imageURLs)
     }
     
@@ -51,7 +51,7 @@ public class BBThumbnailToolTipView: BBBaseToolTipView {
     }
     
     
-    public func setupAutoLayount() {
+    public func setupAutoLayout() {
         let arrowHeight: CGFloat = toolTipType.configure.arrowHeight
         let textPadding: CGFloat = 10
         guard case let .waitingSurvivalImage(_, imageURLs) = toolTipType else {

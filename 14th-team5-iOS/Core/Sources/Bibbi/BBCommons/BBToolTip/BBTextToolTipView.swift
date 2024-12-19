@@ -27,7 +27,7 @@ public class BBTextToolTipView: BBBaseToolTipView {
         super.init(toolTipType: toolTipType)
         setupToolTipUI()
         setupToolTipContent()
-        setupAutoLayount()
+        setupAutoLayout()
     }
     
     required init?(coder: NSCoder) {
@@ -54,7 +54,7 @@ public class BBTextToolTipView: BBBaseToolTipView {
         }
     }
     
-    private func setupAutoLayount() {
+    private func setupAutoLayout() {
         let position = toolTipType.configure.yPosition
         let arrowHeight: CGFloat = toolTipType.configure.arrowHeight
         let textPadding: CGFloat = 10

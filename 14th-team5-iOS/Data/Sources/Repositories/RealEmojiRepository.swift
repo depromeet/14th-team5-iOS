@@ -17,7 +17,7 @@ public final class RealEmojiRepository: RealEmojiRepositoryProtocol {
     
     private let myUserDefaults: MyUserDefaults = .init()
     private let postRealEmojiWorker: PostRealEmojiWorker = PostRealEmojiWorker()
-    private let memberRealEmojiWorker: MemberRealEmojiWorker = MemberRealEmojiWorker()
+    private let memberRealEmojiWorker: MemberRealEmojiAPIWorker = MemberRealEmojiAPIWorker()
     
     public init () { }
     

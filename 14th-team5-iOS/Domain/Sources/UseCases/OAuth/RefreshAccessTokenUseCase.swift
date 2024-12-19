@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol RefreshAccessTokenUseCaseProtocol {
-    func execute(body: RefreshAccessTokenRequest) -> Observable<AuthResultEntity?>
+    func execute(body: RefreshAccessTokenRequest) -> Observable<AuthResultEntity>
 }
 
 public final class RefreshAccessTokenUseCase: RefreshAccessTokenUseCaseProtocol {
@@ -24,7 +24,7 @@ public final class RefreshAccessTokenUseCase: RefreshAccessTokenUseCaseProtocol 
     }
     
     // MARK: - Execute
-    public func execute(body: RefreshAccessTokenRequest) -> Observable<AuthResultEntity?> {
+    public func execute(body: RefreshAccessTokenRequest) -> Observable<AuthResultEntity> {
         return oauthRepository.refreshAccessToken(body: body)
     }
 }

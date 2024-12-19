@@ -8,5 +8,5 @@
 import Foundation
 
 public struct UpdatePostCommentReqeustDTO: Encodable {
-    var content: String
+    let content: String
 }

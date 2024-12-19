@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol RegisterNewFCMTokenUseCaseProtocol {
-    func execute(body: AddFCMTokenRequest) -> Observable<DefaultEntity?>
+    func execute(body: AddFCMTokenRequest) -> Observable<DefaultEntity>
 }
 
 public class RegisterNewFCMTokenUseCase: RegisterNewFCMTokenUseCaseProtocol {
@@ -24,7 +24,7 @@ public class RegisterNewFCMTokenUseCase: RegisterNewFCMTokenUseCaseProtocol {
     }
     
     // MARK: - Execute
-    public func execute(body: AddFCMTokenRequest) -> Observable<DefaultEntity?> {
+    public func execute(body: AddFCMTokenRequest) -> Observable<DefaultEntity> {
         return oauthRepository.registerNewFCMToken(body: body)
     }
 }

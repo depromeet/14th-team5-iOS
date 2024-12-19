@@ -12,7 +12,7 @@ import RxSwift
 
 public final class ResignRepository {
     private let disposeBag: DisposeBag = DisposeBag()
-    private let membersAPIWorker: MembersWorker = MembersWorker()
+    private let membersAPIWorker: MembersAPIWorker = MembersAPIWorker()
     
     public init() { }
 }

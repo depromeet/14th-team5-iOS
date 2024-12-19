@@ -18,11 +18,21 @@ enum FamilyAPIs: BBAPI {
     var spec: Spec {
         switch self {
         case .createFamily:
-            return .init(method: .post, path: "/families")
+            return .init(
+                method: .post,
+                path: "/families"
+            )
         case .fetchFamilyCreatedAt(let familyId):
-            return .init(method: .get, path: "/families/\(familyId)/created-at")
+            return .init(
+                method: .get,
+                path: "/families/\(familyId)/created-at"
+            )
         case .updateFamilyName(let familyId, let body):
-            return .init(method: .put, path: "/families/\(familyId)/name", bodyParametersEncodable: body)
+            return .init(
+                method: .put,
+                path: "/families/\(familyId)/name",
+                bodyParametersEncodable: body
+            )
         }
     }
     

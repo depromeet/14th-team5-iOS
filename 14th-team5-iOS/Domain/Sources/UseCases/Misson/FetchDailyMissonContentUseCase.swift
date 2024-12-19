@@ -11,7 +11,7 @@ import RxSwift
 
 
 public protocol FetchDailyMissonContentUseCaseProtocol {
-    func execute() -> Observable<MissonTodayContentEntity?>
+    func execute() -> Observable<MissonTodayContentEntity>
 }
 
 public final class FetchDailyMissonContentUseCase: FetchDailyMissonContentUseCaseProtocol {
@@ -22,7 +22,7 @@ public final class FetchDailyMissonContentUseCase: FetchDailyMissonContentUseCas
         self.missionRepository = missionRepository
     }
     
-    public func execute() -> Observable<MissonTodayContentEntity?> {
+    public func execute() -> Observable<MissonTodayContentEntity> {
         return missionRepository.fetchDailyMissonItem()
     }
 }

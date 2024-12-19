@@ -28,20 +28,6 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "87EA802785C2DA6B58134CC2"
-               BuildableName = "Alamofire_Alamofire.bundle"
-               BlueprintName = "Alamofire_Alamofire"
-               ReferencedContainer = "container:Tuist/.build/tuist-derived/Alamofire/Alamofire.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "93E9E330FC2CE7458D9C925F"
                BuildableName = "App.app"
                BlueprintName = "App"
@@ -560,9 +546,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "52C20B2000B5FCB12B8DFDDF"
+               BlueprintIdentifier = "5C77D8A703ED73F92BC472CF"
                BuildableName = "GoogleUtilities_GoogleUtilities_AppDelegateSwizzler.bundle"
-               BlueprintName = "GoogleUtilities_GoogleUtilities_AppDelegateSwizzler"
+               BlueprintName = "GoogleUtilities_GoogleUtilities-AppDelegateSwizzler"
                ReferencedContainer = "container:Tuist/.build/tuist-derived/GoogleUtilities/GoogleUtilities.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -574,9 +560,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "5EF1F3A5AB7D1A66908699BA"
+               BlueprintIdentifier = "6A140ECB3E52FFA65F6282EA"
                BuildableName = "GoogleUtilities_GoogleUtilities_Environment.bundle"
-               BlueprintName = "GoogleUtilities_GoogleUtilities_Environment"
+               BlueprintName = "GoogleUtilities_GoogleUtilities-Environment"
                ReferencedContainer = "container:Tuist/.build/tuist-derived/GoogleUtilities/GoogleUtilities.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -588,9 +574,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "B22ABE36A6D895B55C9E632E"
+               BlueprintIdentifier = "F3AB767B4ED814E7810C3831"
                BuildableName = "GoogleUtilities_GoogleUtilities_Logger.bundle"
-               BlueprintName = "GoogleUtilities_GoogleUtilities_Logger"
+               BlueprintName = "GoogleUtilities_GoogleUtilities-Logger"
                ReferencedContainer = "container:Tuist/.build/tuist-derived/GoogleUtilities/GoogleUtilities.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -602,9 +588,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "AAE7ACFC8B5D148134863F8E"
+               BlueprintIdentifier = "A3C8A475A65D78948D2F8C5E"
                BuildableName = "GoogleUtilities_GoogleUtilities_MethodSwizzler.bundle"
-               BlueprintName = "GoogleUtilities_GoogleUtilities_MethodSwizzler"
+               BlueprintName = "GoogleUtilities_GoogleUtilities-MethodSwizzler"
                ReferencedContainer = "container:Tuist/.build/tuist-derived/GoogleUtilities/GoogleUtilities.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -616,9 +602,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "FDC06CD20EFD70DF403D5C02"
+               BlueprintIdentifier = "FA689320D4F1FFD4B845F3B3"
                BuildableName = "GoogleUtilities_GoogleUtilities_NSData.bundle"
-               BlueprintName = "GoogleUtilities_GoogleUtilities_NSData"
+               BlueprintName = "GoogleUtilities_GoogleUtilities-NSData"
                ReferencedContainer = "container:Tuist/.build/tuist-derived/GoogleUtilities/GoogleUtilities.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -630,9 +616,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "C60608F46A53F9FE672BA584"
+               BlueprintIdentifier = "F94AD5467C9518D0272F0268"
                BuildableName = "GoogleUtilities_GoogleUtilities_Network.bundle"
-               BlueprintName = "GoogleUtilities_GoogleUtilities_Network"
+               BlueprintName = "GoogleUtilities_GoogleUtilities-Network"
                ReferencedContainer = "container:Tuist/.build/tuist-derived/GoogleUtilities/GoogleUtilities.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -644,9 +630,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "FD252622598D62F73CC4C46D"
+               BlueprintIdentifier = "2B598F04910F15488C9998AE"
                BuildableName = "GoogleUtilities_GoogleUtilities_Reachability.bundle"
-               BlueprintName = "GoogleUtilities_GoogleUtilities_Reachability"
+               BlueprintName = "GoogleUtilities_GoogleUtilities-Reachability"
                ReferencedContainer = "container:Tuist/.build/tuist-derived/GoogleUtilities/GoogleUtilities.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -658,9 +644,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "2EDFF71815A9F3BB574E897D"
+               BlueprintIdentifier = "72B78008E647BF5B555D350D"
                BuildableName = "GoogleUtilities_GoogleUtilities_UserDefaults.bundle"
-               BlueprintName = "GoogleUtilities_GoogleUtilities_UserDefaults"
+               BlueprintName = "GoogleUtilities_GoogleUtilities-UserDefaults"
                ReferencedContainer = "container:Tuist/.build/tuist-derived/GoogleUtilities/GoogleUtilities.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -1151,20 +1137,6 @@
                BlueprintIdentifier = "8A043024BB190898066F1729"
                BuildableName = "SnapKit.framework"
                BlueprintName = "SnapKit"
-               ReferencedContainer = "container:Tuist/.build/tuist-derived/SnapKit/SnapKit.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "6373C89B0415733128F88C67"
-               BuildableName = "SnapKit_SnapKit.bundle"
-               BlueprintName = "SnapKit_SnapKit"
                ReferencedContainer = "container:Tuist/.build/tuist-derived/SnapKit/SnapKit.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>

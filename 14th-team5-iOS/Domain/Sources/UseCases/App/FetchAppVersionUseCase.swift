@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol FetchAppVersionUseCaseProtocol {
-    func execute() -> Observable<AppVersionEntity?>
+    func execute() -> Observable<AppVersionEntity>
 }
 
 public class FetchAppVersionUseCase: FetchAppVersionUseCaseProtocol {
@@ -25,7 +25,7 @@ public class FetchAppVersionUseCase: FetchAppVersionUseCaseProtocol {
     
     // MARK: - Execute
     
-    public func execute() -> Observable<AppVersionEntity?> {
+    public func execute() -> Observable<AppVersionEntity> {
         appRepository.fetchAppVersion()
     }
     

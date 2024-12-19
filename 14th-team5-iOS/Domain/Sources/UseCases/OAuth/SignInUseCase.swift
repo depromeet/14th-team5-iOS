@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol SignInUseCaseProtocol {
-    func execute(_ type: SignInType, body: NativeSocialLoginRequest) -> Observable<AuthResultEntity?>
+    func execute(_ type: SignInType, body: NativeSocialLoginRequest) -> Observable<AuthResultEntity>
 }
 
 public class SignInUseCase: SignInUseCaseProtocol {
@@ -27,7 +27,7 @@ public class SignInUseCase: SignInUseCaseProtocol {
     public func execute(
         _ type: SignInType,
         body: NativeSocialLoginRequest
-    ) -> Observable<AuthResultEntity?> {
+    ) -> Observable<AuthResultEntity> {
         return oauthRepository.signIn(type, body: body)
     }
 }

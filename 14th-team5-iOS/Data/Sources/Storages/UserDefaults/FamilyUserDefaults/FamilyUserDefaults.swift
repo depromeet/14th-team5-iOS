@@ -88,6 +88,7 @@ final public class FamilyInfoUserDefaults: FamilyInfoUserDefaultsType {
     
     public func loadFamilyId() -> String? {
         guard let familyId: String = userDefaults[.familyId] else {
+            BBLogManager.sendError(message: "not Found FamilyID")
             return nil
         }
         return familyId

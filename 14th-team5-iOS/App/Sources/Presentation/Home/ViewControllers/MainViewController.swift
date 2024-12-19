@@ -30,6 +30,7 @@ final class MainViewController: BBNavigationViewController<MainViewReactor>, UIC
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        BBLogManager.analytics(logType: BBEventAnalyticsLog.viewPage(pageName: .main))
     }
     
     override func bind(reactor: MainViewReactor) {

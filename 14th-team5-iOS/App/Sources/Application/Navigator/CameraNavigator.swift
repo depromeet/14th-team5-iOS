@@ -31,6 +31,7 @@ final class CameraNavigator: CameraNavigatorProtocol {
     func showErrorAlert(_ type: UploadLocation) {
         let confirmHandler: BBAlertActionHandler = makeConfirmHandler(for: type)
         let cancelHandler: BBAlertActionHandler = { [weak self] alert in
+            BBLogManager.analytics(logType: BBEventAnalyticsLog.clickCameraButton(entry: .failedAlertCancle))
             self?.toHome()
             alert?.close()
         }

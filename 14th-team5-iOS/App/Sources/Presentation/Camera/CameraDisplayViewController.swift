@@ -48,6 +48,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     
     public override func viewDidLoad() {
         super.viewDidLoad()
+        BBLogManager.analytics(logType: BBEventAnalyticsLog.viewPage(pageName: .cameraDetail))
     }
     
     //MARK: Configure

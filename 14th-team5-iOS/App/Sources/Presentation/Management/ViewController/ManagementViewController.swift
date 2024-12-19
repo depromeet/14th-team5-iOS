@@ -39,6 +39,12 @@ public final class ManagementViewController: BBNavigationViewController<Manageme
         prepareDatasource()
     }()
     
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+        BBLogManager.analytics(logType: BBEventAnalyticsLog.viewPage(pageName: .familyManagement))
+    }
+    
+    
     // MARK: - Helpers
     
     public override func bind(reactor: ManagementReactor) {

@@ -22,6 +22,42 @@ extension String {
 }
 
 extension String {
+    public func toSnakeCase() -> String {
+        var result = ""
+        var previousStringWasCapitalized = false
+        var previousStringWasNumber = false
+
+        for (index, string) in self.enumerated() {
+            var mutableString = String(string)
+
+            if !mutableString.isAlphabet {
+                if index != 0,
+                   !previousStringWasNumber {
+                    mutableString = "_" + mutableString
+                }
+                previousStringWasNumber = true
+            } else if mutableString == mutableString.uppercased() {
+                mutableString = mutableString.lowercased()
+
+                if index != 0,
+                   !previousStringWasCapitalized {
+                    mutableString = "_" + mutableString
+                }
+                previousStringWasCapitalized = true
+            } else {
+                previousStringWasCapitalized = false
+                previousStringWasNumber = false
+            }
+            result += mutableString
+        }
+        return result
+    }
+    
+    public var isAlphabet: Bool {
+        let alphabetSet = CharacterSet.uppercaseLetters.union(.lowercaseLetters).union(.whitespacesAndNewlines)
+        return self.rangeOfCharacter(from: alphabetSet.inverted) == nil
+    }
+    
     public func toDate(with format: String = "yyyy-MM-dd") -> Date {
         let dateFormatter = DateFormatter.withFormat(format)
         guard let date = dateFormatter.date(from: self) else { return .now }

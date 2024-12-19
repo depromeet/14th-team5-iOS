@@ -29,6 +29,7 @@ final class PostViewController: BaseViewController<PostReactor> {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        BBLogManager.analytics(logType: BBEventAnalyticsLog.viewPage(pageName: .postDetail))
         self.navigationController?.navigationBar.isHidden = true
     }
 

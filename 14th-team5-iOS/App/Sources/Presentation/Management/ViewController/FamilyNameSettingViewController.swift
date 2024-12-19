@@ -24,6 +24,11 @@ final class FamilyNameSettingViewController: BBNavigationViewController<FamilyNa
     private let groupEditerView: JoinFamilyGroupEdtiorView = JoinFamilyGroupEdtiorView()
     
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        BBLogManager.analytics(logType: BBEventAnalyticsLog.viewPage(pageName: .familyGroupNameSetting))
+    }
+    
     //MARK: Configures
     override func setupUI() {
         super.setupUI()
@@ -147,6 +152,7 @@ final class FamilyNameSettingViewController: BBNavigationViewController<FamilyNa
         
         groupConfirmButton.rx
             .tap
+            .do { _ in BBLogManager.analytics(logType: BBEventAnalyticsLog.clickFamilyButton(entry: .familyNameSetting))}
             .throttle(RxInterval._100milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.didTapUpdateFamilyGroupNickname(.update) }
             .bind(to: reactor.action)

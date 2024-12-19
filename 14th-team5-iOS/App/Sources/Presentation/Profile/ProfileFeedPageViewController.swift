@@ -84,13 +84,19 @@ extension ProfileFeedPageViewController: ReactorKit.View {
 extension ProfileFeedPageViewController: UIPageViewControllerDelegate, UIPageViewControllerDataSource {
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         guard let index = feedViewControllers.firstIndex(of: viewController),
-                      index - 1 >= 0 else { return nil }
+                      index - 1 >= 0 else {
+            BBLogManager.sendError(error: BBCrashError.indexOutBounds)
+            return nil
+        }
         return feedViewControllers[index - 1]
     }
     
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         guard let index = feedViewControllers.firstIndex(of: viewController),
-                      index + 1 != feedViewControllers.count else { return nil }
+              index + 1 != feedViewControllers.count else {
+            BBLogManager.sendError(error: BBCrashError.indexOutBounds)
+            return nil
+        }
 
         return feedViewControllers[index + 1]
     }
@@ -99,7 +105,10 @@ extension ProfileFeedPageViewController: UIPageViewControllerDelegate, UIPageVie
     func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
         
         guard let currentViewController = pageViewController.viewControllers?.first,
-              let currentIndex = feedViewControllers.firstIndex(of: currentViewController) else { return }
+              let currentIndex = feedViewControllers.firstIndex(of: currentViewController) else {
+            BBLogManager.sendError(error: BBCrashError.indexOutBounds)
+            return
+        }
         reactor?.action.onNext(.updatePageViewController(currentIndex))
     }
     

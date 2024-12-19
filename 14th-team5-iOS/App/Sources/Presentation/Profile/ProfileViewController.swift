@@ -50,6 +50,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     
     public override func viewDidLoad() {
         super.viewDidLoad()
+        BBLogManager.analytics(logType: BBEventAnalyticsLog.viewPage(pageName: .profile))
     }
     
     public override func setupUI() {
@@ -131,6 +132,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         
         profileView.circleButton
             .rx.tap
+            .do { _ in  BBLogManager.analytics(logType: BBEventAnalyticsLog.clickAccountButton(entry: .profileImageEdit))}
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind(onNext: {$0.0.createAlertController()})
@@ -173,6 +175,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .rx.tap
             .withLatestFrom(reactor.state.compactMap { $0.profileMemberEntity?.memberId })
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .do { _ in BBLogManager.analytics(logType: BBEventAnalyticsLog.clickAccountButton(entry: .profileNickNameEdit))}
             .map { Reactor.Action.didTappedProfileEditButton($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)

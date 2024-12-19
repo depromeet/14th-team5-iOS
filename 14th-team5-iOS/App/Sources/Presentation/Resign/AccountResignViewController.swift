@@ -26,6 +26,7 @@ final class AccountResignViewController: BaseViewController<AccountResignViewRea
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        BBLogManager.analytics(logType: BBEventAnalyticsLog.viewPage(pageName: .resign))
     }
     
     override func setupUI() {
@@ -175,6 +176,7 @@ extension AccountResignViewController {
         
         let confirmAction = UIAlertAction(title: "확인", style: .default) { [weak self] _ in
             guard let self else { return }
+            BBLogManager.analytics(logType: BBEventAnalyticsLog.clickAccountButton(entry: .resign))
             self.reactor?.action.onNext(.didTapResignButton)
         }
         

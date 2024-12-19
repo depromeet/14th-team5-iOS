@@ -57,6 +57,11 @@ public final class MonthlyCalendarViewController: BBNavigationViewController<Mon
             .disposed(by: disposeBag)
     }
     
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+        BBLogManager.analytics(logType: BBEventAnalyticsLog.viewPage(pageName: .calendar))
+    }
+    
     public override func setupUI() {
         super.setupUI()
         view.addSubviews(collectionView)
@@ -90,6 +95,7 @@ public final class MonthlyCalendarViewController: BBNavigationViewController<Mon
         
         collectionView.layoutIfNeeded()
         collectionView.scroll(to: IndexPath(item: reactor!.currentState.pageDatasource.first!.items.count - 1, section: 0)) // 다시 리팩토링하기
+        BBLogManager.sendError(message: "Monthly CalendarView Index out of bounds")
     }
 }
 

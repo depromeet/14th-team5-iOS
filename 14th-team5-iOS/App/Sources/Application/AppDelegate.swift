@@ -13,7 +13,6 @@ import UIKit
 import AuthenticationServices
 import Firebase
 import FirebaseCore
-import FirebaseAnalytics
 import FirebaseMessaging
 import KakaoSDKAuth
 import RxKakaoSDKAuth

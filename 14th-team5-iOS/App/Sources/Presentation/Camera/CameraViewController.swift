@@ -60,6 +60,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     
     public override func viewDidLoad() {
         super.viewDidLoad()
+        BBLogManager.analytics(logType: BBEventAnalyticsLog.viewPage(pageName: .camera))
         setupCameraPermission()
     }
     

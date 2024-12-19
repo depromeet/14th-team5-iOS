@@ -140,3 +140,28 @@ extension BBUploadError: LocalizedError {
         }
     }
 }
+
+
+/// Firebase Crashlytics에 사용하는 Error Type입니다.
+public enum BBCrashError: Error {
+    /// 범위에 벗어나는 모든 경우에 발생하는 에러를 의미합니다.
+    case indexOutBounds
+    /// 강제 언래핑 실패할 경우에 발생하는 에러를 의미합니다.
+    case forceUnwrapFailed
+    /// 알 수 없는 에러일 경우 해당 에러를 사용합니다.
+    case unknown
+}
+
+
+extension BBCrashError: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+        case .indexOutBounds:
+            return "Index Out of Bounds Error"
+        case .forceUnwrapFailed:
+            return "Unexpectedly found nil while unwrapping an Optional value"
+        case .unknown:
+            return "Unknown Error"
+        }
+    }
+}

@@ -41,7 +41,6 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
         case .App:
             return [
                 .target(name: "WidgetExtension"),
-                .external(name: "FirebaseAnalytics"),
                 .external(name: "FirebaseMessaging"),
                 .external(name: "Mixpanel"),
                 .external(name: "RxDataSources"),
@@ -68,6 +67,8 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
         case .Core:
             return [
                 .with(.DesignSystem),
+                .external(name: "FirebaseAnalytics", condition: .when(.all)),
+                .external(name: "FirebaseCrashlytics", condition: .when(.all)),
                 .external(name: "SnapKit", condition: .when(.all)),
                 .external(name: "Then", condition: .when(.all)),
                 .external(name: "Kingfisher", condition: .when(.all)),

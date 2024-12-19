@@ -60,6 +60,7 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
         profileButton.rx.tap
             .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
             .withUnretained(self)
+            .do { _ in BBLogManager.analytics(logType: BBEventAnalyticsLog.clickAccountButton(entry: .profileNickNameEdit))}
             .bind(onNext: { $0.0.createAlertController(owner: $0.0) })
             .disposed(by: disposeBag)
         

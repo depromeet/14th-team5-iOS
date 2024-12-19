@@ -19,7 +19,12 @@ public struct ModularFactory {
     var infoPlist: InfoPlist?
     var sources: SourceFilesList?
     var resources: ResourceFileElements?
-    var settings: Settings?
+    var settings: Settings? = .settings(
+        base: [
+            "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
+            "OTHER_LDFLAGS": "$(inherited) -ObjC"
+        ]
+    )
     var entitlements: Entitlements?
     
     
@@ -87,6 +92,7 @@ extension Target {
                 sources: factory.sources,
                 resources: factory.resources,
                 entitlements: factory.entitlements,
+                scripts: [.firebaseInfoByConfiguration, .firebaseCrashlytics],
                 dependencies: factory.dependencies,
                 settings: factory.settings
             )
@@ -109,7 +115,7 @@ extension Target {
             return .target(
                 name: layer.rawValue,
                 destinations: .iOS,
-                product: factory.products.isFramework ? .staticFramework : .framework,
+                product: .staticFramework,
                 bundleId: "com.\(layer.rawValue).project".lowercased(),
                 deploymentTargets: factory.deploymentTargets,
                 infoPlist: factory.infoPlist,
@@ -123,7 +129,7 @@ extension Target {
             return .target(
                 name: layer.rawValue,
                 destinations: .iOS,
-                product: factory.products.isLibrary ? .framework : .staticFramework,
+                product: .staticFramework,
                 bundleId: "com.\(layer.rawValue).project".lowercased(),
                 deploymentTargets: factory.deploymentTargets,
                 infoPlist: factory.infoPlist,

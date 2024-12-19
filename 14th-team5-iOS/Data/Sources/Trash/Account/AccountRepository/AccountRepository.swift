@@ -123,7 +123,7 @@ public final class AccountRepository: AccountImpl {
         App.Repository.member.memberID.accept(memberInfo.memberId)
         App.Repository.member.familyId.accept(memberInfo.familyId)
         App.Repository.member.nickname.accept(memberInfo.name)
-        
+        BBLogManager.setMemberId(memberId: memberInfo.memberId)
         let member: FamilyMemberProfileEntity = FamilyMemberProfileEntity(memberId: memberInfo.memberId, profileImageURL: memberInfo.imageUrl, name: memberInfo.name)
     }
     

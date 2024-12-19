@@ -26,16 +26,19 @@ extension Configuration {
         case .dev:
             return .debug(
                 name: BuildTarget.dev.configurationName,
+                settings: ["DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym"],
                 xcconfig: .relativeToXCConfig(type: .dev)
             )
         case .stg:
             return .release(
                 name: BuildTarget.stg.configurationName,
+                settings: ["DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym"],
                 xcconfig: .relativeToXCConfig(type: .stg)
             )
         case .prd:
             return .release(
                 name: BuildTarget.prd.configurationName,
+                settings: ["DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym"],
                 xcconfig: .relativeToXCConfig(type: .prd)
             )
         }

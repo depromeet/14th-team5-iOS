@@ -77,13 +77,17 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
     
     private func bindInput(reactor: JoinFamilyReactor) {
         makeFamilyButton.rx.tap
-            .do(onNext: { MPEvent.Account.creatGroup.track(with: nil) })
+            .do(onNext: {
+                MPEvent.Account.creatGroup.track(with: nil)
+                BBLogManager.analytics(logType: BBEventAnalyticsLog.clickFamilyButton(entry: .createFamilyGroup))
+            })
             .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind(onNext: { $0.0.newGroupAlertController()})
             .disposed(by: disposeBag)
         
         joinFamilyButton.rx.tap
+            .do { _ in BBLogManager.analytics(logType: BBEventAnalyticsLog.clickFamilyButton(entry: .inviteFamily)) }
             .map { Reactor.Action.joinFamily }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)

@@ -12,8 +12,6 @@ import Domain
 import Data
 import ReactorKit
 
-
-
 public final class PrivacyViewReactor: Reactor {
     public var initialState: State
     @Injected var fetchAppVersionUseCase: FetchAppVersionUseCaseProtocol
@@ -70,17 +68,20 @@ public final class PrivacyViewReactor: Reactor {
                 .just(.setLoading(true)),
                 .merge(
                     fetchAppVersionUseCase.execute()
-                        .asObservable()
                         .withUnretained(self)
                         .flatMap { owner, appVersionEntity -> Observable<Mutation> in
-                            owner.fetchPrivacyItemsUseCase.execute()
-                                .asObservable()
+                            return owner.fetchPrivacyItemsUseCase.execute()
                                 .flatMap { privateInfo -> Observable<Mutation> in
-                                    guard let appVersionEntity = appVersionEntity else { return .empty() }
                                     var sectionItem: [PrivacyItemModel] = []
                                     privateInfo.forEach {
-                                        sectionItem.append(.privacyWithAuthItem(PrivacyCellReactor(descrption: $0, isCheck: appVersionEntity.latest)))
-                                        
+                                        sectionItem.append(
+                                            .privacyWithAuthItem(
+                                                PrivacyCellReactor(
+                                                    descrption: $0,
+                                                    isCheck: appVersionEntity.latest
+                                                )
+                                            )
+                                        )
                                     }
                                     
                                     return .concat(
@@ -88,7 +89,7 @@ public final class PrivacyViewReactor: Reactor {
                                         .just(.setBibbiAppInfo(appVersionEntity))
                                     )
                                 }
-                                
+                            
                         },
                     
                     fetchAuthorizationItemUseCase.execute()

@@ -2,31 +2,31 @@
 //  ResignDIContainer.swift
 //  App
 //
-//  Created by Kim dohyun on 9/12/24.
+//  Created by 김도현 on 11/27/24.
 //
 
 import Core
-import Data
 import Domain
+import Data
+
+import UIKit
 
 
 final class ResignDIContainer: BaseContainer {
-        
-    private func makeResignRepository() -> AccountResignRepositoryProtocol {
-        return AccountResignRepository()
+    private func makeRepository() -> ResignRepositoryProtocol {
+        return ResignRepository()
     }
     
-    private func makeDeleteAccountResignUseCaseProtocol() -> DeleteAccountResignUseCaseProtocol {
-        return DeleteAccountResignUseCase(
-            accountResignRepository: makeResignRepository()
-        )
+    private func makeDeleteMembersUseCase() -> DeleteMembersUseCaseProtocol {
+        return DeleteMembersUseCase(resignRepository: makeRepository())
     }
     
     func registerDependencies() {
-        container.register(type: DeleteAccountResignUseCaseProtocol.self) { _ in
-            makeDeleteAccountResignUseCaseProtocol()
+        container.register(type: DeleteMembersUseCaseProtocol.self) { _ in
+            self.makeDeleteMembersUseCase()
         }
-        
     }
+    
+    
     
 }

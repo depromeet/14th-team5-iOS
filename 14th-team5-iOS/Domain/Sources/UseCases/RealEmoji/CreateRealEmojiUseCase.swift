@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol CreateRealEmojiUseCaseProtocol {
-    func execute(query: CreateReactionQuery, body: CreateReactionRequest) -> Single<Void?>
+    func execute(query: CreateReactionQuery, body: CreateReactionRequest) -> Observable<Void?>
 }
 
 public class CreateRealEmojiUseCase: CreateRealEmojiUseCaseProtocol {
@@ -21,7 +21,7 @@ public class CreateRealEmojiUseCase: CreateRealEmojiUseCaseProtocol {
         self.realEmojiRepository = realEmojiRepository
     }
     
-    public func execute(query: CreateReactionQuery, body: CreateReactionRequest) -> Single<Void?> {
+    public func execute(query: CreateReactionQuery, body: CreateReactionRequest) -> Observable<Void?> {
         return realEmojiRepository.addRealEmoji(query: query, body: body)
     }
 }

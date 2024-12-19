@@ -10,6 +10,6 @@ import Foundation
 import RxSwift
 
 public protocol MainViewRepositoryProtocol {
-    func fetchMain() -> Observable<MainViewEntity?>
-    func fetchMainNight() -> Observable<NightMainViewEntity?>
+    func fetchMain() -> Observable<MainViewEntity>
+    func fetchMainNight() -> Observable<NightMainViewEntity>
 }

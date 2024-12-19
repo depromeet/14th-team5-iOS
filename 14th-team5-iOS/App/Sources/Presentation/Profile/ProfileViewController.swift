@@ -142,6 +142,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
                 guard let userInfo = notification.userInfo else { return nil }
                 return userInfo["selectImage"] as? Data
             }
+            .distinctUntilChanged()
             .map { Reactor.Action.didSelectPHAssetsImage($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -172,8 +173,8 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .rx.tap
             .withLatestFrom(reactor.state.compactMap { $0.profileMemberEntity?.memberId })
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind(onNext: { $0.0.transitionNickNameViewController(memberId: $0.1)})
+            .map { Reactor.Action.didTappedProfileEditButton($0)}
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         reactor.state
@@ -246,25 +247,23 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .rx.tap
             .throttle(.microseconds(300), scheduler: MainScheduler.instance)
             .withLatestFrom(reactor.state.compactMap { $0.profileMemberEntity } )
-            .withUnretained(self)
-            .bind { owner, entity in
-                let profileDetailViewController = ProfileDetailViewControllerWrapper(profileURL: entity.memberImage, userNickname: entity.memberName).makeViewController()
-                owner.navigationController?.pushViewController(profileDetailViewController, animated: false)
-            }.disposed(by: disposeBag)
+            .map { Reactor.Action.didTappedProfileImageView($0.memberImage, $0.memberName)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         
     
         navigationBarView.rx.rightButtonTap
             .withLatestFrom(reactor.state.map { $0.memberId })
-            .withUnretained(self)
-            .bind { owner, memberId in
-                let privacyViewController = PrivacyViewControllerWrapper(memberId: memberId).viewController
-                owner.navigationController?.pushViewController(privacyViewController, animated: true)
-            }.disposed(by: disposeBag)
+            .throttle(.microseconds(300), scheduler: MainScheduler.instance)
+            .map { Reactor.Action.didTappedNavigationButton($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
 }
 
 // 기본 이미지가 true 이고 닉네임 변경 할 경우 redraw
-extension ProfileViewController {    
+extension ProfileViewController {
     private func setupProfileImage(url: URL) {
         let processor = DownsamplingImageProcessor(size: profileView.bounds.size)
         
@@ -287,19 +286,13 @@ extension ProfileViewController {
         ]), for: .normal)
     }
     
-    private func transitionNickNameViewController(memberId: String) {
-        let accountNickNameViewController:AccountNicknameViewController = AccountSignUpDIContainer(memberId: memberId, accountType: .profile).makeNickNameViewController()
-        self.navigationController?.pushViewController(accountNickNameViewController, animated: false)
-    }
-    
     private func createAlertController() {
         let alertController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
         let presentCameraAction: UIAlertAction = UIAlertAction(title: "카메라", style: .default) { _ in
             guard let profileMemberId = self.reactor?.currentState.profileMemberEntity?.memberId else { return }
             
-            let cameraViewController = CameraViewControllerWrapper(cameraType: .profile, memberId: profileMemberId).viewController
-            self.navigationController?.pushViewController(cameraViewController, animated: true)
+            self.reactor?.action.onNext(.didTappedAlertButton(profileMemberId))
         }
         
         let presentAlbumAction: UIAlertAction = UIAlertAction(title: "앨범", style: .default) { _ in
@@ -331,10 +324,11 @@ extension ProfileViewController: PHPickerViewControllerDelegate {
         picker.dismiss(animated: true, completion: nil)
         
         if let imageProvider = itemProvider, imageProvider.canLoadObject(ofClass: UIImage.self) {
-            imageProvider.loadObject(ofClass: UIImage.self) { image, error in
-                guard let photoImage: UIImage = image as? UIImage,
+            imageProvider.loadObject(ofClass: UIImage.self) { [weak self] image, error in
+                guard let self = self,
+                      let photoImage: UIImage = image as? UIImage,
                       let originalData: Data = photoImage.jpegData(compressionQuality: 1.0) else { return }
-                imageProvider.didSelectProfileImageWithProcessing(photo: originalData, error: error)
+                self.reactor?.action.onNext(.didSelectPHAssetsImage(originalData))
             }
             
         }

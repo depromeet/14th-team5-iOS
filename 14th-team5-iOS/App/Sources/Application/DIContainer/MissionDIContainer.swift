@@ -20,6 +20,10 @@ final class MissionDIContainer: BaseContainer {
         return CheckMissionAlertShowUseCase(missionRepository: repository)
     }
     
+    private func makeFetchMissionContentUseCase() -> FetchDailyMissonContentUseCaseProtocol {
+        return FetchDailyMissonContentUseCase(missionRepository: repository)
+    }
+    
     func registerDependencies() {
         container.register(type: FetchMissionContentUseCaseProtocol.self) { _ in
             self.makeMissionUseCase()
@@ -27,6 +31,10 @@ final class MissionDIContainer: BaseContainer {
         
         container.register(type: CheckMissionAlertShowUseCaseProtocol.self) { _ in
             self.makeCheckMissionAlertShowUseCase()
+        }
+        
+        container.register(type: FetchDailyMissonContentUseCaseProtocol.self) { _ in
+            self.makeFetchMissionContentUseCase()
         }
     }
 }

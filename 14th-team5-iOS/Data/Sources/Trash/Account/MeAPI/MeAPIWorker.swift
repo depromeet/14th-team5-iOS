@@ -31,6 +31,7 @@ extension MeAPIs {
 }
 
 extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository, FCMRepositoryProtocol {
+    
     private func saveFcmToken(headers: [APIHeader]?, token: FCMToken) -> Single<Void?> {
         let spec = MeAPIs.saveFcmToken.spec
     

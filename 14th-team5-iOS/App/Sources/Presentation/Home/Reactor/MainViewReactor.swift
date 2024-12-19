@@ -97,7 +97,7 @@ final class MainViewReactor: Reactor {
     
     @Navigator var navigator: MainNavigatorProtocol
     
-    @Injected var pickUseCase: PickUseCaseProtocol
+    @Injected var createPickUseCase: CreateMembersPickUseCaseProtocol
     @Injected var provider: ServiceProviderProtocol
     @Injected var fetchMainUseCase: FetchMainUseCaseProtocol
     @Injected var isFirstWidgetAlertUseCase: IsFirstWidgetAlertUseCaseProtocol
@@ -131,10 +131,7 @@ extension MainViewReactor {
         case .fetchMainUseCase:
             return fetchMainUseCase.execute()
                 .asObservable()
-                .flatMap { result -> Observable<Mutation> in
-                    guard let data = result else {
-                        return Observable.empty()
-                    }
+                .flatMap { data -> Observable<Mutation> in
                     return Observable.concat(
                         .just(.updateMainData(data)),
                         .just(.setBalloonText),
@@ -145,10 +142,7 @@ extension MainViewReactor {
         case .fetchMainNightUseCase:
             return fetchMainNightUseCase.execute()
                 .asObservable()
-                .flatMap { result -> Observable<Mutation> in
-                    guard let data = result else {
-                        return .empty()
-                    }
+                .flatMap { data -> Observable<Mutation> in
                     return .just(.updateMainNight(data))
                 }
         case .setTimer(let isInTime, let time):
@@ -200,7 +194,7 @@ extension MainViewReactor {
             guard let pickedMember = currentState.pickedMember else {
                 return .empty()
             }
-            return pickUseCase.executePickMember(memberId: pickedMember.memberId)
+            return createPickUseCase.execute(memberId: pickedMember.memberId)
                 .compactMap { $0 }
                 .flatMap { response -> Observable<Mutation> in
                     if !response.success {

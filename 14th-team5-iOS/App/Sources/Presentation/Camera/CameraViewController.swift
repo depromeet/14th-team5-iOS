@@ -232,10 +232,10 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         Observable
             .zip(
-                reactor.state.compactMap { $0.feedImageData }.distinctUntilChanged(),
+                reactor.state.compactMap { $0.imageData }.distinctUntilChanged(),
                 reactor.state.compactMap { $0.cameraType }
             )
-            .filter { $0.1.asPostType == .survival }
+            .filter { $0.1 == .survival }
             .withUnretained(self)
             .bind {
                 let cameraDisplayViewController = CameraDisplayViewControllerWrapper(displayData: $0.1.0).viewController
@@ -245,7 +245,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         Observable
             .zip(
-                reactor.state.compactMap { $0.feedImageData }.distinctUntilChanged(),
+                reactor.state.compactMap { $0.imageData }.distinctUntilChanged(),
                 reactor.state.compactMap { $0.missionEntity?.missionContent },
                 reactor.state.map { $0.cameraType.asPostType }
             )
@@ -267,7 +267,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .bind(to: missionView.missionTitleView.rx.text)
             .disposed(by: disposeBag)
         
-        //TODO: Navigation Bar 제약 조건 이슈
+
         reactor.pulse(\.$cameraType)
             .map { $0.setTitle() }
             .observe(on: MainScheduler.instance)
@@ -341,14 +341,14 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         
         reactor.state
-            .map { ($0.accountImage, $0.profileImageURLEntity, $0.memberId)}
-            .filter { $0.0 != nil }
-            .withUnretained(self)
-            .subscribe(onNext: { (owner, originEntity) in
-                let userInfo: [AnyHashable: Any] = ["presignedURL": originEntity.1?.imageURL, "originImage": originEntity.0]
+            .map { ($0.imageData, $0.memberPresignedEntity) }
+            .filter { $0.1 != nil}
+            .subscribe(with: self) { owner, arguments in
+                let userInfo: [AnyHashable: Any] = ["presignedURL": arguments.1?.imageURL, "originImage": arguments.0]
                 NotificationCenter.default.post(name: .AccountViewPresignURLDismissNotification, object: nil, userInfo: userInfo)
                 owner.dismissCameraViewController()
-            }).disposed(by: disposeBag)
+            }
+            .disposed(by: disposeBag)
         
         
         realEmojiCollectionView

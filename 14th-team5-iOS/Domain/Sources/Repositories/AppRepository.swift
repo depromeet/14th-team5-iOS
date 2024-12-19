@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol AppRepositoryProtocol {
-    func fetchAppVersion() -> Observable<AppVersionEntity?>
+    func fetchAppVersion() -> Observable<AppVersionEntity>
     
     func loadIsFirstFamilyManagement() -> Observable<Bool?>
     func saveIsFirstFamilyManagement(isFirst: Bool) -> Void

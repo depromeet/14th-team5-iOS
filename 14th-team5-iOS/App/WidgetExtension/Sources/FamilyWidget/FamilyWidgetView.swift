@@ -153,7 +153,7 @@ struct FamilyWidgetView: View {
     }
     
     // MARK: 가족중 일부가 사진을 올렸을 때 뷰
-    private func getPhotoView(info: RecentFamilyPostEntity) -> some View {
+    private func getPhotoView(info: WidgetPostEntity) -> some View {
         ZStack {
             if let postImageUrl = info.postImageUrl {
                 

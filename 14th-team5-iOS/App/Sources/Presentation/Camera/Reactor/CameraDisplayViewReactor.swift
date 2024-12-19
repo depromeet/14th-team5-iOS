@@ -17,9 +17,8 @@ public final class CameraDisplayViewReactor: Reactor {
     
     public var initialState: State
     @Injected private var provider: ServiceProviderProtocol
-    @Injected private var createPresignedCameraUseCase: CreateCameraUseCaseProtocol
-    @Injected private var uploadImageUseCase: FetchCameraUploadImageUseCaseProtocol
-    @Injected private var fetchCameraImageUseCase: CreateCameraImageUseCaseProtocol
+    @Injected private var createPostUseCase: CreatePostUseCaseProtocol
+    @Injected private var createPresignedURLUseCase: CreatePresignedURLUseCaseProtocol
     @Navigator private var cameraDisplayNavigator: CameraDisplayNavigatorProtocol
     
     public enum Action {
@@ -40,9 +39,8 @@ public final class CameraDisplayViewReactor: Reactor {
         case saveDeviceimage(Data)
         case setDescription(String)
         case setTrimedText(String)
-        case setDisplayEntity(CameraPreSignedEntity?)
+        case setDisplayEntity(CreatePostPresignedURLEntity?)
         case setDisplayOriginalEntity(Bool)
-        case setPostEntity(CameraPostEntity?)
     }
     
     public struct State {
@@ -53,9 +51,8 @@ public final class CameraDisplayViewReactor: Reactor {
         @Pulse var displayData: Data
         @Pulse var missionTitle: String
         @Pulse var displaySection: [DisplayEditSectionModel]
-        @Pulse var displayEntity: CameraPreSignedEntity?
+        @Pulse var displayEntity: CreatePostPresignedURLEntity?
         @Pulse var displayOringalEntity: Bool
-        @Pulse var displayPostEntity: CameraPostEntity?
         @Pulse var displayText: String
     }
     
@@ -76,7 +73,6 @@ public final class CameraDisplayViewReactor: Reactor {
             displaySection: [.displayKeyword([])],
             displayEntity: nil,
             displayOringalEntity: false,
-            displayPostEntity: nil,
             displayText: ""
         )
     }
@@ -85,49 +81,25 @@ public final class CameraDisplayViewReactor: Reactor {
         switch action {
         case .viewDidLoad:
             let fileName = "\(currentState.displayData.hashValue).jpg"
-            let parameters: CameraDisplayImageParameters = CameraDisplayImageParameters(imageName: "\(fileName)")
-            
-            return .concat(
-                .just(.setLoading(false)),
-                .just(.setError(false)),
-                .just(.setRenderImage(currentState.displayData)),
-                createPresignedCameraUseCase.execute(parameter: parameters)
-                    .asObservable()
-                    .withUnretained(self)
-                    .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
-                    .asObservable()
-                    .flatMap { owner, entity -> Observable<CameraDisplayViewReactor.Mutation> in
-                        guard let originalURL = entity?.imageURL else {
-                            return .concat(
-                                .just(.setLoading(true)),
-                                .just(.setError(true))
-                            )
-                        }
-                        return owner.uploadImageUseCase.execute(to: originalURL, from: owner.currentState.displayData)
-                            .subscribe(on: ConcurrentDispatchQueueScheduler.init(qos: .background))
-                            .asObservable()
-                            .flatMap { isSuccess -> Observable<CameraDisplayViewReactor.Mutation> in
-                                if isSuccess {
-                                    return .concat(
-                                        .just(.setDisplayEntity(entity)),
-                                        .just(.setDisplayOriginalEntity(isSuccess)),
-                                        .just(.setLoading(true)),
-                                        .just(.setError(false))
-                                    )
-                                } else {
-                                    return .concat(
-                                        .just(.setLoading(true)),
-                                        .just(.setError(true))
-                                    )
-                                }
-                            }
-                    }
-            )
+            let body = CreatePostPresignedURLRequest(imageName: fileName)
+            return createPresignedURLUseCase.execute(body: body, imageData: currentState.displayData)
+                .flatMap { presingedURL -> Observable<Mutation> in
+                    return .concat(
+                        .just(.setLoading(false)),
+                        .just(.setDisplayEntity(presingedURL)),
+                        .just(.setError(false)),
+                        .just(.setLoading(true))
+                    )
+                }.catchError(with: self) { owner, _ in
+                    owner.cameraDisplayNavigator.showErrorAlert()
+                    return .empty()
+                }
+ 
         case let .fetchDisplayImage(description):
             return .concat(
                 Observable.of(Array(description))
                     .map { String($0) }
-                    .flatMap { items -> Observable<CameraDisplayViewReactor.Mutation> in
+                    .flatMap { items -> Observable<Mutation> in
                         var sectionItem: [DisplayEditItemModel] = []
                         
                         items.forEach {
@@ -160,33 +132,27 @@ public final class CameraDisplayViewReactor: Reactor {
             MPEvent.Camera.uploadPhoto.track(with: nil)
             
             guard let presingedURL = currentState.displayEntity?.imageURL else { return .just(.setError(true)) }
-            let originURL = configureOriginalS3URL(url: presingedURL)
-            let cameraQuery = CameraMissionFeedQuery(type: currentState.cameraType.rawValue, isUploded: true)
+            let remoteURL = configureOriginalS3URL(url: presingedURL)
             
-            let parameters: CameraDisplayPostParameters = CameraDisplayPostParameters(
-                imageUrl: originURL,
-                content: currentState.displayDescrption,
-                uploadTime: DateFormatter.yyyyMMddTHHmmssXXX.string(from: Date())
-            )
-            
-            return fetchCameraImageUseCase.execute(parameter: parameters, query: cameraQuery)
-                .asObservable()
-                .catchAndReturn(nil)
+            let query = CreatePostQuery(type: currentState.cameraType.rawValue)
+            let body = CreatePostRequest(imageUrl: remoteURL, content: currentState.displayDescrption, uploadTime: DateFormatter.yyyyMMddTHHmmssXXX.string(from: .now))
+        
+            return createPostUseCase.execute(query: query, body: body)
                 .withUnretained(self)
-                .flatMap { owner, entity -> Observable<CameraDisplayViewReactor.Mutation> in
+                .flatMap { owner, entity -> Observable<Mutation> in
                     if entity == nil  {
                         return .just(.setError(true))
                     } else {
                         owner.cameraDisplayNavigator.toHome()
                         return .concat(
-                            .just(.setLoading(false)),
-                            .just(.setPostEntity(entity)),
-                            .just(.setLoading(true)),
                             .just(.setError(false)),
                             owner.provider.mainService.refreshMain()
                                 .flatMap { _ in Observable<Mutation>.empty() }
                         )
                     }
+                }.catchError(with: self) { owner, _ in
+                    owner.cameraDisplayNavigator.showErrorAlert()
+                    return .empty()
                 }
         case .hideDisplayEditCell:
             return .concat(
@@ -237,8 +203,6 @@ public final class CameraDisplayViewReactor: Reactor {
             newState.displayEntity = entity
         case let .setDisplayOriginalEntity(entity):
             newState.displayOringalEntity = entity
-        case let .setPostEntity(entity):
-            newState.displayPostEntity = entity
         case let .setError(isError):
             newState.isError = isError
         case let .setTrimedText(displayText):

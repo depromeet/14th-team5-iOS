@@ -68,10 +68,9 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
             .compactMap { notification -> (String, Data)? in
                 guard let userInfo = notification.userInfo,
                       let presignedURL = userInfo["presignedURL"] as? String,
-                      let originImage = userInfo["originImage"] as? Data else { return nil
-                }
-                
-                return (presignedURL, originImage)
+                      let originalImage = userInfo["originImage"] as? Data else { return nil
+                    }
+                return (presignedURL, originalImage)
             }
             .map { Reactor.Action.profilePresignedURL($0.0, $0.1)}
             .bind(to: reactor.action)
@@ -207,7 +206,7 @@ extension AccountProfileViewController {
     private func createAlertController(owner: AccountProfileViewController) {
         let alertController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         let presentCameraAction: UIAlertAction = UIAlertAction(title: "카메라", style: .default) { _ in
-            let cameraViewController = CameraViewControllerWrapper(cameraType: .profile).viewController
+            let cameraViewController = CameraViewControllerWrapper(cameraType: .account).viewController
             owner.navigationController?.pushViewController(cameraViewController, animated: true)
         }
         let presentAlbumAction: UIAlertAction = UIAlertAction(title: "앨범", style: .default) { _ in

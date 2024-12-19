@@ -68,16 +68,6 @@ extension AccountAPIWorker {
             .asSingle()
     }
     
-    func updateProfileNickName(accessToken: String, memberId: String, parameter: Encodable) -> Single<AccountNickNameEditDTO?> {
-        let spec = AccountAPIs.profileNickNameEdit(memberId).spec
-        
-        return request(spec: spec, headers: [BibbiAPI.Header.xAppKey, BibbiAPI.Header.xAuthToken(accessToken), BibbiAPI.Header.acceptJson], jsonEncodable: parameter)
-            .subscribe(on: Self.queue)
-            .map(AccountNickNameEditDTO.self)
-            .catchAndReturn(nil)
-            .asSingle()
-    }
-    
     func accountRefreshToken(parameter: Encodable) -> Single<AccountRefreshDTO?> {
         let spec = AccountAPIs.refreshToken.spec
         print("RefreshToken: \(parameter)")

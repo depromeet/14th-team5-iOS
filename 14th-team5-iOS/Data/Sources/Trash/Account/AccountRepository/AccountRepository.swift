@@ -23,10 +23,7 @@ public protocol AccountImpl: AnyObject {
     
     func kakaoLogin(with snsType: SNS, vc: UIViewController) -> Observable<APIResult>
     func appleLogin(with snsType: SNS, vc: UIViewController) -> Observable<APIResult>
-    func executeNicknameUpdate(memberId: String, parameter: AccountNickNameEditParameter) -> Observable<AccountNickNameEditResponse>
     func signUp(name: String, date: String, photoURL: String?) -> Observable<AccessTokenResponse?>
-    func executePresignedImageURLCreate(parameter: CameraDisplayImageParameters) -> Observable<CameraPreSignedEntity?>
-    func executeProfileImageUpload(to url: String, data: Data) -> Observable<Bool>
 }
 
 public final class AccountRepository: AccountImpl {
@@ -118,22 +115,6 @@ public final class AccountRepository: AccountImpl {
         }
     }
     
-    public func executeNicknameUpdate(memberId: String, parameter: AccountNickNameEditParameter) -> Observable<AccountNickNameEditResponse> {
-        return apiWorker.updateProfileNickName(accessToken: accessToken, memberId: memberId, parameter: parameter)
-            .compactMap { $0?.toDomain() }
-            .asObservable()
-    }
-    
-    public func executePresignedImageURLCreate(parameter: CameraDisplayImageParameters) -> Observable<CameraPreSignedEntity?> {
-        return profileWorker.createProfileImagePresingedURL(parameters: parameter)
-            .compactMap { $0?.toDomain() }
-            .asObservable()
-    }
-    
-    public func executeProfileImageUpload(to url: String, data: Data) -> Observable<Bool> {
-        return profileWorker.uploadToProfilePresingedURL(toURL: url, with: data)
-            .asObservable()
-    }
     
     private func saveMemberInfo(_ memberInfo: MemberInfo?) {
         

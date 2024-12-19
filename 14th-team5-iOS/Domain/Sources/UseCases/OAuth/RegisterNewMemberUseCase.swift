@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol RegisterNewMemberUseCaseProtocol {
-    func execute(body: CreateNewMemberRequest) -> Observable<AuthResultEntity?>
+    func execute(body: CreateNewMemberRequest) -> Observable<AuthResultEntity>
 }
 
 public class RegisterNewMemberUseCase: RegisterNewMemberUseCaseProtocol {
@@ -24,7 +24,7 @@ public class RegisterNewMemberUseCase: RegisterNewMemberUseCaseProtocol {
     }
     
     // MARK: - Execute
-    public func execute(body: CreateNewMemberRequest) -> Observable<AuthResultEntity?> {
+    public func execute(body: CreateNewMemberRequest) -> Observable<AuthResultEntity> {
         return oauthRepository.registerNewMember(body: body)
     }
 }

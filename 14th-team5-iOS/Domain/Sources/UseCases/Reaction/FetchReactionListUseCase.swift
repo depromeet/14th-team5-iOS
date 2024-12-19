@@ -10,7 +10,9 @@ import Foundation
 import RxSwift
 
 public protocol FetchReactionListUseCaseProtocol {
-    func execute(query: FetchReactionQuery) -> Single<[EmojiEntity]?>
+    func execute(
+        query: FetchReactionQuery
+    ) -> Observable<[EmojiEntity]?>
 }
 
 public final class FetchReactionListUseCase: FetchReactionListUseCaseProtocol {
@@ -20,7 +22,9 @@ public final class FetchReactionListUseCase: FetchReactionListUseCaseProtocol {
         self.reactionRepository = reactionRepository
     }
     
-    public func execute(query: FetchReactionQuery) -> Single<[EmojiEntity]?> {
+    public func execute(
+        query: FetchReactionQuery
+    ) -> Observable<[EmojiEntity]?> {
         return reactionRepository.fetchReaction(query: query)
     }
 }

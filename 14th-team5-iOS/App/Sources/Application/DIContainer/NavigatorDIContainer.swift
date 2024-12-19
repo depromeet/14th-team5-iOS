@@ -59,6 +59,18 @@ final class NavigatorDIContainer: BaseContainer {
             )
         }
         
+        container.register(type: ProfileNavigatorProtocol.self) { _ in
+            ProfileNavigator(
+                navigationController: makeUINavigationController()
+            )
+        }
+        
+        container.register(type: CameraNavigatorProtocol.self) { _ in
+            CameraNavigator(
+                navigationController: makeUINavigationController()
+            )
+        }
+        
         container.register(type: MonthlyCalendarNavigatorProtocol.self) { _ in
             MonthlyCalendarNavigator(
                 navigationController: makeUINavigationController()

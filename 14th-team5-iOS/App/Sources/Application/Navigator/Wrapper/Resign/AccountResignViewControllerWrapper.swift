@@ -9,7 +9,7 @@ import Core
 import Foundation
 import MacrosInterface
 
-@Wrapper<AccountResignViewReactor, AccountResignViewCotroller>
+@Wrapper<AccountResignViewReactor, AccountResignViewController>
 final class AccountResignViewControllerWrapper {
     
     func makeReactor() -> AccountResignViewReactor {

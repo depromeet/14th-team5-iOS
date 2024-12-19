@@ -10,9 +10,9 @@ import Foundation
 import RxSwift
 
 public protocol OAuthRepositoryProtocol {
-    func refreshAccessToken(body: RefreshAccessTokenRequest) -> Observable<AuthResultEntity?>
-    func registerNewMember(body: CreateNewMemberRequest) -> Observable<AuthResultEntity?>
-    func signIn(_ type: SignInType, body: NativeSocialLoginRequest) -> Observable<AuthResultEntity?>
-    func registerNewFCMToken(body: AddFCMTokenRequest) -> Observable<DefaultEntity?>
-    func deleteFCMToken() -> Observable<DefaultEntity?>
+    func refreshAccessToken(body: RefreshAccessTokenRequest) -> Observable<AuthResultEntity>
+    func registerNewMember(body: CreateNewMemberRequest) -> Observable<AuthResultEntity>
+    func signIn(_ type: SignInType, body: NativeSocialLoginRequest) -> Observable<AuthResultEntity>
+    func registerNewFCMToken(body: AddFCMTokenRequest) -> Observable<DefaultEntity>
+    func deleteFCMToken() -> Observable<DefaultEntity>
 }

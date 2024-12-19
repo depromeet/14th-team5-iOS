@@ -13,60 +13,64 @@ import ReactorKit
 import RxSwift
 
 final class AccountResignViewReactor: Reactor {
-    @Injected var deleteAccountResignUseCase: DeleteAccountResignUseCaseProtocol
+    @Navigator var resignNavigator: AccountResignNavigatorProtocol
+    @Injected var deleteAccountResignUseCase: DeleteMembersUseCaseProtocol
     @Injected var updateIsFirstOnboardingUseCase: UpdateIsFirstOnboardingUseCaseProtocol
+    @Injected var fetchMyMemberIdUseCase: FetchMyMemberIdUseCaseProtocol
     var initialState: State
     
     enum Action {
         case viewDidLoad
-        case didTapCheckButton(Bool)
+        case didTappedReasonButton(ReasonType)
         case didTapResignButton
     }
     
     enum Mutation {
-        case setLoading(Bool)
-        case setSelect(Bool)
-        case setResignEntity(Bool)
+        case setReasonItems([ResignReasonTableViewCellReactor])
+        case setSelected(ReasonType)
     }
     
     struct State {
-        var isLoading: Bool
-        var isSeleced: Bool
-        var isSuccess: Bool
+        @Pulse var reasonSectionModel: [AccountResignSectionModel]
+        var reasonType: ReasonType
     }
     
     init() {
         self.initialState = State(
-            isLoading: false,
-            isSeleced: false,
-            isSuccess: false
+            reasonSectionModel: [],
+            reasonType: .none
         )
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewDidLoad:
-            return .concat(
-                .just(.setLoading(true)),
-                .just(.setLoading(false))
-            )
             
-        case let .didTapCheckButton(isSelected):
-            return .just(.setSelect(isSelected))
+            let reasonReactor = ReasonType.allCases.map { ResignReasonTableViewCellReactor(reasonType: $0) }
+            
+            return .just(.setReasonItems(reasonReactor))
+            
+        case let .didTappedReasonButton(reasonType):
+            return .just(.setSelected(reasonType))
+            
+            
         case .didTapResignButton:
             MPEvent.Account.withdrawl.track(with: nil)
-            return deleteAccountResignUseCase.execute()
-                .asObservable()
+            
+            guard let memberId = fetchMyMemberIdUseCase.execute() else {
+                resignNavigator.showErrorToast()
+                return .empty()
+            }
+            
+            return deleteAccountResignUseCase.execute(memberId: memberId)
                 .compactMap { $0 }
                 .withUnretained(self)
                 .flatMap { owner, entity -> Observable<Mutation> in
                     if entity.isSuccess {
                         owner.updateIsFirstOnboardingUseCase.execute(false)
-                        return .concat(
-                            .just(.setLoading(true)),
-                            .just(.setResignEntity(entity.isSuccess)),
-                            .just(.setLoading(false))
-                        )
+                        App.Repository.token.clearAccessToken()
+                        owner.resignNavigator.toSignIn()
+                        return .empty()
                     }
                     return .empty()
                 }
@@ -77,12 +81,11 @@ final class AccountResignViewReactor: Reactor {
         var newState = state
         
         switch mutation {
-        case let .setLoading(isLoading):
-            newState.isLoading = isLoading
-        case let .setSelect(isSelected):
-            newState.isSeleced = isSelected
-        case let .setResignEntity(isSuccess):
-            newState.isSuccess = isSuccess
+        case let .setSelected(reasonType):
+            newState.reasonType = reasonType
+        case let .setReasonItems(items):
+            let dataSource = AccountResignSectionModel(model: (), items: items)
+            newState.reasonSectionModel = [dataSource]
         }
         
         return newState

@@ -10,7 +10,7 @@ import Foundation
 import Domain
 
 
-struct MembersProfileResponseDTO: Decodable {
+public struct MembersProfileResponseDTO: Decodable {
     let memberId: String
     let name: String
     let imageUrl: String?
@@ -21,7 +21,7 @@ struct MembersProfileResponseDTO: Decodable {
 
 extension MembersProfileResponseDTO {
     //MARK: 프로필 정보 Entity
-    func toDomain() -> MembersProfileEntity {
+    public func toDomain() -> MembersProfileEntity {
         return .init(
             memberId: memberId,
             memberName: name,

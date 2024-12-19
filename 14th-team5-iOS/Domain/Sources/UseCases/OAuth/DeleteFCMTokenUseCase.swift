@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol DeleteFCMTokenUseCaseProtocol {
-    func execute() -> Observable<DefaultEntity?>
+    func execute() -> Observable<DefaultEntity>
 }
 
 public class DeleteFCMTokenUseCase: DeleteFCMTokenUseCaseProtocol {
@@ -24,7 +24,7 @@ public class DeleteFCMTokenUseCase: DeleteFCMTokenUseCaseProtocol {
     }
     
     // MARK: - Execute
-    public func execute() -> Observable<DefaultEntity?> {
+    public func execute() -> Observable<DefaultEntity> {
         return oauthRepository.deleteFCMToken()
     }
 }

@@ -68,13 +68,6 @@ public final class SplashViewController: BaseViewController<SplashReactor> {
             .bind(onNext: { $0.0.openAppStore() })
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$memberInfo)
-            .skip(1)
-            .withUnretained(self)
-            .observe(on: RxSchedulers.main)
-            .bind(onNext: { $0.0.showNextPage(with: $0.1)})
-            .disposed(by: disposeBag)
-        
         reactor.pulse(\.$updatedNeeded)
             .skip(1)
             .filter { $0 == nil }
@@ -88,28 +81,6 @@ public final class SplashViewController: BaseViewController<SplashReactor> {
         let appStoreURL = URLTypes.appStore.originURL
         if UIApplication.shared.canOpenURL(appStoreURL) {
             UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)
-        }
-    }
-    
-    private func showNextPage(with member: MemberInfo?) {
-        @Navigator var splashNavigator: SplashNavigatorProtocol
-        print("memberId: \(member)")
-        guard let member = member else {
-            splashNavigator.toSignIn()
-            return
-        }
-        print("member FamilYId: \(member.familyId)")
-        if let _ = member.familyId {
-            if UserDefaults.standard.inviteCode != nil {
-                splashNavigator.toJoined()
-            } else {
-                splashNavigator.toHome()
-                return
-            }
-            return
-        } else {
-            splashNavigator.toJoinFamily()
-            return
         }
     }
     

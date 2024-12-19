@@ -14,6 +14,8 @@ import RxSwift
 import Data
 
 public final class SplashReactor: Reactor {
+    @Navigator var splashNavigator: SplashNavigatorProtocol
+    
     // MARK: - Action
     public enum Action {
         case viewDidLoad
@@ -33,7 +35,7 @@ public final class SplashReactor: Reactor {
     }
     
     // MARK: - Properties
-    private let meRepository = MeUseCase(meRepository: MeAPIs.Worker()) // TODO: - Injected로 수정하기
+    private let meRepository: MeUseCaseProtocol = MeUseCase(meRepository: MeAPIs.Worker()) // TODO: - Injected로 수정하기
     @Injected var familyUseCase: FamilyUseCaseProtocol
     
     @Injected var fetchFamilyCreatedAtUseCase: FetchFamilyCreatedAtUseCaseProtocol
@@ -43,14 +45,17 @@ public final class SplashReactor: Reactor {
     // MARK: - Intializer
     init() { }
     
+    deinit {
+        print(#function)
+    }
+    
     // MARK: - Mutate
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewDidLoad:
             return meRepository.getAppVersion()
                     .asObservable()
-                    .flatMap { appVersionInfo in
-                        
+                    .flatMap { [unowned self] appVersionInfo -> Observable<Mutation> in
                         guard let appVersionInfo = appVersionInfo else {
                             return Observable.just(Mutation.setUpdateNeeded(nil))
                         }
@@ -61,25 +66,34 @@ public final class SplashReactor: Reactor {
                             App.Repository.token.accessToken
                                 .flatMap { token -> Observable<Mutation> in
                                     guard let _ = token else {
+                                        self.splashNavigator.toSignIn()
                                         return Observable.just(Mutation.setMemberInfo(nil))
                                     }
                                     
                                     return self.meRepository.getMemberInfo()
                                         .asObservable()
-                                        .withUnretained(self)
-                                        .flatMap { owner, memberInfo in
+                                        .flatMap { memberInfo -> Observable<Mutation> in
                                             guard let memberInfo = memberInfo,
-                                                  let familyId = memberInfo.familyId else {
+                                                  let _ = memberInfo.familyId else {
+                                                self.splashNavigator.toSignIn()
                                                 return Observable.just(Mutation.setMemberInfo(nil))
                                             }
                                             
-                                            return owner.fetchFamilyCreatedAtUseCase.execute()
-                                                .withUnretained(self)
-                                                .flatMap {
-                                                    guard
-                                                        let createdAt = $0.1
-                                                    else { return Observable<Mutation>.just(.setMemberInfo(nil)) }
-                                                    return Observable<Mutation>.just(.setMemberInfo(memberInfo))
+                                            return self.fetchFamilyCreatedAtUseCase.execute()
+                                                .flatMap { familyInfo -> Observable<Mutation> in
+                                                    
+                                                    if memberInfo.familyId != nil {
+                                                        if UserDefaults.standard.inviteCode != nil {
+                                                            self.splashNavigator.toJoined()
+                                                            return .just(.setMemberInfo(memberInfo))
+                                                        } else {
+                                                            self.splashNavigator.toHome()
+                                                            return .just(.setMemberInfo(nil))
+                                                        }
+                                                    }
+                                                    
+                                                    self.splashNavigator.toJoinFamily()
+                                                    return .just(.setMemberInfo(memberInfo))
                                                 }
                                         }
                                 }

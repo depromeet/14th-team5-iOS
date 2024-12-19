@@ -110,3 +110,33 @@ extension BBNetworkError: LocalizedError {
         }
     }
 }
+
+
+public enum BBUploadError: Error {
+    case fileNotFound
+    case fileCorrupted
+    case unauthorized
+    case timeout
+    case invalidServerResponse
+    case uploadFailed
+}
+
+
+extension BBUploadError: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+        case .fileNotFound:
+            return "죄송합니다. 요청한 파일을 찾을 수 없습니다.\n 다시 시도해 주세요"
+        case .fileCorrupted:
+            return "업로드한 이미지 파일이 손상된 것으로 확인되었습니다.\n 다른 파일을 시도하거나 다시 업로드해 주세요."
+        case .unauthorized:
+            return "인증되지 않은 요청입니다.\n 로그인 상태가 유효하지 않거나 인증 토큰이 만료되었을 수 있습니다. 다시 로그인한 후 요청을 시도하세요."
+        case .timeout:
+            return "업로드 요청이 시간 초과되었습니다. 다시 시도해 주세요"
+        case .invalidServerResponse:
+            return "서버에서 잘못된 응답을 받았습니다."
+        case .uploadFailed:
+            return "업로드가 실패했습니다. 다시 시도해 주세요"
+        }
+    }
+}

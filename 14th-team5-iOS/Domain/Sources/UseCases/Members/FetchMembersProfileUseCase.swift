@@ -12,7 +12,7 @@ import RxCocoa
 
 
 public protocol FetchMembersProfileUseCaseProtocol {
-    func execute(memberId: String) -> Single<MembersProfileEntity?>
+    func execute(memberId: String) -> Observable<MembersProfileEntity?>
 }
 
 
@@ -25,7 +25,7 @@ public final class FetchMembersProfileUseCase: FetchMembersProfileUseCaseProtoco
         self.membersRepository = membersRepository
     }
     
-    public func execute(memberId: String) -> Single<MembersProfileEntity?> {
-        return membersRepository.fetchProfileMemberItems(memberId: memberId)
+    public func execute(memberId: String) -> Observable<MembersProfileEntity?> {
+        return membersRepository.fetchProfileMemberItem(memberId: memberId)
     }
 }

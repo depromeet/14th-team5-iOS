@@ -87,9 +87,9 @@ final public class FamilyInfoUserDefaults: FamilyInfoUserDefaultsType {
     }
     
     public func loadFamilyId() -> String? {
-        guard
-            let familyId: String? = userDefaults[.familyId]
-        else { return nil }
+        guard let familyId: String = userDefaults[.familyId] else {
+            return nil
+        }
         return familyId
     }
     
@@ -116,7 +116,7 @@ final public class FamilyInfoUserDefaults: FamilyInfoUserDefaultsType {
     
     public func loadFamilyName() -> String? {
         guard
-            let familyName: String? = userDefaults[.familyName]
+            let familyName: String = userDefaults[.familyName]
         else { return nil }
         return familyName
     }

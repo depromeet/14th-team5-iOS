@@ -66,13 +66,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             MainViewDIContainer(),
             ReactionDIContainer(),
             RealEmojiDIContainer(),
-            PickDIContainer(),
             MissionDIContainer(),
             MemberDIContainer(),
             MyDIContainer(),
             SignOutDIContainer(),
             PrivacyDIContainer(),
-            ResignDIContainer()
+            PickDICotainer(),
+            ResignDIContainer(),
         ]
         containers.forEach {
             $0.registerDependencies()

@@ -39,17 +39,18 @@ extension BBNetworkDefaultInterceptor: RequestInterceptor {
             return
         }
         
-        guard let authToken: AuthToken = KeychainWrapper.standard.object(forKey: .accessToken) else {
+        guard let authToken: AccessToken = KeychainWrapper.standard.object(forKey: .accessToken),
+              let refreshToken = authToken.refreshToken else {
             completion(.doNotRetry)
             return
         }
         
-        var refreshedAuthToken: AuthToken? = nil
-        refreshAuthToken(authToken.refreshToken) { dataResponse in
+        var refreshedAuthToken: AccessToken? = nil
+        refreshAuthToken(refreshToken) { dataResponse in
             
             switch dataResponse.result {
             case let .success(data):
-                refreshedAuthToken = data?.decode(AuthToken.self)
+                refreshedAuthToken = data?.decode(AccessToken.self)
                 KeychainWrapper.standard.set(refreshedAuthToken, forKey: "accessToken")
                 completion(.retry)
                 

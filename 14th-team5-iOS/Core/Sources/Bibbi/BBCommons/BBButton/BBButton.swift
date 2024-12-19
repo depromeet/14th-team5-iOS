@@ -81,6 +81,7 @@ public class BBButton: UIButton {
             $0.spacing = 4
             $0.distribution = .fillProportionally
             $0.axis = .horizontal
+            $0.isUserInteractionEnabled = false
         }
         
         mainTitleLabel.do {

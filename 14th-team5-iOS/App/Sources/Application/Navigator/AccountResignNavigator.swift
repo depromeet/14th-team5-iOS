@@ -10,6 +10,7 @@ import UIKit
 
 protocol AccountResignNavigatorProtocol: BaseNavigator {
     func toSignIn()
+    func showErrorToast()
 }
 
 
@@ -25,5 +26,9 @@ final class AccountResignNavigator: AccountResignNavigatorProtocol {
     func toSignIn() {
         let vc = SignInViewControllerWrapper().viewController
         navigationController.setViewControllers([vc], animated: false)
+    }
+    
+    func showErrorToast() {
+        BBToast.style(.error).show()
     }
 }

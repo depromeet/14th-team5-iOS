@@ -44,7 +44,6 @@ public final class PrivacyViewController: BaseViewController<PrivacyViewReactor>
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        BBLogManager.analytics(logType: BBEventAnalyticsLog.viewPage(pageName: .setting))
         view.addSubviews(inquiryBannerView, privacyTableView, privacyIndicatorView)
     }
 

@@ -100,7 +100,7 @@ public final class FamilyNameSettingViewReactor: Reactor {
         case let .didTapUpdateFamilyGroupNickname(type):
             let familyName = type == .initial ? nil : currentState.familyGroupNickName
             let updateFamilyBody = UpdateFamilyNameRequest(familyName: familyName)
-            
+            BBLogManager.analytics(logType: BBEventAnalyticsLog.clickFamilyButton(entry: .familyNameSetting))
             return updateFamilyNameUseCase.execute(body: updateFamilyBody)
                 .asObservable()
                 .compactMap { $0 }

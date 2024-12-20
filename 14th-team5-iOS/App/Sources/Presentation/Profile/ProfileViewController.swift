@@ -175,7 +175,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .rx.tap
             .withLatestFrom(reactor.state.compactMap { $0.profileMemberEntity?.memberId })
             .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-            .do { _ in BBLogManager.analytics(logType: BBEventAnalyticsLog.clickAccountButton(entry: .profileNickNameEdit))}
             .map { Reactor.Action.didTappedProfileEditButton($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)

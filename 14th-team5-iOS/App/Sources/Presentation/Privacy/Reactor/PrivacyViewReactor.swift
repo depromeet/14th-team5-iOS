@@ -64,6 +64,7 @@ public final class PrivacyViewReactor: Reactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewDidLoad:
+            BBLogManager.analytics(logType: BBEventAnalyticsLog.viewPage(pageName: .setting))
             return .concat(
                 .just(.setLoading(true)),
                 .merge(

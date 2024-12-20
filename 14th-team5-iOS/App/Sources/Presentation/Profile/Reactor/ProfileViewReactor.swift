@@ -151,6 +151,7 @@ public final class ProfileViewReactor: Reactor {
             profileNavigator.toPrivacy(memberId)
             return .empty()
         case let .didTappedProfileEditButton(memberId):
+            BBLogManager.analytics(logType: BBEventAnalyticsLog.clickAccountButton(entry: .profileNickNameEdit))
             profileNavigator.toAccountNickname(memberId)
             return .empty()
         case let .didTappedAlertButton(memberId):

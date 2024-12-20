@@ -59,8 +59,6 @@ public extension BBEventAnalyticsLog {
     
     enum CameraButtonEntry: String, BBAnalyticsLogParametable {
         case shutter
-        case failedAlertConfirm = "failed_alert_confirm"
-        case failedAlertCancle = "failed_alert_cancle"
     }
     
 }

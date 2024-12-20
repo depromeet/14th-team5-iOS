@@ -29,11 +29,9 @@ final class CameraDisplayNavigator: CameraDisplayNavigatorProtocol {
     func showErrorAlert() {
         let confirmHandler: BBAlertActionHandler = { [weak self] alert in
             self?.toCamera()
-            BBLogManager.analytics(logType: BBEventAnalyticsLog.clickCameraButton(entry: .failedAlertConfirm))
             alert?.close()
         }
         let cancelHandler: BBAlertActionHandler = { [weak self] alert in
-            BBLogManager.analytics(logType: BBEventAnalyticsLog.clickCameraButton(entry: .failedAlertCancle))
             self?.toHome()
             alert?.close()
         }

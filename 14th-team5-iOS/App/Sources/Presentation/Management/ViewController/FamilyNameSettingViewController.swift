@@ -152,7 +152,6 @@ final class FamilyNameSettingViewController: BBNavigationViewController<FamilyNa
         
         groupConfirmButton.rx
             .tap
-            .do { _ in BBLogManager.analytics(logType: BBEventAnalyticsLog.clickFamilyButton(entry: .familyNameSetting))}
             .throttle(RxInterval._100milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.didTapUpdateFamilyGroupNickname(.update) }
             .bind(to: reactor.action)

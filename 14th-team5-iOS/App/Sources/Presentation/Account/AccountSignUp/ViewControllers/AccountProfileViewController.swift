@@ -229,10 +229,11 @@ extension AccountProfileViewController: PHPickerViewControllerDelegate {
         let itemProvider = results.first?.itemProvider
         picker.dismiss(animated: true)
         if let imageProvider = itemProvider, imageProvider.canLoadObject(ofClass: UIImage.self) {
-            imageProvider.loadObject(ofClass: UIImage.self) { image, error in
-                guard let photoImage: UIImage = image as? UIImage,
+            imageProvider.loadObject(ofClass: UIImage.self) { [weak self] image, error in
+                guard let self = self,
+                      let photoImage: UIImage = image as? UIImage,
                       let originalData: Data = photoImage.jpegData(compressionQuality: 1.0) else { return }
-                imageProvider.didSelectProfileImageWithProcessing(photo: originalData, error: error)
+                self.reactor?.action.onNext(.didTapPHAssetsImage(originalData))
             }
         }
     }

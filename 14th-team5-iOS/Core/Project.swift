@@ -13,7 +13,12 @@ private let targets: [Target] = [
         layer: .Core,
         factory: .init(
             products: .framework(.static),
-            dependencies: ModuleLayer.Core.dependencies
+            dependencies: ModuleLayer.Core.dependencies,
+            settings: .settings(
+                base: [
+                    "EXCLUDED_ARCHS[sdk=iphonesimulator*]": "arm64"
+                ]
+            )
         )
     )
 ]

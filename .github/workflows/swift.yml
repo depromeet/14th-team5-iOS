@@ -61,7 +61,10 @@ jobs:
 
       - name: Tuist Generate Commnad
         run: tuist generate
-        
+
+      - name: Clean Derived Data
+        run: rm -rf ~/Library/Developer/Xcode/DerivedData
+                
       - name: fastlane upload_prd_testflight
         if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release') }}
         env:

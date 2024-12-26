@@ -97,7 +97,7 @@ platform :ios do
           "com.5ing.bibbi.widget" => "match AppStore com.5ing.bibbi.widget"
         }
       },
-      xcargs: "EXCLUDED_ARCHS='arm64'"
+      xcargs: "arch=x86_64"
     )
 
     upload_to_testflight(skip_waiting_for_build_processing: true)
@@ -107,8 +107,8 @@ platform :ios do
       message: "⭐️ 테스트 플라이트 업로드 성공",
       channel: "#알림-ios-배포",
       slack_url: "#{SLACK_HOOK_URL}",
-      username: "대신 배포해주는 고양이",
-      icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
+      username: "Bibbi bot",
+      icon_url: "https://avatars.githubusercontent.com/u/160627812?s=200&v=4",
       payload: {
         "Build Date" => Time.new.to_s,
       },
@@ -210,8 +210,8 @@ platform :ios do
       message: "⭐️ 테스트 플라이트 업로드 성공",
       channel: "#알림-ios-배포",
       slack_url: "#{SLACK_HOOK_URL}",
-      username: "대신 배포해주는 고양이",
-      icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
+      username: "Bibbi bot",
+      icon_url: "https://avatars.githubusercontent.com/u/160627812?s=200&v=4",
       payload: {
         "Build Date" => Time.new.to_s,
       },
@@ -359,8 +359,8 @@ platform :ios do
       message: "❗️ 테스트 플라이트 업로드 실패",
       channel: "#알림-ios-배포",
       slack_url: "#{SLACK_HOOK_URL}",
-      username: "대신 배포해주는 고양이",
-      icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
+      username: "Bibbi bot",
+      icon_url: "https://avatars.githubusercontent.com/u/160627812?s=200&v=4",
       success: false,
       attachment_properties: {
         fields: [

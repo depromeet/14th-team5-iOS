@@ -23,7 +23,7 @@ let package = Package(
         .package(url: "https://github.com/ReactiveX/RxSwift.git", from: "6.6.0"),
         .package(url: "https://github.com/SnapKit/SnapKit.git", from: "5.6.0"),
         .package(url: "https://github.com/devxoul/Then.git", from: "3.0.0"),
-        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", from: "10.24.0"),
+        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", from: "10.25.0"),
         .package(url: "https://github.com/RxSwiftCommunity/RxDataSources.git", from: "5.0.0"),
         .package(url: "https://github.com/kakao/kakao-ios-sdk.git", from: "2.22.0"),
         .package(url: "https://github.com/kakao/kakao-ios-sdk-rx.git", from: "2.22.0"),

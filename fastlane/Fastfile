@@ -96,7 +96,7 @@ platform :ios do
           "com.5ing.bibbi" => "match AppStore com.5ing.bibbi",
           "com.5ing.bibbi.widget" => "match AppStore com.5ing.bibbi.widget"
         }
-      }
+      },
       xcargs: "EXCLUDED_ARCHS='arm64'"
     )
 

@@ -18,6 +18,8 @@ extension TargetDependency {
             return .project(target: moduleName, path: .relativeToRoot("14th-team5-iOS/\(moduleName)"))
         case .Domain:
             return .project(target: moduleName, path: .relativeToRoot("14th-team5-iOS/\(moduleName)"))
+        case .Util:
+            return .project(target: moduleName, path: .relativeToRoot("14th-team5-iOS/\(moduleName)"))
         case .Core:
             return .project(target: moduleName, path: .relativeToRoot("14th-team5-iOS/\(moduleName)"))
         case .DesignSystem:

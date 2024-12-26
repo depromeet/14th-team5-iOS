@@ -7,6 +7,7 @@
 
 import Foundation
 import Mixpanel
+import Core
 
 // MARK: Mixpanel Protocol
 protocol MixpanelTrackable {

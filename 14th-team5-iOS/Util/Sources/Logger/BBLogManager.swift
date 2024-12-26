@@ -7,6 +7,7 @@
 
 import FirebaseCrashlytics
 import FirebaseAnalytics
+import Core
 
 
 public enum BBLogManager {

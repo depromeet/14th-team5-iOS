@@ -9,6 +9,7 @@ import Foundation
 
 import Core
 import Domain
+import Util
 
 
 public protocol FamilyInfoUserDefaultsType: UserDefaultsType {

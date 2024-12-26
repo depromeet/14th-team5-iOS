@@ -8,6 +8,7 @@
 import UIKit
 
 import Core
+import Util
 import DesignSystem
 import Kingfisher
 import PhotosUI
@@ -50,6 +51,11 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     
     public override func viewDidLoad() {
         super.viewDidLoad()
+        do {
+            throw NSError(domain: "에러 테스트", code: 1234)
+        } catch {
+            BBLogManager.sendError(error: error)
+        }
         BBLogManager.analytics(logType: BBEventAnalyticsLog.viewPage(pageName: .profile))
     }
     

@@ -92,7 +92,7 @@ extension Target {
                 sources: factory.sources,
                 resources: factory.resources,
                 entitlements: factory.entitlements,
-                scripts: [.firebaseInfoByConfiguration, .firebaseCrashlytics],
+                scripts: [.firebaseCrashlytics],
                 dependencies: factory.dependencies,
                 settings: factory.settings
             )

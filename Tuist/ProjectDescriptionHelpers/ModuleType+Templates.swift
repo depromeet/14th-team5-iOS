@@ -53,8 +53,8 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
             ]
         case .Util:
             return [
-                .external(name: "FirebaseAnalytics", condition: .when(.all)),
-                .external(name: "FirebaseCrashlytics", condition: .when(.all)),
+                .external(name: "FirebaseAnalyticsWithoutAdIdSupport"),
+                .external(name: "FirebaseCrashlytics"),
                 .with(.Core)
             ]
         case .Data:

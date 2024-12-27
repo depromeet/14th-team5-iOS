@@ -14,13 +14,14 @@ on:
   
 jobs:  
   build:
-    runs-on: macos-13
+    runs-on: macos-latest
     strategy:
       matrix:
         xcodebuild-scheme: ['App']
         
     steps:
       - uses: actions/checkout@v3
+      - uses: jdx/mise-action@v2
       - uses: ruby/setup-ruby@v1
         with: 
           ruby-version: '3.2.0'
@@ -29,7 +30,7 @@ jobs:
       - name: Setup Xcode version
         uses: maxim-lobanov/setup-xcode@v1
         with:
-            xcode-version: '15.0'
+            xcode-version: latest-stable
             
       - name: Checkout branch
         uses: actions/checkout@v3
@@ -42,16 +43,10 @@ jobs:
           repository: depromeet/14th-team5-iOS-ignored
           path: depromeet/14th-team5-iOS/14th-team5-iOS/XCConfig
           token: ${{secrets.ACTION_TOKEN}}
-
-      - name: Install Mise
-        run: curl -s https://mise.sh | bash
-
+        
       - name: Install Tuist CLI
-        run: mise install tuist@4.8.1
-
-      - name: Tuist Version Print
-        run: tuist version
-
+        run: brew install tuist
+        
       - name: Install FastLane 
         uses: ruby/setup-ruby@v1
         with:

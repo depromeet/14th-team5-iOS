@@ -64,6 +64,15 @@ jobs:
 
       - name: Clean Derived Data
         run: rm -rf ~/Library/Developer/Xcode/DerivedData
+
+      - name: make Google Service Info
+        run: |
+          echo "${{ secrets.GOOGLE_INFO_PLIST }}" | base64 --decode > ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_PATH }}
+      
+      - name: Verify GoogleService-Info.plist creation
+        run: |
+          ls -l ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_PATH }}
+          cat ${{ secrets.GOOGLE_INFO_PLIST }}
                 
       - name: fastlane upload_prd_testflight
         if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release') }}

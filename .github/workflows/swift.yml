@@ -43,10 +43,16 @@ jobs:
           repository: depromeet/14th-team5-iOS-ignored
           path: depromeet/14th-team5-iOS/14th-team5-iOS/XCConfig
           token: ${{secrets.ACTION_TOKEN}}
-        
+
+      - name: Install Mise
+        run: curl -s https://mise.sh | bash
+
       - name: Install Tuist CLI
-        run: brew install tuist
-        
+        run: mise install tuist@4.8.1
+
+      - name: Tuist Version Print
+        run: tuist --version
+
       - name: Install FastLane 
         uses: ruby/setup-ruby@v1
         with:

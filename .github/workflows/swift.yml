@@ -21,7 +21,6 @@ jobs:
         
     steps:
       - uses: actions/checkout@v3
-      - uses: jdx/mise-action@v2
       - uses: ruby/setup-ruby@v1
         with: 
           ruby-version: '3.2.0'
@@ -51,7 +50,7 @@ jobs:
         run: mise install tuist@4.8.1
 
       - name: Tuist Version Print
-        run: tuist --version
+        run: tuist version
 
       - name: Install FastLane 
         uses: ruby/setup-ruby@v1

@@ -36,6 +36,7 @@ public class BBRecorderManager: NSObject {
     @objc @discardableResult
     public func startRecoding() -> Self {
         print("start recording")
+        recorderCore.audioRecorder.isMeteringEnabled = true
         recorderCore.audioRecorder.record()
         print("session audioRecoder : \(recorderCore.audioRecorder.settings)")
         return self

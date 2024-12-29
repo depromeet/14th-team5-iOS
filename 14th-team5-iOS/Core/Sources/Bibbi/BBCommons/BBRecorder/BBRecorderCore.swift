@@ -14,8 +14,8 @@ open class BBRecorderCore {
     /// FileManager Documents Paths URL 가져오는 Property 입니다.
     public static var getDocumentsPath: URL {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-    
-        return paths[0].appendingPathComponent("bibbi.caf")
+        let fileName = UUID().uuidString+".caf"
+        return paths[0].appendingPathComponent(fileName)
     }
     
     /// `AVAudioRecorder` 생성자 Property 입니다.

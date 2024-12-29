@@ -9,7 +9,7 @@ import AVFoundation
 import UIKit
 
 import Core
-import Data
+import Util
 import DesignSystem
 import ReactorKit
 import RxSwift

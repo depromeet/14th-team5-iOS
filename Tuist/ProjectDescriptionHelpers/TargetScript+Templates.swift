@@ -25,17 +25,4 @@ public extension TargetScript {
         ],
         basedOnDependencyAnalysis: false
     )
-    
-    static let firebaseInfoByConfiguration = TargetScript.post(
-        script: """
-            case "${CONFIGURATION}" in
-              "PRD" )
-                cp -r "$SRCROOT/Resources/GoogleService-Info.plist" "${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist"
-                ;;
-              *)
-            esac
-            """,
-        name: "Firebase Info copy by Configuration",
-        basedOnDependencyAnalysis: false
-    )
 }

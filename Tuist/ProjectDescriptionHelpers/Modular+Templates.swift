@@ -92,7 +92,7 @@ extension Target {
                 sources: factory.sources,
                 resources: factory.resources,
                 entitlements: factory.entitlements,
-                scripts: [.firebaseInfoByConfiguration, .firebaseCrashlytics],
+                scripts: [.firebaseCrashlytics],
                 dependencies: factory.dependencies,
                 settings: factory.settings
             )
@@ -115,7 +115,7 @@ extension Target {
             return .target(
                 name: layer.rawValue,
                 destinations: .iOS,
-                product: .staticFramework,
+                product: factory.products.isFramework ? .staticFramework : .framework,
                 bundleId: "com.\(layer.rawValue).project".lowercased(),
                 deploymentTargets: factory.deploymentTargets,
                 infoPlist: factory.infoPlist,
@@ -125,11 +125,26 @@ extension Target {
                 dependencies: factory.dependencies,
                 settings: factory.settings
             )
+        case .Util:
+            return .target(
+                name: layer.rawValue,
+                destinations: .iOS,
+                product: factory.products.isFramework ? .staticFramework : .framework,
+                bundleId: "com.\(layer.rawValue).project".lowercased(),
+                deploymentTargets: factory.deploymentTargets,
+                infoPlist: factory.infoPlist,
+                sources: factory.sources,
+                resources: factory.resources,
+                entitlements: factory.entitlements,
+                dependencies: factory.dependencies,
+                settings: factory.settings
+            )
+            
         case .Core:
             return .target(
                 name: layer.rawValue,
                 destinations: .iOS,
-                product: .staticFramework,
+                product: factory.products.isLibrary ? .framework : .staticFramework,
                 bundleId: "com.\(layer.rawValue).project".lowercased(),
                 deploymentTargets: factory.deploymentTargets,
                 infoPlist: factory.infoPlist,

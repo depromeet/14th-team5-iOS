@@ -157,11 +157,6 @@ platform :ios do
 
     new_build_number = build_num + 1
 
-    version = get_version_number(
-      xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
-      target: "#{PRD_SCHEME}"
-    )
-
 
     increment_build_number(
       xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
@@ -189,18 +184,8 @@ platform :ios do
           "com.5ing.bibbi" => "match AppStore com.5ing.bibbi",
           "com.5ing.bibbi.widget" => "match AppStore com.5ing.bibbi.widget"
         }
-      }
-    )
-
-    download_dsyms(
-      app_identifier: "com.5ing.bibbi",
-      version: version,
-      build_number: new_build_number,
-      output_directory: "./14th-team5-iOS"
-    )
-
-    upload_symbols_to_crashlytics(
-      gsp_path: "14th-team5-iOS/App/Resources/GoogleService-Info.plist"
+      },
+      xcargs: "arch=x86_64"
     )
 
     upload_to_testflight(skip_waiting_for_build_processing: true)

@@ -56,7 +56,7 @@ public class BBRecorderManager: NSObject {
         return self
     }
     
-    @discardableResult
+    @objc @discardableResult
     public func play() -> Self {
         recorderCore.audioPlayer.volume = 1.0
         recorderCore.audioPlayer.prepareToPlay()

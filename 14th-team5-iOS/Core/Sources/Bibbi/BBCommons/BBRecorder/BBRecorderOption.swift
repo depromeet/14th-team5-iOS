@@ -69,7 +69,7 @@ public extension BBRecorderOption {
     static func `default`() -> [BBRecorderOption] {
         return [
             .formatIDKey(kAudioFormatMPEG4AAC),
-            .sampleRate(12000),
+            .sampleRate(44100),
             .channelsKey(1),
             .qualityKey(.high)
         ]

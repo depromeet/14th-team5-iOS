@@ -5,7 +5,7 @@
 //  Created by 김도현 on 12/12/24.
 //
 
-import ProjectDescription
+@preconcurrency import ProjectDescription
 import Foundation
 
 
@@ -15,7 +15,7 @@ public extension TargetScript {
           case "${CONFIGURATION}" in
           "PRD" | "Release" )
           BASE_PATH=$(realpath "${SRCROOT}/../..")
-          "${BASE_PATH}/Tuist/.build/checkouts/firebase-ios-sdk/Crashlytics/run"   -gsp "${BASE_PATH}/14th-team5-iOS/App/Resources/GoogleService-Info.plist"   -p ios "${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}"
+          "${BASE_PATH}/Tuist/.build/checkouts/firebase-ios-sdk/Crashlytics/run"   -gsp "${BASE_PATH}/14th-team5-iOS/Bibbi/Resources/GoogleService-Info.plist"   -p ios "${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}"
           esac
           """,
         name: "Firebase Crashlytics",

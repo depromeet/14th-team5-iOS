@@ -23,7 +23,7 @@ public struct AppFactory {
     public init(
         name: String = "bibbi",
         platform: Platform = .iOS,
-        products: [ProductsType] = [.app, .uiTests, .unitTests],
+        products: [ProductsType] = [.bibbi, .uiTests, .unitTests],
         dependencies: [TargetDependency] = [],
         bundleId: String,
         deploymentTarget: DeploymentTargets? = .defualt,
@@ -59,7 +59,7 @@ extension Project {
             settings: .settings(
                 base: [
                     "OTHER_LDFLAGS": "$(inherited) -ObjC",
-                    "MARKETING_VERSION": "1.2.5",
+                    "MARKETING_VERSION": "1.2.6",
                     "CURRENT_PROJECT_VERSION": "1",
                     "VERSIONING_SYSTEM": "apple-generic"
                 ],

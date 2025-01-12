@@ -1,9 +1,9 @@
 // swift-tools-version: 5.9
-import PackageDescription
+@preconcurrency import PackageDescription
 import CompilerPluginSupport
 
 #if TUIST
-    import ProjectDescription
+@preconcurrency import ProjectDescription
 
     let packageSettings = PackageSettings(
         // Customize the product types for specific package product
@@ -18,7 +18,7 @@ import CompilerPluginSupport
 #endif
 
 let package = Package(
-    name: "App",
+    name: "Bibbi",
     dependencies: [
         .package(url: "https://github.com/ReactiveX/RxSwift.git", from: "6.6.0"),
         .package(url: "https://github.com/SnapKit/SnapKit.git", from: "5.6.0"),
@@ -35,7 +35,7 @@ let package = Package(
         .package(url: "https://github.com/bibbi-team/bibbi-iOS-package.git", from: "0.1.0")
     ], targets: [
         .target(
-            name: "App",
+            name: "Bibbi",
             dependencies: [
                 .product(name: "Macros", package: "bibbi-iOS-package")
             ]

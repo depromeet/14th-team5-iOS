@@ -12,7 +12,7 @@ extension TargetDependency {
     public static func with(_ type: ModuleLayer) -> Self {
         let moduleName = type.rawValue
         switch type {
-        case .App:
+        case .Bibbi:
             return .project(target: moduleName, path: .relativeToRoot("14th-team5-iOS/\(moduleName)"))
         case .Data:
             return .project(target: moduleName, path: .relativeToRoot("14th-team5-iOS/\(moduleName)"))

@@ -9,9 +9,9 @@ import Foundation
 
 
 public struct CreateVoiceCommentRequestDTO: Encodable {
-    let content: String
+    let fileUrl: String
     
-    public init(content: String) {
-        self.content = content
+    public init(fileUrl: String) {
+        self.fileUrl = fileUrl
     }
 }

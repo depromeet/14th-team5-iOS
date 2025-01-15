@@ -45,7 +45,7 @@ final class AccountKakaoSignInHelper: AccountSignInHelperType {
         } else {
             return UserApi.shared.rx.loginWithKakaoAccount(prompts: [.Login])
                 .map { [weak self] response in
-                    self?._signInState.accept(AccountSignInStateInfo(snsType: .kakao))
+                    self?._signInState.accept(AccountSignInStateInfo(snsType: .kakao, snsToken: response.accessToken))
                     return .success
                 }
                 .catch { error in

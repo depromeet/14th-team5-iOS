@@ -5,7 +5,7 @@
 //  Created by Kim dohyun on 2023/11/14.
 //
 
-import ProjectDescription
+@preconcurrency import ProjectDescription
 import ProjectDescriptionHelpers
 
 private let targets: [Target] = [

@@ -5,7 +5,7 @@
 //  Created by Kim dohyun on 2023/11/14.
 //
 
-import ProjectDescription
+@preconcurrency import ProjectDescription
 
 
 public struct ModularFactory {
@@ -81,7 +81,7 @@ extension Target {
     public static func makeModular(layer: ModuleLayer, factory: ModularFactory) -> Target {
         
         switch layer {
-        case .App:
+        case .Bibbi:
             return .target(
                 name: layer.rawValue,
                 destinations: [.iPhone],

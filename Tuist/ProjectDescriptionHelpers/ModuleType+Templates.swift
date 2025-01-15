@@ -29,7 +29,7 @@ public enum ExtensionsLayer: String, ModuleType {
 
 public enum ModuleLayer: String, CaseIterable, ModuleType {
     
-    case App
+    case Bibbi
     case Data
     case Domain
     case Util
@@ -39,7 +39,7 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
     
     public var dependencies: [TargetDependency] {
         switch self {
-        case .App:
+        case .Bibbi:
             return [
                 .target(name: "WidgetExtension"),
                 .external(name: "FirebaseMessaging"),

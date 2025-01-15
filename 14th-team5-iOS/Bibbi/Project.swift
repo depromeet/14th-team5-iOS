@@ -5,21 +5,21 @@
 //  Created by Kim dohyun on 2023/11/14.
 //
 
-import ProjectDescription
+@preconcurrency import ProjectDescription
 import ProjectDescriptionHelpers
 
 private let targets: [Target] = [
     .makeModular(
-        layer: .App,
+        layer: .Bibbi,
         factory: .init(
-            products: .app,
-            dependencies: ModuleLayer.App.dependencies,
+            products: .bibbi,
+            dependencies: ModuleLayer.Bibbi.dependencies,
             bundleId: "com.5ing.bibbi",
             infoPlist: .extendingDefault(with: [                
                 "CFBundleDisplayName": .string("Bibbi"),
                 "CFBundleVersion": .string("1"),
                 "CFBuildVersion": .string("0"),
-                "CFBundleShortVersionString": .string("1.2.5"),
+                "CFBundleShortVersionString": .string("1.2.6"),
                 "UILaunchStoryboardName": .string("LaunchScreen"),
                 "UISupportedInterfaceOrientations": .array([.string("UIInterfaceOrientationPortrait")]),
                 "UIUserInterfaceStyle": .string("Dark"),
@@ -89,4 +89,4 @@ private let targets: [Target] = [
 ]
 
 
-private let app = Project.makeApp(name: ModuleLayer.App.rawValue, target: targets)
+private let bibbi = Project.makeApp(name: ModuleLayer.Bibbi.rawValue, target: targets)

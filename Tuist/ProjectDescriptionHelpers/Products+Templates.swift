@@ -21,7 +21,7 @@ public enum ProductsType: Equatable {
     }
     
     var isApp: Bool {
-        return (self == .app)
+        return (self == .bibbi)
     }
     
     var isExtensions: Bool {
@@ -31,7 +31,7 @@ public enum ProductsType: Equatable {
     case appExtension
     case library(ProductState)
     case framework(ProductState)
-    case app
+    case bibbi
     case unitTests
     case uiTests
     

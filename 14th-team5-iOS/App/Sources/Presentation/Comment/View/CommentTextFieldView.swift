@@ -7,6 +7,7 @@
 
 import Core
 import UIKit
+import DesignSystem
 
 import SnapKit
 import Then
@@ -18,6 +19,9 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
     private let container: UIView = UIView()
     private let textFieldView: UITextField = UITextField()
     private let confirmButton: UIButton = UIButton(type: .system)
+    private let recordContainerView: UIView = UIView()
+    let recordButton: UIButton = UIButton(type: .system)
+    let equalizerView: BBEqualizerView = BBEqualizerView(state: .stop)
     
     // MARK: - Properties
     
@@ -69,6 +73,7 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
     
     public override func setupUI() {
         super.setupUI()
+        recordContainerView.addSubview(recordButton)
         addSubviews(container, textFieldView)
     }
     
@@ -82,6 +87,16 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
         textFieldView.snp.makeConstraints {
             $0.verticalEdges.equalToSuperview()
             $0.horizontalEdges.equalToSuperview().inset(15)
+        }
+        
+        recordButton.snp.makeConstraints {
+            $0.size.equalTo(32)
+            $0.left.equalToSuperview()
+            $0.centerY.equalToSuperview()
+        }
+        
+        recordContainerView.snp.makeConstraints {
+            $0.size.equalTo(44)
         }
     }
     
@@ -99,9 +114,10 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
                 string: "댓글 달기...",
                 attributes: [.foregroundColor: UIColor.gray300]
             )
-            
+            $0.leftView = recordContainerView
             $0.rightView = confirmButton
             $0.rightViewMode = .always
+            $0.leftViewMode = .always
             $0.returnKeyType = .done
             
             $0.delegate = self
@@ -113,6 +129,10 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
             $0.tintColor = UIColor.mainYellow
             
             $0.addTarget(self, action: #selector(didTapConfirmButton(_:event:)), for: .touchUpInside)
+        }
+        
+        recordButton.do {
+            $0.setBackgroundImage(DesignSystemAsset.voice.image, for: .normal)
         }
     }
     

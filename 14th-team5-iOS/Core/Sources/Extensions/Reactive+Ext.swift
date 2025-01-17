@@ -11,6 +11,7 @@ import WebKit
 import Kingfisher
 import RxCocoa
 import RxSwift
+import AVFoundation
 
 extension Reactive where Base: UIViewController {
     public var viewDidLoad: ControlEvent<Bool> {
@@ -106,4 +107,29 @@ extension Reactive where Base: UIImageView {
         }
     }
     
+}
+
+
+public extension Reactive where Base: BBRecorderManager {
+    var requestMicrophonePermission: Observable<Bool> {
+        return Observable.create { observer in
+            AVAudioSession.sharedInstance().requestRecordPermission { accept in
+                if accept {
+                    do {
+                        try AVAudioSession.sharedInstance().setCategory(.playAndRecord, options: .defaultToSpeaker)
+                        try AVAudioSession.sharedInstance().setActive(true)
+                        try AVAudioSession.sharedInstance().overrideOutputAudioPort(.speaker)
+                        observer.onNext(true)
+                        observer.onCompleted()
+                    } catch {
+                        observer.onError(error)
+                    }
+                } else {
+                    observer.onNext(false)
+                    observer.onCompleted()
+                }
+            }
+            return Disposables.create()
+        }
+    }
 }

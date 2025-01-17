@@ -12,7 +12,7 @@ import AVFoundation
 public class BBRecorderManager: NSObject {
     private var recorderCore: BBRecorderCore
 
-    init(
+    public init(
         recorderCore: BBRecorderCore = BBRecorderCore()
     ) {
         self.recorderCore = recorderCore
@@ -38,7 +38,6 @@ public class BBRecorderManager: NSObject {
         print("start recording")
         recorderCore.audioRecorder.isMeteringEnabled = true
         recorderCore.audioRecorder.record()
-        print("session audioRecoder : \(recorderCore.audioRecorder.settings)")
         return self
     }
     
@@ -51,7 +50,6 @@ public class BBRecorderManager: NSObject {
     
     @objc @discardableResult
     public func stopRecoding() -> Self {
-        print("stop recording")
         recorderCore.audioRecorder.stop()
         return self
     }
@@ -63,5 +61,8 @@ public class BBRecorderManager: NSObject {
         recorderCore.audioPlayer.play()
         return self
     }
+    
+    // 시작과 동시에 데시벨을 업데이트 해야함
+    // 데시벨은 말을 할때 데시벨이 주기적으로 업데이트가 되기 때문에 데시벨 업데이트 메서드만 추가해서 구독 하면 될 듯
     
 }

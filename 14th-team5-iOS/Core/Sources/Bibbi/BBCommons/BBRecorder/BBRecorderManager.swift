@@ -62,7 +62,11 @@ public class BBRecorderManager: NSObject {
         return self
     }
     
-    // 시작과 동시에 데시벨을 업데이트 해야함
-    // 데시벨은 말을 할때 데시벨이 주기적으로 업데이트가 되기 때문에 데시벨 업데이트 메서드만 추가해서 구독 하면 될 듯
+    @objc
+    public func updateDecibels() -> Float {
+        recorderCore.audioRecorder.updateMeters()
+        let decibels = recorderCore.audioRecorder.averagePower(forChannel: 0)
+        return decibels
+    }
     
 }

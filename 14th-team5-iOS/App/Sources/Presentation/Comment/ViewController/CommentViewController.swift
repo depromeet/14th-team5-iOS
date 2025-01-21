@@ -83,12 +83,6 @@ final public class CommentViewController: ReactorViewController<CommentViewReact
             .disposed(by: disposeBag)
         // TODO: - 테이블 등 다른 화면 터치 시 키보드 내리기
         
-        textFieldView.recordButton
-            .rx.tap
-            .bind(with: self) { owner, _ in
-                owner.recorderManager.startRecoding()
-            }
-            .disposed(by: disposeBag)
         
     }
     

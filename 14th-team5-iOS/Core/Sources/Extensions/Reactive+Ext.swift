@@ -111,6 +111,35 @@ extension Reactive where Base: UIImageView {
 
 
 public extension Reactive where Base: BBRecorderManager {
+    func requestRecordDecibels(interval: TimeInterval = 0.1, duration: TimeInterval = 30.0) -> Observable<[CGFloat]> {
+        return Observable.create { observer in
+            var decibels: [CGFloat] = []
+            var elapsedTime: TimeInterval = 0
+            
+            
+            let timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak base] _ in
+                guard let base = base else { return }
+                let decibel = CGFloat(base.updateDecibels())
+                let transformDecible = log10(abs(decibel))
+                decibels.append(transformDecible)
+                
+                observer.onNext(decibels)
+                
+                elapsedTime += interval
+                
+                if elapsedTime >= duration {
+                    observer.onCompleted()
+                }
+            }
+            
+            RunLoop.main.add(timer, forMode: .common)
+            return Disposables.create {
+                timer.invalidate()
+            }
+        }
+        
+    }
+    
     var requestMicrophonePermission: Observable<Bool> {
         return Observable.create { observer in
             AVAudioSession.sharedInstance().requestRecordPermission { accept in

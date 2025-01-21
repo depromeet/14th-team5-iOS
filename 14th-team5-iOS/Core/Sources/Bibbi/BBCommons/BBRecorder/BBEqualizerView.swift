@@ -13,46 +13,28 @@ import RxSwift
 import RxCocoa
 
 
-struct BBEqualizerConfig {
-    let waveColor: UIColor?
-    let waveWidth: CGFloat?
-    let dotColor: UIColor?
-    let dotWidth: CGFloat?
-    let dotHeight: CGFloat?
-    
-    init(
-        waveColor: UIColor? = nil,
-        waveWidth: CGFloat? = nil,
-        dotColor: UIColor? = nil,
-        dotWidth: CGFloat? = nil,
-        dotHeight: CGFloat? = nil
-    ) {
-        self.waveColor = waveColor
-        self.waveWidth = waveWidth
-        self.dotColor = dotColor
-        self.dotWidth = dotWidth
-        self.dotHeight = dotHeight
-    }
-}
-
-
-@objc public protocol BBEqualizerViewDelegate: AnyObject {
-    @objc optional func equalizerView(_ equalizerView: BBEqualizerView, didUpdateDecibel decibel: [CGFloat]) -> [CGFloat]
-}
-
 public final class BBEqualizerView: UIView {
-    public var state: BBEqualizerState = .stop {
-        didSet { setNeedsDisplay() }
-    }
-    public weak var delegate: BBEqualizerViewDelegate?
+    public var state: BBEqualizerState = .stop
     private(set) var displayLink: CADisplayLink?
     private let timerLabel: BBLabel = BBLabel(.body1Regular)
-    
-    
+    private var lastUpdateTime: Date = Date()
+    public var eqaulizerIndex: Int = 0
+    public var equalizerLevels: [CGFloat] = [] {
+        didSet {
+            if state == .play {
+                didUpdatEqaulizerLayout()
+            } else {
+                removeEqaulizerLayout()
+            }
+        }
+    }
     
     public init(state: BBEqualizerState) {
         self.state = state
         super.init(frame: .zero)
+        setupUI()
+        setupAttributes()
+        setupAutoLayout()
     }
     
     required init?(coder: NSCoder) {
@@ -65,8 +47,37 @@ public final class BBEqualizerView: UIView {
         
         guard let context = UIGraphicsGetCurrentContext() else { return }
         context.clear(rect)
-        
-        
+
+        let dotWidth = rect.width / 30
+        let waveHeight = state.config.waveHeight
+        let dotHeight = state.config.dotHeight
+        let midY = rect.midY
+
+        context.setStrokeColor(state.config.waveColor.cgColor)
+        context.setLineWidth(state.config.waveWidth)
+
+        for index in 0 ..< eqaulizerIndex {
+            let transformHeight = equalizerLevels.indices.contains(index)
+                ? equalizerLevels[index] * waveHeight
+                : waveHeight
+//            print("wave height : \(transformHeight)")
+            let pointX = CGFloat(index) * dotWidth
+            let pointY = midY - (transformHeight / 2)
+            context.move(to: CGPoint(x: pointX, y: pointY))
+            context.addLine(to: CGPoint(x: pointX, y: pointY + transformHeight))
+        }
+        context.strokePath()
+
+        context.setStrokeColor(state.config.dotColor.cgColor)
+        context.setLineWidth(state.config.dotWidth)
+
+        for index in eqaulizerIndex ..< 30 {
+            let pointX = CGFloat(index) * dotWidth
+            let pointY = midY - (dotHeight / 2)
+            context.move(to: CGPoint(x: pointX, y: pointY))
+            context.addLine(to: CGPoint(x: pointX, y: pointY + dotHeight))
+        }
+        context.strokePath()
     }
     
     private func setupUI() {
@@ -74,7 +85,12 @@ public final class BBEqualizerView: UIView {
     }
     
     private func setupAutoLayout() {
-        
+        timerLabel.snp.makeConstraints {
+            $0.width.equalTo(30)
+            $0.height.equalTo(21)
+            $0.centerY.equalToSuperview()
+            $0.right.equalToSuperview()
+        }
     }
     
     private func setupAttributes() {
@@ -84,68 +100,28 @@ public final class BBEqualizerView: UIView {
         }
     }
     
+    private func didUpdatEqaulizerLayout() {
+        guard displayLink == nil else { return }
+        displayLink = CADisplayLink(target: self, selector: #selector(didUpdateEqaulizerLevel))
+        displayLink?.add(to: .main, forMode: .common)
+    }
+    
+    private func removeEqaulizerLayout() {
+        displayLink?.invalidate()
+        displayLink = nil
+    }
     
     
-    
-}
-
-
-public enum BBEqualizerState {
-    case play
-    case stop
-    
-    
-    var config: BBEqualizerConfig {
-        switch self {
-        case .play:
-            return .init(
-                waveColor: .mainYellow,
-                waveWidth: 2.0
-            )
-        case .stop:
-            return .init(
-                dotColor: .mainYellow,
-                dotWidth: 2.0,
-                dotHeight: 2.0
-            )
+    @objc
+    private func didUpdateEqaulizerLevel() {
+        let currentTime = Date()
+        let maxDotCount = 30
+        if currentTime.timeIntervalSince(lastUpdateTime) >= 1.0 {
+            lastUpdateTime = currentTime
+            eqaulizerIndex = min(eqaulizerIndex + 1, maxDotCount)
         }
-    }
-}
-
-
-
-
-public class RxEqualizerViewDelegateProxy: DelegateProxy<BBEqualizerView, BBEqualizerViewDelegate>, DelegateProxyType, BBEqualizerViewDelegate {
-    public static func currentDelegate(for object: BBEqualizerView) -> (any BBEqualizerViewDelegate)? {
-        return object.delegate
+        equalizerLevels = Array(equalizerLevels.prefix(maxDotCount))
+        setNeedsDisplay()
     }
     
-    public static func setCurrentDelegate(_ delegate: (any BBEqualizerViewDelegate)?, to object: BBEqualizerView) {
-        object.delegate = delegate
-    }
-    
-    static public func registerKnownImplementations() {
-        self.register {
-            RxEqualizerViewDelegateProxy(
-                parentObject: $0,
-                delegateProxy: self
-            )
-        }
-    }
-}
-
-
-
-extension Reactive where Base: BBEqualizerView {
-    
-    public var delegate: DelegateProxy<BBEqualizerView, BBEqualizerViewDelegate> {
-        return RxEqualizerViewDelegateProxy.proxy(for: self.base)
-    }
-    
-    public var didUpdateDecibel: Observable<[CGFloat]> {
-        let source = delegate.methodInvoked(#selector(BBEqualizerViewDelegate.equalizerView(_:didUpdateDecibel:)))
-            .compactMap { $0.first as? [CGFloat]}
-        
-        return source
-    }
 }

@@ -10,12 +10,16 @@ import Foundation
 import AVFoundation
 
 public class BBRecorderManager: NSObject {
-    private var recorderCore: BBRecorderCore
+    public var recorderCore: BBRecorderCore
+    public var audioEngine: AVAudioEngine
+    public var inputNode: AVAudioInputNode
 
     public init(
         recorderCore: BBRecorderCore = BBRecorderCore()
     ) {
         self.recorderCore = recorderCore
+        self.audioEngine = AVAudioEngine()
+        self.inputNode = audioEngine.inputNode
         super.init()
         start()
     }
@@ -41,13 +45,6 @@ public class BBRecorderManager: NSObject {
         return self
     }
     
-    @discardableResult
-    public func pauseRecoding() -> Self {
-        recorderCore.audioRecorder.pause()
-        return self
-    }
-    
-    
     @objc @discardableResult
     public func stopRecoding() -> Self {
         recorderCore.audioRecorder.stop()
@@ -62,11 +59,28 @@ public class BBRecorderManager: NSObject {
         return self
     }
     
-    @objc
-    public func updateDecibels() -> Float {
-        recorderCore.audioRecorder.updateMeters()
-        let decibels = recorderCore.audioRecorder.averagePower(forChannel: 0)
-        return decibels
+    func updateDecibels(buffer: AVAudioPCMBuffer) -> Float {
+        guard let channelData = buffer.floatChannelData?.pointee else { return 0.0 }
+        let frameLength = buffer.frameLength
+        let rms = sqrt((0..<Int(frameLength)).map { channelData[$0] * channelData[$0] }.reduce(0, +) / Float(frameLength))
+        let decibel = 20 * log10(rms)
+ 
+        return decibel
+    }
+    
+    func normalizeDecibel(decibel: Float) -> Float {
+        let minDecibel: Float = -60.0
+        let maxDecibel: Float = 0.0
+        let targetMin: Float = 1.0
+        let targetMax: Float = 10.0
+
+       
+        let clampedDecibel = max(minDecibel, min(decibel, maxDecibel))
+        let linearNormalized = (clampedDecibel - minDecibel) / (maxDecibel - minDecibel)
+        let nonlinearNormalized = pow(linearNormalized, 1.0)
+        let normalizedValue = targetMin + nonlinearNormalized * (targetMax - targetMin)
+        
+        return Float(round(normalizedValue * 10000) / 10000)
     }
     
 }

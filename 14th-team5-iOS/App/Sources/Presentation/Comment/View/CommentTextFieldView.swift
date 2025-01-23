@@ -61,16 +61,6 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        Observable.combineLatest(
-            reactor.pulse(\.$recordState),
-            recorderManager.rx.requestRecordDecibels()
-        )
-        .filter { $0.0 == .play }
-        .map { $0.1 }
-        .debug("decibels check")
-        .bind(to: equalizerView.rx.equalizerLevels)
-        .disposed(by: disposeBag)
-        
         confirmButton.rx.tap
             .bind(with: self) { owner, _ in
                 owner.recorderManager.play()
@@ -89,6 +79,10 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
             .bind(onNext: {$0.0.didUpdateTextFieldLayout($0.1)})
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$recordState)
+            .bind(to: equalizerView.rx.state)
+            .disposed(by: disposeBag)
+        
         reactor.state.map { $0.enableTextField }
             .distinctUntilChanged()
             .bind(to: textFieldView.rx.isEnabled)
@@ -98,6 +92,28 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
             .distinctUntilChanged()
             .bind(to: confirmButton.rx.isEnabled)
             .disposed(by: disposeBag)
+        
+        Observable.combineLatest(
+            reactor.pulse(\.$recordState),
+            recorderManager.rx.requestCurrentTime
+        )
+        .filter { $0.0 == .play }
+        .map { $0.1.toTimeInSeconds(.seconds) ?? 0.0 >= 1.0 ? true : false}
+        .bind(to: confirmButton.rx.isEnabled)
+        .disposed(by: disposeBag)
+        
+        recorderManager.rx
+            .requestDecibels
+            .observe(on: MainScheduler.instance)
+            .bind(to: equalizerView.rx.equalizerLevels)
+            .disposed(by: disposeBag)
+        
+        recorderManager.rx
+            .requestCurrentTime
+            .distinctUntilChanged()
+            .bind(to: equalizerView.timerLabel.rx.text)
+            .disposed(by: disposeBag)
+        
     }
     
     public override func setupUI() {
@@ -202,13 +218,11 @@ extension CommentTextFieldView {
             recordButton.setBackgroundImage(DesignSystemAsset.voiceOff.image, for: .normal)
             textFieldView.isHidden = true
             equalizerView.isHidden = false
-            equalizerView.state = .play
             recorderManager.startRecoding()
         case .stop:
             recordButton.setBackgroundImage(DesignSystemAsset.voice.image, for: .normal)
             textFieldView.isHidden = false
             equalizerView.isHidden = true
-            equalizerView.state = .stop
             recorderManager.stopRecoding()
         }
     }

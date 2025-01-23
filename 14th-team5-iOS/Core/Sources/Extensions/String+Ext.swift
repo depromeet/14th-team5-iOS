@@ -19,6 +19,26 @@ extension String {
         }
         return false
     }
+    
+    public func toTimeInSeconds(_ type: TimeComponents) -> Double? {
+        let components = self.split(separator: ":").compactMap { Double($0) }
+        switch type {
+        case .hours:
+            let hours = components[0]
+            let minutes = components[1]
+            let seconds = components[2]
+            
+            return (hours * 3600) + (minutes * 60) + seconds
+        case .minutes:
+            let minutes = components[0]
+            let seconds = components[1]
+            
+            return (minutes * 60) + seconds
+        case .seconds:
+            let seconds = components.last
+            return seconds
+        }
+    }
 }
 
 extension String {

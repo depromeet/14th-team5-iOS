@@ -18,7 +18,7 @@ struct BBEqualizerConfig {
     init(
         waveColor: UIColor,
         waveWidth: CGFloat = 2.0,
-        waveHeight: CGFloat = 6.0,
+        waveHeight: CGFloat = 3.0,
         dotColor: UIColor,
         dotWidth: CGFloat = 2.0,
         dotHeight: CGFloat = 2.0

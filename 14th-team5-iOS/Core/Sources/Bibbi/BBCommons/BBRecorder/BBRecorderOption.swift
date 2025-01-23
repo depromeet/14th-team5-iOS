@@ -14,6 +14,9 @@ public enum BBRecorderOption {
     case sampleRate(Double)
     case channelsKey(Int)
     case qualityKey(AVAudioQuality)
+    case linearPCMBitDepthKey(Double)
+    case linearPCMIsFloatKey(Bool)
+    case linearPCMIsBigEndianKey(Bool)
 }
 
 public extension BBRecorderOption {
@@ -27,6 +30,14 @@ public extension BBRecorderOption {
         case .channelsKey: return AVNumberOfChannelsKey
         /// 오디오 품질을 열거형의 정수를 나타내는 상수
         case .qualityKey: return AVEncoderAudioQualityKey
+        /// Linear PCM 오디오 데이터의 비트를설정 값
+        case .linearPCMBitDepthKey: return AVLinearPCMBitDepthKey
+        /// Linear PCM 오디오 데이터의 부동소수점 형식의 사용할지 여부 값
+        case .linearPCMIsFloatKey: return AVLinearPCMIsFloatKey
+        /// Linear PCM 오디오 데이터 데이터 바이트 순서 설정 값
+        case .linearPCMIsBigEndianKey: return AVLinearPCMIsBigEndianKey
+            
+            
         }
     }
     
@@ -40,6 +51,12 @@ public extension BBRecorderOption {
             setChannles(channel: channel)
         case let .qualityKey(quality):
             setQualityKey(quality: quality)
+        case let .linearPCMBitDepthKey(bit):
+            setBitKey(bit: bit)
+        case let .linearPCMIsFloatKey(isKey):
+            setPCMIsFloatKey(float: isKey)
+        case let .linearPCMIsBigEndianKey(endianKey):
+            setPCMIsBigEndianKey(endianKey: endianKey)
         }
     }
 }
@@ -65,13 +82,34 @@ public extension BBRecorderOption {
         return quality.rawValue
     }
     
+    /// Linear PCM 오디오 데이터 비트 설정 메서드
+    func setBitKey(bit: Double) -> Double {
+        return bit
+    }
+    
+    /// Linear PCM 오디오 데이터 부동 소수점 여부 메서드
+    func setPCMIsFloatKey(float isKey: Bool) -> Bool {
+        return isKey
+    }
+    
+    /// Linear PCM 오디오 데이터 데이터 바이트 순서 설정 메서드
+    func setPCMIsBigEndianKey(endianKey: Bool) -> Bool {
+        return endianKey
+    }
+    
+    
+    
+    
     /// 기본 옵션 메서드
     static func `default`() -> [BBRecorderOption] {
         return [
             .formatIDKey(kAudioFormatMPEG4AAC),
             .sampleRate(44100),
             .channelsKey(1),
-            .qualityKey(.high)
+            .qualityKey(.high),
+            .linearPCMBitDepthKey(16),
+            .linearPCMIsBigEndianKey(false),
+            .linearPCMIsFloatKey(false)
         ]
     }
 }

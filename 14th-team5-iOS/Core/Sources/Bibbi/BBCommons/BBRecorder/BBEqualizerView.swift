@@ -16,13 +16,13 @@ import RxCocoa
 public final class BBEqualizerView: UIView {
     public var state: BBEqualizerState = .stop
     private(set) var displayLink: CADisplayLink?
-    private let timerLabel: BBLabel = BBLabel(.body1Regular)
+    public let timerLabel: BBLabel = BBLabel(.body1Regular)
     private var lastUpdateTime: Date = Date()
     public var eqaulizerIndex: Int = 0
     public var equalizerLevels: [CGFloat] = [] {
         didSet {
             if state == .play {
-                didUpdatEqaulizerLayout()
+                didUpdateEqaulizerLayout()
             } else {
                 removeEqaulizerLayout()
             }
@@ -47,8 +47,8 @@ public final class BBEqualizerView: UIView {
         
         guard let context = UIGraphicsGetCurrentContext() else { return }
         context.clear(rect)
-
-        let dotWidth = rect.width / 30
+        let maxWidth = timerLabel.frame.minX
+        let dotWidth = maxWidth / 30
         let waveHeight = state.config.waveHeight
         let dotHeight = state.config.dotHeight
         let midY = rect.midY
@@ -60,7 +60,6 @@ public final class BBEqualizerView: UIView {
             let transformHeight = equalizerLevels.indices.contains(index)
                 ? equalizerLevels[index] * waveHeight
                 : waveHeight
-//            print("wave height : \(transformHeight)")
             let pointX = CGFloat(index) * dotWidth
             let pointY = midY - (transformHeight / 2)
             context.move(to: CGPoint(x: pointX, y: pointY))
@@ -86,7 +85,7 @@ public final class BBEqualizerView: UIView {
     
     private func setupAutoLayout() {
         timerLabel.snp.makeConstraints {
-            $0.width.equalTo(30)
+            $0.width.equalTo(40)
             $0.height.equalTo(21)
             $0.centerY.equalToSuperview()
             $0.right.equalToSuperview()
@@ -100,7 +99,7 @@ public final class BBEqualizerView: UIView {
         }
     }
     
-    private func didUpdatEqaulizerLayout() {
+    private func didUpdateEqaulizerLayout() {
         guard displayLink == nil else { return }
         displayLink = CADisplayLink(target: self, selector: #selector(didUpdateEqaulizerLevel))
         displayLink?.add(to: .main, forMode: .common)
@@ -109,6 +108,7 @@ public final class BBEqualizerView: UIView {
     private func removeEqaulizerLayout() {
         displayLink?.invalidate()
         displayLink = nil
+        eqaulizerIndex = 0
     }
     
     

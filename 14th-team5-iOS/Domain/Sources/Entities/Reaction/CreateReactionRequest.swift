@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Core
 
 public struct CreateReactionRequest {
     public let emojiId: String

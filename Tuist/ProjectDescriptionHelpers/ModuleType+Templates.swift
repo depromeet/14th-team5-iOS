@@ -29,30 +29,38 @@ public enum ExtensionsLayer: String, ModuleType {
 
 public enum ModuleLayer: String, CaseIterable, ModuleType {
     
-    case App
+    case Bibbi
     case Data
     case Domain
+    case Util
     case Core
     case DesignSystem
     
     
     public var dependencies: [TargetDependency] {
         switch self {
-        case .App:
+        case .Bibbi:
             return [
                 .target(name: "WidgetExtension"),
                 .external(name: "FirebaseMessaging"),
                 .external(name: "Mixpanel"),
                 .external(name: "RxDataSources"),
-                .with(.Core),
+                .with(.Util),
                 .with(.Data),
                 .external(name: "ReactorKit"),
                 .external(name: "Lottie"),
                 .external(name: "Macros")
             ]
+        case .Util:
+            return [
+                .external(name: "FirebaseAnalyticsWithoutAdIdSupport"),
+                .external(name: "FirebaseCrashlytics"),
+                .with(.Core)
+            ]
         case .Data:
             return [
                 .with(.Domain),
+                .with(.Util),
                 .external(name: "Alamofire"),
                 .external(name: "KakaoSDK"),
                 .external(name: "RxKakaoSDK"),
@@ -67,8 +75,6 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
         case .Core:
             return [
                 .with(.DesignSystem),
-                .external(name: "FirebaseAnalytics", condition: .when(.all)),
-                .external(name: "FirebaseCrashlytics", condition: .when(.all)),
                 .external(name: "SnapKit", condition: .when(.all)),
                 .external(name: "Then", condition: .when(.all)),
                 .external(name: "Kingfisher", condition: .when(.all)),

@@ -102,15 +102,20 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
         .bind(to: confirmButton.rx.isEnabled)
         .disposed(by: disposeBag)
         
-        recorderManager.rx
-            .requestDecibels
-            .observe(on: MainScheduler.instance)
-            .bind(to: equalizerView.rx.equalizerLevels)
-            .disposed(by: disposeBag)
+        Observable.combineLatest(
+            reactor.pulse(\.$recordState),
+            recorderManager.rx.requestDecibels
+        )
+        .filter { $0.0 == .play }
+        .map { $0.1 }
+        .observe(on: RxScheduler.main)
+        .bind(to: equalizerView.rx.equalizerLevels)
+        .disposed(by: disposeBag)
         
         recorderManager.rx
             .requestCurrentTime
             .distinctUntilChanged()
+            .observe(on: RxScheduler.main)
             .bind(to: equalizerView.timerLabel.rx.text)
             .disposed(by: disposeBag)
         

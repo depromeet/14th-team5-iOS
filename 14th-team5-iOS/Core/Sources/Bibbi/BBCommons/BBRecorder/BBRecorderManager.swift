@@ -28,7 +28,7 @@ public class BBRecorderManager: NSObject {
     @discardableResult
     public func start() -> Self {
         do {
-            try AVAudioSession.sharedInstance().setCategory(.playAndRecord, options: .defaultToSpeaker)
+            try AVAudioSession.sharedInstance().setCategory(.playAndRecord, options: [.defaultToSpeaker, .allowBluetooth])
             try AVAudioSession.sharedInstance().setActive(true)
             try AVAudioSession.sharedInstance().overrideOutputAudioPort(.speaker)
         } catch {
@@ -39,7 +39,6 @@ public class BBRecorderManager: NSObject {
     
     @objc @discardableResult
     public func startRecoding() -> Self {
-        print("start recording")
         recorderCore.audioRecorder.isMeteringEnabled = true
         recorderCore.audioRecorder.record()
         return self

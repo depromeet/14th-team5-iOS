@@ -112,7 +112,6 @@ extension Reactive where Base: UIImageView {
 
 public extension Reactive where Base: BBRecorderManager {
     var requestCurrentTime: Observable<String> {
-        
         return Observable<String>.create { observer in
             let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak base] _ in
                 guard let currentTime = base?.recorderCore.audioRecorder.currentTime else {
@@ -135,31 +134,21 @@ public extension Reactive where Base: BBRecorderManager {
         }
     }
     
-    
-    
-    
     var requestDecibels: Observable<[CGFloat]> {
         return Observable.create { [weak base] observer in
             guard let base = base else { return Disposables.create() }
             var decibles: [CGFloat] = []
-            if base.recorderCore.isRecording {
-                base.inputNode.installTap(onBus: 0, bufferSize: 1024, format: base.inputNode.inputFormat(forBus: 0)) { buffer, time in
-                    let realTimeDecibel = base.updateDecibels(buffer: buffer)
-                    let normlizedDecibel = base.normalizeDecibel(decibel: realTimeDecibel)
-                    
-                    decibles.append(CGFloat(normlizedDecibel))
-                    observer.onNext(decibles)
-                }
-                
-                base.audioEngine.prepare()
-                try? base.audioEngine.start()
+            
+            base.inputNode.installTap(onBus: 0, bufferSize: 1024, format: base.inputNode.inputFormat(forBus: 0)) { buffer, time in
+                let realTimeDecibel = base.updateDecibels(buffer: buffer)
+                let normlizedDecibel = base.normalizeDecibel(decibel: realTimeDecibel)
+                decibles.append(CGFloat(normlizedDecibel))
+    
+                observer.onNext(decibles)
             }
-
-            if base.recorderCore.isRecording == false {
-                base.inputNode.removeTap(onBus: 0)
-                base.audioEngine.stop()
-                observer.onCompleted()
-            }
+            
+            base.audioEngine.prepare()
+            try? base.audioEngine.start()
             
             return Disposables.create {
                 base.inputNode.removeTap(onBus: 0)

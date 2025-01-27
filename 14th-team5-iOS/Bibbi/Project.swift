@@ -24,6 +24,7 @@ private let targets: [Target] = [
                 "UISupportedInterfaceOrientations": .array([.string("UIInterfaceOrientationPortrait")]),
                 "UIUserInterfaceStyle": .string("Dark"),
                 "NSPhotoLibraryAddUsageDescription" : .string("프로필 사진, 피드 업로드를 위한 사진 촬영을 위해 Bibbi가 앨범에 접근할 수 있도록 허용해 주세요"),
+                "NSMicrophoneUsageDescription": .string("음성 댓글을 위해 Bibbi가 마이크에 접근할 수 있도록 허용해 주세요"),
                 "NSCameraUsageDescription": .string("프로필 사진, 피드 업로드를 위한 사진 촬영을 위해 Bibbi가 카메라에 접근할 수 있도록 허용해 주세요"),
                 "UIApplicationSceneManifest" : .dictionary([
                     "UIApplicationSupportsMultipleScenes" : .boolean(false),

@@ -59,15 +59,6 @@ jobs:
 
       - name: Tuist Generate Commnad
         run: tuist generate
-        
-      - name: make Google Service Info
-        run: |
-          echo "${{ secrets.GOOGLE_INFO_PLIST }}" | base64 --decode > ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_PATH }}
-      
-      - name: Verify GoogleService-Info.plist creation
-        run: |
-          ls -l ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_PATH }}
-          echo "GOOGLE_SERVICE_INFO_PLIST_PATH: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_PATH }}"
                 
       - name: fastlane upload_prd_testflight
         if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release') }}

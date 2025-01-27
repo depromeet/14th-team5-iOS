@@ -20,6 +20,7 @@ final public class CommentViewController: ReactorViewController<CommentViewReact
     // MARK: - Typealias
     
     private typealias RxDataSource = RxTableViewSectionedAnimatedDataSource<CommentSectionModel>
+    private let recorderManager: BBRecorderManager = BBRecorderManager()
     
     
     // MARK: - Views
@@ -71,7 +72,17 @@ final public class CommentViewController: ReactorViewController<CommentViewReact
             .bind { $0.0.reactor?.action.onNext(.deleteComment($0.0.dataSource[$0.1].currentState.comment.commentId)) }
             .disposed(by: disposeBag)
         
+        recorderManager.rx.requestMicrophonePermission
+            .observe(on: MainScheduler.instance)
+            .bind(with: self) { owner, isPermission in
+                guard isPermission else {
+                    owner.showPermissionAlertController()
+                    return
+                }
+            }
+            .disposed(by: disposeBag)
         // TODO: - 테이블 등 다른 화면 터치 시 키보드 내리기
+        
         
     }
     
@@ -235,6 +246,17 @@ extension CommentViewController {
         else { return }
         let indexPath = IndexPath(item: count - 1, section: 0)
         commentTableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+    }
+    
+    private func showPermissionAlertController() {
+        let permissionAlertController = UIAlertController(title: "마이크 접근 권한 설정이 없습니다.", message: "마이크를 사용하려면 마이크에 접근할 수 있도록 허용되어 있어야 합니다.", preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
+        let settingAction = UIAlertAction(title: "설정으로 이동하기", style: .default) { _ in
+            UIApplication.shared.open(URLTypes.settings.originURL)
+        }
+        
+        [cancelAction, settingAction].forEach(permissionAlertController.addAction(_:))
+        present(permissionAlertController, animated: true)
     }
     
 }

@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol CreateVoiceCommentUseCaseProtocol {
-    func execute(postId: String, body: CreateVoiceRequest) -> Observable<VoiceCommentEntity>
+    func execute(postId: String, body: CreateVoiceRequest) -> Observable<PostCommentEntity>
 }
 
 
@@ -22,7 +22,7 @@ public final class CreateVoiceCommentUseCase: CreateVoiceCommentUseCaseProtocol 
         self.voiceCommentRepository = voiceCommentRepository
     }
     
-    public func execute(postId: String, body: CreateVoiceRequest) -> Observable<VoiceCommentEntity> {
+    public func execute(postId: String, body: CreateVoiceRequest) -> Observable<PostCommentEntity> {
         return voiceCommentRepository.createVoiceComment(postId: postId, body: body)
     }
 }

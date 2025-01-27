@@ -57,14 +57,22 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
         
         recordButton
             .rx.tap
-            .map { Reactor.Action.didTappedRecordButton }
+            .map { Reactor.Action.didTappedRecordToggleButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        recorderManager.recorderCore
+            .audioRecorder.rx
+            .audioRecorderDidFinishRecording
+            .compactMap { try Data(contentsOf: $0)}
+            .map { Reactor.Action.didTappedRecordConfirmButton($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         confirmButton.rx.tap
-            .bind(with: self) { owner, _ in
-                owner.recorderManager.play()
-            }
+            .throttle(.milliseconds(300), scheduler: RxScheduler.main)
+            .map { Reactor.Action.didTappedRecordToggleButton }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
     

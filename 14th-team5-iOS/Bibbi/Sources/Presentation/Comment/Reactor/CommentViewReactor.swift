@@ -71,6 +71,8 @@ final public class CommentViewReactor: Reactor {
     @Injected var fetchCommentUseCase: FetchCommentUseCaseProtocol
     @Injected var createCommentUseCase: CreateCommentUseCaseProtocol
     @Injected var deleteCommentUseCase: DeleteCommentUseCaseProtocol
+    @Injected var createVoiceCommentUseCase: CreateVoiceCommentUseCaseProtocol
+    @Injected var voicePresignedURLUseCase: VoiceCommentPresignedURLUseCaseProtocol
     @Injected var provider: ServiceProviderProtocol
     
     @Navigator var navigator: CommentNavigatorProtocol
@@ -96,6 +98,29 @@ final public class CommentViewReactor: Reactor {
     public init(postId: String) {
         self.postId = postId
         self.initialState = State()
+    }
+    
+    public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+        let commentMutation: Observable<Mutation> = provider.commentService.event
+            .flatMap(with: self) {
+                switch $1 {
+                case let .didReceiveVoiceCommentFile(voiceCommentFile):
+                    let postId = $0.postId
+                    let fileName = "\(voiceCommentFile.hashValue).mp4"
+                    let body = CreateVoicePresignedURLRequest(imageName: fileName)
+                    
+                    return $0.voicePresignedURLUseCase.execute(postId: postId, body, mp4File: voiceCommentFile)
+                        .flatMap { presingedURL -> Observable<Mutation> in
+                            let fileURL = self.convertFileURL(presingedURL.audioURL)
+                            let commentBody = CreateVoiceRequest(fileUrl: fileURL)
+                            return self.createVoiceCommentUseCase.execute(postId: postId, body: commentBody).flatMap { comment -> Observable<Mutation> in
+                                let reactor = CommentCellReactor(comment)
+                                return .just(.appendComment(reactor))
+                            }
+                        }
+                }
+            }
+        return Observable<Mutation>.merge(mutation, commentMutation)
     }
     
     
@@ -286,8 +311,10 @@ final public class CommentViewReactor: Reactor {
 
 // MARK: - Extensions
 
-extension CommentViewReactor {
-    
-    
+private extension CommentViewReactor {
+    func convertFileURL(_ url: String) -> String {
+        guard let range = url.range(of: #"[^&?]+"#, options: .regularExpression) else { return "" }
+        return String(url[range])
+    }
     
 }

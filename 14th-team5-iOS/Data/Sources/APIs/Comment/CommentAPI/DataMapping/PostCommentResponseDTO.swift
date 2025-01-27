@@ -12,8 +12,23 @@ public struct PostCommentResponseDTO: Decodable {
     let commentId: String
     let postId: String
     let memberId: String
+    let commentType: String
     let comment: String
     let createdAt: String
+    
+    enum CodingKeys: String, CodingKey {
+        case commentId, postId, memberId
+        case comment
+        case createdAt
+        case commentType = "type"
+    }
+}
+
+extension PostCommentResponseDTO {
+    enum CommentType: String, Decodable {
+        case text = "TEXT"
+        case voice = "VOICE"
+    }
 }
 
 extension PostCommentResponseDTO {
@@ -23,7 +38,8 @@ extension PostCommentResponseDTO {
             postId: postId,
             memberId: memberId,
             comment: comment,
-            createdAt: createdAt.iso8601ToDate()
+            createdAt: createdAt.iso8601ToDate(),
+            commentType: commentType
         )
     }
 }

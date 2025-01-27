@@ -19,7 +19,7 @@ public final class VoiceRepository {
 
 extension VoiceRepository: VoiceRepositoryProtocol {
     
-    public func createVoiceComment(postId: String, body: CreateVoiceRequest) -> Observable<VoiceCommentEntity> {
+    public func createVoiceComment(postId: String, body: CreateVoiceRequest) -> Observable<PostCommentEntity> {
         let body = CreateVoiceCommentRequestDTO(fileUrl: body.fileUrl)
         return voiceApiWorker.createVoiceComment(postId: postId, body: body)
             .map { $0.toDomain() }
@@ -35,6 +35,10 @@ extension VoiceRepository: VoiceRepositoryProtocol {
     public func deleteVoiceComment(postId: String, commentId: String) -> Observable<DeleteVoiceCommentEntity> {
         return voiceApiWorker.deleteVoiceComment(postId: postId, commentId: commentId)
             .map { $0.toDomain() }
+    }
+    
+    public func uploadMediaToS3(_ presignedURL: String, mp4File: Data) -> Observable<Bool> {
+        return voiceApiWorker.uploadMediaFileToS3(presignedURL, mp4File: mp4File)
     }
     
     

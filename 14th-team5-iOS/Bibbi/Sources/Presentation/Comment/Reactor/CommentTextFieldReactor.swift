@@ -16,10 +16,10 @@ import MacrosInterface
 public final class CommentTextFieldReactor {
     
     // MARK: - Action
-    
-    public enum Action { 
+    public enum Action {
         case inputText(String)
-        case didTappedRecordButton
+        case didTappedRecordToggleButton
+        case didTappedRecordConfirmButton(Data)
     }
     
     
@@ -29,6 +29,7 @@ public final class CommentTextFieldReactor {
         case setEnableConfirmButton(Bool)
         case setEnableTextField(Bool)
         case setRecordState(BBEqualizerState)
+        case setRecordFileData(Data)
     }
     
     
@@ -37,6 +38,7 @@ public final class CommentTextFieldReactor {
     public struct State { 
         @Pulse var inputText: String? = nil
         @Pulse var recordState: BBEqualizerState = .stop
+        @Pulse var voiceCommentData: Data? = nil
         var enableTextField: Bool = true
         var enableConfirmButton: Bool = false
     }
@@ -64,7 +66,11 @@ public final class CommentTextFieldReactor {
             let enable = text.count == 0 ? false : true
             return Observable<Mutation>.just(.setEnableConfirmButton(enable))
             
-        case .didTappedRecordButton:
+        case let .didTappedRecordConfirmButton(recordFile):
+            provider.commentService.didReceiveVoiceCommentFile(recordFile)
+            return .just(.setRecordFileData(recordFile))
+            
+        case .didTappedRecordToggleButton:
             let currentRecordState = currentState.recordState == .stop ? BBEqualizerState.play : .stop
             
             return .just(.setRecordState(currentRecordState))
@@ -86,6 +92,11 @@ public final class CommentTextFieldReactor {
             
         case let .setRecordState(recordState):
             newState.recordState = recordState
+            
+        case let .setRecordFileData(voiceCommentData):
+            
+            newState.voiceCommentData = voiceCommentData
+            print("new state: log : \(newState.voiceCommentData)")
         }
         
         return newState

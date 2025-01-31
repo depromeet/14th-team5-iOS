@@ -61,17 +61,14 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        recorderManager.recorderCore
-            .audioRecorder.rx
-            .audioRecorderDidFinishRecording
-            .compactMap { try Data(contentsOf: $0)}
+        Observable
+            .zip(
+                recorderManager.recorderCore.audioRecorder.rx.audioRecorderDidFinishRecording,
+                confirmButton.rx.tap
+            )
+            .map { $0.0 }
+            .compactMap { try Data(contentsOf:  $0) }
             .map { Reactor.Action.didTappedRecordConfirmButton($0)}
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        confirmButton.rx.tap
-            .throttle(.milliseconds(300), scheduler: RxScheduler.main)
-            .map { Reactor.Action.didTappedRecordToggleButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
@@ -171,10 +168,6 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
         
         self.do {
             $0.backgroundColor = UIColor.gray900
-        }
-        
-        equalizerView.do {
-            $0.backgroundColor = .clear
         }
         
         textFieldView.do {

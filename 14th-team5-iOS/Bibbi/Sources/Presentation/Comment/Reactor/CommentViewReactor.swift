@@ -106,7 +106,7 @@ final public class CommentViewReactor: Reactor {
                 switch $1 {
                 case let .didReceiveVoiceCommentFile(voiceCommentFile):
                     let postId = $0.postId
-                    let fileName = "\(voiceCommentFile.hashValue).mp4"
+                    let fileName = "\(voiceCommentFile.hashValue).m4a"
                     let body = CreateVoicePresignedURLRequest(imageName: fileName)
                     
                     return $0.voicePresignedURLUseCase.execute(postId: postId, body, mp4File: voiceCommentFile)

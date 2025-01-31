@@ -68,7 +68,11 @@ public final class CommentTextFieldReactor {
             
         case let .didTappedRecordConfirmButton(recordFile):
             provider.commentService.didReceiveVoiceCommentFile(recordFile)
-            return .just(.setRecordFileData(recordFile))
+            let currentState = currentState.recordState == .stop ? BBEqualizerState.play : .stop
+            return .concat(
+                .just(.setRecordState(currentState)),
+                .just(.setRecordState(currentState))
+            )
             
         case .didTappedRecordToggleButton:
             let currentRecordState = currentState.recordState == .stop ? BBEqualizerState.play : .stop

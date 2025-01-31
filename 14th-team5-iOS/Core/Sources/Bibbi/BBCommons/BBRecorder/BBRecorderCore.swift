@@ -16,7 +16,7 @@ public class BBRecorderCore {
     /// FileManager Documents Paths URL 가져오는 Property 입니다.
     public static var getDocumentsPath: URL = {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        let fileName = UUID().uuidString + ".caf"
+        let fileName = UUID().uuidString + ".m4a"
         return paths[0].appendingPathComponent(fileName)
     }()
     

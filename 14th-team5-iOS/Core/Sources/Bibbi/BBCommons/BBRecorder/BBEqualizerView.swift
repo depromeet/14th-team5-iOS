@@ -93,6 +93,11 @@ public final class BBEqualizerView: UIView {
     }
     
     private func setupAttributes() {
+        
+        self.do {
+            $0.backgroundColor = .clear
+        }
+        
         timerLabel.do {
             $0.textColor = .gray500
             $0.text = "0:00"

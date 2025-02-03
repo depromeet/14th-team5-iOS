@@ -49,6 +49,12 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
     }
     
     private func bindInput(reactor: CommentTextFieldReactor) {
+        
+        let recorderURL = recorderManager.recorderCore.audioRecorder.rx.audioRecorderDidFinishRecording
+            .distinctUntilChanged()
+            .publish()
+            .refCount()
+        
         textFieldView.rx.text
             .orEmpty
             .map { Reactor.Action.inputText($0) }
@@ -61,13 +67,11 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        Observable
-            .zip(
-                recorderManager.recorderCore.audioRecorder.rx.audioRecorderDidFinishRecording,
-                confirmButton.rx.tap
-            )
-            .map { $0.0 }
-            .compactMap { try Data(contentsOf:  $0) }
+        confirmButton.rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .do(onNext: { [weak self] in self?.recorderManager.stopRecoding() })
+            .flatMapLatest { recorderURL }
+            .compactMap { try Data(contentsOf: $0)}
             .map { Reactor.Action.didTappedRecordConfirmButton($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -229,7 +233,6 @@ extension CommentTextFieldView {
             recordButton.setBackgroundImage(DesignSystemAsset.voice.image, for: .normal)
             textFieldView.isHidden = false
             equalizerView.isHidden = true
-            recorderManager.stopRecoding()
         }
     }
 }

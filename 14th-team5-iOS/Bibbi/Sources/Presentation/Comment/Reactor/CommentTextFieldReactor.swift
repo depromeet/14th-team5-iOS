@@ -67,16 +67,12 @@ public final class CommentTextFieldReactor {
             return Observable<Mutation>.just(.setEnableConfirmButton(enable))
             
         case let .didTappedRecordConfirmButton(recordFile):
+            let currentRecordState = currentState.recordState == .stop ? BBEqualizerState.play : .stop
             provider.commentService.didReceiveVoiceCommentFile(recordFile)
-            let currentState = currentState.recordState == .stop ? BBEqualizerState.play : .stop
-            return .concat(
-                .just(.setRecordState(currentState)),
-                .just(.setRecordState(currentState))
-            )
+            return .just(.setRecordState(currentRecordState))
             
         case .didTappedRecordToggleButton:
             let currentRecordState = currentState.recordState == .stop ? BBEqualizerState.play : .stop
-            
             return .just(.setRecordState(currentRecordState))
         }
     }
@@ -95,6 +91,7 @@ public final class CommentTextFieldReactor {
             newState.enableTextField = enable
             
         case let .setRecordState(recordState):
+            print("set record state: \(recordState)")
             newState.recordState = recordState
             
         case let .setRecordFileData(voiceCommentData):

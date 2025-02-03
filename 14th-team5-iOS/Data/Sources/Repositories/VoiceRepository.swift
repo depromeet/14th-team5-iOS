@@ -7,6 +7,7 @@
 
 import Foundation
 import Domain
+import Core
 
 import RxSwift
 
@@ -14,6 +15,7 @@ public final class VoiceRepository {
     
     private let disposeBag: DisposeBag = DisposeBag()
     private let voiceApiWorker: VoiceAPIWorker = VoiceAPIWorker()
+    private let voiceStorage: BBDiskCacheStorage<String, Data> = BBDiskCacheStorage()
     public init() { }
 }
 
@@ -22,6 +24,21 @@ extension VoiceRepository: VoiceRepositoryProtocol {
     public func createVoiceComment(postId: String, body: CreateVoiceRequest) -> Observable<PostCommentEntity> {
         let body = CreateVoiceCommentRequestDTO(fileUrl: body.fileUrl)
         return voiceApiWorker.createVoiceComment(postId: postId, body: body)
+            .do(onNext: { response in
+                if response.commentType == "VOICE" {
+                    do {
+                        guard let voiceURL = URL(string: response.comment),
+                              let bufferData = try? Data(contentsOf: voiceURL) else {
+                            return
+                        }
+                        try self.voiceStorage.setObject(bufferData, for: response.commentId)
+                    } catch {
+                        print("😳음성 녹음 URL을 저장하는데 실패 했습니다.")
+                        print(error.localizedDescription)
+                    }
+                    
+                }
+            })
             .map { $0.toDomain() }
         
     }

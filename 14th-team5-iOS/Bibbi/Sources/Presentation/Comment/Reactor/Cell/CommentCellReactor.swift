@@ -21,6 +21,7 @@ final public class CommentCellReactor: Reactor {
         case fetchUserName
         case fetchProfileImage
         case didTapProfileButton
+        case didTapPlayButton
     }
     
     
@@ -29,6 +30,7 @@ final public class CommentCellReactor: Reactor {
     public enum Mutation {
         case setMemberName(String)
         case setProfileImageUrl(URL?)
+        case setEqualizerState(BBEqualizerState)
     }
     
     
@@ -38,6 +40,7 @@ final public class CommentCellReactor: Reactor {
         let comment: PostCommentEntity
         var memberName: String?
         var profileImageUrl: URL?
+        var equalizerState : BBEqualizerState = .stop
     }
     
     
@@ -84,6 +87,10 @@ final public class CommentCellReactor: Reactor {
             }
             
             return Observable<Mutation>.empty()
+        case .didTapPlayButton:
+            let toggleState = currentState.equalizerState == .stop ? BBEqualizerState.play : .stop
+            
+            return .just(.setEqualizerState(toggleState))
         }
     }
     
@@ -98,6 +105,9 @@ final public class CommentCellReactor: Reactor {
             
         case let .setProfileImageUrl(url):
             newState.profileImageUrl = url
+            
+        case let .setEqualizerState(equalizerState):
+            newState.equalizerState = equalizerState
         }
         
         return newState

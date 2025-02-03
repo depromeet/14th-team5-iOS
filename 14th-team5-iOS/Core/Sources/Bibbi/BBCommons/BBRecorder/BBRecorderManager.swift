@@ -58,28 +58,4 @@ public class BBRecorderManager: NSObject {
         return self
     }
     
-    func updateDecibels(buffer: AVAudioPCMBuffer) -> Float {
-        guard let channelData = buffer.floatChannelData?.pointee else { return 0.0 }
-        let frameLength = buffer.frameLength
-        let rms = sqrt((0..<Int(frameLength)).map { channelData[$0] * channelData[$0] }.reduce(0, +) / Float(frameLength))
-        let decibel = 20 * log10(rms)
- 
-        return decibel
-    }
-    
-    func normalizeDecibel(decibel: Float) -> Float {
-        let minDecibel: Float = -60.0
-        let maxDecibel: Float = 0.0
-        let targetMin: Float = 1.0
-        let targetMax: Float = 10.0
-
-       
-        let clampedDecibel = max(minDecibel, min(decibel, maxDecibel))
-        let linearNormalized = (clampedDecibel - minDecibel) / (maxDecibel - minDecibel)
-        let nonlinearNormalized = pow(linearNormalized, 1.0)
-        let normalizedValue = targetMin + nonlinearNormalized * (targetMax - targetMin)
-        
-        return Float(round(normalizedValue * 10000) / 10000)
-    }
-    
 }

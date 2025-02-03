@@ -26,7 +26,7 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     private let labelStack: UIStackView = UIStackView()
     private let nameLabel: BBLabel = BBLabel(.body2Bold, textColor: .gray100)
     private let createdAtLabel: BBLabel = BBLabel(.body2Regular, textColor: .gray500)
-    private let commentEqualizerView: BBEqualizerView = BBEqualizerView(state: .play)
+    private let commentEqualizerView: BBEqualizerView = BBEqualizerView(state: .stop)
     private let voicePlayButton: UIButton = UIButton(type: .custom)
     private let voiceCotainerView: UIView = UIView()
     private let commentLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray100)
@@ -121,10 +121,15 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         )
         .filter { $0.0 == "VOICE"}
         .map { $0.1 }
-        .requestAudioFileDecibles { $0 }
-        .debug("request Decibles")
+        .requestAudioFileDecibels { $0 }
+        .distinctUntilChanged()
         .bind(to: commentEqualizerView.rx.equalizerLevels)
         .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.equalizerState }
+            .distinctUntilChanged()
+            .bind(to: commentEqualizerView.rx.state)
+            .disposed(by: disposeBag)
             
     }
     

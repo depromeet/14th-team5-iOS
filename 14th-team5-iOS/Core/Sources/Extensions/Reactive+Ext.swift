@@ -140,8 +140,7 @@ public extension Reactive where Base: BBRecorderManager {
             var decibles: [CGFloat] = []
             
             base.inputNode.installTap(onBus: 0, bufferSize: 1024, format: base.inputNode.inputFormat(forBus: 0)) { buffer, time in
-                let realTimeDecibel = base.updateDecibels(buffer: buffer)
-                let normlizedDecibel = base.normalizeDecibel(decibel: realTimeDecibel)
+                let normlizedDecibel = buffer.normalizeDecible()
                 decibles.append(CGFloat(normlizedDecibel))
     
                 observer.onNext(decibles)
@@ -178,4 +177,68 @@ public extension Reactive where Base: BBRecorderManager {
             return Disposables.create()
         }
     }
+}
+
+public extension ObservableType {
+    func requestAudioFileDecibels(_ transform: @escaping (Element) -> String) -> Observable<[CGFloat]> {
+        return flatMap { element -> Observable<[CGFloat]> in
+            let fileIDKey = transform(element)
+            var decibels: [CGFloat] = []
+            guard let filePath = BBDiskCacheStorage<String, URL>.read(forkey: fileIDKey) else {
+                return .error(BBDiskCacheStroageError.cannotCreateCacheFile)
+            }
+            let standardFilePath = filePath.standardizedFileURL
+            let asset = AVURLAsset(url: standardFilePath)
+            
+            guard let assetReader = try? AVAssetReader(asset: asset) else {
+                //TODO: Audio 관련 에러처리 정의하고 추가
+                return .error(BBUploadError.uploadFailed)
+            }
+            
+            guard let track = asset.tracks(withMediaType: .audio).first else {
+                //TODO: Audio 관련 에러처리 정의하고 추가
+                return .error(BBUploadError.uploadFailed)
+            }
+            
+            let outputSettings: [String: Any] = [
+                AVFormatIDKey: kAudioFormatLinearPCM,
+                AVLinearPCMIsFloatKey: true,
+                AVLinearPCMBitDepthKey: 32
+            ]
+            
+            let trackOutput = AVAssetReaderTrackOutput(track: track, outputSettings: outputSettings)
+            assetReader.add(trackOutput)
+            
+            if assetReader.status == .failed {
+                return .error(BBUploadError.uploadFailed)
+            }
+            
+            assetReader.startReading()
+            while assetReader.status == .reading {
+                if let sampleBuffer = trackOutput.copyNextSampleBuffer(),
+                   let blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer) {
+                    let length = CMBlockBufferGetDataLength(blockBuffer)
+                    var data = [Float](repeating: 0, count: length / MemoryLayout<Float>.size)
+                    CMBlockBufferCopyDataBytes(blockBuffer, atOffset: 0, dataLength: length, destination: &data)
+
+                    for sample in data {
+                        let decibel = 20 * log10(abs(sample))
+                        let minDecibel: Float = -60.0
+                        let maxDecibel: Float = 0.0
+                        
+                        let clampedDecibel = max(minDecibel, min(decibel, maxDecibel))
+                    
+                        let normalizedValue = 1.0 + (clampedDecibel - minDecibel) / (maxDecibel - minDecibel) * (10.0 - 1.0)
+                        
+                        if decibels.count >= 30 {
+                            break
+                        }
+                        decibels.append(CGFloat(round(normalizedValue * 10000) / 10000))
+                    }
+                }
+            }
+            return .just(decibels)
+        }
+    }
+        
 }

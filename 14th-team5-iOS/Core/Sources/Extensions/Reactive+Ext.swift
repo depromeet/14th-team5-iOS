@@ -112,7 +112,7 @@ extension Reactive where Base: UIImageView {
 
 public extension Reactive where Base: BBRecorderManager {
     var requestCurrentTime: Observable<String> {
-        return Observable<String>.create { observer in
+        return Observable.create { observer in
             let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak base] _ in
                 guard let currentTime = base?.recorderCore.audioRecorder.currentTime else {
                     return
@@ -180,6 +180,29 @@ public extension Reactive where Base: BBRecorderManager {
 }
 
 public extension ObservableType {
+    func requestAudioCurrentTime(_ transform: @escaping (Element) -> String) -> Observable<String> {
+        return flatMap { element -> Observable<String> in
+            let fileIdKey = transform(element)
+            guard let filePath = BBDiskCacheStorage<String, URL>.read(forkey: fileIdKey) else {
+                return .error(BBDiskCacheStroageError.diskStorageIsNotReady)
+            }
+            
+            let asset = AVURLAsset(url: filePath)
+            let duration = CMTimeGetSeconds(asset.duration)
+            
+            guard duration.isFinite || !duration.isZero else {
+                return .error(NSError(domain: "❌잘못된 음성 녹음 파일 입니다.❌", code: -1))
+            }
+            
+            let playerMinutes = Int(duration) / 60
+            let playerSeconds = Int(duration) % 60
+            let formatTimes = String(format: "%01d:%02d", playerMinutes, playerSeconds)
+            return .just(formatTimes)
+            
+        }
+    }
+    
+    
     func requestAudioFileDecibels(_ transform: @escaping (Element) -> String) -> Observable<[CGFloat]> {
         return flatMap { element -> Observable<[CGFloat]> in
             let fileIDKey = transform(element)

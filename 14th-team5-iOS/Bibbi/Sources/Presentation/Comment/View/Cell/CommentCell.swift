@@ -26,7 +26,7 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     private let labelStack: UIStackView = UIStackView()
     private let nameLabel: BBLabel = BBLabel(.body2Bold, textColor: .gray100)
     private let createdAtLabel: BBLabel = BBLabel(.body2Regular, textColor: .gray500)
-    private let commentEqualizerView: BBEqualizerView = BBEqualizerView(state: .stop)
+    private let commentEqualizerView: BBEqualizerView = BBEqualizerView(state: .inital)
     private let voicePlayButton: UIButton = UIButton(type: .custom)
     private let voiceCotainerView: UIView = UIView()
     private let commentLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray100)
@@ -67,6 +67,12 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         profileButton.rx.tap
             .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.didTapProfileButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        voicePlayButton.rx.tap
+            .throttle(.milliseconds(300), scheduler: RxScheduler.main)
+            .map { Reactor.Action.didTapPlayButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
@@ -124,6 +130,18 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         .requestAudioFileDecibels { $0 }
         .distinctUntilChanged()
         .bind(to: commentEqualizerView.rx.equalizerLevels)
+        .disposed(by: disposeBag)
+        
+        
+        Observable.zip(
+            reactor.state.map { $0.comment.commentType }.distinctUntilChanged(),
+            reactor.state.map { $0.comment.commentId }.distinctUntilChanged()
+        )
+        .filter { $0.0 == "VOICE"}
+        .map { $0.1 }
+        .requestAudioCurrentTime { $0 }
+        .observe(on: RxScheduler.main)
+        .bind(to: commentEqualizerView.timerLabel.rx.text)
         .disposed(by: disposeBag)
         
         reactor.state.map { $0.equalizerState }

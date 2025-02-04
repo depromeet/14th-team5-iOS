@@ -40,7 +40,7 @@ final public class CommentCellReactor: Reactor {
         let comment: PostCommentEntity
         var memberName: String?
         var profileImageUrl: URL?
-        var equalizerState : BBEqualizerState = .stop
+        var equalizerState : BBEqualizerState = .inital
     }
     
     
@@ -88,7 +88,7 @@ final public class CommentCellReactor: Reactor {
             
             return Observable<Mutation>.empty()
         case .didTapPlayButton:
-            let toggleState = currentState.equalizerState == .stop ? BBEqualizerState.play : .stop
+            let toggleState = currentState.equalizerState == .inital ? BBEqualizerState.play : .inital
             
             return .just(.setEqualizerState(toggleState))
         }

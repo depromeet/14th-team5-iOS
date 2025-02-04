@@ -14,20 +14,21 @@ import RxCocoa
 
 
 public final class BBEqualizerView: UIView {
-    public var state: BBEqualizerState = .stop
-    private(set) var displayLink: CADisplayLink?
-    public let timerLabel: BBLabel = BBLabel(.body1Regular)
-    private var lastUpdateTime: Date = Date()
-    public var eqaulizerIndex: Int = 0
-    public var equalizerLevels: [CGFloat] = [] {
+    public var state: BBEqualizerState = .inital {
         didSet {
-            if state == .play {
+            switch state {
+            case .inital:
+                invalidateEqaulizerLayout()
+            default:
                 didUpdateEqaulizerLayout()
-            } else {
-                removeEqaulizerLayout()
             }
         }
     }
+    private(set) var displayLink: CADisplayLink?
+    public let timerLabel: BBLabel = BBLabel(.body1Regular)
+    private var lastUpdateTime: Date = Date()
+    public var equalizerIndex: Int = 0
+    public var equalizerLevels: [CGFloat] = []
     
     public init(state: BBEqualizerState) {
         self.state = state
@@ -52,32 +53,74 @@ public final class BBEqualizerView: UIView {
         let waveHeight = state.config.waveHeight
         let dotHeight = state.config.dotHeight
         let midY = rect.midY
-
-        context.setStrokeColor(state.config.waveColor.cgColor)
-        context.setLineWidth(state.config.waveWidth)
-
-        for index in 0 ..< eqaulizerIndex {
-            let transformHeight = equalizerLevels.indices.contains(index)
-                ? equalizerLevels[index] * waveHeight
-                : waveHeight
-            let pointX = CGFloat(index) * dotWidth
-            let pointY = midY - (transformHeight / 2)
-            context.move(to: CGPoint(x: pointX, y: pointY))
-            context.addLine(to: CGPoint(x: pointX, y: pointY + transformHeight))
+        
+        switch state {
+        case .inital:
+            context.setStrokeColor(state.config.dotColor.cgColor)
+            context.setLineWidth(state.config.dotWidth)
+            
+            for index in 0 ..< 30 {
+                let transformHeight = equalizerLevels.indices.contains(index) ? equalizerLevels[index] * dotHeight : dotHeight
+                let pointX = CGFloat(index) * dotWidth
+                let pointY = midY - (transformHeight / 2)
+                context.move(to: CGPoint(x: pointX, y: pointY))
+                context.addLine(to: CGPoint(x: pointX, y: pointY + transformHeight))
+            }
+            
+            context.strokePath()
+        case .record:
+            context.setStrokeColor(state.config.dotColor.cgColor)
+            context.setLineWidth(state.config.dotWidth)
+            
+            
+            for index in equalizerIndex ..< 30 {
+                let pointX = CGFloat(index) * dotWidth
+                let pointY = midY - (dotHeight / 2)
+                context.move(to: CGPoint(x: pointX, y: pointY))
+                context.addLine(to: CGPoint(x: pointX, y: pointY + dotHeight))
+            }
+            
+            context.strokePath()
+            
+            
+            context.setStrokeColor(state.config.waveColor.cgColor)
+            context.setLineWidth(state.config.waveWidth)
+            
+            for index in 0 ..< equalizerIndex {
+                let transformHeight = equalizerLevels.indices.contains(index) ? equalizerLevels[index] * waveHeight : waveHeight
+                let pointX = CGFloat(index) * dotWidth
+                let pointY = midY - (transformHeight / 2)
+                context.move(to: CGPoint(x: pointX, y: pointY))
+                context.addLine(to: CGPoint(x: pointX, y: pointY + transformHeight))
+            }
+            context.strokePath()
+        case .play:
+            context.setStrokeColor(state.config.dotColor.cgColor)
+            context.setLineWidth(state.config.dotWidth)
+            
+            for index in equalizerIndex ..< 30 {
+                let transformHeight = equalizerLevels.indices.contains(index) ? equalizerLevels[index] * dotHeight : dotHeight
+                let pointX = CGFloat(index) * dotWidth
+                let pointY = midY - (transformHeight / 2)
+                context.move(to: CGPoint(x: pointX, y: pointY))
+                context.addLine(to: CGPoint(x: pointX, y: pointY + transformHeight))
+            }
+            context.strokePath()
+            
+            
+            context.setStrokeColor(state.config.waveColor.cgColor)
+            context.setLineWidth(state.config.waveWidth)
+            for index in 0 ..< equalizerIndex {
+                let transformHeight = equalizerLevels.indices.contains(index) ? equalizerLevels[index] * state.config.waveHeight : state.config.waveHeight
+                let pointX = CGFloat(index) * dotWidth
+                let pointY = midY - (transformHeight / 2)
+                context.move(to: CGPoint(x: pointX, y: pointY))
+                context.addLine(to: CGPoint(x: pointX, y: pointY + transformHeight))
+            }
+            context.strokePath()
         }
-        context.strokePath()
-
-        context.setStrokeColor(state.config.dotColor.cgColor)
-        context.setLineWidth(state.config.dotWidth)
-
-        for index in eqaulizerIndex ..< 30 {
-            let pointX = CGFloat(index) * dotWidth
-            let pointY = midY - (dotHeight / 2)
-            context.move(to: CGPoint(x: pointX, y: pointY))
-            context.addLine(to: CGPoint(x: pointX, y: pointY + dotHeight))
-        }
-        context.strokePath()
     }
+
     
     private func setupUI() {
         addSubviews(timerLabel)
@@ -110,10 +153,11 @@ public final class BBEqualizerView: UIView {
         displayLink?.add(to: .main, forMode: .common)
     }
     
-    private func removeEqaulizerLayout() {
+    private func invalidateEqaulizerLayout() {
         displayLink?.invalidate()
         displayLink = nil
-        eqaulizerIndex = 0
+        equalizerIndex = 0
+        setNeedsDisplay()
     }
     
     
@@ -123,7 +167,7 @@ public final class BBEqualizerView: UIView {
         let maxDotCount = 30
         if currentTime.timeIntervalSince(lastUpdateTime) >= 1.0 {
             lastUpdateTime = currentTime
-            eqaulizerIndex = min(eqaulizerIndex + 1, maxDotCount)
+            equalizerIndex = min(equalizerIndex + 1, maxDotCount)
         }
         equalizerLevels = Array(equalizerLevels.prefix(maxDotCount))
         setNeedsDisplay()

@@ -37,7 +37,7 @@ public final class CommentTextFieldReactor {
     
     public struct State { 
         @Pulse var inputText: String? = nil
-        @Pulse var recordState: BBEqualizerState = .stop
+        @Pulse var recordState: BBEqualizerState = .inital
         @Pulse var voiceCommentData: Data? = nil
         var enableTextField: Bool = true
         var enableConfirmButton: Bool = false
@@ -67,12 +67,12 @@ public final class CommentTextFieldReactor {
             return Observable<Mutation>.just(.setEnableConfirmButton(enable))
             
         case let .didTappedRecordConfirmButton(recordFile):
-            let currentRecordState = currentState.recordState == .stop ? BBEqualizerState.play : .stop
+            let currentRecordState = currentState.recordState == .inital ? BBEqualizerState.record : .inital
             provider.commentService.didReceiveVoiceCommentFile(recordFile)
             return .just(.setRecordState(currentRecordState))
             
         case .didTappedRecordToggleButton:
-            let currentRecordState = currentState.recordState == .stop ? BBEqualizerState.play : .stop
+            let currentRecordState = currentState.recordState == .inital ? BBEqualizerState.record : .inital
             return .just(.setRecordState(currentRecordState))
         }
     }

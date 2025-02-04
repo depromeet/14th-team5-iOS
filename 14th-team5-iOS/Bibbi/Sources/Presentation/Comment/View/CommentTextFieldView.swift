@@ -22,7 +22,7 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
     private let textFieldView: UITextField = UITextField()
     private let confirmButton: UIButton = UIButton(type: .system)
     let recordButton: UIButton = UIButton(type: .system)
-    let equalizerView: BBEqualizerView = BBEqualizerView(state: .stop)
+    let equalizerView: BBEqualizerView = BBEqualizerView(state: .inital)
     
     // MARK: - Properties
     
@@ -106,7 +106,7 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
             reactor.pulse(\.$recordState),
             recorderManager.rx.requestCurrentTime
         )
-        .filter { $0.0 == .play }
+        .filter { $0.0 == .record }
         .map { $0.1.toTimeInSeconds(.seconds) ?? 0.0 >= 1.0 ? true : false}
         .bind(to: confirmButton.rx.isEnabled)
         .disposed(by: disposeBag)
@@ -115,7 +115,7 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
             reactor.pulse(\.$recordState),
             recorderManager.rx.requestDecibels
         )
-        .filter { $0.0 == .play }
+        .filter { $0.0 == .record }
         .map { $0.1 }
         .observe(on: RxScheduler.main)
         .bind(to: equalizerView.rx.equalizerLevels)
@@ -224,15 +224,18 @@ extension CommentTextFieldView {
     
     func didUpdateTextFieldLayout(_ state: BBEqualizerState) {
         switch state {
-        case .play:
+        case .record:
             recordButton.setBackgroundImage(DesignSystemAsset.voiceOff.image, for: .normal)
             textFieldView.isHidden = true
             equalizerView.isHidden = false
             recorderManager.startRecoding()
-        case .stop:
+        case .inital:
             recordButton.setBackgroundImage(DesignSystemAsset.voice.image, for: .normal)
             textFieldView.isHidden = false
             equalizerView.isHidden = true
+            recorderManager.stopRecoding()
+        default:
+            break
         }
     }
 }

@@ -24,7 +24,7 @@ public final class BBEqualizerView: UIView {
             }
         }
     }
-    private(set) var displayLink: CADisplayLink?
+    public var displayLink: CADisplayLink?
     public let timerLabel: BBLabel = BBLabel(.body1Regular)
     private var lastUpdateTime: Date = Date()
     public var equalizerIndex: Int = 0
@@ -153,7 +153,7 @@ public final class BBEqualizerView: UIView {
         displayLink?.add(to: .main, forMode: .common)
     }
     
-    private func invalidateEqaulizerLayout() {
+    public func invalidateEqaulizerLayout() {
         displayLink?.invalidate()
         displayLink = nil
         equalizerIndex = 0

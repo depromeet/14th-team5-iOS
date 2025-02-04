@@ -30,13 +30,15 @@ extension CommentRepository {
             .do(onNext: { response in
                 _ = response.results.map { dto in
                     if dto.commentType == "VOICE" {
-                        do {
-                            guard let voiceURL = URL(string: dto.comment),
-                                  let bufferData = try? Data(contentsOf: voiceURL) else { return }
-                            try self.commentStorage.setObject(bufferData, for: dto.commentId)
-                        } catch {
-                            print("🤨음성 녹음 URL을 저장하는데 실패 했습니다.")
-                            print(error.localizedDescription)
+                        Task {
+                            do {
+                                guard let voiceURL = URL(string: dto.comment),
+                                      let bufferData = try? Data(contentsOf: voiceURL) else { return }
+                                try await self.commentStorage.setObject(bufferData, for: dto.commentId)
+                            } catch {
+                                print("🤨음성 녹음 URL을 저장하는데 실패 했습니다.")
+                                print(error.localizedDescription)
+                            }
                         }
                     }
                 }

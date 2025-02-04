@@ -29,7 +29,7 @@ public final class BBDiskCacheStorage<Key: Hashable, Value> {
         }
     }
     
-    public func setObject(_ object: Value, for key: Key) throws {
+    public func setObject(_ object: Value, for key: Key) async throws {
         guard let buffer = object as? Data else {
             throw BBDiskCacheStroageError.cannotConvertToData
         }

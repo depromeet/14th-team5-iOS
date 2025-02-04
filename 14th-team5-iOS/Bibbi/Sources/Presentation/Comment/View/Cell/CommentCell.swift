@@ -72,6 +72,7 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         
         voicePlayButton.rx.tap
             .throttle(.milliseconds(300), scheduler: RxScheduler.main)
+            .do { _ in Haptic.selection() }
             .map { Reactor.Action.didTapPlayButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -146,6 +147,13 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         
         reactor.state.map { $0.equalizerState }
             .distinctUntilChanged()
+            .map { $0 == .inital ? false : true }
+            .bind(to: voicePlayButton.rx.isSelected)
+            .disposed(by: disposeBag)
+        
+        
+        reactor.state.map { $0.equalizerState }
+            .distinctUntilChanged()
             .bind(to: commentEqualizerView.rx.state)
             .disposed(by: disposeBag)
             
@@ -202,8 +210,8 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         voiceCotainerView.snp.makeConstraints {
             $0.top.equalTo(labelStack.snp.bottom).offset(8)
             $0.left.equalTo(labelStack)
-            $0.right.equalToSuperview()
-            $0.height.equalTo(40)
+            $0.right.equalToSuperview().inset(20)
+            $0.bottom.equalToSuperview().inset(16)
         }
         
         commentLabel.snp.makeConstraints {
@@ -233,6 +241,7 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         }
         
         voicePlayButton.do {
+            $0.setBackgroundImage(DesignSystemAsset.pause.image, for: .selected)
             $0.setBackgroundImage(DesignSystemAsset.play.image, for: .normal)
             $0.setTitle("", for: .normal)
         }

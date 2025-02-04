@@ -30,6 +30,7 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     private let voicePlayButton: UIButton = UIButton(type: .custom)
     private let voiceCotainerView: UIView = UIView()
     private let commentLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray100)
+    private let playerManager: BBRecorderManager = BBRecorderManager()
     
     
     // MARK: - Properties
@@ -72,10 +73,33 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         
         voicePlayButton.rx.tap
             .throttle(.milliseconds(300), scheduler: RxScheduler.main)
-            .do { _ in Haptic.selection() }
+            .do { _ in Haptic.impact(style: .medium) }
             .map { Reactor.Action.didTapPlayButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        
+        
+        Observable.combineLatest(
+            reactor.state.map { $0.equalizerState }.distinctUntilChanged(),
+            reactor.pulse(\.$audioId)
+        )
+        .filter { !$0.1.isEmpty }
+        .observe(on: RxScheduler.asyncMain)
+        .bind(with: self) { owner, response in
+            let (state, audioId) = response
+            switch state {
+            case .inital:
+                owner.playerManager.pauseAudioPlayback()
+            case .play:
+                owner.playerManager.playAudio(from: audioId)
+            default:
+                break
+            }
+        }
+        .disposed(by: disposeBag)
+        
+        
     }
     
     private func bindOutput(reactor: CommentCellReactor) {

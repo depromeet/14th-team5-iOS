@@ -31,12 +31,14 @@ final public class CommentCellReactor: Reactor {
         case setMemberName(String)
         case setProfileImageUrl(URL?)
         case setEqualizerState(BBEqualizerState)
+        case setPlayAudioId(String)
     }
     
     
     // MARK: - State
     
     public struct State {
+        @Pulse var audioId: String = ""
         let comment: PostCommentEntity
         var memberName: String?
         var profileImageUrl: URL?
@@ -89,8 +91,11 @@ final public class CommentCellReactor: Reactor {
             return Observable<Mutation>.empty()
         case .didTapPlayButton:
             let toggleState = currentState.equalizerState == .inital ? BBEqualizerState.play : .inital
-            
-            return .just(.setEqualizerState(toggleState))
+            let audioId = currentState.comment.commentId
+            return .concat(
+                .just(.setEqualizerState(toggleState)),
+                .just(.setPlayAudioId(audioId))
+            )
         }
     }
     
@@ -108,6 +113,9 @@ final public class CommentCellReactor: Reactor {
             
         case let .setEqualizerState(equalizerState):
             newState.equalizerState = equalizerState
+            
+        case let .setPlayAudioId(audioId):
+            newState.audioId = audioId
         }
         
         return newState

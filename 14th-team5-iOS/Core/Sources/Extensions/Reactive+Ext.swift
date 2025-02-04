@@ -184,7 +184,7 @@ public extension ObservableType {
         return flatMap { element -> Observable<String> in
             let fileIdKey = transform(element)
             guard let filePath = BBDiskCacheStorage<String, URL>.read(forkey: fileIdKey) else {
-                return .error(BBDiskCacheStroageError.diskStorageIsNotReady)
+                return .error(BBDiskCacheStroageError.cannotCreateCacheFile)
             }
             
             let asset = AVURLAsset(url: filePath)
@@ -214,13 +214,11 @@ public extension ObservableType {
             let asset = AVURLAsset(url: standardFilePath)
             
             guard let assetReader = try? AVAssetReader(asset: asset) else {
-                //TODO: Audio 관련 에러처리 정의하고 추가
-                return .error(BBUploadError.uploadFailed)
+                return .error(AVError(.failedToLoadMediaData))
             }
             
             guard let track = asset.tracks(withMediaType: .audio).first else {
-                //TODO: Audio 관련 에러처리 정의하고 추가
-                return .error(BBUploadError.uploadFailed)
+                return .error(AVError(.fileFormatNotRecognized))
             }
             
             let outputSettings: [String: Any] = [

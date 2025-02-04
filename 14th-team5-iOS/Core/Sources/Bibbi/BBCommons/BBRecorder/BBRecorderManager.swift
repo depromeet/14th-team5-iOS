@@ -11,6 +11,7 @@ import AVFoundation
 
 public class BBRecorderManager: NSObject {
     public var recorderCore: BBRecorderCore
+    public var audioPlayer: AVAudioPlayer?
     public var audioEngine: AVAudioEngine
     public var inputNode: AVAudioInputNode
 
@@ -48,5 +49,22 @@ public class BBRecorderManager: NSObject {
     public func stopRecoding() -> Self {
         recorderCore.audioRecorder.stop()
         return self
+    }
+    
+    public func pauseAudioPlayback() {
+        audioPlayer?.pause()
+    }
+    
+    public func playAudio(from audioId: String) -> Void {
+        guard let audioURL = BBDiskCacheStorage<String, URL>.read(forkey: audioId) else { return}
+        
+        do {
+            audioPlayer = try AVAudioPlayer(contentsOf: audioURL)
+            audioPlayer?.volume = 1.0
+            audioPlayer?.prepareToPlay()
+            audioPlayer?.play()
+        } catch {
+            print(error.localizedDescription)
+        }
     }
 }

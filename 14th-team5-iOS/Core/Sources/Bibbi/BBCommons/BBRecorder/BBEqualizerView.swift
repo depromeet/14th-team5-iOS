@@ -9,8 +9,6 @@ import UIKit
 
 import SnapKit
 import Then
-import RxSwift
-import RxCocoa
 
 
 public final class BBEqualizerView: UIView {

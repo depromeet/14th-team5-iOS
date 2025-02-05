@@ -46,7 +46,6 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         nameLabel.text = ""
         createdAtLabel.text = ""
         profileImage.image = nil
-        commentEqualizerView.equalizerLevels = []
         
         disposeBag = DisposeBag() // TODO: - 코드 삭제 테스트하기
     }
@@ -77,29 +76,6 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
             .map { Reactor.Action.didTapPlayButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
-        
-        
-        Observable.combineLatest(
-            reactor.state.map { $0.equalizerState }.distinctUntilChanged(),
-            reactor.pulse(\.$audioId)
-        )
-        .filter { !$0.1.isEmpty }
-        .observe(on: RxScheduler.asyncMain)
-        .bind(with: self) { owner, response in
-            let (state, audioId) = response
-            switch state {
-            case .inital:
-                owner.playerManager.pauseAudioPlayback()
-            case .play:
-                owner.playerManager.playAudio(from: audioId)
-            default:
-                break
-            }
-        }
-        .disposed(by: disposeBag)
-        
-        
     }
     
     private func bindOutput(reactor: CommentCellReactor) {
@@ -154,32 +130,70 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         .map { $0.1 }
         .requestAudioFileDecibels { $0 }
         .distinctUntilChanged()
+        .debug("🎤이퀄라이져 데시벨 값 입니다.🎤")
         .bind(to: commentEqualizerView.rx.equalizerLevels)
         .disposed(by: disposeBag)
         
         
-        Observable.zip(
+        //초기화 시 이퀄라이져 상태 값 -> inital
+        //녹화 시 이퀄라이져 상태 값 -> play
+        
+        
+        Observable.combineLatest(
+            reactor.pulse(\.$equalizerState),
             reactor.state.map { $0.comment.commentType }.distinctUntilChanged(),
             reactor.state.map { $0.comment.commentId }.distinctUntilChanged()
         )
-        .filter { $0.0 == "VOICE"}
-        .map { $0.1 }
+        .filter { $0.0 == .inital && $0.1 == "VOICE" }
+        .map { $0.2 }
         .requestAudioCurrentTime { $0 }
         .observe(on: RxScheduler.main)
         .bind(to: commentEqualizerView.timerLabel.rx.text)
         .disposed(by: disposeBag)
         
-        reactor.state.map { $0.equalizerState }
+        // 이퀄라이져 상태 값 -> intaial 로 변환은 잘됨
+        // 단 play 에서 -> inital로 변환하는 가정에서 (willChangedAudioTime) 에서 Observable이 구독이 해체되어 있지 않아서 0:00 초로 반횐이 되버림
+        
+        
+        Observable.combineLatest(
+            reactor.pulse(\.$equalizerState),
+            reactor.pulse(\.$audioId)
+        )
+        .willChangedAudioTime { $0 }
+        .observe(on: RxScheduler.main)
+        .bind(to: commentEqualizerView.timerLabel.rx.text)
+        .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$equalizerState)
             .distinctUntilChanged()
             .map { $0 == .inital ? false : true }
             .bind(to: voicePlayButton.rx.isSelected)
             .disposed(by: disposeBag)
         
-        
-        reactor.state.map { $0.equalizerState }
-            .distinctUntilChanged()
+        reactor.pulse(\.$equalizerState)
+            .skip(1)
             .bind(to: commentEqualizerView.rx.state)
             .disposed(by: disposeBag)
+        
+        Observable.combineLatest(
+            reactor.state.map { $0.equalizerState }.distinctUntilChanged(),
+            reactor.pulse(\.$audioId)
+        )
+        .skip(1)
+        .filter { !$0.1.isEmpty }
+        .observe(on: RxScheduler.asyncMain)
+        .bind(with: self) { owner, response in
+            let (state, audioId) = response
+            switch state {
+            case .inital:
+                owner.playerManager.pauseAudioPlayback()
+            case .play:
+                owner.playerManager.playAudio(from: audioId)
+            default:
+                break
+            }
+        }
+        .disposed(by: disposeBag)
             
     }
     

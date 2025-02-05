@@ -180,6 +180,50 @@ public extension Reactive where Base: BBRecorderManager {
 }
 
 public extension ObservableType {
+    func willChangedAudioTime(_ transform: @escaping (Element) -> (BBEqualizerState, String)) -> Observable<String> {
+        return flatMapLatest { element -> Observable<String> in
+            let (equalizerState, audioId) = transform(element)
+            
+            return Observable.create { observer in
+                guard let filePath = BBDiskCacheStorage<String, URL>.read(forkey: audioId) else {
+                    return Disposables.create()
+                }
+                
+                let asset = AVURLAsset(url: filePath)
+                let duration = CMTimeGetSeconds(asset.duration)
+                print("😡녹음 중 이퀄라이져 상태 값 입니다 \(equalizerState)😡")
+                guard duration.isFinite || !duration.isZero || equalizerState == .play else {
+                    observer.onCompleted()
+                    return Disposables.create()
+                }
+                
+                let timer = Observable<Int>
+                    .interval(.seconds(1), scheduler: RxScheduler.main)
+                    .flatMap { times -> Observable<String> in
+                        let currentTime = max(0, duration - Double(times))
+                        let playerMinutes = Int(currentTime) / 60
+                        let playerSeconds = Int(currentTime) % 60
+                        let formatTimes = String(format: "%01d:%02d", playerMinutes, playerSeconds)
+                        
+                        if currentTime.isZero {
+                            print("if 구문 체크 입니다")
+                            observer.onNext("0:00")
+                            observer.onCompleted()
+                        }
+                        
+                        return .just(formatTimes)
+                    }
+                    .subscribe(observer)
+                    
+                return Disposables.create {
+                    timer.dispose()
+                }
+            }
+            
+        }
+    }
+    
+    
     func requestAudioCurrentTime(_ transform: @escaping (Element) -> String) -> Observable<String> {
         return flatMap { element -> Observable<String> in
             let fileIdKey = transform(element)

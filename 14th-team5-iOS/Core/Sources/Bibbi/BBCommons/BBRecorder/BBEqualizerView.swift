@@ -158,6 +158,12 @@ public final class BBEqualizerView: UIView {
         setNeedsDisplay()
     }
     
+    public func resetEqualizerLayout() {
+        equalizerLevels = []
+        equalizerIndex = 0
+        state = .inital
+    }
+    
     
     @objc
     private func didUpdateEqaulizerLevel() {

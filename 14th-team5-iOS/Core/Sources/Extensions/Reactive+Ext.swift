@@ -191,8 +191,13 @@ public extension ObservableType {
                 
                 let asset = AVURLAsset(url: filePath)
                 let duration = CMTimeGetSeconds(asset.duration)
-                print("😡녹음 중 이퀄라이져 상태 값 입니다 \(equalizerState)😡")
-                guard duration.isFinite || !duration.isZero || equalizerState == .play else {
+                
+                guard equalizerState == .play else {
+                    observer.onCompleted()
+                    return Disposables.create()
+                }
+                
+                guard duration.isFinite || !duration.isZero  else {
                     observer.onCompleted()
                     return Disposables.create()
                 }
@@ -206,7 +211,6 @@ public extension ObservableType {
                         let formatTimes = String(format: "%01d:%02d", playerMinutes, playerSeconds)
                         
                         if currentTime.isZero {
-                            print("if 구문 체크 입니다")
                             observer.onNext("0:00")
                             observer.onCompleted()
                         }
@@ -247,9 +251,16 @@ public extension ObservableType {
     }
     
     
+//    func requestAudioFileDecibels2(_ transform: @escaping (Element) -> String) -> Observable<[CGFloat]> {
+//        return flatMap { element in
+//            <#code#>
+//        }
+//    }
+    
     func requestAudioFileDecibels(_ transform: @escaping (Element) -> String) -> Observable<[CGFloat]> {
-        return flatMap { element -> Observable<[CGFloat]> in
+        return flatMapLatest { element -> Observable<[CGFloat]> in
             let fileIDKey = transform(element)
+            print("🤪파일 아이디 키 값 입니다 \(fileIDKey)🤪")
             var decibels: [CGFloat] = []
             guard let filePath = BBDiskCacheStorage<String, URL>.read(forkey: fileIDKey) else {
                 return .error(BBDiskCacheStroageError.cannotCreateCacheFile)

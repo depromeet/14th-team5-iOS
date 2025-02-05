@@ -46,8 +46,9 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         nameLabel.text = ""
         createdAtLabel.text = ""
         profileImage.image = nil
-        
-        disposeBag = DisposeBag() // TODO: - 코드 삭제 테스트하기
+        commentEqualizerView.resetEqualizerLayout()
+        disposeBag = DisposeBag()
+        print("✅프리페얼 리쥼 호출 되었습니다 \(disposeBag)✅")
     }
     
     public override func bind(reactor: CommentCellReactor) {
@@ -112,25 +113,27 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         
         reactor.state.map { $0.comment.commentType }
             .distinctUntilChanged()
-            .map { $0 == "TEXT" ? true : false }
+            .map { $0 == "TEXT" }
             .bind(to: voiceCotainerView.rx.isHidden)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.comment.commentType }
             .distinctUntilChanged()
-            .map { $0 == "VOICE" ? true : false }
+            .map { $0 == "VOICE" }
             .bind(to: commentLabel.rx.isHidden)
             .disposed(by: disposeBag)
 
-        Observable.zip(
-            reactor.state.map { $0.comment.commentType }.distinctUntilChanged(),
-            reactor.state.map { $0.comment.commentId }.distinctUntilChanged()
+        
+        Observable.combineLatest(
+            reactor.pulse(\.$comment).map { $0.commentType},
+            reactor.pulse(\.$comment).map { $0.commentId }
         )
+        .debug("📁이퀄라이져 데시벨 방출 확인 입니다.📁")
         .filter { $0.0 == "VOICE"}
         .map { $0.1 }
-        .requestAudioFileDecibels { $0 }
         .distinctUntilChanged()
-        .debug("🎤이퀄라이져 데시벨 값 입니다.🎤")
+        .do(onDispose: { print("❌이퀄라이져 데시벨이 해체되었습니다❌")})
+        .requestAudioFileDecibels { $0 }
         .bind(to: commentEqualizerView.rx.equalizerLevels)
         .disposed(by: disposeBag)
         
@@ -159,14 +162,17 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
             reactor.pulse(\.$equalizerState),
             reactor.pulse(\.$audioId)
         )
+//        .debug("🟢녹화 된 이퀄라이져 상태 값 입니다🟢")
         .willChangedAudioTime { $0 }
+//        .debug("🎤녹화 된 시간 타임 입니다 🎤")
+        .distinctUntilChanged()
         .observe(on: RxScheduler.main)
         .bind(to: commentEqualizerView.timerLabel.rx.text)
         .disposed(by: disposeBag)
         
         reactor.pulse(\.$equalizerState)
             .distinctUntilChanged()
-            .map { $0 == .inital ? false : true }
+            .map { $0 == .play }
             .bind(to: voicePlayButton.rx.isSelected)
             .disposed(by: disposeBag)
         

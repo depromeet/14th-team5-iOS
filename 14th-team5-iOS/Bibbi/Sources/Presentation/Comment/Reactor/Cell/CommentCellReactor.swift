@@ -40,7 +40,7 @@ final public class CommentCellReactor: Reactor {
     public struct State {
         @Pulse var audioId: String = ""
         @Pulse var equalizerState : BBEqualizerState = .inital
-        let comment: PostCommentEntity
+        @Pulse var comment: PostCommentEntity
         var memberName: String?
         var profileImageUrl: URL?
     }

@@ -250,13 +250,6 @@ public extension ObservableType {
         }
     }
     
-    
-//    func requestAudioFileDecibels2(_ transform: @escaping (Element) -> String) -> Observable<[CGFloat]> {
-//        return flatMap { element in
-//            <#code#>
-//        }
-//    }
-    
     func requestAudioFileDecibels(_ transform: @escaping (Element) -> String) -> Observable<[CGFloat]> {
         return flatMapLatest { element -> Observable<[CGFloat]> in
             let fileIDKey = transform(element)

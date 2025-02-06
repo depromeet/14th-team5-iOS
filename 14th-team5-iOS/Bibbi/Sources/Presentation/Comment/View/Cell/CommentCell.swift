@@ -48,7 +48,6 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         profileImage.image = nil
         commentEqualizerView.resetEqualizerLayout()
         playerManager.pauseAudioPlayback()
-        print("✅프리페얼 리쥼 호출 되었습니다 \(voicePlayButton.isSelected)✅")
         disposeBag = DisposeBag()
     }
     
@@ -62,7 +61,6 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         
         Observable.just(())
             .map { Reactor.Action.prepareForReuse }
-            .debug("❌ 제사용 샐 호출로 인한 액션 방출 입니다. ❌")
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         

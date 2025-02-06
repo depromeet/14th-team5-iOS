@@ -136,8 +136,9 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         )
         .filter { $0.0 == "VOICE"}
         .map { $0.1 }
-        .distinctUntilChanged()
+        .observe(on: ConcurrentDispatchQueueScheduler(qos: .background))
         .requestAudioFileDecibels { $0 }
+        .observe(on: MainScheduler.instance)
         .bind(to: commentEqualizerView.rx.equalizerLevels)
         .disposed(by: disposeBag)
         
@@ -170,6 +171,7 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         
         reactor.pulse(\.$equalizerState)
             .skip(1)
+            .observe(on: MainScheduler.instance)
             .bind(to: commentEqualizerView.rx.state)
             .disposed(by: disposeBag)
         
@@ -177,7 +179,6 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
             reactor.state.map { $0.equalizerState }.distinctUntilChanged(),
             reactor.pulse(\.$audioId)
         )
-        .skip(1)
         .filter { !$0.1.isEmpty }
         .observe(on: RxScheduler.asyncMain)
         .bind(with: self) { owner, response in

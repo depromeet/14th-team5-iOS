@@ -26,7 +26,9 @@ public final class BBEqualizerView: UIView {
     public let timerLabel: BBLabel = BBLabel(.body1Regular)
     private var lastUpdateTime: Date = Date()
     public var equalizerIndex: Int = 0
-    public var equalizerLevels: [CGFloat] = []
+    public var equalizerLevels: [CGFloat] = [] {
+        didSet { setNeedsDisplay() }
+    }
     
     public init(state: BBEqualizerState) {
         self.state = state

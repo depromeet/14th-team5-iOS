@@ -47,8 +47,9 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         createdAtLabel.text = ""
         profileImage.image = nil
         commentEqualizerView.resetEqualizerLayout()
+        playerManager.pauseAudioPlayback()
+        print("✅프리페얼 리쥼 호출 되었습니다 \(voicePlayButton.isSelected)✅")
         disposeBag = DisposeBag()
-        print("✅프리페얼 리쥼 호출 되었습니다 \(disposeBag)✅")
     }
     
     public override func bind(reactor: CommentCellReactor) {
@@ -57,7 +58,14 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: CommentCellReactor) { 
+    private func bindInput(reactor: CommentCellReactor) {
+        
+        Observable.just(())
+            .map { Reactor.Action.prepareForReuse }
+            .debug("❌ 제사용 샐 호출로 인한 액션 방출 입니다. ❌")
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         Observable<Reactor.Action>.merge(
             Observable.just(Reactor.Action.fetchUserName),
             Observable.just(Reactor.Action.fetchProfileImage)
@@ -128,19 +136,12 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
             reactor.pulse(\.$comment).map { $0.commentType},
             reactor.pulse(\.$comment).map { $0.commentId }
         )
-        .debug("📁이퀄라이져 데시벨 방출 확인 입니다.📁")
         .filter { $0.0 == "VOICE"}
         .map { $0.1 }
         .distinctUntilChanged()
-        .do(onDispose: { print("❌이퀄라이져 데시벨이 해체되었습니다❌")})
         .requestAudioFileDecibels { $0 }
         .bind(to: commentEqualizerView.rx.equalizerLevels)
         .disposed(by: disposeBag)
-        
-        
-        //초기화 시 이퀄라이져 상태 값 -> inital
-        //녹화 시 이퀄라이져 상태 값 -> play
-        
         
         Observable.combineLatest(
             reactor.pulse(\.$equalizerState),
@@ -154,24 +155,17 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         .bind(to: commentEqualizerView.timerLabel.rx.text)
         .disposed(by: disposeBag)
         
-        // 이퀄라이져 상태 값 -> intaial 로 변환은 잘됨
-        // 단 play 에서 -> inital로 변환하는 가정에서 (willChangedAudioTime) 에서 Observable이 구독이 해체되어 있지 않아서 0:00 초로 반횐이 되버림
-        
-        
         Observable.combineLatest(
             reactor.pulse(\.$equalizerState),
             reactor.pulse(\.$audioId)
         )
-//        .debug("🟢녹화 된 이퀄라이져 상태 값 입니다🟢")
         .willChangedAudioTime { $0 }
-//        .debug("🎤녹화 된 시간 타임 입니다 🎤")
         .distinctUntilChanged()
         .observe(on: RxScheduler.main)
         .bind(to: commentEqualizerView.timerLabel.rx.text)
         .disposed(by: disposeBag)
         
-        reactor.pulse(\.$equalizerState)
-            .distinctUntilChanged()
+        reactor.state.map { $0.equalizerState }
             .map { $0 == .play }
             .bind(to: voicePlayButton.rx.isSelected)
             .disposed(by: disposeBag)

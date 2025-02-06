@@ -22,6 +22,7 @@ final public class CommentCellReactor: Reactor {
         case fetchProfileImage
         case didTapProfileButton
         case didTapPlayButton
+        case prepareForReuse
     }
     
     
@@ -72,6 +73,9 @@ final public class CommentCellReactor: Reactor {
         let memberId = initialState.comment.memberId
         
         switch action {
+        case .prepareForReuse:
+            return .just(.setEqualizerState(.inital))
+            
         case .fetchUserName:
             let memberName = fetchUserNameUseCase.execute(memberId: memberId)
             return Observable<Mutation>.just(.setMemberName(memberName))

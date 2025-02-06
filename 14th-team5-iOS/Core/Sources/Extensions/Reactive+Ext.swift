@@ -260,7 +260,6 @@ public extension ObservableType {
     func requestAudioFileDecibels(_ transform: @escaping (Element) -> String) -> Observable<[CGFloat]> {
         return flatMapLatest { element -> Observable<[CGFloat]> in
             let fileIDKey = transform(element)
-            print("🤪파일 아이디 키 값 입니다 \(fileIDKey)🤪")
             var decibels: [CGFloat] = []
             guard let filePath = BBDiskCacheStorage<String, URL>.read(forkey: fileIDKey) else {
                 return .error(BBDiskCacheStroageError.cannotCreateCacheFile)

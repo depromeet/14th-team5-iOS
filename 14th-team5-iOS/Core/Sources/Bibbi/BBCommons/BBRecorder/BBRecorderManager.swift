@@ -52,11 +52,14 @@ public class BBRecorderManager: NSObject {
     }
     
     public func pauseAudioPlayback() {
-        audioPlayer?.pause()
+        guard let audioPlayer = audioPlayer else { return }
+        if audioPlayer.isPlaying {
+            audioPlayer.pause()
+        }
     }
     
     public func playAudio(from audioId: String) -> Void {
-        guard let audioURL = BBDiskCacheStorage<String, URL>.read(forkey: audioId) else { return}
+        guard let audioURL = BBDiskCacheStorage<String, URL>.read(forkey: audioId) else { return }
         
         do {
             audioPlayer = try AVAudioPlayer(contentsOf: audioURL)

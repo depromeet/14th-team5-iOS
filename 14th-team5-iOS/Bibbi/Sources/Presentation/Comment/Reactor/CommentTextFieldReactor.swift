@@ -91,13 +91,10 @@ public final class CommentTextFieldReactor {
             newState.enableTextField = enable
             
         case let .setRecordState(recordState):
-            print("set record state: \(recordState)")
             newState.recordState = recordState
             
         case let .setRecordFileData(voiceCommentData):
-            
             newState.voiceCommentData = voiceCommentData
-            print("new state: log : \(newState.voiceCommentData)")
         }
         
         return newState

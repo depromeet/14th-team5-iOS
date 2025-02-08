@@ -138,7 +138,7 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         .map { $0.1 }
         .observe(on: ConcurrentDispatchQueueScheduler(qos: .background))
         .requestAudioFileDecibels { $0 }
-        .observe(on: MainScheduler.instance)
+        .observe(on: RxScheduler.main)
         .bind(to: commentEqualizerView.rx.equalizerLevels)
         .disposed(by: disposeBag)
         
@@ -171,7 +171,7 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         
         reactor.pulse(\.$equalizerState)
             .skip(1)
-            .observe(on: MainScheduler.instance)
+            .observe(on: RxScheduler.main)
             .bind(to: commentEqualizerView.rx.state)
             .disposed(by: disposeBag)
         

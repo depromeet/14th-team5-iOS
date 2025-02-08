@@ -68,7 +68,7 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
             .disposed(by: disposeBag)
         
         confirmButton.rx.tap
-            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .throttle(.milliseconds(300), scheduler: RxScheduler.main)
             .do(onNext: { [weak self] in self?.recorderManager.stopRecoding() })
             .flatMapLatest { recorderURL }
             .compactMap { try Data(contentsOf: $0)}

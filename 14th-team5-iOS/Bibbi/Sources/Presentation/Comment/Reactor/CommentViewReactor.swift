@@ -20,7 +20,7 @@ final public class CommentViewReactor: Reactor {
     public enum Action {
         case fetchComment
         case createComment(String)
-        case deleteComment(String)
+        case deleteComment(String, String)
     }
     
     
@@ -71,6 +71,7 @@ final public class CommentViewReactor: Reactor {
     @Injected var fetchCommentUseCase: FetchCommentUseCaseProtocol
     @Injected var createCommentUseCase: CreateCommentUseCaseProtocol
     @Injected var deleteCommentUseCase: DeleteCommentUseCaseProtocol
+    @Injected var deleteVoiceCommentUseCase: DeleteVoiceCommentUseCaseProtocol
     @Injected var createVoiceCommentUseCase: CreateVoiceCommentUseCaseProtocol
     @Injected var voicePresignedURLUseCase: VoiceCommentPresignedURLUseCaseProtocol
     @Injected var provider: ServiceProviderProtocol
@@ -110,6 +111,7 @@ final public class CommentViewReactor: Reactor {
                     let body = CreateVoicePresignedURLRequest(imageName: fileName)
                     
                     return $0.voicePresignedURLUseCase.execute(postId: postId, body, mp4File: voiceCommentFile)
+                        .debug("✅ 음성 녹음 API를 요청합니다 \(self.postId) ✅")
                         .flatMap { presingedURL -> Observable<Mutation> in
                             let fileURL = self.convertFileURL(presingedURL.audioURL)
                             let commentBody = CreateVoiceRequest(fileUrl: fileURL)
@@ -118,6 +120,8 @@ final public class CommentViewReactor: Reactor {
                                 return .just(.appendComment(reactor))
                             }
                         }
+                default:
+                    return .empty()
                 }
             }
         return Observable<Mutation>.merge(mutation, commentMutation)
@@ -225,33 +229,61 @@ final public class CommentViewReactor: Reactor {
                         }
             )
             
-        case let .deleteComment(commentId):
-            return deleteCommentUseCase.execute(postId: postId, commentId: commentId)
-                .withUnretained(self)
-                .flatMap {
-                    guard
-                        let delete = $0.1, delete.success
-                    else {
+        case let .deleteComment(commentId, commentType):
+            switch commentType {
+            case "TEXT":
+                return deleteCommentUseCase.execute(postId: postId, commentId: commentId)
+                    .withUnretained(self)
+                    .flatMap {
+                        guard
+                            let delete = $0.1, delete.success
+                        else {
+                            Haptic.notification(type: .error)
+                            $0.0.navigator.showErrorToast()
+                            return Observable<Mutation>.empty()
+                        }
+                        
+                        // TODO: - Provider 바꾸기
+                        if let count = $0.0.commentCount {
+                            $0.0.provider.postGlobalState.renewalPostCommentCount(count - 1)
+                        }
+                        
+                        $0.0.navigator.showCommentDeleteToast()
+                        if $0.0.commentCount == 0 + 1 {
+                            return Observable<Mutation>.concat(
+                                Observable<Mutation>.just(.setHiddenNoneCommentView(false)),
+                                Observable<Mutation>.just(.deleteComment(commentId))
+                            )
+                        } else {
+                            return Observable<Mutation>.just(.deleteComment(commentId))
+                        }
+                    }
+            default:
+                return deleteVoiceCommentUseCase.execute(postId: postId, commentId: commentId)
+                    .withUnretained(self)
+                    .flatMap { owner, entity -> Observable<Mutation> in
+                        if let count = owner.commentCount {
+                            owner.provider.postGlobalState.renewalPostCommentCount(count - 1)
+                        }
+                        
+                        owner.navigator.showCommentDeleteToast()
+                        print("🥰 음성 댓글 커멘트 카운트 입니다. \(owner.commentCount) 🥰")
+                        if owner.commentCount == 0 + 1 {
+                            return .concat(
+                                .just(.setHiddenNoneCommentView(false)),
+                                .just(.deleteComment(commentId))
+                            )
+                        } else {
+                            print("😎 음성 댓글을 삭제하는 로직 입니다. \(owner.commentCount) 😎")
+                            return .just(.deleteComment(commentId))
+                        }
+                    }.catchError(with: self) { owner, _ in
                         Haptic.notification(type: .error)
-                        $0.0.navigator.showErrorToast()
-                        return Observable<Mutation>.empty()
+                        owner.navigator.showErrorToast()
+                        return .empty()
                     }
-                    
-                    // TODO: - Provider 바꾸기
-                    if let count = $0.0.commentCount {
-                        $0.0.provider.postGlobalState.renewalPostCommentCount(count - 1)
-                    }
-                    
-                    $0.0.navigator.showCommentDeleteToast()
-                    if $0.0.commentCount == 0 + 1 {
-                        return Observable<Mutation>.concat(
-                            Observable<Mutation>.just(.setHiddenNoneCommentView(false)),
-                            Observable<Mutation>.just(.deleteComment(commentId))
-                        )
-                    } else {
-                        return Observable<Mutation>.just(.deleteComment(commentId))
-                    }
-                }
+            }
+
         }
     }
     

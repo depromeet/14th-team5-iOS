@@ -21,7 +21,7 @@ final public class CommentCellReactor: Reactor {
         case fetchUserName
         case fetchProfileImage
         case didTapProfileButton
-        case didTapPlayButton
+        case didTapPlayButton(String)
         case prepareForReuse
     }
     
@@ -63,7 +63,24 @@ final public class CommentCellReactor: Reactor {
     // MARK: - Intializer
     
     public init(_ comment: PostCommentEntity) {
-        self.initialState = State(comment: comment)
+        self.initialState = State(audioId: comment.commentId, comment: comment)
+    }
+    
+    
+    public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+        let didTappedPlayButtonMutation = provider.commentService.event
+            .flatMap(with: self) {
+                switch $1 {
+                case let .didTappedPlaybutton(commentId):
+                    let toggleState: BBEqualizerState = commentId == $0.currentState.comment.commentId ? .play : .inital
+                    return .concat(
+                        Observable<Mutation>.just(.setEqualizerState(toggleState))
+                    )
+                default:
+                    return .empty()
+                }
+            }
+        return Observable<Mutation>.merge(mutation, didTappedPlayButtonMutation)
     }
     
     
@@ -94,12 +111,11 @@ final public class CommentCellReactor: Reactor {
             
             return Observable<Mutation>.empty()
         case .didTapPlayButton:
-            let toggleState = currentState.equalizerState == .inital ? BBEqualizerState.play : .inital
             let audioId = currentState.comment.commentId
-            return .concat(
-                .just(.setEqualizerState(toggleState)),
-                .just(.setPlayAudioId(audioId))
-            )
+            
+            provider.commentService.didTappedPlayButton(with: audioId)
+            
+            return .empty()
         }
     }
     

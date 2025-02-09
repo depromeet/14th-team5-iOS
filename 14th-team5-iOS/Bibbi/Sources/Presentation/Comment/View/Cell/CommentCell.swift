@@ -80,7 +80,8 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         voicePlayButton.rx.tap
             .throttle(.milliseconds(300), scheduler: RxScheduler.main)
             .do { _ in Haptic.impact(style: .medium) }
-            .map { Reactor.Action.didTapPlayButton }
+            .withLatestFrom(reactor.state.map { $0.audioId })
+            .map { Reactor.Action.didTapPlayButton($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }

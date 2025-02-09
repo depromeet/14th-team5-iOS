@@ -25,6 +25,10 @@ final class CommentDIContainer: BaseContainer {
         )
     }
     
+    private func makeDeleteVoiceCommentUseCase() -> DeleteVoiceCommentUseCaseProtocol {
+        DeleteVoiceCommentUseCase(voiceCommentRepository: makeVoiceRepository())
+    }
+    
     private func makeVoiceCommentPresignedURLUseCase() -> VoiceCommentPresignedURLUseCaseProtocol {
         VoiceCommentPresignedURLUseCase(voiceCommentRepository: makeVoiceRepository())
     }
@@ -69,6 +73,10 @@ final class CommentDIContainer: BaseContainer {
     // MARK: - Register
     
     func registerDependencies() {
+        container.register(type: DeleteVoiceCommentUseCaseProtocol.self) { _ in
+            self.makeDeleteVoiceCommentUseCase()
+        }
+        
         container.register(type: VoiceCommentPresignedURLUseCaseProtocol.self) { _ in
             self.makeVoiceCommentPresignedURLUseCase()
         }

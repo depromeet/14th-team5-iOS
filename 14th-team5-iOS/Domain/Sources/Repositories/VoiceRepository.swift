@@ -11,8 +11,10 @@ import RxSwift
 
 public protocol VoiceRepositoryProtocol {
     /// CREATE
-    func createVoiceComment(postId: String, body: CreateVoiceRequest) -> Observable<VoiceCommentEntity>
+    func createVoiceComment(postId: String, body: CreateVoiceRequest) -> Observable<PostCommentEntity>
     func createVoicePresignedURL(postId: String, body: CreateVoicePresignedURLRequest) -> Observable<VoicePresignedEntity>
     /// DELETE
     func deleteVoiceComment(postId: String, commentId: String) -> Observable<DeleteVoiceCommentEntity>
+    
+    func uploadMediaToS3(_ presignedURL: String, mp4File: Data) -> Observable<Bool>
 }

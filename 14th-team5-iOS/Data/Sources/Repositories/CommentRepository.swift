@@ -7,6 +7,7 @@
 
 import Domain
 import Foundation
+import Core
 
 import RxSwift
 
@@ -14,7 +15,7 @@ public final class CommentRepository: CommentRepositoryProtocol {
     private let disposeBag: DisposeBag = DisposeBag()
     
     private let commentApiWorker: CommentAPIWorker = CommentAPIWorker()
-    
+    private let commentStorage: BBDiskCacheStorage<String, Data> = BBDiskCacheStorage()
     public init() { }
 }
 
@@ -23,7 +24,25 @@ extension CommentRepository {
     // MARK: - Fetch Comment
     
     public func fetchPostComment(postId: String, query: PostCommentPaginationQuery) -> Observable<PaginationResponsePostCommentEntity> {
+        
+        
         return commentApiWorker.fetchComment(postId: postId, query: query)
+            .do(onNext: { response in
+                _ = response.results.map { dto in
+                    if dto.commentType == "VOICE" {
+                        Task {
+                            do {
+                                guard let voiceURL = URL(string: dto.comment),
+                                      let bufferData = try? Data(contentsOf: voiceURL) else { return }
+                                try await self.commentStorage.setObject(bufferData, for: dto.commentId)
+                            } catch {
+                                print("🤨음성 녹음 URL을 저장하는데 실패 했습니다.")
+                                print(error.localizedDescription)
+                            }
+                        }
+                    }
+                }
+            })
             .map { $0.toDomain() }
     }
     

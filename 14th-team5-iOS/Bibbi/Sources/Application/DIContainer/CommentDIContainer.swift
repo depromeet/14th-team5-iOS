@@ -12,11 +12,21 @@ import Domain
 final class CommentDIContainer: BaseContainer {
     
     // MARK: - Make UseCase
+    private func makeCreateVoiceCommentUseCase() -> CreateVoiceCommentUseCaseProtocol {
+        CreateVoiceCommentUseCase(
+            voiceCommentRepository: makeVoiceRepository()
+        )
+    }
+    
     
     private func makeCreateCommentUseCase() -> CreateCommentUseCaseProtocol {
         CreateCommentUseCase(
             commentRepository: makeCommentRepository()
         )
+    }
+    
+    private func makeVoiceCommentPresignedURLUseCase() -> VoiceCommentPresignedURLUseCaseProtocol {
+        VoiceCommentPresignedURLUseCase(voiceCommentRepository: makeVoiceRepository())
     }
     
     private func makeDeleteCommentUseCase() -> DeleteCommentUseCaseProtocol {
@@ -46,6 +56,10 @@ final class CommentDIContainer: BaseContainer {
     
     
     // MARK: - Make Repository
+    private func makeVoiceRepository() -> VoiceRepositoryProtocol {
+        return VoiceRepository()
+    }
+    
     
     private func makeCommentRepository() -> CommentRepositoryProtocol {
         return CommentRepository()
@@ -55,6 +69,14 @@ final class CommentDIContainer: BaseContainer {
     // MARK: - Register
     
     func registerDependencies() {
+        container.register(type: VoiceCommentPresignedURLUseCaseProtocol.self) { _ in
+            self.makeVoiceCommentPresignedURLUseCase()
+        }
+        
+        container.register(type: CreateVoiceCommentUseCaseProtocol.self) { _ in
+            self.makeCreateVoiceCommentUseCase()
+        }
+        
         container.register(type: CreateCommentUseCaseProtocol.self) { _ in
             self.makeCreateCommentUseCase()
         }

@@ -21,6 +21,8 @@ final public class CommentCellReactor: Reactor {
         case fetchUserName
         case fetchProfileImage
         case didTapProfileButton
+        case didTapPlayButton
+        case prepareForReuse
     }
     
     
@@ -29,13 +31,17 @@ final public class CommentCellReactor: Reactor {
     public enum Mutation {
         case setMemberName(String)
         case setProfileImageUrl(URL?)
+        case setEqualizerState(BBEqualizerState)
+        case setPlayAudioId(String)
     }
     
     
     // MARK: - State
     
     public struct State {
-        let comment: PostCommentEntity
+        @Pulse var audioId: String = ""
+        @Pulse var equalizerState : BBEqualizerState = .inital
+        @Pulse var comment: PostCommentEntity
         var memberName: String?
         var profileImageUrl: URL?
     }
@@ -67,6 +73,9 @@ final public class CommentCellReactor: Reactor {
         let memberId = initialState.comment.memberId
         
         switch action {
+        case .prepareForReuse:
+            return .just(.setEqualizerState(.inital))
+            
         case .fetchUserName:
             let memberName = fetchUserNameUseCase.execute(memberId: memberId)
             return Observable<Mutation>.just(.setMemberName(memberName))
@@ -84,6 +93,13 @@ final public class CommentCellReactor: Reactor {
             }
             
             return Observable<Mutation>.empty()
+        case .didTapPlayButton:
+            let toggleState = currentState.equalizerState == .inital ? BBEqualizerState.play : .inital
+            let audioId = currentState.comment.commentId
+            return .concat(
+                .just(.setEqualizerState(toggleState)),
+                .just(.setPlayAudioId(audioId))
+            )
         }
     }
     
@@ -98,6 +114,12 @@ final public class CommentCellReactor: Reactor {
             
         case let .setProfileImageUrl(url):
             newState.profileImageUrl = url
+            
+        case let .setEqualizerState(equalizerState):
+            newState.equalizerState = equalizerState
+            
+        case let .setPlayAudioId(audioId):
+            newState.audioId = audioId
         }
         
         return newState

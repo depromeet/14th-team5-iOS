@@ -33,19 +33,29 @@ struct BBEqualizerConfig {
 }
 
 public enum BBEqualizerState {
+    case inital
+    case record
     case play
-    case stop
     
     
     var config: BBEqualizerConfig {
         switch self {
+        case .inital:
+            return .init(
+                waveColor: .mainYellow,
+                waveWidth: 2.0,
+                dotColor: .gray500,
+                dotWidth: 2.0,
+                dotHeight: 2.0
+            )
         case .play:
             return .init(
                 waveColor: .mainYellow,
                 waveWidth: 2.0,
+                waveHeight: 2.0,
                 dotColor: .gray500
             )
-        case .stop:
+        case .record:
             return .init(
                 waveColor: .mainYellow,
                 dotColor: .gray500,

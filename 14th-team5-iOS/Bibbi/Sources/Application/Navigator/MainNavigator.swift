@@ -27,6 +27,7 @@ protocol MainNavigatorProtocol: BaseNavigator {
     func toDailyCalendar(_ date: String)
     func toFamilyManagement()
     func toMonthlyCalendar()
+    func toNotification()
 }
 
 final class MainNavigator: MainNavigatorProtocol {
@@ -86,4 +87,8 @@ final class MainNavigator: MainNavigatorProtocol {
         navigationController.pushViewController(vc, animated: true)
     }
     
+    func toNotification() {
+        let vc = NotificationViewControllerWrapper().viewController
+        navigationController.pushViewController(vc, animated: true)
+    }
 }

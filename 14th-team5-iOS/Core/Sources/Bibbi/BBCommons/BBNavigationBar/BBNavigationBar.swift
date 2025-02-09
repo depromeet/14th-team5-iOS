@@ -24,6 +24,10 @@ public class BBNavigationBar: UIView {
     private var navigationImageView = UIImageView()
     
     private let leftBarButton = BBNavigationBarButton()
+    
+    private let rightBarStackView = UIStackView()
+    private let rightBarLeftButton = BBNavigationBarButton()
+    /// Navigation의 RightBar의 기본적인 Button, 2개 사용해야 할 경우 rightBarLeftButton 같이 사용해주세요.
     private let rightBarButton = BBNavigationBarButton()
     
     private let newMarkImageView = UIImageView()
@@ -68,6 +72,13 @@ public class BBNavigationBar: UIView {
         didSet {
             setupButtonImage(leftBarButton, type: leftBarButtonItem)
             setupButtonBackground(leftBarButton, type: leftBarButtonItem)
+        }
+    }
+    
+    public var rightBarLeftButtonItem: BBNavigationButtonStyle? {
+        didSet {
+            setupButtonImage(rightBarLeftButton, type: rightBarLeftButtonItem)
+            setupButtonBackground(rightBarLeftButton, type: rightBarLeftButtonItem)
         }
     }
     
@@ -131,6 +142,7 @@ public class BBNavigationBar: UIView {
     /// 오른쪽 버튼의 강조 색상을 설정합니다.
     public var rightBarButtonItemTintColor: UIColor = UIColor.gray300 {
         didSet {
+            rightBarLeftButton.tintColor = rightBarButtonItemTintColor
             rightBarButton.tintColor = rightBarButtonItemTintColor
         }
     }
@@ -147,7 +159,7 @@ public class BBNavigationBar: UIView {
     /// 오른쪽 버튼이 leading으로부터 얼마나 떨어져 있는지 설정합니다.
     public var rightBarButtonItemYOffset: CGFloat = 0.0 {
         didSet {
-            rightBarButton.snp.updateConstraints {
+            rightBarStackView.snp.updateConstraints {
                 $0.trailing.equalTo(rightBarButtonItemYOffset)
             }
             rightBarButton.layoutIfNeeded()
@@ -183,10 +195,11 @@ public class BBNavigationBar: UIView {
     private func setupUI() {
         addSubview(containerView)
         containerView.addSubviews(
-            leftBarButton, navigationImageView, navigationTitleLabel, rightBarButton
+            leftBarButton, navigationImageView, navigationTitleLabel, rightBarStackView
         )
         
         leftBarButton.addSubview(newMarkImageView)
+        rightBarStackView.addArrangedSubviews(rightBarLeftButton, rightBarButton)
     }
     
     private func setupAutolayout() {
@@ -210,11 +223,17 @@ public class BBNavigationBar: UIView {
             $0.width.height.equalTo(52)
         }
         
-        rightBarButton.snp.makeConstraints {
+        rightBarStackView.snp.makeConstraints {
             $0.trailing.equalTo(0)
             $0.centerY.equalTo(self.snp.centerY)
-            $0.width.height.equalTo(52)
+            $0.height.equalTo(52)
         }
+        
+//        rightBarButton.snp.makeConstraints {
+//            $0.trailing.equalTo(0)
+//            $0.centerY.equalTo(self.snp.centerY)
+//            $0.width.height.equalTo(52)
+//        }
         
         newMarkImageView.snp.makeConstraints {
             $0.top.equalToSuperview().offset(7)
@@ -238,6 +257,19 @@ public class BBNavigationBar: UIView {
                 for: .touchUpInside
             )
             
+        }
+        
+        rightBarStackView.do {
+            $0.spacing = 12
+            $0.distribution = .fillEqually
+        }
+        
+        rightBarLeftButton.do {
+            $0.addTarget(
+                self,
+                action: #selector(didTapRightBarLeftButton),
+                for: .touchUpInside
+            )
         }
         
         rightBarButton.do {
@@ -420,6 +452,11 @@ extension BBNavigationBar {
     @objc func didTapLeftButton(_ button: UIButton, event: UIButton.Event) {
         guard let _ = button.currentImage else { return }
         delegate?.navigationBar?(button, didTapLeftBarButton: event)
+    }
+    
+    @objc func didTapRightBarLeftButton(_ button: UIButton, event: UIButton.Event) {
+        guard let _ = button.currentImage else { return }
+        delegate?.navigationBar?(button, didTapRightBarLeftButton: event)
     }
 
     @objc func didTapRightButton(_ button: UIButton, event: UIButton.Event) {

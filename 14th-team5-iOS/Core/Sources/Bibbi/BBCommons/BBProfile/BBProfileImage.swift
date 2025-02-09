@@ -9,12 +9,12 @@ import UIKit
 
 import RxSwift
 
-class BBProfileImageView: UIView {
+public class BBProfileImage: UIView {
     internal let imageView: UIImageView = UIImageView()
     internal let defaultNameLabel: BBLabel = BBLabel(.title, textColor: .gray200)
     internal let birthdayBadge: UIImageView = UIImageView()
     
-    public var rx: Reactive<BBProfileImageView> {
+    public var rx: Reactive<BBProfileImage> {
            return Reactive(self)
     }
     
@@ -33,8 +33,14 @@ class BBProfileImageView: UIView {
     
     public struct Configure {
         let isBirthday: Bool
-        let image: UIImage?
+        let imageURL: String?
         let name: String?
+        
+        public init(isBirthday: Bool, imageURL: String?, name: String?) {
+            self.isBirthday = isBirthday
+            self.imageURL = imageURL
+            self.name = name
+        }
     }
     
     private let size: Size
@@ -54,7 +60,7 @@ class BBProfileImageView: UIView {
     }
 }
 
-extension BBProfileImageView {
+extension BBProfileImage {
     private func setupUI() {
         addSubviews(imageView, defaultNameLabel, birthdayBadge)
     }
@@ -86,11 +92,16 @@ extension BBProfileImageView {
     }
 }
 
-extension Reactive where Base: BBProfileImageView {
-    internal var configure: Binder<BBProfileImageView.Configure> {
+extension Reactive where Base: BBProfileImage {
+    public var configure: Binder<BBProfileImage.Configure> {
         return Binder(base) { view, config in
-            view.imageView.image = config.image
-            view.defaultNameLabel.text = config.name ?? ""
+            if let imageURL = config.imageURL,
+               let imageSource = URL(string: imageURL) {
+                view.imageView.kf.setImage(with: imageSource)
+            } else {
+                view.imageView.backgroundColor = .black
+                view.defaultNameLabel.text = config.name ?? ""
+            }
             view.birthdayBadge.isHidden = !config.isBirthday
         }
     }

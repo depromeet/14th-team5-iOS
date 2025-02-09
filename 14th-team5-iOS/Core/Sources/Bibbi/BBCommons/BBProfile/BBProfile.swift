@@ -10,26 +10,26 @@ import UIKit
 import SnapKit
 import RxSwift
 
-class BBProfile: UIView {
-    enum Style {
+public class BBProfile: UIView {
+    public enum Style {
         case imageTopTextBottom  // 이미지가 위, 텍스트가 아래 (상하)
         case imageLeftTextRight  // 이미지가 좌, 텍스트가 우 (좌우)
     }
     
     public struct Configure {
         let isBirthday: Bool
-        let image: UIImage?
+        let imageURL: String?
         let name: String
         let comment: String?
         
         public init(
             isBirthday: Bool = false,
-            image: UIImage?,
+            imageURL: String?,
             name: String,
             comment: String?
         ) {
             self.isBirthday = isBirthday
-            self.image = image
+            self.imageURL = imageURL
             self.name = name
             self.comment = comment
         }
@@ -41,13 +41,13 @@ class BBProfile: UIView {
            return Reactive(self)
     }
     
-    internal let imageView: BBProfileImageView
+    internal let imageView: BBProfileImage
     private let textStackView: UIStackView = UIStackView()
     internal let nameLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray200)
     internal let commentLabel: BBLabel = BBLabel(.caption, textColor: .gray500)
     
     public init(
-        size: BBProfileImageView.Size,
+        size: BBProfileImage.Size,
         style: Style
     ) {
         self.style = style
@@ -67,7 +67,7 @@ class BBProfile: UIView {
 
 extension BBProfile {
     private func setupUI() {
-        addSubviews(textStackView)
+        addSubviews(imageView,textStackView)
         textStackView.addArrangedSubviews(nameLabel, commentLabel)
     }
     
@@ -91,6 +91,10 @@ extension BBProfile {
 
 extension BBProfile {
     private func setupImageTopTextBottomAutoLayout() {
+        imageView.snp.makeConstraints {
+            $0.top.centerX.equalToSuperview()
+        }
+        
         textStackView.snp.makeConstraints {
             $0.leading.equalTo(imageView.snp.trailing).offset(16)
             $0.directionalVerticalEdges.trailing.equalToSuperview()
@@ -98,6 +102,10 @@ extension BBProfile {
     }
     
     private func setupImageLeftTextRightAutoLayout() {
+        imageView.snp.makeConstraints {
+            $0.leading.centerY.equalToSuperview()
+        }
+        
         textStackView.snp.makeConstraints {
             $0.top.equalTo(imageView.snp.bottom).offset(8)
             $0.directionalHorizontalEdges.bottom.equalToSuperview()
@@ -109,12 +117,13 @@ extension Reactive where Base: BBProfile {
     var configure: Binder<BBProfile.Configure> {
         return Binder(base) { view, config in
             view.imageView.rx.configure
-                .onNext(.init(
-                    isBirthday: config.isBirthday,
-                    image: config.image,
-                    name: config.name
+                .onNext(
+                    .init(
+                        isBirthday: config.isBirthday,
+                        imageURL: config.imageURL,
+                        name: config.name
+                    )
                 )
-            )
             view.nameLabel.text = config.name
             view.commentLabel.text = config.comment
         }

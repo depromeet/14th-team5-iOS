@@ -14,7 +14,12 @@ import RxDataSources
 final class NotificationCell: BaseTableViewCell<NotificationCellReactor> {
     static let id = "notificationCell"
     
-    private let profileView: BibbiProfileView = BibbiProfileView(cornerRadius: 12)
+    private let contentTopStackView: UIStackView = UIStackView()
+    private let profileView: BBProfileImage = BBProfileImage(size: .medium)
+    private let titleLabel: BBLabel = BBLabel(.body2Regular)
+    private let contentLabel: BBLabel = BBLabel(.body2Regular)
+    private let timeLabel: BBLabel = BBLabel(.caption)
+    
     var reactor: NotificationCellReactor?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -24,20 +29,61 @@ final class NotificationCell: BaseTableViewCell<NotificationCellReactor> {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    override func setupUI() {
+        addSubviews(profileView, contentTopStackView, contentLabel)
+        
+        contentTopStackView.addArrangedSubviews(titleLabel, timeLabel)
+    }
+    
+    override func setupAutoLayout() {
+        profileView.snp.makeConstraints {
+            $0.leading.equalToSuperview().inset(20)
+            $0.top.equalToSuperview().inset(14)
+        }
+        
+        contentTopStackView.snp.makeConstraints {
+            $0.top.equalToSuperview().inset(16)
+            $0.leading.equalTo(profileView.snp.trailing).offset(12)
+            $0.trailing.equalToSuperview().inset(20)
+        }
+        
+        contentLabel.snp.makeConstraints {
+            $0.top.equalTo(contentTopStackView.snp.bottom)
+            $0.directionalHorizontalEdges.equalTo(contentTopStackView)
+        }
+    }
+    
+    override func setupAttributes() {
+        
+    }
 }
 
 extension NotificationCell {
-    private func bindInput() {
-        
+    private func bindInput(reactor: NotificationCellReactor) {
+        Observable.just(())
+            .map { Reactor.Action.setCell }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
-    private func bindOutput() {
+    private func bindOutput(reactor: NotificationCellReactor) {
+        reactor.state.map { $0.profile }
+            .bind(to: profileView.rx.configure)
+            .disposed(by: disposeBag)
+    }
+}
+
+extension NotificationCell {
+    internal func setReactor(reactor: NotificationCellReactor) {
+        self.reactor = reactor
         
+        bindInput(reactor: reactor)
+        bindOutput(reactor: reactor)
     }
 }
 
 final class NotificationViewController: BBNavigationViewController<NotificationReactor> {
-    typealias NotificationSectionModel = SectionModel<String, NotificationCellReactor>
     private typealias RxDataSource = RxTableViewSectionedReloadDataSource<NotificationSectionModel>
     
     private let divider: UIView = UIView()
@@ -49,7 +95,7 @@ final class NotificationViewController: BBNavigationViewController<NotificationR
             guard let cell = tableView.dequeueReusableCell(withIdentifier: NotificationCell.id, for: indexPath) as? NotificationCell else {
                 return UITableViewCell()
             }
-            cell.reactor = reactor
+            cell.setReactor(reactor: reactor)
             return cell
         }
     }()
@@ -61,19 +107,29 @@ final class NotificationViewController: BBNavigationViewController<NotificationR
     }
     
     override func setupUI() {
-        view.addSubview(tableView)
+        super.setupUI()
+        
+        contentView.addSubview(tableView)
     }
     
     override func setupAutoLayout() {
+        super.setupAutoLayout()
+        
         tableView.snp.makeConstraints {
-            $0.edges.equalTo(view.safeAreaLayoutGuide)
+            $0.edges.equalToSuperview()
         }
     }
     
     override func setupAttributes() {
+        super.setupAttributes()
+        
         navigationBar.do {
             $0.navigationTitle = "알림"
             $0.leftBarButtonItem = .arrowLeft
+        }
+        
+        tableView.do {
+            $0.register(NotificationCell.self, forCellReuseIdentifier: NotificationCell.id)
         }
     }
 }
@@ -93,8 +149,8 @@ extension NotificationViewController {
     }
     
     private func bindOutput(reactor: Reactor) {
-//        reactor.pulse(\.$notificationDataSource)
-//            .bind(to: tableView.rx.items(dataSource: dataSource))
-//            .disposed(by: disposeBag)
+        reactor.pulse(\.$notificationDataSource)
+            .bind(to: tableView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
     }
 }

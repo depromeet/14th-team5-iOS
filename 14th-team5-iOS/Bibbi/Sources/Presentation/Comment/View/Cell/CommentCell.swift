@@ -28,9 +28,10 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     private let createdAtLabel: BBLabel = BBLabel(.body2Regular, textColor: .gray500)
     private let commentEqualizerView: BBEqualizerView = BBEqualizerView(state: .inital)
     private let voicePlayButton: UIButton = UIButton(type: .custom)
+    private let voicePlayContainerView: UIView = UIView()
     private let voiceCotainerView: UIView = UIView()
     private let commentLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray100)
-    private let playerManager: BBRecorderManager = BBRecorderManager()
+    public weak var playerManager: BBRecorderManager?
     
     
     // MARK: - Properties
@@ -39,6 +40,10 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     
     
     // MARK: - Helpers
+    deinit {
+        print("😆 커멘트 셀이 메모리에서 해체되는 것을 확인합니다. 😆")
+    }
+    
     
     public override func prepareForReuse() {
         super.prepareForReuse()
@@ -47,7 +52,7 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         createdAtLabel.text = ""
         profileImage.image = nil
         commentEqualizerView.resetEqualizerLayout()
-        playerManager.pauseAudioPlayback()
+        playerManager = nil
         disposeBag = DisposeBag()
     }
     
@@ -71,13 +76,20 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
         
+        self.rx.deallocated
+            .bind(with: self, onNext: { owner, _ in
+                owner.commentEqualizerView.invalidateEqaulizerLayout()
+                owner.playerManager = nil
+            })
+            .disposed(by: disposeBag)
+        
         profileButton.rx.tap
             .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.didTapProfileButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        voicePlayButton.rx.tap
+        voicePlayContainerView.rx.tap
             .throttle(.milliseconds(300), scheduler: RxScheduler.main)
             .do { _ in Haptic.impact(style: .medium) }
             .withLatestFrom(reactor.state.map { $0.audioId })
@@ -140,6 +152,10 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         .observe(on: ConcurrentDispatchQueueScheduler(qos: .background))
         .requestAudioFileDecibels { $0 }
         .observe(on: RxScheduler.main)
+        .catchError(with: self) {
+            $0.showErrorToast($1.localizedDescription)
+            return .empty()
+        }
         .bind(to: commentEqualizerView.rx.equalizerLevels)
         .disposed(by: disposeBag)
         
@@ -151,8 +167,30 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         .filter { $0.0 == .inital && $0.1 == "VOICE" }
         .map { $0.2 }
         .requestAudioCurrentTime { $0 }
+        .catchError(with: self) {
+            $0.showErrorToast($1.localizedDescription)
+            return .empty()
+        }
         .observe(on: RxScheduler.main)
         .bind(to: commentEqualizerView.timerLabel.rx.text)
+        .disposed(by: disposeBag)
+        
+        
+        Observable.combineLatest(
+            reactor.pulse(\.$equalizerState),
+            reactor.state.map { $0.comment.commentType},
+            reactor.state.map { $0.comment.commentId}
+        )
+        .filter { $0.0 == .play && $0.1 == "VOICE" }
+        .map { $0.2 }
+        .requestAudioElapsedTime { $0 }
+        .distinctUntilChanged()
+        .observe(on: RxScheduler.main)
+        .catchError(with: self) {
+            $0.showErrorToast($1.localizedDescription)
+            return .empty()
+        }
+        .bind(to: commentEqualizerView.rx.elapsedTime)
         .disposed(by: disposeBag)
         
         Observable.combineLatest(
@@ -162,11 +200,17 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         .willChangedAudioTime { $0 }
         .distinctUntilChanged()
         .observe(on: RxScheduler.main)
+        .take(until: rx.deallocated)
+        .catchError(with: self) {
+            $0.showErrorToast($1.localizedDescription)
+            return .empty()
+        }
         .bind(to: commentEqualizerView.timerLabel.rx.text)
         .disposed(by: disposeBag)
         
         reactor.state.map { $0.equalizerState }
             .map { $0 == .play }
+            .distinctUntilChanged()
             .bind(to: voicePlayButton.rx.isSelected)
             .disposed(by: disposeBag)
         
@@ -186,9 +230,9 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
             let (state, audioId) = response
             switch state {
             case .inital:
-                owner.playerManager.pauseAudioPlayback()
+                owner.playerManager?.pauseAudioPlayback()
             case .play:
-                owner.playerManager.playAudio(from: audioId)
+                owner.playerManager?.playAudio(from: audioId)
             default:
                 break
             }
@@ -199,7 +243,8 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     
     public override func setupUI() {
         super.setupUI()
-        voiceCotainerView.addSubviews(commentEqualizerView, voicePlayButton)
+        voicePlayContainerView.addSubview(voicePlayButton)
+        voiceCotainerView.addSubviews(commentEqualizerView, voicePlayContainerView)
         profileBackground.addSubviews(profilePlaceholder, profileImage, profileButton)
         contentView.addSubviews(profileBackground, labelStack, commentLabel, voiceCotainerView)
         labelStack.addArrangedSubviews(nameLabel, createdAtLabel)
@@ -232,24 +277,29 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         }
         
         commentEqualizerView.snp.makeConstraints {
-            $0.top.equalToSuperview()
+            $0.height.equalTo(40)
+            $0.centerY.equalToSuperview()
             $0.left.equalTo(voicePlayButton.snp.right).offset(16)
             $0.right.equalToSuperview().inset(16)
-            $0.bottom.equalToSuperview()
+        }
+        
+        voicePlayContainerView.snp.makeConstraints {
+            $0.top.equalToSuperview()
+            $0.left.equalToSuperview().inset(2)
+            $0.size.height.equalTo(40)
+            $0.centerY.equalToSuperview()
         }
         
         voicePlayButton.snp.makeConstraints {
-            $0.top.equalToSuperview().inset(14)
-            $0.left.equalToSuperview().inset(19)
-            $0.width.height.equalTo(11)
-            $0.centerY.equalToSuperview()
+            $0.size.equalTo(11)
+            $0.center.equalToSuperview()
         }
         
         voiceCotainerView.snp.makeConstraints {
             $0.top.equalTo(labelStack.snp.bottom).offset(8)
             $0.left.equalTo(labelStack)
             $0.right.equalToSuperview().inset(20)
-            $0.bottom.equalToSuperview().inset(16)
+            $0.bottom.equalToSuperview().offset(-16)
         }
         
         commentLabel.snp.makeConstraints {
@@ -265,6 +315,10 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         
         contentView.do {
             $0.backgroundColor = UIColor.bibbiBlack
+        }
+        
+        voiceCotainerView.do {
+            $0.backgroundColor = .clear
         }
         
         profileButton.do {
@@ -305,5 +359,19 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         commentLabel.do {
             $0.numberOfLines = 0
         }
+    }
+}
+
+
+private extension CommentCell {
+    func showErrorToast(_ descrption: String) {
+        let config = BBToastConfiguration(direction: .top(yOffset: 75))
+        let viewConfig = BBToastViewConfiguration(minWidth: 100)
+        BBToast.default(
+            image: DesignSystemAsset.warning.image,
+            title: descrption,
+            viewConfig: viewConfig,
+            config: config
+        ).show()
     }
 }

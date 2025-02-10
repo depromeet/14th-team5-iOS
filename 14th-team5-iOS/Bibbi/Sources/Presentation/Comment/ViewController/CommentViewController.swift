@@ -225,11 +225,12 @@ extension CommentViewController {
     }
     
     private func prepareDatasource() -> RxDataSource {
-        let dataSource = RxDataSource { dataSource, tableView, indexPath, reactor in
+        let dataSource = RxDataSource { [weak self] dataSource, tableView, indexPath, reactor in
             let cell = tableView.dequeueReusableCell(
                 withIdentifier: CommentCell.id
             ) as! CommentCell
             cell.reactor = reactor
+            cell.playerManager = self?.recorderManager
             return cell
         }
         dataSource.canEditRowAtIndexPath = {

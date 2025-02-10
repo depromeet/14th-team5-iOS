@@ -111,13 +111,25 @@ final public class CommentViewReactor: Reactor {
                     let body = CreateVoicePresignedURLRequest(imageName: fileName)
                     
                     return $0.voicePresignedURLUseCase.execute(postId: postId, body, mp4File: voiceCommentFile)
-                        .debug("✅ 음성 녹음 API를 요청합니다 \(self.postId) ✅")
-                        .flatMap { presingedURL -> Observable<Mutation> in
-                            let fileURL = self.convertFileURL(presingedURL.audioURL)
+                        .withUnretained(self)
+                        .flatMap { owner, presingedURL -> Observable<Mutation> in
+                            let fileURL = owner.convertFileURL(presingedURL.audioURL)
                             let commentBody = CreateVoiceRequest(fileUrl: fileURL)
-                            return self.createVoiceCommentUseCase.execute(postId: postId, body: commentBody).flatMap { comment -> Observable<Mutation> in
+                            return self.createVoiceCommentUseCase.execute(postId: postId, body: commentBody)
+                                .observe(on: RxScheduler.main)
+                                .flatMap { comment -> Observable<Mutation> in
                                 let reactor = CommentCellReactor(comment)
-                                return .just(.appendComment(reactor))
+                                
+                                if let count = owner.commentCount {
+                                    owner.provider.postGlobalState.renewalPostCommentCount(count + 1)
+                                }
+                                
+                                
+                                return .concat(
+                                    .just(.appendComment(reactor)),
+                                    .just(.setHiddenNoneCommentView(true)),
+                                    .just(.scrollTableToLast(true))
+                                )
                             }
                         }
                 default:
@@ -249,6 +261,7 @@ final public class CommentViewReactor: Reactor {
                         }
                         
                         $0.0.navigator.showCommentDeleteToast()
+                        print("❌ 텍스트 댓글 커멘트 카운트 입니다. \($0.0.commentCount) ❌")
                         if $0.0.commentCount == 0 + 1 {
                             return Observable<Mutation>.concat(
                                 Observable<Mutation>.just(.setHiddenNoneCommentView(false)),

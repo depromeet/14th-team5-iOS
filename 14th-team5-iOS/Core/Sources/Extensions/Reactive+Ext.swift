@@ -227,6 +227,23 @@ public extension ObservableType {
         }
     }
     
+    func requestAudioElapsedTime(_ transform: @escaping (Element) -> String) -> Observable<TimeInterval> {
+        return flatMap { element -> Observable<TimeInterval> in
+            let fileIdKey = transform(element)
+            guard let filePath = BBDiskCacheStorage<String, URL>.read(forkey: fileIdKey) else {
+                return .error(BBDiskCacheStroageError.cannotCreateCacheFile)
+            }
+            
+            let asset = AVURLAsset(url: filePath)
+            let elapsedTime: TimeInterval = CMTimeGetSeconds(asset.duration)
+            guard elapsedTime.isFinite || !elapsedTime.isZero else {
+                return .error(NSError(domain: "❌잘못된 음성 녹음 파일 입니다.❌", code: -1))
+            }
+            
+            return .just(elapsedTime)
+        }
+    }
+    
     
     func requestAudioCurrentTime(_ transform: @escaping (Element) -> String) -> Observable<String> {
         return flatMap { element -> Observable<String> in
@@ -254,6 +271,7 @@ public extension ObservableType {
         return flatMapLatest { element -> Observable<[CGFloat]> in
             let fileIDKey = transform(element)
             var decibels: [CGFloat] = []
+            print("✅ 요청한 데시벨의 키값을 조회합니다 \(fileIDKey) ✅")
             guard let filePath = BBDiskCacheStorage<String, URL>.read(forkey: fileIDKey) else {
                 return .error(BBDiskCacheStroageError.cannotCreateCacheFile)
             }

@@ -22,6 +22,12 @@ public class BBRecorderManager: NSObject {
         self.audioEngine = AVAudioEngine()
         self.inputNode = audioEngine.inputNode
         super.init()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAudioSessionInterruption(_:)),
+            name: AVAudioSession.interruptionNotification,
+            object: nil
+        )
         start()
     }
 
@@ -68,6 +74,31 @@ public class BBRecorderManager: NSObject {
             audioPlayer?.play()
         } catch {
             print(error.localizedDescription)
+        }
+    }
+    
+    @objc private func handleAudioSessionInterruption(_ notification: Notification) {
+        guard let userInfo = notification.userInfo else { return }
+        if let interruptionValue = userInfo[AVAudioSessionInterruptionTypeKey] as? NSNumber,
+           let interruptionType = AVAudioSession.InterruptionType(rawValue: UInt(interruptionValue.intValue)) {
+            
+            switch interruptionType {
+            case .began:
+                audioPlayer?.pause()
+                recorderCore.audioRecorder.pause()
+                break
+            case .ended:
+                if recorderCore.audioRecorder.isRecording {
+                    recorderCore.audioRecorder.record()
+                }
+                if let audioPlayer = audioPlayer, !audioPlayer.isPlaying {
+                    audioPlayer.play()
+                }
+                break
+            @unknown default:
+                break
+            }
+            
         }
     }
 }

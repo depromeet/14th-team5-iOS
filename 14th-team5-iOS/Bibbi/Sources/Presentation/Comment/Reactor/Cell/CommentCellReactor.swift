@@ -72,10 +72,9 @@ final public class CommentCellReactor: Reactor {
             .flatMap(with: self) {
                 switch $1 {
                 case let .didTappedPlaybutton(commentId):
-                    let toggleState: BBEqualizerState = commentId == $0.currentState.comment.commentId ? .play : .inital
-                    return .concat(
-                        Observable<Mutation>.just(.setEqualizerState(toggleState))
-                    )
+                    let isCurrentComment = commentId == $0.currentState.comment.commentId
+                    let newEqualizerState: BBEqualizerState = isCurrentComment ? .play : .inital
+                    return Observable<Mutation>.just(.setEqualizerState(newEqualizerState))
                 default:
                     return .empty()
                 }
@@ -112,10 +111,12 @@ final public class CommentCellReactor: Reactor {
             return Observable<Mutation>.empty()
         case .didTapPlayButton:
             let audioId = currentState.comment.commentId
+            let isCurrentState = currentState.equalizerState == .inital
+            let currentEqualizerState: BBEqualizerState = isCurrentState ? .play : .inital
             
             provider.commentService.didTappedPlayButton(with: audioId)
             
-            return .empty()
+            return .just(.setEqualizerState(currentEqualizerState))
         }
     }
     

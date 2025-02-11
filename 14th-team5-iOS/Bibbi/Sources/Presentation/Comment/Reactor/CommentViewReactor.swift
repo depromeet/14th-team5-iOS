@@ -12,6 +12,7 @@ import Foundation
 
 import ReactorKit
 import RxSwift
+import Util
 
 final public class CommentViewReactor: Reactor {
     
@@ -123,14 +124,22 @@ final public class CommentViewReactor: Reactor {
                                 if let count = owner.commentCount {
                                     owner.provider.postGlobalState.renewalPostCommentCount(count + 1)
                                 }
-                                
-                                
                                 return .concat(
                                     .just(.appendComment(reactor)),
                                     .just(.setHiddenNoneCommentView(true)),
                                     .just(.scrollTableToLast(true))
                                 )
+                            }.catchError(with: self) {
+                                Haptic.notification(type: .error)
+                                BBLogManager.sendError(error: $1)
+                                $0.navigator.showCommentErrorToast($1.localizedDescription)
+                                return .empty()
                             }
+                        }.catchError(with: self) {
+                            Haptic.notification(type: .error)
+                            BBLogManager.sendError(error: $1)
+                            $0.navigator.showCommentErrorToast($1.localizedDescription)
+                            return .empty()
                         }
                 default:
                     return .empty()
@@ -261,7 +270,6 @@ final public class CommentViewReactor: Reactor {
                         }
                         
                         $0.0.navigator.showCommentDeleteToast()
-                        print("❌ 텍스트 댓글 커멘트 카운트 입니다. \($0.0.commentCount) ❌")
                         if $0.0.commentCount == 0 + 1 {
                             return Observable<Mutation>.concat(
                                 Observable<Mutation>.just(.setHiddenNoneCommentView(false)),
@@ -280,19 +288,18 @@ final public class CommentViewReactor: Reactor {
                         }
                         
                         owner.navigator.showCommentDeleteToast()
-                        print("🥰 음성 댓글 커멘트 카운트 입니다. \(owner.commentCount) 🥰")
                         if owner.commentCount == 0 + 1 {
                             return .concat(
                                 .just(.setHiddenNoneCommentView(false)),
                                 .just(.deleteComment(commentId))
                             )
                         } else {
-                            print("😎 음성 댓글을 삭제하는 로직 입니다. \(owner.commentCount) 😎")
                             return .just(.deleteComment(commentId))
                         }
-                    }.catchError(with: self) { owner, _ in
+                    }.catchError(with: self) {
                         Haptic.notification(type: .error)
-                        owner.navigator.showErrorToast()
+                        BBLogManager.sendError(error: $1)
+                        $0.navigator.showErrorToast()
                         return .empty()
                     }
             }

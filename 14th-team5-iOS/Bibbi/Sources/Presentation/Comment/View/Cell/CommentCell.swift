@@ -11,6 +11,7 @@ import UIKit
 
 import ReactorKit
 import RxSwift
+import RxCocoa
 import SnapKit
 import Then
 
@@ -32,7 +33,7 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     private let voiceCotainerView: UIView = UIView()
     private let commentLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray100)
     public weak var playerManager: BBRecorderManager?
-    
+    private var hasErrorOccurred = false
     
     // MARK: - Properties
     
@@ -152,7 +153,10 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         .observe(on: ConcurrentDispatchQueueScheduler(qos: .background))
         .requestAudioFileDecibels { $0 }
         .observe(on: RxScheduler.main)
+        .distinctUntilChanged()
         .catchError(with: self) {
+            guard !$0.hasErrorOccurred else { return .empty() }
+            $0.hasErrorOccurred = true
             $0.showErrorToast($1.localizedDescription)
             return .empty()
         }
@@ -167,9 +171,8 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         .filter { $0.0 == .inital && $0.1 == "VOICE" }
         .map { $0.2 }
         .requestAudioCurrentTime { $0 }
-        .catchError(with: self) {
-            $0.showErrorToast($1.localizedDescription)
-            return .empty()
+        .catchError(with: self) { _, _ in
+            return .just("0:00")
         }
         .observe(on: RxScheduler.main)
         .bind(to: commentEqualizerView.timerLabel.rx.text)
@@ -186,9 +189,8 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         .requestAudioElapsedTime { $0 }
         .distinctUntilChanged()
         .observe(on: RxScheduler.main)
-        .catchError(with: self) {
-            $0.showErrorToast($1.localizedDescription)
-            return .empty()
+        .catchError(with: self) { _,_ in
+            return .just(1.0)
         }
         .bind(to: commentEqualizerView.rx.elapsedTime)
         .disposed(by: disposeBag)
@@ -201,10 +203,6 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         .distinctUntilChanged()
         .observe(on: RxScheduler.main)
         .take(until: rx.deallocated)
-        .catchError(with: self) {
-            $0.showErrorToast($1.localizedDescription)
-            return .empty()
-        }
         .bind(to: commentEqualizerView.timerLabel.rx.text)
         .disposed(by: disposeBag)
         

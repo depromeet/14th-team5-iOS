@@ -200,9 +200,8 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
             reactor.pulse(\.$audioId)
         )
         .willChangedAudioTime { $0 }
-        .distinctUntilChanged()
+        .debug("😡 변경 되고 있는 녹음 시간 입니다. 😡")
         .observe(on: RxScheduler.main)
-        .take(until: rx.deallocated)
         .bind(to: commentEqualizerView.timerLabel.rx.text)
         .disposed(by: disposeBag)
         
@@ -216,6 +215,30 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
             .skip(1)
             .observe(on: RxScheduler.main)
             .bind(to: commentEqualizerView.rx.state)
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.comment.commentType }
+            .bind(with: self) { owner, type in
+                switch type {
+                case "TEXT":
+                    owner.commentLabel.snp.makeConstraints {
+                        $0.top.equalTo(owner.labelStack.snp.bottom).offset(8)
+                        $0.leading.equalTo(owner.labelStack.snp.leading)
+                        $0.trailing.equalToSuperview().offset(-8)
+                        $0.bottom.equalToSuperview().offset(-10)
+                    }
+                case "VOICE":
+                    owner.voiceCotainerView.snp.makeConstraints {
+                        $0.top.equalTo(owner.labelStack.snp.bottom).offset(8)
+                        $0.left.equalTo(owner.labelStack)
+                        $0.right.equalToSuperview().inset(20)
+                        $0.bottom.equalToSuperview().offset(-16)
+                    }
+                default:
+                    break
+                }
+            }
             .disposed(by: disposeBag)
         
         Observable.combineLatest(
@@ -291,20 +314,6 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         voicePlayButton.snp.makeConstraints {
             $0.size.equalTo(11)
             $0.center.equalToSuperview()
-        }
-        
-        voiceCotainerView.snp.makeConstraints {
-            $0.top.equalTo(labelStack.snp.bottom).offset(8)
-            $0.left.equalTo(labelStack)
-            $0.right.equalToSuperview().inset(20)
-            $0.bottom.equalToSuperview().offset(-16)
-        }
-        
-        commentLabel.snp.makeConstraints {
-            $0.top.equalTo(labelStack.snp.bottom).offset(8)
-            $0.leading.equalTo(labelStack.snp.leading)
-            $0.trailing.equalToSuperview().offset(-8)
-            $0.bottom.equalToSuperview().offset(-10)
         }
     }
     

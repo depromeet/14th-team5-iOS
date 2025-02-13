@@ -204,7 +204,7 @@ public extension ObservableType {
                 
                 let timer = Observable<Int>
                     .interval(.seconds(1), scheduler: RxScheduler.main)
-                    .flatMap { times -> Observable<String> in
+                    .flatMapLatest { times -> Observable<String> in
                         let currentTime = max(0, duration - Double(times))
                         let playerMinutes = Int(currentTime) / 60
                         let playerSeconds = Int(currentTime) % 60
@@ -228,14 +228,15 @@ public extension ObservableType {
     }
     
     func requestAudioElapsedTime(_ transform: @escaping (Element) -> String) -> Observable<TimeInterval> {
-        return flatMap { element -> Observable<TimeInterval> in
+        return flatMapLatest { element -> Observable<TimeInterval> in
             let fileIdKey = transform(element)
             guard let filePath = BBDiskCacheStorage<String, URL>.read(forkey: fileIdKey) else {
                 return .error(BBDiskCacheStroageError.cannotCreateCacheFile)
             }
             
             let asset = AVURLAsset(url: filePath)
-            let elapsedTime: TimeInterval = CMTimeGetSeconds(asset.duration)
+            let elapsedTime: TimeInterval = round(CMTimeGetSeconds(asset.duration))
+            
             guard elapsedTime.isFinite || !elapsedTime.isZero else {
                 return .error(NSError(domain: "❌잘못된 음성 녹음 파일 입니다.❌", code: -1))
             }

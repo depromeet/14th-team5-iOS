@@ -200,7 +200,6 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
             reactor.pulse(\.$audioId)
         )
         .willChangedAudioTime { $0 }
-        .debug("😡 변경 되고 있는 녹음 시간 입니다. 😡")
         .observe(on: RxScheduler.main)
         .bind(to: commentEqualizerView.timerLabel.rx.text)
         .disposed(by: disposeBag)

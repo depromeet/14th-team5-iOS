@@ -24,8 +24,9 @@ public final class BBEqualizerView: UIView {
     }
     public var displayLink: CADisplayLink?
     public let timerLabel: BBLabel = BBLabel(.body1Regular)
-    private var lastUpdateTime: Date = Date()
+    private var lastUpdateTime: Date?
     public var equalizerIndex: Int = 0
+    public var elapsedTime: TimeInterval = 0.0
     public var equalizerLevels: [CGFloat] = [] {
         didSet { setNeedsDisplay() }
     }
@@ -164,6 +165,7 @@ public final class BBEqualizerView: UIView {
         equalizerLevels = []
         equalizerIndex = 0
         state = .inital
+        lastUpdateTime = nil
     }
     
     
@@ -171,12 +173,46 @@ public final class BBEqualizerView: UIView {
     private func didUpdateEqaulizerLevel() {
         let currentTime = Date()
         let maxDotCount = 30
-        if currentTime.timeIntervalSince(lastUpdateTime) >= 1.0 {
-            lastUpdateTime = currentTime
-            equalizerIndex = min(equalizerIndex + 1, maxDotCount)
+        switch state {
+        case .record:
+            if let lastTime = lastUpdateTime {
+                if currentTime.timeIntervalSince(lastTime) >= 1.0 {
+                    lastUpdateTime = currentTime
+                    equalizerIndex = min(equalizerIndex + 1, maxDotCount)
+                }
+            } else {
+                lastUpdateTime = Date()
+            }
+            equalizerLevels = Array(equalizerLevels.prefix(maxDotCount))
+            setNeedsDisplay()
+        case .play:
+            if let lastTime = lastUpdateTime {
+                let elapsedTimeSinceStart = currentTime.timeIntervalSince(lastTime)
+                if elapsedTimeSinceStart >= elapsedTime {
+                    equalizerIndex = maxDotCount
+                    displayLink?.invalidate()
+                    displayLink = nil
+                    setNeedsDisplay()
+                    return
+                }
+                let progress = elapsedTimeSinceStart / elapsedTime
+                let targetIndex = Int(progress * Double(maxDotCount))
+                        
+                if targetIndex > equalizerIndex {
+                    equalizerIndex = targetIndex
+                    setNeedsDisplay()
+                }
+            } else {
+                lastUpdateTime = Date()
+            }
+
+            while equalizerLevels.count < maxDotCount {
+                equalizerLevels.append(CGFloat.random(in: 0.5...1.0))
+            }
+            equalizerLevels = Array(equalizerLevels.prefix(maxDotCount))
+        default:
+            break
         }
-        equalizerLevels = Array(equalizerLevels.prefix(maxDotCount))
-        setNeedsDisplay()
     }
     
 }

@@ -32,6 +32,7 @@ public struct PaginationResponsePostCommentEntity {
 public struct PostCommentEntity {
     public var commentId: String
     public var postId: String
+    public var commentType: String
     public var memberId: String
     public var comment: String
     public var createdAt: Date
@@ -41,12 +42,14 @@ public struct PostCommentEntity {
         postId: String,
         memberId: String,
         comment: String,
-        createdAt: Date
+        createdAt: Date,
+        commentType: String
     ) {
         self.commentId = commentId
         self.postId = postId
         self.memberId = memberId
         self.comment = comment
         self.createdAt = createdAt
+        self.commentType = commentType
     }
 }

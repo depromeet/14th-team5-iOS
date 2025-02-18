@@ -19,7 +19,7 @@ public struct BBUploadResponseSerializer: DataResponseSerializerProtocol {
     public func serialize(request: URLRequest?, response: HTTPURLResponse?, data: Data?, error: (any Error)?) throws -> Bool {
         guard let statusCode = response?.statusCode,
               (200..<300) ~= statusCode else {
-            throw BBNetworkError.generic(error!)
+            throw BBNetworkError.generic(BBUploadError.uploadFailed)
         }
         
         return true

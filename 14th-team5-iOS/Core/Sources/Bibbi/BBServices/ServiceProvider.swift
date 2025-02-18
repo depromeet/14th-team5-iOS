@@ -21,6 +21,8 @@ public protocol ServiceProviderProtocol: AnyObject {
     var timerGlobalState: TimerGlobalStateType { get }
     var realEmojiGlobalState: RealEmojiGlobalStateType { get }
     var profilePageGlobalState: ProfileFeedGlobalStateType { get }
+    
+    var commentService: CommentServiceType { get }
 }
 
 final public class ServiceProvider: ServiceProviderProtocol {
@@ -32,6 +34,8 @@ final public class ServiceProvider: ServiceProviderProtocol {
     public lazy var calendarService: CalendarServiceType = CalendarService(provider: self)
     public lazy var mainService: MainServiceType = MainService(provider: self)
     public lazy var managementService: any ManagementServiceType = ManagementService(provider: self)
+    
+    public lazy var commentService: any CommentServiceType = CommentService(provider: self)
     
     public lazy var postGlobalState: PostGlobalStateType = PostGlobalState(provider: self)
     public lazy var timerGlobalState: TimerGlobalStateType = TimerGlobalState(provider: self)

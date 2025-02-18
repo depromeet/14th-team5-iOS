@@ -26,8 +26,11 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     private let labelStack: UIStackView = UIStackView()
     private let nameLabel: BBLabel = BBLabel(.body2Bold, textColor: .gray100)
     private let createdAtLabel: BBLabel = BBLabel(.body2Regular, textColor: .gray500)
-    
+    private let commentEqualizerView: BBEqualizerView = BBEqualizerView(state: .inital)
+    private let voicePlayButton: UIButton = UIButton(type: .custom)
+    private let voiceCotainerView: UIView = UIView()
     private let commentLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray100)
+    private let playerManager: BBRecorderManager = BBRecorderManager()
     
     
     // MARK: - Properties
@@ -43,8 +46,9 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         nameLabel.text = ""
         createdAtLabel.text = ""
         profileImage.image = nil
-        
-        disposeBag = DisposeBag() // TODO: - 코드 삭제 테스트하기
+        commentEqualizerView.resetEqualizerLayout()
+        playerManager.pauseAudioPlayback()
+        disposeBag = DisposeBag()
     }
     
     public override func bind(reactor: CommentCellReactor) {
@@ -53,7 +57,13 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         bindOutput(reactor: reactor)
     }
     
-    private func bindInput(reactor: CommentCellReactor) { 
+    private func bindInput(reactor: CommentCellReactor) {
+        
+        Observable.just(())
+            .map { Reactor.Action.prepareForReuse }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         Observable<Reactor.Action>.merge(
             Observable.just(Reactor.Action.fetchUserName),
             Observable.just(Reactor.Action.fetchProfileImage)
@@ -64,6 +74,13 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         profileButton.rx.tap
             .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.didTapProfileButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        voicePlayButton.rx.tap
+            .throttle(.milliseconds(300), scheduler: RxScheduler.main)
+            .do { _ in Haptic.impact(style: .medium) }
+            .map { Reactor.Action.didTapPlayButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
@@ -99,13 +116,91 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
             .distinctUntilChanged()
             .bind(to: commentLabel.rx.text)
             .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.comment.commentType }
+            .distinctUntilChanged()
+            .map { $0 == "TEXT" }
+            .bind(to: voiceCotainerView.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.comment.commentType }
+            .distinctUntilChanged()
+            .map { $0 == "VOICE" }
+            .bind(to: commentLabel.rx.isHidden)
+            .disposed(by: disposeBag)
+
+        
+        Observable.combineLatest(
+            reactor.pulse(\.$comment).map { $0.commentType},
+            reactor.pulse(\.$comment).map { $0.commentId }
+        )
+        .filter { $0.0 == "VOICE"}
+        .map { $0.1 }
+        .observe(on: ConcurrentDispatchQueueScheduler(qos: .background))
+        .requestAudioFileDecibels { $0 }
+        .observe(on: RxScheduler.main)
+        .bind(to: commentEqualizerView.rx.equalizerLevels)
+        .disposed(by: disposeBag)
+        
+        Observable.combineLatest(
+            reactor.pulse(\.$equalizerState),
+            reactor.state.map { $0.comment.commentType }.distinctUntilChanged(),
+            reactor.state.map { $0.comment.commentId }.distinctUntilChanged()
+        )
+        .filter { $0.0 == .inital && $0.1 == "VOICE" }
+        .map { $0.2 }
+        .requestAudioCurrentTime { $0 }
+        .observe(on: RxScheduler.main)
+        .bind(to: commentEqualizerView.timerLabel.rx.text)
+        .disposed(by: disposeBag)
+        
+        Observable.combineLatest(
+            reactor.pulse(\.$equalizerState),
+            reactor.pulse(\.$audioId)
+        )
+        .willChangedAudioTime { $0 }
+        .distinctUntilChanged()
+        .observe(on: RxScheduler.main)
+        .bind(to: commentEqualizerView.timerLabel.rx.text)
+        .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.equalizerState }
+            .map { $0 == .play }
+            .bind(to: voicePlayButton.rx.isSelected)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$equalizerState)
+            .skip(1)
+            .observe(on: RxScheduler.main)
+            .bind(to: commentEqualizerView.rx.state)
+            .disposed(by: disposeBag)
+        
+        Observable.combineLatest(
+            reactor.state.map { $0.equalizerState }.distinctUntilChanged(),
+            reactor.pulse(\.$audioId)
+        )
+        .filter { !$0.1.isEmpty }
+        .observe(on: RxScheduler.asyncMain)
+        .bind(with: self) { owner, response in
+            let (state, audioId) = response
+            switch state {
+            case .inital:
+                owner.playerManager.pauseAudioPlayback()
+            case .play:
+                owner.playerManager.playAudio(from: audioId)
+            default:
+                break
+            }
+        }
+        .disposed(by: disposeBag)
+            
     }
     
     public override func setupUI() {
         super.setupUI()
-        
+        voiceCotainerView.addSubviews(commentEqualizerView, voicePlayButton)
         profileBackground.addSubviews(profilePlaceholder, profileImage, profileButton)
-        contentView.addSubviews(profileBackground, labelStack, commentLabel)
+        contentView.addSubviews(profileBackground, labelStack, commentLabel, voiceCotainerView)
         labelStack.addArrangedSubviews(nameLabel, createdAtLabel)
     }
     
@@ -135,6 +230,27 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
             $0.leading.equalTo(profileBackground.snp.trailing).offset(18)
         }
         
+        commentEqualizerView.snp.makeConstraints {
+            $0.top.equalToSuperview()
+            $0.left.equalTo(voicePlayButton.snp.right).offset(16)
+            $0.right.equalToSuperview().inset(16)
+            $0.bottom.equalToSuperview()
+        }
+        
+        voicePlayButton.snp.makeConstraints {
+            $0.top.equalToSuperview().inset(14)
+            $0.left.equalToSuperview().inset(19)
+            $0.width.height.equalTo(11)
+            $0.centerY.equalToSuperview()
+        }
+        
+        voiceCotainerView.snp.makeConstraints {
+            $0.top.equalTo(labelStack.snp.bottom).offset(8)
+            $0.left.equalTo(labelStack)
+            $0.right.equalToSuperview().inset(20)
+            $0.bottom.equalToSuperview().inset(16)
+        }
+        
         commentLabel.snp.makeConstraints {
             $0.top.equalTo(labelStack.snp.bottom).offset(8)
             $0.leading.equalTo(labelStack.snp.leading)
@@ -154,6 +270,19 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
             $0.setTitle("", for: .normal)
             $0.backgroundColor = UIColor.clear
         }
+        
+        voiceCotainerView.do {
+            $0.backgroundColor = .gray900
+            $0.layer.cornerRadius = 20
+            $0.clipsToBounds = true
+        }
+        
+        voicePlayButton.do {
+            $0.setBackgroundImage(DesignSystemAsset.pause.image, for: .selected)
+            $0.setBackgroundImage(DesignSystemAsset.play.image, for: .normal)
+            $0.setTitle("", for: .normal)
+        }
+        
         
         profileBackground.do {
             $0.layer.cornerRadius = 44 / 2

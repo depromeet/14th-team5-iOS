@@ -35,16 +35,10 @@ extension BBNetworkDefaultInterceptor: RequestInterceptor {
         completion: @escaping (RetryResult) -> Void
     ) {
         
-        print("#️⃣ 리트라이 카운트 입니다 : \(request.retryCount) #️⃣")
         if let error = error as? AFError {
-            print("#️⃣ 리트라이 에러 입니다 : \(request.error) #️⃣")
             switch error {
             case let .sessionTaskFailed(error as URLError) where error.code == .timedOut:
                 if request.retryCount < limitRetryCount {
-                    print("🟢네트워크 타임 아웃으로 인해 요청을 재시도 합니다 🟢")
-                    print("❌ 네트워크 요청한 횟수 입니다. \(request.retryCount)❌")
-                    print("🟠 네트워크 요청한 주소 입니다. \(request.request?.url) 🟠")
-                    print("😓 네트워크 타임 아웃 오류 코드입니다. \(request.error)")
                     completion(.retry)
                     return
                 }

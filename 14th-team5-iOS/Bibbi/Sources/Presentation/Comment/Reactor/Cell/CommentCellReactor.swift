@@ -20,6 +20,7 @@ final public class CommentCellReactor: Reactor {
     public enum Action {
         case fetchUserName
         case fetchProfileImage
+        case didChangedInitalLayout
         case didTapProfileButton
         case didTapPlayButton(String)
         case prepareForReuse
@@ -89,6 +90,9 @@ final public class CommentCellReactor: Reactor {
         let memberId = initialState.comment.memberId
         
         switch action {
+        case .didChangedInitalLayout:
+            return .just(.setEqualizerState(.inital))
+            
         case .prepareForReuse:
             return .just(.setEqualizerState(.inital))
             

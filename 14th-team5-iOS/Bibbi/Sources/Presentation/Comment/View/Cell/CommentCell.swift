@@ -201,7 +201,13 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         )
         .willChangedAudioTime { $0 }
         .observe(on: RxScheduler.main)
-        .bind(to: commentEqualizerView.timerLabel.rx.text)
+        .bind(with: self) { owner, timer in
+            if timer == "0:00" {
+                owner.reactor?.action.onNext(.didChangedInitalLayout)
+                owner.commentEqualizerView.resetEqualizerLayout()
+            }
+            owner.commentEqualizerView.timerLabel.text = timer
+        }
         .disposed(by: disposeBag)
         
         reactor.state.map { $0.equalizerState }

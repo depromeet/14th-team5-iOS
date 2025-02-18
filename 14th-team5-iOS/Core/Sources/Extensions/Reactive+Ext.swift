@@ -272,7 +272,6 @@ public extension ObservableType {
         return flatMapLatest { element -> Observable<[CGFloat]> in
             let fileIDKey = transform(element)
             var decibels: [CGFloat] = []
-            print("✅ 요청한 데시벨의 키값을 조회합니다 \(fileIDKey) ✅")
             guard let filePath = BBDiskCacheStorage<String, URL>.read(forkey: fileIDKey) else {
                 return .error(BBDiskCacheStroageError.cannotCreateCacheFile)
             }

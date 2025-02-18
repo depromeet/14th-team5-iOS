@@ -41,11 +41,6 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     
     
     // MARK: - Helpers
-    deinit {
-        print("😆 커멘트 셀이 메모리에서 해체되는 것을 확인합니다. 😆")
-    }
-    
-    
     public override func prepareForReuse() {
         super.prepareForReuse()
         

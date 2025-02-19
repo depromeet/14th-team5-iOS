@@ -49,4 +49,28 @@ extension MyRepository {
         return appUserDefaults.saveIsFirstOnboarding(isFirstOnboarding)
     }
     
+    public func fetchFamilyCreateAt() -> Date? {
+        return familyUserDefaults.loadFamilyCreatedAt()
+    }
+    
+    public func fetchLatestVersion() -> String? {
+        return myUserDefaults.loadAppVersion()
+    }
+    
+    public func fetchReviewCount() -> Int? {
+        return myUserDefaults.loadReviewActionCount()
+    }
+    
+    public func updateReviewCount(_ count: Int) {
+        return myUserDefaults.saveReviewActionCount(count)
+    }
+    
+    public func fetchLastReviewDate() -> Date? {
+        return myUserDefaults.loadLastReviewDate()
+    }
+    
+    public func updateLastReviewDate(_ date: Date) {
+        return myUserDefaults.saveLastReviewDate(date)
+    }
+    
 }

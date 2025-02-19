@@ -21,6 +21,8 @@ public final class ProfileViewReactor: Reactor {
     @Injected private var uploadProfileImageUseCase: FetchCameraUploadImageUseCaseProtocol
     @Injected private var createPresignedURLUseCase: CreateMembersPresignedURLUseCaseProtocol
     @Injected private var deleteProfileImageUseCase: DeleteMembersProfileUseCaseProtocol
+    //TODO: 임시 코드입니다. -> Main or Camera Display로 이동
+    @Injected private var fetchUserCreateAtUseCase: FetchUserCreateAtInfoUseCaseProtocol
     @Navigator private var profileNavigator: ProfileNavigatorProtocol
     
     
@@ -67,6 +69,7 @@ public final class ProfileViewReactor: Reactor {
             isUser: isUser,
             feedType: .survival
         )
+        _ = fetchUserCreateAtUseCase.execute()
         
         self.provider = provider
     }

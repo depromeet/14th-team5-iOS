@@ -23,16 +23,20 @@ public final class FetchUserCreateAtInfoUseCase: FetchUserCreateAtInfoUseCasePro
     }
     
     public func execute() -> Observable<Bool> {
-        let appVersion = Bundle.main.appVersion
         let currentDate = Date()
-        
         guard let createAt = myRepository.fetchFamilyCreateAt(),
-              let latestVersion = myRepository.fetchLatestVersion(),
               let reviewCount = myRepository.fetchReviewCount(),
-              let lastReviewDate = myRepository.fetchLastReviewDate(),
               let createDays = Calendar.current.dateComponents([.day], from: createAt, to: Date()).day
         else {
             return .just(false)
+        }
+        
+        let lastReviewDate = myRepository.fetchLastReviewDate() ?? createAt
+        let isinitalReviewDate = myRepository.fetchLastReviewDate() == nil
+        let isLatestVersion = myRepository.fetchIsLatestVersion()
+        
+        if isinitalReviewDate {
+            myRepository.updateLastReviewDate(createAt)
         }
         
         let daysSinceLastReview = Calendar.current.dateComponents([.day], from: lastReviewDate, to: currentDate).day ?? 0
@@ -41,24 +45,13 @@ public final class FetchUserCreateAtInfoUseCase: FetchUserCreateAtInfoUseCasePro
             myRepository.updateLastReviewDate(currentDate)
         }
         
-        //FIXME:
-        
-        let isReviewAllowed = reviewCount < 3 && daysSinceLastReview >= 365
-        
-        print("😡마지막 리뷰 날짜 : \(daysSinceLastReview)😡")
-        print("😎생성 날짜 : \(createDays)😎")
-        print("📦리뷰 카운트 : \(reviewCount) 📦")
-        print("😓앱 버전 : \(appVersion) 😓")
-        print("🥶최신 버전 : \(latestVersion)🥶")
-        print("😵‍💫허용 값 : \(isReviewAllowed)😵‍💫")
-        
-        // 기존 사용자는 updateLastReviewDate 에 값이 없기 떄문에 daysSinceLastReview 값이 0 으로떠서 isReviewAllowed가 false로 뜸
-        if ((createDays >= 30 && reviewCount == 0) || (appVersion != latestVersion)) && isReviewAllowed {
+        let isReviewAllowed = reviewCount < 3 && (daysSinceLastReview >= 365 || isinitalReviewDate || createDays >= 30)
+
+        if isReviewAllowed && (isLatestVersion || reviewCount == 0) {
             myRepository.updateReviewCount(reviewCount + 1)
             myRepository.updateLastReviewDate(currentDate)
             return .just(true)
         }
-        
         return .just(false)
     }
 }

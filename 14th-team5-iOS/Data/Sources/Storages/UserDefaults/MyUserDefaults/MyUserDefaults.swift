@@ -15,12 +15,12 @@ public protocol MyUserDefaultsType: UserDefaultsType {
     
     func saveUserName(_ userName: String?)
     func loadUserName() -> String?
-    func saveAppVersion(_ version: String?)
-    func loadAppVersion() -> String?
+    func saveIsLatestVersion(_ isLatest: Bool)
+    func loadIsLatestVersion() -> Bool
     func saveReviewActionCount(_ count: Int)
     func loadReviewActionCount() -> Int
     func saveLastReviewDate(_ date: Date?)
-    func loadLastReviewDate() -> Date
+    func loadLastReviewDate() -> Date?
 }
 
 final public class MyUserDefaults: MyUserDefaultsType {
@@ -57,14 +57,14 @@ final public class MyUserDefaults: MyUserDefaultsType {
         return userName
     }
     
-    
-    public func saveAppVersion(_ version: String?) {
-        userDefaults[.latestVersion] = version
+    public func saveIsLatestVersion(_ isLatest: Bool) {
+        userDefaults[.isLatestVersion] = isLatest
     }
     
-    public func loadAppVersion() -> String? {
-        guard let latestVersion: String = userDefaults[.latestVersion] else { return "" }
-        return latestVersion
+    public func loadIsLatestVersion() -> Bool {
+        guard let isLatestVersion: Bool = userDefaults[.isLatestVersion] else { return false
+        }
+        return isLatestVersion
     }
     
     public func saveReviewActionCount(_ count: Int) {
@@ -81,9 +81,9 @@ final public class MyUserDefaults: MyUserDefaultsType {
         userDefaults[.lastReviewDate] = date
     }
     
-    public func loadLastReviewDate() -> Date {
+    public func loadLastReviewDate() -> Date? {
         guard let lastReviewDate: Date = userDefaults[.lastReviewDate] else {
-            return .now
+            return nil
         }
         return lastReviewDate
     }

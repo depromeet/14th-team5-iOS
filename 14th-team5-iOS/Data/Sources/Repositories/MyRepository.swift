@@ -53,8 +53,8 @@ extension MyRepository {
         return familyUserDefaults.loadFamilyCreatedAt()
     }
     
-    public func fetchLatestVersion() -> String? {
-        return myUserDefaults.loadAppVersion()
+    public func fetchIsLatestVersion() -> Bool {
+        return myUserDefaults.loadIsLatestVersion()
     }
     
     public func fetchReviewCount() -> Int? {
@@ -69,7 +69,7 @@ extension MyRepository {
         return myUserDefaults.loadLastReviewDate()
     }
     
-    public func updateLastReviewDate(_ date: Date) {
+    public func updateLastReviewDate(_ date: Date?) {
         return myUserDefaults.saveLastReviewDate(date)
     }
     

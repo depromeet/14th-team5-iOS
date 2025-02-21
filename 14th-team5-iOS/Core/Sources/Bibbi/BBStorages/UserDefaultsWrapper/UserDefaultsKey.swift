@@ -32,7 +32,7 @@ public extension UserDefaultsWrapper.Key {
     
     static let userName: Self = "userName"
     static let memberId: Self = "memberId"
-    static let latestVersion: Self = "latestVersion"
+    static let isLatestVersion: Self =  "isLatestVersion"
     static let reviewActionCount: Self = "reviewActionCount"
     static let lastReviewDate: Self = "lastReviewDate"
     

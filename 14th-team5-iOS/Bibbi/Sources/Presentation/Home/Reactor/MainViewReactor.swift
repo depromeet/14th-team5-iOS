@@ -56,7 +56,7 @@ final class MainViewReactor: Reactor {
     enum Mutation {
         case updateMainData(MainViewEntity)
         case updateMainNight(NightMainViewEntity)
-        
+        case setRatingAlert(Bool)
         case setInTime(Bool)
         case setPageIndex(Int)
         case setCamerEnabled
@@ -84,7 +84,7 @@ final class MainViewReactor: Reactor {
         var isMeSurvivalUploadedToday: Bool = false
         var isMeMissionUploadedToday: Bool = false
         var isMissionUnlocked: Bool = false
-        
+        @Pulse var isShowRatingAlert: Bool = false
         @Pulse var pickedMember: (memberId: String, name: String)? = nil
         
         @Pulse var cameraEnabled: Bool = false
@@ -107,6 +107,7 @@ final class MainViewReactor: Reactor {
     @Injected var isFirstFamilyManagementUseCase: IsFirstFamilyManagementUseCaseProtocol
     @Injected var saveIsFirstFamilyManagementUseCase: SaveIsFirstFamilyManagementUseCaseProtocol
     @Injected var saveIsFirstWidgetAlertUseCase: SaveIsFirstWidgetAlertUseCaseProtocol
+    @Injected private var fetchUserCreateAtUseCase: FetchUserCreateAtInfoUseCaseProtocol
 }
 
 extension MainViewReactor {
@@ -243,9 +244,13 @@ extension MainViewReactor {
             
             return checkMissionAlertShowUseCase.execute()
                 .filter { !$0 }
-                .flatMap { isAlreadyShown -> Observable<Mutation> in
-                    self.pushViewController(type: .missionUnlockedAlert)
-                    return .empty()
+                .withUnretained(self)
+                .flatMap { owner, isAlreadyShown -> Observable<Mutation> in
+                    return owner.fetchUserCreateAtUseCase.execute()
+                        .flatMap { isCheck -> Observable<Mutation> in
+                            owner.pushViewController(type: .missionUnlockedAlert)
+                            return .just(.setRatingAlert(isCheck))
+                        }
                 }
         case .checkIsFirstFamilyManagement:
             return isFirstFamilyManagementUseCase.execute()
@@ -290,6 +295,8 @@ extension MainViewReactor {
             newState.isFirstFamilyManagement = isFirst
         case .setPickMember(let id, let name):
             newState.pickedMember = (id, name)
+        case let .setRatingAlert(isShowRatingAlert):
+            newState.isShowRatingAlert = isShowRatingAlert
         }
         
         return newState

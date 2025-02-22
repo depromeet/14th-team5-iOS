@@ -20,6 +20,7 @@ public final class CameraDisplayViewReactor: Reactor {
     @Injected private var provider: ServiceProviderProtocol
     @Injected private var createPostUseCase: CreatePostUseCaseProtocol
     @Injected private var createPresignedURLUseCase: CreatePresignedURLUseCaseProtocol
+    @Injected private var createImageUploadUseCase: CreateImageUploadUseCaseProtocol
     @Navigator private var cameraDisplayNavigator: CameraDisplayNavigatorProtocol
     
     public enum Action {
@@ -45,7 +46,7 @@ public final class CameraDisplayViewReactor: Reactor {
     }
     
     public struct State {
-        var isLoading: Bool
+        @Pulse var isLoading: Bool
         var displayDescrption: String
         var cameraType: PostType
         @Pulse var isError: Bool
@@ -83,18 +84,30 @@ public final class CameraDisplayViewReactor: Reactor {
         case .viewDidLoad:
             let fileName = "\(currentState.displayData.hashValue).jpg"
             let body = CreatePostPresignedURLRequest(imageName: fileName)
-            return createPresignedURLUseCase.execute(body: body, imageData: currentState.displayData)
-                .flatMap { presingedURL -> Observable<Mutation> in
-                    return .concat(
-                        .just(.setLoading(false)),
-                        .just(.setDisplayEntity(presingedURL)),
-                        .just(.setError(false)),
-                        .just(.setLoading(true))
-                    )
-                }.catchError(with: self) { owner, _ in
-                    owner.cameraDisplayNavigator.showErrorAlert()
-                    return .empty()
-                }
+            return .concat(
+                .just(.setLoading(false)),
+                createPresignedURLUseCase.execute(body: body)
+                    .withUnretained(self)
+                    .flatMap { owner, presingedURL -> Observable<Mutation> in
+                        guard let remoteURL = presingedURL?.imageURL else {
+                            return .just(.setLoading(false))
+                        }
+                        return owner.createImageUploadUseCase.execute(remoteURL, with: owner.currentState.displayData)
+                            .flatMap { isSuccess -> Observable<Mutation> in
+                                return .concat(
+                                    .just(.setDisplayEntity(presingedURL)),
+                                    .just(.setLoading(true))
+                                )
+                                
+                            }.catchError(with: self) { owner, _ in
+                                owner.cameraDisplayNavigator.showErrorAlert()
+                                return .empty()
+                            }
+                    }.catchError(with: self) { owner, _ in
+                        owner.cameraDisplayNavigator.showErrorAlert()
+                        return .empty()
+                    }
+            )
  
         case let .fetchDisplayImage(description):
             return .concat(

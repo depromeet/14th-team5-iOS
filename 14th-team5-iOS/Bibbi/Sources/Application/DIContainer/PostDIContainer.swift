@@ -29,6 +29,10 @@ final class PostDIContainer: BaseContainer {
     private func makeCreatePresignedURLUseCase() -> CreatePresignedURLUseCaseProtocol {
         return CreatePresignedURLUseCase(postListReposity: postListRepository)
     }
+    
+    private func makeCreateImageUploadUseCase() -> CreateImageUploadUseCaseProtocol {
+        return CreateImageUploadUseCase(postListRepository: postListRepository)
+    }
 }
 
 extension PostDIContainer {
@@ -47,6 +51,10 @@ extension PostDIContainer {
         
         container.register(type: CreatePresignedURLUseCaseProtocol.self) { _ in
             self.makeCreatePresignedURLUseCase()
+        }
+        
+        container.register(type: CreateImageUploadUseCaseProtocol.self) { _ in
+            self.makeCreateImageUploadUseCase()
         }
     }
 }

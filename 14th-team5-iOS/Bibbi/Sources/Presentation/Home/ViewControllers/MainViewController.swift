@@ -187,7 +187,7 @@ extension MainViewController {
             .bind(onNext: { $0.0.setInTimeView($0.1) })
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$isShowRatingAlert)
+        reactor.pulse(\.$isRatingAlertHidden)
             .filter { $0 }
             .bind { _ in
                 SKStoreReviewController.requestReviewInCurrentScene()

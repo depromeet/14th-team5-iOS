@@ -34,7 +34,7 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository, FCMRepository
     
     private func saveFcmToken(headers: [APIHeader]?, token: FCMToken) -> Single<Void?> {
         let spec = MeAPIs.saveFcmToken.spec
-    
+        KeychainWrapper.standard[.fcmToken] = token.fcmToken
         return request(spec: spec, headers: headers, jsonEncodable: token)
             .subscribe(on: Self.queue)
             .map(VoidResponse.self)

@@ -17,6 +17,8 @@ import RxDataSources
 import Kingfisher
 
 final class MainViewReactor: Reactor {
+    var initialState: State
+    
     enum TapAction {
         case cameraButtonTap
         case navigationRightButtonTap
@@ -84,7 +86,7 @@ final class MainViewReactor: Reactor {
         var isMeSurvivalUploadedToday: Bool = false
         var isMeMissionUploadedToday: Bool = false
         var isMissionUnlocked: Bool = false
-        @Pulse var isShowRatingAlert: Bool = false
+        @Pulse var isRatingAlertHidden: Bool
         @Pulse var pickedMember: (memberId: String, name: String)? = nil
         
         @Pulse var cameraEnabled: Bool = false
@@ -93,8 +95,6 @@ final class MainViewReactor: Reactor {
         @Pulse var contributor: FamilyRankData = FamilyRankData.empty
         @Pulse var familySection: [FamilySection.Item] = []
     }
-    
-    let initialState: State = State()
     
     @Navigator var navigator: MainNavigatorProtocol
     
@@ -107,7 +107,11 @@ final class MainViewReactor: Reactor {
     @Injected var isFirstFamilyManagementUseCase: IsFirstFamilyManagementUseCaseProtocol
     @Injected var saveIsFirstFamilyManagementUseCase: SaveIsFirstFamilyManagementUseCaseProtocol
     @Injected var saveIsFirstWidgetAlertUseCase: SaveIsFirstWidgetAlertUseCaseProtocol
-    @Injected private var fetchUserCreateAtUseCase: FetchUserCreateAtInfoUseCaseProtocol
+    
+    init(isRatingAlertHidden: Bool) {
+        self.initialState = State(isRatingAlertHidden: isRatingAlertHidden)
+    }
+    
 }
 
 extension MainViewReactor {
@@ -246,11 +250,8 @@ extension MainViewReactor {
                 .filter { !$0 }
                 .withUnretained(self)
                 .flatMap { owner, isAlreadyShown -> Observable<Mutation> in
-                    return owner.fetchUserCreateAtUseCase.execute()
-                        .flatMap { isCheck -> Observable<Mutation> in
-                            owner.pushViewController(type: .missionUnlockedAlert)
-                            return .just(.setRatingAlert(isCheck))
-                        }
+                    owner.pushViewController(type: .missionUnlockedAlert)
+                    return .empty()
                 }
         case .checkIsFirstFamilyManagement:
             return isFirstFamilyManagementUseCase.execute()
@@ -295,8 +296,8 @@ extension MainViewReactor {
             newState.isFirstFamilyManagement = isFirst
         case .setPickMember(let id, let name):
             newState.pickedMember = (id, name)
-        case let .setRatingAlert(isShowRatingAlert):
-            newState.isShowRatingAlert = isShowRatingAlert
+        case let .setRatingAlert(isRatingHidden):
+            newState.isRatingAlertHidden = isRatingHidden
         }
         
         return newState

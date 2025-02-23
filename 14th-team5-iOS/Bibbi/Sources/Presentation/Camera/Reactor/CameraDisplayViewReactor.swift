@@ -20,6 +20,7 @@ public final class CameraDisplayViewReactor: Reactor {
     @Injected private var provider: ServiceProviderProtocol
     @Injected private var createPostUseCase: CreatePostUseCaseProtocol
     @Injected private var createPresignedURLUseCase: CreatePresignedURLUseCaseProtocol
+    @Injected private var fetchUserCreateAtUseCase: FetchUserCreateAtInfoUseCaseProtocol
     @Navigator private var cameraDisplayNavigator: CameraDisplayNavigatorProtocol
     
     public enum Action {
@@ -137,6 +138,11 @@ public final class CameraDisplayViewReactor: Reactor {
             
             let query = CreatePostQuery(type: currentState.cameraType.rawValue)
             let body = CreatePostRequest(imageUrl: remoteURL, content: currentState.displayDescrption, uploadTime: DateFormatter.yyyyMMddTHHmmssXXX.string(from: .now))
+            let refreshMainObservable = Observable<Mutation>.concat(
+                .just(.setError(false)),
+                provider.mainService.refreshMain()
+                    .flatMap { _ in Observable<Mutation>.empty() }
+            )
         
             return createPostUseCase.execute(query: query, body: body)
                 .withUnretained(self)
@@ -144,12 +150,16 @@ public final class CameraDisplayViewReactor: Reactor {
                     if entity == nil  {
                         return .just(.setError(true))
                     } else {
-                        owner.cameraDisplayNavigator.toHome()
-                        return .concat(
-                            .just(.setError(false)),
-                            owner.provider.mainService.refreshMain()
-                                .flatMap { _ in Observable<Mutation>.empty() }
-                        )
+                        if owner.currentState.cameraType == .survival {
+                            return owner.fetchUserCreateAtUseCase.execute()
+                                .flatMap { isRatingHidden -> Observable<Mutation> in
+                                    owner.cameraDisplayNavigator.toHome(isRatingHidden)
+                                    return refreshMainObservable
+                                }
+                        } else {
+                            owner.cameraDisplayNavigator.toHome(false)
+                            return refreshMainObservable
+                        }
                     }
                 }.catchError(with: self) { owner, _ in
                     owner.cameraDisplayNavigator.showErrorAlert()

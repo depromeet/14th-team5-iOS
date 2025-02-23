@@ -31,6 +31,7 @@ public class TokenRepository: RxObject {
     
     public func clearAccessToken() {
         KeychainWrapper.standard.remove(forKey: .accessToken)
+        KeychainWrapper.standard.remove(forKey: .fcmToken)
         accessToken.accept(nil)
     }
     

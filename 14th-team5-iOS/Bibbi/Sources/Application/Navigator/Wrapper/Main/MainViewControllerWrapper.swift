@@ -12,8 +12,15 @@ import MacrosInterface
 @Wrapper<MainViewReactor, MainViewController>
 final class MainViewControllerWrapper {
    
+    private var isRatingAlertHidden: Bool = false
+    
+    init(isRatingAlertHidden: Bool = false) {
+        self.isRatingAlertHidden = isRatingAlertHidden
+    }
+    
+    
     func makeReactor() -> R {
-        return MainViewReactor()
+        return MainViewReactor(isRatingAlertHidden: isRatingAlertHidden)
     }
     
 }

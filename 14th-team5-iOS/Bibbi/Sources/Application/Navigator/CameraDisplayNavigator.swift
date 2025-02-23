@@ -10,7 +10,7 @@ import DesignSystem
 import UIKit
 
 protocol CameraDisplayNavigatorProtocol: BaseNavigator {
-    func toHome()
+    func toHome(_ isRatingHidden: Bool)
     func toCamera()
     func showErrorAlert()
 }
@@ -49,8 +49,8 @@ final class CameraDisplayNavigator: CameraDisplayNavigatorProtocol {
     
     
     //MARK: - Configure
-    func toHome() {
-        let vc = MainViewControllerWrapper().viewController
+    func toHome(_ isRatingHidden: Bool = true) {
+        let vc = MainViewControllerWrapper(isRatingAlertHidden: isRatingHidden).viewController
         navigationController.setViewControllers([vc], animated: false)
     }
 }

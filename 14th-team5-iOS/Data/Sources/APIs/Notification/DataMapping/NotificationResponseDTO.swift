@@ -9,8 +9,9 @@ import Domain
 
 public struct NotificationResponseDTO: Decodable {
     let notificationId: String
-    let senderImageUrl: String
-    let style: String
+    let senderMemberId: String
+    let senderProfileImageUrl: String
+    let senderProfileStyle: String
     let title: String
     let content: String
     let iosDeepLink: String
@@ -22,8 +23,8 @@ extension NotificationResponseDTO {
     func toDomain() -> NotificationEntity {
         return .init(
             id: notificationId,
-            style: style,
-            senderImageUrl: senderImageUrl,
+            style: senderProfileStyle,
+            senderImageUrl: senderProfileImageUrl,
             title: title,
             content: content,
             deepLink: iosDeepLink,

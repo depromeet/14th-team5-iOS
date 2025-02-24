@@ -33,13 +33,28 @@ public class BBProfileImage: UIView {
     
     public struct Configure {
         let isBirthday: Bool
+        let image: UIImage?
         let imageURL: String?
         let name: String?
         
-        public init(isBirthday: Bool, imageURL: String?, name: String?) {
+        public init(
+            isBirthday: Bool = false,
+            imageURL: String?,
+            name: String? = nil
+        ) {
             self.isBirthday = isBirthday
+            self.image = nil
             self.imageURL = imageURL
             self.name = name
+        }
+        
+        public init(
+            image: UIImage
+        ) {
+            self.isBirthday = false
+            self.image = image
+            self.imageURL = nil
+            self.name = nil
         }
     }
     
@@ -83,6 +98,7 @@ extension BBProfileImage {
     
     private func setupAttributes() {
         imageView.do {
+            $0.clipsToBounds = true
             $0.layer.cornerRadius = CGFloat(size.rawValue / 2)
         }
         
@@ -98,6 +114,8 @@ extension Reactive where Base: BBProfileImage {
             if let imageURL = config.imageURL,
                let imageSource = URL(string: imageURL) {
                 view.imageView.kf.setImage(with: imageSource)
+            } else if let image = config.image {
+                view.imageView.image = image
             } else {
                 view.imageView.backgroundColor = .black
                 view.defaultNameLabel.text = config.name ?? ""

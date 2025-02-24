@@ -14,15 +14,17 @@ import RxDataSources
 final class NotificationCell: BaseTableViewCell<NotificationCellReactor> {
     static let id = "notificationCell"
     
-    private let contentTopStackView: UIStackView = UIStackView()
     private let profileView: BBProfileImage = BBProfileImage(size: .medium)
-    private let titleLabel: BBLabel = BBLabel(.body2Regular)
-    private let contentLabel: BBLabel = BBLabel(.body2Regular)
-    private let timeLabel: BBLabel = BBLabel(.caption)
+    private let titleLabel: BBLabel = BBLabel(.body2Regular, textColor: .bibbiWhite)
+    private let contentLabel: BBLabel = BBLabel(.body2Regular, textColor: .gray300)
+    private let timeLabel: BBLabel = BBLabel(.caption, textColor: .gray500)
     
     var reactor: NotificationCellReactor?
     
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+    override init(
+        style: UITableViewCell.CellStyle,
+        reuseIdentifier: String?
+    ) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
     }
     
@@ -31,9 +33,12 @@ final class NotificationCell: BaseTableViewCell<NotificationCellReactor> {
     }
     
     override func setupUI() {
-        addSubviews(profileView, contentTopStackView, contentLabel)
-        
-        contentTopStackView.addArrangedSubviews(titleLabel, timeLabel)
+        addSubviews(
+            profileView,
+            titleLabel,
+            timeLabel,
+            contentLabel
+        )
     }
     
     override func setupAutoLayout() {
@@ -42,20 +47,33 @@ final class NotificationCell: BaseTableViewCell<NotificationCellReactor> {
             $0.top.equalToSuperview().inset(14)
         }
         
-        contentTopStackView.snp.makeConstraints {
+        titleLabel.snp.makeConstraints {
             $0.top.equalToSuperview().inset(16)
             $0.leading.equalTo(profileView.snp.trailing).offset(12)
             $0.trailing.equalToSuperview().inset(20)
         }
         
+        timeLabel.snp.makeConstraints {
+            $0.top.equalTo(titleLabel)
+            $0.trailing.equalToSuperview().inset(20)
+        }
+        
         contentLabel.snp.makeConstraints {
-            $0.top.equalTo(contentTopStackView.snp.bottom)
-            $0.directionalHorizontalEdges.equalTo(contentTopStackView)
+            $0.top.equalTo(titleLabel.snp.bottom)
+            $0.leading.equalTo(titleLabel)
+            $0.trailing.equalTo(timeLabel)
+            $0.bottom.equalToSuperview().inset(16)
         }
     }
     
     override func setupAttributes() {
+        titleLabel.do {
+            $0.numberOfLines = 2
+        }
         
+        contentLabel.do {
+            $0.numberOfLines = 0
+        }
     }
 }
 
@@ -70,6 +88,18 @@ extension NotificationCell {
     private func bindOutput(reactor: NotificationCellReactor) {
         reactor.state.map { $0.profile }
             .bind(to: profileView.rx.configure)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.notification.title }
+            .bind(to: titleLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.notification.content }
+            .bind(to: contentLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.time }
+            .bind(to: timeLabel.rx.text)
             .disposed(by: disposeBag)
     }
 }
@@ -130,6 +160,9 @@ final class NotificationViewController: BBNavigationViewController<NotificationR
         
         tableView.do {
             $0.register(NotificationCell.self, forCellReuseIdentifier: NotificationCell.id)
+            tableView.rowHeight = UITableView.automaticDimension
+            tableView.estimatedRowHeight = 100
+
         }
     }
 }

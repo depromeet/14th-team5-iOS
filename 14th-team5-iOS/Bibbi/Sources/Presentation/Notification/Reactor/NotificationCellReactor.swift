@@ -6,6 +6,7 @@
 //
 
 import Core
+import DesignSystem
 import Domain
 
 import ReactorKit
@@ -17,12 +18,14 @@ final class NotificationCellReactor: Reactor {
     
     enum Mutation {
         case setProfile(BBProfileImage.Configure)
+        case setTime(String)
     }
     
     struct State {
         var notification: NotificationEntity
         
         var profile: BBProfileImage.Configure
+        var time: String
     }
     
     var initialState: State
@@ -34,7 +37,8 @@ final class NotificationCellReactor: Reactor {
                 isBirthday: false,
                 imageURL: notification.senderImageUrl,
                 name: "TEST"
-            )
+            ),
+            time: .init()
         )
     }
 }
@@ -44,15 +48,16 @@ extension NotificationCellReactor {
         switch action {
             
         case .setCell:
-            return .just(
-                .setProfile(
-                    .init(
-                        isBirthday: false,
-                        imageURL: currentState.notification.senderImageUrl,
-                        name: "TEST"
-                    )
+            return .merge([
+                Observable<Mutation>.just(
+                    .setProfile(makeProfile())
+                ),
+                Observable<Mutation>.just(.setTime(
+                    currentState.notification.createdAt.toDate(
+                        with: "yyyy-MM-dd'T'HH:mm:ssZ"
+                    ).relativeFormatter())
                 )
-            )
+            ])
         }
     }
     
@@ -62,8 +67,37 @@ extension NotificationCellReactor {
             
         case let .setProfile(profile):
             newState.profile = profile
+        case let .setTime(time):
+            newState.time = time
         }
         
         return newState
+    }
+}
+
+extension NotificationCellReactor {
+    private func makeProfile() -> BBProfileImage.Configure {
+        let profile: BBProfileImage.Configure
+        let noti: NotificationEntity = currentState.notification
+        switch noti.style {
+        case .birthday:
+            profile = .init(
+                isBirthday: true,
+                imageURL: noti.senderImageUrl,
+                name: "TEST"
+            )
+        case .mission:
+            profile = .init(image: DesignSystemAsset.bibbiThumbnail.image)
+        case .comment:
+            profile = .init(
+                imageURL: noti.senderImageUrl
+            )
+        case .update:
+            profile = .init(image: DesignSystemAsset.noticeThumbnail.image)
+        case .unknown:
+            profile = .init(imageURL: nil)
+        }
+        
+        return profile
     }
 }

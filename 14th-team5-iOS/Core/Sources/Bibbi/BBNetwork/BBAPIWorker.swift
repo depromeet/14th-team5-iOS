@@ -51,12 +51,12 @@ extension APIWorkerError: LocalizedError {
         switch self {
         case .noResponse:
             return "서버로부터 받아온 데이터가 없습니다."
-        case .unknown(let error):
-            return "알 수 없는 오류가 발생했습니다 [이유: \(error.localizedDescription)]"
+        case .unknown:
+            return "알 수 없는 오류가 발생했습니다."
         case .parsing:
             return "데이터를 처리하는 중에 문제가 발생했습니다. 서버에서 반환된 데이터가 예상한 형식과 맞지 않습니다."
-        case .networkFailure(let reason):
-            return "네트워크 통신 중 오류가 발생했습니다. [이유: \(reason.localizedDescription)]"
+        case .networkFailure:
+            return "네트워크 통신 중 오류가 발생했습니다."
         }
     }
 }

@@ -8,6 +8,7 @@
 import Foundation
 import Domain
 import Core
+import Util
 
 import RxSwift
 
@@ -23,26 +24,32 @@ extension VoiceRepository: VoiceRepositoryProtocol {
     
     public func createVoiceComment(postId: String, body: CreateVoiceRequest) -> Observable<PostCommentEntity> {
         let body = CreateVoiceCommentRequestDTO(fileUrl: body.fileUrl)
+        
         return voiceApiWorker.createVoiceComment(postId: postId, body: body)
-            .do(onNext: { response in
+            .flatMap { response -> Observable<PostCommentEntity> in
                 if response.commentType == "VOICE" {
-                    Task {
-                        do {
-                            guard let voiceURL = URL(string: response.comment),
-                                  let bufferData = try? Data(contentsOf: voiceURL) else {
-                                return
+                    return Observable.create { observer in
+                        Task {
+                            do {
+                                guard let voiceURL = URL(string: response.comment),
+                                      let bufferData = try? Data(contentsOf: voiceURL) else {
+                                    return
+                                }
+                                try await self.voiceStorage.setObject(bufferData, for: response.commentId)
+                                observer.onNext(response.toDomain())
+                                observer.onCompleted()
+                            } catch {
+                                BBLogManager.sendError(error: error)
+                                observer.onError(error)
                             }
-                            try await self.voiceStorage.setObject(bufferData, for: response.commentId)
-                        } catch {
-                            print("😳음성 녹음 URL을 저장하는데 실패 했습니다.")
-                            print(error.localizedDescription)
                         }
+                        return Disposables.create()
                     }
                 }
-            })
-            .map { $0.toDomain() }
-        
+                return .just(response.toDomain())
+            }
     }
+
     
     public func createVoicePresignedURL(postId: String, body: CreateVoicePresignedURLRequest) -> Observable<VoicePresignedEntity> {
         let body = CreateVoicePresignedURLRequestDTO(imageName: body.imageName)
@@ -52,6 +59,15 @@ extension VoiceRepository: VoiceRepositoryProtocol {
     
     public func deleteVoiceComment(postId: String, commentId: String) -> Observable<DeleteVoiceCommentEntity> {
         return voiceApiWorker.deleteVoiceComment(postId: postId, commentId: commentId)
+            .do(onNext: { response in
+                if response.success {
+                    do {
+                        try self.voiceStorage.removeObject(forKey: commentId)
+                    } catch {
+                        BBLogManager.sendError(error: error)
+                    }
+                }
+            })
             .map { $0.toDomain() }
     }
     

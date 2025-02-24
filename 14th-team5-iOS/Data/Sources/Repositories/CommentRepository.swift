@@ -30,7 +30,7 @@ extension CommentRepository {
             .do(onNext: { response in
                 _ = response.results.map { dto in
                     if dto.commentType == "VOICE" {
-                        Task {
+                        Task.synchronous {
                             do {
                                 guard let voiceURL = URL(string: dto.comment),
                                       let bufferData = try? Data(contentsOf: voiceURL) else { return }

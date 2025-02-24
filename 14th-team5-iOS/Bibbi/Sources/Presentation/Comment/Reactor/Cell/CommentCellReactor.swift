@@ -20,8 +20,9 @@ final public class CommentCellReactor: Reactor {
     public enum Action {
         case fetchUserName
         case fetchProfileImage
+        case didChangedInitalLayout
         case didTapProfileButton
-        case didTapPlayButton
+        case didTapPlayButton(String)
         case prepareForReuse
     }
     
@@ -63,7 +64,23 @@ final public class CommentCellReactor: Reactor {
     // MARK: - Intializer
     
     public init(_ comment: PostCommentEntity) {
-        self.initialState = State(comment: comment)
+        self.initialState = State(audioId: comment.commentId, comment: comment)
+    }
+    
+    
+    public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+        let didTappedPlayButtonMutation = provider.commentService.event
+            .flatMap(with: self) {
+                switch $1 {
+                case let .didTappedPlaybutton(commentId):
+                    let isCurrentComment = commentId == $0.currentState.comment.commentId
+                    let newEqualizerState: BBEqualizerState = isCurrentComment ? .play : .inital
+                    return Observable<Mutation>.just(.setEqualizerState(newEqualizerState))
+                default:
+                    return .empty()
+                }
+            }
+        return Observable<Mutation>.merge(mutation, didTappedPlayButtonMutation)
     }
     
     
@@ -73,6 +90,9 @@ final public class CommentCellReactor: Reactor {
         let memberId = initialState.comment.memberId
         
         switch action {
+        case .didChangedInitalLayout:
+            return .just(.setEqualizerState(.inital))
+            
         case .prepareForReuse:
             return .just(.setEqualizerState(.inital))
             
@@ -94,12 +114,13 @@ final public class CommentCellReactor: Reactor {
             
             return Observable<Mutation>.empty()
         case .didTapPlayButton:
-            let toggleState = currentState.equalizerState == .inital ? BBEqualizerState.play : .inital
             let audioId = currentState.comment.commentId
-            return .concat(
-                .just(.setEqualizerState(toggleState)),
-                .just(.setPlayAudioId(audioId))
-            )
+            let isCurrentState = currentState.equalizerState == .inital
+            let currentEqualizerState: BBEqualizerState = isCurrentState ? .play : .inital
+            
+            provider.commentService.didTappedPlayButton(with: audioId)
+            
+            return .just(.setEqualizerState(currentEqualizerState))
         }
     }
     

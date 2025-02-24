@@ -69,7 +69,12 @@ final public class CommentViewController: ReactorViewController<CommentViewReact
         // TODO: - 코드 리팩토링하기
         commentTableView.rx.itemDeleted
             .withUnretained(self)
-            .bind { $0.0.reactor?.action.onNext(.deleteComment($0.0.dataSource[$0.1].currentState.comment.commentId)) }
+            .bind { $0.0.reactor?.action.onNext(
+                .deleteComment(
+                    $0.0.dataSource[$0.1].currentState.comment.commentId,
+                    $0.0.dataSource[$0.1].currentState.comment.commentType
+                ))
+            }
             .disposed(by: disposeBag)
         
         recorderManager.rx.requestMicrophonePermission
@@ -220,11 +225,12 @@ extension CommentViewController {
     }
     
     private func prepareDatasource() -> RxDataSource {
-        let dataSource = RxDataSource { dataSource, tableView, indexPath, reactor in
+        let dataSource = RxDataSource { [weak self] dataSource, tableView, indexPath, reactor in
             let cell = tableView.dequeueReusableCell(
                 withIdentifier: CommentCell.id
             ) as! CommentCell
             cell.reactor = reactor
+            cell.playerManager = self?.recorderManager
             return cell
         }
         dataSource.canEditRowAtIndexPath = {

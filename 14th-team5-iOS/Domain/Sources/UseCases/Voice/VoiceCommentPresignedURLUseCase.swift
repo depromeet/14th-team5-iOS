@@ -32,7 +32,6 @@ public final class VoiceCommentPresignedURLUseCase: VoiceCommentPresignedURLUseC
                     return .error(BBUploadError.invalidServerResponse)
                 }
                 return self.voiceCommentRepository.uploadMediaToS3(presignedURL.audioURL, mp4File: mp4File).flatMap { isSuccess -> Observable<VoicePresignedEntity> in
-                    print("VOICE COMMENT UPLOAD SUCCESS: \(isSuccess)")
                     if isSuccess {
                         return .just(presignedURL)
                     }

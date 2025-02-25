@@ -49,7 +49,7 @@ extension MyRepository {
         return appUserDefaults.saveIsFirstOnboarding(isFirstOnboarding)
     }
     
-    public func fetchFamilyCreateAt() -> Date? {
+    public func fetchFamilyCreatedAt() -> Date? {
         return familyUserDefaults.loadFamilyCreatedAt()
     }
     

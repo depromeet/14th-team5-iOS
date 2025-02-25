@@ -13,7 +13,7 @@ public protocol MyRepositoryProtocol {
     func fetchUserName(memberId: String) -> String?
     func fetchProfileImageUrl(memberId: String) -> String?
     func fetchIsFirstOnboarding() -> Bool?
-    func fetchFamilyCreateAt() -> Date?
+    func fetchFamilyCreatedAt() -> Date?
     func fetchIsLatestVersion() -> Bool
     func fetchReviewCount() -> Int?
     func fetchLastReviewDate() -> Date?

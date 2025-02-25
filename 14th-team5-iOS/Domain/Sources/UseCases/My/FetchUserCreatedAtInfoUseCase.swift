@@ -1,5 +1,5 @@
 //
-//  FetchUserCreateAtInfoUseCase.swift
+//  FetchUserCreatedAtInfoUseCase.swift
 //  Domain
 //
 //  Created by 김도현 on 2/19/25.
@@ -9,12 +9,12 @@ import Foundation
 
 import RxSwift
 
-public protocol FetchUserCreateAtInfoUseCaseProtocol {
+public protocol FetchUserCreatedAtInfoUseCaseProtocol {
     func execute() -> Observable<Bool>
 }
 
 
-public final class FetchUserCreateAtInfoUseCase: FetchUserCreateAtInfoUseCaseProtocol {
+public final class FetchUserCreatedAtInfoUseCase: FetchUserCreatedAtInfoUseCaseProtocol {
     private let myRepository: MyRepositoryProtocol
     
     
@@ -24,19 +24,19 @@ public final class FetchUserCreateAtInfoUseCase: FetchUserCreateAtInfoUseCasePro
     
     public func execute() -> Observable<Bool> {
         let currentDate = Date()
-        guard let createAt = myRepository.fetchFamilyCreateAt(),
+        guard let createdAt = myRepository.fetchFamilyCreatedAt(),
               let reviewCount = myRepository.fetchReviewCount(),
-              let createDays = Calendar.current.dateComponents([.day], from: createAt, to: Date()).day
+              let createDays = Calendar.current.dateComponents([.day], from: createdAt, to: Date()).day
         else {
             return .just(false)
         }
         
-        let lastReviewDate = myRepository.fetchLastReviewDate() ?? createAt
+        let lastReviewDate = myRepository.fetchLastReviewDate() ?? createdAt
         let isinitalReviewDate = myRepository.fetchLastReviewDate() == nil
         let isLatestVersion = myRepository.fetchIsLatestVersion()
         
         if isinitalReviewDate {
-            myRepository.updateLastReviewDate(createAt)
+            myRepository.updateLastReviewDate(createdAt)
         }
         
         let daysSinceLastReview = Calendar.current.dateComponents([.day], from: lastReviewDate, to: currentDate).day ?? 0

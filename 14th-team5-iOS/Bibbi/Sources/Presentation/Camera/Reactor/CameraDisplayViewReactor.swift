@@ -20,7 +20,7 @@ public final class CameraDisplayViewReactor: Reactor {
     @Injected private var provider: ServiceProviderProtocol
     @Injected private var createPostUseCase: CreatePostUseCaseProtocol
     @Injected private var createPresignedURLUseCase: CreatePresignedURLUseCaseProtocol
-    @Injected private var fetchUserCreateAtUseCase: FetchUserCreateAtInfoUseCaseProtocol
+    @Injected private var fetchUserCreatedAtUseCase: FetchUserCreatedAtInfoUseCaseProtocol
     @Injected private var createImageUploadUseCase: CreateImageUploadUseCaseProtocol
     @Navigator private var cameraDisplayNavigator: CameraDisplayNavigatorProtocol
     
@@ -164,7 +164,7 @@ public final class CameraDisplayViewReactor: Reactor {
                         return .just(.setError(true))
                     } else {
                         if owner.currentState.cameraType == .survival {
-                            return owner.fetchUserCreateAtUseCase.execute()
+                            return owner.fetchUserCreatedAtUseCase.execute()
                                 .flatMap { isRatingHidden -> Observable<Mutation> in
                                     owner.cameraDisplayNavigator.toHome(isRatingHidden)
                                     return refreshMainObservable

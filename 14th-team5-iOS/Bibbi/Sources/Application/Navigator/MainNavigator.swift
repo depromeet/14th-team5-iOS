@@ -54,6 +54,7 @@ final class MainNavigator: MainNavigatorProtocol {
     func missionUnlockedAlert() {
         let handler: BBAlertActionHandler = { [weak self] alert in
             self?.toCamera(.survival)
+            alert?.close()
         }
         BBAlert.style(.takePhoto, primaryAction: handler).show()
     }

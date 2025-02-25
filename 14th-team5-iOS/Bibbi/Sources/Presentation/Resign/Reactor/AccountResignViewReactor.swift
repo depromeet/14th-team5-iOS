@@ -17,6 +17,7 @@ final class AccountResignViewReactor: Reactor {
     @Navigator var resignNavigator: AccountResignNavigatorProtocol
     @Injected var deleteAccountResignUseCase: DeleteMembersUseCaseProtocol
     @Injected var updateIsFirstOnboardingUseCase: UpdateIsFirstOnboardingUseCaseProtocol
+    @Injected var deleteFCMTokenUseCase: DeleteFCMTokenUseCaseProtocol
     @Injected var fetchMyMemberIdUseCase: FetchMyMemberIdUseCaseProtocol
     var initialState: State
     
@@ -63,15 +64,21 @@ final class AccountResignViewReactor: Reactor {
                 return .empty()
             }
             
-            return deleteAccountResignUseCase.execute(memberId: memberId)
-                .compactMap { $0 }
+            return deleteFCMTokenUseCase.execute()
                 .withUnretained(self)
                 .flatMap { owner, entity -> Observable<Mutation> in
-                    if entity.isSuccess {
-                        owner.updateIsFirstOnboardingUseCase.execute(false)
-                        App.Repository.token.clearAccessToken()
-                        owner.resignNavigator.toSignIn()
-                        return .empty()
+                    if entity.success {
+                        return owner.deleteAccountResignUseCase.execute(memberId: memberId)
+                            .compactMap { $0 }
+                            .flatMap { isResign -> Observable<Mutation> in
+                                if isResign.isSuccess {
+                                    owner.updateIsFirstOnboardingUseCase.execute(false)
+                                    App.Repository.token.clearAccessToken()
+                                    owner.resignNavigator.toSignIn()
+                                    return .empty()
+                                }
+                                return .empty()
+                            }
                     }
                     return .empty()
                 }

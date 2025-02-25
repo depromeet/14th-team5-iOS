@@ -3,6 +3,8 @@ name: Bibbi
 on:
   push:
     branches:
+      - feat/*
+      - fix/*
       - release
   pull_request:
     branches:
@@ -42,6 +44,9 @@ jobs:
           path: depromeet/14th-team5-iOS/14th-team5-iOS/XCConfig
           token: ${{secrets.ACTION_TOKEN}}
         
+      - name: Select Xcode 16.2
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app
+
       - name: Install Tuist CLI
         run: brew install tuist
         

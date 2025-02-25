@@ -17,6 +17,8 @@ import RxDataSources
 import Kingfisher
 
 final class MainViewReactor: Reactor {
+    var initialState: State
+    
     enum TapAction {
         case cameraButtonTap
         case navigationRightButtonTap
@@ -56,7 +58,7 @@ final class MainViewReactor: Reactor {
     enum Mutation {
         case updateMainData(MainViewEntity)
         case updateMainNight(NightMainViewEntity)
-        
+        case setRatingAlert(Bool)
         case setInTime(Bool)
         case setPageIndex(Int)
         case setCamerEnabled
@@ -84,7 +86,7 @@ final class MainViewReactor: Reactor {
         var isMeSurvivalUploadedToday: Bool = false
         var isMeMissionUploadedToday: Bool = false
         var isMissionUnlocked: Bool = false
-        
+        @Pulse var isRatingAlertHidden: Bool
         @Pulse var pickedMember: (memberId: String, name: String)? = nil
         
         @Pulse var cameraEnabled: Bool = false
@@ -93,8 +95,6 @@ final class MainViewReactor: Reactor {
         @Pulse var contributor: FamilyRankData = FamilyRankData.empty
         @Pulse var familySection: [FamilySection.Item] = []
     }
-    
-    let initialState: State = State()
     
     @Navigator var navigator: MainNavigatorProtocol
     
@@ -107,6 +107,11 @@ final class MainViewReactor: Reactor {
     @Injected var isFirstFamilyManagementUseCase: IsFirstFamilyManagementUseCaseProtocol
     @Injected var saveIsFirstFamilyManagementUseCase: SaveIsFirstFamilyManagementUseCaseProtocol
     @Injected var saveIsFirstWidgetAlertUseCase: SaveIsFirstWidgetAlertUseCaseProtocol
+    
+    init(isRatingAlertHidden: Bool) {
+        self.initialState = State(isRatingAlertHidden: isRatingAlertHidden)
+    }
+    
 }
 
 extension MainViewReactor {
@@ -243,8 +248,9 @@ extension MainViewReactor {
             
             return checkMissionAlertShowUseCase.execute()
                 .filter { !$0 }
-                .flatMap { isAlreadyShown -> Observable<Mutation> in
-                    self.pushViewController(type: .missionUnlockedAlert)
+                .withUnretained(self)
+                .flatMap { owner, isAlreadyShown -> Observable<Mutation> in
+                    owner.pushViewController(type: .missionUnlockedAlert)
                     return .empty()
                 }
         case .checkIsFirstFamilyManagement:
@@ -290,6 +296,8 @@ extension MainViewReactor {
             newState.isFirstFamilyManagement = isFirst
         case .setPickMember(let id, let name):
             newState.pickedMember = (id, name)
+        case let .setRatingAlert(isRatingHidden):
+            newState.isRatingAlertHidden = isRatingHidden
         }
         
         return newState

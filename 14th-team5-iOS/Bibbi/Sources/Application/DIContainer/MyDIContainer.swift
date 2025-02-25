@@ -61,6 +61,10 @@ final class MyDIContainer: BaseContainer {
         )
     }
     
+    private func makeFetchUserCreatedAtInfoUseCase() -> FetchUserCreatedAtInfoUseCaseProtocol {
+        return FetchUserCreatedAtInfoUseCase(myRepository: makeMyRepository())
+    }
+    
     
     // MARK: - Make Repository
     
@@ -103,7 +107,10 @@ final class MyDIContainer: BaseContainer {
         container.register(type: UpdateIsFirstOnboardingUseCaseProtocol.self) { _ in
             return self.makeUpdateIsFirstOnboardingUseCase()
         }
-        
+        container.register(type: FetchUserCreatedAtInfoUseCaseProtocol.self) { _ in
+            return self.makeFetchUserCreatedAtInfoUseCase()
+        }
+    
     }
     
 }

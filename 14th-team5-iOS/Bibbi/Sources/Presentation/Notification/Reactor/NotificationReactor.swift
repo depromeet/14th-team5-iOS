@@ -15,7 +15,7 @@ import ReactorKit
 final class NotificationReactor: Reactor {
     enum Action {
         case fetchNotifications
-        case didTapNotificationCell(IndexPath)
+        case didTapNotificationCell(NotificationCellReactor)
     }
     
     enum Mutation {
@@ -49,7 +49,10 @@ extension NotificationReactor {
                     return .just(.setNotificationDataSource(items))
                 }
         case let .didTapNotificationCell(item):
-            return Observable.empty()
+            DeepLinkHandler(
+                urlString: item.initialState.notification.deepLink
+            ).doDeepLink()
+            return .empty()
         }
     }
     

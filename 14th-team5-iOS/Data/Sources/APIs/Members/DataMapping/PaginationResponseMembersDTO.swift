@@ -47,7 +47,7 @@ extension PaginationResponseMembersDTO {
 }
 
 extension PaginationResponseMembersDTO.MemberProfileResponseDTO {
-    func toDomain() -> FamilyMemberProfileEntity {
+    func toDomain() -> MemberInfoEntity {
         return .init(
             memberId: memberId,
             profileImageURL: imageUrl,

@@ -32,7 +32,7 @@ extension MembersProfileResponseDTO {
     }
     
     //MARK: 프로빌 정보 공유 데이터 Entity
-    func toProfileEntity() -> FamilyMemberProfileEntity {
+    func toProfileEntity() -> MemberInfoEntity {
         return .init(
             memberId: memberId,
             profileImageURL: imageUrl,

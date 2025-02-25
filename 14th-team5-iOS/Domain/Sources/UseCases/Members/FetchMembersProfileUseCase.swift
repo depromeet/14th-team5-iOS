@@ -20,7 +20,6 @@ public final class FetchMembersProfileUseCase: FetchMembersProfileUseCaseProtoco
     
     private let membersRepository: any MembersRepositoryProtocol
     
-    
     public init(membersRepository: any MembersRepositoryProtocol) {
         self.membersRepository = membersRepository
     }

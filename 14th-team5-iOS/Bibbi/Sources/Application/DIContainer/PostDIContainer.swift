@@ -12,7 +12,7 @@ import Domain
 
 final class PostDIContainer: BaseContainer {
     private let familyRepository: FamilyRepositoryProtocol = FamilyRepository()
-    private let postListRepository: PostListRepositoryProtocol = PostRepository()
+    private let postListRepository: PostRepositoryProtocol = PostRepository()
 
     private func makePostUseCase() -> FetchPostListUseCaseProtocol {
         return FetchPostListUseCase(postListRepository: postListRepository, familyRepository: familyRepository)

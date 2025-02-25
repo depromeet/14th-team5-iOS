@@ -12,16 +12,33 @@ import MacrosInterface
 @Wrapper<PostReactor, PostViewController>
 final class PostDetailViewControllerWrapper {
    
-    private let selectedIndex: Int
-    private let originPostLists: PostSection.Model
+    private var selectedIndex: Int?
+    private var originPostLists: PostSection.Model?
+    
+    private var postId: String?
     
     init(selectedIndex: Int, originPostLists: PostSection.Model) {
         self.selectedIndex = selectedIndex
         self.originPostLists = originPostLists
     }
     
-    func makeReactor() -> R {
-        return PostReactor(initialState: .init(selectedIndex: selectedIndex, originPostLists: originPostLists))
+    init(postId: String) {
+        self.postId = postId
     }
-  
+    
+    func makeReactor() -> R {
+        if let selectedIndex,
+           let originPostLists {
+            return PostReactor(
+                selectedIndex: selectedIndex,
+                originPostLists: originPostLists
+            )
+        }
+        
+        if let postId {
+            return PostReactor(postId: postId)
+        }
+        
+        return .init(postId: "null")
+    }
 }

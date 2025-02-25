@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import StoreKit
 
 import Core
 
@@ -15,20 +16,20 @@ final class StoreDeepLink: DeepLinkProtocol {
         case openAppStore
     }
     
-    let type: StoreDeepLinkType
+    var type: StoreDeepLinkType?
     
     init(
         pathComponents: [String]
     ) {
         if pathComponents.first == "bibbi" {
             type = .openAppStore
-        } else {
-            BBToast.text("화면을 이동할 수 없어요").show()
-            return
         }
     }
     
-    func doDeepLink() {
+    func doDeepLink() throws {
+        guard let type else {
+            throw DeepLinkError.invalidLink
+        }
         switch type {
         case .openAppStore: openAppStore()
         }
@@ -37,6 +38,25 @@ final class StoreDeepLink: DeepLinkProtocol {
 
 extension StoreDeepLink {
     private func openAppStore() {
+        let storeViewController = SKStoreProductViewController()
+        let viewController = getNavigationController()
         
+        storeViewController.delegate = viewController as? SKStoreProductViewControllerDelegate
+        
+        let parameters = [
+            SKStoreProductParameterITunesItemIdentifier:
+                Bundle.main.bundleIdentifier
+        ]
+        
+        storeViewController.loadProduct(
+            withParameters: parameters as [String : Any]
+        ) { (loaded, error) in
+            if loaded {
+                viewController?.present(storeViewController, animated: true)
+            } else {
+                BBToast.text("알 수 없는 오류가 발생했습니다.").show()
+            }
+        }
     }
 }
+

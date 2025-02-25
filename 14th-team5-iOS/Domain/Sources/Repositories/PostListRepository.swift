@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-public protocol PostListRepositoryProtocol {
+public protocol PostRepositoryProtocol {
     /// FETCH
     func fetchPostList(query: PostListQuery) -> Observable<PostListPageEntity?>
     func fetchPostDetailItem(postId: String) -> Observable<PostDetailEntity?>

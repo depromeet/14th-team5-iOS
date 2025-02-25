@@ -14,11 +14,11 @@ public protocol FetchPostListUseCaseProtocol {
 }
 
 public class FetchPostListUseCase: FetchPostListUseCaseProtocol {
-    private let postListRepository: PostListRepositoryProtocol
+    private let postListRepository: PostRepositoryProtocol
     private let familyRepository: FamilyRepositoryProtocol
     
     public init(
-        postListRepository: PostListRepositoryProtocol,
+        postListRepository: PostRepositoryProtocol,
         familyRepository: FamilyRepositoryProtocol
     ) {
         self.postListRepository = postListRepository

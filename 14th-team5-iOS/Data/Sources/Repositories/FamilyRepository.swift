@@ -135,7 +135,7 @@ extension FamilyRepository {
     }
     
     public func fetchFamilyMembers(
-    ) -> Observable<[FamilyMemberProfileEntity]?> {
+    ) -> Observable<[MemberInfoEntity]?> {
         return membersWorker.fetchPaginationMembers(
             query: .init(
                 type: "FAMILY",
@@ -156,8 +156,8 @@ extension FamilyRepository {
     
     public func fetchPaginationFamilyMembers(
         memberIds: [String]
-    ) -> [FamilyMemberProfileEntity] {
-        var results: [FamilyMemberProfileEntity] = []
+    ) -> [MemberInfoEntity] {
+        var results: [MemberInfoEntity] = []
         for memberId in memberIds {
             guard
                 let member = familyUserDefaults.loadFamilyMember(memberId)
@@ -167,7 +167,7 @@ extension FamilyRepository {
         return results
     }
     
-    public func loadAllFamilyMembers() -> [FamilyMemberProfileEntity]? {
+    public func loadAllFamilyMembers() -> [MemberInfoEntity]? {
         return familyUserDefaults.loadFamilyMembers()
     }
     

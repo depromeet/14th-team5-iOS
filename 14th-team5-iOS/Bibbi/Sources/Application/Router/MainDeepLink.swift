@@ -16,26 +16,28 @@ final class MainDeepLink: DeepLinkProtocol {
         case openMission
     }
     
-    let type: MainDeepLinkType
+    var type: MainDeepLinkType?
     
     init(
         pathComponents: [String],
         queryParams: [URLQueryItem]?
     ) {
-        guard let isMission = queryParams?.first(where: {
-            $0.name == "openMission"})?.value else {
-            BBToast.text("화면을 이동할 수 없어요").show()
-            return
-        }
-        
-        if isMission == "true" {
-            type = .openMission
-        } else {
-            type = .openMain
+        if let isMission = queryParams?.first(where: {
+            $0.name == "openMission"})?.value {
+            
+            if isMission == "true" {
+                type = .openMission
+            } else {
+                type = .openMain
+            }
         }
     }
     
-    func doDeepLink() {
+    func doDeepLink() throws {
+        guard let type else {
+            throw DeepLinkError.invalidLink
+        }
+        
         switch type {
         case .openMission: openMission()
         case .openMain: popToMain()
@@ -52,6 +54,6 @@ extension MainDeepLink {
     }
     
     private func openMission() {
-        
+        popToMain()
     }
 }

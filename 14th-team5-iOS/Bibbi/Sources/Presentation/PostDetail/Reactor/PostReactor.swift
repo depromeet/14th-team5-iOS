@@ -15,11 +15,13 @@ import RxDataSources
 final class PostReactor: Reactor {
     enum Action {
         case tapBackButton
-        case setPost(Int)
+        case setPostIndex(Int)
+        case setPostId(String)
     }
     
     enum Mutation {
         case setPop
+        case setSelectedPost(PostEntity)
         case setSelectedPostIndex(Int)
         case setMissionContent(MissionContentEntity)
         case setPushProfileViewController(String)
@@ -27,23 +29,59 @@ final class PostReactor: Reactor {
     
     struct State {
         var selectedIndex: Int
-        let originPostLists: PostSection.Model
+        var originPostLists: PostSection.Model
         
         var isPop: Bool = false
-        var selectedPost: PostEntity = .init(postId: "", author: .init(memberId: "", profileImageURL: "", name: ""), commentCount: 0, emojiCount: 0, imageURL: "", content: "", time: "")
         
+        @Pulse var selectedPost: PostEntity? = nil
         @Pulse var missionContent: MissionContentEntity? = nil
+        
         @Pulse var reactionMemberIds: [String] = []
         @Pulse var shouldPushProfileViewController: String?
     }
     
-    let initialState: State
+    var initialState: State
+    private let disposeBag: DisposeBag = DisposeBag()
+    
+    @Injected var fetchMemberUseCase: FetchFamilyMembersUseCaseProtocol
+    @Injected var fetchPostUseCase: FetchPostUseCaseProtocol
     @Injected var fetchMissionUseCase: FetchMissionContentUseCaseProtocol
     @Injected var provider: ServiceProviderProtocol
     
+    init(
+        selectedIndex: Int,
+        originPostLists: PostSection.Model
+    ) {
+        self.initialState = .init(
+            selectedIndex: selectedIndex,
+            originPostLists: originPostLists
+        )
+    }
     
-    init(initialState: State) {
-        self.initialState = initialState
+    init(postId: String) {
+        self.initialState = .init(
+            selectedIndex: 0,
+            originPostLists: .init(model: 0, items: [])
+        )
+        
+        fetchPostUseCase.execute(postId: postId)
+            .subscribe(onNext: { result in
+                let post: PostEntity = .init(
+                    postId: result.postId,
+                    author: result.author ?? .init(memberId: "nil"),
+                    commentCount: result.commentCount,
+                    emojiCount: result.emojiCount,
+                    imageURL: result.imageUrl,
+                    content: result.content,
+                    time: result.createdAt
+                )
+                self.initialState.originPostLists.items = .init(
+                    with: .main(post)
+                )
+            })
+            .disposed(by: disposeBag)
+                
+        self.action.onNext(.setPostId(postId))
     }
 }
 
@@ -64,7 +102,7 @@ extension PostReactor {
     
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case let .setPost(index):
+        case let .setPostIndex(index):
             guard case let .main(postEntity) = currentState.originPostLists.items[index],
                   let missionId = postEntity.missionId else { return Observable<Mutation>.just(.setSelectedPostIndex(index)) }
             return fetchMissionUseCase.execute(missionId: missionId)
@@ -78,6 +116,21 @@ extension PostReactor {
                 }
         case .tapBackButton:
             return Observable.just(Mutation.setPop)
+        case let .setPostId(postId):
+            return fetchPostUseCase.execute(postId: postId)
+                .flatMap { result -> Observable<Mutation> in
+                    let post: PostEntity = .init(
+                        postId: result.postId,
+                        author: result.author ?? .init(memberId: "nil"),
+                        commentCount: result.commentCount,
+                        emojiCount: result.emojiCount,
+                        imageURL: result.imageUrl,
+                        content: result.content,
+                        time: result.createdAt
+                    )
+                    return .just(.setSelectedPost(post))
+                }
+                
         }
     }
     
@@ -97,6 +150,8 @@ extension PostReactor {
         case let .setMissionContent(missionContent):
             provider.postGlobalState.missionContentText(missionContent.missionContent)
             newState.missionContent = missionContent
+        case let .setSelectedPost(post):
+            newState.selectedPost = post
         }
         return newState
     }

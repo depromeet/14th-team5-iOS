@@ -43,7 +43,7 @@ final class PostNavigationView: BaseView<PostReactor> {
             .disposed(by: disposeBag)
         
         reactor.state
-            .map { $0.selectedPost }
+            .compactMap { $0.selectedPost }
             .asObservable()
             .withUnretained(self)
             .observe(on: MainScheduler.instance)

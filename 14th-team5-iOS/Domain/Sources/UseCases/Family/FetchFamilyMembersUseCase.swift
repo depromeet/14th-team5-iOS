@@ -11,6 +11,7 @@ import RxSwift
 
 public protocol FetchFamilyMembersUseCaseProtocol {
     func execute(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfileEntity?>
+    func execute(memberIds: [String]) -> [MemberInfoEntity]
 }
 
 public class FetchFamilyMembersUseCase: FetchFamilyMembersUseCaseProtocol {
@@ -23,8 +24,13 @@ public class FetchFamilyMembersUseCase: FetchFamilyMembersUseCaseProtocol {
         self.familyRepository = familyRepository
     }
     
-    // MARK: - Execute
+    /// From Network
     public func execute(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfileEntity?> {
         return familyRepository.fetchPaginationFamilyMembers(query: query)
+    }
+    
+    /// From Storage
+    public func execute(memberIds: [String]) -> [MemberInfoEntity] {
+        return familyRepository.fetchPaginationFamilyMembers(memberIds: memberIds)
     }
 }

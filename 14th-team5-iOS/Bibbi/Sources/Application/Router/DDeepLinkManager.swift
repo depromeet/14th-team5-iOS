@@ -3,48 +3,84 @@ import Core
 import UIKit
 
 // MARK: - 딥링크 핸들러
-class DeepLinkHandler {
-    func handle(url: URL) {
-        let pathComponents = url.pathComponents.filter {
-            $0 != "/"
+final class DeepLinkHandler {
+    var deepLink: DeepLinkProtocol?
+    
+    init(urlString: String) {
+        guard let url = URL(string: urlString) else {
+            deepLink = nil
+            return
         }
+        
+        let pathComponents = url.pathComponents
+            .filter { !$0.isEmpty && $0 != "/" }
+        
         let queryParams = URLComponents(
             url: url,
             resolvingAgainstBaseURL: false
         )?.queryItems
         
-        switch pathComponents.first {
+        switch pathComponents.first?.lowercased() {
         case "main":
-            let deepLink = MainDeepLink(
+            deepLink = MainDeepLink(
                 pathComponents: pathComponents,
                 queryParams: queryParams
             )
         case "post":
-            let deepLink = PostDeepLink(
+            deepLink = PostDeepLink(
                 pathComponents: pathComponents,
                 queryParams: queryParams
             )
-        case "Profile":
-            let deepLink = ProfileDeepLink(
+        case "profile":
+            deepLink = ProfileDeepLink(
                 pathComponents: pathComponents
             )
-        case "Store":
-            let deepLink = StoreDeepLink(
+        case "store":
+            deepLink = StoreDeepLink(
                 pathComponents: pathComponents
             )
-        case nil:
-            BBToast.text("화면을 이동할 수 없어요").show()
-            return
-        case .some(_):
-            BBToast.text("화면을 이동할 수 없어요").show()
-            return
+        default:
+            deepLink = nil
+        }
+    }
+    
+    func doDeepLink() {
+        do {
+            guard let deepLink else {
+                throw DeepLinkError.notFound
+            }
+            
+            try deepLink.doDeepLink()
+        } catch let error as DeepLinkError {
+            BBToast.text(error.message).show()
+        } catch {
+            BBToast.text("알 수 없는 오류가 발생했습니다.").show()
+        }
+    }
+}
+
+enum DeepLinkError: Error {
+    case invalidLink
+    case notFound
+    case errorOccurred
+    case invalidNavigation
+    
+    var message: String {
+        switch self {
+        case .invalidLink:
+            return "잘못된 링크입니다."
+        case .notFound:
+            return "요청한 페이지를 찾을 수 없습니다."
+        case .errorOccurred:
+            return "요청 중 에러가 발생했습니다."
+        case .invalidNavigation:
+            return "현재 페이지를 찾을 수 없습니다."
         }
     }
 }
 
 protocol DeepLinkProtocol {
-    func doDeepLink()
-    func popToViewController()
+    func doDeepLink() throws
 }
 
 extension DeepLinkProtocol {
@@ -70,5 +106,4 @@ extension DeepLinkProtocol {
         
         navigationController.popToRootViewController(animated: animated)
     }
-    
 }

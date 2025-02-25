@@ -15,21 +15,23 @@ final class ProfileDeepLink: DeepLinkProtocol {
         case openProfile(memberId: String)
     }
     
-    let type: ProfileDeepLinkType
+    var type: ProfileDeepLinkType?
     
     init(
         pathComponents: [String]
     ) {
-        guard pathComponents.first == "profile",
-              let memberId = pathComponents[safe: 1] else {
-            BBToast.text("화면을 이동할 수 없어요").show()
-            return
+        if pathComponents.first == "profile",
+              let memberId = pathComponents[safe: 1] {
+            type = .openProfile(memberId: memberId)
         }
-        type = .openProfile(memberId: memberId)
     }
     
-    func doDeepLink() {
-        switch self.type {
+    func doDeepLink() throws {
+        guard let type = type else {
+            throw DeepLinkError.invalidLink
+        }
+        
+        switch type {
         case let .openProfile(memberId):
             openProfile(memberId)
         }
@@ -38,6 +40,10 @@ final class ProfileDeepLink: DeepLinkProtocol {
 
 extension ProfileDeepLink {
     private func openProfile(_ memberId: String) {
+        let viewController = ProfileViewControllerWrapper(
+            memberId: memberId
+        ).viewController
         
+        getNavigationController()?.pushViewController(viewController, animated: true)
     }
 }

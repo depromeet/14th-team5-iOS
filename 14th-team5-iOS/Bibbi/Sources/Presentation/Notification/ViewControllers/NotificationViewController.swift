@@ -175,7 +175,7 @@ extension NotificationViewController {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        tableView.rx.itemSelected
+        tableView.rx.modelSelected(NotificationCellReactor.self)
             .map { Reactor.Action.didTapNotificationCell($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)

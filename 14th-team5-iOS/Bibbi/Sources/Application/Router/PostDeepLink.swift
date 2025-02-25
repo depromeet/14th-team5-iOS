@@ -12,60 +12,75 @@ import Core
 // MARK: - Post 딥링크
 final class PostDeepLink: DeepLinkProtocol {
     enum PostDeepLinkType {
-        case openTodayPost
-        case openCalendarPost
+        case openTodayPost(String)
+        case openCalendarPost(String)
         
-        case openTodayPostComment
-        case openCalenderPostComment
+        case openTodayPostComment(String)
+        case openCalenderPostComment(String)
     }
     
-    let type: PostDeepLinkType
+    var type: PostDeepLinkType?
     
     init(
         pathComponents: [String],
         queryParams: [URLQueryItem]?
     ) {
-        guard let date = queryParams?.first(where: {
-            $0.name == "dateOfPost"})?.value,
-              let isComment = queryParams?.first(where: {
-                  $0.name == "openComment"})?.value else {
-            BBToast.text("화면을 이동할 수 없어요").show()
-            return
-        }
+        guard pathComponents.count > 3 else { return }
+        guard let date = queryParams?.first(where: { $0.name == "dateOfPost" })?.value,
+              let isComment = queryParams?.first(where: { $0.name == "openComment" })?.value else { return }
         
-        if date == "hi" {
-            type = isComment == "true" ?
-                .openTodayPostComment : .openTodayPost
-        } else {
-            type = isComment == "true" ?
-                .openCalenderPostComment : .openCalendarPost
-        }
+        let postId = pathComponents[2]
+        let isToday = (date == "hi")
+        let hasComment = (isComment == "true")
+        
+        type = isToday
+        ? (hasComment ?
+            .openTodayPostComment(postId)
+           : .openTodayPost(postId)
+        ): (hasComment ?
+            .openCalenderPostComment(postId)
+            : .openCalendarPost(postId)
+        )
     }
     
-    func doDeepLink() {
+    func doDeepLink() throws {
+        guard let type else {
+            throw DeepLinkError.invalidLink
+        }
+        
         switch type {
-        case .openTodayPost: openMainPost()
-        case .openCalendarPost: openCalendarPost()
-        case .openTodayPostComment: openMainPostComment()
-        case .openCalenderPostComment:
+        case let .openTodayPost(postId):
+            openMainPost(postId)
+        case let .openCalendarPost(postId):
+            openCalendarPost(postId)
+        case let .openTodayPostComment(postId):
+            openMainPostComment(postId)
+        case let .openCalenderPostComment(postId): openCalendarPostComment(postId)
         }
     }
 }
 
 extension PostDeepLink {
-    private func openMainPost() {
+    private func openMainPost(_ postId: String) {
+        let viewController = PostDetailViewControllerWrapper(
+            postId: postId
+        ).viewController
+        
+        getNavigationController()?.pushViewController(
+            viewController,
+            animated: true
+        )
+    }
+    
+    private func openCalendarPost(_ postId: String) {
         
     }
     
-    private func openCalendarPost() {
+    private func openMainPostComment(_ postId: String) {
         
     }
     
-    private func openMainPostComment() {
-        
-    }
-    
-    private func openCalendarPostComment() {
+    private func openCalendarPostComment(_ postId: String) {
         
     }
 }

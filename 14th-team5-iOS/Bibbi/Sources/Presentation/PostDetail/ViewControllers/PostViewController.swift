@@ -68,7 +68,7 @@ final class PostViewController: BaseViewController<PostReactor> {
             .bind(to: collectionView.rx.items(dataSource: createDataSource()))
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.selectedPost }
+        reactor.state.compactMap { $0.selectedPost }
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .bind(onNext: {
@@ -113,7 +113,7 @@ final class PostViewController: BaseViewController<PostReactor> {
                 }
                 return self.calculateCurrentPage(offset: $0) }
             .distinctUntilChanged()
-            .map { Reactor.Action.setPost($0) }
+            .map { Reactor.Action.setPostIndex($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }

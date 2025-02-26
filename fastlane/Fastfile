@@ -35,6 +35,8 @@ TEAM_ID = ENV["TEAM_ID"]
 APPLE_ID = ENV["APPLE_ID"]
 PROFILE_PATH = ENV["PROFILE_PATH"]
 SLACK_HOOK_URL = ENV["SLACK_HOOK_URL"]
+ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "120"
+ENV["FASTLANE_XCODEBUILD_SETTINGS_RETRIES"] = "6"
 
 
 default_platform(:ios)
@@ -97,7 +99,8 @@ platform :ios do
           "com.5ing.bibbi" => "match AppStore com.5ing.bibbi",
           "com.5ing.bibbi.widget" => "match AppStore com.5ing.bibbi.widget"
         }
-      }
+      },
+      xcargs: "arch=x86_64"
     )
 
     upload_to_testflight(skip_waiting_for_build_processing: true)
@@ -185,7 +188,8 @@ platform :ios do
           "com.5ing.bibbi" => "match AppStore com.5ing.bibbi",
           "com.5ing.bibbi.widget" => "match AppStore com.5ing.bibbi.widget"
         }
-      }
+      },
+      xcargs: "arch=x86_64"
     )
 
     upload_to_testflight(skip_waiting_for_build_processing: true)

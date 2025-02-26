@@ -86,6 +86,7 @@ platform :ios do
       workspace: "Bibbi.xcworkspace",
       scheme: "#{DEV_SCHEME}",
       export_method: "app-store",
+      destination: "platform=iOS Simulator,name=iPhone 14,OS=17.0",
       xcodebuild_formatter: "xcpretty",
       archive_path: "./build/Runner.xcarchive",
       output_directory: "./build/Runner",
@@ -96,8 +97,7 @@ platform :ios do
           "com.5ing.bibbi" => "match AppStore com.5ing.bibbi",
           "com.5ing.bibbi.widget" => "match AppStore com.5ing.bibbi.widget"
         }
-      },
-      xcargs: "arch=x86_64"
+      }
     )
 
     upload_to_testflight(skip_waiting_for_build_processing: true)
@@ -174,6 +174,7 @@ platform :ios do
       workspace: "Bibbi.xcworkspace",
       scheme: "#{PRD_SCHEME}",
       export_method: "app-store",
+      destination: "platform=iOS Simulator,name=iPhone 14,OS=17.0",
       xcodebuild_formatter: "xcpretty",
       archive_path: "./build/Runner.xcarchive",
       output_directory: "./build/Runner",
@@ -184,8 +185,7 @@ platform :ios do
           "com.5ing.bibbi" => "match AppStore com.5ing.bibbi",
           "com.5ing.bibbi.widget" => "match AppStore com.5ing.bibbi.widget"
         }
-      },
-      xcargs: "arch=x86_64"
+      }
     )
 
     upload_to_testflight(skip_waiting_for_build_processing: true)

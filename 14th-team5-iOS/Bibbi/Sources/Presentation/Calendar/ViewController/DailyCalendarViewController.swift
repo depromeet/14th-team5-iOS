@@ -27,7 +27,7 @@ public final class DailyCalendarViewController: BBNavigationViewController<Daily
     
     
     // MARK: - Views
-    
+    private let fireLottieView: BBLottieView = BBLottieView(of: .fire)
     private let backgroundImage: UIImageView = UIImageView()
     private let calendarView: FSCalendar = FSCalendar()
     private lazy var collectionView: UICollectionView = UICollectionView(frame: .zero,collectionViewLayout: compositionalLayout)
@@ -67,6 +67,15 @@ public final class DailyCalendarViewController: BBNavigationViewController<Daily
             .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.didSelect(date: $0) }
             .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        reactor.state.compactMap { $0.visiblePost }
+            .map { $0.allFamilyMembersUploaded }
+            .filter { $0 }
+            .take(1)
+            .bind(with: self) { owner, _ in
+                owner.fireLottieView.startAnimating()
+            }
             .disposed(by: disposeBag)
         
         let currentPageDidChange = calendarView.rx.calendarCurrentPageDidChange
@@ -146,7 +155,7 @@ public final class DailyCalendarViewController: BBNavigationViewController<Daily
     
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(backgroundImage)
+        view.addSubviews(backgroundImage, fireLottieView)
         backgroundImage.addSubviews(calendarView, collectionView)
         
         addChild(reactionViewController)
@@ -157,6 +166,10 @@ public final class DailyCalendarViewController: BBNavigationViewController<Daily
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         backgroundImage.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        fireLottieView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
         
@@ -186,6 +199,10 @@ public final class DailyCalendarViewController: BBNavigationViewController<Daily
         
         enableAutoPopViewController = false
         navigationBar.leftBarButtonItem = .arrowLeft
+        
+        fireLottieView.do {
+            $0.isUserInteractionEnabled = false
+        }
         
         backgroundImage.do {
             $0.clipsToBounds = true

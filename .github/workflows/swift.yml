@@ -5,6 +5,7 @@ on:
     branches:
       - feat/*
       - fix/*
+      - refactor/*
       - release
   pull_request:
     branches:
@@ -43,9 +44,6 @@ jobs:
           repository: depromeet/14th-team5-iOS-ignored
           path: depromeet/14th-team5-iOS/14th-team5-iOS/XCConfig
           token: ${{secrets.ACTION_TOKEN}}
-        
-      - name: Select Xcode 16.2
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app
 
       - name: Install Tuist CLI
         run: brew install tuist
@@ -86,7 +84,6 @@ jobs:
         run: fastlane github_action_prd_upload_testflight
 
       - name: fastlane upload_stg_testflight
-        if: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'develop' }}
         env:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}

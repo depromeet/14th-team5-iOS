@@ -31,7 +31,7 @@ final class PostReactor: Reactor {
     
     struct State {
         var selectedIndex: Int
-        var originPostLists: PostSection.Model
+        @Pulse var originPostLists: PostSection.Model
         
         var isPop: Bool = false
         

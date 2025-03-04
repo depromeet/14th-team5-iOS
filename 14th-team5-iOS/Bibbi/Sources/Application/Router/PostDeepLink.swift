@@ -36,7 +36,7 @@ final class PostDeepLink: DeepLinkProtocol {
 //        let isToday = (date == "hi")
 //        let hasComment = (isComment == "true")
 //        
-        type = .openTodayPost(date)
+        type = .openTodayPost(pathComponents[2])
     }
     
     func doDeepLink() throws {
@@ -50,7 +50,8 @@ final class PostDeepLink: DeepLinkProtocol {
         case let .openCalendarPost(postId):
             openCalendarPost(postId)
         case let .openTodayPostComment(postId):
-            openMainPostComment(postId)
+            openMainPostComment(postId
+            )
         case let .openCalenderPostComment(postId):
             openCalendarPostComment(postId)
         }

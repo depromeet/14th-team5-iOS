@@ -139,7 +139,7 @@ extension FamilyRepository {
         return membersWorker.fetchPaginationMembers(
             query: .init(
                 type: "FAMILY",
-                page: 0,
+                page: 1,
                 size: 50
             )
         )

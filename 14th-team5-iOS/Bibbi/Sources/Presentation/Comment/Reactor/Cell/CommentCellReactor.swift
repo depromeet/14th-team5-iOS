@@ -20,7 +20,10 @@ final public class CommentCellReactor: Reactor {
     public enum Action {
         case fetchUserName
         case fetchProfileImage
+        case didChangedInitalLayout
         case didTapProfileButton
+        case didTapPlayButton(String)
+        case prepareForReuse
     }
     
     
@@ -29,13 +32,17 @@ final public class CommentCellReactor: Reactor {
     public enum Mutation {
         case setMemberName(String)
         case setProfileImageUrl(URL?)
+        case setEqualizerState(BBEqualizerState)
+        case setPlayAudioId(String)
     }
     
     
     // MARK: - State
     
     public struct State {
-        let comment: PostCommentEntity
+        @Pulse var audioId: String = ""
+        @Pulse var equalizerState : BBEqualizerState = .inital
+        @Pulse var comment: PostCommentEntity
         var memberName: String?
         var profileImageUrl: URL?
     }
@@ -57,7 +64,23 @@ final public class CommentCellReactor: Reactor {
     // MARK: - Intializer
     
     public init(_ comment: PostCommentEntity) {
-        self.initialState = State(comment: comment)
+        self.initialState = State(audioId: comment.commentId, comment: comment)
+    }
+    
+    
+    public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+        let didTappedPlayButtonMutation = provider.commentService.event
+            .flatMap(with: self) {
+                switch $1 {
+                case let .didTappedPlaybutton(commentId):
+                    let isCurrentComment = commentId == $0.currentState.comment.commentId
+                    let newEqualizerState: BBEqualizerState = isCurrentComment ? .play : .inital
+                    return Observable<Mutation>.just(.setEqualizerState(newEqualizerState))
+                default:
+                    return .empty()
+                }
+            }
+        return Observable<Mutation>.merge(mutation, didTappedPlayButtonMutation)
     }
     
     
@@ -67,6 +90,12 @@ final public class CommentCellReactor: Reactor {
         let memberId = initialState.comment.memberId
         
         switch action {
+        case .didChangedInitalLayout:
+            return .just(.setEqualizerState(.inital))
+            
+        case .prepareForReuse:
+            return .just(.setEqualizerState(.inital))
+            
         case .fetchUserName:
             let memberName = fetchUserNameUseCase.execute(memberId: memberId)
             return Observable<Mutation>.just(.setMemberName(memberName))
@@ -84,6 +113,14 @@ final public class CommentCellReactor: Reactor {
             }
             
             return Observable<Mutation>.empty()
+        case .didTapPlayButton:
+            let audioId = currentState.comment.commentId
+            let isCurrentState = currentState.equalizerState == .inital
+            let currentEqualizerState: BBEqualizerState = isCurrentState ? .play : .inital
+            
+            provider.commentService.didTappedPlayButton(with: audioId)
+            
+            return .just(.setEqualizerState(currentEqualizerState))
         }
     }
     
@@ -98,6 +135,12 @@ final public class CommentCellReactor: Reactor {
             
         case let .setProfileImageUrl(url):
             newState.profileImageUrl = url
+            
+        case let .setEqualizerState(equalizerState):
+            newState.equalizerState = equalizerState
+            
+        case let .setPlayAudioId(audioId):
+            newState.audioId = audioId
         }
         
         return newState

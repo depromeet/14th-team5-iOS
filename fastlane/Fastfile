@@ -71,12 +71,12 @@ platform :ios do
 
 
     increment_build_number(
-      xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
+      xcodeproj: "14th-team5-iOS/Bibbi/Bibbi.xcodeproj",
       build_number: new_build_number
     )
 
     update_project_team(
-      path: "14th-team5-iOS/App/App.xcodeproj",
+      path: "14th-team5-iOS/Bibbi/Bibbi.xcodeproj",
       teamid: "#{TEAM_ID}"
     )
 
@@ -159,12 +159,12 @@ platform :ios do
 
 
     increment_build_number(
-      xcodeproj: "14th-team5-iOS/App/App.xcodeproj",
+      xcodeproj: "14th-team5-iOS/Bibbi/Bibbi.xcodeproj",
       build_number: new_build_number
     )
 
     update_project_team(
-      path: "14th-team5-iOS/App/App.xcodeproj",
+      path: "14th-team5-iOS/Bibbi/Bibbi.xcodeproj",
       teamid: "#{TEAM_ID}"
     )
 

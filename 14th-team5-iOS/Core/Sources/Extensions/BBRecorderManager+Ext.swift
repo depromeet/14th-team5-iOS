@@ -21,9 +21,4 @@ extension Reactive where Base: BBRecorderManager {
         let event = self.methodInvoked(#selector(Base.stopRecoding)).map { _ in }
         return ControlEvent(events: event)
     }
-    
-    public var play: ControlEvent<Void> {
-        let event = self.methodInvoked(#selector(Base.play)).map { _ in }
-        return ControlEvent(events: event)
-    }
 }

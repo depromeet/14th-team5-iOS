@@ -12,6 +12,7 @@ import Foundation
 
 import ReactorKit
 import RxSwift
+import Util
 
 final public class CommentViewReactor: Reactor {
     
@@ -20,7 +21,7 @@ final public class CommentViewReactor: Reactor {
     public enum Action {
         case fetchComment
         case createComment(String)
-        case deleteComment(String)
+        case deleteComment(String, String)
     }
     
     
@@ -71,6 +72,9 @@ final public class CommentViewReactor: Reactor {
     @Injected var fetchCommentUseCase: FetchCommentUseCaseProtocol
     @Injected var createCommentUseCase: CreateCommentUseCaseProtocol
     @Injected var deleteCommentUseCase: DeleteCommentUseCaseProtocol
+    @Injected var deleteVoiceCommentUseCase: DeleteVoiceCommentUseCaseProtocol
+    @Injected var createVoiceCommentUseCase: CreateVoiceCommentUseCaseProtocol
+    @Injected var voicePresignedURLUseCase: VoiceCommentPresignedURLUseCaseProtocol
     @Injected var provider: ServiceProviderProtocol
     
     @Navigator var navigator: CommentNavigatorProtocol
@@ -96,6 +100,52 @@ final public class CommentViewReactor: Reactor {
     public init(postId: String) {
         self.postId = postId
         self.initialState = State()
+    }
+    
+    public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+        let commentMutation: Observable<Mutation> = provider.commentService.event
+            .flatMap(with: self) {
+                switch $1 {
+                case let .didReceiveVoiceCommentFile(voiceCommentFile):
+                    let postId = $0.postId
+                    let fileName = "\(voiceCommentFile.hashValue).m4a"
+                    let body = CreateVoicePresignedURLRequest(imageName: fileName)
+                    
+                    return $0.voicePresignedURLUseCase.execute(postId: postId, body, mp4File: voiceCommentFile)
+                        .withUnretained(self)
+                        .flatMap { owner, presingedURL -> Observable<Mutation> in
+                            let fileURL = owner.convertFileURL(presingedURL.audioURL)
+                            let commentBody = CreateVoiceRequest(fileUrl: fileURL)
+                            return self.createVoiceCommentUseCase.execute(postId: postId, body: commentBody)
+                                .observe(on: RxScheduler.main)
+                                .flatMap { comment -> Observable<Mutation> in
+                                let reactor = CommentCellReactor(comment)
+                                
+                                if let count = owner.commentCount {
+                                    owner.provider.postGlobalState.renewalPostCommentCount(count + 1)
+                                }
+                                return .concat(
+                                    .just(.appendComment(reactor)),
+                                    .just(.setHiddenNoneCommentView(true)),
+                                    .just(.scrollTableToLast(true))
+                                )
+                            }.catchError(with: self) {
+                                Haptic.notification(type: .error)
+                                BBLogManager.sendError(error: $1)
+                                $0.navigator.showCommentErrorToast($1.localizedDescription)
+                                return .empty()
+                            }
+                        }.catchError(with: self) {
+                            Haptic.notification(type: .error)
+                            BBLogManager.sendError(error: $1)
+                            $0.navigator.showCommentErrorToast($1.localizedDescription)
+                            return .empty()
+                        }
+                default:
+                    return .empty()
+                }
+            }
+        return Observable<Mutation>.merge(mutation, commentMutation)
     }
     
     
@@ -200,33 +250,60 @@ final public class CommentViewReactor: Reactor {
                         }
             )
             
-        case let .deleteComment(commentId):
-            return deleteCommentUseCase.execute(postId: postId, commentId: commentId)
-                .withUnretained(self)
-                .flatMap {
-                    guard
-                        let delete = $0.1, delete.success
-                    else {
+        case let .deleteComment(commentId, commentType):
+            switch commentType {
+            case "TEXT":
+                return deleteCommentUseCase.execute(postId: postId, commentId: commentId)
+                    .withUnretained(self)
+                    .flatMap {
+                        guard
+                            let delete = $0.1, delete.success
+                        else {
+                            Haptic.notification(type: .error)
+                            $0.0.navigator.showErrorToast()
+                            return Observable<Mutation>.empty()
+                        }
+                        
+                        // TODO: - Provider 바꾸기
+                        if let count = $0.0.commentCount {
+                            $0.0.provider.postGlobalState.renewalPostCommentCount(count - 1)
+                        }
+                        
+                        $0.0.navigator.showCommentDeleteToast()
+                        if $0.0.commentCount == 0 + 1 {
+                            return Observable<Mutation>.concat(
+                                Observable<Mutation>.just(.setHiddenNoneCommentView(false)),
+                                Observable<Mutation>.just(.deleteComment(commentId))
+                            )
+                        } else {
+                            return Observable<Mutation>.just(.deleteComment(commentId))
+                        }
+                    }
+            default:
+                return deleteVoiceCommentUseCase.execute(postId: postId, commentId: commentId)
+                    .withUnretained(self)
+                    .flatMap { owner, entity -> Observable<Mutation> in
+                        if let count = owner.commentCount {
+                            owner.provider.postGlobalState.renewalPostCommentCount(count - 1)
+                        }
+                        
+                        owner.navigator.showCommentDeleteToast()
+                        if owner.commentCount == 0 + 1 {
+                            return .concat(
+                                .just(.setHiddenNoneCommentView(false)),
+                                .just(.deleteComment(commentId))
+                            )
+                        } else {
+                            return .just(.deleteComment(commentId))
+                        }
+                    }.catchError(with: self) {
                         Haptic.notification(type: .error)
-                        $0.0.navigator.showErrorToast()
-                        return Observable<Mutation>.empty()
+                        BBLogManager.sendError(error: $1)
+                        $0.navigator.showErrorToast()
+                        return .empty()
                     }
-                    
-                    // TODO: - Provider 바꾸기
-                    if let count = $0.0.commentCount {
-                        $0.0.provider.postGlobalState.renewalPostCommentCount(count - 1)
-                    }
-                    
-                    $0.0.navigator.showCommentDeleteToast()
-                    if $0.0.commentCount == 0 + 1 {
-                        return Observable<Mutation>.concat(
-                            Observable<Mutation>.just(.setHiddenNoneCommentView(false)),
-                            Observable<Mutation>.just(.deleteComment(commentId))
-                        )
-                    } else {
-                        return Observable<Mutation>.just(.deleteComment(commentId))
-                    }
-                }
+            }
+
         }
     }
     
@@ -286,8 +363,10 @@ final public class CommentViewReactor: Reactor {
 
 // MARK: - Extensions
 
-extension CommentViewReactor {
-    
-    
+private extension CommentViewReactor {
+    func convertFileURL(_ url: String) -> String {
+        guard let range = url.range(of: #"[^&?]+"#, options: .regularExpression) else { return "" }
+        return String(url[range])
+    }
     
 }

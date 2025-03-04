@@ -22,7 +22,7 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
     private let textFieldView: UITextField = UITextField()
     private let confirmButton: UIButton = UIButton(type: .system)
     let recordButton: UIButton = UIButton(type: .system)
-    let equalizerView: BBEqualizerView = BBEqualizerView(state: .stop)
+    let equalizerView: BBEqualizerView = BBEqualizerView(state: .inital)
     
     // MARK: - Properties
     
@@ -49,6 +49,12 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
     }
     
     private func bindInput(reactor: CommentTextFieldReactor) {
+        
+        let recorderURL = recorderManager.recorderCore.audioRecorder.rx.audioRecorderDidFinishRecording
+            .distinctUntilChanged()
+            .publish()
+            .refCount()
+        
         textFieldView.rx.text
             .orEmpty
             .map { Reactor.Action.inputText($0) }
@@ -57,14 +63,17 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
         
         recordButton
             .rx.tap
-            .map { Reactor.Action.didTappedRecordButton }
+            .map { Reactor.Action.didTappedRecordToggleButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         confirmButton.rx.tap
-            .bind(with: self) { owner, _ in
-                owner.recorderManager.play()
-            }
+            .throttle(.milliseconds(300), scheduler: RxScheduler.main)
+            .do(onNext: { [weak self] in self?.recorderManager.stopRecoding() })
+            .flatMapLatest { recorderURL }
+            .compactMap { try Data(contentsOf: $0)}
+            .map { Reactor.Action.didTappedRecordConfirmButton($0)}
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
     
@@ -97,7 +106,7 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
             reactor.pulse(\.$recordState),
             recorderManager.rx.requestCurrentTime
         )
-        .filter { $0.0 == .play }
+        .filter { $0.0 == .record }
         .map { $0.1.toTimeInSeconds(.seconds) ?? 0.0 >= 1.0 ? true : false}
         .bind(to: confirmButton.rx.isEnabled)
         .disposed(by: disposeBag)
@@ -106,7 +115,7 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
             reactor.pulse(\.$recordState),
             recorderManager.rx.requestDecibels
         )
-        .filter { $0.0 == .play }
+        .filter { $0.0 == .record }
         .map { $0.1 }
         .observe(on: RxScheduler.main)
         .bind(to: equalizerView.rx.equalizerLevels)
@@ -165,10 +174,6 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
             $0.backgroundColor = UIColor.gray900
         }
         
-        equalizerView.do {
-            $0.backgroundColor = .clear
-        }
-        
         textFieldView.do {
             $0.textColor = UIColor.bibbiWhite
             $0.backgroundColor = UIColor.clear
@@ -219,16 +224,18 @@ extension CommentTextFieldView {
     
     func didUpdateTextFieldLayout(_ state: BBEqualizerState) {
         switch state {
-        case .play:
+        case .record:
             recordButton.setBackgroundImage(DesignSystemAsset.voiceOff.image, for: .normal)
             textFieldView.isHidden = true
             equalizerView.isHidden = false
             recorderManager.startRecoding()
-        case .stop:
+        case .inital:
             recordButton.setBackgroundImage(DesignSystemAsset.voice.image, for: .normal)
             textFieldView.isHidden = false
             equalizerView.isHidden = true
             recorderManager.stopRecoding()
+        default:
+            break
         }
     }
 }

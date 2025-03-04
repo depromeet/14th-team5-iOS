@@ -18,7 +18,7 @@ typealias MeAPIWorker = MeAPIs.Worker
 @available(*, deprecated, renamed: "MeAPIWorker", message: "MeAPIWorker, MeRespository가 만들어지기 전 사용할 임시 코드입니다")
 extension MeAPIs {
     public final class Worker: APIWorker {
-        
+        private let myUserDefaults: MyUserDefaultsType = MyUserDefaults()
         static let queue = {
             ConcurrentDispatchQueueScheduler(queue: DispatchQueue(label: "MeAPIQueue", qos: .utility))
         }()
@@ -34,7 +34,7 @@ extension MeAPIWorker: MeRepositoryProtocol, JoinFamilyRepository, FCMRepository
     
     private func saveFcmToken(headers: [APIHeader]?, token: FCMToken) -> Single<Void?> {
         let spec = MeAPIs.saveFcmToken.spec
-    
+        KeychainWrapper.standard[.fcmToken] = token.fcmToken
         return request(spec: spec, headers: headers, jsonEncodable: token)
             .subscribe(on: Self.queue)
             .map(VoidResponse.self)
@@ -169,6 +169,10 @@ extension MeAPIWorker {
         return Observable.just(())
             .withUnretained(self)
             .flatMap { $0.0.fetchAppVersion(spec: spec) }
+            .do { [weak self] in
+                guard let self else { return }
+                self.myUserDefaults.saveIsLatestVersion($0?.latest ?? false)
+            }
             .asSingle()
     }
 }

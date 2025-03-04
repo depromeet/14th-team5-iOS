@@ -15,6 +15,7 @@ import RxSwift
 public final class BBNetworkDefaultInterceptor {
     public init() { }
     private let session: BBNetworkSession = .refresh
+    private let limitRetryCount: Int = 2
 }
 
 extension BBNetworkDefaultInterceptor: RequestInterceptor {
@@ -34,32 +35,44 @@ extension BBNetworkDefaultInterceptor: RequestInterceptor {
         completion: @escaping (RetryResult) -> Void
     ) {
         
-        if let response = request.response, response.statusCode != 401 {
-            completion(.doNotRetry)
-            return
-        }
-        
-        guard let authToken: AccessToken = KeychainWrapper.standard.object(forKey: .accessToken),
-              let refreshToken = authToken.refreshToken else {
-            completion(.doNotRetry)
-            return
-        }
-        
-        var refreshedAuthToken: AccessToken? = nil
-        refreshAuthToken(refreshToken) { dataResponse in
-            
-            switch dataResponse.result {
-            case let .success(data):
-                refreshedAuthToken = data?.decode(AccessToken.self)
-                KeychainWrapper.standard.set(refreshedAuthToken, forKey: "accessToken")
-                completion(.retry)
-                
-            case let .failure(error):
-                // KeychainWrapper.standard.removeAllKeys()
-                completion(.doNotRetryWithError(error))
+        if let error = error as? AFError {
+            switch error {
+            case let .sessionTaskFailed(error as URLError) where error.code == .timedOut:
+                if request.retryCount < limitRetryCount {
+                    completion(.retry)
+                    return
+                }
+                completion(.doNotRetry)
+                return
+            default:
+                break
             }
         }
         
+        if let response = request.response, response.statusCode == 401 {
+            guard let authToken: AccessToken = KeychainWrapper.standard.object(forKey: .accessToken),
+                  let refreshToken = authToken.refreshToken else {
+                completion(.doNotRetry)
+                return
+            }
+            
+            var refreshedAuthToken: AccessToken? = nil
+            refreshAuthToken(refreshToken) { dataResponse in
+                
+                switch dataResponse.result {
+                case let .success(data):
+                    refreshedAuthToken = data?.decode(AccessToken.self)
+                    KeychainWrapper.standard.set(refreshedAuthToken, forKey: "accessToken")
+                    completion(.retry)
+                    
+                case let .failure(error):
+                    // KeychainWrapper.standard.removeAllKeys()
+                    completion(.doNotRetryWithError(error))
+                }
+            }
+        } else {
+            completion(.doNotRetry)
+        }
     }
     
 }

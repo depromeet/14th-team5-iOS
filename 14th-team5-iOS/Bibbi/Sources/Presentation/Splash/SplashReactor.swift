@@ -112,9 +112,9 @@ public final class SplashReactor: Reactor {
         switch mutation {
         case .setMemberInfo(let memberInfo):
             if let memberInfo = memberInfo {
-                // MeAPIWorker에서 UserDefaults와 App에 저장하고 있습니다~ (삭제해도 무방)
-                App.Repository.member.memberID.accept(memberInfo.memberId)
-                App.Repository.member.familyId.accept(memberInfo.familyId)
+//                // MeAPIWorker에서 UserDefaults와 App에 저장하고 있습니다~ (삭제해도 무방)
+//                App.Repository.member.memberID.accept(memberInfo.memberId)
+//                App.Repository.member.familyId.accept(memberInfo.familyId)
             }
             newState.memberInfo = memberInfo
         case .setUpdateNeeded(let appVersion):

@@ -10,7 +10,7 @@ import Foundation
 public struct AppVersionInfo: Codable, Equatable {
     public var appKey: String
     public var appVersion: String
-    var latest: Bool
+    public var latest: Bool
     var inReview: Bool
     public var inService: Bool
 }

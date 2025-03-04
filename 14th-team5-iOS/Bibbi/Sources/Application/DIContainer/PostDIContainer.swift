@@ -38,6 +38,10 @@ final class PostDIContainer: BaseContainer {
             familyRepository: familyRepository
         )
     }
+  
+    private func makeCreateImageUploadUseCase() -> CreateImageUploadUseCaseProtocol {
+        return CreateImageUploadUseCase(postListRepository: postListRepository)
+    }
 }
 
 extension PostDIContainer {
@@ -60,6 +64,10 @@ extension PostDIContainer {
         
         container.register(type: FetchPostUseCaseProtocol.self) { _ in
             self.makeFetchPostUseCase()
+        }
+      
+        container.register(type: CreateImageUploadUseCaseProtocol.self) { _ in
+            self.makeCreateImageUploadUseCase()
         }
     }
 }

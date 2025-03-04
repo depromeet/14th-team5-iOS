@@ -11,6 +11,7 @@ import AVFoundation
 
 public class BBRecorderManager: NSObject {
     public var recorderCore: BBRecorderCore
+    public var audioPlayer: AVAudioPlayer?
     public var audioEngine: AVAudioEngine
     public var inputNode: AVAudioInputNode
 
@@ -21,6 +22,12 @@ public class BBRecorderManager: NSObject {
         self.audioEngine = AVAudioEngine()
         self.inputNode = audioEngine.inputNode
         super.init()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAudioSessionInterruption(_:)),
+            name: AVAudioSession.interruptionNotification,
+            object: nil
+        )
         start()
     }
 
@@ -50,36 +57,48 @@ public class BBRecorderManager: NSObject {
         return self
     }
     
-    @objc @discardableResult
-    public func play() -> Self {
-        recorderCore.audioPlayer.volume = 1.0
-        recorderCore.audioPlayer.prepareToPlay()
-        recorderCore.audioPlayer.play()
-        return self
+    public func pauseAudioPlayback() {
+        guard let audioPlayer = audioPlayer else { return }
+        if audioPlayer.isPlaying {
+            audioPlayer.pause()
+        }
     }
     
-    func updateDecibels(buffer: AVAudioPCMBuffer) -> Float {
-        guard let channelData = buffer.floatChannelData?.pointee else { return 0.0 }
-        let frameLength = buffer.frameLength
-        let rms = sqrt((0..<Int(frameLength)).map { channelData[$0] * channelData[$0] }.reduce(0, +) / Float(frameLength))
-        let decibel = 20 * log10(rms)
- 
-        return decibel
-    }
-    
-    func normalizeDecibel(decibel: Float) -> Float {
-        let minDecibel: Float = -60.0
-        let maxDecibel: Float = 0.0
-        let targetMin: Float = 1.0
-        let targetMax: Float = 10.0
-
-       
-        let clampedDecibel = max(minDecibel, min(decibel, maxDecibel))
-        let linearNormalized = (clampedDecibel - minDecibel) / (maxDecibel - minDecibel)
-        let nonlinearNormalized = pow(linearNormalized, 1.0)
-        let normalizedValue = targetMin + nonlinearNormalized * (targetMax - targetMin)
+    public func playAudio(from audioId: String) -> Void {
+        guard let audioURL = BBDiskCacheStorage<String, URL>.read(forkey: audioId) else { return }
         
-        return Float(round(normalizedValue * 10000) / 10000)
+        do {
+            audioPlayer = try AVAudioPlayer(contentsOf: audioURL)
+            audioPlayer?.volume = 1.0
+            audioPlayer?.prepareToPlay()
+            audioPlayer?.play()
+        } catch {
+            print(error.localizedDescription)
+        }
     }
     
+    @objc private func handleAudioSessionInterruption(_ notification: Notification) {
+        guard let userInfo = notification.userInfo else { return }
+        if let interruptionValue = userInfo[AVAudioSessionInterruptionTypeKey] as? NSNumber,
+           let interruptionType = AVAudioSession.InterruptionType(rawValue: UInt(interruptionValue.intValue)) {
+            
+            switch interruptionType {
+            case .began:
+                audioPlayer?.pause()
+                recorderCore.audioRecorder.pause()
+                break
+            case .ended:
+                if recorderCore.audioRecorder.isRecording {
+                    recorderCore.audioRecorder.record()
+                }
+                if let audioPlayer = audioPlayer, !audioPlayer.isPlaying {
+                    audioPlayer.play()
+                }
+                break
+            @unknown default:
+                break
+            }
+            
+        }
+    }
 }

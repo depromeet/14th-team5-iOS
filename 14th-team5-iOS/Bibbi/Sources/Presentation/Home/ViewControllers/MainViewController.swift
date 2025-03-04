@@ -15,6 +15,7 @@ import Util
 import RxDataSources
 import RxCocoa
 import RxSwift
+import StoreKit
 
 final class MainViewController: BBNavigationViewController<MainViewReactor>, UICollectionViewDelegateFlowLayout {
     private let familyViewController: MainFamilyViewController = MainFamilyViewControllerWrapper().makeViewController()
@@ -187,6 +188,13 @@ extension MainViewController {
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .bind(onNext: { $0.0.setInTimeView($0.1) })
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$isRatingAlertHidden)
+            .filter { $0 }
+            .bind { _ in
+                SKStoreReviewController.requestReviewInCurrentScene()
+            }
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$familySection)

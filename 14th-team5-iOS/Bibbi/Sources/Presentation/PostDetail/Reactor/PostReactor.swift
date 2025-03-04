@@ -17,10 +17,12 @@ final class PostReactor: Reactor {
         case tapBackButton
         case setPostIndex(Int)
         case setPostId(String)
+        case fetchPost(PostEntity)
     }
     
     enum Mutation {
         case setPop
+        case setPostLists(PostSection.Model)
         case setSelectedPost(PostEntity)
         case setSelectedPostIndex(Int)
         case setMissionContent(MissionContentEntity)
@@ -58,14 +60,21 @@ final class PostReactor: Reactor {
         )
     }
     
-    init(postId: String) {
+    init(postId: String?) {
         self.initialState = .init(
             selectedIndex: 0,
             originPostLists: .init(model: 0, items: [])
         )
         
+        
+        guard let postId else {
+            BBLogger.logError(function: "postId 값이 없습니다.") 
+            return
+        }
+        
         fetchPostUseCase.execute(postId: postId)
-            .subscribe(onNext: { result in
+            .withUnretained(self)
+            .bind(onNext: { _, result in
                 let post: PostEntity = .init(
                     postId: result.postId,
                     author: result.author ?? .init(memberId: "nil"),
@@ -75,13 +84,11 @@ final class PostReactor: Reactor {
                     content: result.content,
                     time: result.createdAt
                 )
-                self.initialState.originPostLists.items = .init(
-                    with: .main(post)
-                )
-            })
-            .disposed(by: disposeBag)
                 
-        self.action.onNext(.setPostId(postId))
+                self.action.onNext(.fetchPost(post))
+
+            }).disposed(by:disposeBag)
+                
     }
 }
 
@@ -103,6 +110,9 @@ extension PostReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case let .setPostIndex(index):
+            guard !currentState.originPostLists.items.isEmpty else {
+                return Observable<Mutation>.empty()
+            }
             guard case let .main(postEntity) = currentState.originPostLists.items[index],
                   let missionId = postEntity.missionId else { return Observable<Mutation>.just(.setSelectedPostIndex(index)) }
             return fetchMissionUseCase.execute(missionId: missionId)
@@ -131,6 +141,8 @@ extension PostReactor {
                     return .just(.setSelectedPost(post))
                 }
                 
+        case let .fetchPost(post):
+            return .just(.setPostLists(.init(model: 0, items: [.main(post)])))
         }
     }
     
@@ -152,6 +164,8 @@ extension PostReactor {
             newState.missionContent = missionContent
         case let .setSelectedPost(post):
             newState.selectedPost = post
+        case let .setPostLists(postList):
+            newState.originPostLists = postList
         }
         return newState
     }

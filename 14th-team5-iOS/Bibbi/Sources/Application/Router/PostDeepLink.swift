@@ -12,6 +12,7 @@ import Core
 // MARK: - Post 딥링크
 final class PostDeepLink: DeepLinkProtocol {
     enum PostDeepLinkType {
+        // NOTE: FCM 아니기 때문에 무조건 openTodayPost로 포스트 디테일 단 한개만 연다.
         case openTodayPost(String)
         case openCalendarPost(String)
         
@@ -25,22 +26,17 @@ final class PostDeepLink: DeepLinkProtocol {
         pathComponents: [String],
         queryParams: [URLQueryItem]?
     ) {
-        guard pathComponents.count > 3 else { return }
-        guard let date = queryParams?.first(where: { $0.name == "dateOfPost" })?.value,
-              let isComment = queryParams?.first(where: { $0.name == "openComment" })?.value else { return }
-        
-        let postId = pathComponents[2]
-        let isToday = (date == "hi")
-        let hasComment = (isComment == "true")
-        
-        type = isToday
-        ? (hasComment ?
-            .openTodayPostComment(postId)
-           : .openTodayPost(postId)
-        ): (hasComment ?
-            .openCalenderPostComment(postId)
-            : .openCalendarPost(postId)
-        )
+        guard pathComponents.count >= 3,
+              let date = queryParams?.first(where: { $0.name == "dateOfPost" })?.value,
+              let isComment = queryParams?.first(where: { $0.name == "openComment" })?.value else {
+            return
+        }
+//        
+//        let postId = pathComponents[2]
+//        let isToday = (date == "hi")
+//        let hasComment = (isComment == "true")
+//        
+        type = .openTodayPost(date)
     }
     
     func doDeepLink() throws {
@@ -55,7 +51,8 @@ final class PostDeepLink: DeepLinkProtocol {
             openCalendarPost(postId)
         case let .openTodayPostComment(postId):
             openMainPostComment(postId)
-        case let .openCalenderPostComment(postId): openCalendarPostComment(postId)
+        case let .openCalenderPostComment(postId):
+            openCalendarPostComment(postId)
         }
     }
 }

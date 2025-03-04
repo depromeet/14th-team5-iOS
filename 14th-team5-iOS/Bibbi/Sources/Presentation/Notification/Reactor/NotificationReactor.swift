@@ -39,20 +39,9 @@ extension NotificationReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .fetchNotifications:
-            return fetchNotificationUseCase.execute()
-                .flatMap { result -> Observable<Mutation> in
-                    let items = result.map {
-                        NotificationCellReactor(
-                            notification: $0
-                        )
-                    }
-                    return .just(.setNotificationDataSource(items))
-                }
+            return fetchNotifications()
         case let .didTapNotificationCell(item):
-            DeepLinkHandler(
-                urlString: item.initialState.notification.deepLink
-            ).doDeepLink()
-            return .empty()
+            return didTapNotificationCell(item)
         }
     }
     
@@ -67,5 +56,32 @@ extension NotificationReactor {
         }
         
         return newState
+    }
+}
+
+extension NotificationReactor {
+    func fetchNotifications() -> Observable<Mutation> {
+        return fetchNotificationUseCase.execute()
+            .flatMap { result -> Observable<Mutation> in
+                let items = result.map {
+                    NotificationCellReactor(
+                        notification: $0
+                    )
+                }
+                return .just(.setNotificationDataSource(items))
+            }
+    }
+    
+    func didTapNotificationCell(
+        _ item: NotificationCellReactor
+    ) -> Observable<Mutation> {
+        guard let link = item.initialState.notification.deepLink else {
+            return .empty()
+        }
+        
+        DeepLinkHandler(
+            urlString: link
+        ).execute()
+        return .empty()
     }
 }

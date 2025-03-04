@@ -7,23 +7,14 @@
 
 import UIKit
 
+import DesignSystem
+
 import RxSwift
 
 public class BBProfileImage: UIView {
     internal let imageView: UIImageView = UIImageView()
-    internal let defaultNameLabel: BBLabel = BBLabel(.title, textColor: .gray200)
+    internal let defaultNameLabel: BBLabel = BBLabel(.head1, textColor: .gray200)
     internal let birthdayBadge: UIImageView = UIImageView()
-    
-    public var rx: Reactive<BBProfileImage> {
-           return Reactive(self)
-    }
-    
-    enum Style {
-        /// 이미지만 필요한 경우
-        case normal
-        /// 이미지 외, 생일 등의 정보가 필요한 경우
-        case styled
-    }
     
     public enum Size: Int {
         case small = 32
@@ -104,6 +95,7 @@ extension BBProfileImage {
         
         birthdayBadge.do {
             $0.isHidden = true
+            $0.image = DesignSystemAsset.birthday.image
         }
     }
 }
@@ -111,16 +103,17 @@ extension BBProfileImage {
 extension Reactive where Base: BBProfileImage {
     public var configure: Binder<BBProfileImage.Configure> {
         return Binder(base) { view, config in
+            view.birthdayBadge.isHidden = !config.isBirthday
+            
             if let imageURL = config.imageURL,
                let imageSource = URL(string: imageURL) {
                 view.imageView.kf.setImage(with: imageSource)
             } else if let image = config.image {
                 view.imageView.image = image
             } else {
-                view.imageView.backgroundColor = .black
-                view.defaultNameLabel.text = config.name ?? ""
+                view.imageView.backgroundColor = .gray800
+                view.defaultNameLabel.text = "\(config.name?.first ?? "알")"
             }
-            view.birthdayBadge.isHidden = !config.isBirthday
         }
     }
 }

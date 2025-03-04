@@ -14,8 +14,8 @@ public struct NotificationResponseDTO: Decodable {
     let senderProfileStyle: String
     let title: String
     let content: String
-    let iosDeepLink: String
-    let aosDeepLink: String
+    let iosDeepLink: String?
+    let aosDeepLink: String?
     let createdAt: String
 }
 
@@ -24,6 +24,7 @@ extension NotificationResponseDTO {
         return .init(
             id: notificationId,
             style: senderProfileStyle,
+            senderMemberId: senderMemberId,
             senderImageUrl: senderProfileImageUrl,
             title: title,
             content: content,

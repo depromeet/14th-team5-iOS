@@ -21,7 +21,8 @@ final class StoreDeepLink: DeepLinkProtocol {
     init(
         pathComponents: [String]
     ) {
-        if pathComponents.first == "bibbi" {
+        if pathComponents.count > 1,
+           pathComponents[1] == "bibbi" {
             type = .openAppStore
         }
     }
@@ -38,24 +39,12 @@ final class StoreDeepLink: DeepLinkProtocol {
 
 extension StoreDeepLink {
     private func openAppStore() {
-        let storeViewController = SKStoreProductViewController()
-        let viewController = getNavigationController()
-        
-        storeViewController.delegate = viewController as? SKStoreProductViewControllerDelegate
-        
-        let parameters = [
-            SKStoreProductParameterITunesItemIdentifier:
-                Bundle.main.bundleIdentifier
-        ]
-        
-        storeViewController.loadProduct(
-            withParameters: parameters as [String : Any]
-        ) { (loaded, error) in
-            if loaded {
-                viewController?.present(storeViewController, animated: true)
-            } else {
-                BBToast.text("알 수 없는 오류가 발생했습니다.").show()
-            }
+        let appStoreURL = URLTypes.appStore.originURL
+        if UIApplication.shared.canOpenURL(appStoreURL) {
+            UIApplication.shared.open(
+                appStoreURL, options: [:],
+                completionHandler: nil
+            )
         }
     }
 }

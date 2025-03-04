@@ -20,9 +20,9 @@ final class ProfileDeepLink: DeepLinkProtocol {
     init(
         pathComponents: [String]
     ) {
-        if pathComponents.first == "profile",
-              let memberId = pathComponents[safe: 1] {
-            type = .openProfile(memberId: memberId)
+        if pathComponents.count > 2,
+           pathComponents[1] == "profile" {
+            type = .openProfile(memberId: pathComponents[2])
         }
     }
     
@@ -44,6 +44,9 @@ extension ProfileDeepLink {
             memberId: memberId
         ).viewController
         
-        getNavigationController()?.pushViewController(viewController, animated: true)
+        getNavigationController()?.pushViewController(
+            viewController,
+            animated: true
+        )
     }
 }

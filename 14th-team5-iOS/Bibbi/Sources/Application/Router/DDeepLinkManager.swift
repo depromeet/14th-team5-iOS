@@ -22,18 +22,21 @@ final class DeepLinkHandler {
         
         switch pathComponents.first?.lowercased() {
         case "main":
-            deepLink = MainDeepLink(
-                pathComponents: pathComponents,
-                queryParams: queryParams
-            )
+            if pathComponents.count > 1,
+               pathComponents[1] == "profile" {
+                deepLink = ProfileDeepLink(
+                    pathComponents: pathComponents
+                )
+            } else {
+                deepLink = MainDeepLink(
+                    pathComponents: pathComponents,
+                    queryParams: queryParams
+                )
+            }
         case "post":
             deepLink = PostDeepLink(
                 pathComponents: pathComponents,
                 queryParams: queryParams
-            )
-        case "profile":
-            deepLink = ProfileDeepLink(
-                pathComponents: pathComponents
             )
         case "store":
             deepLink = StoreDeepLink(
@@ -44,7 +47,8 @@ final class DeepLinkHandler {
         }
     }
     
-    func doDeepLink() {
+    /// DeeplinkManager 인스턴스를 만들고 execute문을 실행하면 딥링크 처리 후 화면 이동합니다.
+    func execute() {
         do {
             guard let deepLink else {
                 throw DeepLinkError.notFound

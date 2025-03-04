@@ -65,12 +65,28 @@ final class PostViewController: BaseViewController<PostReactor> {
         reactor.state.map { $0.originPostLists }
             .map(Array.init(with:))
             .distinctUntilChanged()
+            .filter { $0.isEmpty }
+            .debug("hi")
             .bind(to: collectionView.rx.items(dataSource: createDataSource()))
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.selectedIndex }
+            .compactMap { $0 }
+            .debug("hiiii")
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: {
+                guard !reactor.currentState.originPostLists.items.isEmpty else { return }
+                        
+                $0.0.collectionView.scrollToItem(at: IndexPath(row: $0.1, section: 0), at: .centeredHorizontally, animated: false)
+            })
             .disposed(by: disposeBag)
         
         reactor.state.compactMap { $0.selectedPost }
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
+            .compactMap { $0 }
+            .debug("hello")
             .bind(onNext: {
                 $0.0.setBackgroundView(data: $0.1)
                 $0.0.reactionViewController.postListData.accept($0.1)
@@ -184,7 +200,6 @@ final class PostViewController: BaseViewController<PostReactor> {
         }
         
         collectionView.layoutIfNeeded()
-        collectionView.scrollToItem(at: IndexPath(row: reactor?.currentState.selectedIndex ?? 1, section: 0), at: .centeredHorizontally, animated: false)
     }
 }
 

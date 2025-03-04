@@ -35,10 +35,6 @@ final class PostDetailViewControllerWrapper {
             )
         }
         
-        if let postId {
-            return PostReactor(postId: postId)
-        }
-        
-        return .init(postId: "null")
+        return PostReactor(postId: postId)
     }
 }

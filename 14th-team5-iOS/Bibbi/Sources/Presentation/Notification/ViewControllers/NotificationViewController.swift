@@ -11,6 +11,63 @@ import UIKit
 import RxSwift
 import RxDataSources
 
+final class NotificationFooterView: UITableViewHeaderFooterView {
+    static let id = "notificationFooterView"
+    
+    private let leftLine: UIView = UIView()
+    private let label: BBLabel = .init(.caption, textColor: .gray500)
+    private let rightLine: UIView = UIView()
+    
+    override init(reuseIdentifier: String?) {
+        super.init(reuseIdentifier: reuseIdentifier)
+        setupUI()
+        setupAttributes()
+        setupAutoLayout()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupUI() {
+        addSubviews(leftLine, label, rightLine)
+    }
+    
+    private func setupAutoLayout() {
+        leftLine.snp.makeConstraints {
+            $0.height.equalTo(1)
+            $0.centerY.equalToSuperview()
+            $0.leading.equalToSuperview().inset(10)
+        }
+        
+        label.snp.makeConstraints {
+            $0.leading.equalTo(leftLine.snp.trailing).offset(12)
+            $0.center.equalToSuperview()
+            $0.trailing.equalTo(rightLine.snp.leading).offset(-12)
+        }
+        
+        rightLine.snp.makeConstraints {
+            $0.height.equalTo(1)
+            $0.centerY.equalToSuperview()
+            $0.trailing.equalToSuperview().inset(10)
+        }
+    }
+    
+    private func setupAttributes() {
+        label.do {
+            $0.text = "최근 한 달 전 알림까지 확인할 수 있어요"
+        }
+        
+        leftLine.do {
+            $0.backgroundColor = .gray700
+        }
+        
+        rightLine.do {
+            $0.backgroundColor = .gray700
+        }
+    }
+}
+
 final class NotificationCell: BaseTableViewCell<NotificationCellReactor> {
     static let id = "notificationCell"
     
@@ -19,13 +76,14 @@ final class NotificationCell: BaseTableViewCell<NotificationCellReactor> {
     private let contentLabel: BBLabel = BBLabel(.body2Regular, textColor: .gray300)
     private let timeLabel: BBLabel = BBLabel(.caption, textColor: .gray500)
     
-    var reactor: NotificationCellReactor?
-    
     override init(
         style: UITableViewCell.CellStyle,
         reuseIdentifier: String?
     ) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        super.init(
+            style: style,
+            reuseIdentifier: reuseIdentifier
+        )
     }
     
     required init?(coder: NSCoder) {
@@ -67,6 +125,8 @@ final class NotificationCell: BaseTableViewCell<NotificationCellReactor> {
     }
     
     override func setupAttributes() {
+        self.backgroundColor = .clear
+        
         titleLabel.do {
             $0.numberOfLines = 2
         }
@@ -121,13 +181,15 @@ final class NotificationViewController: BBNavigationViewController<NotificationR
     private lazy var footerView: UITableViewHeaderFooterView = UITableViewHeaderFooterView()
     
     private lazy var dataSource: RxDataSource = {
-        return RxDataSource { dataSource, tableView, indexPath, reactor in
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: NotificationCell.id, for: indexPath) as? NotificationCell else {
-                return UITableViewCell()
+        return RxDataSource(
+            configureCell: { _, tableView, indexPath, reactor in
+                guard let cell = tableView.dequeueReusableCell(withIdentifier: NotificationCell.id, for: indexPath) as? NotificationCell else {
+                    return UITableViewCell()
+                }
+                cell.setReactor(reactor: reactor)
+                return cell
             }
-            cell.setReactor(reactor: reactor)
-            return cell
-        }
+        )
     }()
     
     public override func bind(reactor: NotificationReactor) {
@@ -159,16 +221,29 @@ final class NotificationViewController: BBNavigationViewController<NotificationR
         }
         
         tableView.do {
-            $0.register(NotificationCell.self, forCellReuseIdentifier: NotificationCell.id)
-            tableView.rowHeight = UITableView.automaticDimension
-            tableView.estimatedRowHeight = 100
-
+            $0.register(
+                NotificationCell.self,
+                forCellReuseIdentifier: NotificationCell.id
+            )
+            $0.register(
+                NotificationFooterView.self,
+                forHeaderFooterViewReuseIdentifier: NotificationFooterView.id
+            )
+            $0.rowHeight = UITableView.automaticDimension
+            $0.estimatedRowHeight = 100
+            
+            $0.estimatedSectionFooterHeight = 17
+            
+            $0.backgroundColor = .clear
+            $0.separatorStyle = .none
         }
     }
 }
 
 extension NotificationViewController {
     private func bindInput(reactor: Reactor) {
+        tableView.rx.setDelegate(self)
+            .disposed(by: disposeBag)
         
         Observable<Void>.just(())
             .map { Reactor.Action.fetchNotifications }
@@ -185,5 +260,18 @@ extension NotificationViewController {
         reactor.pulse(\.$notificationDataSource)
             .bind(to: tableView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
+    }
+}
+
+extension NotificationViewController: UITableViewDelegate {
+    func tableView(
+        _ tableView: UITableView,
+        viewForFooterInSection section: Int
+    ) -> UIView? {
+        let view = NotificationFooterView(
+            reuseIdentifier: NotificationFooterView.id
+        )
+        
+        return view
     }
 }

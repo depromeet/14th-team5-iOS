@@ -32,27 +32,35 @@ public struct NotificationEntity {
     
     public let id: String
     public let style: Style
-    public let senderImageUrl: String
+    public var sender: MemberInfoEntity?
     public let title: String
     public let content: String
-    public let deepLink: String
+    public let deepLink: String?
     public let createdAt: String
     
     public init(
         id: String,
         style: String,
-        senderImageUrl: String,
+        senderMemberId: String?,
+        senderImageUrl: String?,
         title: String,
         content: String,
-        deepLink: String,
+        deepLink: String?,
         createdAt: String
     ) {
         self.id = id
         self.style = .init(style: style)
-        self.senderImageUrl = senderImageUrl
         self.title = title
         self.content = content
         self.deepLink = deepLink
         self.createdAt = createdAt
+        
+        if let senderMemberId {
+            self.sender = .init(
+                memberId: senderMemberId,
+                profileImageURL: senderImageUrl,
+                isShowBirthdayMark: self.style == .birthday
+            )
+        }
     }
 }

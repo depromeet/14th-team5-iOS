@@ -12,13 +12,36 @@ public protocol FetchNotificationUseCaseProtocol {
 }
 
 public class FetchNotificationUseCase: FetchNotificationUseCaseProtocol {
-    private var notificationRepository: NotificationRepositoryPorotocol
+    private let notificationRepository: NotificationRepositoryPorotocol
+    private let familyRepository: FamilyRepositoryProtocol
     
-    public init(notificationRepository: NotificationRepositoryPorotocol) {
+    public init(
+        notificationRepository: NotificationRepositoryPorotocol,
+        familyRepository: FamilyRepositoryProtocol
+    ) {
         self.notificationRepository = notificationRepository
+        self.familyRepository = familyRepository
     }
     
     public func execute() -> Observable<[NotificationEntity]> {
         return notificationRepository.fetchNotifications()
+            .map { notifis in
+                let members = self.familyRepository.loadAllFamilyMembers()
+                return notifis.map { notification in
+                    var updatedNotification = notification
+                    if let members,
+                       let member = members.first(where: {
+                           $0.memberId == notification.sender?.memberId
+                       }) {
+                        updatedNotification.sender = .init(
+                            memberId: member.memberId,
+                            profileImageURL: notification.sender?.profileImageURL,
+                            name: member.name,
+                            isShowBirthdayMark: notification.sender?.isShowBirthdayMark ?? false
+                        )
+                    }
+                    return updatedNotification
+                }
+            }
     }
 }

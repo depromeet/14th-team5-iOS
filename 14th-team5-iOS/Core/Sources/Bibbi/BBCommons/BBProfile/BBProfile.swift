@@ -37,10 +37,6 @@ public class BBProfile: UIView {
     
     private let style: Style
     
-    public var rx: Reactive<BBProfile> {
-           return Reactive(self)
-    }
-    
     internal let imageView: BBProfileImage
     private let textStackView: UIStackView = UIStackView()
     internal let nameLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray200)

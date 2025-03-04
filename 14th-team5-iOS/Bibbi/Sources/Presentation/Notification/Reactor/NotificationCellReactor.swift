@@ -34,9 +34,9 @@ final class NotificationCellReactor: Reactor {
         self.initialState = .init(
             notification: notification,
             profile: .init(
-                isBirthday: false,
-                imageURL: notification.senderImageUrl,
-                name: "TEST"
+                isBirthday: notification.sender?.isShowBirthdayMark ?? false,
+                imageURL: notification.sender?.profileImageURL,
+                name: notification.sender?.name
             ),
             time: .init()
         )
@@ -83,19 +83,13 @@ extension NotificationCellReactor {
         case .birthday:
             profile = .init(
                 isBirthday: true,
-                imageURL: noti.senderImageUrl,
-                name: "TEST"
+                imageURL: noti.sender?.profileImageURL,
+                name: noti.sender?.name
             )
-        case .mission:
-            profile = .init(image: DesignSystemAsset.bibbiThumbnail.image)
-        case .comment:
+        default :
             profile = .init(
-                imageURL: noti.senderImageUrl
+                imageURL: noti.sender?.profileImageURL
             )
-        case .update:
-            profile = .init(image: DesignSystemAsset.noticeThumbnail.image)
-        case .unknown:
-            profile = .init(imageURL: nil)
         }
         
         return profile

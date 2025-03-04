@@ -14,8 +14,14 @@ final class NotificationDIContainer: BaseContainer {
         return NotificationRepository()
     }
     
+    private func makeFamilyRepository() -> FamilyRepositoryProtocol {
+        return FamilyRepository()
+    }
+    
     private func makeFetchNotificationUseCase() -> FetchNotificationUseCaseProtocol {
-        FetchNotificationUseCase(notificationRepository: makeNotificationRepository()
+        FetchNotificationUseCase(
+            notificationRepository: makeNotificationRepository(),
+            familyRepository: makeFamilyRepository()
         )
     }
     

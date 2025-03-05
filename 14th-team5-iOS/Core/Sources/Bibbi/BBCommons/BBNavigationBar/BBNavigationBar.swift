@@ -228,13 +228,7 @@ public class BBNavigationBar: UIView {
             $0.centerY.equalTo(self.snp.centerY)
             $0.height.equalTo(52)
         }
-        
-//        rightBarButton.snp.makeConstraints {
-//            $0.trailing.equalTo(0)
-//            $0.centerY.equalTo(self.snp.centerY)
-//            $0.width.height.equalTo(52)
-//        }
-        
+
         newMarkImageView.snp.makeConstraints {
             $0.top.equalToSuperview().offset(7)
             $0.trailing.equalToSuperview().offset(10)

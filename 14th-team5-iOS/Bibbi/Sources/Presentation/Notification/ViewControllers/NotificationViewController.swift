@@ -14,9 +14,9 @@ import RxDataSources
 final class NotificationFooterView: UITableViewHeaderFooterView {
     static let id = "notificationFooterView"
     
-    private let leftLine: UIView = UIView()
-    private let label: BBLabel = .init(.caption, textColor: .gray500)
-    private let rightLine: UIView = UIView()
+    private let leftLineView: UIView = UIView()
+    private let labelView: BBLabel = .init(.caption, textColor: .gray500)
+    private let rightLineView: UIView = UIView()
     
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
@@ -30,23 +30,23 @@ final class NotificationFooterView: UITableViewHeaderFooterView {
     }
     
     private func setupUI() {
-        addSubviews(leftLine, label, rightLine)
+        addSubviews(leftLineView, labelView, rightLineView)
     }
     
     private func setupAutoLayout() {
-        leftLine.snp.makeConstraints {
+        leftLineView.snp.makeConstraints {
             $0.height.equalTo(1)
             $0.centerY.equalToSuperview()
             $0.leading.equalToSuperview().inset(10)
         }
         
-        label.snp.makeConstraints {
-            $0.leading.equalTo(leftLine.snp.trailing).offset(12)
+        labelView.snp.makeConstraints {
+            $0.leading.equalTo(leftLineView.snp.trailing).offset(12)
             $0.center.equalToSuperview()
-            $0.trailing.equalTo(rightLine.snp.leading).offset(-12)
+            $0.trailing.equalTo(rightLineView.snp.leading).offset(-12)
         }
         
-        rightLine.snp.makeConstraints {
+        rightLineView.snp.makeConstraints {
             $0.height.equalTo(1)
             $0.centerY.equalToSuperview()
             $0.trailing.equalToSuperview().inset(10)
@@ -54,15 +54,15 @@ final class NotificationFooterView: UITableViewHeaderFooterView {
     }
     
     private func setupAttributes() {
-        label.do {
+        labelView.do {
             $0.text = "최근 한 달 전 알림까지 확인할 수 있어요"
         }
         
-        leftLine.do {
+        leftLineView.do {
             $0.backgroundColor = .gray700
         }
         
-        rightLine.do {
+        rightLineView.do {
             $0.backgroundColor = .gray700
         }
     }
@@ -176,7 +176,7 @@ extension NotificationCell {
 final class NotificationViewController: BBNavigationViewController<NotificationReactor> {
     private typealias RxDataSource = RxTableViewSectionedReloadDataSource<NotificationSectionModel>
     
-    private let divider: UIView = UIView()
+    private let dividerView: UIView = UIView()
     private lazy var tableView: UITableView = UITableView()
     private lazy var footerView: UITableViewHeaderFooterView = UITableViewHeaderFooterView()
     

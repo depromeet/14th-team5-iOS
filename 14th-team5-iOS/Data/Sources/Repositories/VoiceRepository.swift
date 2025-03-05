@@ -31,8 +31,10 @@ extension VoiceRepository: VoiceRepositoryProtocol {
                     return Observable.create { observer in
                         Task {
                             do {
-                                guard let voiceURL = URL(string: response.comment),
-                                      let bufferData = try? Data(contentsOf: voiceURL) else {
+                                
+                                guard let voiceURL = response.voiceURL,
+                                      let cacheURL = URL(string: voiceURL),
+                                      let bufferData = try? Data(contentsOf: cacheURL) else {
                                     return
                                 }
                                 try await self.voiceStorage.setObject(bufferData, for: response.commentId)

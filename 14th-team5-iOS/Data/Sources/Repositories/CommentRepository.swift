@@ -32,8 +32,9 @@ extension CommentRepository {
                     if dto.commentType == "VOICE" {
                         Task.synchronous {
                             do {
-                                guard let voiceURL = URL(string: dto.comment),
-                                      let bufferData = try? Data(contentsOf: voiceURL) else { return }
+                                guard let voiceURL = dto.voiceURL,
+                                      let cacheURL = URL(string: voiceURL),
+                                      let bufferData = try? Data(contentsOf: cacheURL) else { return }
                                 try await self.commentStorage.setObject(bufferData, for: dto.commentId)
                             } catch {
                                 print("🤨음성 녹음 URL을 저장하는데 실패 했습니다.")

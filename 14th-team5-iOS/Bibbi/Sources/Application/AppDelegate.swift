@@ -28,7 +28,6 @@ import Mixpanel
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     // MARK: - Properties
-    
     var window: UIWindow?
     let disposeBag = DisposeBag()
     
@@ -72,6 +71,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             PrivacyDIContainer(),
             PickDICotainer(),
             ResignDIContainer(),
+            NotificationDIContainer()
         ]
         containers.forEach {
             $0.registerDependencies()

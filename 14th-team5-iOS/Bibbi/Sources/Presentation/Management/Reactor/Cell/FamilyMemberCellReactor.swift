@@ -35,7 +35,7 @@ final public class FamilyMemberCellReactor: Reactor {
     
     public struct State {
         let kind: FamilyMemberCellKind
-        var member: FamilyMemberProfileEntity
+        var member: MemberInfoEntity
         
         var isHiddenIsMeMark: Bool = true
         var isHiddenBirthBadge: Bool = true
@@ -53,7 +53,7 @@ final public class FamilyMemberCellReactor: Reactor {
     
     public init(
         _ kind: FamilyMemberCellKind,
-        member: FamilyMemberProfileEntity
+        member: MemberInfoEntity
     ) {
         self.initialState = State(
             kind: kind,

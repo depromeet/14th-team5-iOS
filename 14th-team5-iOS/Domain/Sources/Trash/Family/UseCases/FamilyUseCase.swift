@@ -17,7 +17,7 @@ public protocol FamilyUseCaseProtocol {
     func executeFetchCreatedAtFamily() -> Observable<FamilyCreatedAtEntity?>
     func executeFetchInvitationUrl() -> Observable<FamilyInvitationLinkEntity?>
     func executeFetchPaginationFamilyMembers(query: FamilyPaginationQuery) -> Observable<PaginationResponseFamilyMemberProfileEntity?>
-    func executeFetchPaginationFamilyMembers(memberIds: [String]) -> [FamilyMemberProfileEntity]
+    func executeFetchPaginationFamilyMembers(memberIds: [String]) -> [MemberInfoEntity]
 }
 
 @available(*, deprecated)
@@ -52,7 +52,7 @@ public final class FamilyUseCase: FamilyUseCaseProtocol {
         return familyRepository.fetchPaginationFamilyMembers(query: query)
     }
     
-    public func executeFetchPaginationFamilyMembers(memberIds: [String]) -> [FamilyMemberProfileEntity] {
+    public func executeFetchPaginationFamilyMembers(memberIds: [String]) -> [MemberInfoEntity] {
         return familyRepository.fetchPaginationFamilyMembers(memberIds: memberIds)
     }
 }

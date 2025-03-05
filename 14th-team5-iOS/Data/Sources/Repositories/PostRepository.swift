@@ -10,7 +10,7 @@ import Foundation
 import Domain
 import RxSwift
 
-public final class PostRepository: PostListRepositoryProtocol {
+public final class PostRepository: PostRepositoryProtocol {
         
     private let disposeBag: DisposeBag = DisposeBag()
     private let postAPIWorker: PostAPIWorker = PostAPIWorker()

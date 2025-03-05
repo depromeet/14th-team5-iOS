@@ -79,12 +79,12 @@ extension FamilyRankData {
 
 public struct NightMainViewEntity {
     public let familyName: String?
-    public let mainFamilyProfileDatas: [FamilyMemberProfileEntity]
+    public let mainFamilyProfileDatas: [MemberInfoEntity]
     public let familyRankData: FamilyRankData
     
     public init(
         familyName: String?,
-        mainFamilyProfileDatas: [FamilyMemberProfileEntity],
+        mainFamilyProfileDatas: [MemberInfoEntity],
         familyRankData: FamilyRankData
     ) {
         self.familyName = familyName

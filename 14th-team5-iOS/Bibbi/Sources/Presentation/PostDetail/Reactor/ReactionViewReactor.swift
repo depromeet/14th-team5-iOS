@@ -71,6 +71,7 @@ extension ReactionViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .fetchReactionList(let postId):
+            guard !postId.isEmpty else { return .empty() }
             let repository1 = fetchReactionListUseCase.execute(query: .init(postId: postId)).asObservable()
             let repository2 = fetchRealEmojiListUseCase.execute(query: .init(postId: postId)).asObservable()
 

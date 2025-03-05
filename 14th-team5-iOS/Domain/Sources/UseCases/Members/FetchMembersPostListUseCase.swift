@@ -17,10 +17,10 @@ public protocol FetchMembersPostListUseCaseProtocol {
 
 public final class FetchMembersPostListUseCase: FetchMembersPostListUseCaseProtocol {
         
-    private let postListRepository: any PostListRepositoryProtocol
+    private let postListRepository: any PostRepositoryProtocol
     
     
-    public init(postListRepository: any PostListRepositoryProtocol) {
+    public init(postListRepository: any PostRepositoryProtocol) {
         self.postListRepository = postListRepository
     }
     

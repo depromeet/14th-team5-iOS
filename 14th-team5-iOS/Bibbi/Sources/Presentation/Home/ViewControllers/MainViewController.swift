@@ -111,6 +111,7 @@ final class MainViewController: BBNavigationViewController<MainViewReactor>, UIC
         
         navigationBar.do {
             $0.leftBarButtonItem = .person(new: false)
+            $0.rightBarLeftButtonItem = .alarm
             $0.rightBarButtonItem = .calendar
         }
         
@@ -154,6 +155,8 @@ extension MainViewController {
         Observable.merge(
             contributorView.nextButtonTapEvent.map { Reactor.Action.openNextViewController(.contributorNextButtonTap)},
             cameraButton.camerTapEvent.map { Reactor.Action.openNextViewController(.cameraButtonTap )},
+            navigationBar.rx.didTapRightBarLeftButton.map { _ in
+                Reactor.Action.openNextViewController(.navigationRightBarLeftButtonTap)},
             navigationBar.rx.didTapRightBarButton.map { _ in Reactor.Action.openNextViewController(.navigationRightButtonTap)},
             navigationBar.rx.didTapLeftBarButton.map { _ in Reactor.Action.openNextViewController(.navigationLeftButtonTap)}
         )

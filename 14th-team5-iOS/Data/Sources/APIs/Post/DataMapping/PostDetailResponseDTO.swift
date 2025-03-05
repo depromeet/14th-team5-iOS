@@ -27,6 +27,7 @@ extension PostDetailResponseDTO {
         return .init(
             postId: postId,
             authorId: authorId,
+            author: nil,
             type: PostType(rawValue: type) ?? .survival,
             missionId: missionId,
             commentCount: commentCount,

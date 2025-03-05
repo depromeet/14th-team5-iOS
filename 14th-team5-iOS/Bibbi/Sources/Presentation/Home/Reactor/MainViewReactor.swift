@@ -21,6 +21,7 @@ final class MainViewReactor: Reactor {
     
     enum TapAction {
         case cameraButtonTap
+        case navigationRightBarLeftButtonTap
         case navigationRightButtonTap
         case navigationLeftButtonTap
         case contributorNextButtonTap
@@ -34,6 +35,7 @@ final class MainViewReactor: Reactor {
         case missionUnlockedAlert
         case weeklycalendarViewController(String)
         case familyManagementViewController
+        case notificationViewController
         case monthlyCalendarViewController
         case showToastMessage(UIImage?, String)
         case showErrorToast
@@ -196,7 +198,7 @@ extension MainViewReactor {
                 .just(.setCamerEnabled)
             )
             
-        case let .pickConfirmButtonTapped:
+        case .pickConfirmButtonTapped:
             guard let pickedMember = currentState.pickedMember else {
                 return .empty()
             }
@@ -225,6 +227,8 @@ extension MainViewReactor {
                         self.pushViewController(type: .survivalAlert)
                     }
                 }
+            case .navigationRightBarLeftButtonTap:
+                self.pushViewController(type: .notificationViewController)
             case .navigationRightButtonTap:
                 self.pushViewController(type: .monthlyCalendarViewController)
             case .navigationLeftButtonTap:
@@ -307,6 +311,8 @@ extension MainViewReactor {
 extension MainViewReactor {
     private func pushViewController(type: MainViewReactor.OpenType) {
         switch type {
+        case .notificationViewController:
+            navigator.toNotification()
         case .monthlyCalendarViewController:
             navigator.toMonthlyCalendar()
         case .familyManagementViewController:

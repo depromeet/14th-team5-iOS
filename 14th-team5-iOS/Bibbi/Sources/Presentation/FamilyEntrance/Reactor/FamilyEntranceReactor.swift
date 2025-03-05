@@ -20,11 +20,11 @@ public final class FamilyEntranceReactor: Reactor {
     }
     
     public enum Mutation {
-        case setProfiles([FamilyMemberProfileEntity]?)
+        case setProfiles([MemberInfoEntity]?)
     }
     
     public struct State {
-        var profiles: [FamilyMemberProfileEntity]?
+        var profiles: [MemberInfoEntity]?
     }
     
     public var initialState: State = State()

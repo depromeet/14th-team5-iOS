@@ -7,17 +7,17 @@
 
 import Foundation
 
-public typealias Profile = FamilyMemberProfileEntity
+public typealias Profile = MemberInfoEntity
 
 public struct PaginationResponseFamilyMemberProfileEntity {
-    public var results: [FamilyMemberProfileEntity]
+    public var results: [MemberInfoEntity]
     
-    public init(results: [FamilyMemberProfileEntity]) {
+    public init(results: [MemberInfoEntity]) {
         self.results = results
     }
 }
 
-public struct FamilyMemberProfileEntity: Equatable, Hashable, Codable {
+public struct MemberInfoEntity: Equatable, Hashable, Codable {
     public let memberId: String
     public let profileImageURL: String?
     public let name: String

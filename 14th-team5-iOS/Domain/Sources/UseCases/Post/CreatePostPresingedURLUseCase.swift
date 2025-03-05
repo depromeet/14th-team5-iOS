@@ -17,9 +17,9 @@ public protocol CreatePresignedURLUseCaseProtocol {
 
 public final class CreatePresignedURLUseCase: CreatePresignedURLUseCaseProtocol {
     
-    private let postListReposity: PostListRepositoryProtocol
+    private let postListReposity: PostRepositoryProtocol
     
-    public init(postListReposity: PostListRepositoryProtocol) {
+    public init(postListReposity: PostRepositoryProtocol) {
         self.postListReposity = postListReposity
     }
     

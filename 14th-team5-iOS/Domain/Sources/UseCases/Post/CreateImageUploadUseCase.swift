@@ -18,10 +18,10 @@ public protocol CreateImageUploadUseCaseProtocol {
 public final class CreateImageUploadUseCase: CreateImageUploadUseCaseProtocol {
     
     
-    private let postListRepository: PostListRepositoryProtocol
+    private let postListRepository: PostRepositoryProtocol
     
     
-    public init(postListRepository: PostListRepositoryProtocol) {
+    public init(postListRepository: PostRepositoryProtocol) {
         self.postListRepository = postListRepository
     }
     

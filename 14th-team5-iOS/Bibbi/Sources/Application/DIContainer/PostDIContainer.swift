@@ -12,10 +12,12 @@ import Domain
 
 final class PostDIContainer: BaseContainer {
     private let familyRepository: FamilyRepositoryProtocol = FamilyRepository()
-    private let postListRepository: PostListRepositoryProtocol = PostRepository()
+    private let postListRepository: PostRepositoryProtocol = PostRepository()
 
     private func makePostUseCase() -> FetchPostListUseCaseProtocol {
-        return FetchPostListUseCase(postListRepository: postListRepository, familyRepository: familyRepository)
+        return FetchPostListUseCase(
+            postListRepository: postListRepository,
+            familyRepository: familyRepository)
     }
     
     private func makeFetchMembersPostListUseCase() -> FetchMembersPostListUseCaseProtocol {
@@ -30,6 +32,13 @@ final class PostDIContainer: BaseContainer {
         return CreatePresignedURLUseCase(postListReposity: postListRepository)
     }
     
+    private func makeFetchPostUseCase() -> FetchPostUseCaseProtocol {
+        return FetchPostUseCase(
+            postRepository: postListRepository,
+            familyRepository: familyRepository
+        )
+    }
+  
     private func makeCreateImageUploadUseCase() -> CreateImageUploadUseCaseProtocol {
         return CreateImageUploadUseCase(postListRepository: postListRepository)
     }
@@ -53,6 +62,10 @@ extension PostDIContainer {
             self.makeCreatePresignedURLUseCase()
         }
         
+        container.register(type: FetchPostUseCaseProtocol.self) { _ in
+            self.makeFetchPostUseCase()
+        }
+      
         container.register(type: CreateImageUploadUseCaseProtocol.self) { _ in
             self.makeCreateImageUploadUseCase()
         }

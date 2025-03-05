@@ -5,7 +5,6 @@ on:
     branches:
       - feat/*
       - fix/*
-      - refactor/*
       - release
   pull_request:
     branches:
@@ -87,6 +86,7 @@ jobs:
         run: fastlane github_action_prd_upload_testflight
 
       - name: fastlane upload_stg_testflight
+        if: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'develop' }}
         env:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}

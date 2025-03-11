@@ -25,10 +25,9 @@ public class BBNavigationBar: UIView {
     
     private let leftBarButton = BBNavigationBarButton()
     
-    private let rightBarStackView = UIStackView()
     private let rightBarLeftButton = BBNavigationBarButton()
     /// Navigation의 RightBar의 기본적인 Button, 2개 사용해야 할 경우 rightBarLeftButton 같이 사용해주세요.
-    private let rightBarButton = BBNavigationBarButton()
+    private let rightBarRightButton = BBNavigationBarButton()
     
     private let newMarkImageView = UIImageView()
     
@@ -83,10 +82,10 @@ public class BBNavigationBar: UIView {
     }
     
     /// 오른쪽 버튼의 스타일을 설정합니다.
-    public var rightBarButtonItem: BBNavigationButtonStyle? {
+    public var rightBarRightButtonItem: BBNavigationButtonStyle? {
         didSet {
-            setupButtonImage(rightBarButton, type: rightBarButtonItem)
-            setupButtonBackground(rightBarButton, type: rightBarButtonItem)
+            setupButtonImage(rightBarRightButton, type: rightBarRightButtonItem)
+            setupButtonBackground(rightBarRightButton, type: rightBarRightButtonItem)
         }
     }
     
@@ -143,7 +142,7 @@ public class BBNavigationBar: UIView {
     public var rightBarButtonItemTintColor: UIColor = UIColor.gray300 {
         didSet {
             rightBarLeftButton.tintColor = rightBarButtonItemTintColor
-            rightBarButton.tintColor = rightBarButtonItemTintColor
+            rightBarRightButton.tintColor = rightBarButtonItemTintColor
         }
     }
     
@@ -159,10 +158,9 @@ public class BBNavigationBar: UIView {
     /// 오른쪽 버튼이 leading으로부터 얼마나 떨어져 있는지 설정합니다.
     public var rightBarButtonItemYOffset: CGFloat = 0.0 {
         didSet {
-            rightBarStackView.snp.updateConstraints {
+            rightBarRightButton.snp.updateConstraints {
                 $0.trailing.equalTo(rightBarButtonItemYOffset)
             }
-            rightBarButton.layoutIfNeeded()
         }
     }
     
@@ -195,11 +193,11 @@ public class BBNavigationBar: UIView {
     private func setupUI() {
         addSubview(containerView)
         containerView.addSubviews(
-            leftBarButton, navigationImageView, navigationTitleLabel, rightBarStackView
+            leftBarButton, navigationImageView, navigationTitleLabel,
+            rightBarLeftButton, rightBarRightButton
         )
         
         leftBarButton.addSubview(newMarkImageView)
-        rightBarStackView.addArrangedSubviews(rightBarLeftButton, rightBarButton)
     }
     
     private func setupAutolayout() {
@@ -223,10 +221,17 @@ public class BBNavigationBar: UIView {
             $0.width.height.equalTo(52)
         }
         
-        rightBarStackView.snp.makeConstraints {
+        rightBarRightButton.snp.makeConstraints {
             $0.trailing.equalTo(0)
             $0.centerY.equalTo(self.snp.centerY)
-            $0.height.equalTo(52)
+            $0.width.height.equalTo(52)
+        }
+        
+        
+        rightBarLeftButton.snp.makeConstraints {
+            $0.trailing.equalTo(rightBarRightButton.snp.leading)
+            $0.centerY.equalTo(self.snp.centerY)
+            $0.width.height.equalTo(52)
         }
 
         newMarkImageView.snp.makeConstraints {
@@ -253,11 +258,6 @@ public class BBNavigationBar: UIView {
             
         }
         
-        rightBarStackView.do {
-            $0.spacing = 12
-            $0.distribution = .fillEqually
-        }
-        
         rightBarLeftButton.do {
             $0.addTarget(
                 self,
@@ -266,10 +266,10 @@ public class BBNavigationBar: UIView {
             )
         }
         
-        rightBarButton.do {
+        rightBarRightButton.do {
             $0.addTarget(
                 self,
-                action: #selector(didTapRightButton),
+                action: #selector(didTapRightBarRightButton),
                 for: .touchUpInside
             )
         }
@@ -390,7 +390,7 @@ extension BBNavigationBar {
         self.leftBarButtonItemScale = leftBarButtonItemScale
         self.leftBarButtonItemYOffset = leftBarButtonYOffset
         
-        self.rightBarButtonItem = rightBarButtonItem
+        self.rightBarRightButtonItem = rightBarButtonItem
         self.rightBarButtonItemTintColor = rightBarButtonTint
         self.rightBarButtonItemScale = rightBarButtonItemScale
         self.rightBarButtonItemYOffset = rightBarButtonYOffset
@@ -413,7 +413,11 @@ extension BBNavigationBar {
     }
 
     private func setupRightButtonImageScale(_ scale: CGFloat) {
-        rightBarButton.imageView?.layer.transform = CATransform3DMakeScale(
+        rightBarLeftButton.imageView?.layer.transform = CATransform3DMakeScale(
+            scale, scale, scale
+        )
+        
+        rightBarRightButton.imageView?.layer.transform = CATransform3DMakeScale(
             scale, scale, scale
         )
     }
@@ -453,7 +457,7 @@ extension BBNavigationBar {
         delegate?.navigationBar?(button, didTapRightBarLeftButton: event)
     }
 
-    @objc func didTapRightButton(_ button: UIButton, event: UIButton.Event) {
+    @objc func didTapRightBarRightButton(_ button: UIButton, event: UIButton.Event) {
         guard let _ = button.currentImage else { return }
         delegate?.navigationBar?(button, didTapRightBarButton: event)
     }

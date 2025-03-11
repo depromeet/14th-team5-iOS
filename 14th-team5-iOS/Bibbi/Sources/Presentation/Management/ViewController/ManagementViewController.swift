@@ -171,7 +171,7 @@ public final class ManagementViewController: BBNavigationViewController<Manageme
             $0.navigationTitle = "가족"
             $0.navigationTitleFontStyle = .head2Bold
             $0.leftBarButtonItem = .arrowLeft
-            $0.rightBarButtonItem = .setting
+            $0.rightBarRightButtonItem = .setting
          }
         
         divider.do {

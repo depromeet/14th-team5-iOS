@@ -69,7 +69,7 @@ final class PostViewController: BaseViewController<PostReactor> {
         
         reactor.state.map { $0.selectedIndex }
             .compactMap { $0 }
-            .observe(on: MainScheduler.instance)
+            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .bind(onNext: {
                 guard reactor.currentState.originPostLists.items.count > 1 else { return }

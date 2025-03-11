@@ -112,7 +112,7 @@ final class MainViewController: BBNavigationViewController<MainViewReactor>, UIC
         navigationBar.do {
             $0.leftBarButtonItem = .person(new: false)
             $0.rightBarLeftButtonItem = .alarm
-            $0.rightBarButtonItem = .calendar
+            $0.rightBarRightButtonItem = .calendar
         }
         
         contributorView.do {

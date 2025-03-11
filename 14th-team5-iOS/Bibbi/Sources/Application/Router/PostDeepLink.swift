@@ -27,15 +27,11 @@ final class PostDeepLink: DeepLinkProtocol {
         queryParams: [URLQueryItem]?
     ) {
         guard pathComponents.count >= 3,
-              let date = queryParams?.first(where: { $0.name == "dateOfPost" })?.value,
+              let _ = queryParams?.first(where: { $0.name == "dateOfPost" })?.value,
               let isComment = queryParams?.first(where: { $0.name == "openComment" })?.value else {
             return
         }
-//        
-//        let postId = pathComponents[2]
-//        let isToday = (date == "hi")
-//        let hasComment = (isComment == "true")
-//        
+        
         type = .openTodayPost(pathComponents[2])
     }
     

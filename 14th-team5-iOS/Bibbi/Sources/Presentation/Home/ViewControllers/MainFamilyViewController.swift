@@ -87,7 +87,7 @@ extension MainFamilyViewController {
         
         familyCollectionView.rx.modelSelected(FamilySection.Item.self)
             .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
-            .compactMap { item -> FamilyMemberProfileEntity? in
+            .compactMap { item -> MemberInfoEntity? in
                 switch item {
                 case let .main(reactor): return reactor.currentState.profileData
                 }

@@ -11,33 +11,20 @@ import Core
 import RxSwift
 
 public protocol CreatePresignedURLUseCaseProtocol {
-    func execute(body: CreatePostPresignedURLRequest, imageData: Data) -> Observable<CreatePostPresignedURLEntity?>
+    func execute(body: CreatePostPresignedURLRequest) -> Observable<CreatePostPresignedURLEntity?>
 }
 
 
 public final class CreatePresignedURLUseCase: CreatePresignedURLUseCaseProtocol {
     
-    private let postListReposity: PostListRepositoryProtocol
+    private let postListReposity: PostRepositoryProtocol
     
-    public init(postListReposity: PostListRepositoryProtocol) {
+    public init(postListReposity: PostRepositoryProtocol) {
         self.postListReposity = postListReposity
     }
     
     
-    public func execute(body: CreatePostPresignedURLRequest, imageData: Data) -> Observable<CreatePostPresignedURLEntity?> {
+    public func execute(body: CreatePostPresignedURLRequest) -> Observable<CreatePostPresignedURLEntity?> {
         return postListReposity.createPostPresignedURLItem(body: body)
-            .flatMap { [unowned self] presignedURL -> Observable<CreatePostPresignedURLEntity?> in
-                guard let remoteURL = presignedURL?.imageURL else {
-                    return .error(BBUploadError.invalidServerResponse)
-                }
-                return self.postListReposity.uploadPostImageToS3Bucket(remoteURL, image: imageData)
-                    .flatMap { isSuccess -> Observable<CreatePostPresignedURLEntity?> in
-                        if isSuccess {
-                            return .just(presignedURL)
-                        } else {
-                            return .error(BBUploadError.uploadFailed)
-                        }
-                    }
-            }
     }
 }

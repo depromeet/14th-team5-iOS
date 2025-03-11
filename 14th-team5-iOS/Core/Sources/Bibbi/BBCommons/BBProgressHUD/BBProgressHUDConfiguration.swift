@@ -16,7 +16,7 @@ public struct BBProgressHUDConfiguration {
     public let exitingAnimation: BBProgressHUD.Animation
     public let background: BBProgressHUD.Background
         
-    public let view: UIView?
+    public weak var view: UIView?
     
     public let allowProgressHUDOverlap: Bool
 

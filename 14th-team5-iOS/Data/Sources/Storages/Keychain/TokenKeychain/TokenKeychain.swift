@@ -66,12 +66,12 @@ final public class TokenKeychain: TokenKeychainType {
     
     /// FCM 서버로부터 발급받은 FCM 토큰을 저장합니다.
     public func saveFCMToken(_ fcmToken: String?) {
-        keychain[.newFcmToken] = fcmToken
+        keychain[.fcmToken] = fcmToken
     }
     
     /// FCM 서버로부터 발급받은 FCM 토큰을 저장합니다.
     public func loadFCMToken() -> String? {
-        keychain[.newFcmToken]
+        keychain[.fcmToken]
     }
     
     

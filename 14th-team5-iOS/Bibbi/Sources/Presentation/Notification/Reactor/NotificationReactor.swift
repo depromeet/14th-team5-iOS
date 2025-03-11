@@ -1,0 +1,87 @@
+//
+//  NotifiactionReactor.swift
+//  App
+//
+//  Created by 마경미 on 04.01.25.
+//
+
+import Foundation
+
+import Core
+import Domain
+
+import ReactorKit
+
+final class NotificationReactor: Reactor {
+    enum Action {
+        case fetchNotifications
+        case didTapNotificationCell(NotificationCellReactor)
+    }
+    
+    enum Mutation {
+        case setNotificationDataSource([NotificationCellReactor])
+    }
+    
+    struct State {
+        @Pulse var notificationDataSource: [NotificationSectionModel] = [.init(
+            model: (),
+            items: []
+        )]
+    }
+    
+    var initialState: State = .init()
+    
+    @Navigator var navigator: NotificationNavigatorProtocol
+    @Injected var fetchNotificationUseCase: FetchNotificationUseCaseProtocol
+}
+
+extension NotificationReactor {
+    func mutate(action: Action) -> Observable<Mutation> {
+        switch action {
+        case .fetchNotifications:
+            return fetchNotifications()
+        case let .didTapNotificationCell(item):
+            return didTapNotificationCell(item)
+        }
+    }
+    
+    func reduce(state: State, mutation: Mutation) -> State {
+        var newState = state
+        
+        switch mutation {
+            
+        case let .setNotificationDataSource(items):
+            let dataSource = NotificationSectionModel(model: (), items: items)
+            newState.notificationDataSource = [dataSource]
+        }
+        
+        return newState
+    }
+}
+
+extension NotificationReactor {
+    func fetchNotifications() -> Observable<Mutation> {
+        return fetchNotificationUseCase.execute()
+            .flatMap { result -> Observable<Mutation> in
+                let items = result.map {
+                    NotificationCellReactor(
+                        notification: $0
+                    )
+                }
+                return .just(.setNotificationDataSource(items))
+            }
+    }
+    
+    func didTapNotificationCell(
+        _ item: NotificationCellReactor
+    ) -> Observable<Mutation> {
+        guard let link = item.initialState.notification.deepLink else {
+            return .empty()
+        }
+        
+        DeepLinkHandler(
+            urlString: link
+        ).execute()
+        return .empty()
+    }
+}

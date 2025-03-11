@@ -35,6 +35,7 @@ extension BBNavigationBar {
             case calendar
             case setting
             case xmark
+            case alarm
         }
         
     }
@@ -68,6 +69,8 @@ extension BBNavigationButtonStyle {
             return DesignSystemAsset.setting.image
         case .xmark:
             return DesignSystemAsset.xmark.image
+        case .alarm:
+            return DesignSystemAsset.alarm.image
         @unknown default:
             return nil
         }

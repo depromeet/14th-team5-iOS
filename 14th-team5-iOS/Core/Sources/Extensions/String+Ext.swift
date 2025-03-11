@@ -7,6 +7,8 @@
 
 import Foundation
 
+import CryptoKit
+
 extension String {
     public static var none: String { "" }
     public static var unknown: String { "알 수 없음" }
@@ -18,6 +20,31 @@ extension String {
             return true
         }
         return false
+    }
+    
+    func MD5() -> String {
+        var digest = Insecure.MD5.hash(data: self.data(using: .utf8) ?? Data())
+        return digest.map { String(format: "%02hhx", $0) }.joined()
+    }
+    
+    public func toTimeInSeconds(_ type: TimeComponents) -> Double? {
+        let components = self.split(separator: ":").compactMap { Double($0) }
+        switch type {
+        case .hours:
+            let hours = components[0]
+            let minutes = components[1]
+            let seconds = components[2]
+            
+            return (hours * 3600) + (minutes * 60) + seconds
+        case .minutes:
+            let minutes = components[0]
+            let seconds = components[1]
+            
+            return (minutes * 60) + seconds
+        case .seconds:
+            let seconds = components.last
+            return seconds
+        }
     }
 }
 

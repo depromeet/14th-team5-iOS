@@ -9,8 +9,9 @@ import Foundation
 
 import RxSwift
 
+// NOTE:- 삭제하기
 public protocol FetchFamilyMembersUseCaseFromStorageProtocol {
-    func execute(memberIds: [String]) -> [FamilyMemberProfileEntity]
+    func execute(memberIds: [String]) -> [MemberInfoEntity]
 }
 
 public class FetchFamilyMembersFromStoragUseCase: FetchFamilyMembersUseCaseFromStorageProtocol {
@@ -24,7 +25,7 @@ public class FetchFamilyMembersFromStoragUseCase: FetchFamilyMembersUseCaseFromS
     }
     
     // MARK: - Execute
-    public func execute(memberIds: [String]) -> [FamilyMemberProfileEntity] {
+    public func execute(memberIds: [String]) -> [MemberInfoEntity] {
         return familyRepository.fetchPaginationFamilyMembers(memberIds: memberIds)
     }
 }

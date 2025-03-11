@@ -38,11 +38,11 @@ extension ReactionMemberViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .makeDataSource:
-            let profiles: [FamilyMemberProfileEntity] = familyUseCase.executeFetchPaginationFamilyMembers(memberIds: currentState.emojiData.memberIds)
+            let profiles: [MemberInfoEntity] = familyUseCase.executeFetchPaginationFamilyMembers(memberIds: currentState.emojiData.memberIds)
             
             var items: [FamilyMemberCellReactor] = []
             profiles.forEach {
-                let member = FamilyMemberProfileEntity(
+                let member = MemberInfoEntity(
                     memberId: $0.memberId,
                     profileImageURL: $0.profileImageURL,
                     name: $0.name
@@ -53,7 +53,7 @@ extension ReactionMemberViewReactor {
             if  profiles.count != currentState.emojiData.memberIds.count {
                 let len = currentState.emojiData.memberIds.count - profiles.count
                 for _ in 0...(len - 1) {
-                    let member = FamilyMemberProfileEntity(
+                    let member = MemberInfoEntity(
                         memberId: .none,
                         name: .unknown
                     )

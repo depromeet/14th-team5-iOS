@@ -84,7 +84,7 @@ public final class MonthlyCalendarViewController: BBNavigationViewController<Mon
         navigationBar.do {
             $0.navigationTitle = "추억 캘린더"
             $0.leftBarButtonItem = .arrowLeft
-            $0.rightBarButtonItem = nil
+            $0.rightBarRightButtonItem = nil
         }
         
         collectionView.do {

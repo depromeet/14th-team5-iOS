@@ -9,5 +9,6 @@ import UIKit
 
 @objc public protocol BBNavigationBarDelegate {
     @objc optional func navigationBar(_ button: UIButton, didTapRightBarButton event: UIControl.Event)
+    @objc optional func navigationBar(_ button: UIButton, didTapRightBarLeftButton event: UIControl.Event)
     @objc optional func navigationBar(_ button: UIButton, didTapLeftBarButton event: UIControl.Event)
 }

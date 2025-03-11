@@ -17,8 +17,11 @@ import RxDataSources
 import Kingfisher
 
 final class MainViewReactor: Reactor {
+    var initialState: State
+    
     enum TapAction {
         case cameraButtonTap
+        case navigationRightBarLeftButtonTap
         case navigationRightButtonTap
         case navigationLeftButtonTap
         case contributorNextButtonTap
@@ -32,6 +35,7 @@ final class MainViewReactor: Reactor {
         case missionUnlockedAlert
         case weeklycalendarViewController(String)
         case familyManagementViewController
+        case notificationViewController
         case monthlyCalendarViewController
         case showToastMessage(UIImage?, String)
         case showErrorToast
@@ -56,7 +60,7 @@ final class MainViewReactor: Reactor {
     enum Mutation {
         case updateMainData(MainViewEntity)
         case updateMainNight(NightMainViewEntity)
-        
+        case setRatingAlert(Bool)
         case setInTime(Bool)
         case setPageIndex(Int)
         case setCamerEnabled
@@ -84,7 +88,7 @@ final class MainViewReactor: Reactor {
         var isMeSurvivalUploadedToday: Bool = false
         var isMeMissionUploadedToday: Bool = false
         var isMissionUnlocked: Bool = false
-        
+        @Pulse var isRatingAlertHidden: Bool
         @Pulse var pickedMember: (memberId: String, name: String)? = nil
         
         @Pulse var cameraEnabled: Bool = false
@@ -93,8 +97,6 @@ final class MainViewReactor: Reactor {
         @Pulse var contributor: FamilyRankData = FamilyRankData.empty
         @Pulse var familySection: [FamilySection.Item] = []
     }
-    
-    let initialState: State = State()
     
     @Navigator var navigator: MainNavigatorProtocol
     
@@ -107,6 +109,11 @@ final class MainViewReactor: Reactor {
     @Injected var isFirstFamilyManagementUseCase: IsFirstFamilyManagementUseCaseProtocol
     @Injected var saveIsFirstFamilyManagementUseCase: SaveIsFirstFamilyManagementUseCaseProtocol
     @Injected var saveIsFirstWidgetAlertUseCase: SaveIsFirstWidgetAlertUseCaseProtocol
+    
+    init(isRatingAlertHidden: Bool) {
+        self.initialState = State(isRatingAlertHidden: isRatingAlertHidden)
+    }
+    
 }
 
 extension MainViewReactor {
@@ -191,7 +198,7 @@ extension MainViewReactor {
                 .just(.setCamerEnabled)
             )
             
-        case let .pickConfirmButtonTapped:
+        case .pickConfirmButtonTapped:
             guard let pickedMember = currentState.pickedMember else {
                 return .empty()
             }
@@ -220,6 +227,8 @@ extension MainViewReactor {
                         self.pushViewController(type: .survivalAlert)
                     }
                 }
+            case .navigationRightBarLeftButtonTap:
+                self.pushViewController(type: .notificationViewController)
             case .navigationRightButtonTap:
                 self.pushViewController(type: .monthlyCalendarViewController)
             case .navigationLeftButtonTap:
@@ -243,8 +252,9 @@ extension MainViewReactor {
             
             return checkMissionAlertShowUseCase.execute()
                 .filter { !$0 }
-                .flatMap { isAlreadyShown -> Observable<Mutation> in
-                    self.pushViewController(type: .missionUnlockedAlert)
+                .withUnretained(self)
+                .flatMap { owner, isAlreadyShown -> Observable<Mutation> in
+                    owner.pushViewController(type: .missionUnlockedAlert)
                     return .empty()
                 }
         case .checkIsFirstFamilyManagement:
@@ -290,6 +300,8 @@ extension MainViewReactor {
             newState.isFirstFamilyManagement = isFirst
         case .setPickMember(let id, let name):
             newState.pickedMember = (id, name)
+        case let .setRatingAlert(isRatingHidden):
+            newState.isRatingAlertHidden = isRatingHidden
         }
         
         return newState
@@ -299,6 +311,8 @@ extension MainViewReactor {
 extension MainViewReactor {
     private func pushViewController(type: MainViewReactor.OpenType) {
         switch type {
+        case .notificationViewController:
+            navigator.toNotification()
         case .monthlyCalendarViewController:
             navigator.toMonthlyCalendar()
         case .familyManagementViewController:

@@ -19,6 +19,7 @@ extension MembersAPIWorker {
     /// - Parameters : memberId (조회할 회원 ID)
     /// - Returns : MembersProfileResponseDTO
     func fetchMember(memberId: String) -> Observable<MembersProfileResponseDTO?> {
+        guard !memberId.isEmpty else { return .empty() }
         let spec = MembersAPIs.fetchMember(memberId: memberId).spec
         
         return request(spec)

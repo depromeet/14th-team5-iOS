@@ -15,9 +15,9 @@ public protocol CreatePostUseCaseProtocol {
 
 
 public final class CreatePostUseCase: CreatePostUseCaseProtocol {
-    private let postListRepository: PostListRepositoryProtocol
+    private let postListRepository: PostRepositoryProtocol
     
-    public init(postListRepository: PostListRepositoryProtocol) {
+    public init(postListRepository: PostRepositoryProtocol) {
         self.postListRepository = postListRepository
     }
     

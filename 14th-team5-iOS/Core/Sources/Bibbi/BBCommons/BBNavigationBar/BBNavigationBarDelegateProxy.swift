@@ -36,6 +36,16 @@ extension Reactive where Base: BBNavigationBar {
         return ControlEvent(events: source)
     }
     
+    public var didTapRightBarLeftButton: ControlEvent<UIButton> {
+        let source = delegate.sentMessage(
+            #selector(
+                BBNavigationBarDelegate.navigationBar(_ :didTapRightBarLeftButton:)
+            )
+        ).map { $0[0] as! UIButton }
+        
+        return ControlEvent(events: source)
+    }
+    
     public var didTapRightBarButton: ControlEvent<UIButton> {
         let source = delegate.sentMessage(#selector(BBNavigationBarDelegate.navigationBar(_:didTapRightBarButton:)))
             .map { $0[0] as! UIButton }

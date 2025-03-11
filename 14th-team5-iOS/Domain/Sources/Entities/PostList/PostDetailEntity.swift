@@ -12,6 +12,7 @@ import Foundation
 public struct PostDetailEntity {
     public let postId: String
     public let authorId: String
+    public var author: MemberInfoEntity?
     public let type: PostType
     public let missionId: String?
     public let commentCount: Int
@@ -24,6 +25,7 @@ public struct PostDetailEntity {
     public init(
         postId: String,
         authorId: String,
+        author: MemberInfoEntity?,
         type: PostType,
         missionId: String?,
         commentCount: Int,
@@ -34,6 +36,7 @@ public struct PostDetailEntity {
     ) {
         self.postId = postId
         self.authorId = authorId
+        self.author = author
         self.type = type
         self.missionId = missionId
         self.commentCount = commentCount

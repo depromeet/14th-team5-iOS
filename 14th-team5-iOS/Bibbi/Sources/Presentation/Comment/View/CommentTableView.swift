@@ -23,6 +23,10 @@ public final class CommentTableView: BaseTableView<CommentTableReactor> {
     
     // MARK: - Properties
     
+    deinit {
+        print("☺️Comment TableView deinit☺️")
+    }
+    
     private lazy var progressHud: BBProgressHUD = {
         let config = BBProgressHUDConfiguration(attachedTo: self)
         let viewConfig = BBProgressHUDViewConfiguration(

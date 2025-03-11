@@ -9,7 +9,7 @@ import Foundation
 
 public struct PostEntity: Equatable, Hashable {
     public let postId: String
-    public var author: FamilyMemberProfileEntity
+    public var author: MemberInfoEntity
     public var commentCount: Int
     public let missionId: String?
     public let missionType: String?
@@ -18,7 +18,17 @@ public struct PostEntity: Equatable, Hashable {
     public let content: String?
     public let time: String
     
-    public init(postId: String, missionId: String? = nil, missionType: String? = nil,  author: FamilyMemberProfileEntity, commentCount: Int, emojiCount: Int, imageURL: String, content: String?, time: String) {
+    public init(
+        postId: String,
+        missionId: String? = nil,
+        missionType: String? = nil,
+        author: MemberInfoEntity,
+        commentCount: Int,
+        emojiCount: Int,
+        imageURL: String,
+        content: String?,
+        time: String
+    ) {
         self.postId = postId
         self.missionId = missionId
         self.missionType = missionType

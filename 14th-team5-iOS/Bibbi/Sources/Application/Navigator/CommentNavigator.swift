@@ -16,6 +16,7 @@ protocol CommentNavigatorProtocol: BaseNavigator {
     func showErrorToast()
     func showCommentDeleteToast()
     func showFetchFailureToast()
+    func showCommentErrorToast(_ description: String)
 }
 
 final class CommentNavigator: CommentNavigatorProtocol {
@@ -57,6 +58,17 @@ final class CommentNavigator: CommentNavigatorProtocol {
         BBToast.default(
             image: DesignSystemAsset.warning.image,
             title: "댓글이 삭제되었습니다",
+            viewConfig: viewConfig,
+            config: config
+        ).show()
+    }
+    
+    func showCommentErrorToast(_ description: String) {
+        let config = BBToastConfiguration(direction: .top(yOffset: 75))
+        let viewConfig = BBToastViewConfiguration(minWidth: 100)
+        BBToast.default(
+            image: DesignSystemAsset.warning.image,
+            title: description,
             viewConfig: viewConfig,
             config: config
         ).show()

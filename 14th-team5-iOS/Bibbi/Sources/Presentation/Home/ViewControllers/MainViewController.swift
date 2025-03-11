@@ -15,6 +15,7 @@ import Util
 import RxDataSources
 import RxCocoa
 import RxSwift
+import StoreKit
 
 final class MainViewController: BBNavigationViewController<MainViewReactor>, UICollectionViewDelegateFlowLayout {
     private let familyViewController: MainFamilyViewController = MainFamilyViewControllerWrapper().makeViewController()
@@ -110,7 +111,8 @@ final class MainViewController: BBNavigationViewController<MainViewReactor>, UIC
         
         navigationBar.do {
             $0.leftBarButtonItem = .person(new: false)
-            $0.rightBarButtonItem = .calendar
+            $0.rightBarLeftButtonItem = .alarm
+            $0.rightBarRightButtonItem = .calendar
         }
         
         contributorView.do {
@@ -153,6 +155,8 @@ extension MainViewController {
         Observable.merge(
             contributorView.nextButtonTapEvent.map { Reactor.Action.openNextViewController(.contributorNextButtonTap)},
             cameraButton.camerTapEvent.map { Reactor.Action.openNextViewController(.cameraButtonTap )},
+            navigationBar.rx.didTapRightBarLeftButton.map { _ in
+                Reactor.Action.openNextViewController(.navigationRightBarLeftButtonTap)},
             navigationBar.rx.didTapRightBarButton.map { _ in Reactor.Action.openNextViewController(.navigationRightButtonTap)},
             navigationBar.rx.didTapLeftBarButton.map { _ in Reactor.Action.openNextViewController(.navigationLeftButtonTap)}
         )
@@ -184,6 +188,13 @@ extension MainViewController {
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .bind(onNext: { $0.0.setInTimeView($0.1) })
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$isRatingAlertHidden)
+            .filter { $0 }
+            .bind { _ in
+                SKStoreReviewController.requestReviewInCurrentScene()
+            }
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$familySection)

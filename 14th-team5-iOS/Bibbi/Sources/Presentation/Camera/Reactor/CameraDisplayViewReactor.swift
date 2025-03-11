@@ -20,6 +20,8 @@ public final class CameraDisplayViewReactor: Reactor {
     @Injected private var provider: ServiceProviderProtocol
     @Injected private var createPostUseCase: CreatePostUseCaseProtocol
     @Injected private var createPresignedURLUseCase: CreatePresignedURLUseCaseProtocol
+    @Injected private var fetchUserCreatedAtUseCase: FetchUserCreatedAtInfoUseCaseProtocol
+    @Injected private var createImageUploadUseCase: CreateImageUploadUseCaseProtocol
     @Navigator private var cameraDisplayNavigator: CameraDisplayNavigatorProtocol
     
     public enum Action {
@@ -45,7 +47,7 @@ public final class CameraDisplayViewReactor: Reactor {
     }
     
     public struct State {
-        var isLoading: Bool
+        @Pulse var isLoading: Bool
         var displayDescrption: String
         var cameraType: PostType
         @Pulse var isError: Bool
@@ -83,18 +85,30 @@ public final class CameraDisplayViewReactor: Reactor {
         case .viewDidLoad:
             let fileName = "\(currentState.displayData.hashValue).jpg"
             let body = CreatePostPresignedURLRequest(imageName: fileName)
-            return createPresignedURLUseCase.execute(body: body, imageData: currentState.displayData)
-                .flatMap { presingedURL -> Observable<Mutation> in
-                    return .concat(
-                        .just(.setLoading(false)),
-                        .just(.setDisplayEntity(presingedURL)),
-                        .just(.setError(false)),
-                        .just(.setLoading(true))
-                    )
-                }.catchError(with: self) { owner, _ in
-                    owner.cameraDisplayNavigator.showErrorAlert()
-                    return .empty()
-                }
+            return .concat(
+                .just(.setLoading(false)),
+                createPresignedURLUseCase.execute(body: body)
+                    .withUnretained(self)
+                    .flatMap { owner, presingedURL -> Observable<Mutation> in
+                        guard let remoteURL = presingedURL?.imageURL else {
+                            return .just(.setLoading(false))
+                        }
+                        return owner.createImageUploadUseCase.execute(remoteURL, with: owner.currentState.displayData)
+                            .flatMap { isSuccess -> Observable<Mutation> in
+                                return .concat(
+                                    .just(.setDisplayEntity(presingedURL)),
+                                    .just(.setLoading(true))
+                                )
+                                
+                            }.catchError(with: self) { owner, _ in
+                                owner.cameraDisplayNavigator.showErrorAlert()
+                                return .empty()
+                            }
+                    }.catchError(with: self) { owner, _ in
+                        owner.cameraDisplayNavigator.showErrorAlert()
+                        return .empty()
+                    }
+            )
  
         case let .fetchDisplayImage(description):
             return .concat(
@@ -137,6 +151,11 @@ public final class CameraDisplayViewReactor: Reactor {
             
             let query = CreatePostQuery(type: currentState.cameraType.rawValue)
             let body = CreatePostRequest(imageUrl: remoteURL, content: currentState.displayDescrption, uploadTime: DateFormatter.yyyyMMddTHHmmssXXX.string(from: .now))
+            let refreshMainObservable = Observable<Mutation>.concat(
+                .just(.setError(false)),
+                provider.mainService.refreshMain()
+                    .flatMap { _ in Observable<Mutation>.empty() }
+            )
         
             return createPostUseCase.execute(query: query, body: body)
                 .withUnretained(self)
@@ -144,12 +163,16 @@ public final class CameraDisplayViewReactor: Reactor {
                     if entity == nil  {
                         return .just(.setError(true))
                     } else {
-                        owner.cameraDisplayNavigator.toHome()
-                        return .concat(
-                            .just(.setError(false)),
-                            owner.provider.mainService.refreshMain()
-                                .flatMap { _ in Observable<Mutation>.empty() }
-                        )
+                        if owner.currentState.cameraType == .survival {
+                            return owner.fetchUserCreatedAtUseCase.execute()
+                                .flatMap { isRatingHidden -> Observable<Mutation> in
+                                    owner.cameraDisplayNavigator.toHome(isRatingHidden)
+                                    return refreshMainObservable
+                                }
+                        } else {
+                            owner.cameraDisplayNavigator.toHome(false)
+                            return refreshMainObservable
+                        }
                     }
                 }.catchError(with: self) { owner, _ in
                     owner.cameraDisplayNavigator.showErrorAlert()

@@ -27,6 +27,7 @@ protocol MainNavigatorProtocol: BaseNavigator {
     func toDailyCalendar(_ date: String)
     func toFamilyManagement()
     func toMonthlyCalendar()
+    func toNotification()
 }
 
 final class MainNavigator: MainNavigatorProtocol {
@@ -54,6 +55,7 @@ final class MainNavigator: MainNavigatorProtocol {
     func missionUnlockedAlert() {
         let handler: BBAlertActionHandler = { [weak self] alert in
             self?.toCamera(.survival)
+            alert?.close()
         }
         BBAlert.style(.takePhoto, primaryAction: handler).show()
     }
@@ -86,4 +88,8 @@ final class MainNavigator: MainNavigatorProtocol {
         navigationController.pushViewController(vc, animated: true)
     }
     
+    func toNotification() {
+        let vc = NotificationViewControllerWrapper().viewController
+        navigationController.pushViewController(vc, animated: true)
+    }
 }

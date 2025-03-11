@@ -254,7 +254,7 @@ extension FamilyNameSettingViewController {
     
     private func updateNavigationBarLayout(isUpdate: Bool) {
         navigationBar.leftBarButtonItem = .arrowLeft
-        navigationBar.rightBarButtonItem = isUpdate == true ? .none : .refresh
+        navigationBar.rightBarRightButtonItem = isUpdate == true ? .none : .refresh
     }
 }
 

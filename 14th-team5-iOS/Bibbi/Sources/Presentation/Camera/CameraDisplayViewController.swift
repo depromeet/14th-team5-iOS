@@ -376,9 +376,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .disposed(by: disposeBag)
         
         
-        reactor.state
-            .map { $0.isLoading }
-            .distinctUntilChanged()
+        reactor.pulse(\.$isLoading)
             .asDriver(onErrorJustReturn: false)
             .drive(displayIndicatorView.rx.isHidden)
             .disposed(by: disposeBag)

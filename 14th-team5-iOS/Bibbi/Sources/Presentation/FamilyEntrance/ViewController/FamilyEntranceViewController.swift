@@ -157,7 +157,7 @@ extension FamilyEntranceViewController {
         }
     }
     
-    private func setProfileStackView(profiles: [FamilyMemberProfileEntity]) {
+    private func setProfileStackView(profiles: [MemberInfoEntity]) {
         profileStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         
         let displayProfiles = profiles.prefix(3)

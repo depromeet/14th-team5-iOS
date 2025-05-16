@@ -71,7 +71,7 @@ extension Requestable {
         
         urlRequest.headers = headers.asHTTPHeaders
         urlRequest.httpMethod = method.asHTTPMethod.rawValue
-        urlRequest.timeoutInterval = 10
+        urlRequest.timeoutInterval = 60
         return urlRequest
     }
     

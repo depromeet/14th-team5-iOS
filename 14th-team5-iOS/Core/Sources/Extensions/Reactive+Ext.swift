@@ -139,7 +139,12 @@ public extension Reactive where Base: BBRecorderManager {
             guard let base = base else { return Disposables.create() }
             var decibles: [CGFloat] = []
             
-            base.inputNode.installTap(onBus: 0, bufferSize: 1024, format: base.inputNode.inputFormat(forBus: 0)) { buffer, time in
+            let engine = AVAudioEngine()
+            let inputNode = engine.inputNode
+            let inputFormat = inputNode.outputFormat(forBus: 0)
+            let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: inputFormat.sampleRate, channels: inputFormat.channelCount, interleaved: true)
+            
+            base.inputNode.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, time in
                 let normlizedDecibel = buffer.normalizeDecible()
                 decibles.append(CGFloat(normlizedDecibel))
     

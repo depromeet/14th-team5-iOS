@@ -14,7 +14,7 @@ import Domain
 final class MainDeepLink: DeepLinkProtocol {
     enum MainDeepLinkType {
         case openMain
-        case openMission
+        case openMissionAlert
     }
     
     var type: MainDeepLinkType?
@@ -27,7 +27,7 @@ final class MainDeepLink: DeepLinkProtocol {
             $0.name == "openMission"})?.value {
             
             if isMission == "true" {
-                type = .openMission
+                type = .openMissionAlert
             } else {
                 type = .openMain
             }
@@ -40,7 +40,7 @@ final class MainDeepLink: DeepLinkProtocol {
         }
         
         switch type {
-        case .openMission: openMission()
+        case .openMissionAlert: openMission()
         case .openMain: popToMain()
         }
     }
@@ -59,11 +59,15 @@ extension MainDeepLink {
     // 임시로 홈화면에서 Mission alert 띄우기로 개발되어있음
     private func openMission() {
         popToMain()
-        
+
         let handler: BBAlertActionHandler = { [weak self] alert in
             self?.toCamera(.mission)
         }
-        BBAlert.style(.mission, primaryAction: handler).show()
+        
+        BBAlert.style(
+            .mission,
+            primaryAction: handler
+        ).show()
     }
     
     func toCamera(_ type: UploadLocation) {

@@ -12,6 +12,13 @@ import CryptoKit
 extension String {
     public static var none: String { "" }
     public static var unknown: String { "알 수 없음" }
+    
+    public static var today: String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale.current
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        return dateFormatter.string(from: Date())
+    }
 }
 
 extension String {

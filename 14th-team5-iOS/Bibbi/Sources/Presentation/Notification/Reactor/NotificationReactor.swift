@@ -19,14 +19,12 @@ final class NotificationReactor: Reactor {
     }
     
     enum Mutation {
-        case setNotificationDataSource([NotificationCellReactor])
+        case setNotificationDataSource([NotificationCellReactor]?)
     }
     
     struct State {
-        @Pulse var notificationDataSource: [NotificationSectionModel] = [.init(
-            model: (),
-            items: []
-        )]
+        var isShowEmptyCase: Bool?
+        @Pulse var notificationDataSource: [NotificationSectionModel]? = nil
     }
     
     var initialState: State = .init()
@@ -49,10 +47,16 @@ extension NotificationReactor {
         var newState = state
         
         switch mutation {
-            
         case let .setNotificationDataSource(items):
-            let dataSource = NotificationSectionModel(model: (), items: items)
-            newState.notificationDataSource = [dataSource]
+            if let items,
+               !items.isEmpty {
+                let dataSource = NotificationSectionModel(model: (), items: items)
+                newState.notificationDataSource = [dataSource]
+                newState.isShowEmptyCase = false
+            } else {
+                newState.notificationDataSource = nil
+                newState.isShowEmptyCase = true
+            }
         }
         
         return newState
@@ -70,18 +74,29 @@ extension NotificationReactor {
                 }
                 return .just(.setNotificationDataSource(items))
             }
+            .catchAndReturn(.setNotificationDataSource(nil))
     }
     
     func didTapNotificationCell(
         _ item: NotificationCellReactor
     ) -> Observable<Mutation> {
-        guard let link = item.initialState.notification.deepLink else {
+        let noti = item.currentState.notification
+        
+        guard let link = noti.deepLink else {
             return .empty()
         }
         
-        DeepLinkHandler(
-            urlString: link
-        ).execute()
+        let deepLinkHandler = DeepLinkHandler(urlString: link)
+        
+        if let deepLink = deepLinkHandler.deepLink as? MainDeepLink,
+           let date = noti.createdAt.toDate() {
+            if deepLink.type == .openMissionAlert && date < Date() {
+                return .empty()
+            }
+        }
+        
+        deepLinkHandler.execute()
+        
         return .empty()
     }
 }

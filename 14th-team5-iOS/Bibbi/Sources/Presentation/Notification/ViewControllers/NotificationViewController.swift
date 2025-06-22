@@ -177,6 +177,9 @@ final class NotificationViewController: BBNavigationViewController<NotificationR
     private typealias RxDataSource = RxTableViewSectionedReloadDataSource<NotificationSectionModel>
     
     private let dividerView: UIView = UIView()
+    private let emptyView: BBEmptyView = BBEmptyView(configure: .init(
+        text: "아직 알림이 없어요\n생일, 댓글 등 소식이 있으면 알려드릴게요")
+    )
     private lazy var tableView: UITableView = UITableView()
     private lazy var footerView: UITableViewHeaderFooterView = UITableViewHeaderFooterView()
     
@@ -201,7 +204,9 @@ final class NotificationViewController: BBNavigationViewController<NotificationR
     override func setupUI() {
         super.setupUI()
         
-        contentView.addSubview(tableView)
+        contentView.addSubviews(
+            tableView
+        )
     }
     
     override func setupAutoLayout() {
@@ -236,6 +241,10 @@ final class NotificationViewController: BBNavigationViewController<NotificationR
             
             $0.backgroundColor = .clear
             $0.separatorStyle = .none
+            
+            $0.tableFooterView = NotificationFooterView(
+                reuseIdentifier: NotificationFooterView.id
+            )
         }
     }
 }
@@ -258,20 +267,44 @@ extension NotificationViewController {
     
     private func bindOutput(reactor: Reactor) {
         reactor.pulse(\.$notificationDataSource)
+            .observe(on: MainScheduler.instance)
+            .compactMap { $0 }
             .bind(to: tableView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.isShowEmptyCase }.compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .bind(onNext: {
+                $0.1 ? $0.0.addEmptyView() : $0.0.removeEmptyView()
+            })
             .disposed(by: disposeBag)
     }
 }
 
-extension NotificationViewController: UITableViewDelegate {
-    func tableView(
-        _ tableView: UITableView,
-        viewForFooterInSection section: Int
-    ) -> UIView? {
-        let view = NotificationFooterView(
-            reuseIdentifier: NotificationFooterView.id
-        )
+extension NotificationViewController {
+    private func addEmptyView() {
+        contentView.addSubview(emptyView)
         
-        return view
+        emptyView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
     }
+    
+    private func removeEmptyView() {
+        emptyView.removeFromSuperview()
+    }
+}
+
+extension NotificationViewController: UITableViewDelegate {
+//    func tableView(
+//        _ tableView: UITableView,
+//        viewForFooterInSection section: Int
+//    ) -> UIView? {
+//        let view = NotificationFooterView(
+//            reuseIdentifier: NotificationFooterView.id
+//        )
+//        
+//        return view
+//    }
 }

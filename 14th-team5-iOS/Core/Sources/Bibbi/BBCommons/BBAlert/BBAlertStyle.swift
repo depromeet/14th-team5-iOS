@@ -25,6 +25,7 @@ extension BBAlert {
         case picking(name: String)
         case takePhoto
         case uploadFailed
+        case photoDisabled
     }
     
 }

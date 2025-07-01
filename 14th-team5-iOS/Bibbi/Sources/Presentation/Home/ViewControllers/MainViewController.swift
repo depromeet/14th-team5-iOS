@@ -85,7 +85,7 @@ final class MainViewController: BBNavigationViewController<MainViewReactor>, UIC
         contributorView.snp.makeConstraints {
             $0.top.equalTo(descriptionLabel.snp.bottom).offset(20)
             $0.horizontalEdges.equalToSuperview()
-            $0.bottom.equalToSuperview()
+            $0.bottom.equalTo(cameraButton.snp.top).offset(50)
         }
         
         segmentControl.snp.makeConstraints {
@@ -213,10 +213,20 @@ extension MainViewController {
             })
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$cameraEnabled)
+        reactor.pulse(\.$isCameraDisabled)
+            .map { $0 }
             .distinctUntilChanged()
-            .bind(to: cameraButton.cameraEnabledRelay)
+            .bind(to: cameraButton.cameraAlphaRelay)
             .disposed(by: disposeBag)
+        
+        Observable.combineLatest(
+            reactor.pulse(\.$cameraEnabled),
+            reactor.pulse(\.$cameraState)
+        )
+        .map { $0.1 == .midNight ? !$0.0 : $0.0}
+        .distinctUntilChanged()
+        .bind(to: cameraButton.cameraEnabledRelay)
+        .disposed(by: disposeBag)
         
         reactor.state.map { $0.balloonText }
             .distinctUntilChanged { $0.message }

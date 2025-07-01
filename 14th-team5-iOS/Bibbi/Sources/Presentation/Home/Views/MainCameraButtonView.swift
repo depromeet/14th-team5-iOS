@@ -20,6 +20,7 @@ final class MainCameraButtonView: BaseView<MainCameraReactor> {
     
     let textRelay: BehaviorRelay<BalloonText> = BehaviorRelay(value: .survivalStandard)
     let cameraEnabledRelay: BehaviorRelay<Bool> = BehaviorRelay(value: false)
+    let cameraAlphaRelay: PublishRelay<Bool> = PublishRelay()
     
     var camerTapEvent: ControlEvent<Void> {
         return cameraButton.rx.tap
@@ -70,11 +71,18 @@ extension MainCameraButtonView {
             .bind(to: balloonView.balloonTypeRelay)
             .disposed(by: disposeBag)
         
+        cameraAlphaRelay
+            .withUnretained(self)
+            .observe(on: MainScheduler.instance)
+            .bind(with: self) {
+                $0.alpha = $1.1 ? 1 : 0.5
+            }
+            .disposed(by: disposeBag)
+        
         cameraEnabledRelay
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .bind(onNext: {
-                $0.0.alpha = $0.1 ? 1 : 0.5
                 $0.0.isUserInteractionEnabled = $0.1
             })
             .disposed(by: disposeBag)

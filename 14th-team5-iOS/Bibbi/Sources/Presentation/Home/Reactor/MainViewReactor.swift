@@ -19,6 +19,13 @@ import Kingfisher
 final class MainViewReactor: Reactor {
     var initialState: State
     
+    
+    //MARK: CameraButton State
+    enum CameraState {
+        case noon
+        case midNight
+    }
+    
     enum TapAction {
         case cameraButtonTap
         case navigationRightBarLeftButtonTap
@@ -28,6 +35,7 @@ final class MainViewReactor: Reactor {
     }
     
     enum OpenType {
+        case photoUploadDisabledAlert
         case cameraViewController(UploadLocation)
         case survivalAlert
         case pickAlert(String, String)
@@ -61,6 +69,8 @@ final class MainViewReactor: Reactor {
         case updateMainData(MainViewEntity)
         case updateMainNight(NightMainViewEntity)
         case setRatingAlert(Bool)
+        case setEnabeldCamera(Bool)
+        case setCameraType(CameraState)
         case setInTime(Bool)
         case setPageIndex(Int)
         case setCamerEnabled
@@ -91,7 +101,9 @@ final class MainViewReactor: Reactor {
         @Pulse var isRatingAlertHidden: Bool
         @Pulse var pickedMember: (memberId: String, name: String)? = nil
         
+        @Pulse var cameraState: CameraState = .noon
         @Pulse var cameraEnabled: Bool = false
+        @Pulse var isCameraDisabled: Bool = false
         
         @Pulse var pickers: [Picker] = []
         @Pulse var contributor: FamilyRankData = FamilyRankData.empty
@@ -175,16 +187,21 @@ extension MainViewReactor {
                     }
             }
         case .calculateTime:
+            //MARK: 정오타임 관련 Mutation
             let (isInTime, time) = self.calculateRemainingTime()
             if isInTime {
                 return Observable.concat([
                     .just(.setInTime(true)),
+                    .just(.setCameraType(.noon)),
                     self.mutate(action: .fetchMainUseCase),
                     self.mutate(action: .setTimer(isInTime, time))
                 ])
             } else {
+                //MARK: 자정타임 관련 Mutation
                 return Observable.concat([
                     .just(.setInTime(false)),
+                    .just(.setEnabeldCamera(false)),
+                    .just(.setCameraType(.midNight)),
                     self.mutate(action: .fetchMainNightUseCase),
                     self.mutate(action: .setTimer(isInTime, time))
                 ])
@@ -219,7 +236,11 @@ extension MainViewReactor {
             switch type {
             case .cameraButtonTap:
                 if currentState.pageIndex == 0 {
-                    self.pushViewController(type: .cameraViewController(.survival))
+                    if currentState.isInTime == false && currentState.isCameraDisabled  == false {
+                        self.pushViewController(type: .photoUploadDisabledAlert)
+                    } else {
+                        self.pushViewController(type: .cameraViewController(.survival))
+                    }
                 } else {
                     if currentState.isMeSurvivalUploadedToday {
                         self.pushViewController(type: .cameraViewController(.mission))
@@ -302,6 +323,10 @@ extension MainViewReactor {
             newState.pickedMember = (id, name)
         case let .setRatingAlert(isRatingHidden):
             newState.isRatingAlertHidden = isRatingHidden
+        case let .setEnabeldCamera(isEnabled):
+            newState.cameraEnabled = isEnabled
+        case let .setCameraType(cameraState):
+            newState.cameraState = cameraState
         }
         
         return newState
@@ -311,6 +336,8 @@ extension MainViewReactor {
 extension MainViewReactor {
     private func pushViewController(type: MainViewReactor.OpenType) {
         switch type {
+        case .photoUploadDisabledAlert:
+            navigator.showPhotoDisabledAlert()
         case .notificationViewController:
             navigator.toNotification()
         case .monthlyCalendarViewController:
@@ -371,7 +398,6 @@ extension MainViewReactor {
     
     private func setCameraEnabled(_ state: State) -> State {
         var newState = state
-        
         if currentState.pageIndex == 0 {
             newState.cameraEnabled = !currentState.isMeSurvivalUploadedToday
         } else {
@@ -381,6 +407,7 @@ extension MainViewReactor {
                 newState.cameraEnabled = false
             }
         }
+        newState.isCameraDisabled = newState.cameraEnabled
         
         return newState
     }

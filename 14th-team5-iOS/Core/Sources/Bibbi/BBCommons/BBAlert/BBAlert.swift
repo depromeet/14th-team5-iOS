@@ -324,6 +324,27 @@ public class BBAlert {
                 viewConfig: viewConfig
             )
             return BBAlert(view: view, actions: actions, config: config)
+        case .photoDisabled:
+            let actions = [
+                BBAlertAction(title: "돌아가기", handler: primaryHandler),
+            ]
+            
+            let viewConfig = BBAlertViewConfiguration(
+                minHeight: 384,
+                buttonAxis: .vertical
+            )
+            
+            let view = DefaultAlertView(
+                child: ImageAlertView(
+                    image: DesignSystemAsset.photoUploadDisabled.image,
+                    title: "지금은 사진 업로드가 어려워요",
+                    subtitle: "사진은 매일 오전 10시부터\n 자정까지 업로드할 수 있어요.",
+                    viewConfig: viewConfig
+                ),
+                viewConfig: viewConfig
+            )
+            
+            return BBAlert(view: view, actions: actions, config: config)
         }
     }
     

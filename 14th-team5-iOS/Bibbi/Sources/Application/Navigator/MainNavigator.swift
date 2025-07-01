@@ -17,7 +17,7 @@ protocol MainNavigatorProtocol: BaseNavigator {
     func pickAlert(_ name: String)
     func showWidgetAlert()
     func missionUnlockedAlert()
-    
+    func showPhotoDisabledAlert()
     
     // toast
     func showToast(_ image: UIImage?, _ message: String)
@@ -50,6 +50,10 @@ final class MainNavigator: MainNavigatorProtocol {
     
     func pickAlert(_ name: String) {
         BBAlert.style(.picking(name: name)).show()
+    }
+    
+    func showPhotoDisabledAlert() {
+        BBAlert.style(.photoDisabled).show()
     }
     
     func missionUnlockedAlert() {

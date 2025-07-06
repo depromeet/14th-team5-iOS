@@ -96,7 +96,6 @@ extension NotificationReactor {
         }
         
         deepLinkHandler.execute()
-        
         return .empty()
     }
 }

@@ -59,7 +59,6 @@ extension MainDeepLink {
     // 임시로 홈화면에서 Mission alert 띄우기로 개발되어있음
     private func openMission() {
         popToMain()
-
         let handler: BBAlertActionHandler = { [weak self] alert in
             self?.toCamera(.mission)
         }

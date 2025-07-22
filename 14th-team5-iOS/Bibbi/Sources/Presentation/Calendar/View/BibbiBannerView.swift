@@ -1,5 +1,5 @@
 //
-//  BannerView.swift
+//  BibbiBannerView.swift
 //  App
 //
 //  Created by 김건우 on 1/26/24.
@@ -8,7 +8,7 @@
 import DesignSystem
 import SwiftUI
 
-struct BannerView: View {
+struct BibbiBannerView: View {
     
     // MARK: - Mertic
     
@@ -58,7 +58,7 @@ struct BannerView: View {
 
 // MARK: - Extensions
 
-extension BannerView {
+extension BibbiBannerView {
     var banner: some View {
         VStack {
             bannerMainStrings
@@ -134,6 +134,6 @@ struct BannerView_Previews: PreviewProvider {
     )
     
     static var previews: some View {
-        return BannerView(viewModel: viewModel)
+        return BibbiBannerView(viewModel: viewModel)
     }
 }

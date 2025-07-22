@@ -9,13 +9,13 @@ import SwiftUI
 
 import Then
 
-final class BannerHostingViewController: UIHostingController<BannerView> {
+final class BannerHostingViewController: UIHostingController<BibbiBannerView> {
     
     private let _viewModel: BannerViewModel
     
     init(reactor: MemoriesCalendarPageReactor?) {
         self._viewModel = BannerViewModel(reactor: reactor, state: .init())
-        super.init(rootView: BannerView(viewModel: _viewModel))
+        super.init(rootView: BibbiBannerView(viewModel: _viewModel))
         
         self.view.backgroundColor = UIColor.clear
     }

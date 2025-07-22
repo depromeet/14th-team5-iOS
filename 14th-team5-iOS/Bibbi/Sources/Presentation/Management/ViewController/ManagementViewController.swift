@@ -7,6 +7,7 @@
 
 import Core
 import DesignSystem
+import GoogleMobileAds
 import UIKit
 import Util
 
@@ -32,7 +33,7 @@ public final class ManagementViewController: BBNavigationViewController<Manageme
     
     private lazy var memberTableHeaderView: ManagementTableHeaderView = makeMengementTableHeaderView()
     private lazy var memberTableView: ManagementTableView = makeManagementTableView()
-    
+    private let memberBannerView: BannerView = BannerView()
     
     // MARK: - Properties
     
@@ -133,11 +134,17 @@ public final class ManagementViewController: BBNavigationViewController<Manageme
     public override func setupUI() {
         super.setupUI()
         
-        view.addSubviews(sharingContainerView, divider, memberTableHeaderView, memberTableView)
+        view.addSubviews(sharingContainerView, memberBannerView, divider, memberTableHeaderView, memberTableView)
     }
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
+        
+        memberBannerView.snp.makeConstraints {
+            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(37)
+            $0.height.equalTo(50)
+        }
         
         sharingContainerView.snp.makeConstraints {
             $0.top.equalTo(navigationBar.snp.bottom).offset(24)
@@ -166,6 +173,11 @@ public final class ManagementViewController: BBNavigationViewController<Manageme
     
     public override func setupAttributes() {
         super.setupAttributes()
+        
+        memberBannerView.do {
+            $0.adUnitID = "ca-app-pub-7835112884789455/6386303114"
+            $0.load(Request())
+        }
         
         navigationBar.do {
             $0.navigationTitle = "가족"

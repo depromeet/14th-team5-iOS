@@ -9,6 +9,7 @@ import UIKit
 
 import Core
 import DesignSystem
+import GoogleMobileAds
 import Util
 import Photos
 import RxDataSources
@@ -21,6 +22,7 @@ import SnapKit
 public final class CameraDisplayViewController: BaseViewController<CameraDisplayViewReactor> {
     //MARK: Views
     private let displayView: UIImageView = UIImageView()
+    private let displayBannerView: BannerView = BannerView()
     private let missionDisplayView: BibbiMissionView = BibbiMissionView()
     private let confirmButton: UIButton = UIButton(configuration: .plain())
     private let displayIndicatorView: BibbiLoadingView = BibbiLoadingView()
@@ -81,6 +83,11 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
             $0.isUserInteractionEnabled = true
+        }
+        
+        displayBannerView.do {
+            $0.adUnitID = "ca-app-pub-7835112884789455/6386303114"
+            $0.load(Request())
         }
         
         displayEditButton.do {
@@ -150,6 +157,12 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             $0.top.equalTo(navigationBarView.snp.bottom).offset(26)
             $0.left.right.equalToSuperview()
             $0.height.equalTo(46)
+        }
+        
+        displayBannerView.snp.makeConstraints {
+            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(37)
+            $0.height.equalTo(50)
         }
         
         displayEditTextField.snp.makeConstraints {

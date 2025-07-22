@@ -9,7 +9,9 @@ import CompilerPluginSupport
         // Customize the product types for specific package product
         // Default is .staticFramework
         // productTypes: ["Alamofire": .framework,] 
-        productTypes: ["Macros": .macro],
+        productTypes: [
+            "Macros": .macro,
+        ],
         baseSettings: .settings(configurations: [
             .debug(name: .configuration("DEV")),
             .release(name: .configuration("PRD"))
@@ -17,9 +19,12 @@ import CompilerPluginSupport
     )
 #endif
 
+
+
 let package = Package(
     name: "Bibbi",
     dependencies: [
+        .package(url: "https://github.com/googleads/swift-package-manager-google-mobile-ads.git", from: "12.6.0"),
         .package(url: "https://github.com/ReactiveX/RxSwift.git", from: "6.6.0"),
         .package(url: "https://github.com/SnapKit/SnapKit.git", from: "5.6.0"),
         .package(url: "https://github.com/devxoul/Then.git", from: "3.0.0"),

@@ -8,6 +8,7 @@
 import UIKit
 import Core
 import Domain
+import GoogleMobileAds
 import Util
 
 import RxDataSources
@@ -15,6 +16,7 @@ import RxSwift
 import RxCocoa
 
 final class PostViewController: BaseViewController<PostReactor> {
+    private let postBannerView: BannerView = BannerView()
     private let backgroundImageView: UIImageView = UIImageView()
     private let blurEffectView: UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffect.Style.dark))
     private var navigationView: PostNavigationView = PostNavigationView()
@@ -134,7 +136,7 @@ final class PostViewController: BaseViewController<PostReactor> {
         
         addChild(reactionViewController)
                 
-        view.addSubviews(backgroundImageView, blurEffectView, navigationView,
+        view.addSubviews(backgroundImageView, postBannerView, blurEffectView, navigationView,
                          collectionView, reactionViewController.view)
         
         reactionViewController.didMove(toParent: self)
@@ -166,10 +168,22 @@ final class PostViewController: BaseViewController<PostReactor> {
             $0.top.equalTo(collectionView.snp.bottom)
             $0.horizontalEdges.bottom.equalTo(view.safeAreaLayoutGuide)
         }
+        
+        postBannerView.snp.makeConstraints {
+            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(37)
+            $0.height.equalTo(50)
+        }
+        
     }
     
     override func setupAttributes() {
         super.setupAttributes()
+        
+        postBannerView.do {
+            $0.adUnitID = "ca-app-pub-7835112884789455/6386303114"
+            $0.load(Request())
+        }
         
         blurEffectView.do {
             $0.frame = backgroundImageView.bounds

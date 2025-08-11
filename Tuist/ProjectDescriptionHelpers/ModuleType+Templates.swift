@@ -43,6 +43,8 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
             return [
                 .target(name: "WidgetExtension"),
                 .external(name: "FirebaseMessaging"),
+                .sdk(name: "JavaScriptCore", type: .framework),
+                .external(name: "GoogleMobileAds", condition: .when(.all)),
                 .external(name: "Mixpanel"),
                 .external(name: "RxDataSources"),
                 .with(.Util),

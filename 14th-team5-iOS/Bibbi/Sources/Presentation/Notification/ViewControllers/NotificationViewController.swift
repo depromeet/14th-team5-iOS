@@ -7,6 +7,7 @@
 
 import Core
 import UIKit
+import GoogleMobileAds
 
 import RxSwift
 import RxDataSources
@@ -175,6 +176,7 @@ extension NotificationCell {
 
 final class NotificationViewController: BBNavigationViewController<NotificationReactor> {
     private typealias RxDataSource = RxTableViewSectionedReloadDataSource<NotificationSectionModel>
+    private let bannerView: BannerView = BannerView()
     
     private let dividerView: UIView = UIView()
     private let emptyView: BBEmptyView = BBEmptyView(configure: .init(
@@ -223,6 +225,11 @@ final class NotificationViewController: BBNavigationViewController<NotificationR
         navigationBar.do {
             $0.navigationTitle = "알림"
             $0.leftBarButtonItem = .arrowLeft
+        }
+        
+        bannerView.do {
+            $0.adUnitID = "ca-app-pub-7835112884789455/6386303114"
+            $0.load(Request())
         }
         
         tableView.do {
@@ -286,9 +293,18 @@ extension NotificationViewController {
     private func addEmptyView() {
         contentView.addSubview(emptyView)
         
+        emptyView.addSubview(bannerView)
+        
         emptyView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
+        
+        bannerView.snp.makeConstraints {
+            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(37)
+            $0.height.equalTo(50)
+        }
+        
     }
     
     private func removeEmptyView() {

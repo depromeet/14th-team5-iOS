@@ -9,6 +9,7 @@ import AVFoundation
 import UIKit
 
 import Core
+import GoogleMobileAds
 import Util
 import DesignSystem
 import ReactorKit
@@ -30,6 +31,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     
     //MARK: Views
     private let missionView: BibbiMissionView = BibbiMissionView()
+    private let rewardBannerView: BannerView = BannerView()
     private let cameraView: UIView = UIView()
     private let shutterButton: UIButton = UIButton()
     private let flashButton: UIButton = UIButton.createCircleButton(radius: 24)
@@ -68,7 +70,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     public override func setupUI() {
         super.setupUI()
         realEmojiFaceView.addSubview(realEmojiFaceImageView)
-        view.addSubviews(cameraView, missionView ,shutterButton, flashButton, toggleButton, realEmojiFaceView, realEmojiHorizontalStakView, realEmojiCollectionView ,cameraIndicatorView)
+        view.addSubviews(cameraView, rewardBannerView, missionView ,shutterButton, flashButton, toggleButton, realEmojiFaceView, realEmojiHorizontalStakView, realEmojiCollectionView ,cameraIndicatorView)
     }
     
     public override func setupAttributes() {
@@ -76,6 +78,11 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
         
         navigationBarView.do {
             $0.setNavigationView(leftItem: .xmark, rightItem: .empty)
+        }
+        
+        rewardBannerView.do {
+            $0.adUnitID = "ca-app-pub-7835112884789455/6386303114"
+            $0.load(Request())
         }
         
         realEmojiDescriptionLabel.do {
@@ -204,6 +211,13 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             $0.centerX.equalTo(shutterButton)
             $0.height.equalTo(60)
         }
+        
+        rewardBannerView.snp.makeConstraints {
+            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(37)
+            $0.height.equalTo(50)
+        }
+        
         
     }
     

@@ -9,11 +9,11 @@ import Core
 import Data
 import Domain
 import UIKit
-
 import AuthenticationServices
 import Firebase
 import FirebaseCore
 import FirebaseMessaging
+import GoogleMobileAds
 import KakaoSDKAuth
 import RxKakaoSDKAuth
 import RxKakaoSDKCommon
@@ -43,6 +43,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         appleApp(application, didFinishLauchingWithOptions: launchOptions)
         
         FirebaseApp.configure()
+        MobileAds.shared.start()
         mixpanelApp(application, didFinishLaunchingWithOptions: launchOptions)
         setupUserNotificationCenter(application)
         removeKeychainAtFirstLaunch()

@@ -8,5 +8,5 @@
 import Foundation
 
 public protocol WidgetRepositoryProtocol {
-    func fetchRecentFamilyPost(completion: @escaping (Result<WidgetPostEntity, Error>) -> Void)
+    func fetchRecentFamilyPost(date: String, completion: @escaping (Result<WidgetPostEntity, Error>) -> Void)
 }

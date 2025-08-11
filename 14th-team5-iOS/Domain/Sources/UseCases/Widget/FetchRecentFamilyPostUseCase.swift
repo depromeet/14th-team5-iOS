@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol FetchRecentFamilyPostUseCaseProtocol {
-    func excute(completion: @escaping (Result<WidgetPostEntity, Error>) -> Void)
+    func excute(date: String, completion: @escaping (Result<WidgetPostEntity, Error>) -> Void)
 }
 
 public class FetchRecentFamilyPostUseCase: FetchRecentFamilyPostUseCaseProtocol {
@@ -18,7 +18,11 @@ public class FetchRecentFamilyPostUseCase: FetchRecentFamilyPostUseCaseProtocol 
         self.widgetRepository = widgetRepository
     }
     
-    public func excute(completion: @escaping (Result<WidgetPostEntity, Error>) -> Void) {
-        return widgetRepository.fetchRecentFamilyPost(completion: completion)
+    public func excute(
+        date: String,
+        completion: @escaping (Result<WidgetPostEntity, Error>
+        ) -> Void
+    ) {
+        return widgetRepository.fetchRecentFamilyPost(date: date, completion: completion)
     }
 }

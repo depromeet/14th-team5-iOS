@@ -24,7 +24,6 @@ final class MainViewController: BBNavigationViewController<MainViewReactor>, UIC
     private let timerView: TimerView = TimerView(reactor: TimerReactor())
     private let descriptionLabel: BBLabel = BBLabel(.body2Regular, textAlignment: .center, textColor: .gray300)
     private let imageView: UIImageView = UIImageView()
-    private let googleBannerView: BannerView = BannerView()
     
     private let contributorView: ContributorView = ContributorView(reactor: ContributorReactor())
     private let segmentControl: BibbiSegmentedControl = BibbiSegmentedControl()
@@ -49,7 +48,7 @@ final class MainViewController: BBNavigationViewController<MainViewReactor>, UIC
         addChild(familyViewController)
         addChild(pageViewController)
         
-        contentView.addSubviews(familyViewController.view, googleBannerView, timerView, descriptionLabel,
+        contentView.addSubviews(familyViewController.view, timerView, descriptionLabel,
                                 imageView, segmentControl, pageViewController.view,
                                 cameraButton, contributorView)
         
@@ -66,16 +65,10 @@ final class MainViewController: BBNavigationViewController<MainViewReactor>, UIC
             $0.height.equalTo(138)
         }
         
-        googleBannerView.snp.makeConstraints {
+        timerView.snp.makeConstraints {
             $0.top.equalTo(familyViewController.view.snp.bottom).offset(16)
             $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(37)
             $0.height.equalTo(50)
-        }
-        
-        timerView.snp.makeConstraints {
-            $0.top.equalTo(googleBannerView.snp.bottom)
-            $0.height.equalTo(50)
-            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
         }
         
         descriptionLabel.snp.makeConstraints {
@@ -121,11 +114,6 @@ final class MainViewController: BBNavigationViewController<MainViewReactor>, UIC
             $0.leftBarButtonItem = .person(new: false)
             $0.rightBarLeftButtonItem = .alarm
             $0.rightBarRightButtonItem = .calendar
-        }
-        
-        googleBannerView.do {
-            $0.adUnitID = "ca-app-pub-7835112884789455/6386303114"
-            $0.load(Request())
         }
         
         contributorView.do {

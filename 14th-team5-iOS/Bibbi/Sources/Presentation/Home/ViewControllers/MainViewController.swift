@@ -66,8 +66,8 @@ final class MainViewController: BBNavigationViewController<MainViewReactor>, UIC
         }
         
         timerView.snp.makeConstraints {
-            $0.top.equalTo(familyViewController.view.snp.bottom).offset(16)
-            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(37)
+            $0.top.equalTo(familyViewController.view.snp.bottom)
+            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
             $0.height.equalTo(50)
         }
         

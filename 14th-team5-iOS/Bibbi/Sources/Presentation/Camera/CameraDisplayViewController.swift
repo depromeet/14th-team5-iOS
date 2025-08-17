@@ -57,7 +57,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(displayView, missionDisplayView, confirmButton, archiveButton, displayEditTextField, displayEditCollectionView, displayIndicatorView)
+        view.addSubviews(displayView, displayBannerView ,missionDisplayView, confirmButton, archiveButton, displayEditTextField, displayEditCollectionView, displayIndicatorView)
         displayView.addSubviews(displayEditButton)
     }
     

@@ -20,7 +20,7 @@ struct FamilyWidgetView: View {
             getPhotoView(info: info)
                 .widgetURL(URL(string: "post/view/\(info.postId ?? "")"))
         } else {
-            if isCurrentTimeBetween18And24() {
+            if isCurrentTimeBetween10And24() {
                 greenDefaultView
             } else {
                 yellowDefaultView
@@ -224,13 +224,13 @@ struct FamilyWidgetView: View {
         }
     }
     
-    private func isCurrentTimeBetween18And24() -> Bool {
+    private func isCurrentTimeBetween10And24() -> Bool {
         let calendar = Calendar.current
         let currentDate = Date()
         
         let components = calendar.dateComponents([.hour], from: currentDate)
         if let currentHour = components.hour {
-            return currentHour >= 18 && currentHour < 24
+            return currentHour >= 10 && currentHour < 24
         }
         
         return false

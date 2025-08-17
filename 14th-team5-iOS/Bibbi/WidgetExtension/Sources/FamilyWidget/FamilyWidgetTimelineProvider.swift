@@ -30,7 +30,7 @@ final class FamilyWidgetTimelineProvider: TimelineProvider {
         let refreshDate = Calendar.current.date(byAdding: .minute, value: 5, to: currentDate)!
         
         
-        repository.fetchRecentFamilyPost { result in
+        repository.fetchRecentFamilyPost(date: .today) { result in
             var entry: FamilyWidgetEntry
             switch result {
             case .success(let family):

@@ -18,8 +18,11 @@ public final class WidgetRepository: WidgetRepositoryProtocol {
     
     public init () { }
     
-    public func fetchRecentFamilyPost(completion: @escaping (Result<WidgetPostEntity, Error>) -> Void) {
-        widgetAPIWorker.fetchRecentFamilyPost()
+    public func fetchRecentFamilyPost(
+        date: String,
+        completion: @escaping (Result<WidgetPostEntity, Error>
+        ) -> Void) {
+        widgetAPIWorker.fetchRecentFamilyPost(date: date)
             .map { $0.toDomain() }
             .subscribe(
                 onNext: { result in

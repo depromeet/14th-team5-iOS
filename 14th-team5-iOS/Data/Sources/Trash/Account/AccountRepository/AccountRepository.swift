@@ -31,7 +31,7 @@ public final class AccountRepository: AccountImpl {
     public var disposeBag: DisposeBag = DisposeBag()
     
     private let accessToken: String = App.Repository.token.accessToken.value?.accessToken ?? ""
-    private let keychain = KeychainWrapper(serviceName: "Bibbi", accessGroup: "P9P4WJ623F.com.5ing.bibbi")
+    private let keychain = KeychainWrapper()
     
     let signInHelper = AccountSignInHelper()
     private let apiWorker = AccountAPIWorker()

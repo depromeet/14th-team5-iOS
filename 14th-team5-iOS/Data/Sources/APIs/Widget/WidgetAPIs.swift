@@ -9,14 +9,17 @@ import Core
 
 enum WidgetAPIs: BBAPI {
     /// 당일 최근 가족 게시물 타입 위젯 조회
-    case fetchRecentFamilyPost
+    case fetchRecentFamilyPost(String)
     
     var spec: Spec {
         switch self {
-        case .fetchRecentFamilyPost:
+        case let .fetchRecentFamilyPost(date):
             return .init(
                 method: .get,
-                path: "/widgets/single-recent-family-post"
+                path: "/widgets/single-recent-family-post",
+                queryParameters: [
+                    "date": "\(date)"
+                ]
             )
         }
     }

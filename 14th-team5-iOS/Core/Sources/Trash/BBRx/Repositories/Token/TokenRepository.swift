@@ -25,7 +25,7 @@ public struct AccessToken: Codable, Equatable {
 
 @available(*, deprecated, renamed: "TokenKeychain")
 public class TokenRepository: RxObject {
-    public lazy var keychain = KeychainWrapper(serviceName: "Bibbi", accessGroup: "P9P4WJ623F.com.5ing.bibbi")
+    public lazy var keychain = KeychainWrapper()
     
     public let accessToken = BehaviorRelay<AccessToken?>(value: (KeychainWrapper.standard[.accessToken] as String?)?.decode(AccessToken.self))
     

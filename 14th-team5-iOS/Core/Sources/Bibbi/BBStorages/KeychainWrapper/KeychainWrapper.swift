@@ -28,25 +28,17 @@ final public class KeychainWrapper {
     private(set) public var accessGroup: String?
     
     private static let defaultServiceName: String = {
-        return Bundle.main.bundleIdentifier ?? "KeychainWrapper"
+        return Bundle.module.appVersion
     }()
     
     
     // MARK: - Intializer
     
     public init(
-        serviceName: String,
-        accessGroup: String? = nil
     ) {
-        self.serviceName = serviceName
-        self.accessGroup = accessGroup
+        self.serviceName = Bundle.main.serviceName
+        self.accessGroup = Bundle.main.accessGroup
     }
-    
-    private convenience init() {
-        self.init(serviceName: KeychainWrapper.defaultServiceName)
-    }
-    
-    
     
     // MARK: - Read
     

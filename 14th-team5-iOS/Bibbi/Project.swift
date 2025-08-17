@@ -68,7 +68,9 @@ private let targets: [Target] = [
             products: .bibbi,
             dependencies: ModuleLayer.Bibbi.dependencies,
             bundleId: "com.5ing.bibbi",
-            infoPlist: .extendingDefault(with: [                
+            infoPlist: .extendingDefault(with: [
+                "SERVICE_NAME": .string("$(SERVICE_NAME)"),
+                "ACCESS_GROUP": .string("$(ACCESS_GROUP"),
                 "CFBundleDisplayName": .string("Bibbi"),
                 "GADApplicationIdentifier": .string("ca-app-pub-7835112884789455~8255253711"),
                 "SKAdNetworkItems": .array(
@@ -80,7 +82,7 @@ private let targets: [Target] = [
                     ),
                 "CFBundleVersion": .string("1"),
                 "CFBuildVersion": .string("0"),
-                "CFBundleShortVersionString": .string("1.3.1"),
+                "CFBundleShortVersionString": .string("1.3.2"),
                 "UILaunchStoryboardName": .string("LaunchScreen"),
                 "UISupportedInterfaceOrientations": .array([.string("UIInterfaceOrientationPortrait")]),
                 "UIUserInterfaceStyle": .string("Dark"),
@@ -129,6 +131,8 @@ private let targets: [Target] = [
         dependencies: ExtensionsLayer.Widget.dependencies,
         bundleId: "com.5ing.bibbi.widget",
         infoPlist: .extendingDefault(with: [
+            "SERVICE_NAME": .string("$(SERVICE_NAME)"),
+            "ACCESS_GROUP": .string("$(ACCESS_GROUP"),
             "CFBundleDisplayName": .string("Bibbi"),
             "NSExtension" : .dictionary([
                 "NSExtensionPointIdentifier": .string("com.apple.widgetkit-extension")

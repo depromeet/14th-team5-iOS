@@ -64,7 +64,31 @@ extension Bundle {
         }
     }
     
+    public var serviceName: String {
+        guard let dict = Bundle.main.infoDictionary else {
+            return ""
+        }
+        
+        if let serviceName = dict["SERVICE_NAME"] as? String, !serviceName.isEmpty {
+            return serviceName
+        } else {
+            return ""
+        }
+    }
+    
+    public var accessGroup: String {
+        guard let dict = Bundle.main.infoDictionary else {
+            return ""
+        }
+        
+        if let accessGroup = dict["ACCESS_GROUP"] as? String, !accessGroup.isEmpty {
+            return accessGroup
+        } else {
+            return ""
+        }
+    }
+    
     public var xAppKey: String {
-        "38a4c674-28cc-458a-8688-466fc4422756"
+        "487f6efd-c2cb-4b50-94de-9c1756d2f086"
     }
 }

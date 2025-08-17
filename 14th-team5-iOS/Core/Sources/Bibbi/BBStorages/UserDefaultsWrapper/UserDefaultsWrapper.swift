@@ -13,12 +13,12 @@ final public class UserDefaultsWrapper {
     
     public static let standard = UserDefaultsWrapper()
     
-    private let userDefaults: UserDefaults!
+    private let userDefaults: UserDefaults
     
     private(set) public var suitName: String
     
     private static let defaultSuitName: String = {
-        "UserDefaultsWrapper"
+        "com.5ing.bibbi"
     }()
     
     
@@ -30,7 +30,7 @@ final public class UserDefaultsWrapper {
     
     init(suitName: String) {
         self.suitName = suitName
-        self.userDefaults = UserDefaults(suiteName: suitName)
+        self.userDefaults = UserDefaults(suiteName: suitName) ?? UserDefaults()
     }
     
     

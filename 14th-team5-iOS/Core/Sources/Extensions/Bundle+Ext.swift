@@ -89,6 +89,6 @@ extension Bundle {
     }
     
     public var xAppKey: String {
-        "487f6efd-c2cb-4b50-94de-9c1756d2f086"
+        "cf786061-a161-427b-8e55-b1a0dbc02785"
     }
 }

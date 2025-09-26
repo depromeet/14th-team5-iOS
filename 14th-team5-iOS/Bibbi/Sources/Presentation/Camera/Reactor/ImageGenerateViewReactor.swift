@@ -25,7 +25,7 @@ public final class ImageGenerateViewReactor: Reactor {
     public var initialState: State
     
     public struct State {
-        @Pulse var bianryData: Data
+        @Pulse var binaryData: Data
         @Pulse var errorDescription: String = ""
         @Pulse var isLoading: Bool = false
         var aiImageEntity: AiImageEntity? = nil
@@ -45,7 +45,7 @@ public final class ImageGenerateViewReactor: Reactor {
     }
     
     init(binaryData: Data) {
-        self.initialState = State(bianryData: binaryData)
+        self.initialState = State(binaryData: binaryData)
     }
     
     public func mutate(action: Action) -> Observable<Mutation> {
@@ -55,7 +55,7 @@ public final class ImageGenerateViewReactor: Reactor {
                 .just(.setLoading(true)),
                 run { [weak self] send in
                     do {
-                        let response = try await self?.createAiImageGenerateUseCase.execute(binaryData: self?.currentState.bianryData ?? .empty)
+                        let response = try await self?.createAiImageGenerateUseCase.execute(binaryData: self?.currentState.binaryData ?? .empty)
                         send(.setSuccess(response))
                     } catch {
                         if let apiError = error as? APIWorkerError,

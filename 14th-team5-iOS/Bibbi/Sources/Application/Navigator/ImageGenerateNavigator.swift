@@ -47,7 +47,7 @@ final class ImageGenerateNavigator: ImageGenerateNavigatorProtocol {
         }
         
         let alertAction: [BBAlertAction] = [
-            BBAlertAction(title: "다시 촬용하기", style: .default, handler: confirmHandler),
+            BBAlertAction(title: "다시 촬영하기", style: .default, handler: confirmHandler),
             BBAlertAction(title: "홈으로 이동하기", style: .cancel, handler: cancelHandler)
         ]
         

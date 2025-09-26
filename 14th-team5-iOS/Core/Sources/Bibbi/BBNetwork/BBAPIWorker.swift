@@ -228,28 +228,16 @@ extension BBRxAPIWorker: Workable {
                 
                 switch response {
                 case let .success(data):
-                    // 디버깅: 받은 데이터 확인
-                    if let data = data {
-                        print("받은 데이터 크기: \(data.count) bytes")
-                        print("받은 데이터 내용: \(String(data: data, encoding: .utf8) ?? "UTF-8 변환 실패")")
-                    } else {
-                        print("데이터가 nil입니다")
-                    }
-                    
                     do {
                         let decoded: D = try self.decode(data, using: spec.responseDecoder)
                         continuation.resume(returning: decoded)
                     } catch {
-                        print("디코딩 에러: \(error)")
-                        print("디코딩하려던 타입: \(D.self)")
-                        
                         let mappedError = self.errorMapper.map(networkError: error)
                         self.errorLogger.log(error: mappedError)
                         continuation.resume(throwing: mappedError)
                     }
 
                 case let .failure(error):
-                    print("네트워크 에러: \(error)")
                     let mappedError = self.errorMapper.map(networkError: error)
                     self.errorLogger.log(error: mappedError)
                     continuation.resume(throwing: mappedError)

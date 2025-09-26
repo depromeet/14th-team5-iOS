@@ -15,6 +15,7 @@ public enum Sort: String {
 public enum PostType: String {
     case survival = "SURVIVAL"
     case mission = "MISSION"
+    case aiimage = "AI_IMAGE"
     
     public func getIndex() -> Int {
         switch self {
@@ -22,6 +23,8 @@ public enum PostType: String {
             return 0
         case .mission:
             return 1
+        case .aiimage:
+            return 2
         }
     }
     

@@ -26,6 +26,12 @@ public protocol BBNetworkSessionManager {
         serializer: BBUploadResponseSerializer,
         completion: @escaping UploadHandler
     ) -> BBNetworkCancellable
+    
+    func upload(
+        with request: URLRequest,
+        multipartFormData: @escaping (MultipartFormData) -> Void,
+        completion: @escaping CompletionHandler
+    ) -> BBNetworkCancellable
 }
 
 
@@ -129,4 +135,21 @@ extension BBNetworkSession: BBNetworkSessionManager {
         }
         return uploadRequest
     }
+    
+    public func upload(
+        with request: URLRequest,
+        multipartFormData: @escaping (MultipartFormData) -> Void,
+        completion: @escaping CompletionHandler) -> any BBNetworkCancellable {
+            
+            
+            let multipartUploadRequest = session.upload(multipartFormData: multipartFormData, with: request)
+            
+            multipartUploadRequest.response(completionHandler: completion)
+            
+            multipartUploadRequest.resume()
+            
+
+            
+            return multipartUploadRequest
+        }
 }

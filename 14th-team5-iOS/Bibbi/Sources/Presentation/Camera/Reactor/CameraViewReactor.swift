@@ -19,7 +19,6 @@ public final class CameraViewReactor: Reactor {
     public var initialState: State
     
     
-    @Injected private var uploadImageUseCase: FetchCameraUploadImageUseCaseProtocol
     @Injected private var fetchDailyMissionUseCase: FetchDailyMissonContentUseCaseProtocol
     @Injected private var fetchRealEmojiUpdateUseCase: FetchCameraRealEmojiUpdateUseCaseProtocol
     @Injected private var fetchRealEmojiCreateUseCase: FetchCameraRealEmojiUploadUseCaseProtocol
@@ -250,7 +249,7 @@ extension CameraViewReactor {
     private func didTapShutterButtonMutation(imageData: Data) -> Observable<CameraViewReactor.Mutation> {
         
         switch cameraType {
-        case .survival, .mission:
+        case .survival, .mission, .ai:
             return .concat(
                 .just(.setLoading(false)),
                 .just(.setImageData(imageData)),

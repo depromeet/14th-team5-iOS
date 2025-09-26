@@ -36,6 +36,13 @@ public protocol BBNetworkService {
         serializer: BBUploadResponseSerializer,
         completion: @escaping UploadHandler
     ) -> (any BBNetworkCancellable)?
+    
+    func upload(
+        _ spec: any Requestable,
+        with binaryData: Data,
+        multipartFormData additionalParams: [String: String],
+        completion: @escaping CompletionHandler
+    ) -> (any BBNetworkCancellable)?
 }
 
 
@@ -83,6 +90,38 @@ public final class BBNetworkDefaultService {
         
         return dataRequest
         
+    }
+    
+    public func upload(
+        with spec: inout URLRequest,
+        with binaryData: Data,
+        multipartFormData additionalParams: [String: String] = [:],
+        completion: @escaping CompletionHandler) -> any BBNetworkCancellable {
+            
+        let multipartRequest = sessionManager.upload(with: spec, multipartFormData: { multipartFormData in
+            multipartFormData.append(
+                binaryData,
+                withName: "image",
+                fileName: "image.jpg",
+                mimeType: "image/jpeg"
+            )
+            
+            for (key, value) in additionalParams {
+                if let data = value.data(using: .utf8) {
+                    multipartFormData.append(data, withName: key)
+                }
+            }
+        }) { multipartResponse in
+            if let statusCode = multipartResponse.response?.statusCode {
+                guard (200..<300) ~= statusCode else {
+                    let networkError = self.map(statusCode: statusCode)
+                    completion(.failure(networkError))
+                    return
+                }
+                completion(.success(multipartResponse.data))
+            }
+        }
+        return multipartRequest
     }
     
     public func upload(
@@ -170,5 +209,27 @@ extension BBNetworkDefaultService: BBNetworkService {
     ) -> (any BBNetworkCancellable)? {
         return upload(with: spec, data: binaryData, serializer: serializer, completion: completion)
     }
+    
+    public func upload(
+        _ spec: any Requestable,
+        with binaryData: Data,
+        multipartFormData: [String: String],
+        completion: @escaping CompletionHandler
+    ) -> (any BBNetworkCancellable)? {
+        do {
+            var urlRequest = try spec.urlRequest(config)
+            urlRequest.headers = BBNetworkHeaders.multipart.asHTTPHeaders
+            return upload(
+                with: &urlRequest,
+                with: binaryData,
+                multipartFormData: multipartFormData,
+                completion: completion
+            )
+        } catch {
+            completion(.failure(.urlGeneration))
+            return nil
+        }
+    }
+    
     
 }

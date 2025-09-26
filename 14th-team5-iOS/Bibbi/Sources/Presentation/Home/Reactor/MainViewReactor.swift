@@ -199,8 +199,8 @@ extension MainViewReactor {
             } else {
                 //MARK: 자정타임 관련 Mutation
                 return Observable.concat([
-                    .just(.setInTime(false)),
-                    .just(.setEnabeldCamera(false)),
+//                    .just(.setInTime(false)),
+//                    .just(.setEnabeldCamera(false)),
                     .just(.setCameraType(.midNight)),
                     self.mutate(action: .fetchMainNightUseCase),
                     self.mutate(action: .setTimer(isInTime, time))
@@ -348,7 +348,7 @@ extension MainViewReactor {
             navigator.toDailyCalendar(date)
         case .cameraViewController(let type):
             MPEvent.Home.cameraTapped.track(with: nil)
-            navigator.toCamera(type)
+            navigator.toCamera(.ai)
         case .survivalAlert:
             navigator.showSurvivalAlert()
         case .pickAlert(let name, _):

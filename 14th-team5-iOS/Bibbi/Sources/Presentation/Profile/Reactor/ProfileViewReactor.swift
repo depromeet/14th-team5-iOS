@@ -18,7 +18,6 @@ public final class ProfileViewReactor: Reactor {
     
     @Injected private var fetchMembersProfileUseCase: FetchMembersProfileUseCaseProtocol
     @Injected private var updateMembersProfileUseCase: UpdateMembersProfileUseCaseProtocol
-    @Injected private var uploadProfileImageUseCase: FetchCameraUploadImageUseCaseProtocol
     @Injected private var createPresignedURLUseCase: CreateMembersPresignedURLUseCaseProtocol
     @Injected private var deleteProfileImageUseCase: DeleteMembersProfileUseCaseProtocol
     @Navigator private var profileNavigator: ProfileNavigatorProtocol

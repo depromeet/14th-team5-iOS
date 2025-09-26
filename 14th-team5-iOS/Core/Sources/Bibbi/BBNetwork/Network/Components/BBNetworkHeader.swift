@@ -24,6 +24,7 @@ public enum BBNetworkHeader {
     case xUserPlatform
     case xUserId
     case contentType
+    case multiPart
     
 }
 
@@ -40,6 +41,7 @@ public extension BBNetworkHeader {
         case .xUserPlatform: return "X-USER-PLATFORM"
         case .xUserId: return "X-USER-ID"
         case .contentType: return "Content-Type"
+        case .multiPart: return "Content-Type"
         }
     }
     
@@ -51,6 +53,7 @@ public extension BBNetworkHeader {
         case .xUserPlatform: return fetchXUserPlatform()
         case .xUserId: return fetchXuserId()
         case .contentType: return fetchContentType()
+        case .multiPart: return fetchMultiPartType()
         }
     }
     
@@ -71,6 +74,10 @@ public extension BBNetworkHeaders {
     /// 인증이 필요없는 API 요청에 사용되는 헤더 모음입니다.
     static var unAuthorized: [BBNetworkHeader] {
         [.xAppKey, .xUserPlatform, .contentType]
+    }
+    
+    static var `multipart`: [BBNetworkHeader] {
+        [.xAppKey, .xAuthToken, .xUserPlatform, .xUserId, .multiPart]
     }
     
 }
@@ -105,6 +112,10 @@ private extension BBNetworkHeader {
     
     func fetchContentType() -> String {
         return "application/json"
+    }
+    
+    func fetchMultiPartType() -> String {
+        return "multipart/form-data"
     }
     
 }

@@ -31,6 +31,10 @@ final class NavigatorDIContainer: BaseContainer {
             )
         }
         
+        container.register(type: ImageGenerateNavigatorProtocol.self) { _ in
+            ImageGenerateNavigator(navigationController: makeUINavigationController())
+        }
+        
         container.register(type: HomeNavigatorProtocol.self) { _ in
             HomeNavigator(
                 navigationController: makeUINavigationController()

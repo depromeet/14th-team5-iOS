@@ -244,6 +244,19 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             }.disposed(by: disposeBag)
         
         
+        Observable
+            .zip(
+                reactor.state.compactMap { $0.imageData }.distinctUntilChanged(),
+                reactor.state.compactMap { $0.cameraType }
+            )
+            .filter { $0.1 == .ai }
+            .withUnretained(self)
+            .bind {
+                let imageGenerateViewController = ImageGenerateViewControllerWrapper(binaryData: $0.1.0).viewController
+                $0.0.navigationController?.pushViewController(imageGenerateViewController, animated: true)
+            }.disposed(by: disposeBag)
+        
+        
         
         Observable
             .zip(

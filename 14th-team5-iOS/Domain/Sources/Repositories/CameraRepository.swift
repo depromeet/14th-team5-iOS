@@ -15,6 +15,7 @@ public enum UploadLocation {
     case profile
     case realEmoji
     case account
+    case ai
   
   public var isRealEmojiType: Bool {
     switch self {
@@ -61,7 +62,7 @@ public enum UploadLocation {
       case .realEmoji:
         return "셀피 이미지"
       default:
-          return ""
+          return "카메라"
       }
     }
 }

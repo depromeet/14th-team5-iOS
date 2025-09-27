@@ -63,9 +63,9 @@ extension StudioReactor {
                     if isAgreed {
                         return  .just(.setTermsAgreement(true))
                     } else {
-                        self?.navigator.showAITermAlert(saveAction: { [weak self] _ in
+                        self?.navigator.showTermsAlert { [weak self] in
                             self?.saveIsAITermsAgreedUsecase.execute(true)
-                        })
+                        }
                         return .empty()
                     }
                 }

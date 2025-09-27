@@ -11,7 +11,9 @@ import UIKit
 
 protocol StudioNavigatorProtocol: BaseNavigator {
     func showErrorToast(message: String)
-    func showAITermAlert(saveAction: BBAlertActionHandler)
+    func showTermsAlert(complection: @escaping () -> ())
+    
+    func toTerms()
 }
 
 final class StudioNavigator: StudioNavigatorProtocol {
@@ -27,11 +29,45 @@ final class StudioNavigator: StudioNavigatorProtocol {
         BBToast.text(message).show()
     }
     
-    func showAITermAlert(saveAction: BBAlertActionHandler) {
-//        BBAlert.style(.AITermAgreement,
-//                      primaryAction: saveAction,
-//                      secondaryAction: { [weak self] _ in
-//            self?.navigationController.popViewController(animated: true)
-//        }).show()
+    func toTerms() {
+        let vc = WebContentViewControllerWrapper(url: URLTypes.terms.originURL).viewController
+        navigationController.pushViewController(vc, animated: true)
+    }
+    
+    func showTermsAlert(complection: @escaping () -> ()) {
+        let cancelHandler: BBAlertActionHandler = { alert in
+            alert?.close()
+        }
+        let confirmHandler: BBAlertActionHandler = { alert in
+            complection()
+            alert?.close()
+        }
+
+        let alertAction: [BBAlertAction] = [
+            BBAlertAction(title: "취소", style: .cancel, handler: cancelHandler),
+            BBAlertAction(title: "동의하기", style: .default, handler: confirmHandler)
+        ]
+
+        let viewConfig = BBAlertViewConfiguration(
+            minHeight: 205,
+            buttonAxis: .horizontal
+        )
+
+
+        BBAlert.textWithButton(
+            title: "AI 이미지 생성",
+            titleFontStyle: .head2Bold,
+            subtitle: "이미지 생성 기능을 사용하려면\n약관에 대한 동의가 필요해요",
+            subtitleFontStyle: .body2Regular,
+            linkTitle: "이용약관",
+            linkActions: { [weak self] alert in
+                self?.toTerms()
+                alert?.close()
+            },
+            actions: alertAction,
+            viewConfig: viewConfig,
+            config: BBAlertConfiguration()
+
+        )?.show()
     }
 }

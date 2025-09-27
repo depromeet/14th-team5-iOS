@@ -7,6 +7,8 @@
 
 import Foundation
 
+import Core
+
 public struct ArrayResponseDailyCalendarEntity {
     public var results: [DailyCalendarEntity]
     
@@ -17,7 +19,7 @@ public struct ArrayResponseDailyCalendarEntity {
 
 public struct DailyCalendarEntity {
     public var date: Date
-    public var type: PostType
+    public var type: BibbiFeedType
     public var postId: String
     public var postImageUrl: String
     public var postContent: String?
@@ -30,7 +32,7 @@ public struct DailyCalendarEntity {
     
     public init(
         date: Date,
-        type: PostType,
+        type: BibbiFeedType,
         postId: String,
         postImageUrl: String,
         postContent: String?,

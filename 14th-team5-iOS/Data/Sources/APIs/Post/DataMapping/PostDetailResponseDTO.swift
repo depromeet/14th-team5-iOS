@@ -7,6 +7,7 @@
 
 import Foundation
 
+import Core
 import Domain
 
 struct PostDetailResponseDTO: Decodable {
@@ -28,7 +29,7 @@ extension PostDetailResponseDTO {
             postId: postId,
             authorId: authorId,
             author: nil,
-            type: PostType(rawValue: type) ?? .survival,
+            type: BibbiFeedType(rawValue: type) ?? .survival,
             missionId: missionId,
             commentCount: commentCount,
             emojiCount: emojiCount,

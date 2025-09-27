@@ -13,10 +13,10 @@ import MacrosInterface
 @Wrapper<ProfileFeedViewReactor, ProfileFeedViewController>
 final class ProfileFeedViewControllerWrapper {
     
-    private let postType: PostType
+    private let postType: BibbiFeedType
     private let memberId: String
     
-    init(postType: PostType, memberId: String) {
+    init(postType: BibbiFeedType, memberId: String) {
         self.postType = postType
         self.memberId = memberId
     }

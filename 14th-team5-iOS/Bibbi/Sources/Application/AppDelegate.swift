@@ -72,7 +72,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             PrivacyDIContainer(),
             PickDICotainer(),
             ResignDIContainer(),
-            NotificationDIContainer()
+            NotificationDIContainer(),
+            StudioDIContainer()
         ]
         containers.forEach {
             $0.registerDependencies()

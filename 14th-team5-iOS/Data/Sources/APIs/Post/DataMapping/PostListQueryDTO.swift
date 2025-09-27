@@ -12,7 +12,7 @@ public struct PostListQueryDTO: Encodable {
     public let size: Int
     public let date: String
     public let memberId: String?
-    public let type: String
+    public let type: String?
     public let sort: String
     
     
@@ -21,8 +21,8 @@ public struct PostListQueryDTO: Encodable {
         size: Int,
         date: String,
         memberId: String? = nil,
-        type: String,
-        sort: String
+        type: String?,
+        sort: String = "DESC"
     ) {
         self.page = page
         self.size = size

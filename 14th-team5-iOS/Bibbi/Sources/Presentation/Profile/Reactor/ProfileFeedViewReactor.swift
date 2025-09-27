@@ -37,13 +37,13 @@ final class ProfileFeedViewReactor: Reactor {
         @Pulse var feedDetailItem: PostSection.Model
         @Pulse var feedPaginationItems: [PostEntity]
         @Pulse var feedPage: Int
-        @Pulse var type: PostType
+        @Pulse var type: BibbiFeedType
         @Pulse var feedItems: PostListPageEntity?
         @Pulse var feedSection: [ProfileFeedSectionModel]
     }
     
     init(
-        type: PostType,
+        type: BibbiFeedType,
         memberId: String
     ) {
         self.initialState = State(

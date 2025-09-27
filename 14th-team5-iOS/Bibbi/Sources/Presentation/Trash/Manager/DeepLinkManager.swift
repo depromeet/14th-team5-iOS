@@ -38,7 +38,10 @@ final class DeepLinkManager {
     
     private init() {}
     
-    private func todayDeepLink(type: PostType, data: NotificationDeepLink) {
+    private func todayDeepLink(
+        type: BibbiFeedType,
+        data: NotificationDeepLink
+    ) {
         fetchTodayPost(type: type) { result in
             guard let result = result else { return }
             let items = result.map(PostSection.Item.main)
@@ -55,7 +58,10 @@ final class DeepLinkManager {
         }
     }
     
-    private func todayCommentDeepLink(type: PostType, data: NotificationDeepLink) {
+    private func todayCommentDeepLink(
+        type: BibbiFeedType,
+        data: NotificationDeepLink
+    ) {
         fetchTodayPost(type: type) { result in
             guard let result = result else { return }
             let items = result.map(PostSection.Item.main)
@@ -73,7 +79,10 @@ final class DeepLinkManager {
         
     }
 
-    private func fetchTodayPost(type: PostType, completion: @escaping ([PostEntity]?) -> Void) {
+    private func fetchTodayPost(
+        type: BibbiFeedType,
+        completion: @escaping ([PostEntity]?) -> Void
+    ) {
         let dateString = Date().toFormatString(with: "yyyy-MM-dd")
         let query = PostListQuery(date: dateString, type: type)
         

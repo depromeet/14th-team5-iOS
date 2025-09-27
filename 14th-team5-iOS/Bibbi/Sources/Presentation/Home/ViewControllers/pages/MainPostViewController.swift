@@ -45,7 +45,7 @@ final class MainPostViewController: BaseViewController<MainPostViewReactor>, UIC
         
         postCollectionView.snp.makeConstraints {
             $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
-            $0.verticalEdges.equalToSuperview()
+            $0.verticalEdges.equalToSuperview().inset(20)
         }
         
         noPostView.snp.makeConstraints {

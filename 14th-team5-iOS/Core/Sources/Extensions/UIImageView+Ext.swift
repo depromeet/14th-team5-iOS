@@ -7,6 +7,9 @@
 
 import UIKit
 
+import RxSwift
+import RxCocoa
+
 extension UIImageView {
     public func load(url: URL) {
         DispatchQueue.global().async { [weak self] in

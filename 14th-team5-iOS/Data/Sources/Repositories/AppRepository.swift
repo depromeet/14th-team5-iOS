@@ -11,8 +11,7 @@ import Foundation
 import RxSwift
 
 public final class AppRepository: AppRepositoryProtocol {
-
-    // MARK: - Properties
+// MARK: - Properties
     private let disposeBag = DisposeBag()
     
     // MARK: - APIWorker
@@ -55,5 +54,15 @@ extension AppRepository {
     
     public func saveIsFirstWidgetAlert(isFirst: Bool) {
         appUserDefaults.saveIsFirstShowWidgetAlert(isFirst)
+    }
+    
+    public func loadIsAITermsAgreed() -> RxSwift.Observable<Bool?> {
+        let isAITermsAgreed = appUserDefaults.loadIsAITermsAgreed()
+        return .just(isAITermsAgreed)
+        
+    }
+    
+    public func saveIsAITermsAgreed(isAgreed: Bool) {
+        appUserDefaults.saveIsAITermsAgreed(isAgreed)
     }
 }

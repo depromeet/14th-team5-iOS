@@ -345,6 +345,24 @@ public class BBAlert {
             )
             
             return BBAlert(view: view, actions: actions, config: config)
+        case .AITermAgreement:
+            let actions = [
+                BBAlertAction(title: "취소", style: .cancel),
+                BBAlertAction(title: "확인", handler: primaryHandler)
+            ]
+            let viewConfig = BBAlertViewConfiguration(
+                minHeight: 181,
+                buttonAxis: .horizontal
+            )
+            let view = DefaultAlertView(
+                child: TextAlertView(
+                    "AI 이미지 생성",
+                    subtitle: "이미지 생성 기능을 사용하려면\n약관에 대한 동의가 필요해요",
+                    viewConfig: viewConfig
+                ),
+                viewConfig: viewConfig
+            )
+            return BBAlert(view: view, actions: actions, config: config)
         }
     }
     

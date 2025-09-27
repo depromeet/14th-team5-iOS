@@ -5,6 +5,7 @@
 //  Created by 마경미 on 25.12.23.
 //
 
+import Core
 import Foundation
 
 public enum Sort: String {
@@ -45,7 +46,7 @@ public struct PostListQuery {
     public let size: Int
     public let date: String
     public var memberId: String?
-    public let type: PostType
+    public var type: BibbiFeedType
     public let sort: String
     
     public init(
@@ -53,7 +54,7 @@ public struct PostListQuery {
         size: Int = 256,
         date: String,
         memberId: String? = nil,
-        type: PostType = .survival,
+        type: BibbiFeedType,
         sort: Sort = .desc
     ) {
         self.page = page

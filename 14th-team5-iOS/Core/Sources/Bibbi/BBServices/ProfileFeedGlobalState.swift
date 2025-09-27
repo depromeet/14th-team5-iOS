@@ -9,9 +9,44 @@ import Foundation
 
 import RxSwift
 
-public enum BibbiFeedType: Int {
-    case survival = 0
-    case mission = 1
+// TODO: Domain으로 옮기기
+public enum BibbiFeedType: String {
+    case survival = "SURVIVAL"
+    case mission = "MISSION"
+    case studio = "AI_IMAGE"
+    
+    public init?(index: Int) {
+        switch index {
+        case 0: self = .survival
+        case 1: self = .mission
+        case 2: self = .studio
+        default: return nil
+        }
+    }
+    
+    public var index: Int {
+        switch self {
+        case .survival:
+            return 0
+        case .mission:
+            return 1
+        case .studio:
+            return 2
+        }
+    }
+    
+    public static func getPostType(index: Int) -> BibbiFeedType {
+        switch index {
+        case 0:
+            return .survival
+        case 1:
+            return .mission
+        case 2:
+            return .studio
+        default:
+            fatalError("index Out of range")
+        }
+    }
 }
 
 public enum ProfileFeedEvent {

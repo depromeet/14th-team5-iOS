@@ -61,7 +61,7 @@ final class MainViewReactor: Reactor {
         case checkMissionAlert(Bool, Bool)
         
         case openNextViewController(TapAction)
-        case didTapSegmentControl(PostType)
+        case didTapSegmentControl(BibbiFeedType)
         case pickConfirmButtonTapped
     }
     
@@ -75,6 +75,8 @@ final class MainViewReactor: Reactor {
         case setPageIndex(Int)
         case setCamerEnabled
         case setBalloonText
+        case setCameraHidden(Bool)
+
         case setDescriptionText
         
         case setFamilyManagement(Bool)
@@ -104,6 +106,7 @@ final class MainViewReactor: Reactor {
         @Pulse var cameraState: CameraState = .noon
         @Pulse var cameraEnabled: Bool = false
         @Pulse var isCameraDisabled: Bool = false
+        @Pulse var isCameraHidden: Bool = false
         
         @Pulse var pickers: [Picker] = []
         @Pulse var contributor: FamilyRankData = FamilyRankData.empty
@@ -210,10 +213,11 @@ extension MainViewReactor {
             }
         case .didTapSegmentControl(let type):
             return Observable.concat(
-                .just(.setPageIndex(type.getIndex())),
+                .just(.setPageIndex(type.index)),
                 .just(.setBalloonText),
                 .just(.setDescriptionText),
-                .just(.setCamerEnabled)
+                .just(.setCamerEnabled),
+                .just(.setCameraHidden(type == .studio))
             )
             
         case .pickConfirmButtonTapped:
@@ -328,6 +332,8 @@ extension MainViewReactor {
             newState.cameraEnabled = isEnabled
         case let .setCameraType(cameraState):
             newState.cameraState = cameraState
+        case let .setCameraHidden(isHidden):
+            newState.isCameraHidden = isHidden
         }
         
         return newState
@@ -481,19 +487,20 @@ extension MainViewReactor {
         
         let currentHour = calendar.component(.hour, from: currentTime)
         
-        if currentHour >= 10 {
-            if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {
-                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
-                return (true, max(0, timeDifference.second ?? 0))
-            }
-        } else {
-            if let nextMidnight = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: currentTime) {
-                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
-                return (false, max(0, timeDifference.second ?? 0))
-            }
-        }
-        
-        return (false, 1000)
+//        if currentHour >= 10 {
+//            if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {
+//                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
+//                return (true, max(0, timeDifference.second ?? 0))
+//            }
+//        } else {
+//            if let nextMidnight = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: currentTime) {
+//                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
+//                return (false, max(0, timeDifference.second ?? 0))
+//            }
+//        }
+//        
+//        return (false, 1000)
+        return (true, 1000)
     }
     
 }

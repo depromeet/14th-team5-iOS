@@ -17,4 +17,7 @@ public protocol AppRepositoryProtocol {
     
     func loadIsFirstWidgetAlert() -> Observable<Bool?>
     func saveIsFirstWidgetAlert(isFirst: Bool) -> Void
+    
+    func loadIsAITermsAgreed() -> Observable<Bool?>
+    func saveIsAITermsAgreed(isAgreed: Bool) -> Void
 }

@@ -12,6 +12,10 @@ import Foundation
 enum PostsAPIs: BBAPI {
     /// 게시물 조회 API
     case fetchPostList(query: PostListQueryDTO)
+    /// 가족사진관 게시물 조회 API
+    case fetchAIPostList(query: PostListQueryDTO)
+    /// 가족사진관 이미지 개수 및 생성 개수 조회 API
+    case fetchAICount
     /// 게시물 생성 API
     case createPost(type: String, body: CreatePostRequestDTO)
     /// 게시물 단일 조회 API
@@ -27,6 +31,17 @@ enum PostsAPIs: BBAPI {
                 method: .get,
                 path: "/posts",
                 queryParametersEncodable: query
+            )
+        case let .fetchAIPostList(query):
+            return Spec(
+                method: .get,
+                path: "/posts/ai-images",
+                queryParametersEncodable: query
+            )
+        case .fetchAICount:
+            return Spec(
+                method: .get,
+                path: "/posts/ai-images/count"
             )
         case let .createPost(type, body):
             return Spec(

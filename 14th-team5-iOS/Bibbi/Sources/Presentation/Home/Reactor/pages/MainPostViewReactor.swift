@@ -26,7 +26,7 @@ final class MainPostViewReactor: Reactor {
     }
     
     struct State {
-        let type: PostType
+        let type: BibbiFeedType
         
         @Pulse var isRefreshEnd: Bool = true
         @Pulse var postSection: PostSection.Model = PostSection.Model(model: 0, items: [])
@@ -52,7 +52,10 @@ extension MainPostViewReactor {
                 self.mutate(action: .fetchPost)
                 ])
         case .fetchPost:
-            let query = PostListQuery(date: DateFormatter.dashYyyyMMdd.string(from: Date()), type: currentState.type)
+            let query = PostListQuery(
+                date: DateFormatter.dashYyyyMMdd.string(from: Date()),
+                type: currentState.type
+            )
             return postUseCase.execute(query: query)
                 .asObservable()
                 .flatMap { (postList) -> Observable<Mutation> in

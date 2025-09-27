@@ -136,6 +136,14 @@ final class NavigatorDIContainer: BaseContainer {
         container.register(type: InputFamilyLinkNavigatorProtocol.self) { _ in
             InputFamilyLInkNavigator(navigationController: makeUINavigationController())
         }
+        
+        container.register(type: StudioPageNavigatorProtocol.self) { _ in
+            StudioPageNavigator(navigationController: makeUINavigationController())
+        }
+        
+        container.register(type: StudioNavigatorProtocol.self) { _ in
+                StudioNavigator(navigationController: makeUINavigationController())
+        }
     }
     
 }

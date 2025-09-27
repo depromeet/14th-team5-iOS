@@ -7,6 +7,7 @@
 
 import UIKit
 
+import Core
 import Domain
 import DesignSystem
 
@@ -16,10 +17,10 @@ import Then
 final class NoPostTodayView: UIView {
     typealias Layout = HomeAutoLayout.NoPostTodayView
     
-    let type: PostType
+    private let type: BibbiFeedType
     private let imageView: UIImageView = UIImageView()
     
-    init(type: PostType, frame: CGRect) {
+    init(type: BibbiFeedType, frame: CGRect) {
         self.type = type
         super.init(frame: frame)
         setupUI()

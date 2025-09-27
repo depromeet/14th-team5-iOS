@@ -28,6 +28,7 @@ public final class ImageGenerateViewReactor: Reactor {
         @Pulse var binaryData: Data
         @Pulse var errorDescription: String = ""
         @Pulse var isLoading: Bool = false
+        var archiveData: Data = .empty
         var aiImageEntity: AiImageEntity? = nil
         var postType: PostType = .aiimage
     }
@@ -35,12 +36,14 @@ public final class ImageGenerateViewReactor: Reactor {
     public enum Action {
         case viewDidLoad
         case didTappedUploadButton
-        
+        case didTappedArchiveButton
+        case didTappedBackButton
     }
     
     public enum Mutation {
         case setLoading(Bool)
         case setError(String)
+        case setArchiveData(Data)
         case setSuccess(AiImageEntity?)
     }
     
@@ -85,9 +88,22 @@ public final class ImageGenerateViewReactor: Reactor {
                     if entity == nil {
                         return .just(.setError("업로드 중 오류가 발생했습니다. 다시 한 번 시도해주세요."))
                     }
-                    
+                    owner.imageGenerateNavigator.toHome()
                     return .empty()
                 }
+        case .didTappedArchiveButton:
+            guard !currentState.binaryData.isEmpty else {
+                return .empty()
+            }
+            self.imageGenerateNavigator.showToast()
+            return .just(.setArchiveData(currentState.binaryData))
+        case .didTappedBackButton:
+            guard !currentState.isLoading else {
+                imageGenerateNavigator.showWarningAlert()
+                return .empty()
+            }
+            self.imageGenerateNavigator.toCamera()
+            return .empty()
         }
     }
     
@@ -101,6 +117,8 @@ public final class ImageGenerateViewReactor: Reactor {
             imageGenerateNavigator.showErrorAlert(errorDescription)
         case let .setSuccess(aiImageEntity):
             newState.aiImageEntity = aiImageEntity
+        case let .setArchiveData(archiveData):
+            newState.archiveData = archiveData
         }
         return newState
     }

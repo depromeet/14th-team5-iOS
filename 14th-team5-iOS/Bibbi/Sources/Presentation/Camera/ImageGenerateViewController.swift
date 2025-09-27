@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Photos
 
 import Core
 import ReactorKit
@@ -52,10 +53,8 @@ public final class ImageGenerateViewController: ReactorViewController<ImageGener
         }
         
         uploadButton.do {
-            $0.backgroundColor = DesignSystemAsset.gray800.color
             $0.setTitle("이미지 업로드", for: .normal)
             $0.setTitleFontStyle(.body1Bold)
-            $0.setTitleColor(DesignSystemAsset.gray500.color, for: .normal)
             $0.layer.cornerRadius = 30
             $0.clipsToBounds = true
             $0.isUserInteractionEnabled = false
@@ -71,7 +70,6 @@ public final class ImageGenerateViewController: ReactorViewController<ImageGener
             $0.backgroundColor = DesignSystemAsset.gray900.color
             $0.layer.cornerRadius = 40
             $0.layoutIfNeeded()
-            $0.isShimmering = true
         }
         
         descriptionLabel.do {
@@ -115,9 +113,6 @@ public final class ImageGenerateViewController: ReactorViewController<ImageGener
             $0.height.equalTo(24)
             $0.center.equalTo(generateImagePreview)
         }
-        
-        
-        
     }
     
     
@@ -129,33 +124,117 @@ public final class ImageGenerateViewController: ReactorViewController<ImageGener
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        navigationBarView.rx.leftButtonTap
-            .bind(with: self) { owner, _ in
-                owner.navigationController?.popViewController(animated: true)
-            }
+        uploadButton.rx.tap
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
+            .map { Reactor.Action.didTappedUploadButton }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        reactor.state.compactMap { $0.aiImageEntity}
+        archiveButton
+            .rx.tap
+            .throttle(RxInterval._600milliseconds, scheduler: RxScheduler.main)
+            .map { Reactor.Action.didTappedArchiveButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        navigationBarView.rx.leftButtonTap
+            .throttle(RxInterval._600milliseconds, scheduler: RxScheduler.main)
+            .map { _ in  Reactor.Action.didTappedBackButton}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .compactMap { $0.aiImageEntity }
             .compactMap { URL(string: $0.imageUrl) }
+            .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
             .map { try Data(contentsOf: $0) }
             .map { UIImage(data: $0) }
+            .observe(on: MainScheduler.instance)
             .bind(to: generateImagePreview.rx.image)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$isLoading)
-            .debug("로딩 중입니다잉")
+            .map { !$0 }
             .bind(to: uploadButton.rx.isUserInteractionEnabled)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$isLoading)
+            .map { !$0 }
+            .bind(with: self) { owner, isUserInteractionEnabled in
+                owner.updateUploadButtonLayout(isUserInteractionEnabled)
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$isLoading)
+            .map { $0 }
+            .debounce(.milliseconds(100), scheduler: MainScheduler.instance)
+            .observe(on: RxScheduler.main)
             .bind(to: generateImagePreview.rx.isShimmering)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$isLoading)
+            .map { !$0 }
             .bind(to: descriptionLabel.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.archiveData }
+            .bind(with: self) { owner, archiveData in
+                owner.setupCameraDisplayPermission(archiveData)
+            }
             .disposed(by: disposeBag)
         
         
     }
     
+}
+
+extension ImageGenerateViewController {
+    
+    private func updateUploadButtonLayout(_ isUserInteractionEnabled: Bool) {
+        let textColor = isUserInteractionEnabled ? DesignSystemAsset.black.color : DesignSystemAsset.gray500.color
+        let backgroundColor = isUserInteractionEnabled ? DesignSystemAsset.mainYellow.color : DesignSystemAsset.gray800.color
+        
+        uploadButton.backgroundColor = backgroundColor
+        uploadButton.setTitleColor(textColor, for: .normal)
+        uploadButton.isUserInteractionEnabled = isUserInteractionEnabled
+    }
+    
+    
+    private func setupCameraDisplayPermission(_ originalData: Data) {
+        let status = PHPhotoLibrary.authorizationStatus(for: .addOnly)
+        if status == .authorized || status == .limited {
+            PHPhotoLibrary.shared().performChanges {
+                let creationRequest = PHAssetCreationRequest.forAsset()
+                creationRequest.addResource(with: .photo, data: originalData, options: nil)
+            }
+        } else {
+            PHPhotoLibrary.requestAuthorization(for: .addOnly) { stauts in
+                switch status {
+                case .denied:
+                    DispatchQueue.main.async {
+                        self.showPermissionAlertController()
+                    }
+                default:
+                    print("다른 여부의 권한을 거부 당했습니다.")
+                }
+            }
+        }
+    }
+    
+    private func showPermissionAlertController() {
+        let permissionAlertController: UIAlertController = UIAlertController(title: "앨범 접근 권한 설정이 없습니다.", message: "앨범에 저장하려면 앨범에 접근할 수 있도록 허용되어 있어야 합니다.", preferredStyle: .alert)
+        
+        let cancelAction: UIAlertAction = UIAlertAction(title: "취소", style: .cancel) { _ in
+            permissionAlertController.dismiss(animated: true)
+        }
+        
+        let settingAction: UIAlertAction = UIAlertAction(title: "설정으로 이동하기", style: .default) { _ in
+            UIApplication.shared.open(URLTypes.settings.originURL)
+        }
+        
+        [cancelAction,settingAction].forEach(permissionAlertController.addAction(_:))
+        permissionAlertController.overrideUserInterfaceStyle = .dark
+        present(permissionAlertController, animated: true)
+    }
 }

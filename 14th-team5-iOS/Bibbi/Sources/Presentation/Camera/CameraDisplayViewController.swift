@@ -381,6 +381,12 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .drive(displayView.rx.image)
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$saveBinaryData)
+            .bind(with: self) { owner, binaryData in
+                owner.setupCameraDisplayPermission(binaryData)
+            }
+            .disposed(by: disposeBag)
+        
         reactor.state
             .map { $0.isError }
             .filter { $0 }
@@ -411,8 +417,7 @@ extension CameraDisplayViewController {
     private func setupCameraDisplayPermission(_ originalData: Data) {
         let status = PHPhotoLibrary.authorizationStatus(for: .addOnly)
         if status == .authorized || status == .limited {
-            PHPhotoLibrary.shared().performChanges { [weak self] in
-                guard let `self` = self else { return }
+            PHPhotoLibrary.shared().performChanges {
                 let creationRequest = PHAssetCreationRequest.forAsset()
                 creationRequest.addResource(with: .photo, data: originalData, options: nil)
             }
@@ -420,8 +425,7 @@ extension CameraDisplayViewController {
             PHPhotoLibrary.requestAuthorization(for: .addOnly) { stauts in
                 switch status {
                 case .denied:
-                    DispatchQueue.main.async { [weak self] in
-                        guard let `self` = self else { return }
+                    DispatchQueue.main.async {
                         self.showPermissionAlertController()
                     }
                 default:

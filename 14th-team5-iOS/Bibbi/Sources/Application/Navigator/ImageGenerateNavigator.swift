@@ -14,7 +14,9 @@ import DesignSystem
 protocol ImageGenerateNavigatorProtocol: BaseNavigator {
     func toHome()
     func showErrorAlert(_ description: String)
+    func showToast()
     func toCamera()
+    func showWarningAlert()
 }
 
 
@@ -35,6 +37,18 @@ final class ImageGenerateNavigator: ImageGenerateNavigatorProtocol {
         navigationController.popViewController(animated: true)
     }
     
+    func showToast() {
+        let config = BBToastConfiguration(direction: .bottom(yOffset: -20))
+        let viewConfig = BBToastViewConfiguration(minWidth: 207)
+        
+        BBToast.default(
+            image: DesignSystemAsset.camera.image.withTintColor(DesignSystemAsset.gray300.color),
+            title: "사진이 저장되었습니다.",
+            viewConfig: viewConfig,
+            config: config
+        ).show()
+    }
+    
     func showErrorAlert(_ description: String) {
         let confirmHandler: BBAlertActionHandler = { [weak self] alert in
             self?.toCamera()
@@ -51,11 +65,6 @@ final class ImageGenerateNavigator: ImageGenerateNavigatorProtocol {
             BBAlertAction(title: "홈으로 이동하기", style: .cancel, handler: cancelHandler)
         ]
         
-        let viewConfig = BBAlertViewConfiguration(
-            minHeight: 384,
-            buttonAxis: .vertical
-        )
-        
         BBAlert.image(
             image: DesignSystemAsset.uploadFailed.image,
             title: "이미지 생성에 실패했어요",
@@ -65,5 +74,24 @@ final class ImageGenerateNavigator: ImageGenerateNavigatorProtocol {
             actions: alertAction,
             config: BBAlertConfiguration()
         ).show()
+    }
+    
+    func showWarningAlert() {
+        let cancelHandler: BBAlertActionHandler = { [weak self] alert in
+            self?.toHome()
+            alert?.close()
+        }
+        
+        let confirmHandler :BBAlertActionHandler = { alert in
+            alert?.close()
+        }
+        
+        
+        BBAlert.style(
+            .aiImageWarning,
+            primaryAction: confirmHandler,
+            secondaryAction: cancelHandler
+        ).show()
+  
     }
 }

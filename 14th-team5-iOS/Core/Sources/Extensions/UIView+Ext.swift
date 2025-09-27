@@ -114,6 +114,7 @@ extension UIImageView {
     }
     
     private func stopShimmering() {
+        layer.mask?.removeAllAnimations()
         layer.mask = nil
     }
 }

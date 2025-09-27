@@ -178,6 +178,29 @@ public class BBAlert {
             )
             return BBAlert(view: view, actions: actions, config: config)
             
+        case .aiImageWarning:
+            let actions = [
+                BBAlertAction(title: "홈으로", style: .cancel, handler: secondaryHandler),
+                BBAlertAction(title: "취소", style: .default, handler: primaryHandler)
+            ]
+            
+            let viewConfig = BBAlertViewConfiguration(
+                minHeight: 181,
+                buttonAxis: .horizontal
+            )
+            
+            let view = DefaultAlertView(
+                child: TextAlertView(
+                    "생성 중인 이미지가 있어요",
+                    subtitle: "이미지 생성 도중에 페이지를 벗어나면\n이미지 생성에 취소돼요",
+                    viewConfig: viewConfig
+                ),
+                viewConfig: viewConfig
+            )
+            
+            return BBAlert(view: view, actions: actions, config: config)
+            
+            
         case .makeNewFamily:
             let actions = [
                 BBAlertAction(title: "취소", style: .cancel),

@@ -54,7 +54,7 @@ final class StudioBannerView: UIView {
 
 extension StudioBannerView {
     private func setupUI() {
-        addSubviews(headerView, bannerImageView)
+        addSubviews(bannerImageView, headerView)
         headerView.addSubviews(themeLabel, dateLabel,
                                infoButton, countLabel)
     }
@@ -121,6 +121,7 @@ extension StudioBannerView {
             $0.contentMode = .scaleAspectFill
             $0.isUserInteractionEnabled = true
             $0.addGestureRecognizer(bannerTapGesture)
+            $0.layer.cornerRadius = 24
         }
     }
     

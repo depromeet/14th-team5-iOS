@@ -23,7 +23,7 @@ public final class BibbiSegmentedControl: UIView {
 
     // MARK: - Exposed State
     public let selected: BehaviorRelay<SelectedSegment> = .init(value: .survival)
-    public let isUpdated: BehaviorRelay<Bool> = .init(value: true)
+    public let isUpdated: BehaviorRelay<Bool> = .init(value: false)
 
     // MARK: - Views
     internal let survivalButton = UIButton(type: .system)
@@ -40,7 +40,7 @@ public final class BibbiSegmentedControl: UIView {
         setupAttributes()
         setupLayout()
         bind()
-        applySelection(selected.value) // 초기선택 반영
+        applySelection(selected.value)
     }
 
     required init?(coder: NSCoder) {
@@ -79,21 +79,25 @@ private extension BibbiSegmentedControl {
             return cfg
         }
 
-        // 공통 업데이트 핸들러
-        let updateHandler: UIButton.ConfigurationUpdateHandler = { btn in
+        let updateHandler: UIButton.ConfigurationUpdateHandler = { [weak self] btn in
+            guard let self = self else { return }
             var c = btn.configuration
+
             if btn.isSelected {
-                c?.baseBackgroundColor = .gray100
-                c?.baseForegroundColor = .bibbiBlack
+                if btn != self.studioButton {               // ← 스튜디오는 배경색/전경색 안 건드림
+                    btn.backgroundColor = .gray100
+                    c?.baseForegroundColor = .bibbiBlack
+                }
             } else {
-                c?.baseBackgroundColor = .clear
+                btn.backgroundColor = .clear
                 c?.baseForegroundColor = .gray500
             }
+
             btn.configuration = c
             btn.layer.cornerRadius = 20
             btn.layer.masksToBounds = true
         }
-
+        
         survivalButton.do {
             $0.configuration = makeConfig(title: "생존")
             $0.configurationUpdateHandler = updateHandler
@@ -106,18 +110,27 @@ private extension BibbiSegmentedControl {
 
         studioButton.do {
             $0.configuration = .plain()
-            $0.configuration?.attributedTitle = AttributedString(
-                NSAttributedString(
-                    string: "사진관",
-                    attributes: [.font: UIFont.style(.body2Bold)])
-            )
-            $0.configuration?.imagePlacement = .trailing
-            $0.configuration?.imagePadding = 4
-            $0.layer.cornerRadius = 20
-            $0.configuration?.baseBackgroundColor = .clear
-            $0.setImage(DesignSystemAsset.studioButton.image, for: .normal)
-            $0.configurationUpdateHandler = updateHandler
+            $0.configurationUpdateHandler = { btn in
+                var config = btn.configuration ?? .plain()
+
+                // 상태별 배경 이미지
+                var bg = UIBackgroundConfiguration.clear()
+                bg.image = btn.isSelected
+                    ? DesignSystemAsset.studioSelected.image
+                    : DesignSystemAsset.studioUnselected.image
+                bg.imageContentMode = .scaleAspectFill
+
+                config.background = bg
+                config.attributedTitle = nil
+                config.baseForegroundColor = .clear
+                config.contentInsets = .init(top: 0, leading: 0, bottom: 0, trailing: 0)
+
+                btn.configuration = config
+                btn.layer.cornerRadius = 20
+                btn.clipsToBounds = true
+            }
         }
+
     }
 
     func setupLayout() {

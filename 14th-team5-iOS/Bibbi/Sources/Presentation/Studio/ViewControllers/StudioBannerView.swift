@@ -121,6 +121,7 @@ extension StudioBannerView {
             $0.contentMode = .scaleAspectFill
             $0.isUserInteractionEnabled = true
             $0.addGestureRecognizer(bannerTapGesture)
+            $0.layer.cornerRadius = 24
         }
     }
     

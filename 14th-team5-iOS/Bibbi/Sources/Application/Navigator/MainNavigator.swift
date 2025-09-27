@@ -28,6 +28,7 @@ protocol MainNavigatorProtocol: BaseNavigator {
     func toFamilyManagement()
     func toMonthlyCalendar()
     func toNotification()
+    func showTermsAlert()
 }
 
 final class MainNavigator: MainNavigatorProtocol {
@@ -95,5 +96,42 @@ final class MainNavigator: MainNavigatorProtocol {
     func toNotification() {
         let vc = NotificationViewControllerWrapper().viewController
         navigationController.pushViewController(vc, animated: true)
+    }
+    
+    func showTermsAlert() {
+        let cancelHandler: BBAlertActionHandler = { alert in
+            alert?.close()
+        }
+        let confirmHandler: BBAlertActionHandler = { alert in
+            //TODO: 가족사진관 화면으로 이동
+            alert?.close()
+        }
+        
+        let alertAction: [BBAlertAction] = [
+            BBAlertAction(title: "취소", style: .cancel, handler: cancelHandler),
+            BBAlertAction(title: "동의하기", style: .default, handler: confirmHandler)
+        ]
+        
+        let viewConfig = BBAlertViewConfiguration(
+            minHeight: 205,
+            buttonAxis: .horizontal
+        )
+        
+        
+        BBAlert.textWithButton(
+            title: "AI 이미지 생성",
+            titleFontStyle: .head2Bold,
+            subtitle: "이미지 생성 기능을 사용하려면 약관에 대한 동의가 필요해요",
+            subtitleFontStyle: .body2Regular,
+            linkTitle: "이용약관",
+            linkActions: { [weak self] alert in
+                self?.toCamera(.ai)
+                alert?.close()
+            },
+            actions: alertAction,
+            viewConfig: viewConfig,
+            config: BBAlertConfiguration()
+            
+        )?.show()
     }
 }

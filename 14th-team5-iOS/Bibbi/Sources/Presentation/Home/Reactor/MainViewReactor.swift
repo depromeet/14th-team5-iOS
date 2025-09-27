@@ -149,6 +149,7 @@ extension MainViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .fetchMainUseCase:
+            navigator.showTermsAlert()
             return fetchMainUseCase.execute()
                 .asObservable()
                 .flatMap { data -> Observable<Mutation> in

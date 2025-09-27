@@ -107,6 +107,42 @@ public class BBAlert {
     }
     
     
+    public static func textWithButton(
+        title: String,
+        titleFontStyle: BBFontStyle? = nil,
+        subtitle: String? = nil,
+        subtitleFontStyle: BBFontStyle? = nil,
+        linkTitle: String? = nil,
+        linkTitleFontStyle: BBFontStyle? = nil,
+        linkActions: ((BBAlert?) -> Void)?,
+        actions: [BBAlertAction] = [],
+        viewConfig: BBAlertViewConfiguration = BBAlertViewConfiguration(),
+        config: BBAlertConfiguration = BBAlertConfiguration()
+    ) -> BBAlert? {
+        let view = DefaultAlertView(
+            child: TextLinkAlertView(
+                title,
+                titleFontStyle: titleFontStyle,
+                subtitle: subtitle,
+                subtitleFontStyle: subtitleFontStyle,
+                linkTitle: linkTitle,
+                linkTitleFontStyle: linkTitleFontStyle,
+                linkAction: linkActions,
+                viewConfig: viewConfig
+            ),
+            viewConfig: viewConfig
+        )
+        
+        let alert = BBAlert(view: view, actions: actions, config: config)
+        
+        if let textLinkView = view.child as? TextLinkAlertView {
+            textLinkView.alert = alert
+        }
+        
+        return alert
+    }
+    
+    
     /// 텍스트, 서브 텍스트와 이미지가 포함된 Alert를 생성합니다.
     /// - Parameters:
     ///   - image: 이미지

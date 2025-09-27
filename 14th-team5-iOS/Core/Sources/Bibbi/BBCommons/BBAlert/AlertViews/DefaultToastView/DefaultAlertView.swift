@@ -12,7 +12,7 @@ public class DefaultAlertView: UIView, BBAlertView {
     
     // MARK: - Views
     
-    private let child: BBAlertStackView
+    public let child: BBAlertStackView
     
     private let buttonStack: UIStackView = UIStackView()
     

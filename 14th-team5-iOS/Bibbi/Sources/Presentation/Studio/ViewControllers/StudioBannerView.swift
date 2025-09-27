@@ -54,7 +54,7 @@ final class StudioBannerView: UIView {
 
 extension StudioBannerView {
     private func setupUI() {
-        addSubviews(headerView, bannerImageView)
+        addSubviews(bannerImageView, headerView)
         headerView.addSubviews(themeLabel, dateLabel,
                                infoButton, countLabel)
     }

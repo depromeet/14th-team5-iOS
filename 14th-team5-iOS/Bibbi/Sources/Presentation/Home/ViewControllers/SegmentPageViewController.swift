@@ -35,7 +35,6 @@ final class SegmentPageViewController: UIPageViewController {
         dataSource = self
         delegate   = self
         
-        self.isPageScrollEnabled = false
         setViewControllers([survivalVC], direction: .forward, animated: false)
         bind()
     }
@@ -106,7 +105,12 @@ extension SegmentPageViewController: UIPageViewControllerDelegate, UIPageViewCon
               let currentVC = pageViewController.viewControllers?.first,
               let idx = pages.firstIndex(of: currentVC),
               let feed = BibbiFeedType(index: idx) else { return }
+        
         currentFeed.accept(feed)
+        
+        if finished && completed {
+            self.isPageScrollEnabled = true
+        }
     }
 }
 

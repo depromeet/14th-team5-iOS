@@ -10,6 +10,7 @@ import UIKit
 import DesignSystem
 
 enum Description {
+    case studio
     case survivalNone
     case survivalFull
     case missionNone(Int)
@@ -18,6 +19,8 @@ enum Description {
     
     var text: String {
         switch self {
+        case .studio:
+            return "특별한 날 가족만의 소중한 추억을 만들어요"
         case .survivalNone:
             return "매일 10-24시에 사진 한 장을 올려요"
         case .survivalFull:
@@ -39,6 +42,8 @@ enum Description {
             return DesignSystemAsset.congratulation.image
         case .missionNone:
             return DesignSystemAsset.key.image
+        case .studio:
+            return UIImage()
         }
     }
 }

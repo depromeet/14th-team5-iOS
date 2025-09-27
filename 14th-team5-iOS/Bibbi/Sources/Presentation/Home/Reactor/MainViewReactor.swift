@@ -465,7 +465,7 @@ extension MainViewReactor {
             } else {
                 newState.description = .survivalNone
             }
-        } else {
+        } else if currentState.pageIndex == 1 {
             if !currentState.isMissionUnlocked {
                 newState.description = .missionNone(currentState.leftCount)
             } else {
@@ -475,6 +475,8 @@ extension MainViewReactor {
                     newState.description = .mission(currentState.missionText)
                 }
             }
+        } else {
+            newState.description = .studio
         }
         
         return newState

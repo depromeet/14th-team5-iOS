@@ -188,6 +188,12 @@ extension MainViewController {
                 )
             })
             .disposed(by: disposeBag)
+        
+        pageViewController.currentFeed
+            .debug("feedchanged")
+            .distinctUntilChanged()
+            .bind(to: segmentControl.rx.setSelectedType)
+            .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: MainViewReactor) {

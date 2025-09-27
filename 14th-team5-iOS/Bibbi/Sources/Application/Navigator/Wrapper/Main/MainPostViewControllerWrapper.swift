@@ -13,9 +13,9 @@ import MacrosInterface
 @Wrapper<MainPostViewReactor, MainPostViewController>
 final class MainPostViewControllerWrapper {
    
-    private let type: PostType
+    private let type: BibbiFeedType
     
-    init(type: PostType) {
+    init(type: BibbiFeedType) {
         self.type = type
     }
     

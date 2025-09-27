@@ -33,6 +33,8 @@ public enum BBToolTipType: Equatable {
     /// 홈 화면 생존 신고 알림 Tool Tip
     case waitingSurvivalImage(contentText: String, imageURL:[URL])
     
+    case studio
+    
     
     var xPosition: BBToolTipHorizontalPosition {
         switch self {
@@ -127,6 +129,14 @@ public enum BBToolTipType: Equatable {
                 yPosition: .bottom,
                 xPosition: .center,
                 contentText: "\(contentText)님 외 \(profile.count - 1)명이 기다리고 있어요"
+            )
+        case .studio:
+            return .init(
+                foregroundColor: .bibbiWhite,
+                backgroundColor: .gray700,
+                yPosition: .top,
+                xPosition: .center,
+                contentText: "추석이 있는 한 달 동안만\n열리는 AI 가족사진관 이벤트입니다"
             )
         }
     }

@@ -15,12 +15,12 @@ final class CameraDisplayViewControllerWrapper {
     
     private let displayData: Data
     private let missionTitle: String
-    private let cameraDisplayType: PostType
+    private let cameraDisplayType: BibbiFeedType
     
     public init(
         displayData: Data,
         missionTitle: String = "",
-        cameraDisplayType: PostType = .survival
+        cameraDisplayType: BibbiFeedType = .survival
     ) {
         self.displayData = displayData
         self.missionTitle = missionTitle

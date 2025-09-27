@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "mingcute.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

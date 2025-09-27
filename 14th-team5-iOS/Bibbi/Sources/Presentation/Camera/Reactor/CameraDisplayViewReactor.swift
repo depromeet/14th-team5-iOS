@@ -49,7 +49,7 @@ public final class CameraDisplayViewReactor: Reactor {
     public struct State {
         @Pulse var isLoading: Bool
         var displayDescrption: String
-        var cameraType: PostType
+        var cameraType: BibbiFeedType
         @Pulse var isError: Bool
         @Pulse var displayData: Data
         @Pulse var missionTitle: String
@@ -64,7 +64,7 @@ public final class CameraDisplayViewReactor: Reactor {
     init(
         displayData: Data,
         missionTitle: String,
-        cameraType: PostType = .survival
+        cameraType: BibbiFeedType = .survival
     ) {
         self.initialState = State(
             isLoading: true,

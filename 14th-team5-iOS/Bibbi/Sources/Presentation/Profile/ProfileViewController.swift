@@ -186,27 +186,33 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .bind(to: profileView.rx.isSetting)
             .disposed(by: disposeBag)
         
-        reactor
-          .state.map { $0.feedType == .survival ? true : false }
-          .distinctUntilChanged()
-          .observe(on: MainScheduler.instance)
-          .bind(to: profileSegementControl.rx.isSelected)
-          .disposed(by: disposeBag)
-        
-        profileSegementControl
-            .missionButton.rx.tap
-            .throttle(.milliseconds(100), scheduler: MainScheduler.instance)
-            .map { Reactor.Action.didTapSegementControl(.mission) }
-            .bind(to: reactor.action)
+        reactor.state
+            .map { $0.feedType }
+            .distinctUntilChanged()
+            .asDriver(onErrorDriveWith: .empty())
+            .drive(profileSegementControl.rx.setSelectedType)
             .disposed(by: disposeBag)
-        
-        profileSegementControl
-            .survivalButton.rx.tap
-            .throttle(.milliseconds(100), scheduler: MainScheduler.instance)
-            .map { Reactor.Action.didTapSegementControl(.survival) }
-            .bind(to: reactor.action)
+//        
+//        profileSegementControl
+//            .missionButton.rx.tap
+//            .throttle(.milliseconds(100), scheduler: MainScheduler.instance)
+//            .map { Reactor.Action.didTapSegementControl(.mission) }
+//            .bind(to: reactor.action)
+//            .disposed(by: disposeBag)
+//        
+//        profileSegementControl
+//            .survivalButton.rx.tap
+//            .throttle(.milliseconds(100), scheduler: MainScheduler.instance)
+//            .map { Reactor.Action.didTapSegementControl(.survival) }
+//            .bind(to: reactor.action)
+//            .disposed(by: disposeBag)
+//        
+        profileSegementControl.rx.selectedFeedType
+            .asDriver(onErrorDriveWith: .empty())
+            .throttle(.milliseconds(300))
+            .map(Reactor.Action.didTapSegementControl)
+            .drive(reactor.action)
             .disposed(by: disposeBag)
-      
         
         
         reactor.pulse(\.$profileMemberEntity)

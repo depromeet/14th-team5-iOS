@@ -15,6 +15,7 @@ public extension UserDefaultsWrapper.Key {
     static let isFirstShowWidgetAlert: Self = "isFirstShowWidgetAlert"
     static let isFirstFamilyManagement: Self = "isFirstFamilyManagement"
     static let isFirstOnboarding: Self = "isFirstOnboarding"
+    static let isAITermsAgreed: Self = "isAITermsAgreed"
     static let inviteCode: Self = "inviteCode"
     
     

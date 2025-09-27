@@ -6,14 +6,13 @@
 //
 
 import Foundation
-
-
+import Core
 
 public struct PostDetailEntity {
     public let postId: String
     public let authorId: String
     public var author: MemberInfoEntity?
-    public let type: PostType
+    public let type: BibbiFeedType
     public let missionId: String?
     public let commentCount: Int
     public let emojiCount: Int
@@ -26,7 +25,7 @@ public struct PostDetailEntity {
         postId: String,
         authorId: String,
         author: MemberInfoEntity?,
-        type: PostType,
+        type: BibbiFeedType,
         missionId: String?,
         commentCount: Int,
         emojiCount: Int,

@@ -5,6 +5,7 @@
 //  Created by 김건우 on 5/3/24.
 //
 
+import Core
 import Domain
 import Foundation
 
@@ -56,7 +57,7 @@ extension ArrayResponseDailyCalendarResponseDTO.DailyCalendarResponseDTO {
     func toDomain() -> DailyCalendarEntity {
         return DailyCalendarEntity(
             date: date.toDate(with: .dashYyyyMMdd),
-            type: PostType(rawValue: type) ?? .survival,
+            type: BibbiFeedType(rawValue: type) ?? .survival,
             postId: postId,
             postImageUrl: postImageUrl,
             postContent: postContent,

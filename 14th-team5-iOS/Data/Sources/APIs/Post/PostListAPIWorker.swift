@@ -28,6 +28,24 @@ extension PostAPIWorker {
         return request(spec)
     }
     
+    /// 가족 사진관 게시물 전체 조회하기 위한 Method 입니다.
+    /// HTTP Method : GET
+    /// - Parameters : PostListQueryDTO
+    func fetchAIPostList(query: PostListQueryDTO) -> Observable<PostListResponseDTO?> {
+        let spec = PostsAPIs.fetchAIPostList(query: query).spec
+        
+        return request(spec)
+    }
+    
+    /// 가족 사진관 게시물 전체 조회하기 위한 Method 입니다.
+    /// HTTP Method : GET
+    /// - Parameters
+    func fetchAICount() -> Observable<AIPostCountResponseDTO?> {
+        let spec = PostsAPIs.fetchAICount.spec
+        
+        return request(spec)
+    }
+    
     /// 게시물 단일 조회 하기 위한 Method 입니다.
     /// HTTP Method : GET
     /// - Parameters : PostId(게시글 고유 ID)

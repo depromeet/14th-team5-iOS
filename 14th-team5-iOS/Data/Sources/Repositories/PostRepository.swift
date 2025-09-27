@@ -27,7 +27,7 @@ extension PostRepository {
             size: query.size,
             date: query.date,
             memberId: query.memberId,
-            type: query.type == .studio ? nil : query.type.rawValue,
+            type: query.type == .studio ? nil : query.type.rawValue
         )
         guard let _ = query.type else {
             return postAPIWorker.fetchAIPostList(query: query)

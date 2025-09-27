@@ -56,11 +56,16 @@ extension StudioPageViewController {
     private func bindInput(reactor: StudioPageReactor) {
         bannerView.rx.imageTap
             .map { Reactor.Action.bannerClicked }
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: StudioPageReactor) {
-       
+        reactor.state
+            .map { $0.memoriesCount }
+            .distinctUntilChanged()
+            .bind(to: bannerView.rx.count)
+            .disposed(by: disposeBag)
     }
 }

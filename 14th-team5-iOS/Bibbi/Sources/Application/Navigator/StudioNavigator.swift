@@ -12,7 +12,7 @@ import UIKit
 protocol StudioNavigatorProtocol: BaseNavigator {
     func showErrorToast(message: String)
     func showTermsAlert(complection: @escaping () -> ())
-    
+    func toCamera()
     func toTerms()
 }
 
@@ -26,11 +26,20 @@ final class StudioNavigator: StudioNavigatorProtocol {
     }
     
     func showErrorToast(message: String) {
-        BBToast.text(message).show()
+        let config = BBToastConfiguration(direction: .bottom(yOffset: -75))
+        let viewConfig = BBToastViewConfiguration(minWidth: 228)
+        
+        
+        BBToast.text(message, viewConfig: viewConfig, config: config).show()
     }
     
     func toTerms() {
         let vc = WebContentViewControllerWrapper(url: URLTypes.terms.originURL).viewController
+        navigationController.pushViewController(vc, animated: true)
+    }
+    
+    func toCamera() {
+        let vc = CameraViewControllerWrapper(cameraType: .ai).viewController
         navigationController.pushViewController(vc, animated: true)
     }
     

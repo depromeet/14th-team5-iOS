@@ -53,7 +53,7 @@ public enum BibbiAPI {
         public var value: String {
             switch self {
             case let .auth(token): return "Bearer \(token)"
-            case .xAppKey: return "cf786061-a161-427b-8e55-b1a0dbc02785" // TODO: - 번들에서 가져오기
+            case .xAppKey: return "9f378953-7869-4923-99ff-53d472572b0c" // TODO: - 번들에서 가져오기
             case let .xAuthToken(token): return "\(token)"
             case .contentForm: return "application/x-www-form-urlencoded"
             case .contentJson: return "application/json"

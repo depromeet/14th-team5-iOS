@@ -35,6 +35,10 @@ final class AppDIContainer: BaseContainer {
         SaveIsFirstFamilyManagementUseCase(repository: makeAppRepository())
     }
     
+    private func makeSaveIsAITermsAgreedUseCase() -> SaveIsAITermsAgreedUseCaseProtocol {
+        SaveIsAITermsAgreedUseCase(repository: makeAppRepository())
+    }
+    
     
     // MARK: - Make Repository
     
@@ -46,6 +50,11 @@ final class AppDIContainer: BaseContainer {
     // MARK: - Register
     
     func registerDependencies() {
+        
+        container.register(type: SaveIsAITermsAgreedUseCaseProtocol.self) { _ in
+            self.makeSaveIsAITermsAgreedUseCase()
+        }
+        
         container.register(type: IsFirstWidgetAlertUseCaseProtocol.self) { _ in
             self.makeCheckIsFirstWidgetAlertUseCase()
         }

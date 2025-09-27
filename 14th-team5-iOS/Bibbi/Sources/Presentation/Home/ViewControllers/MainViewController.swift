@@ -252,8 +252,7 @@ extension MainViewController {
         reactor.state
             .map { $0.isMissionUnlocked }
             .distinctUntilChanged()
-            .asDriver(onErrorDriveWith: .empty())
-            .drive(segmentControl.rx.isUpdated)
+            .bind(to: segmentControl.isUpdated)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$contributor)

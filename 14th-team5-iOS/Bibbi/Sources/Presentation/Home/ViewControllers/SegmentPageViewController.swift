@@ -34,7 +34,8 @@ final class SegmentPageViewController: UIPageViewController {
         super.viewDidLoad()
         dataSource = self
         delegate   = self
-
+        
+        self.isPageScrollEnabled = false
         setViewControllers([survivalVC], direction: .forward, animated: false)
         bind()
     }

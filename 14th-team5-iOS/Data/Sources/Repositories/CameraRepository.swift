@@ -24,7 +24,7 @@ public final class CameraRepository {
 }
 
 extension CameraRepository: CameraRepositoryProtocol {
-    
+        
     public func createEmojiImagePresignedURL(memberID: String, body: CreatePresignedURLRequest) -> Observable<CameraRealEmojiPreSignedEntity> {
         let body = CreatePresignedURLReqeustDTO(imageName: body.imageName)
         return cameraAPIWorker.createRealEmojiPresignedURL(memberId: memberID, body: body)

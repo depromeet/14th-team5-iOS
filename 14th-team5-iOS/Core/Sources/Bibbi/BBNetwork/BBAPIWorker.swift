@@ -83,6 +83,13 @@ public protocol Workable: AnyObject {
         serializer: BBUploadResponseSerializer,
         on queue: any SchedulerType
     ) -> Observable<Bool>
+    
+    @discardableResult
+    func upload<D>(
+        _ spec: any ResponseRequestable,
+        with binaryData: Data,
+        multipartFormData: [String: String]
+    ) async throws -> D where D: Decodable
 }
 
 // MARK: - Default API Worker
@@ -205,6 +212,40 @@ extension BBRxAPIWorker: Workable {
         }
         .observe(on: queue)
     }
+    
+        
+    public func upload<D>(
+        _ spec: ResponseRequestable,
+        with binaryData: Data,
+        multipartFormData: [String: String]
+    ) async throws -> D where D: Decodable {
+        try await withCheckedThrowingContinuation { continuation in
+            let multipartRequest = self.service.upload(
+                spec,
+                with: binaryData,
+                multipartFormData: multipartFormData
+            ) { [unowned self] response in
+                
+                switch response {
+                case let .success(data):
+                    do {
+                        let decoded: D = try self.decode(data, using: spec.responseDecoder)
+                        continuation.resume(returning: decoded)
+                    } catch {
+                        let mappedError = self.errorMapper.map(networkError: error)
+                        self.errorLogger.log(error: mappedError)
+                        continuation.resume(throwing: mappedError)
+                    }
+
+                case let .failure(error):
+                    let mappedError = self.errorMapper.map(networkError: error)
+                    self.errorLogger.log(error: mappedError)
+                    continuation.resume(throwing: mappedError)
+                }
+            }
+        }
+    }
+    
     
     /// 매개변수로 주어진 스펙(spec) 정보를 바탕으로 HTTP 통신을 수행합니다.
     ///

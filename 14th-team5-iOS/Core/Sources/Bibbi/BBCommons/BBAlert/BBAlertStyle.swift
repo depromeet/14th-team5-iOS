@@ -26,7 +26,7 @@ extension BBAlert {
         case takePhoto
         case uploadFailed
         case photoDisabled
-        case AITermAgreement
+        case aiImageWarning
     }
     
 }

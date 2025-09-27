@@ -21,15 +21,17 @@ extension UIImage {
         
         
         //Image Source 생성 메서드 Data -> Image Source로 변환
-        guard let photoData = self.jpegData(compressionQuality: 1.0),
+        guard let photoData = self.jpegData(compressionQuality: 0.8),
               let imageSource = CGImageSourceCreateWithData(photoData as CFData, imageSourceOptions) else { return nil }
         
         
+        let maxPixelSize = 1024
         
         let imageDownSampleOptions = [
             kCGImageSourceShouldCacheImmediately: true,
             kCGImageSourceCreateThumbnailFromImageAlways: true,
-            kCGImageSourceCreateThumbnailWithTransform: true
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize
         ] as CFDictionary
         
         // Image Soruce 를 통해 CGImage로 변환

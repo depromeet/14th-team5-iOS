@@ -52,6 +52,7 @@ public final class CameraDisplayViewReactor: Reactor {
         var cameraType: BibbiFeedType
         @Pulse var isError: Bool
         @Pulse var displayData: Data
+        @Pulse var saveBinaryData: Data
         @Pulse var missionTitle: String
         @Pulse var displaySection: [DisplayEditSectionModel]
         @Pulse var displayEntity: CreatePostPresignedURLEntity?
@@ -72,6 +73,7 @@ public final class CameraDisplayViewReactor: Reactor {
             cameraType: cameraType,
             isError: false,
             displayData: displayData,
+            saveBinaryData: .empty,
             missionTitle: missionTitle,
             displaySection: [.displayKeyword([])],
             displayEntity: nil,
@@ -217,7 +219,7 @@ public final class CameraDisplayViewReactor: Reactor {
         case let .setRenderImage(originalData):
             newState.displayData = originalData
         case let .saveDeviceimage(saveData):
-            newState.displayData = saveData
+            newState.saveBinaryData = saveData
         case let .setDisplayEditSection(section):
             let sectionIndex = getSection(.displayKeyword([]))
             newState.displaySection[sectionIndex] = .displayKeyword(section)

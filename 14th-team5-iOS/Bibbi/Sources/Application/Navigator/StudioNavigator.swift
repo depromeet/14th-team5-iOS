@@ -28,10 +28,10 @@ final class StudioNavigator: StudioNavigatorProtocol {
     }
     
     func showAITermAlert(saveAction: BBAlertActionHandler) {
-        BBAlert.style(.AITermAgreement,
-                      primaryAction: saveAction,
-                      secondaryAction: { [weak self] _ in
-            self?.navigationController.popViewController(animated: true)
-        }).show()
+//        BBAlert.style(.AITermAgreement,
+//                      primaryAction: saveAction,
+//                      secondaryAction: { [weak self] _ in
+//            self?.navigationController.popViewController(animated: true)
+//        }).show()
     }
 }

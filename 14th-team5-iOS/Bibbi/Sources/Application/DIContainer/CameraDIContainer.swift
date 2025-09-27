@@ -18,11 +18,6 @@ final class CameraDIContainer: BaseContainer {
         return CameraRepository()
     }
     
-    
-    private func makeFetchCameraUploadImageUseCase() -> FetchCameraUploadImageUseCaseProtocol {
-        return FetchCameraUploadImageUseCase(cameraRepository: makeRepository())
-    }
-    
     private func makeFetchCameraRealEmojiUpdateUseCase() -> FetchCameraRealEmojiUpdateUseCaseProtocol {
         return FetchCameraRealEmojiUpdateUseCase(cameraRepostiroy: makeRepository())
     }
@@ -40,12 +35,6 @@ final class CameraDIContainer: BaseContainer {
     }
         
     func registerDependencies() {
-        
-        
-        container.register(type: FetchCameraUploadImageUseCaseProtocol.self) { _ in
-            self.makeFetchCameraUploadImageUseCase()
-        }
-        
         container.register(type: FetchCameraRealEmojiUpdateUseCaseProtocol.self) { _ in
             self.makeFetchCameraRealEmojiUpdateUseCase()
         }

@@ -78,7 +78,7 @@ extension BBNetworkError: LocalizedError {
         case .timeout:
             return "요청 시간이 초과되었습니다. 서버 응답이 너무 느리거나 네트워크가 불안정할 수 있습니다. 다시 시도해 주세요."
         case .badRequest:
-            return "잘못된 요청입니다. 서버에 유효하지 않은 데이터를 보냈습니다. 입력값을 다시 확인하고 요청을 시도하세요. (상태 코드 400)"
+            return "잘못된 요청입니다. 서버에 유효하지 않은 데이터를 보냈습니다. 입력값을 다시 확인하고 요청을 시도하세요."
         case .unauthorized:
             return "인증되지 않은 요청입니다. 로그인 상태가 유효하지 않거나 인증 토큰이 만료되었을 수 있습니다. 다시 로그인한 후 요청을 시도하세요. (상태 코드 401)"
         case .forbidden:

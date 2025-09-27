@@ -46,11 +46,15 @@ extension MainPostViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .refresh:
-            return Observable.concat([
-                provider.mainService.refreshMain()
-                    .flatMap { _ in Observable<Mutation>.empty() },
-                self.mutate(action: .fetchPost)
+            if currentState.type == .studio {
+                return self.mutate(action: .fetchPost)
+            } else {
+                return Observable.concat([
+                    provider.mainService.refreshMain()
+                        .flatMap { _ in Observable<Mutation>.empty() },
+                    self.mutate(action: .fetchPost)
                 ])
+            }
         case .fetchPost:
             let query = PostListQuery(
                 date: DateFormatter.dashYyyyMMdd.string(from: Date()),

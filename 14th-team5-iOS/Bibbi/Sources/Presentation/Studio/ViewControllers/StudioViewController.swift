@@ -32,8 +32,6 @@ final class StudioViewController: BBNavigationViewController<StudioReactor> {
         frame: .init()
     )
     
-    private let refreshControl: UIRefreshControl = UIRefreshControl()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
     }
@@ -88,7 +86,10 @@ final class StudioViewController: BBNavigationViewController<StudioReactor> {
         }
         
         uploadButton.do {
-            $0.imageView?.image = DesignSystemAsset.mingcute.image
+            $0.layer.cornerRadius = 28
+            $0.mainTitleLabel.textColor = .bibbiBlack
+            $0.setLayout([.text, .image], spacing: 8)
+            $0.setImage(DesignSystemAsset.mingcute.image)
             $0.backgroundColor = .init(red: 255, green: 227, blue: 101, alpha: 1)
         }
     }

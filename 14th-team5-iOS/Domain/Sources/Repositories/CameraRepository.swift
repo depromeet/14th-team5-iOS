@@ -8,6 +8,7 @@
 import Foundation
 
 import RxSwift
+import Core
 
 public enum UploadLocation {
     case survival
@@ -40,7 +41,7 @@ public enum UploadLocation {
         }
     }
     
-    public var asPostType: PostType {
+    public var asPostType: BibbiFeedType {
         switch self {
         case .survival:
             return .survival

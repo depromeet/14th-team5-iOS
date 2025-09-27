@@ -99,4 +99,11 @@ final public class AppUserDefaults: AppUserDefaultsType {
         return userDefaults[.isFirstFamilyManagement]
     }
 
+    public func saveIsAITermsAgreed(_ value: Bool) {
+        userDefaults[.isAITermsAgreed] = value
+    }
+    
+    public func loadIsAITermsAgreed() -> Bool? {
+        return userDefaults[.isAITermsAgreed]
+    }
 }

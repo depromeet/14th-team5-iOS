@@ -19,17 +19,20 @@ import RxSwift
 import StoreKit
 
 final class MainViewController: BBNavigationViewController<MainViewReactor>, UICollectionViewDelegateFlowLayout {
-    private let familyViewController: MainFamilyViewController = MainFamilyViewControllerWrapper().makeViewController()
+    private let familyViewController = MainFamilyViewControllerWrapper().makeViewController()
     
-    private let timerView: TimerView = TimerView(reactor: TimerReactor())
-    private let descriptionLabel: BBLabel = BBLabel(.body2Regular, textAlignment: .center, textColor: .gray300)
-    private let imageView: UIImageView = UIImageView()
+    private let timerView = TimerView(reactor: TimerReactor())
+    private let descriptionLabel = BBLabel(.body2Regular, textAlignment: .center, textColor: .gray300)
+    private let imageView = UIImageView()
     
-    private let contributorView: ContributorView = ContributorView(reactor: ContributorReactor())
-    private let segmentControl: BibbiSegmentedControl = BibbiSegmentedControl()
-    private let pageViewController: SegmentPageViewController = SegmentPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
+    private let contributorView = ContributorView(reactor: ContributorReactor())
+    private let segmentControl = BibbiSegmentedControl()
+    private let pageViewController = SegmentPageViewController(
+        transitionStyle: .scroll,
+        navigationOrientation: .horizontal
+    )
     
-    private let cameraButton: MainCameraButtonView = MainCameraButtonView(reactor: MainCameraReactor())
+    private let cameraButton = MainCameraButtonView(reactor: MainCameraReactor())
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -92,12 +95,11 @@ final class MainViewController: BBNavigationViewController<MainViewReactor>, UIC
         segmentControl.snp.makeConstraints {
             $0.top.equalTo(descriptionLabel.snp.bottom).offset(20)
             $0.centerX.equalToSuperview()
-            $0.width.equalTo(138)
             $0.height.equalTo(40)
         }
         
         pageViewController.view.snp.makeConstraints {
-            $0.top.equalTo(segmentControl.snp.bottom).offset(40)
+            $0.top.equalTo(segmentControl.snp.bottom).offset(0)
             $0.horizontalEdges.bottom.equalToSuperview()
         }
         
@@ -143,15 +145,21 @@ extension MainViewController {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        Observable.merge(
-            segmentControl.survivalButton.rx.tap.map { Reactor.Action.didTapSegmentControl(.survival) },
-            segmentControl.missionButton.rx.tap.map { Reactor.Action.didTapSegmentControl(.mission) },
-            pageViewController.indexRelay.filter { $0.way == .scroll }.map { $0.index }.map { Reactor.Action.didTapSegmentControl($0 == 0 ? .survival : .mission)}
-        )
-        .observe(on: MainScheduler.instance)
-        .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-        .bind(to: reactor.action)
-        .disposed(by: disposeBag)
+//        Observable.merge(
+//            segmentControl.survivalButton.rx.tap.map { Reactor.Action.didTapSegmentControl(.survival) },
+//            segmentControl.missionButton.rx.tap.map { Reactor.Action.didTapSegmentControl(.mission) }
+//        )
+//        .observe(on: MainScheduler.instance)
+//        .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+//        .bind(to: reactor.action)
+//        .disposed(by: disposeBag)
+//        
+        segmentControl.rx.selectedFeedType
+            .asDriver(onErrorDriveWith: .empty())
+            .throttle(.milliseconds(300))
+            .map(Reactor.Action.didTapSegmentControl)
+            .drive(reactor.action)
+            .disposed(by: disposeBag)
         
         Observable.merge(
             contributorView.nextButtonTapEvent.map { Reactor.Action.openNextViewController(.contributorNextButtonTap)},
@@ -204,13 +212,13 @@ extension MainViewController {
             .bind(to: familyViewController.familySectionRelay)
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.pageIndex }
+        reactor.state
+            .map { $0.pageIndex }
             .distinctUntilChanged()
-            .withUnretained(self)
-            .observe(on: MainScheduler.instance)
-            .bind(onNext: {
-                $0.0.pageViewController.indexRelay.accept(.init(way: .segmentTap, index: $0.1))
-                $0.0.segmentControl.isSelected = ($0.1 == 0)
+            .compactMap(BibbiFeedType.init(index:))
+            .asDriver(onErrorDriveWith: .empty())
+            .drive(onNext: { [weak self] feed in
+                self?.pageViewController.feedSelection.accept(feed)
             })
             .disposed(by: disposeBag)
         
@@ -241,14 +249,20 @@ extension MainViewController {
             .bind(onNext: { $0.0.setDescription($0.1) })
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.isMissionUnlocked }
+        reactor.state
+            .map { $0.isMissionUnlocked }
             .distinctUntilChanged()
-            .observe(on: MainScheduler.instance)
-            .bind(to: segmentControl.isUpdatedRelay)
+            .asDriver(onErrorDriveWith: .empty())
+            .drive(segmentControl.rx.isUpdated)
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$contributor)
             .bind(to: contributorView.contributorRelay)
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$isCameraHidden)
+            .distinctUntilChanged()
+            .bind(to: cameraButton.rx.isHidden)
             .disposed(by: disposeBag)
         
         Observable.combineLatest(

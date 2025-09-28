@@ -29,8 +29,11 @@ final class ImageGenerateNavigator: ImageGenerateNavigatorProtocol {
     }
     
     func toHome() {
-        let vc = MainViewControllerWrapper().viewController
-        navigationController.setViewControllers([vc], animated: false)
+        guard let studioVC = navigationController.viewControllers.first(where: { $0 is StudioViewController }) else {
+            navigationController.popToRootViewController(animated: true)
+            return
+        }
+        navigationController.popToViewController(studioVC, animated: true)
     }
     
     func toCamera() {

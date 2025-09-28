@@ -202,8 +202,8 @@ extension MainViewReactor {
             } else {
                 //MARK: 자정타임 관련 Mutation
                 return Observable.concat([
-//                    .just(.setInTime(false)),
-//                    .just(.setEnabeldCamera(false)),
+                    .just(.setInTime(false)),
+                    .just(.setEnabeldCamera(false)),
                     .just(.setCameraType(.midNight)),
                     self.mutate(action: .fetchMainNightUseCase),
                     self.mutate(action: .setTimer(isInTime, time))
@@ -488,20 +488,19 @@ extension MainViewReactor {
         
         let currentHour = calendar.component(.hour, from: currentTime)
         
-//        if currentHour >= 10 {
-//            if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {
-//                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
-//                return (true, max(0, timeDifference.second ?? 0))
-//            }
-//        } else {
-//            if let nextMidnight = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: currentTime) {
-//                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
-//                return (false, max(0, timeDifference.second ?? 0))
-//            }
-//        }
-//        
-//        return (false, 1000)
-        return (true, 1000)
+        if currentHour >= 10 {
+            if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {
+                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
+                return (true, max(0, timeDifference.second ?? 0))
+            }
+        } else {
+            if let nextMidnight = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: currentTime) {
+                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
+                return (false, max(0, timeDifference.second ?? 0))
+            }
+        }
+        
+        return (false, 1000)
     }
     
 }

@@ -19,6 +19,7 @@ public class BBButton: UIButton {
     // MARK: - Properties
     public var id: Int?
     private var backgroundColors: [UIControl.State: UIColor] = [:]
+    private var imageTintColor: UIColor?
 
     public override var titleLabel: UILabel? {
         get { mainTitleLabel } // 프로토타입 라벨을 titleLabel로 노출
@@ -83,6 +84,12 @@ public class BBButton: UIButton {
     /// 프로토타입 이미지 설정
     public func setImage(_ image: UIImage?) {
         mainImageView.image = image
+        rebuildStackView(layoutTokens)
+    }
+    
+    public func setImageTintColor(_ color: UIColor?) {
+        imageTintColor = color
+        mainImageView.tintColor = color
         rebuildStackView(layoutTokens)
     }
 
@@ -165,6 +172,12 @@ public class BBButton: UIButton {
                 iv.isUserInteractionEnabled = false
                 iv.setContentHuggingPriority(.required, for: .horizontal)
                 iv.setContentCompressionResistancePriority(.required, for: .horizontal)
+                
+                if let tintColor = imageTintColor {
+                    iv.image = currentImage?.withRenderingMode(.alwaysTemplate)
+                    iv.tintColor = tintColor
+                }
+                
                 mainStackView.addArrangedSubview(iv)
 
             case .spacer(let width):

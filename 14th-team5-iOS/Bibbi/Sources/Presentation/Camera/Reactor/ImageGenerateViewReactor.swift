@@ -30,7 +30,7 @@ public final class ImageGenerateViewReactor: Reactor {
         @Pulse var isLoading: Bool = false
         var archiveData: Data = .empty
         var aiImageEntity: AiImageEntity? = nil
-        var postType: BibbiFeedType = .survival
+        var postType: BibbiFeedType = .studio
     }
     
     public enum Action {

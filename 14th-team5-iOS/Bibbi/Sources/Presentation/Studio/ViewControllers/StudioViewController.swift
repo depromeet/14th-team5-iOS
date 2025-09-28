@@ -87,10 +87,8 @@ final class StudioViewController: BBNavigationViewController<StudioReactor> {
         
         uploadButton.do {
             $0.layer.cornerRadius = 28
-            $0.mainTitleLabel.textColor = .bibbiBlack
             $0.setLayout([.text, .image], spacing: 8)
             $0.setImage(DesignSystemAsset.mingcute.image)
-            $0.backgroundColor = .init(red: 255, green: 227, blue: 101, alpha: 1)
         }
     }
 }
@@ -117,9 +115,12 @@ extension StudioViewController {
         
         reactor.pulse(\.$isEnabledUpload)
             .distinctUntilChanged()
-            .filter { !$0 }.map { _ in .gray500 }
-            .bind(to: uploadButton.rx.backgroundColor)
+            .debug("업로드 버튼 색상 지정")
+            .bind(with: self, onNext: { owner, isEnabled in
+                owner.updateUploadButtonLayout(isEnabled)
+            })
             .disposed(by: disposeBag)
+
         
         reactor.pulse(\.$studioCount)
             .compactMap { $0?.availableCount }
@@ -128,4 +129,18 @@ extension StudioViewController {
             .bind(to: uploadButton.rx.title())
             .disposed(by: disposeBag)
     }
+}
+
+
+extension StudioViewController {
+    private func updateUploadButtonLayout(_ isEnabled: Bool) {
+        let textColor = isEnabled ? DesignSystemAsset.gray500.color : DesignSystemAsset.black.color
+        let backgroundColor = isEnabled ? DesignSystemAsset.gray800.color : DesignSystemAsset.mainYellow.color
+        let imageTintColor = isEnabled ? DesignSystemAsset.gray500.color : DesignSystemAsset.black.color
+        
+        uploadButton.backgroundColor = backgroundColor
+        uploadButton.setImageTintColor(imageTintColor)
+        uploadButton.setTitleColor(textColor, for: .normal)
+    }
+    
 }

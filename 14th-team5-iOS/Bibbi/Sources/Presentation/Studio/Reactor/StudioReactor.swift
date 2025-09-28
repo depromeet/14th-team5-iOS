@@ -41,6 +41,7 @@ final class StudioReactor: Reactor {
     @Injected var fetchStudioCountUsecase: FetchStudioCountUseCaseProtocol
     @Injected var fetchIsAITermsAgreedUsecase: FetchIsAITermsAgreedUseCaseProtocol
     @Injected var saveIsAITermsAgreedUsecase: SaveIsAITermsAgreedUseCaseProtocol
+    @Injected private var provider: ServiceProviderProtocol
 }
 
 extension StudioReactor {
@@ -48,10 +49,13 @@ extension StudioReactor {
         switch action {
         case .fetchStudioCount:
             return fetchStudioCountUsecase.execute()
-                .flatMap { Observable.just(.setStudioCount($0)) }
+                .flatMap { [weak self] entity -> Observable<Mutation> in
+                    self?.provider.studioGlobalState.updateMemoriesItemCount(entity.postCount)
+                    return .just(.setStudioCount(entity))
+                }
         case .didTapUpload:
             if currentState.isEnabledUpload {
-                // 카메라 이동
+                navigator.toCamera()
                 return .empty()
             } else {
                 navigator.showErrorToast(message: "업로드 횟수를 모두 사용했어요")
@@ -61,11 +65,11 @@ extension StudioReactor {
             return fetchIsAITermsAgreedUsecase.execute()
                 .flatMap { [weak self] isAgreed -> Observable<Mutation> in
                     if isAgreed {
-                        return  .just(.setTermsAgreement(true))
+                        return .just(.setTermsAgreement(true))
                     } else {
-                        self?.navigator.showAITermAlert(saveAction: { [weak self] _ in
+                        self?.navigator.showTermsAlert { [weak self] in
                             self?.saveIsAITermsAgreedUsecase.execute(true)
-                        })
+                        }
                         return .empty()
                     }
                 }

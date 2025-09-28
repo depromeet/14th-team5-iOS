@@ -28,11 +28,12 @@ final class StudioBannerView: UIView {
     )
     
     private let headerView = UIView()
-    private let themeLabel = BBLabel(.body2Bold, textColor: .gray400)
+    private let themeLabel = BBLabel()
+    private let themeContainerView = UIView()
     private let dateLabel = BBLabel(.head2Bold, textColor: .gray200)
     private let infoButton = UIButton()
     private let toolTipView: BBToolTip = BBToolTip(.monthlyCalendar)
-    fileprivate let countLabel = BBLabel(.body1Regular, textColor: .gray200)
+    public var countLabel = BBLabel()
     private let bannerImageView = UIImageView()
     
     fileprivate let bannerTapGesture = UITapGestureRecognizer()
@@ -54,20 +55,28 @@ final class StudioBannerView: UIView {
 
 extension StudioBannerView {
     private func setupUI() {
+        themeContainerView.addSubview(themeLabel)
         addSubviews(bannerImageView, headerView)
-        headerView.addSubviews(themeLabel, dateLabel,
+        headerView.addSubviews(themeContainerView, dateLabel,
                                infoButton, countLabel)
     }
     
     private func setupAutoLayout() {
-        themeLabel.snp.makeConstraints {
-            $0.leading.centerY.equalToSuperview()
+        themeContainerView.snp.makeConstraints {
+            $0.width.equalTo(37)
             $0.height.equalTo(24)
+            $0.left.equalToSuperview()
+            $0.centerY.equalToSuperview()
+        }
+        
+        themeLabel.snp.makeConstraints {
+            $0.verticalEdges.equalToSuperview().inset(2)
+            $0.horizontalEdges.equalToSuperview().inset(6)
         }
         
         dateLabel.snp.makeConstraints {
             $0.centerY.equalToSuperview()
-            $0.leading.equalTo(themeLabel.snp.trailing).offset(6)
+            $0.leading.equalTo(themeContainerView.snp.trailing).offset(6)
         }
         
         infoButton.snp.makeConstraints {
@@ -78,6 +87,7 @@ extension StudioBannerView {
         
         countLabel.snp.makeConstraints {
             $0.trailing.centerY.equalToSuperview()
+            $0.height.equalTo(24)
         }
         
         headerView.snp.makeConstraints {
@@ -93,11 +103,23 @@ extension StudioBannerView {
     }
     
     private func setupAttributes() {
-        themeLabel.do {
-            $0.clipsToBounds = true
-            $0.layer.cornerRadius = 12
+        themeContainerView.do {
             $0.backgroundColor = .gray400
+            $0.layer.cornerRadius = 12
+            $0.clipsToBounds = true
+        }
+        
+        themeLabel.do {
             $0.text = configure.theme
+            $0.fontStyle = .body2Bold
+            $0.textAlignment = .center
+            $0.textColor = .black
+        }
+        
+        countLabel.do {
+            $0.textColor = .gray200
+            $0.fontStyle = .body1Regular
+            $0.textAlignment = .right
         }
         
         dateLabel.do {

@@ -243,8 +243,6 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
                 $0.0.navigationController?.pushViewController(imageGenerateViewController, animated: true)
             }.disposed(by: disposeBag)
         
-        
-        
         Observable
             .zip(
                 reactor.state.compactMap { $0.imageData }.distinctUntilChanged(),

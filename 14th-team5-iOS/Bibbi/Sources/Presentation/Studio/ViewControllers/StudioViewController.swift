@@ -87,6 +87,7 @@ final class StudioViewController: BBNavigationViewController<StudioReactor> {
         
         uploadButton.do {
             $0.layer.cornerRadius = 28
+            uploadButton.setTitleFontStyle(.body1Bold)
             $0.setLayout([.text, .image], spacing: 8)
             $0.setImage(DesignSystemAsset.mingcute.image)
         }
@@ -134,9 +135,10 @@ extension StudioViewController {
 
 extension StudioViewController {
     private func updateUploadButtonLayout(_ isEnabled: Bool) {
-        let textColor = isEnabled ? DesignSystemAsset.gray500.color : DesignSystemAsset.black.color
-        let backgroundColor = isEnabled ? DesignSystemAsset.gray800.color : DesignSystemAsset.mainYellow.color
-        let imageTintColor = isEnabled ? DesignSystemAsset.gray500.color : DesignSystemAsset.black.color
+        let textColor = isEnabled ? DesignSystemAsset.black.color : DesignSystemAsset.gray500.color
+        let backgroundColor = isEnabled ? DesignSystemAsset.mainYellow.color : DesignSystemAsset.gray800.color
+        let imageTintColor = isEnabled ? DesignSystemAsset.black.color : DesignSystemAsset.gray500.color
+        
         
         uploadButton.backgroundColor = backgroundColor
         uploadButton.setImageTintColor(imageTintColor)

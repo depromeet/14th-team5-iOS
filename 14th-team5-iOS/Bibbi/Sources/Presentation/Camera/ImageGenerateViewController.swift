@@ -177,8 +177,17 @@ public final class ImageGenerateViewController: ReactorViewController<ImageGener
             .bind(to: descriptionLabel.rx.isHidden)
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$isLoading)
+            .map { !$0 }
+            .bind(to: archiveButton.rx.isUserInteractionEnabled)
+            .disposed(by: disposeBag)
+        
         reactor.state
-            .map { $0.archiveData }
+            .compactMap { $0.aiImageEntity }
+            .compactMap { URL(string: $0.imageUrl) }
+            .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
+            .map { try Data(contentsOf: $0) }
+            .distinctUntilChanged()
             .bind(with: self) { owner, archiveData in
                 owner.setupCameraDisplayPermission(archiveData)
             }

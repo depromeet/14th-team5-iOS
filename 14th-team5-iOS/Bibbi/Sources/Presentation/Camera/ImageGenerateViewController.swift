@@ -188,6 +188,7 @@ public final class ImageGenerateViewController: ReactorViewController<ImageGener
             .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
             .map { try Data(contentsOf: $0) }
             .distinctUntilChanged()
+            .observe(on: RxScheduler.main)
             .bind(with: self) { owner, archiveData in
                 owner.setupCameraDisplayPermission(archiveData)
             }

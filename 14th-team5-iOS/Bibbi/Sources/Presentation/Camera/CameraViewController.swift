@@ -26,7 +26,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     fileprivate var frontCamera: AVCaptureDevice!
     fileprivate var backCameraInput: AVCaptureDeviceInput!
     fileprivate var frontCameraInput: AVCaptureDeviceInput!
-    fileprivate var cameraOuputStream: AVCaptureVideoDataOutput!
+    fileprivate var cameraOutputStream: AVCaptureVideoDataOutput!
     fileprivate var captureOutputStream: AVCapturePhotoOutput!
     
     //MARK: Views
@@ -489,14 +489,14 @@ extension CameraViewController {
     }
     
     private func setupCameraOuputStream() {
-        cameraOuputStream = AVCaptureVideoDataOutput()
+        cameraOutputStream = AVCaptureVideoDataOutput()
         
-        if captureSession.canAddOutput(cameraOuputStream) {
+        if captureSession.canAddOutput(cameraOutputStream) {
             captureOutputStream = AVCapturePhotoOutput()
             captureSession.addOutput(captureOutputStream)
         }
         
-        cameraOuputStream.connections.first?.videoOrientation = .portrait
+        cameraOutputStream.connections.first?.videoOrientation = .portrait
     }
     
     private func setupPreviewLayout() {
@@ -564,7 +564,7 @@ extension CameraViewController {
                 self.isToggle = false
             }
         }
-        cameraOuputStream.connections.first?.isVideoMirrored = !isTransition
+        cameraOutputStream.connections.first?.isVideoMirrored = !isTransition
         captureSession.commitConfiguration()
     }
     

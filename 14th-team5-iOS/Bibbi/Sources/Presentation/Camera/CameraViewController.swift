@@ -23,7 +23,9 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     fileprivate var captureSession: AVCaptureSession!
     fileprivate var previewLayer: AVCaptureVideoPreviewLayer!
     fileprivate var backCamera: AVCaptureDevice!
+    fileprivate var frontCamera: AVCaptureDevice!
     fileprivate var backCameraInput: AVCaptureDeviceInput!
+    fileprivate var frontCameraInput: AVCaptureDeviceInput!
     fileprivate var cameraOuputStream: AVCaptureVideoDataOutput!
     fileprivate var captureOutputStream: AVCapturePhotoOutput!
     
@@ -33,6 +35,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     private let cameraView: UIView = UIView()
     private let shutterButton: UIButton = UIButton()
     private let flashButton: UIButton = UIButton.createCircleButton(radius: 24)
+    private let toggleButton: UIButton = UIButton.createCircleButton(radius: 24)
     private let cameraIndicatorView: BibbiLoadingView = BibbiLoadingView()
     private let filterView: UIImageView = UIImageView()
     private let zoomView: UIButton = UIButton()
@@ -67,7 +70,7 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
     public override func setupUI() {
         super.setupUI()
         realEmojiFaceView.addSubview(realEmojiFaceImageView)
-        view.addSubviews(cameraView, rewardBannerView, missionView ,shutterButton, flashButton, realEmojiFaceView, realEmojiHorizontalStakView, realEmojiCollectionView ,cameraIndicatorView)
+        view.addSubviews(cameraView, rewardBannerView, missionView ,shutterButton, flashButton, toggleButton ,realEmojiFaceView, realEmojiHorizontalStakView, realEmojiCollectionView ,cameraIndicatorView)
     }
     
     public override func setupAttributes() {
@@ -142,6 +145,11 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             $0.setImage(DesignSystemAsset.flashOff.image, for: .normal)
             $0.backgroundColor = .darkGray
         }
+        
+        toggleButton.do {
+            $0.setImage(DesignSystemAsset.toggle.image, for: .normal)
+            $0.backgroundColor = .darkGray
+        }
     }
     
     public override func setupAutoLayout() {
@@ -186,6 +194,11 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             $0.width.height.equalTo(72)
             $0.centerY.equalTo(flashButton)
             $0.centerX.equalTo(cameraView)
+        }
+        
+        toggleButton.snp.makeConstraints {
+            $0.right.equalToSuperview().offset(-30)
+            $0.top.equalTo(cameraView.snp.bottom).offset(48)
         }
         
         cameraIndicatorView.snp.makeConstraints {
@@ -327,14 +340,14 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .bind(onNext: {
-                guard let currentCamera = $0.0.backCamera else { return }
+                guard let currentCamera = $0.0.isToggle ? $0.0.frontCamera : $0.0.backCamera else { return }
                 $0.0.transitionZoomImageScale(scale: $0.1, camera: currentCamera)
             }).disposed(by: disposeBag)
         
         reactor.pulse(\.$pinchZoomScale)
             .withUnretained(self)
             .bind(onNext: {
-                guard let currentCamera = $0.0.backCamera else { return }
+                guard let currentCamera = $0.0.isToggle ? $0.0.frontCamera : $0.0.backCamera else { return }
                 $0.0.transitionPinchImageScale(scale: $0.1, camera: currentCamera)
             }).disposed(by: disposeBag)
         
@@ -404,6 +417,20 @@ public final class CameraViewController: BaseViewController<CameraViewReactor> {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        toggleButton
+            .rx.tap
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .map { Reactor.Action.didTapToggleButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        
+        reactor.pulse(\.$isSwitchPosition)
+            .withUnretained(self)
+            .skip(1)
+            .bind(onNext: { $0.0.transitionPreViewLayer(state: $0.1) })
+            .disposed(by: disposeBag)
+        
         reactor.pulse(\.$isFlashMode)
             .map { $0 == true ? DesignSystemAsset.flashOn.image : DesignSystemAsset.flashOff.image }
             .bind(to: flashButton.rx.image())
@@ -424,22 +451,36 @@ extension CameraViewController {
             captureSession.sessionPreset = .photo
         }
         
+        if let frontDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front) {
+            frontCamera = frontDevice
+        } else {
+            fatalError("정면 카메라가 없습니다.")
+        }
+        
         
         if let backDevice =  AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) {
             backCamera = backDevice
         } else {
-            //TODO: Error 문구 설정 예정
             fatalError("후면 카메라가 없습니다.")
         }
         
         guard let backDeviceInput = try? AVCaptureDeviceInput(device: backCamera) else {
-            //TODO: Error 문구 설정 예정
             fatalError("후면 카메라를 입력으로 설정 할 수 없습니다. ")
         }
         
         backCameraInput = backDeviceInput
         
         if !captureSession.canAddInput(backCameraInput) {
+            return
+        }
+        
+        guard let frontDeviceInput = try? AVCaptureDeviceInput(device: frontCamera) else {
+            fatalError("정면 카메라를 입력으로 설정 할 수 없습니다.")
+        }
+        
+        frontCameraInput = frontDeviceInput
+        
+        if !captureSession.canAddInput(frontCameraInput) {
             return
         }
         
@@ -505,6 +546,27 @@ extension CameraViewController {
         }
     }
     
+    
+    private func transitionPreViewLayer(state isTransition: Bool) {
+        captureSession.beginConfiguration()
+        if isTransition {
+            UIView.transition(with: cameraView, duration: 0.5, options: .transitionFlipFromLeft) { [weak self] in
+                guard let self = self else { return }
+                self.captureSession.removeInput(self.backCameraInput)
+                self.captureSession.addInput(self.frontCameraInput)
+                self.isToggle = true
+            }
+        } else {
+            UIView.transition(with: cameraView, duration: 0.5, options: .transitionFlipFromLeft) { [weak self] in
+                guard let self = self else { return }
+                self.captureSession.removeInput(self.frontCameraInput)
+                self.captureSession.addInput(self.backCameraInput)
+                self.isToggle = false
+            }
+        }
+        cameraOuputStream.connections.first?.isVideoMirrored = !isTransition
+        captureSession.commitConfiguration()
+    }
     
     private func setupImageScale(scale: CGFloat, camera: AVCaptureDevice) {
         do {

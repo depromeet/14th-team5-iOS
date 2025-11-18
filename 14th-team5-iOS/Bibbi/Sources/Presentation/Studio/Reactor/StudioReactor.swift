@@ -45,6 +45,25 @@ final class StudioReactor: Reactor {
 }
 
 extension StudioReactor {
+    public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+        let studioMainMutation = provider.aiImageGlobalState.event
+            .withUnretained(self)
+            .flatMap { owner, event -> Observable<Mutation> in
+                switch event {
+                case let .imageUploadDidFinish(isSuccess):
+                    guard isSuccess else {
+                        return .empty()
+                    }
+                    
+                    owner.navigator.showToast()
+                    return .empty()
+                }
+            }
+        
+        return Observable<Mutation>.merge(mutation, studioMainMutation)
+    }
+    
+    
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .fetchStudioCount:

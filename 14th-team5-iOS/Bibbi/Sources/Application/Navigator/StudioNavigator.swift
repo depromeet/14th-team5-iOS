@@ -11,6 +11,7 @@ import UIKit
 
 protocol StudioNavigatorProtocol: BaseNavigator {
     func showErrorToast(message: String)
+    func showToast()
     func showTermsAlert(complection: @escaping () -> ())
     func toCamera()
     func toTerms()
@@ -23,6 +24,13 @@ final class StudioNavigator: StudioNavigatorProtocol {
     
     init(navigationController: UINavigationController) {
         self.navigationController = navigationController
+    }
+    
+    func showToast() {
+        let config = BBToastConfiguration(direction: .bottom(yOffset: -75))
+        let viewConfig = BBToastViewConfiguration(minWidth: 110)
+        
+        BBToast.text("업로드 완료", viewConfig: viewConfig, config: config).show()
     }
     
     func showErrorToast(message: String) {

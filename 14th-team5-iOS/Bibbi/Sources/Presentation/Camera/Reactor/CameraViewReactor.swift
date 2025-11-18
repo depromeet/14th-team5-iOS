@@ -36,6 +36,7 @@ public final class CameraViewReactor: Reactor {
     public enum Action {
         case viewDidLoad
         case didTapFlashButton
+        case didTapToggleButton
         case didTapShutterButton(Data)
         case didTapZoomButton(CGFloat)
         case didTapRealEmojiPad(IndexPath)
@@ -44,6 +45,7 @@ public final class CameraViewReactor: Reactor {
     
     public enum Mutation {
         case setLoading(Bool)
+        case setPosition(Bool)
         case setFlashMode(Bool)
         case setPinchZoomScale(CGFloat)
         case setZoomScale(CGFloat)
@@ -61,6 +63,7 @@ public final class CameraViewReactor: Reactor {
     public struct State {
         @Pulse var isLoading: Bool
         @Pulse var isFlashMode: Bool
+        @Pulse var isSwitchPosition: Bool
         @Pulse var missionEntity: MissonTodayContentEntity?
         @Pulse var memberPresignedEntity: CreateMemberPresignedEntity?
         @Pulse var realEmojiURLEntity: CameraRealEmojiPreSignedEntity?
@@ -87,6 +90,7 @@ public final class CameraViewReactor: Reactor {
         self.initialState = State(
             isLoading: true,
             isFlashMode: false,
+            isSwitchPosition: false,
             realEmojiEntity: [],
             realEmojiSection: [.realEmoji([])],
             zoomScale: 1.0,
@@ -102,6 +106,8 @@ public final class CameraViewReactor: Reactor {
         switch action {
         case .viewDidLoad:
             return viewDidLoadMutation()
+        case .didTapToggleButton:
+            return Observable.just(.setPosition(!self.currentState.isSwitchPosition))
             
         case .didTapFlashButton:
             return Observable.just(.setFlashMode(!self.currentState.isFlashMode))
@@ -135,6 +141,8 @@ public final class CameraViewReactor: Reactor {
         switch mutation {
         case let .setLoading(isLoading):
             newState.isLoading = isLoading
+        case let .setPosition(isPosition):
+            newState.isSwitchPosition = isPosition
         case let .setFlashMode(isFlash):
             newState.isFlashMode = isFlash
         case let .setProfileMemberResponse(entity):

@@ -354,7 +354,7 @@ extension MainViewReactor {
             navigator.toDailyCalendar(date)
         case .cameraViewController(let type):
             MPEvent.Home.cameraTapped.track(with: nil)
-            navigator.toCamera(.ai)
+            navigator.toCamera(type)
         case .survivalAlert:
             navigator.showSurvivalAlert()
         case .pickAlert(let name, _):

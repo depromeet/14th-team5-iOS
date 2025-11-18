@@ -19,6 +19,7 @@ public final class ImageGenerateViewReactor: Reactor {
     
     @Injected private var createAiImageGenerateUseCase: CreateAiImageGenerateUseCaseProtocol
     @Injected private var uploadAiImagePostUseCase: CreatePostUseCaseProtocol
+    @Injected private var provider: ServiceProviderProtocol
     @Navigator var imageGenerateNavigator: ImageGenerateNavigatorProtocol
     
     
@@ -43,7 +44,6 @@ public final class ImageGenerateViewReactor: Reactor {
     public enum Mutation {
         case setLoading(Bool)
         case setError(String)
-        case setArchiveData(Data)
         case setSuccess(AiImageEntity?)
     }
     
@@ -88,6 +88,7 @@ public final class ImageGenerateViewReactor: Reactor {
                     if entity == nil {
                         return .just(.setError("업로드 중 오류가 발생했습니다. 다시 한 번 시도해주세요."))
                     }
+                    owner.provider.aiImageGlobalState.imageUploadDidFinish(success: true)
                     owner.imageGenerateNavigator.toHome()
                     return .empty()
                 }
@@ -96,7 +97,7 @@ public final class ImageGenerateViewReactor: Reactor {
                 return .empty()
             }
             self.imageGenerateNavigator.showToast()
-            return .just(.setArchiveData(currentState.binaryData))
+            return .empty()
         case .didTappedBackButton:
             guard !currentState.isLoading else {
                 imageGenerateNavigator.showWarningAlert()
@@ -117,8 +118,6 @@ public final class ImageGenerateViewReactor: Reactor {
             imageGenerateNavigator.showErrorAlert(errorDescription)
         case let .setSuccess(aiImageEntity):
             newState.aiImageEntity = aiImageEntity
-        case let .setArchiveData(archiveData):
-            newState.archiveData = archiveData
         }
         return newState
     }

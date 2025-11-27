@@ -157,8 +157,8 @@ private extension BibbiSegmentedControl {
 
     func bind() {
         let taps = Observable.merge(
-            survivalButton.rx.tap.map { SelectedSegment.survival }.debug("생존신고 터치 이벤트"),
-            missionButton.rx.tap.map { SelectedSegment.mission }.debug("미션 터치 이벤트")
+            survivalButton.rx.tap.map { SelectedSegment.survival },
+            missionButton.rx.tap.map { SelectedSegment.mission }
 //            studioButton.rx.tap.map { SelectedSegment.studio }
         )
 

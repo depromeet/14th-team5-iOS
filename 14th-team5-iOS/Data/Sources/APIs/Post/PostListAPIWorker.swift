@@ -31,7 +31,7 @@ extension PostAPIWorker {
     /// 가족 사진관 게시물 전체 조회하기 위한 Method 입니다.
     /// HTTP Method : GET
     /// - Parameters : PostListQueryDTO
-    func fetchAIPostList(query: PostListQueryDTO) -> Observable<PostListResponseDTO?> {
+    func fetchAIPostList(query: AIPostListQueryDTO) -> Observable<PostListResponseDTO?> {
         let spec = PostsAPIs.fetchAIPostList(query: query).spec
         
         return request(spec)

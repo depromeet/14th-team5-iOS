@@ -16,6 +16,7 @@ import RxDataSources
 final class MainPostViewReactor: Reactor {
     enum Action {
         case fetchPost
+        case fetchAIPost
         case refresh
     }
     
@@ -36,6 +37,7 @@ final class MainPostViewReactor: Reactor {
     let initialState: State
     @Injected var provider: ServiceProviderProtocol
     @Injected var postUseCase: FetchPostListUseCaseProtocol
+    @Injected var studioPostUseCase: FetchStudioPostListUseCaseProtocol
     
     init(initialState: State) {
         self.initialState = initialState
@@ -47,7 +49,7 @@ extension MainPostViewReactor {
         switch action {
         case .refresh:
             if currentState.type == .studio {
-                return self.mutate(action: .fetchPost)
+                return self.mutate(action: .fetchAIPost)
             } else {
                 return Observable.concat([
                     provider.mainService.refreshMain()
@@ -55,7 +57,36 @@ extension MainPostViewReactor {
                     self.mutate(action: .fetchPost)
                 ])
             }
+        case .fetchAIPost:
+            let query = AIPostListQuery(
+                date: DateFormatter.dashYyyyMMdd.string(from: Date()),
+                type: .christmas_2025
+            )
+            return studioPostUseCase.execute(query: query)
+                .asObservable()
+                .flatMap { (postList) -> Observable<Mutation> in
+                    guard let postList = postList,
+                          !postList.isEmpty else {
+                        return Observable.from([
+                            Mutation.setNoPostTodayView(true),
+                            Mutation.updateRefreshEnd(true),
+                        ])
+                    }
+                    
+                    let postSectionItem = postList.map(PostSection.Item.main)
+                    let mutations = [
+                        Mutation.updatePostDataSource(postSectionItem),
+                        Mutation.setNoPostTodayView(false),
+                        Mutation.updateRefreshEnd(true)
+                    ]
+                    
+                    return Observable.from(mutations)
+                }
         case .fetchPost:
+            if currentState.type == .studio {
+                return self.mutate(action: .fetchAIPost)
+            }
+            
             let query = PostListQuery(
                 date: DateFormatter.dashYyyyMMdd.string(from: Date()),
                 type: currentState.type

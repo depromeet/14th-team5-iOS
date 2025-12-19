@@ -19,6 +19,12 @@ final class PostDIContainer: BaseContainer {
             postListRepository: postListRepository,
             familyRepository: familyRepository)
     }
+
+    private func makeStudioPostUseCase() -> FetchStudioPostListUseCaseProtocol {
+        return FetchStudioPostListUseCase(
+            postListRepository: postListRepository,
+            familyRepository: familyRepository)
+    }
     
     private func makeFetchMembersPostListUseCase() -> FetchMembersPostListUseCaseProtocol {
         return FetchMembersPostListUseCase(postListRepository: postListRepository)
@@ -38,7 +44,7 @@ final class PostDIContainer: BaseContainer {
             familyRepository: familyRepository
         )
     }
-  
+
     private func makeCreateImageUploadUseCase() -> CreateImageUploadUseCaseProtocol {
         return CreateImageUploadUseCase(postListRepository: postListRepository)
     }
@@ -48,6 +54,10 @@ extension PostDIContainer {
     func registerDependencies() {
         container.register(type: FetchPostListUseCaseProtocol.self) { _ in
             self.makePostUseCase()
+        }
+        
+        container.register(type: FetchStudioPostListUseCaseProtocol.self) { _ in
+            self.makeStudioPostUseCase()
         }
         
         container.register(type: FetchMembersPostListUseCaseProtocol.self) { _ in

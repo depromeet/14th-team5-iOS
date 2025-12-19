@@ -95,7 +95,6 @@ final class MainViewController: BBNavigationViewController<MainViewReactor>, UIC
         segmentControl.snp.makeConstraints {
             $0.top.equalTo(descriptionLabel.snp.bottom).offset(20)
             $0.centerX.equalToSuperview()
-            $0.width.equalTo(138)
             $0.height.equalTo(40)
         }
         

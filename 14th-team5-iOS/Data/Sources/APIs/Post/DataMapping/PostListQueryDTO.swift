@@ -7,6 +7,33 @@
 
 import Foundation
 
+public struct AIPostListQueryDTO: Encodable {
+    public let page: Int
+    public let size: Int
+    public let date: String
+    public let memberId: String?
+    public let aiPostType: String?
+    public let sort: String
+    
+    
+    public init(
+        page: Int,
+        size: Int,
+        date: String,
+        memberId: String? = nil,
+        aiPostType: String?,
+        sort: String = "DESC"
+    ) {
+        self.page = page
+        self.size = size
+        self.date = date
+        self.memberId = memberId
+        self.aiPostType = aiPostType
+        self.sort = sort
+    }
+    
+}
+
 public struct PostListQueryDTO: Encodable {
     public let page: Int
     public let size: Int

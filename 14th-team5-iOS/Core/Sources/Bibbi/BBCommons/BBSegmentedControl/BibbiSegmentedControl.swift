@@ -28,9 +28,7 @@ public final class BibbiSegmentedControl: UIView {
     // MARK: - Views
     internal let survivalButton = UIButton(type: .system)
     internal let missionButton  = UIButton(type: .system)
-    
-    //TODO: 다음 달에 추가해서 사용해주세요!
-    //internal let studioButton   = UIButton(type: .system)
+    internal let studioButton   = UIButton(type: .system)
 
     // MARK: - Private
     private let disposeBag = DisposeBag()
@@ -40,7 +38,7 @@ public final class BibbiSegmentedControl: UIView {
         super.init(frame: frame)
         setupUI()
         setupAttributes()
-        setupAutoLayout()
+        setupLayout()
         bind()
         applySelection(selected.value)
     }
@@ -49,7 +47,7 @@ public final class BibbiSegmentedControl: UIView {
         super.init(coder: coder)
         setupUI()
         setupAttributes()
-        setupAutoLayout()
+        setupLayout()
         bind()
         applySelection(selected.value)
     }
@@ -58,7 +56,7 @@ public final class BibbiSegmentedControl: UIView {
 // MARK: - Setup
 private extension BibbiSegmentedControl {
     func setupUI() {
-        addSubviews(survivalButton, missionButton)
+        addSubviews(survivalButton, missionButton, studioButton)
     }
 
     func setupAttributes() {
@@ -86,8 +84,10 @@ private extension BibbiSegmentedControl {
             var c = btn.configuration
 
             if btn.isSelected {
-                btn.backgroundColor = .gray100
-                c?.baseForegroundColor = .bibbiBlack
+                if btn != self.studioButton {               // ← 스튜디오는 배경색/전경색 안 건드림
+                    btn.backgroundColor = .gray100
+                    c?.baseForegroundColor = .bibbiBlack
+                }
             } else {
                 btn.backgroundColor = .clear
                 c?.baseForegroundColor = .gray500
@@ -108,58 +108,55 @@ private extension BibbiSegmentedControl {
             $0.configurationUpdateHandler = updateHandler
         }
 
-        //TODO: 해당 부분도 다음달에 사용하기 때문에 주석처리했습니다.
-//        studioButton.do {
-//            $0.configuration = .plain()
-//            $0.configurationUpdateHandler = { btn in
-//                var config = btn.configuration ?? .plain()
-//
-//                // 상태별 배경 이미지
-//                var bg = UIBackgroundConfiguration.clear()
-//                bg.image = btn.isSelected
-//                    ? DesignSystemAsset.studioSelected.image
-//                    : DesignSystemAsset.studioUnselected.image
-//                bg.imageContentMode = .scaleAspectFill
-//
-//                config.background = bg
-//                config.attributedTitle = nil
-//                config.baseForegroundColor = .clear
-//                config.contentInsets = .init(top: 0, leading: 0, bottom: 0, trailing: 0)
-//
-//                btn.configuration = config
-//                btn.layer.cornerRadius = 20
-//                btn.clipsToBounds = true
-//            }
-//        }
+        studioButton.do {
+            $0.configuration = .plain()
+            $0.configurationUpdateHandler = { btn in
+                var config = btn.configuration ?? .plain()
+
+                // 상태별 배경 이미지
+                var bg = UIBackgroundConfiguration.clear()
+                bg.image = btn.isSelected
+                    ? DesignSystemAsset.studioSelected.image
+                    : DesignSystemAsset.studioUnselected.image
+                bg.imageContentMode = .scaleAspectFill
+
+                config.background = bg
+                config.attributedTitle = nil
+                config.baseForegroundColor = .clear
+                config.contentInsets = .init(top: 0, leading: 0, bottom: 0, trailing: 0)
+
+                btn.configuration = config
+                btn.layer.cornerRadius = 20
+                btn.clipsToBounds = true
+            }
+        }
 
     }
 
-    func setupAutoLayout() {
+    func setupLayout() {
         survivalButton.snp.makeConstraints {
-            $0.top.left.equalToSuperview()
+            $0.top.bottom.left.equalToSuperview()
             $0.width.equalTo(70)
-            $0.height.equalTo(40)
         }
 
         missionButton.snp.makeConstraints {
-            $0.top.right.equalToSuperview()
-            $0.height.equalTo(40)
+            $0.top.bottom.equalToSuperview()
+            $0.leading.equalTo(survivalButton.snp.trailing)
             $0.width.equalTo(70)
         }
 
-        //TODO: 마찬가지
-//        studioButton.snp.makeConstraints {
-//            $0.top.bottom.trailing.equalToSuperview()
-//            $0.leading.equalTo(missionButton.snp.trailing)
-//            $0.width.equalTo(94)
-//        }
+        studioButton.snp.makeConstraints {
+            $0.top.bottom.trailing.equalToSuperview()
+            $0.leading.equalTo(missionButton.snp.trailing)
+            $0.width.equalTo(94)
+        }
     }
 
     func bind() {
         let taps = Observable.merge(
             survivalButton.rx.tap.map { SelectedSegment.survival },
-            missionButton.rx.tap.map { SelectedSegment.mission }
-//            studioButton.rx.tap.map { SelectedSegment.studio }
+            missionButton.rx.tap.map { SelectedSegment.mission },
+            studioButton.rx.tap.map { SelectedSegment.studio }
         )
 
         // 탭 → 상태 갱신
@@ -186,6 +183,6 @@ private extension BibbiSegmentedControl {
     func applySelection(_ segment: SelectedSegment) {
         survivalButton.isSelected = (segment == .survival)
         missionButton.isSelected  = (segment == .mission)
-//        studioButton.isSelected   = (segment == .studio)
+        studioButton.isSelected   = (segment == .studio)
     }
 }

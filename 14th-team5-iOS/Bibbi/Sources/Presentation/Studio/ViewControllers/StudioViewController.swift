@@ -116,7 +116,6 @@ extension StudioViewController {
         
         reactor.pulse(\.$isEnabledUpload)
             .distinctUntilChanged()
-            .debug("업로드 버튼 색상 지정")
             .bind(with: self, onNext: { owner, isEnabled in
                 owner.updateUploadButtonLayout(isEnabled)
             })
@@ -136,7 +135,7 @@ extension StudioViewController {
 extension StudioViewController {
     private func updateUploadButtonLayout(_ isEnabled: Bool) {
         let textColor = isEnabled ? DesignSystemAsset.black.color : DesignSystemAsset.gray500.color
-        let backgroundColor = isEnabled ? DesignSystemAsset.mainYellow.color : DesignSystemAsset.gray800.color
+        let backgroundColor = isEnabled ? DesignSystemAsset.graphicPink.color : DesignSystemAsset.gray800.color
         let imageTintColor = isEnabled ? DesignSystemAsset.black.color : DesignSystemAsset.gray500.color
         
         

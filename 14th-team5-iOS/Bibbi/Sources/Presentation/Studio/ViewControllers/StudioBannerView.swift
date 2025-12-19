@@ -22,8 +22,8 @@ final class StudioBannerView: UIView {
     }
     
     let configure: Configure = .init(
-        theme: "추석",
-        date: "9/29~10/27",
+        theme: "성탄절",
+        date: "12/23~12/31",
         bannerImage: DesignSystemAsset.studioBanner.image
     )
     
@@ -37,7 +37,7 @@ final class StudioBannerView: UIView {
     private let bannerImageView = UIImageView()
     
     fileprivate let bannerTapGesture = UITapGestureRecognizer()
-    
+    	
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -62,8 +62,9 @@ extension StudioBannerView {
     }
     
     private func setupAutoLayout() {
+        // TODO: Label 안쪽에 Padding으로 변경 필요
         themeContainerView.snp.makeConstraints {
-            $0.width.equalTo(37)
+            $0.width.equalTo(43)
             $0.height.equalTo(24)
             $0.left.equalToSuperview()
             $0.centerY.equalToSuperview()

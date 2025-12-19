@@ -11,6 +11,7 @@ import Domain
 import RxSwift
 
 public final class PostRepository: PostRepositoryProtocol, StudioRepositoryProtocol {
+    
     private let disposeBag: DisposeBag = DisposeBag()
     private let postAPIWorker: PostAPIWorker = PostAPIWorker()
     
@@ -28,13 +29,24 @@ extension PostRepository {
             date: query.date,
             memberId: query.memberId,
             type: query.type == .studio ? nil : query.type.rawValue
-        )
-        guard let _ = query.type else {
-            return postAPIWorker.fetchAIPostList(query: query)
-                .map { $0?.toDomain() }
-        }
+        ) 
         
         return postAPIWorker.fetchPostList(query: query)
+            .map { $0?.toDomain() }
+    }
+    
+
+    public func fetchAIPostList(
+        query: AIPostListQuery
+    ) -> Observable<PostListPageEntity?> {
+        let query = AIPostListQueryDTO(
+            page: query.page,
+            size: query.size,
+            date: query.date,
+            memberId: query.memberId,
+            aiPostType: "CHRISTMAS_2025"
+        )
+        return postAPIWorker.fetchAIPostList(query: query)
             .map { $0?.toDomain() }
     }
     

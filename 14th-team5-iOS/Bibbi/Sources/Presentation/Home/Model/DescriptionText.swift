@@ -11,6 +11,7 @@ import DesignSystem
 
 enum Description {
     case studio
+    case midNight
     case survivalNone
     case survivalFull
     case missionNone(Int)
@@ -19,6 +20,8 @@ enum Description {
     
     var text: String {
         switch self {
+        case .midNight:
+            return "매일 10시부터 24시까지 업로드할 수 있어요."
         case .studio:
             return "특별한 날 가족만의 소중한 추억을 만들어요"
         case .survivalNone:
@@ -38,7 +41,7 @@ enum Description {
         switch self {
         case .survivalNone, .mission:
             return DesignSystemAsset.smile.image
-        case .missionFull, .survivalFull:
+        case .missionFull, .survivalFull, .midNight:
             return DesignSystemAsset.congratulation.image
         case .missionNone:
             return DesignSystemAsset.key.image

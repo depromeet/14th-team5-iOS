@@ -24,12 +24,14 @@ final class MainPostViewReactor: Reactor {
         case updateRefreshEnd(Bool)
         case setNoPostTodayView(Bool)
         case updatePostDataSource([PostSection.Item])
+        case showGuideLineView(Bool)
     }
     
     struct State {
         let type: BibbiFeedType
         
         @Pulse var isRefreshEnd: Bool = true
+        @Pulse var isShowingGuideLineView: Bool = false
         @Pulse var postSection: PostSection.Model = PostSection.Model(model: 0, items: [])
         var isShowingNoPostTodayView: Bool = false
     }
@@ -45,6 +47,20 @@ final class MainPostViewReactor: Reactor {
 }
 
 extension MainPostViewReactor {
+    func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+        let guideLinesMutation = provider.mainService.event
+            .flatMap { event -> Observable<Mutation> in
+                switch event {
+                case let .showContributionGuide(isShowingGuideLineView):
+                    return .just(.showGuideLineView(isShowingGuideLineView))
+                default:
+                    return .empty()
+                }
+            }
+        return Observable<Mutation>.merge(mutation, guideLinesMutation)
+    }
+    
+    
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .refresh:
@@ -125,6 +141,8 @@ extension MainPostViewReactor {
             newState.isShowingNoPostTodayView = isShow
         case .updateRefreshEnd(let status):
             newState.isRefreshEnd = status
+        case let .showGuideLineView(isShowingGuideLineView):
+            newState.isShowingGuideLineView = isShowingGuideLineView
         }
         
         return newState

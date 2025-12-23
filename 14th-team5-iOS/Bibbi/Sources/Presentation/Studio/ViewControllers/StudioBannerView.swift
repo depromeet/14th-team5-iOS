@@ -37,7 +37,7 @@ final class StudioBannerView: UIView {
     private let bannerImageView = UIImageView()
     
     fileprivate let bannerTapGesture = UITapGestureRecognizer()
-    	
+        
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -64,7 +64,7 @@ extension StudioBannerView {
     private func setupAutoLayout() {
         // TODO: Label 안쪽에 Padding으로 변경 필요
         themeContainerView.snp.makeConstraints {
-            $0.width.equalTo(43)
+            $0.width.equalTo(49)
             $0.height.equalTo(24)
             $0.left.equalToSuperview()
             $0.centerY.equalToSuperview()
@@ -131,7 +131,7 @@ extension StudioBannerView {
         infoButton.do {
             $0.addTarget(self, action: #selector(didTapInfo), for: .touchUpInside)
             $0.setImage(DesignSystemAsset.infoCircleFill.image, for: .normal)
-            $0.layer.zPosition = -1  
+            $0.layer.zPosition = -1
         }
         
         toolTipView.do {

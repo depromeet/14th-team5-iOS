@@ -70,7 +70,7 @@ private let targets: [Target] = [
             bundleId: "com.5ing.bibbi",
             infoPlist: .extendingDefault(with: [
                 "SERVICE_NAME": .string("$(SERVICE_NAME)"),
-                "ACCESS_GROUP": .string("$(ACCESS_GROUP"),
+                "ACCESS_GROUP": .string("$(ACCESS_GROUP)"),
                 "CFBundleDisplayName": .string("Bibbi"),
                 "GADApplicationIdentifier": .string("ca-app-pub-7835112884789455~8255253711"),
                 "SKAdNetworkItems": .array(

@@ -103,6 +103,7 @@ public extension BBNetworkParameterKey {
     static var sort: Self = "sort"
     static var date: Self = "date"
     static var type: Self = "type"
+    static var aiPostType: Self = "aiPostType"
     static var memberId: Self = "memberId"
     static var provider: Self = "provider"
     

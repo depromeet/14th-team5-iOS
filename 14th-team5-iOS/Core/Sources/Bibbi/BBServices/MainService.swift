@@ -12,12 +12,15 @@ import RxSwift
 public enum MainEvent {
     case presentPickAlert(String, String)
     case showPickButton(Bool, String)
+    case showContributionGuide(Bool)
     case refreshMain
 }
 
 public protocol MainServiceType {
     var event: PublishSubject<MainEvent> { get }
     
+    @discardableResult
+    func showContributionGuide(isGuide: Bool) -> Observable<Bool>
     @discardableResult
     func pickButtonTapped(name: String, memberId id: String) -> Observable<Void>
     @discardableResult
@@ -28,6 +31,12 @@ public protocol MainServiceType {
 
 final public class MainService: BaseService, MainServiceType {
     public var event = PublishSubject<MainEvent>()
+    
+    @discardableResult
+    public func showContributionGuide(isGuide: Bool) -> Observable<Bool> {
+        event.onNext(.showContributionGuide(isGuide))
+        return Observable<Bool>.just(isGuide)
+    }
     
     @discardableResult
     public func pickButtonTapped(name: String, memberId id: String) -> Observable<Void> {

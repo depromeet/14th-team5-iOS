@@ -14,6 +14,8 @@ public extension KeychainWrapper.Key {
     static let signInType: Self = "signInType"
     static let idToken: Self = "idToken" // 소셜 로그인의 AccessToken
     
+    static let hasLaunchedBefore: Self = "hasLaunchedBefore"
+    
     
     // MARK: - OAuth
     

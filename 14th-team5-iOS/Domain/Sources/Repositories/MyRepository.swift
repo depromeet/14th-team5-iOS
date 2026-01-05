@@ -8,6 +8,7 @@
 import Foundation
 
 public protocol MyRepositoryProtocol {
+    func fetchFirstInstall() -> Bool?
     func fetchMyMemberId() -> String?
     func fetchMyUserName() -> String?
     func fetchUserName(memberId: String) -> String?
@@ -17,6 +18,7 @@ public protocol MyRepositoryProtocol {
     func fetchIsLatestVersion() -> Bool
     func fetchReviewCount() -> Int?
     func fetchLastReviewDate() -> Date?
+    func updateFirstInstall(_ value: Bool)
     func updateLastReviewDate(_ date: Date?)
     func updateReviewCount(_ count: Int)
     func updateIsFirstOnboarding(_ isFirstOnboarding: Bool?)

@@ -107,7 +107,22 @@ extension BalloonView {
     }
     
     private func setBalloonView(_ type: BalloonType) {
-        if case .picks(let pickers) = type {
+        
+        if case .midNightStandard = type {
+            containerView.backgroundColor = .mainYellow
+            polygonImageView.image = DesignSystemAsset.polygonYellow.image
+            textLabel.textColor = .bibbiBlack
+            
+            stackView.snp.updateConstraints {
+                $0.width.equalTo(0)
+            }
+            
+            textLabel.snp.updateConstraints {
+                $0.leading.equalTo(stackView.snp.trailing).offset(0)
+            }
+            
+            stackView.removeAllArrangedSubviews()
+        } else if case .picks(let pickers) = type {
             containerView.backgroundColor = .mainYellow
             polygonImageView.image = DesignSystemAsset.polygonYellow.image
             textLabel.textColor = .bibbiBlack

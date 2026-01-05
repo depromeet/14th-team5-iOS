@@ -24,6 +24,13 @@ public final class MyRepository: MyRepositoryProtocol {
 }
 
 extension MyRepository {
+    public func updateFirstInstall(_ value: Bool) {
+        appUserDefaults.saveIsFirstInstallApp(value)
+    }
+    
+    public func fetchFirstInstall() -> Bool? {
+        return appUserDefaults.loadIsFirstInstallApp()
+    }
     
     public func fetchMyMemberId() -> String? {
         return myUserDefaults.loadMemberId()

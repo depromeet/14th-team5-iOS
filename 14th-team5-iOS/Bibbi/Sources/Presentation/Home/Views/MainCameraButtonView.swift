@@ -51,12 +51,18 @@ final class MainCameraButtonView: BaseView<MainCameraReactor> {
     override func setupAttributes() {
         cameraButton.do {
             $0.setImage(DesignSystemAsset.shutter.image, for: .normal)
+            $0.setImage(DesignSystemAsset.btnCameraLock.image, for: .disabled)
         }
     }
 }
 
 extension MainCameraButtonView {
     private func bindInput(reactor: MainCameraReactor) {
+        
+        Observable.just(Reactor.Action.checkMidnightStatus)
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         textRelay.map { Reactor.Action.setText($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -68,23 +74,24 @@ extension MainCameraButtonView {
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.balloonText.balloonType }
+            .distinctUntilChanged()
             .bind(to: balloonView.balloonTypeRelay)
             .disposed(by: disposeBag)
         
         cameraAlphaRelay
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
-            .bind(with: self) {
-                $0.alpha = $1.1 ? 1 : 0.5
+            .bind { owner, enabled in
+                owner.cameraButton.alpha = enabled ? 1 : 0.5
             }
             .disposed(by: disposeBag)
         
         cameraEnabledRelay
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
-            .bind(onNext: {
-                $0.0.isUserInteractionEnabled = $0.1
-            })
+            .bind { owner, enabled in
+                owner.cameraButton.isEnabled = enabled
+            }
             .disposed(by: disposeBag)
     }
 }

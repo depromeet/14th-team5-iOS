@@ -71,6 +71,7 @@ final class MainViewReactor: Reactor {
         case setRatingAlert(Bool)
         case setEnabeldCamera(Bool)
         case setCameraType(CameraState)
+        case setGuideLineView(Bool)
         case setInTime(Bool)
         case setPageIndex(Int)
         case setCamerEnabled
@@ -94,6 +95,7 @@ final class MainViewReactor: Reactor {
         var balloonText: BalloonText = .survivalStandard
         var description: Description = .survivalNone
         
+        var isGuideLineViewHidden: Bool = false
         var isFirstFamilyManagement: Bool = false
         var isFamilySurvivalUploadedToday: Bool = false
         var isFamilyMissionUploadedToday: Bool = false
@@ -114,7 +116,7 @@ final class MainViewReactor: Reactor {
     }
     
     @Navigator var navigator: MainNavigatorProtocol
-    
+    @Injected var fetchFirstInstallUseCase: any FetchFirstInstallUseCaseProtocol
     @Injected var createPickUseCase: CreateMembersPickUseCaseProtocol
     @Injected var provider: ServiceProviderProtocol
     @Injected var fetchMainUseCase: FetchMainUseCaseProtocol
@@ -200,15 +202,27 @@ extension MainViewReactor {
                     self.mutate(action: .setTimer(isInTime, time))
                 ])
             } else {
-                //MARK: 자정타임 관련 Mutation
-                return Observable.concat([
-                    .just(.setInTime(false)),
-                    .just(.setEnabeldCamera(false)),
-                    .just(.setCameraType(.midNight)),
-                    self.mutate(action: .fetchMainNightUseCase),
-                    self.mutate(action: .setTimer(isInTime, time))
-                ])
-                
+                let isFirstInstallUser = self.fetchFirstInstallUseCase.execute()
+                if isFirstInstallUser {
+                    provider.mainService.showContributionGuide(isGuide: true)
+                    return Observable.concat([
+                        .just(.setInTime(true)),
+                        .just(.setEnabeldCamera(false)),
+                        .just(.setCameraType(.midNight)),
+                        self.mutate(action: .fetchMainNightUseCase),
+                        self.mutate(action: .setTimer(isInTime, time))
+                    ])
+                } else {
+                    //MARK: 자정타임 관련 Mutation
+                    provider.mainService.showContributionGuide(isGuide: false)
+                    return Observable.concat([
+                        .just(.setInTime(false)),
+                        .just(.setGuideLineView(false)),
+                        .just(.setCameraType(.midNight)),
+                        self.mutate(action: .fetchMainNightUseCase),
+                        self.mutate(action: .setTimer(isInTime, time))
+                    ])
+                }
             }
         case .didTapSegmentControl(let type):
             return Observable.concat(
@@ -333,6 +347,8 @@ extension MainViewReactor {
             newState.cameraState = cameraState
         case let .setCameraHidden(isHidden):
             newState.isCameraHidden = isHidden
+        case let .setGuideLineView(isGuideLineViewHidden):
+            newState.isGuideLineViewHidden = isGuideLineViewHidden
         }
         
         return newState
@@ -413,6 +429,9 @@ extension MainViewReactor {
                 newState.cameraEnabled = false
             }
         }
+        if currentState.isInTime == true {
+            newState.isCameraDisabled = true
+        }
         newState.isCameraDisabled = newState.cameraEnabled
         
         return newState
@@ -431,7 +450,7 @@ extension MainViewReactor {
                     newState.balloonText = .pickers(currentState.pickers)
                 }
             } else {
-                newState.balloonText = .survivalStandard
+                newState.balloonText = .midNightStandard
             }
         } else {
             if !currentState.isMissionUnlocked {
@@ -463,7 +482,11 @@ extension MainViewReactor {
             if currentState.isFamilySurvivalUploadedToday {
                 newState.description = .survivalFull
             } else {
-                newState.description = .survivalNone
+                if currentState.isInTime == true {
+                    newState.description = .midNight
+                } else {
+                    newState.description = .survivalNone
+                }
             }
         } else if currentState.pageIndex == 1 {
             if !currentState.isMissionUnlocked {
@@ -472,7 +495,11 @@ extension MainViewReactor {
                 if currentState.isFamilyMissionUploadedToday {
                     newState.description = .missionFull
                 } else {
-                    newState.description = .mission(currentState.missionText)
+                    if currentState.isInTime == true {
+                        newState.description = .midNight
+                    } else {
+                        newState.description = .mission(currentState.missionText)
+                    }
                 }
             }
         } else {
@@ -487,20 +514,20 @@ extension MainViewReactor {
         let currentTime = Date()
         
         let currentHour = calendar.component(.hour, from: currentTime)
-//        
-//        if currentHour >= 10 {
-//            if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {
-//                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
-//                return (true, max(0, timeDifference.second ?? 0))
-//            }
-//        } else {
-//            if let nextMidnight = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: currentTime) {
-//                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
-//                return (false, max(0, timeDifference.second ?? 0))
-//            }
-//        }
-//        
-        return (true, 1000)
+        
+        if currentHour >= 10 {
+            if let nextMidnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: currentTime.addingTimeInterval(24 * 60 * 60)) {
+                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
+                return (true, max(0, timeDifference.second ?? 0))
+            }
+        } else {
+            if let nextMidnight = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: currentTime) {
+                let timeDifference = calendar.dateComponents([.second], from: currentTime, to: nextMidnight)
+                return (false, max(0, timeDifference.second ?? 0))
+            }
+        }
+        
+        return (false, 1000)
     }
     
 }

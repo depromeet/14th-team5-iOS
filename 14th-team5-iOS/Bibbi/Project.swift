@@ -70,7 +70,7 @@ private let targets: [Target] = [
             bundleId: "com.5ing.bibbi",
             infoPlist: .extendingDefault(with: [
                 "SERVICE_NAME": .string("$(SERVICE_NAME)"),
-                "ACCESS_GROUP": .string("$(ACCESS_GROUP"),
+                "ACCESS_GROUP": .string("$(ACCESS_GROUP)"),
                 "CFBundleDisplayName": .string("Bibbi"),
                 "GADApplicationIdentifier": .string("ca-app-pub-7835112884789455~8255253711"),
                 "SKAdNetworkItems": .array(
@@ -82,7 +82,7 @@ private let targets: [Target] = [
                     ),
                 "CFBundleVersion": .string("1"),
                 "CFBuildVersion": .string("0"),
-                "CFBundleShortVersionString": .string("1.4.2"),
+                "CFBundleShortVersionString": .string("1.4.3"),
                 "UILaunchStoryboardName": .string("LaunchScreen"),
                 "UISupportedInterfaceOrientations": .array([.string("UIInterfaceOrientationPortrait")]),
                 "UIUserInterfaceStyle": .string("Dark"),

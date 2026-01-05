@@ -9,8 +9,8 @@ import Foundation
 
 import Domain
 
-enum BalloonType: Equatable {
-    static func == (lhs: BalloonType, rhs: BalloonType) -> Bool {
+public enum BalloonType: Equatable {
+    public static func == (lhs: BalloonType, rhs: BalloonType) -> Bool {
         switch (lhs, rhs) {
         case (.normal, .normal):
             return true
@@ -22,6 +22,7 @@ enum BalloonType: Equatable {
     }
     
     case normal
+    case midNightStandard
     case picks([Picker])
 }
 
@@ -31,6 +32,7 @@ enum BalloonText {
     case missionLocked
     case cantMission
     case canMission
+    case midNightStandard
     case missionDone
     case picker(Picker)
     case pickers([Picker])
@@ -53,6 +55,8 @@ enum BalloonText {
             return "\(picker.displayName)님이 기다리고 있어요"
         case .pickers(let pickers):
             return "\(pickers.first?.displayName ?? "알 수 없음")님 외 \(pickers.count - 1)명이 기다리고 있어요"
+        case .midNightStandard:
+            return "00:00:00 후 잠금 해제"
         }
     }
     
@@ -60,6 +64,7 @@ enum BalloonText {
         switch self {
         case .picker(let picker): return .picks([picker])
         case .pickers(let pickers): return .picks(pickers)
+        case .midNightStandard: return .midNightStandard
         default: return .normal
         }
     }

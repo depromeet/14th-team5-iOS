@@ -44,14 +44,16 @@ enum PostsAPIs: BBAPI {
                 path: "/posts/ai-images/count",
                 queryParameters: [
                     "aiPostType": "CHRISTMAS_2025"
-                ],
+                ]
             )
-        case let .createPost(type, body):
+            //TODO: AIPostType Parameter로 받도록 하기,, ㅠ
+        case let .createPost(type ,body):
             return Spec(
                 method: .post,
                 path: "/posts",
                 queryParameters: [
-                    .type: "\(type)"
+                    .type: "\(type)",
+                    .aiPostType: "CHRISTMAS_2025"
                 ],
                 bodyParametersEncodable: body
             )

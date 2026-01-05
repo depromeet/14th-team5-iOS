@@ -8,6 +8,7 @@
 import UIKit
 
 import Core
+import DesignSystem
 import Domain
 
 import RxSwift
@@ -20,6 +21,8 @@ final class MainPostViewController: BaseViewController<MainPostViewReactor>, UIC
     private let refreshControl: UIRefreshControl = UIRefreshControl()
     
     lazy var noPostView: NoPostTodayView = NoPostTodayView(type: reactor?.currentState.type ?? .survival, frame: .init())
+    private let tutorialImageView: UIImageView = UIImageView()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,7 +40,7 @@ final class MainPostViewController: BaseViewController<MainPostViewReactor>, UIC
     override func setupUI() {
         super.setupUI()
         
-        view.addSubviews(postCollectionView, noPostView)
+        view.addSubviews(postCollectionView, noPostView, tutorialImageView)
     }
     
     override func setupAutoLayout() {
@@ -45,6 +48,11 @@ final class MainPostViewController: BaseViewController<MainPostViewReactor>, UIC
         
         postCollectionView.snp.makeConstraints {
             $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            $0.verticalEdges.equalToSuperview().inset(20)
+        }
+        
+        tutorialImageView.snp.makeConstraints {
+            $0.horizontalEdges.equalToSuperview()
             $0.verticalEdges.equalToSuperview().inset(20)
         }
         
@@ -69,6 +77,10 @@ final class MainPostViewController: BaseViewController<MainPostViewReactor>, UIC
         
         noPostView.do {
             $0.isUserInteractionEnabled = false
+        }
+        
+        tutorialImageView.do {
+            $0.image = DesignSystemAsset.icFeedGuidelineFill.image
         }
     }
 }
@@ -114,11 +126,21 @@ extension MainPostViewController {
             .bind(onNext: { $0.0.refreshControl.endRefreshing() })
             .disposed(by: disposeBag)
         
-        reactor.state.map { $0.isShowingNoPostTodayView }
-            .observe(on: MainScheduler.instance)
+        Observable
+            .combineLatest(
+                reactor.state.map { $0.isShowingNoPostTodayView }.distinctUntilChanged(),
+                reactor.state.map { $0.isShowingGuideLineView }.distinctUntilChanged()
+            )
+            .filter { $0.1 == false }
+            .map { !$0.0 }
+            .bind(to: noPostView.rx.isHidden)
+            .disposed(by: disposeBag)
+    
+        reactor.pulse(\.$isShowingGuideLineView)
+            .observe(on: RxScheduler.main)
             .distinctUntilChanged()
             .map { !$0 }
-            .bind(to: noPostView.rx.isHidden)
+            .bind(to: tutorialImageView.rx.isHidden)
             .disposed(by: disposeBag)
     }
 }

@@ -22,6 +22,7 @@ public final class CameraDisplayViewReactor: Reactor {
     @Injected private var createPresignedURLUseCase: CreatePresignedURLUseCaseProtocol
     @Injected private var fetchUserCreatedAtUseCase: FetchUserCreatedAtInfoUseCaseProtocol
     @Injected private var createImageUploadUseCase: CreateImageUploadUseCaseProtocol
+    @Injected private var updateExistingUserUseCase: any UpdateExistingUserUseCaseProtocol
     @Navigator private var cameraDisplayNavigator: CameraDisplayNavigatorProtocol
     
     public enum Action {
@@ -150,7 +151,6 @@ public final class CameraDisplayViewReactor: Reactor {
             
             guard let presingedURL = currentState.displayEntity?.imageURL else { return .just(.setError(true)) }
             let remoteURL = configureOriginalS3URL(url: presingedURL)
-            
             let query = CreatePostQuery(type: currentState.cameraType.rawValue)
             let body = CreatePostRequest(imageUrl: remoteURL, content: currentState.displayDescrption, uploadTime: DateFormatter.yyyyMMddTHHmmssXXX.string(from: .now))
             let refreshMainObservable = Observable<Mutation>.concat(
@@ -168,6 +168,7 @@ public final class CameraDisplayViewReactor: Reactor {
                         if owner.currentState.cameraType == .survival {
                             return owner.fetchUserCreatedAtUseCase.execute()
                                 .flatMap { isRatingHidden -> Observable<Mutation> in
+                                    owner.updateExistingUserUseCase.execute()
                                     owner.cameraDisplayNavigator.toHome(isRatingHidden)
                                     return refreshMainObservable
                                 }

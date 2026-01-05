@@ -23,6 +23,8 @@ public protocol AppUserDefaultsType: UserDefaultsType {
     
     func saveIsFirstFamilyManagement(_ value: Bool)
     func loadIsFirstFamilyManagement() -> Bool?
+    func saveIsFirstInstallApp(_ value: Bool)
+    func loadIsFirstInstallApp() -> Bool?
     
     func saveInviteCode(_ inviteCode: String)
     func loadInviteCode() -> String?
@@ -36,6 +38,15 @@ final public class AppUserDefaults: AppUserDefaultsType {
     
     
     // MARK: - Is First Launch App
+    
+    public func saveIsFirstInstallApp(_ value: Bool) {
+        
+        KeychainWrapper.standard[.hasLaunchedBefore] = value
+    }
+    
+    public func loadIsFirstInstallApp() -> Bool? {
+        return KeychainWrapper.standard[.hasLaunchedBefore]
+    }
     
     public func saveIsFirstLaunchApp(_ value: Bool?) {
         userDefaults[.isFirstLaunchApp] = value

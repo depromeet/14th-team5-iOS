@@ -12,6 +12,10 @@ import Domain
 final class MyDIContainer: BaseContainer {
     
     // MARK: - Make UseCcase
+    private func makeFetchFirstInstallUseCase() -> FetchFirstInstallUseCaseProtocol {
+        FetchFirstInstallUseCase(myRepositroy: makeMyRepository())
+    }
+    
     
     private func makeFetchMyMemberIdUseCase() -> FetchMyMemberIdUseCaseProtocol {
         FetchMyMemberIdUseCase(
@@ -55,6 +59,11 @@ final class MyDIContainer: BaseContainer {
         )
     }
     
+    private func makeUpdateExistingUserUseCase() -> UpdateExistingUserUseCaseProtocol {
+        return UpdateExistingUserUseCase(myRepository: makeMyRepository())
+    }
+        
+    
     private func makeUpdateIsFirstOnboardingUseCase() -> UpdateIsFirstOnboardingUseCaseProtocol {
         return UpdateIsFirstOnboardingUseCase(
             myRepository: makeMyRepository()
@@ -75,6 +84,15 @@ final class MyDIContainer: BaseContainer {
     // MARK: - Register
     
     func registerDependencies() {
+        
+        
+        container.register(type: UpdateExistingUserUseCaseProtocol.self) { _ in
+            self.makeUpdateExistingUserUseCase()
+        }
+        
+        container.register(type: FetchFirstInstallUseCaseProtocol.self) { _ in
+            self.makeFetchFirstInstallUseCase()
+        }
         
         container.register(type: FetchMyMemberIdUseCaseProtocol.self) { _ in
             self.makeFetchMyMemberIdUseCase()

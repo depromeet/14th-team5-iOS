@@ -9,9 +9,9 @@ import UIKit
 import Core
 import Data
 import Domain
+import FirebaseMessaging
 
 import ReactorKit
-import FirebaseMessaging
 
 public final class AccountSignInReactor: Reactor {
     public var initialState: State

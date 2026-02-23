@@ -20,6 +20,9 @@
          location = "group:Domain/Domain.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:ThirdPartyLibs/ThirdPartyLibs.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:Util/Util.xcodeproj">
       </FileRef>
    </Group>
@@ -61,9 +64,6 @@
       </FileRef>
       <FileRef
          location = "group:Tuist/.build/tuist-derived/Lottie/Lottie.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Tuist/.build/tuist-derived/Mixpanel/Mixpanel.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:Tuist/.build/tuist-derived/Promises/Promises.xcodeproj">

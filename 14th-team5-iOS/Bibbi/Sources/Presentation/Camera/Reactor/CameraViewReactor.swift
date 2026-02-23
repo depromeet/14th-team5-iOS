@@ -9,6 +9,7 @@ import Foundation
 
 import Domain
 import Core
+import Util
 import ReactorKit
 
 
@@ -28,6 +29,7 @@ public final class CameraViewReactor: Reactor {
     @Injected private var provider: ServiceProviderProtocol
     @Injected private var createPresignedURLUseCase: CreateMembersPresignedURLUseCaseProtocol
     @Injected private var updateMembersProfileUseCase: UpdateMembersProfileUseCaseProtocol
+    @Injected private var imageCompressionService: any ImageCompressionServiceProtocol
     @Navigator var cameraNavigator: CameraNavigatorProtocol
     
     public var cameraType: UploadLocation
@@ -248,19 +250,25 @@ extension CameraViewReactor {
     
     private func didTapShutterButtonMutation(imageData: Data) -> Observable<CameraViewReactor.Mutation> {
         
+        let maxSize = 5 * 1024 * 1024
+        let compressedData = imageCompressionService.compress(
+            imageData,
+            maxSizeInBytes: maxSize
+        )
+        
         switch cameraType {
         case .survival, .mission, .ai:
             return .concat(
                 .just(.setLoading(false)),
-                .just(.setImageData(imageData)),
+                .just(.setImageData(compressedData)),
                 .just(.setLoading(true))
             )
             
         case .account:
-            let profileImage = "\(imageData.hashValue).jpg"
+            let profileImage = "\(compressedData.hashValue).jpg"
             let body = CreateMemberPresignedReqeust(imageName: profileImage)
             
-            return createPresignedURLUseCase.execute(body: body, imageData: imageData)
+            return createPresignedURLUseCase.execute(body: body, imageData: compressedData)
                 .flatMap { entity -> Observable<Mutation> in
                     guard let _ = entity?.imageURL else {
                         return .error(BBUploadError.invalidServerResponse)
@@ -269,7 +277,7 @@ extension CameraViewReactor {
                     return .concat(
                         .just(.setLoading(false)),
                         .just(.setProfilePresignedResponse(entity)),
-                        .just(.setImageData(imageData)),
+                        .just(.setImageData(compressedData)),
                         .just(.setLoading(true))
                     )
                 }.catch { [weak self] error in
@@ -277,10 +285,10 @@ extension CameraViewReactor {
                     return .empty()
                 }
         case  .profile:
-            let profileImage = "\(imageData.hashValue).jpg"
+            let profileImage = "\(compressedData.hashValue).jpg"
             let body = CreateMemberPresignedReqeust(imageName: profileImage)
             
-            return createPresignedURLUseCase.execute(body: body, imageData: imageData)
+            return createPresignedURLUseCase.execute(body: body, imageData: compressedData)
                 .withUnretained(self)
                 .flatMap { owner, entity -> Observable<Mutation> in
                     guard let presignedURL = entity?.imageURL else {
@@ -310,10 +318,10 @@ extension CameraViewReactor {
                 return .just(.setErrorAlert(true))
             }
             
-            let realEmojiImage = "\(imageData.hashValue).jpg"
+            let realEmojiImage = "\(compressedData.hashValue).jpg"
             let body = CreatePresignedURLRequest(imageName: realEmojiImage)
             if currentState.realEmojiEntity[currentState.emojiType.rawValue - 1] == nil {
-                return fetchRealEmojiPreSignedUseCase.execute(memberId: memberId, body: body, imageData: imageData)
+                return fetchRealEmojiPreSignedUseCase.execute(memberId: memberId, body: body, imageData: compressedData)
                     .withUnretained(self)
                     .flatMap { owner, remoteURL -> Observable<Mutation> in
                         let originalURL = owner.configureProfileOriginalS3URL(url: remoteURL.imageURL, with: .realEmoji)
@@ -332,10 +340,10 @@ extension CameraViewReactor {
                         return .empty()
                     }
             } else {
-                let realEmojiImage = "\(imageData.hashValue).jpg"
+                let realEmojiImage = "\(compressedData.hashValue).jpg"
                 let body = CreatePresignedURLRequest(imageName: realEmojiImage)
                 
-                return fetchRealEmojiPreSignedUseCase.execute(memberId: memberId, body: body, imageData: imageData)
+                return fetchRealEmojiPreSignedUseCase.execute(memberId: memberId, body: body, imageData: compressedData)
                     .withUnretained(self)
                     .flatMap { owner, remoteURL -> Observable<Mutation> in
                         let originalURL = owner.configureProfileOriginalS3URL(url: remoteURL.imageURL, with: .realEmoji)

@@ -56,9 +56,7 @@ final class AccountResignViewReactor: Reactor {
             return .just(.setSelected(reasonType))
             
             
-        case .didTapResignButton:
-            MPEvent.Account.withdrawl.track(with: nil)
-            
+        case .didTapResignButton:            
             guard let memberId = fetchMyMemberIdUseCase.execute() else {
                 resignNavigator.showErrorToast()
                 return .empty()

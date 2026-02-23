@@ -10,15 +10,13 @@ import Data
 import Domain
 import UIKit
 import AuthenticationServices
-import Firebase
-import FirebaseCore
-import FirebaseMessaging
-import GoogleMobileAds
 import KakaoSDKAuth
 import RxKakaoSDKAuth
 import RxKakaoSDKCommon
 import RxSwift
-import Mixpanel
+import FirebaseMessaging
+import FirebaseCore
+import GoogleMobileAds
 
 
 
@@ -44,7 +42,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         FirebaseApp.configure()
         MobileAds.shared.start()
-        mixpanelApp(application, didFinishLaunchingWithOptions: launchOptions)
         setupUserNotificationCenter(application)
         removeKeychainAtFirstLaunch()
         bindRepositories()
@@ -151,23 +148,6 @@ extension AppDelegate {
         }
         
         return false
-    }
-}
-
-
-// MARK: - MixPanel
-
-extension AppDelegate: MixpanelDelegate {
-    
-    func mixpanelApp(_ app: UIApplication, didFinishLaunchingWithOptions launchOption: [UIApplication.LaunchOptionsKey: Any]?) {
-        guard let mixPanelKey = Bundle.main.object(forInfoDictionaryKey: "MIXPANEL_API_KEY") as? String else {
-            return
-        }
-        let _ = Mixpanel.initialize(token: mixPanelKey, trackAutomaticEvents: true)
-    }
-    
-    func mixpanelWillFlush(_ mixpanel: MixpanelInstance) -> Bool {
-        return true
     }
 }
 

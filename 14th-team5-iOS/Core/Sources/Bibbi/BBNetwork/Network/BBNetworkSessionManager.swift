@@ -39,8 +39,19 @@ public protocol BBNetworkSessionManager {
 
 public class BBNetworkSession {
     
-    /// 가장 기본적인 네트워크 세션입니다.
-    public static let `default`: BBNetworkSession = BBNetworkSession()
+    public static let `default`: BBNetworkSession = {
+        let configuration = URLSessionConfiguration.af.default
+        
+        configuration.waitsForConnectivity = true
+        configuration.timeoutIntervalForRequest = 60
+        configuration.timeoutIntervalForResource = 180
+        configuration.networkServiceType = .responsiveData
+        configuration.allowsCellularAccess = true
+        configuration.allowsExpensiveNetworkAccess = true
+        configuration.allowsConstrainedNetworkAccess = true
+        
+        return BBNetworkSession(configuration: configuration)
+    }()
     
     /// 토큰 리프레시용 네트워크 세션입니다.
     public static let refresh: BBNetworkSession = BBNetworkSession(interceptor: nil)

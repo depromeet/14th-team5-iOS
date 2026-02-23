@@ -8,11 +8,12 @@
 import Core
 import DesignSystem
 import UIKit
+import Util
 
 protocol CameraDisplayNavigatorProtocol: BaseNavigator {
     func toHome(_ isRatingHidden: Bool)
     func toCamera()
-    func showErrorAlert()
+    func showErrorAlert(message: String, error: Error)
 }
 
 final class CameraDisplayNavigator: CameraDisplayNavigatorProtocol {
@@ -26,7 +27,10 @@ final class CameraDisplayNavigator: CameraDisplayNavigatorProtocol {
         self.navigationController = navigationController
     }
     
-    func showErrorAlert() {
+    func showErrorAlert(message: String, error: Error) {
+        BBLogManager.sendError(message: message)
+        BBLogManager.sendError(error: error)
+        
         let confirmHandler: BBAlertActionHandler = { [weak self] alert in
             self?.toCamera()
             alert?.close()

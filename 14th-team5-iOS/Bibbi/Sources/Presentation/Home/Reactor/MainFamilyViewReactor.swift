@@ -50,7 +50,6 @@ extension MainFamilyViewReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .tapInviteFamily:
-            MPEvent.Home.shareLink.track(with: nil)
             return fetchSharinUrlUseCase.execute()
                 .withUnretained(self)
                 .flatMap {

@@ -449,7 +449,7 @@ extension MainViewReactor {
                     newState.balloonText = .pickers(currentState.pickers)
                 }
             } else {
-                newState.balloonText = .midNightStandard
+                newState.balloonText = .survivalStandard
             }
         } else {
             if !currentState.isMissionUnlocked {

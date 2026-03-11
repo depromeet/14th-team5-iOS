@@ -49,7 +49,6 @@ extension InputFamilyLinkReactor {
             return Observable.just(Mutation.setLinkString(link))
         case .tapJoinFamily:
             
-            MPEvent.Account.invitedGroupFinished.track(with: nil)
             
             let code = currentState.linkString
             let body = JoinFamilyRequest(inviteCode: String(code))

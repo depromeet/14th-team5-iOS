@@ -24,6 +24,8 @@ extension TargetDependency {
             return .project(target: moduleName, path: .relativeToRoot("14th-team5-iOS/\(moduleName)"))
         case .DesignSystem:
             return .project(target: moduleName, path: .relativeToRoot("14th-team5-iOS/\(moduleName)"))
+        case .ThirdPartyLibs:
+            return .project(target: moduleName, path: .relativeToRoot("14th-team5-iOS/\(moduleName)"))
         }
     }
 }

@@ -58,7 +58,6 @@ extension JoinFamilyReactor {
                     return Observable.just(Mutation.setShowHome(true))
                 }
         case .joinFamily:
-            MPEvent.Account.invitedGroup.track(with: nil)
             return Observable.just(Mutation.setShowJoinFamily(true))
         }
     }

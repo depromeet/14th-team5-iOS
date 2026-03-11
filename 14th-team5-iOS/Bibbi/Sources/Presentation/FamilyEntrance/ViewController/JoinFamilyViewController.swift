@@ -79,7 +79,6 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
     private func bindInput(reactor: JoinFamilyReactor) {
         makeFamilyButton.rx.tap
             .do(onNext: {
-                MPEvent.Account.creatGroup.track(with: nil)
                 BBLogManager.analytics(logType: BBEventAnalyticsLog.clickFamilyButton(entry: .createFamilyGroup))
             })
             .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
@@ -138,7 +137,6 @@ extension JoinFamilyViewController {
         let cancelAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)
         let confirmAction = UIAlertAction(title: "확인", style: .default) { [weak self] _ in
             guard let self else { return }
-            MPEvent.Account.creatGroupFinished.track(with: nil)
             self.reactor?.action.onNext(.makeFamily)
         }
         

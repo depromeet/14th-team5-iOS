@@ -210,6 +210,20 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "1695BC4D5167424B1D3DEF18"
+               BuildableName = "Domain_Domain.bundle"
+               BlueprintName = "Domain_Domain"
+               ReferencedContainer = "container:14th-team5-iOS/Domain/Domain.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "787785524E0E998535524C4F"
                BuildableName = "FBLPromises.framework"
                BlueprintName = "FBLPromises"
@@ -1008,34 +1022,6 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0A4E95A8DF53D3C3DEDA2BCF"
-               BuildableName = "Mixpanel.framework"
-               BlueprintName = "Mixpanel"
-               ReferencedContainer = "container:Tuist/.build/tuist-derived/Mixpanel/Mixpanel.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A5CB8F43F141423E5B92CBC9"
-               BuildableName = "Mixpanel_Mixpanel.bundle"
-               BlueprintName = "Mixpanel_Mixpanel"
-               ReferencedContainer = "container:Tuist/.build/tuist-derived/Mixpanel/Mixpanel.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "0D72757D681B0299654010FC"
                BuildableName = "Promises.framework"
                BlueprintName = "Promises"
@@ -1488,6 +1474,34 @@
                BuildableName = "Then.framework"
                BlueprintName = "Then"
                ReferencedContainer = "container:Tuist/.build/tuist-derived/Then/Then.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "6B2D0C5E263CA86B1CD4D3ED"
+               BuildableName = "ThirdPartyLibs.framework"
+               BlueprintName = "ThirdPartyLibs"
+               ReferencedContainer = "container:14th-team5-iOS/ThirdPartyLibs/ThirdPartyLibs.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "519065E8F508F7C089AC9775"
+               BuildableName = "ThirdPartyLibs_ThirdPartyLibs.bundle"
+               BlueprintName = "ThirdPartyLibs_ThirdPartyLibs"
+               ReferencedContainer = "container:14th-team5-iOS/ThirdPartyLibs/ThirdPartyLibs.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry

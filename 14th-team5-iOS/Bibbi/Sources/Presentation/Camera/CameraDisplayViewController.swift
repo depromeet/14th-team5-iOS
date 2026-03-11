@@ -224,7 +224,6 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .rx.tap
             .withUnretained(self)
             .subscribe { owner, _ in
-                MPEvent.Camera.photoText.track(with: nil)
                 owner.displayEditTextField.becomeFirstResponder()
             }
             .disposed(by: disposeBag)

@@ -44,13 +44,9 @@ extension OnBoardingReactor {
         case .permissionTapped:
             Observable.create { [weak self] observer in
                 self?.updateIsFirstOnboardingUseCase.execute(true)
-                MPEvent.Account.invitedGroupFinished.track(with: nil)
                 UNUserNotificationCenter.current().requestAuthorization(
                     options: [.alert, .badge, .sound],
                     completionHandler: { granted, error in
-                        if granted {
-                            MPEvent.Account.allowNotification.track(with: nil)
-                        }
                         observer.onNext(granted)
                         observer.onCompleted()
                     }

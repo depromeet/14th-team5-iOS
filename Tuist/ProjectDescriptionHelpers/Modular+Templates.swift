@@ -100,7 +100,7 @@ extension Target {
             return .target(
                 name: layer.rawValue,
                 destinations: .iOS,
-                product: factory.products.isLibrary ? .staticFramework : .framework,
+                product: .staticFramework,
                 bundleId: "com.\(layer.rawValue).project".lowercased(),
                 deploymentTargets: factory.deploymentTargets,
                 infoPlist: factory.infoPlist,
@@ -115,7 +115,7 @@ extension Target {
             return .target(
                 name: layer.rawValue,
                 destinations: .iOS,
-                product: factory.products.isFramework ? .staticFramework : .framework,
+                product: .staticFramework,
                 bundleId: "com.\(layer.rawValue).project".lowercased(),
                 deploymentTargets: factory.deploymentTargets,
                 infoPlist: factory.infoPlist,
@@ -129,7 +129,7 @@ extension Target {
             return .target(
                 name: layer.rawValue,
                 destinations: .iOS,
-                product: factory.products.isFramework ? .staticFramework : .framework,
+                product: .staticFramework,
                 bundleId: "com.\(layer.rawValue).project".lowercased(),
                 deploymentTargets: factory.deploymentTargets,
                 infoPlist: factory.infoPlist,
@@ -144,7 +144,7 @@ extension Target {
             return .target(
                 name: layer.rawValue,
                 destinations: .iOS,
-                product: factory.products.isLibrary ? .framework : .staticFramework,
+                product: .staticFramework,
                 bundleId: "com.\(layer.rawValue).project".lowercased(),
                 deploymentTargets: factory.deploymentTargets,
                 infoPlist: factory.infoPlist,
@@ -159,7 +159,7 @@ extension Target {
             return .target(
                 name: layer.rawValue,
                 destinations: .iOS,
-                product: factory.products.isFramework ? .staticFramework : .framework,
+                product: .staticFramework,
                 bundleId: "com.\(layer.rawValue).project".lowercased(),
                 deploymentTargets: factory.deploymentTargets,
                 infoPlist: factory.infoPlist,
@@ -168,6 +168,25 @@ extension Target {
                 entitlements: factory.entitlements,
                 dependencies: factory.dependencies,
                 settings: factory.settings
+            )
+        case .ThirdPartyLibs:
+            return .target(
+                name: layer.rawValue,
+                destinations: .iOS,
+                product: .staticFramework,
+                bundleId: "com.\(layer.rawValue).project".lowercased(),
+                deploymentTargets: factory.deploymentTargets,
+                infoPlist: factory.infoPlist,
+                sources: factory.sources,
+                resources: factory.resources,
+                entitlements: factory.entitlements,
+                dependencies: factory.dependencies,
+                settings: .settings(
+                    base: [
+                        "OTHER_LDFLAGS": "$(inherited) -ObjC -framework JavaScriptCore",
+                        "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym"
+                    ]
+                )
             )
         }
         

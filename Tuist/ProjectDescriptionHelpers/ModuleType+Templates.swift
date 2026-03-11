@@ -35,6 +35,7 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
     case Util
     case Core
     case DesignSystem
+    case ThirdPartyLibs
     
     
     public var dependencies: [TargetDependency] {
@@ -42,27 +43,30 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
         case .Bibbi:
             return [
                 .target(name: "WidgetExtension"),
-                .external(name: "FirebaseMessaging"),
                 .sdk(name: "JavaScriptCore", type: .framework),
-                .external(name: "GoogleMobileAds", condition: .when(.all)),
-                .external(name: "Mixpanel"),
+                .external(name: "RxSwift"),
+                .external(name: "RxCocoa"),
                 .external(name: "RxDataSources"),
                 .with(.Util),
                 .with(.Data),
+                .with(.ThirdPartyLibs),
                 .external(name: "ReactorKit"),
                 .external(name: "Lottie"),
                 .external(name: "Macros")
             ]
         case .Util:
             return [
-                .external(name: "FirebaseAnalyticsWithoutAdIdSupport"),
-                .external(name: "FirebaseCrashlytics"),
-                .with(.Core)
+                .with(.DesignSystem),
+                .with(.ThirdPartyLibs),
+                .external(name: "RxSwift"),
+                .external(name: "RxCocoa"),
             ]
         case .Data:
             return [
                 .with(.Domain),
                 .with(.Util),
+                .external(name: "RxSwift"),
+                .external(name: "RxCocoa"),
                 .external(name: "Alamofire"),
                 .external(name: "KakaoSDK"),
                 .external(name: "RxKakaoSDK"),
@@ -71,12 +75,16 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
         case .Domain:
             return [
                 .external(name: "RxSwift"),
+                .external(name: "RxCocoa"),
                 .with(.Core),
                 .external(name: "Macros")
             ]
         case .Core:
             return [
+                .with(.Util),
                 .with(.DesignSystem),
+                .external(name: "RxSwift"),
+                .external(name: "RxCocoa"),
                 .external(name: "SnapKit", condition: .when(.all)),
                 .external(name: "Then", condition: .when(.all)),
                 .external(name: "Kingfisher", condition: .when(.all)),
@@ -86,7 +94,15 @@ public enum ModuleLayer: String, CaseIterable, ModuleType {
                 .external(name: "Macros")
             ]
         case .DesignSystem:
-            return [] 
+            return []
+        case .ThirdPartyLibs:
+            return [
+                .sdk(name: "JavaScriptCore", type: .framework),
+                .external(name: "FirebaseAnalyticsWithoutAdIdSupport"),
+                .external(name: "FirebaseCrashlytics"),
+                .external(name: "FirebaseMessaging"),
+                .external(name: "GoogleMobileAds", condition: .when(.all)),
+            ]
         }
     }
     

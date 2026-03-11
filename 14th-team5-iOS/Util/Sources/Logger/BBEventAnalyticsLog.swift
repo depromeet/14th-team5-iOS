@@ -7,11 +7,25 @@
 
 import Foundation
 
+public struct CameraUploadSuccessEntry {
+    public let imageSize: Int
+    public let uploadTime: TimeInterval
+    public let uploadSpeed: Double
+    
+    public init(imageSize: Int, uploadTime: TimeInterval) {
+        self.imageSize = imageSize
+        self.uploadTime = uploadTime
+        self.uploadSpeed = Double(imageSize * 8) / uploadTime / 1_000_000
+    }
+}
+
+
 public enum BBEventAnalyticsLog: BBAnalyticsLogType  {
     case viewPage(pageName: PageName)
     case clickAccountButton(entry: AccountButtonEntry)
     case clickFamilyButton(entry: FamilyButtonEntry)
     case clickCameraButton(entry: CameraButtonEntry)
+    case successImageUpload(entry: CameraUploadSuccessEntry)
 }
 
 

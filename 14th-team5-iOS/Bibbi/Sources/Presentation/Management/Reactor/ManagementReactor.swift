@@ -105,10 +105,7 @@ public final class ManagementReactor: Reactor {
     
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .didTapSharingContainer:
-            // Mixpanel
-            MPEvent.Family.shareLink.track(with: nil)
-            
+        case .didTapSharingContainer:            
             return Observable.concat(
                 Observable<Mutation>.just(.setHiddenSharingProgressHud(false)),
                 

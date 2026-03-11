@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Core
 
 public protocol BBAnalyticsLogType {
     var name: String { get }

@@ -6,6 +6,7 @@
 //
 
 import Core
+import Util
 import Data
 import Domain
 
@@ -13,6 +14,15 @@ import Domain
 final class PostDIContainer: BaseContainer {
     private let familyRepository: FamilyRepositoryProtocol = FamilyRepository()
     private let postListRepository: PostRepositoryProtocol = PostRepository()
+        
+    private func makeImageCompressionService() -> ImageCompressionServiceProtocol {
+        
+        return ImageCompressionService(
+            initialQuality: 0.8,
+            minimumQuality: 0.1,
+            qualityStep: 0.1
+        )
+    }
 
     private func makePostUseCase() -> FetchPostListUseCaseProtocol {
         return FetchPostListUseCase(
@@ -52,6 +62,10 @@ final class PostDIContainer: BaseContainer {
 
 extension PostDIContainer {
     func registerDependencies() {
+        container.register(type: ImageCompressionServiceProtocol.self) { _ in
+            self.makeImageCompressionService()
+        }
+                
         container.register(type: FetchPostListUseCaseProtocol.self) { _ in
             self.makePostUseCase()
         }

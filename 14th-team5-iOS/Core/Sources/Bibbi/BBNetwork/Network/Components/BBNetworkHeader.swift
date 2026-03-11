@@ -25,7 +25,6 @@ public enum BBNetworkHeader {
     case xUserId
     case contentType
     case multiPart
-    
 }
 
 
@@ -115,7 +114,7 @@ private extension BBNetworkHeader {
     }
     
     func fetchMultiPartType() -> String {
-        return "multipart/form-data"
+        return "image/jpeg"
     }
     
 }

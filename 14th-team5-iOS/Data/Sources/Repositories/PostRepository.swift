@@ -9,6 +9,7 @@ import Foundation
 
 import Domain
 import RxSwift
+import Util
 
 public final class PostRepository: PostRepositoryProtocol, StudioRepositoryProtocol {
     
@@ -90,6 +91,35 @@ extension PostRepository {
         _ presignedURL: String,
         image: Data
     ) -> Observable<Bool> {
+        let startTime = Date()
+        let imageSize = image.count
+        
         return postAPIWorker.updateS3PostImageUpload(presignedURL, image: image)
+            .retryOnNetworkError(maxRetries: 3)
+            .do(
+                onNext: { success in
+                    guard success else {
+                        return
+                    }
+                    let uploadTime = Date().timeIntervalSince(startTime)
+                    let entry = CameraUploadSuccessEntry(
+                        imageSize: imageSize,
+                        uploadTime: uploadTime
+                    )
+                    
+                    BBLogManager.analytics(logType: BBEventAnalyticsLog.successImageUpload(entry: entry))
+                },
+                onError: { error in
+                    let nsError = error as NSError
+                    let uploadTime = Date().timeIntervalSince(startTime)
+                    
+                    BBLogManager.analytics(logType: BBUploadFailureLog(
+                        errorCode: nsError.code,
+                        imageSize: imageSize,
+                        duration: uploadTime
+                    ))
+                    BBLogManager.sendError(error: error)
+                }
+            )
     }
 }

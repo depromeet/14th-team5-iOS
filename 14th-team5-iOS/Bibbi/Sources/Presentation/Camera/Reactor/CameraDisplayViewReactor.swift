@@ -23,6 +23,7 @@ public final class CameraDisplayViewReactor: Reactor {
     @Injected private var fetchUserCreatedAtUseCase: FetchUserCreatedAtInfoUseCaseProtocol
     @Injected private var createImageUploadUseCase: CreateImageUploadUseCaseProtocol
     @Injected private var updateExistingUserUseCase: any UpdateExistingUserUseCaseProtocol
+    @Injected private var imageCompressionService: any ImageCompressionServiceProtocol
     @Navigator private var cameraDisplayNavigator: CameraDisplayNavigatorProtocol
     
     public enum Action {
@@ -86,8 +87,14 @@ public final class CameraDisplayViewReactor: Reactor {
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewDidLoad:
-            let fileName = "\(currentState.displayData.hashValue).jpg"
+            let fileName = "\(UUID().uuidString).jpg"
             let body = CreatePostPresignedURLRequest(imageName: fileName)
+            
+            let maxSize = 5 * 1024 * 1024
+            let compressedData = imageCompressionService.compress(
+                currentState.displayData,
+                maxSizeInBytes: maxSize
+            )
             return .concat(
                 .just(.setLoading(false)),
                 createPresignedURLUseCase.execute(body: body)
@@ -96,20 +103,33 @@ public final class CameraDisplayViewReactor: Reactor {
                         guard let remoteURL = presingedURL?.imageURL else {
                             return .just(.setLoading(false))
                         }
-                        return owner.createImageUploadUseCase.execute(remoteURL, with: owner.currentState.displayData)
+                        return owner.createImageUploadUseCase.execute(remoteURL, with: compressedData)
                             .flatMap { isSuccess -> Observable<Mutation> in
                                 return .concat(
                                     .just(.setDisplayEntity(presingedURL)),
                                     .just(.setLoading(true))
                                 )
                                 
-                            }.catchError(with: self) { owner, _ in
-                                owner.cameraDisplayNavigator.showErrorAlert()
-                                return .empty()
+                            }.catchError(with: self) { owner, error in
+                                if let urlError = error as? URLError {
+                                    owner.cameraDisplayNavigator.showErrorAlert(
+                                        message: error.localizedDescription,
+                                        error: urlError
+                                    )
+                                } else {
+                                    owner.cameraDisplayNavigator.showErrorAlert(
+                                        message: "이미지 압축 중 에러가 발생했습니다.",
+                                        error: error
+                                    )
+                                }
+                                return .just(.setLoading(true))
                             }
-                    }.catchError(with: self) { owner, _ in
-                        owner.cameraDisplayNavigator.showErrorAlert()
-                        return .empty()
+                    }.catchError(with: self) { owner, error in
+                        owner.cameraDisplayNavigator.showErrorAlert(
+                            message: "이미지 PresignedURL업로드 중 에러가 발생했습니다.",
+                            error: error
+                        )
+                        return .just(.setLoading(true))
                     }
             )
  
@@ -147,8 +167,6 @@ public final class CameraDisplayViewReactor: Reactor {
             
         case .didTapConfirmButton:
             
-            MPEvent.Camera.uploadPhoto.track(with: nil)
-            
             guard let presingedURL = currentState.displayEntity?.imageURL else { return .just(.setError(true)) }
             let remoteURL = configureOriginalS3URL(url: presingedURL)
             let query = CreatePostQuery(type: currentState.cameraType.rawValue)
@@ -177,8 +195,11 @@ public final class CameraDisplayViewReactor: Reactor {
                             return refreshMainObservable
                         }
                     }
-                }.catchError(with: self) { owner, _ in
-                    owner.cameraDisplayNavigator.showErrorAlert()
+                }.catchError(with: self) { owner, error in
+                    owner.cameraDisplayNavigator.showErrorAlert(
+                        message: "게시물 생성 중 에러가 발생했습니다.",
+                        error: error
+                    )
                     return .empty()
                 }
         case .hideDisplayEditCell:
@@ -253,10 +274,17 @@ extension CameraDisplayViewReactor {
         return index
     }
     
-    
     func configureOriginalS3URL(url: String) -> String {
-        guard let range = url.range(of: #"[^&?]+"#, options: .regularExpression) else { return "" }
-        return String(url[range])
+        guard let urlComponents = URLComponents(string: url) else {
+            return url
+        }
+        
+        var cleanComponents = urlComponents
+        cleanComponents.query = nil
+        guard let originURL = cleanComponents.url?.absoluteString else {
+            return url
+        }
+        return originURL
     }
 }
 

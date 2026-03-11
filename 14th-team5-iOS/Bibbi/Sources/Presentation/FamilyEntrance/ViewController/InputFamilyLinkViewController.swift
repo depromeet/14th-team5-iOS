@@ -8,7 +8,6 @@
 import UIKit
 
 import Core
-import Mixpanel
 import DesignSystem
 
 fileprivate typealias _Str = InviteFamilyStrings

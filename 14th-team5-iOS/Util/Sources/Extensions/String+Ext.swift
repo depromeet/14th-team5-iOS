@@ -29,7 +29,7 @@ extension String {
         return false
     }
     
-    func MD5() -> String {
+    public func MD5() -> String {
         var digest = Insecure.MD5.hash(data: self.data(using: .utf8) ?? Data())
         return digest.map { String(format: "%02hhx", $0) }.joined()
     }

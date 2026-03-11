@@ -8,9 +8,9 @@
 import Foundation
 
 import Alamofire
-import Combine
 import RxAlamofire
 import RxSwift
+import Util
 
 // MARK: - Error
 
@@ -185,21 +185,55 @@ extension BBRxAPIWorker: Workable {
     ) -> Observable<Bool> {
         
         guard let remoteURL = URL(string: presignedURL) else {
-            return .just(false)
+
+            let urlError = APIWorkerError.networkFailure(reason: .urlGeneration)
+            return .error(urlError)
+        }
+        
+        let maxSize = 10 * 1024 * 1024
+        if binaryData.count > maxSize {
+            let sizeError = APIWorkerError.networkFailure(reason: .badRequest)
+            return .error(sizeError)
         }
         
         var request = URLRequest(url: remoteURL)
         request.method = .put
         request.httpBody = binaryData
-        request.headers = BBNetworkHeaders.default.asHTTPHeaders
+        
+        request.timeoutInterval = 120
+        
+        var headers = BBNetworkHeaders.multipart.asHTTPHeaders
+        headers.add(name: "Content-Length", value: "\(binaryData.count)")
+        request.headers = headers
         
         return Observable<Bool>.create { [unowned self] observer in
+            let startTime = Date()
+            
             let uploadRequest = self.service.upload(request, with: binaryData, serializer: serializer) { result in
+                let duration = Date().timeIntervalSince(startTime)
+                
                 switch result {
                 case let .success(isUpload):
-                    observer.onNext(isUpload ?? false)
+                    if let uploadSuccess = isUpload, uploadSuccess {
+                        BBLogManager.analytics(logType: BBUploadSuccessLog(
+                            imageSize: binaryData.count,
+                            duration: duration
+                        ))
+                        observer.onNext(true)
+                    } else {
+                        observer.onNext(false)
+                    }
                     observer.onCompleted()
+                    
                 case let .failure(error):
+                    BBLogManager.sendError(error: error)
+
+                    let nsError = error as NSError
+                    BBLogManager.analytics(logType: BBUploadFailureLog(
+                        errorCode: nsError.code,
+                        imageSize: binaryData.count,
+                        duration: duration
+                    ))
                     let mappedError = self.errorMapper.map(networkError: error)
                     self.errorLogger.log(localizedError: mappedError)
                     observer.onError(mappedError)
@@ -285,4 +319,14 @@ extension BBRxAPIWorker {
         }
     }
     
+}
+
+
+extension BBRxAPIWorker {    
+    private func formatBytes(_ bytes: Int64) -> String {
+        let formatter = ByteCountFormatter()
+        formatter.allowedUnits = [.useMB, .useKB]
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: bytes)
+    }
 }

@@ -58,31 +58,25 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     //MARK: Configure
     public override func setupUI() {
         super.setupUI()
-        view.addSubviews(locationView, displayView, displayBannerView, missionDisplayView, confirmButton, archiveButton, displayEditTextField, displayEditCollectionView, displayIndicatorView)
-        displayView.addSubviews(displayEditButton)
+        view.addSubviews(displayView, displayBannerView, missionDisplayView, confirmButton, archiveButton, displayEditTextField, displayEditCollectionView, displayIndicatorView)
+        displayView.addSubviews(locationView, displayEditButton)
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
         
         locationView.do {
-            let paragraphStyle = NSMutableParagraphStyle()
-            paragraphStyle.minimumLineHeight = 19.6
-            paragraphStyle.maximumLineHeight = 19.6
-            
             let attributed = AttributedString(NSAttributedString(string: "위치 추가", attributes: [
                 .foregroundColor: DesignSystemAsset.mainYellow.color,
                 .font: DesignSystemFontFamily.Pretendard.semiBold.font(size: 14),
                 .kern: 0.042,
-                .paragraphStyle: paragraphStyle
             ]))
-            let blurEffectView = UIVisualEffectView.makeBlurView(style: .systemUltraThinMaterialDark)
-            blurEffectView.frame = $0.bounds
-            blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-            blurEffectView.isUserInteractionEnabled = false
-            $0.insertSubview(blurEffectView, at: 0)
+
             $0.clipsToBounds = true
-            $0.layer.cornerRadius = 10
+            $0.configuration?.background.visualEffect = UIBlurEffect(style: .systemThickMaterialDark)
+            $0.configuration?.background.cornerRadius = 25
+            
+            $0.configuration?.image = DesignSystemAsset.location.image
             $0.configuration?.attributedTitle = attributed
             $0.configuration?.imagePlacement = .leading
             $0.configuration?.imagePadding = 2
@@ -179,9 +173,8 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         
         locationView.snp.makeConstraints {
             $0.top.equalToSuperview().offset(20)
-            $0.width.equalTo(97)
             $0.height.equalTo(36)
-            $0.centerY.equalToSuperview()
+            $0.centerX.equalToSuperview()
         }
         
         missionDisplayView.snp.makeConstraints {
@@ -326,6 +319,13 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             }.bind(to: displayEditTextField.rx.text)
             .disposed(by: disposeBag)
         
+        locationView
+            .rx.tap
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
+            .bind(with: self) { owner, _ in
+                print("터치 확인입니다용")
+            }
+            .disposed(by: disposeBag)
         
         confirmButton.rx
             .tap

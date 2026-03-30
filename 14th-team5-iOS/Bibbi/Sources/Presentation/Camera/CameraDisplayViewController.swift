@@ -322,8 +322,10 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         locationView
             .rx.tap
             .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
-            .bind(with: self) { owner, _ in
-                print("터치 확인입니다용")
+            .withUnretained(self)
+            .bind { owner, _ in
+                //TODO: 요기에 이벤트 전달 고고
+                print("야근 ㄱㅇㄷ")
             }
             .disposed(by: disposeBag)
         

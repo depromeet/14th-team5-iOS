@@ -13,6 +13,7 @@ import Util
 protocol CameraDisplayNavigatorProtocol: BaseNavigator {
     func toHome(_ isRatingHidden: Bool)
     func toCamera()
+    func toLocationSearch()
     func showErrorAlert(message: String, error: Error)
 }
 
@@ -49,6 +50,12 @@ final class CameraDisplayNavigator: CameraDisplayNavigatorProtocol {
     
     func toCamera() {
         navigationController.popViewController(animated: true)
+    }
+    
+    func toLocationSearch() {
+        //TODO: 해당 vc를 위치 검색ViewController로 변경하면 됩니다잉
+        let vc = MainViewControllerWrapper().viewController
+        navigationController.pushViewController(vc, animated: true)
     }
     
     

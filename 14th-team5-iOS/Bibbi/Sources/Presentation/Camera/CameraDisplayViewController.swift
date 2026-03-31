@@ -21,6 +21,7 @@ import SnapKit
 
 public final class CameraDisplayViewController: BaseViewController<CameraDisplayViewReactor> {
     //MARK: Views
+    private let locationView: UIButton = UIButton(configuration: .plain())
     private let displayView: UIImageView = UIImageView()
     private let displayBannerView: BannerView = BannerView()
     private let missionDisplayView: BibbiMissionView = BibbiMissionView()
@@ -58,11 +59,28 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     public override func setupUI() {
         super.setupUI()
         view.addSubviews(displayView, displayBannerView, missionDisplayView, confirmButton, archiveButton, displayEditTextField, displayEditCollectionView, displayIndicatorView)
-        displayView.addSubviews(displayEditButton)
+        displayView.addSubviews(locationView, displayEditButton)
     }
     
     public override func setupAttributes() {
         super.setupAttributes()
+        
+        locationView.do {
+            let attributed = AttributedString(NSAttributedString(string: "위치 추가", attributes: [
+                .foregroundColor: DesignSystemAsset.mainYellow.color,
+                .font: DesignSystemFontFamily.Pretendard.semiBold.font(size: 14),
+                .kern: 0.042,
+            ]))
+
+            $0.clipsToBounds = true
+            $0.configuration?.background.visualEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
+            $0.configuration?.background.cornerRadius = 25
+            
+            $0.configuration?.image = DesignSystemAsset.location.image
+            $0.configuration?.attributedTitle = attributed
+            $0.configuration?.imagePlacement = .leading
+            $0.configuration?.imagePadding = 2
+        }
         
         displayEditCollectionViewLayout.do {
             $0.itemSize = CGSize(width: 38, height: 61)
@@ -152,6 +170,12 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
+        
+        locationView.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(20)
+            $0.height.equalTo(36)
+            $0.centerX.equalToSuperview()
+        }
         
         missionDisplayView.snp.makeConstraints {
             $0.top.equalTo(navigationBarView.snp.bottom).offset(26)
@@ -295,6 +319,12 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             }.bind(to: displayEditTextField.rx.text)
             .disposed(by: disposeBag)
         
+        locationView
+            .rx.tap
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
+            .map { Reactor.Action.didTapLocationButton }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
         confirmButton.rx
             .tap

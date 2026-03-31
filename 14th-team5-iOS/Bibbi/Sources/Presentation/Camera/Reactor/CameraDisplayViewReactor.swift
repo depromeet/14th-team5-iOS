@@ -31,6 +31,7 @@ public final class CameraDisplayViewReactor: Reactor {
         case didTapArchiveButton
         case fetchDisplayImage(String)
         case didTapConfirmButton
+        case didTapLocationButton
         case hideDisplayEditCell
         case showInputTextError
         case showInputBlankTextError(String)
@@ -229,6 +230,10 @@ public final class CameraDisplayViewReactor: Reactor {
             )
             let generateText = displayText.trimmingCharacters(in: .whitespaces)
             return .just(.setTrimedText(generateText))
+            
+        case .didTapLocationButton:
+            cameraDisplayNavigator.toLocationSearch()
+            return .empty()
         }
     }
     

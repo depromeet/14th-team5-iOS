@@ -145,15 +145,6 @@ extension MainViewController {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-//        Observable.merge(
-//            segmentControl.survivalButton.rx.tap.map { Reactor.Action.didTapSegmentControl(.survival) },
-//            segmentControl.missionButton.rx.tap.map { Reactor.Action.didTapSegmentControl(.mission) }
-//        )
-//        .observe(on: MainScheduler.instance)
-//        .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
-//        .bind(to: reactor.action)
-//        .disposed(by: disposeBag)
-//        
         segmentControl.rx.selectedFeedType
             .asDriver(onErrorDriveWith: .empty())
             .throttle(.milliseconds(300))

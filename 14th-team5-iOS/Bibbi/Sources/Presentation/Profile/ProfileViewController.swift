@@ -23,8 +23,7 @@ import Then
 public final class ProfileViewController: BaseViewController<ProfileViewReactor> {
 
     
-    //MARK: Views
-  private lazy var profileSegementControl: BibbiSegmentedControl = BibbiSegmentedControl()
+private lazy var profileSegementControl: BibbiSegmentedControl = BibbiSegmentedControl()
     private var pickerConfiguration: PHPickerConfiguration = {
         var configuration: PHPickerConfiguration = PHPickerConfiguration()
         configuration.filter = .images
@@ -58,7 +57,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
         super.setupUI()
         
         addChild(profileFeedViewController)
-        //TODO: - Test Code 추후 제거
         view.addSubviews(profileView, profileLineView, profileFeedViewController.view, profileSegementControl, profileIndicatorView)
         profileFeedViewController.didMove(toParent: self)
     }
@@ -192,21 +190,7 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
             .asDriver(onErrorDriveWith: .empty())
             .drive(profileSegementControl.rx.setSelectedType)
             .disposed(by: disposeBag)
-//        
-//        profileSegementControl
-//            .missionButton.rx.tap
-//            .throttle(.milliseconds(100), scheduler: MainScheduler.instance)
-//            .map { Reactor.Action.didTapSegementControl(.mission) }
-//            .bind(to: reactor.action)
-//            .disposed(by: disposeBag)
-//        
-//        profileSegementControl
-//            .survivalButton.rx.tap
-//            .throttle(.milliseconds(100), scheduler: MainScheduler.instance)
-//            .map { Reactor.Action.didTapSegementControl(.survival) }
-//            .bind(to: reactor.action)
-//            .disposed(by: disposeBag)
-//        
+        
         profileSegementControl.rx.selectedFeedType
             .asDriver(onErrorDriveWith: .empty())
             .throttle(.milliseconds(300))
@@ -271,7 +255,6 @@ public final class ProfileViewController: BaseViewController<ProfileViewReactor>
     }
 }
 
-// 기본 이미지가 true 이고 닉네임 변경 할 경우 redraw
 extension ProfileViewController {
     private func setupProfileImage(url: URL) {
         let processor = DownsamplingImageProcessor(size: profileView.bounds.size)

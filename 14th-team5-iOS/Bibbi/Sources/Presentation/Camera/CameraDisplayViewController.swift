@@ -73,7 +73,7 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             ]))
 
             $0.clipsToBounds = true
-            $0.configuration?.background.visualEffect = UIBlurEffect(style: .systemThickMaterialDark)
+            $0.configuration?.background.visualEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
             $0.configuration?.background.cornerRadius = 25
             
             $0.configuration?.image = DesignSystemAsset.location.image
@@ -322,11 +322,8 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
         locationView
             .rx.tap
             .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
-            .withUnretained(self)
-            .bind { owner, _ in
-                //TODO: 요기에 이벤트 전달 고고
-                print("야근 ㄱㅇㄷ")
-            }
+            .map { Reactor.Action.didTapLocationButton }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         confirmButton.rx

@@ -206,7 +206,7 @@ extension MainViewReactor {
                 if isFirstInstallUser {
                     provider.mainService.showContributionGuide(isGuide: true)
                     return Observable.concat([
-                        .just(.setInTime(true)),
+                        .just(.setInTime(true)).debug("true 값 테스트 입니다잉"),
                         .just(.setEnabeldCamera(false)),
                         .just(.setCameraType(.midNight)),
                         self.mutate(action: .fetchMainNightUseCase),
@@ -216,7 +216,7 @@ extension MainViewReactor {
                     //MARK: 자정타임 관련 Mutation
                     provider.mainService.showContributionGuide(isGuide: false)
                     return Observable.concat([
-                        .just(.setInTime(false)),
+                        .just(.setInTime(false)).debug("false 값 테스트 입니다잉"),
                         .just(.setGuideLineView(false)),
                         .just(.setCameraType(.midNight)),
                         self.mutate(action: .fetchMainNightUseCase),

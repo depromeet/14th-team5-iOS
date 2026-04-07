@@ -18,7 +18,7 @@ public struct AIPostListQuery {
     public let size: Int
     public let date: String
     public var memberId: String?
-    public var type: StudioType
+    public var type: StudioType	
     public let sort: String
     
     public init(

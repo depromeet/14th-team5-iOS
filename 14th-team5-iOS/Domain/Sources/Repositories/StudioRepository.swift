@@ -9,5 +9,6 @@ import Foundation
 import RxSwift
 
 public protocol StudioRepositoryProtocol {
-    func fetchStudioCount() -> Observable<StudioCountEntity?>
+    func fetchStudioCount(aiPostType: String) -> Observable<StudioCountEntity?>
+    func fetchStudioThemeList() -> Observable<[StudioThemeEntity]?>
 }

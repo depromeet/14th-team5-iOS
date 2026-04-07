@@ -25,6 +25,10 @@ final class StudioDIContainer: BaseContainer {
         return FetchStudioCountUseCase(studioRepository: makePostRepository())
     }
     
+    private func makeFetchStudioThemeListUseCase() -> FetchStudioThemeListUseCaseProtocol {
+        return FetchStudioThemeListUseCase(studioRepository: makePostRepository())
+    }
+    
     private func makeFetchIsAITermsAgreedUseCase() -> FetchIsAITermsAgreedUseCaseProtocol {
         return FetchIsAITermsAgreedUseCase(repository: makeAppRepository())
     }
@@ -32,6 +36,10 @@ final class StudioDIContainer: BaseContainer {
     func registerDependencies() {
         container.register(type: FetchStudioCountUseCaseProtocol.self) { _ in
             makeFetchStudioCountUseCase()
+        }
+        
+        container.register(type: FetchStudioThemeListUseCaseProtocol.self) { _ in
+            makeFetchStudioThemeListUseCase()
         }
         
         container.register(type: FetchIsAITermsAgreedUseCaseProtocol.self) { _ in

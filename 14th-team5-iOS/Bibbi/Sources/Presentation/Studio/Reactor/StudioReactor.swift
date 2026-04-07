@@ -27,15 +27,16 @@ final class StudioReactor: Reactor {
     struct State {
         @Pulse var studioCount: StudioCountEntity?
         @Pulse var isEnabledUpload: Bool = true
-        
         var isAITermsAgreed: Bool = true
+        var theme: StudioThemeEntity
     }
-    
-    init() {
+
+    let initialState: State
+
+    init(theme: StudioThemeEntity) {
+        self.initialState = State(theme: theme)
         action.onNext(.checkTermAgreement)
     }
-    
-    let initialState: State = State()
     
     @Navigator var navigator: StudioNavigatorProtocol
     @Injected var fetchStudioCountUsecase: FetchStudioCountUseCaseProtocol
@@ -67,7 +68,7 @@ extension StudioReactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .fetchStudioCount:
-            return fetchStudioCountUsecase.execute()
+            return fetchStudioCountUsecase.execute(aiPostType: currentState.theme.aiPostType)
                 .flatMap { [weak self] entity -> Observable<Mutation> in
                     self?.provider.studioGlobalState.updateMemoriesItemCount(entity.postCount)
                     return .just(.setStudioCount(entity))

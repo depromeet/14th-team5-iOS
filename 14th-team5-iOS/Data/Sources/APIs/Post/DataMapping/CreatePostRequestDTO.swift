@@ -12,5 +12,8 @@ public struct CreatePostRequestDTO: Encodable {
     public let imageUrl: String
     public let content: String
     public let uploadTime: String
+    public let latitude: Double?
+    public let longitude: Double?
+    public let address: String?
 }
 

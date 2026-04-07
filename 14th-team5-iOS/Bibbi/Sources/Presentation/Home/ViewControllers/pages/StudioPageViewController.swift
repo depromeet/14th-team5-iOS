@@ -14,8 +14,8 @@ import RxSwift
 import RxCocoa
 import RxDataSources
 
-final class StudioPageViewController: BaseViewController<StudioPageReactor> {
-    private let bannerView = StudioBannerView()
+final class StudioPageViewController: ReactorViewController<StudioPageReactor> {
+    private let tableView = UITableView()
     
     private let refreshControl: UIRefreshControl = UIRefreshControl()
     
@@ -34,38 +34,72 @@ final class StudioPageViewController: BaseViewController<StudioPageReactor> {
         super.setupUI()
         
         view.addSubviews(
-            bannerView
+            tableView
         )
     }
     
     override func setupAutoLayout() {
         super.setupAutoLayout()
         
-        bannerView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(20)
+        tableView.snp.makeConstraints {
+            $0.edges.equalTo(view.safeAreaLayoutGuide)
         }
     }
     
     override func setupAttributes() {
         super.setupAttributes()
+
+        tableView.do {
+            $0.register(StudioThemeTableViewCell.self, forCellReuseIdentifier: StudioThemeTableViewCell.id)
+            $0.separatorStyle = .none
+            $0.showsVerticalScrollIndicator = false
+            $0.refreshControl = refreshControl
+        }
     }
 }
 
 extension StudioPageViewController {
     private func bindInput(reactor: StudioPageReactor) {
-        bannerView.rx.imageTap
-            .map { Reactor.Action.bannerClicked }
-            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
+        self.rx.viewWillAppear
+            .map { _ in Reactor.Action.fetchThemeList }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+
+        tableView.rx.modelSelected(StudioThemeEntity.self)
+            .map { Reactor.Action.didSelectTheme($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
     
     private func bindOutput(reactor: StudioPageReactor) {
-        reactor.state
-            .map { $0.memoriesCount }
-            .distinctUntilChanged()
-            .bind(to: bannerView.rx.count)
+        reactor.pulse(\.$studioSection)
+            .observe(on: MainScheduler.instance)
+            .map(Array.init(with:))
+            .bind(to: tableView.rx.items(dataSource: createDataSource()))
             .disposed(by: disposeBag)
+        
+//        reactor.state
+//            .map { $0.memoriesCount }
+//            .distinctUntilChanged()
+//            .bind(to: bannerView.rx.count)
+//            .disposed(by: disposeBag)
+    }
+}
+
+extension StudioPageViewController {
+    private func createDataSource() -> RxTableViewSectionedReloadDataSource<StudioSection> {
+        RxTableViewSectionedReloadDataSource<StudioSection>(
+            configureCell: { _, tableView, indexPath, item in
+                guard let cell = tableView.dequeueReusableCell(
+                    withIdentifier: StudioThemeTableViewCell.id,
+                    for: indexPath
+                ) as? StudioThemeTableViewCell else {
+                    return UITableViewCell()
+                }
+
+                cell.configure(item)
+                return cell
+            }
+        )
     }
 }

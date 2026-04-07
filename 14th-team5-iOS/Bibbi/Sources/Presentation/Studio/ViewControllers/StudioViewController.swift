@@ -108,6 +108,8 @@ extension StudioViewController {
     }
     
     private func bindOutput(reactor: StudioReactor) {
+        bannerView.configure(with: reactor.currentState.theme)
+
         reactor.pulse(\.$studioCount)
             .compactMap { $0?.postCount }
             .distinctUntilChanged()

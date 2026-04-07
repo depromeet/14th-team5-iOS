@@ -89,6 +89,7 @@ private let targets: [Target] = [
                 "NSPhotoLibraryAddUsageDescription" : .string("프로필 사진, 피드 업로드를 위한 사진 촬영을 위해 Bibbi가 앨범에 접근할 수 있도록 허용해 주세요"),
                 "NSMicrophoneUsageDescription": .string("음성 댓글을 사용하기 위해 Bibbi가 마이크에 접근할 수 있도록 허용해 주세요"),
                 "NSCameraUsageDescription": .string("프로필 사진, 피드 업로드를 위한 사진 촬영을 위해 Bibbi가 카메라에 접근할 수 있도록 허용해 주세요"),
+                "NSLocationWhenInUseUsageDescription": .string("위치 검색 시 현재 위치와 가까운 장소를 추천하기 위해 Bibbi가 위치에 접근할 수 있도록 허용해 주세요"),
                 "UIApplicationSceneManifest" : .dictionary([
                     "UIApplicationSupportsMultipleScenes" : .boolean(false),
                     "UISceneConfigurations" : .dictionary([
@@ -107,6 +108,8 @@ private let targets: [Target] = [
                     ]),
                 ]),
                 "KAKAO_LOGIN_API_KEY": .string("$(KAKAO_LOGIN_API_KEY)"),
+                "KAKAO_LOCAL_REST_API_KEY": .string("$(KAKAO_LOCAL_REST_API_KEY)"),
+                "GOOGLE_PLACES_API_KEY": .string("$(GOOGLE_PLACES_API_KEY)"),
                 "MIXPANEL_API_KEY": .string("$(MIXPANEL_API_KEY)"),
                 "TEAM_ID": .string("$(TEAM_ID)"),
             ]),

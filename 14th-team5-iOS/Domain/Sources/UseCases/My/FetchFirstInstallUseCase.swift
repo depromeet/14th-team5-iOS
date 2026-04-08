@@ -19,15 +19,15 @@ public final class FetchFirstInstallUseCase: FetchFirstInstallUseCaseProtocol {
     }
     
     public func execute() -> Bool {
-        let hasInstalledBefore = myRepositroy.fetchFirstInstall()
+        let isFirstInstall = myRepositroy.fetchFirstInstall()
         let hasCompletedOnboarding = myRepositroy.fetchIsFirstOnboarding()
         
-        guard let installed = hasInstalledBefore else {
+        guard let firstInstall = isFirstInstall else {
             myRepositroy.updateFirstInstall(true)
-            return false
+            return true
         }
         
-        if !installed {
+        if firstInstall {
             return true
         }
         

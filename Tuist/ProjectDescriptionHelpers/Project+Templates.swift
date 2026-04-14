@@ -59,7 +59,7 @@ extension Project {
             settings: .settings(
                 base: [
                     "OTHER_LDFLAGS": "$(inherited) -ObjC",
-                    "MARKETING_VERSION": "1.5.1",
+                    "MARKETING_VERSION": "1.5.0",
                     "CURRENT_PROJECT_VERSION": "1",
                     "VERSIONING_SYSTEM": "apple-generic"
                 ],

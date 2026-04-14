@@ -17,7 +17,10 @@ public struct PostEntity: Equatable, Hashable {
     public let imageURL: String
     public let content: String?
     public let time: String
-    
+    public let latitude: Double?
+    public let longitude: Double?
+    public let address: String?
+
     public init(
         postId: String,
         missionId: String? = nil,
@@ -27,7 +30,10 @@ public struct PostEntity: Equatable, Hashable {
         emojiCount: Int,
         imageURL: String,
         content: String?,
-        time: String
+        time: String,
+        latitude: Double? = nil,
+        longitude: Double? = nil,
+        address: String? = nil
     ) {
         self.postId = postId
         self.missionId = missionId
@@ -38,8 +44,11 @@ public struct PostEntity: Equatable, Hashable {
         self.imageURL = imageURL
         self.content = content
         self.time = time
+        self.latitude = latitude
+        self.longitude = longitude
+        self.address = address
     }
-    
+
     static public var empty: PostEntity {
         .init(
             postId: "",

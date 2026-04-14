@@ -34,38 +34,38 @@ final class MainPostCollectionViewCell: BaseCollectionViewCell<MainPostCellReact
         addSubviews(imageView, missionBadge, stackView)
         stackView.addArrangedSubviews(nameLabel, timeLabel)
     }
-    
+
     override func setupAutoLayout() {
         imageView.snp.makeConstraints {
             $0.top.horizontalEdges.equalToSuperview()
             $0.height.equalTo(self.snp.width)
         }
-        
+
         missionBadge.snp.makeConstraints {
             $0.top.leading.equalToSuperview().inset(12)
             $0.size.equalTo(24)
         }
-        
+
         stackView.snp.makeConstraints {
             $0.top.equalTo(imageView.snp.bottom)
             $0.horizontalEdges.equalToSuperview().inset(Layout.StackView.horizontalInset)
             $0.height.equalTo(Layout.StackView.height)
         }
     }
-    
+
     override func setupAttributes() {
         indicator.startAnimating()
-        
+
         imageView.do {
             $0.contentMode = .scaleAspectFill
             $0.clipsToBounds = true
             $0.layer.cornerRadius = Layout.ImageView.cornerRadius
         }
-        
+
         missionBadge.do {
             $0.isHidden = true
         }
-        
+
         stackView.do {
             $0.distribution = .fillProportionally
             $0.spacing = Layout.StackView.spacing
@@ -93,14 +93,14 @@ extension MainPostCollectionViewCell {
 
 extension MainPostCollectionViewCell {
     private func setCell(_ data: PostEntity) {
-        if let url = URL(string: data.imageURL ) {
+        if let url = URL(string: data.imageURL) {
             imageView.kf.setImage(with: url)
             indicator.stopAnimating()
         } else {
             imageView.image = DesignSystemAsset.emptyCaseGraphicEmoji.image
         }
-        
-        missionBadge.isHidden = data.missionId == nil ? true : false
+
+        missionBadge.isHidden = data.missionId == nil
         nameLabel.text = data.author.name
         timeLabel.text = data.time.toDate(with: "yyyy-MM-dd'T'HH:mm:ssZ").relativeFormatter()
     }

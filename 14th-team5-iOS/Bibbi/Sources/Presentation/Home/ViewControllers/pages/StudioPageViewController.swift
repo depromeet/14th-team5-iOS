@@ -42,7 +42,8 @@ final class StudioPageViewController: ReactorViewController<StudioPageReactor> {
         super.setupAutoLayout()
         
         tableView.snp.makeConstraints {
-            $0.edges.equalTo(view.safeAreaLayoutGuide)
+            $0.top.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            $0.bottom.equalToSuperview()
         }
     }
     
@@ -53,6 +54,7 @@ final class StudioPageViewController: ReactorViewController<StudioPageReactor> {
             $0.register(StudioThemeTableViewCell.self, forCellReuseIdentifier: StudioThemeTableViewCell.id)
             $0.separatorStyle = .none
             $0.showsVerticalScrollIndicator = false
+            $0.backgroundColor = .clear
             $0.refreshControl = refreshControl
         }
     }

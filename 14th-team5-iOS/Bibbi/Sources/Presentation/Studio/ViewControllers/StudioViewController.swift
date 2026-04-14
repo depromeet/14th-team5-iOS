@@ -110,15 +110,20 @@ extension StudioViewController {
     private func bindOutput(reactor: StudioReactor) {
         bannerView.configure(with: reactor.currentState.theme)
 
+        // 테마 기간 외에는 업로드 버튼 완전히 숨김
+        let isInPeriod = StudioReactor.isInThemePeriod(theme: reactor.currentState.theme)
+        uploadButton.isHidden = !isInPeriod
+
         reactor.pulse(\.$studioCount)
             .compactMap { $0?.postCount }
             .distinctUntilChanged()
             .bind(to: bannerView.rx.count)
             .disposed(by: disposeBag)
-        
+
         reactor.pulse(\.$isEnabledUpload)
             .distinctUntilChanged()
             .bind(with: self, onNext: { owner, isEnabled in
+                guard isInPeriod else { return }
                 owner.updateUploadButtonLayout(isEnabled)
             })
             .disposed(by: disposeBag)

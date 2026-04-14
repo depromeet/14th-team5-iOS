@@ -27,6 +27,9 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<PostDetailViewR
     private let missionTextView = MissionTextView()
     private let contentCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let collectionViewFlowLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
+    private let locationContainerView = UIView()
+    private let locationIconView = UIImageView(image: DesignSystemAsset.location.image)
+    private let locationLabel = BBLabel(.body2Bold, textAlignment: .left, textColor: .mainYellow)
     
     private lazy var contentDatasource = createContentDataSource()
     
@@ -62,7 +65,8 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<PostDetailViewR
         addSubviews(profileStackView, postImageView)
         containerView.addSubviews(firstNameLabel, profileImageView)
         profileStackView.addArrangedSubviews(containerView, userNameLabel)
-        postImageView.addSubviews(contentCollectionView, missionTextView)
+        postImageView.addSubviews(contentCollectionView, missionTextView, locationContainerView)
+        locationContainerView.addSubviews(locationIconView, locationLabel)
     }
     
     override func setupAutoLayout() {
@@ -91,17 +95,35 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<PostDetailViewR
             $0.bottom.equalTo(postImageView.snp.bottom).offset(-20)
             $0.horizontalEdges.equalToSuperview()
         }
-        
+
         postImageView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(postImageView.snp.width)
             $0.top.equalTo(profileStackView.snp.bottom).offset(8)
         }
-        
+
         missionTextView.snp.makeConstraints {
             $0.top.equalToSuperview().offset(16)
             $0.horizontalEdges.equalToSuperview().inset(32)
             $0.height.equalTo(41)
+        }
+
+        locationContainerView.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.top.equalTo(postImageView.snp.top).inset(20)
+            $0.height.equalTo(30)
+        }
+
+        locationIconView.snp.makeConstraints {
+            $0.leading.equalToSuperview().inset(10)
+            $0.centerY.equalToSuperview()
+            $0.size.equalTo(14)
+        }
+
+        locationLabel.snp.makeConstraints {
+            $0.leading.equalTo(locationIconView.snp.trailing).offset(4)
+            $0.trailing.equalToSuperview().inset(10)
+            $0.centerY.equalToSuperview()
         }
     }
     
@@ -140,6 +162,18 @@ final class PostDetailCollectionViewCell: BaseCollectionViewCell<PostDetailViewR
             $0.backgroundColor = .gray100
             $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = Layout.PostImageView.cornerRadius
+        }
+
+        locationContainerView.do {
+            $0.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+            $0.layer.cornerRadius = 15
+            $0.clipsToBounds = true
+            $0.isHidden = true
+        }
+
+        locationIconView.do {
+            $0.contentMode = .scaleAspectFit
+            $0.tintColor = .white
         }
         
         contentCollectionView.do {
@@ -191,6 +225,19 @@ extension PostDetailCollectionViewCell {
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe { $0.0.setupProfileNameAndImage(post: $0.1) }
+            .disposed(by: disposeBag)
+
+        reactor.state.map { $0.post.address }
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe { owner, address in
+                if let address, !address.isEmpty {
+                    owner.locationLabel.text = address
+                    owner.locationContainerView.isHidden = false
+                } else {
+                    owner.locationContainerView.isHidden = true
+                }
+            }
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.fetchedDisplayContent }

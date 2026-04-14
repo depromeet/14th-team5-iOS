@@ -11,7 +11,7 @@ import Core
 
 public struct ArrayResponseDailyCalendarEntity {
     public var results: [DailyCalendarEntity]
-    
+
     public init(results: [DailyCalendarEntity]) {
         self.results = results
     }
@@ -29,7 +29,8 @@ public struct DailyCalendarEntity {
     public var emojiCount: Int
     public var allFamilyMembersUploaded: Bool
     public var createdAt: Date
-    
+    public var address: String?
+
     public init(
         date: Date,
         type: BibbiFeedType,
@@ -41,7 +42,8 @@ public struct DailyCalendarEntity {
         commentCount: Int,
         emojiCount: Int,
         allFamilyMembersUploaded: Bool,
-        createdAt: Date
+        createdAt: Date,
+        address: String? = nil
     ) {
         self.date = date
         self.type = type
@@ -54,6 +56,7 @@ public struct DailyCalendarEntity {
         self.emojiCount = emojiCount
         self.allFamilyMembersUploaded = allFamilyMembersUploaded
         self.createdAt = createdAt
+        self.address = address
     }
 }
 

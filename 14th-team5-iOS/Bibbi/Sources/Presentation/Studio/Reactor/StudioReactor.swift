@@ -46,6 +46,26 @@ final class StudioReactor: Reactor {
 }
 
 extension StudioReactor {
+    // 00:00 ~ 09:59 → 자정 구간 (메인 앱과 동일 기준)
+    func isMidNight() -> Bool {
+        let hour = Calendar.current.component(.hour, from: Date())
+        return hour < 10
+    }
+
+    // "yyyy-MM-dd" 형식의 startDate~endDate 기간 내에 오늘이 포함되는지 확인
+    static func isInThemePeriod(theme: StudioThemeEntity) -> Bool {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        guard let start = formatter.date(from: theme.startDate),
+              let end = formatter.date(from: theme.endDate) else { return false }
+        let today = Calendar.current.startOfDay(for: Date())
+        return today >= Calendar.current.startOfDay(for: start)
+            && today <= Calendar.current.startOfDay(for: end)
+    }
+}
+
+extension StudioReactor {
     public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
         let studioMainMutation = provider.aiImageGlobalState.event
             .withUnretained(self)
@@ -74,6 +94,10 @@ extension StudioReactor {
                     return .just(.setStudioCount(entity))
                 }
         case .didTapUpload:
+            if isMidNight() {
+                navigator.showErrorToast(message: "자정이 지나 업로드할 수 없어요")
+                return .empty()
+            }
             if currentState.isEnabledUpload {
                 navigator.toCamera()
                 return .empty()

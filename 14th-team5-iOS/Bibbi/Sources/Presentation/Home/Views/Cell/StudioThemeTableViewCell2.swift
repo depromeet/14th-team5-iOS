@@ -78,13 +78,15 @@ private extension StudioThemeTableViewCell {
         }
 
         headerView.snp.makeConstraints {
-            $0.horizontalEdges.top.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(20)
+            $0.top.equalToSuperview()
             $0.height.equalTo(65)
         }
 
         bannerImageView.snp.makeConstraints {
             $0.top.equalTo(headerView.snp.bottom)
-            $0.horizontalEdges.equalToSuperview()
+            $0.leading.equalTo(headerView)
+            $0.trailing.equalTo(headerView)
             $0.bottom.equalToSuperview().inset(16)
             $0.height.equalTo(220)
         }
@@ -142,8 +144,15 @@ extension StudioThemeTableViewCell {
             bannerImageView.image = DesignSystemAsset.emptyCaseGraphicEmoji.image
         }
 
-        dateLabel.text = data.startDate + "~" + data.endDate
+        dateLabel.text = formatStudioDate(data.startDate) + "~" + formatStudioDate(data.endDate)
         themeLabel.text = data.theme
         countLabel.text = "[\(data.postCount)개]의 추억"
+    }
+
+    // "2025-09-29" → "09/29"
+    private func formatStudioDate(_ dateString: String) -> String {
+        let parts = dateString.split(separator: "-")
+        guard parts.count == 3 else { return dateString }
+        return "\(parts[1])/\(parts[2])"
     }
 }

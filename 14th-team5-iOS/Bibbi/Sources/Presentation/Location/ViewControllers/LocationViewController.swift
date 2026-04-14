@@ -259,6 +259,8 @@ final class LocationViewController: BBNavigationViewController<LocationViewReact
     private let emptyImageView = UIImageView()
     private let emptyLabel = BBLabel(.body1Regular, textAlignment: .center, textColor: .gray400)
 
+    var onSelectLocation: ((Double, Double, String) -> Void)?
+
     private let locationManager = CLLocationManager()
     private var currentLocation: CLLocation?
     private var nearbyPlaces: [LocationPlace] = []
@@ -790,5 +792,8 @@ extension LocationViewController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        let place = currentPlaces[indexPath.row]
+        onSelectLocation?(place.latitude, place.longitude, place.name)
+        navigationController?.popViewController(animated: true)
     }
 }

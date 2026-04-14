@@ -96,7 +96,7 @@ extension StudioBannerView {
     
     private func setupAttributes() {
         themeContainerView.do {
-            $0.backgroundColor = .gray400
+            $0.backgroundColor = .clear
             $0.layer.cornerRadius = 12
             $0.clipsToBounds = true
         }
@@ -144,12 +144,19 @@ extension StudioBannerView {
 extension StudioBannerView {
     func configure(with theme: StudioThemeEntity) {
         themeLabel.text = theme.theme
-        dateLabel.text = theme.startDate + "~" + theme.endDate
+        dateLabel.text = formatDate(theme.startDate) + "~" + formatDate(theme.endDate)
         if let url = URL(string: theme.imageURL) {
             bannerImageView.kf.setImage(with: url)
         } else {
             bannerImageView.image = DesignSystemAsset.studioBanner.image
         }
+    }
+
+    // "2025-09-29" → "09/29"
+    private func formatDate(_ dateString: String) -> String {
+        let parts = dateString.split(separator: "-")
+        guard parts.count == 3 else { return dateString }
+        return "\(parts[1])/\(parts[2])"
     }
 }
 

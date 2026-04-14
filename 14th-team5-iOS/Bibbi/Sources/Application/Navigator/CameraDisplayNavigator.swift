@@ -13,7 +13,7 @@ import Util
 protocol CameraDisplayNavigatorProtocol: BaseNavigator {
     func toHome(_ isRatingHidden: Bool)
     func toCamera()
-    func toLocationSearch()
+    func toLocationSearch(onSelect: @escaping (Double, Double, String) -> Void)
     func showErrorAlert(message: String, error: Error)
 }
 
@@ -52,9 +52,9 @@ final class CameraDisplayNavigator: CameraDisplayNavigatorProtocol {
         navigationController.popViewController(animated: true)
     }
     
-    func toLocationSearch() {
-        //TODO: 해당 vc를 위치 검색ViewController로 변경하면 됩니다잉
-        let vc = MainViewControllerWrapper().viewController
+    func toLocationSearch(onSelect: @escaping (Double, Double, String) -> Void) {
+        let vc = LocationViewController(reactor: LocationViewReactor())
+        vc.onSelectLocation = onSelect
         navigationController.pushViewController(vc, animated: true)
     }
     

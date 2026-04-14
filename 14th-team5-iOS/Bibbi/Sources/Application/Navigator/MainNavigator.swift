@@ -93,8 +93,7 @@ final class MainNavigator: MainNavigatorProtocol {
     }
     
     func toNotification() {
-//        let vc = NotificationViewControllerWrapper().viewController
-        let vc = LocationViewController(reactor: LocationViewReactor())
+        let vc = NotificationViewControllerWrapper().viewController
         navigationController.pushViewController(vc, animated: true)
     }
 }

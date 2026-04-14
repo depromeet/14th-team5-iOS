@@ -82,7 +82,7 @@ private let targets: [Target] = [
                     ),
                 "CFBundleVersion": .string("1"),
                 "CFBuildVersion": .string("0"),
-                "CFBundleShortVersionString": .string("1.4.5"),
+                "CFBundleShortVersionString": .string("1.5.1"),
                 "UILaunchStoryboardName": .string("LaunchScreen"),
                 "UISupportedInterfaceOrientations": .array([.string("UIInterfaceOrientationPortrait")]),
                 "UIUserInterfaceStyle": .string("Dark"),

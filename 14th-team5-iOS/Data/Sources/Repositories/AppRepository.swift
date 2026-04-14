@@ -32,7 +32,7 @@ extension AppRepository {
     
     public func fetchAppVersion() -> Observable<AppVersionEntity> {
         // TODO: - xAppKey 불러오는 코드 다시 작성하기
-        let appKey = "9aaf231b-424c-4376-b682-cff03d96f326"
+        let appKey = "cec77ebf-b7fa-4d10-8746-eca496acbf6c"
         
         return meAPIWorker.fetchAppVersion(appKey: appKey)
             .map { $0.toDomain() }

@@ -30,6 +30,7 @@ extension ArrayResponseDailyCalendarResponseDTO {
             case emojiCount
             case allFamilyMembersUploaded
             case createdAt
+            case address
         }
         var date: String
         var type: String
@@ -42,6 +43,7 @@ extension ArrayResponseDailyCalendarResponseDTO {
         var emojiCount: Int
         var allFamilyMembersUploaded: Bool
         var createdAt: String
+        var address: String?
     }
 }
 
@@ -66,9 +68,8 @@ extension ArrayResponseDailyCalendarResponseDTO.DailyCalendarResponseDTO {
             commentCount: commentCount,
             emojiCount: emojiCount,
             allFamilyMembersUploaded: allFamilyMembersUploaded,
-            createdAt: createdAt.iso8601ToDate()
+            createdAt: createdAt.iso8601ToDate(),
+            address: address
         )
     }
 }
-
-

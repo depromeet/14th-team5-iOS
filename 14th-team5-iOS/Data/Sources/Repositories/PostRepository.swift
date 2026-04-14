@@ -51,8 +51,8 @@ extension PostRepository {
             .map { $0?.toDomain() }
     }
     
-    public func fetchStudioCount() -> Observable<StudioCountEntity?> {
-        return postAPIWorker.fetchAICount()
+    public func fetchStudioCount(aiPostType: String) -> Observable<StudioCountEntity?> {
+        return postAPIWorker.fetchAICount(aiPostType: aiPostType)
             .map { $0?.toDomain() }
     }
     
@@ -70,7 +70,10 @@ extension PostRepository {
         let body = CreatePostRequestDTO(
             imageUrl: body.imageUrl,
             content: body.content,
-            uploadTime: body.uploadTime
+            uploadTime: body.uploadTime,
+            latitude: body.latitude,
+            longitude: body.longitude,
+            address: body.address
         )
         
         return postAPIWorker.createPost(query: query, body: body)
@@ -121,5 +124,10 @@ extension PostRepository {
                     BBLogManager.sendError(error: error)
                 }
             )
+    }
+    
+    public func fetchStudioThemeList() -> Observable<[StudioThemeEntity]?> {
+        return postAPIWorker.fetchAIImageTypes()
+            .map { $0?.toDomain() }
     }
 }

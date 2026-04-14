@@ -40,9 +40,17 @@ extension PostAPIWorker {
     /// 가족 사진관 게시물 전체 조회하기 위한 Method 입니다.
     /// HTTP Method : GET
     /// - Parameters
-    func fetchAICount() -> Observable<AIPostCountResponseDTO?> {
-        let spec = PostsAPIs.fetchAICount.spec
-        
+    func fetchAICount(aiPostType: String) -> Observable<AIPostCountResponseDTO?> {
+        let spec = PostsAPIs.fetchAICount(aiPostType: aiPostType).spec
+
+        return request(spec)
+    }
+    
+    /// AI 이미지 타입 목록 조회 Method 입니다.
+    /// HTTP Method : GET
+    func fetchAIImageTypes() -> Observable<AIImageTypesResponseDTO?> {
+        let spec = PostsAPIs.fetchAIImageTypes.spec
+
         return request(spec)
     }
     
@@ -62,10 +70,22 @@ extension PostAPIWorker {
     ///     - query : CreatePostQuery
     ///     - body : CreatePostRequestDTO
     ///         - type: String
-    ///         - available : Bool
     /// - Returns : CreatePostResponseDTO
     func createPost(query: CreatePostQuery, body: CreatePostRequestDTO) -> Observable<CreatePostResponseDTO?> {
         let spec = PostsAPIs.createPost(type: query.type, body: body).spec
+        
+        return request(spec)
+    }
+    
+    /// 게시물 생성을 하기 위한 Method 입니다.
+    /// HTTP Method : POST
+    /// - Parameters :
+    ///     - query : CreatePostQuery
+    ///     - body : CreatePostRequestDTO
+    ///         - type: String
+    /// - Returns : CreatePostResponseDTO
+    func createAIPost(query: CreatePostQuery, body: CreatePostRequestDTO) -> Observable<CreatePostResponseDTO?> {
+        let spec = PostsAPIs.createAIPost(type: query.type, body: body).spec
         
         return request(spec)
     }

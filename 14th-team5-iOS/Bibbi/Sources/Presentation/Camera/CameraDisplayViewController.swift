@@ -404,6 +404,13 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        reactor.pulse(\.$locationButtonTitle)
+            .observe(on: MainScheduler.instance)
+            .bind(with: self) { owner, title in
+                owner.updateLocationButton(title: title)
+            }
+            .disposed(by: disposeBag)
+
         reactor.pulse(\.$displayData)
             .map { UIImage(data: $0) }
             .asDriver(onErrorJustReturn: .none)
@@ -441,6 +448,18 @@ public final class CameraDisplayViewController: BaseViewController<CameraDisplay
     }
 }
 
+
+extension CameraDisplayViewController {
+    private func updateLocationButton(title: String) {
+        var config = locationView.configuration
+        config?.attributedTitle = AttributedString(NSAttributedString(string: title, attributes: [
+            .foregroundColor: DesignSystemAsset.mainYellow.color,
+            .font: DesignSystemFontFamily.Pretendard.semiBold.font(size: 14),
+            .kern: 0.042,
+        ]))
+        locationView.configuration = config
+    }
+}
 
 extension CameraDisplayViewController {
     private func setupCameraDisplayPermission(_ originalData: Data) {

@@ -84,6 +84,11 @@ final class MemoriesCalendarPostCell: BaseCollectionViewCell<MemoriesCalendarPos
             .distinctUntilChanged()
             .drive(with: self, onNext: { $0.postImageView.setPostImage(imageUrl: $1.postImageUrl) })
             .disposed(by: disposeBag)
+
+        dailyPost
+            .distinctUntilChanged()
+            .drive(with: self, onNext: { $0.postImageView.setLocation(address: $1.address) })
+            .disposed(by: disposeBag)
         
         reactor.state.map { $0.memberName }
             .distinctUntilChanged()

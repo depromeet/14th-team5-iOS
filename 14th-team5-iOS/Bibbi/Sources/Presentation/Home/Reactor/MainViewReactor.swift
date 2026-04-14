@@ -259,7 +259,7 @@ extension MainViewReactor {
                     } else {
                         self.pushViewController(type: .cameraViewController(.survival))
                     }
-                } else {
+                } else if currentState.pageIndex == 1 {
                     if currentState.isMeSurvivalUploadedToday {
                         self.pushViewController(type: .cameraViewController(.mission))
                     } else {

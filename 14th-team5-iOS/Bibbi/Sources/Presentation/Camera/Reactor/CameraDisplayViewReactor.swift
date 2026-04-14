@@ -32,11 +32,12 @@ public final class CameraDisplayViewReactor: Reactor {
         case fetchDisplayImage(String)
         case didTapConfirmButton
         case didTapLocationButton
+        case didSelectLocation(latitude: Double, longitude: Double, address: String)
         case hideDisplayEditCell
         case showInputTextError
         case showInputBlankTextError(String)
     }
-    
+
     public enum Mutation {
         case setLoading(Bool)
         case setError(Bool)
@@ -47,8 +48,9 @@ public final class CameraDisplayViewReactor: Reactor {
         case setTrimedText(String)
         case setDisplayEntity(CreatePostPresignedURLEntity?)
         case setDisplayOriginalEntity(Bool)
+        case setLocation(latitude: Double, longitude: Double, address: String)
     }
-    
+
     public struct State {
         @Pulse var isLoading: Bool
         var displayDescrption: String
@@ -61,6 +63,10 @@ public final class CameraDisplayViewReactor: Reactor {
         @Pulse var displayEntity: CreatePostPresignedURLEntity?
         @Pulse var displayOringalEntity: Bool
         @Pulse var displayText: String
+        var selectedLatitude: Double?
+        var selectedLongitude: Double?
+        var selectedAddress: String?
+        @Pulse var locationButtonTitle: String
     }
     
     
@@ -81,7 +87,11 @@ public final class CameraDisplayViewReactor: Reactor {
             displaySection: [.displayKeyword([])],
             displayEntity: nil,
             displayOringalEntity: false,
-            displayText: ""
+            displayText: "",
+            selectedLatitude: nil,
+            selectedLongitude: nil,
+            selectedAddress: nil,
+            locationButtonTitle: "위치 추가"
         )
     }
     
@@ -171,7 +181,14 @@ public final class CameraDisplayViewReactor: Reactor {
             guard let presingedURL = currentState.displayEntity?.imageURL else { return .just(.setError(true)) }
             let remoteURL = configureOriginalS3URL(url: presingedURL)
             let query = CreatePostQuery(type: currentState.cameraType.rawValue)
-            let body = CreatePostRequest(imageUrl: remoteURL, content: currentState.displayDescrption, uploadTime: DateFormatter.yyyyMMddTHHmmssXXX.string(from: .now))
+            let body = CreatePostRequest(
+                imageUrl: remoteURL,
+                content: currentState.displayDescrption,
+                uploadTime: DateFormatter.yyyyMMddTHHmmssXXX.string(from: .now),
+                latitude: currentState.selectedLatitude,
+                longitude: currentState.selectedLongitude,
+                address: currentState.selectedAddress
+            )
             let refreshMainObservable = Observable<Mutation>.concat(
                 .just(.setError(false)),
                 provider.mainService.refreshMain()
@@ -232,8 +249,13 @@ public final class CameraDisplayViewReactor: Reactor {
             return .just(.setTrimedText(generateText))
             
         case .didTapLocationButton:
-            cameraDisplayNavigator.toLocationSearch()
+            cameraDisplayNavigator.toLocationSearch { [weak self] lat, lng, address in
+                self?.action.onNext(.didSelectLocation(latitude: lat, longitude: lng, address: address))
+            }
             return .empty()
+
+        case let .didSelectLocation(lat, lng, address):
+            return .just(.setLocation(latitude: lat, longitude: lng, address: address))
         }
     }
     
@@ -260,6 +282,11 @@ public final class CameraDisplayViewReactor: Reactor {
             newState.isError = isError
         case let .setTrimedText(displayText):
             newState.displayText = displayText
+        case let .setLocation(lat, lng, address):
+            newState.selectedLatitude = lat
+            newState.selectedLongitude = lng
+            newState.selectedAddress = address
+            newState.locationButtonTitle = address
         }
         return newState
     }

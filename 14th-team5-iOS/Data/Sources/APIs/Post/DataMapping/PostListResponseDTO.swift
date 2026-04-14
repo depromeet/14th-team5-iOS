@@ -19,6 +19,9 @@ struct PostListResultsDTO: Codable {
     let imageUrl: String
     let content: String?
     let createdAt: String
+    let latitude: Double?
+    let longitude: Double?
+    let address: String?
 }
 
 extension PostListResultsDTO {
@@ -32,7 +35,10 @@ extension PostListResultsDTO {
             emojiCount: emojiCount,
             imageURL: imageUrl,
             content: content,
-            time: createdAt
+            time: createdAt,
+            latitude: latitude,
+            longitude: longitude,
+            address: address
         )
     }
 }

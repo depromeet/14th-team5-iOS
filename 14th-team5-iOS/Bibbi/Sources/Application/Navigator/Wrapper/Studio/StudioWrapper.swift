@@ -6,17 +6,20 @@
 //
 
 import Core
+import Domain
 import Foundation
 import MacrosInterface
 
 @Wrapper<StudioReactor, StudioViewController>
 final class StudioViewControllerWrapper {
-    
-    init() { }
-    
-    
-    func makeReactor() -> R {
-        return StudioReactor()
+
+    private let theme: StudioThemeEntity
+
+    init(theme: StudioThemeEntity) {
+        self.theme = theme
     }
-    
+
+    func makeReactor() -> R {
+        return StudioReactor(theme: theme)
+    }
 }

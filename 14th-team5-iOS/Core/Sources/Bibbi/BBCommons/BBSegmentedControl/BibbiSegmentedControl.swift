@@ -109,6 +109,7 @@ private extension BibbiSegmentedControl {
         }
 
         studioButton.do {
+            $0.tintColor = .clear
             $0.configuration = .plain()
             $0.configurationUpdateHandler = { btn in
                 var config = btn.configuration ?? .plain()
@@ -126,6 +127,7 @@ private extension BibbiSegmentedControl {
                 config.contentInsets = .init(top: 0, leading: 0, bottom: 0, trailing: 0)
 
                 btn.configuration = config
+                btn.backgroundColor = .clear
                 btn.layer.cornerRadius = 20
                 btn.clipsToBounds = true
             }

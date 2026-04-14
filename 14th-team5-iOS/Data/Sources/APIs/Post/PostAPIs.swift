@@ -15,9 +15,13 @@ enum PostsAPIs: BBAPI {
     /// 가족사진관 게시물 조회 API
     case fetchAIPostList(query: AIPostListQueryDTO)
     /// 가족사진관 이미지 개수 및 생성 개수 조회 API
-    case fetchAICount
+    case fetchAICount(aiPostType: String)
+    /// 가족사진관 AI 이미지 타입 목록 조회 API
+    case fetchAIImageTypes
     /// 게시물 생성 API
     case createPost(type: String, body: CreatePostRequestDTO)
+    /// 가족사진관 게시물 생성 API
+    case createAIPost(type: String, body: CreatePostRequestDTO)
     /// 게시물 단일 조회 API
     case fetchPostDetail(postId: String)
     /// 게시물 사진 Presigned URL 요청 API
@@ -38,29 +42,46 @@ enum PostsAPIs: BBAPI {
                 path: "/posts/ai-images",
                 queryParametersEncodable: query
             )
-        case .fetchAICount:
+        case let .fetchAICount(aiPostType):
             return Spec(
                 method: .get,
                 path: "/posts/ai-images/count",
                 queryParameters: [
-                    "aiPostType": "CHRISTMAS_2025"
+                    .aiPostType: "\(aiPostType)"
                 ]
             )
-            //TODO: AIPostType Parameter로 받도록 하기,, ㅠ
         case let .createPost(type ,body):
             return Spec(
                 method: .post,
                 path: "/posts",
                 queryParameters: [
-                    .type: "\(type)",
-                    .aiPostType: "CHRISTMAS_2025"
+                    .type: "\(type)"
+                ],
+                bodyParametersEncodable: body
+            )
+        case let .createAIPost(type ,body):
+            return Spec(
+                method: .post,
+                path: "/posts",
+                queryParameters: [
+                    .type: "AI_IMAGE",
+                    .aiPostType: "\(type)"
                 ],
                 bodyParametersEncodable: body
             )
         case let .fetchPostDetail(postId):
             return Spec(method: .get, path: "/posts/\(postId)")
         case let .createPostPresignedURL(body):
-            return Spec(method: .post, path: "/posts/image-upload-request", bodyParametersEncodable: body)
+            return Spec(
+                method: .post,
+                path: "/posts/image-upload-request",
+                bodyParametersEncodable: body
+            )
+        case .fetchAIImageTypes:
+            return Spec(
+                method: .get,
+                path: "/posts/ai-images/types"
+            )
         }
     }
     

@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol FetchStudioCountUseCaseProtocol {
-    func execute() -> Observable<StudioCountEntity>
+    func execute(aiPostType: String) -> Observable<StudioCountEntity>
 }
 
 enum StudioError: Error {
@@ -27,14 +27,13 @@ public final class FetchStudioCountUseCase : FetchStudioCountUseCaseProtocol {
         self.studioRepository = studioRepository
     }
     
-    public func execute() -> Observable<StudioCountEntity> {
-        return studioRepository.fetchStudioCount()
-            .flatMap { (counts) -> Observable<StudioCountEntity> in
-            guard let counts else {
-                return .just(.init(postCount: 0, availableCount: 0))
+    public func execute(aiPostType: String) -> Observable<StudioCountEntity> {
+        return studioRepository.fetchStudioCount(aiPostType: aiPostType)
+            .flatMap { counts -> Observable<StudioCountEntity> in
+                guard let counts else {
+                    return .just(.init(postCount: 0, availableCount: 0))
+                }
+                return .just(counts)
             }
-            
-            return .just(counts)
-        }
     }
 }

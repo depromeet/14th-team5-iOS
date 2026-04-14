@@ -1,11 +1,10 @@
 //
-//  StudioBannerView.swift
+//  StudioThemeTableViewCell.swift
 //  Bibbi
 //
-//  Created by 마경미 on 24.09.25.
+//  Created by 마경미 on 19.02.26.
 //
 
-// TODO: to design system
 import UIKit
 
 import Core
@@ -13,168 +12,147 @@ import DesignSystem
 import Domain
 import Kingfisher
 
-import RxCocoa
+import RxDataSources
 import RxSwift
+import SnapKit
 
-final class StudioBannerView: UIView {
-    
+final class StudioThemeTableViewCell: UITableViewCell {
+    static let id = "StudioThemeTableViewCell"
+
     private let headerView = UIView()
     private let themeLabel = BBLabel()
     private let themeContainerView = UIView()
     private let dateLabel = BBLabel(.head2Bold, textColor: .gray200)
     private let infoButton = UIButton()
     private let toolTipView: BBToolTip = BBToolTip(.monthlyCalendar)
-    public var countLabel = BBLabel()
     private let bannerImageView = UIImageView()
-    
-    fileprivate let bannerTapGesture = UITapGestureRecognizer()
-        
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    private let countLabel = BBLabel()
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+
         setupUI()
         setupAutoLayout()
         setupAttributes()
     }
-    
+
     required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setupUI()
-        setupAutoLayout()
-        setupAttributes()
+        fatalError("init(coder:) has not been implemented")
     }
 }
 
-extension StudioBannerView {
-    private func setupUI() {
+private extension StudioThemeTableViewCell {
+    func setupUI() {
         themeContainerView.addSubview(themeLabel)
-        addSubviews(bannerImageView, headerView)
-        headerView.addSubviews(themeContainerView, dateLabel,
-                               infoButton, countLabel)
+        contentView.addSubviews(bannerImageView, headerView)
+        headerView.addSubviews(themeContainerView, dateLabel, infoButton, countLabel)
     }
-    
-    private func setupAutoLayout() {
-        // TODO: Label 안쪽에 Padding으로 변경 필요
+
+    func setupAutoLayout() {
         themeContainerView.snp.makeConstraints {
             $0.width.equalTo(49)
             $0.height.equalTo(24)
             $0.left.equalToSuperview()
             $0.centerY.equalToSuperview()
         }
-        
+
         themeLabel.snp.makeConstraints {
             $0.verticalEdges.equalToSuperview().inset(2)
             $0.horizontalEdges.equalToSuperview().inset(6)
         }
-        
+
         dateLabel.snp.makeConstraints {
             $0.centerY.equalToSuperview()
             $0.leading.equalTo(themeContainerView.snp.trailing).offset(6)
         }
-        
+
         infoButton.snp.makeConstraints {
             $0.centerY.equalToSuperview()
             $0.width.height.equalTo(24)
             $0.leading.equalTo(dateLabel.snp.trailing).offset(4)
         }
-        
+
         countLabel.snp.makeConstraints {
             $0.trailing.centerY.equalToSuperview()
             $0.height.equalTo(24)
         }
-        
+
         headerView.snp.makeConstraints {
-            $0.horizontalEdges.top.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(20)
+            $0.top.equalToSuperview()
             $0.height.equalTo(65)
         }
-        
+
         bannerImageView.snp.makeConstraints {
             $0.top.equalTo(headerView.snp.bottom)
-            $0.horizontalEdges.bottom.equalToSuperview()
+            $0.leading.equalTo(headerView)
+            $0.trailing.equalTo(headerView)
+            $0.bottom.equalToSuperview().inset(16)
             $0.height.equalTo(220)
         }
     }
-    
-    private func setupAttributes() {
+
+    func setupAttributes() {
+        backgroundColor = .clear
+        selectionStyle = .none
+
         themeContainerView.do {
-            $0.backgroundColor = .clear
+            $0.backgroundColor = .gray400
             $0.layer.cornerRadius = 12
             $0.clipsToBounds = true
         }
-        
+
         themeLabel.do {
             $0.fontStyle = .body2Bold
             $0.textAlignment = .center
             $0.textColor = .black
         }
-        
+
         countLabel.do {
             $0.textColor = .gray200
             $0.fontStyle = .body1Regular
             $0.textAlignment = .right
         }
-        
-        dateLabel.do {
-            $0.sizeToFit()
-        }
-        
+
         infoButton.do {
             $0.addTarget(self, action: #selector(didTapInfo), for: .touchUpInside)
             $0.setImage(DesignSystemAsset.infoCircleFill.image, for: .normal)
             $0.layer.zPosition = -1
         }
-        
+
         toolTipView.do {
             $0.superview = infoButton
         }
-        
+
         bannerImageView.do {
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
-            $0.isUserInteractionEnabled = true
-            $0.addGestureRecognizer(bannerTapGesture)
             $0.layer.cornerRadius = 24
         }
     }
-    
+
     @objc func didTapInfo() {
         toolTipView.isHidden.toggle()
     }
 }
 
-extension StudioBannerView {
-    func configure(with theme: StudioThemeEntity) {
-        themeLabel.text = theme.theme
-        dateLabel.text = formatDate(theme.startDate) + "~" + formatDate(theme.endDate)
-        if let url = URL(string: theme.imageURL) {
+extension StudioThemeTableViewCell {
+    func configure(_ data: StudioThemeEntity) {
+        if let url = URL(string: data.imageURL) {
             bannerImageView.kf.setImage(with: url)
         } else {
-            bannerImageView.image = DesignSystemAsset.studioBanner.image
+            bannerImageView.image = DesignSystemAsset.emptyCaseGraphicEmoji.image
         }
+
+        dateLabel.text = formatStudioDate(data.startDate) + "~" + formatStudioDate(data.endDate)
+        themeLabel.text = data.theme
+        countLabel.text = "[\(data.postCount)개]의 추억"
     }
 
     // "2025-09-29" → "09/29"
-    private func formatDate(_ dateString: String) -> String {
+    private func formatStudioDate(_ dateString: String) -> String {
         let parts = dateString.split(separator: "-")
         guard parts.count == 3 else { return dateString }
         return "\(parts[1])/\(parts[2])"
-    }
-}
-
-extension Reactive where Base: StudioBannerView {
-    var imageTap: ControlEvent<Void> {
-        let events = base.bannerTapGesture.rx.event
-            .filter { $0.state == .ended }
-            .map { _ in () }
-        return ControlEvent(events: events)
-    }
-    
-    var count: Binder<Int?> {
-        Binder(base) { view, count in
-            if let c = count {
-                view.countLabel.text = "[\(c)]개의 추억"
-            } else {
-                view.countLabel.text = nil
-            }
-        }
     }
 }

@@ -20,7 +20,6 @@ final public class CommentViewController: ReactorViewController<CommentViewReact
     // MARK: - Typealias
     
     private typealias RxDataSource = RxTableViewSectionedAnimatedDataSource<CommentSectionModel>
-    private let recorderManager: BBRecorderManager = BBRecorderManager()
     
     
     // MARK: - Views
@@ -77,7 +76,7 @@ final public class CommentViewController: ReactorViewController<CommentViewReact
             }
             .disposed(by: disposeBag)
         
-        recorderManager.rx.requestMicrophonePermission
+        BBRecorderManager.shared.rx.requestMicrophonePermission
             .observe(on: MainScheduler.instance)
             .bind(with: self) { owner, isPermission in
                 guard isPermission else {
@@ -230,7 +229,6 @@ extension CommentViewController {
                 withIdentifier: CommentCell.id
             ) as! CommentCell
             cell.reactor = reactor
-            cell.playerManager = self?.recorderManager
             return cell
         }
         dataSource.canEditRowAtIndexPath = {

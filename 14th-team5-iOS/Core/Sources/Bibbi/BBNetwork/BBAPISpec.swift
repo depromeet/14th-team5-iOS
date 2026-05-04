@@ -42,6 +42,7 @@ extension RequestGenerationError: CustomStringConvertible {
 public protocol Requestable {
     var method: BBNetworkMethod { get }
     var path: String { get }
+    var baseUrl: String? { get }
     var queryParameters: BBNetworkParameters? { get }
     var queryParametersEncodable: (any Encodable)? { get }
     var bodyParameters: BBNetworkParameters? { get }
@@ -50,6 +51,11 @@ public protocol Requestable {
     var bodyEncoder: any BBBodyEncoder { get }
     
     func urlRequest(_ config: any BBNetworkConfigurable) throws -> URLRequest
+}
+
+extension Requestable {
+    /// HTTP 호출 baseURL 입니다. 기본 값은 nil 값입니다.
+    public var baseUrl: String? { nil }
 }
 
 extension Requestable {
@@ -76,7 +82,7 @@ extension Requestable {
     }
     
     private func url(_ config: any BBNetworkConfigurable) throws -> URL {
-        let baseUrl = config.baseUrl
+        let baseUrl = self.baseUrl ?? config.baseUrl
         
         var urlString: String = path.hasPrefix(baseUrl)
         ? path
@@ -142,6 +148,9 @@ public struct Spec: ResponseRequestable {
     /// 예를 들어, 전체 URL이 **https://api.oing.kr/v1/families**라면 베이스 URL을 제외한 **/families**만 작성해야 합니다.
     public let path: String
     
+    /// 호출하고자 하는 baseUrl 파라미터입니다.
+    public let baseUrl: String?
+    
     /// 호출하고자 하는 API의 쿼리 파라미터입니다.
     public let queryParameters: BBNetworkParameters?
     
@@ -171,6 +180,7 @@ public struct Spec: ResponseRequestable {
     /// - Parameters:
     ///   - method: HTTP 메서드입니다.
     ///   - path: 베이스 URL을 제외한 나머지 경로입니다.
+    ///   - baseUrl: HTTP 베이스 URL 입니다. 기본값은 `nil` 입니다.
     ///   - queryParameters: 쿼리 파라미터입니다. 기본값은 `nil`입니다.
     ///   - queryParametersEncodable: 쿼리 파라미터입니다. `Encodable` 프로토콜을 준수해야 합니다. 기본값은 `nil`입니다.
     ///   - bodyParameters: 요청 바디입니다. 기본값은 `nil`입니다.
@@ -181,6 +191,7 @@ public struct Spec: ResponseRequestable {
     public init(
         method: BBNetworkMethod,
         path: String,
+        baseUrl: String? = nil,
         queryParameters: BBNetworkParameters? = nil,
         queryParametersEncodable: (any Encodable)? = nil,
         bodyParameters: BBNetworkParameters? = nil,
@@ -191,6 +202,7 @@ public struct Spec: ResponseRequestable {
     ) {
         self.method = method
         self.path = path
+        self.baseUrl = baseUrl
         self.queryParameters = queryParameters
         self.queryParametersEncodable = queryParametersEncodable
         self.bodyParameters = bodyParameters

@@ -18,7 +18,6 @@ import RxCocoa
 public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
     
     // MARK: - Views
-    private let recorderManager: BBRecorderManager = BBRecorderManager()
     private let container: UIView = UIView()
     private let textFieldView: UITextField = UITextField()
     private let confirmButton: UIButton = UIButton(type: .system)
@@ -51,7 +50,7 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
     
     private func bindInput(reactor: CommentTextFieldReactor) {
         
-        let recorderURL = recorderManager.recorderCore.audioRecorder.rx.audioRecorderDidFinishRecording
+        let recorderURL = BBRecorderManager.shared.recorderCore.audioRecorder.rx.audioRecorderDidFinishRecording
             .distinctUntilChanged()
             .publish()
             .refCount()
@@ -70,9 +69,9 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
         
         confirmButton.rx.tap
             .throttle(.milliseconds(300), scheduler: RxScheduler.main)
-            .do(onNext: { [weak self] in self?.recorderManager.stopRecoding() })
+            .do(onNext: { BBRecorderManager.shared.stopRecoding() })
             .flatMapLatest { recorderURL }
-            .compactMap { try Data(contentsOf: $0)}
+            .compactMap { try? Data(contentsOf: $0)}
             .map { Reactor.Action.didTappedRecordConfirmButton($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -105,7 +104,7 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
         
         Observable.combineLatest(
             reactor.pulse(\.$recordState),
-            recorderManager.rx.requestCurrentTime
+            BBRecorderManager.shared.rx.requestCurrentTime
         )
         .filter { $0.0 == .record }
         .map { $0.1.toTimeInSeconds(.seconds) ?? 0.0 >= 1.0 ? true : false}
@@ -114,7 +113,7 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
         
         Observable.combineLatest(
             reactor.pulse(\.$recordState),
-            recorderManager.rx.requestDecibels
+            BBRecorderManager.shared.rx.requestDecibels
         )
         .filter { $0.0 == .record }
         .map { $0.1 }
@@ -122,7 +121,7 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
         .bind(to: equalizerView.rx.equalizerLevels)
         .disposed(by: disposeBag)
         
-        recorderManager.rx
+        BBRecorderManager.shared.rx
             .requestCurrentTime
             .distinctUntilChanged()
             .observe(on: RxScheduler.main)
@@ -229,12 +228,12 @@ extension CommentTextFieldView {
             recordButton.setBackgroundImage(DesignSystemAsset.voiceOff.image, for: .normal)
             textFieldView.isHidden = true
             equalizerView.isHidden = false
-            recorderManager.startRecoding()
+            BBRecorderManager.shared.startRecoding()
         case .inital:
             recordButton.setBackgroundImage(DesignSystemAsset.voice.image, for: .normal)
             textFieldView.isHidden = false
             equalizerView.isHidden = true
-            recorderManager.stopRecoding()
+            BBRecorderManager.shared.stopRecoding()
         default:
             break
         }

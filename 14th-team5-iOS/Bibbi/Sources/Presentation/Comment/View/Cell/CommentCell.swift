@@ -32,7 +32,6 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     private let voicePlayContainerView: UIView = UIView()
     private let voiceCotainerView: UIView = UIView()
     private let commentLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray100)
-    public weak var playerManager: BBRecorderManager?
     private var hasErrorOccurred = false
     
     // MARK: - Properties
@@ -48,7 +47,6 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         createdAtLabel.text = ""
         profileImage.image = nil
         commentEqualizerView.resetEqualizerLayout()
-        playerManager = nil
         disposeBag = DisposeBag()
     }
     
@@ -75,7 +73,7 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         self.rx.deallocated
             .bind(with: self, onNext: { owner, _ in
                 owner.commentEqualizerView.invalidateEqaulizerLayout()
-                owner.playerManager = nil
+                BBRecorderManager.shared.stopPlayback()
             })
             .disposed(by: disposeBag)
         
@@ -249,11 +247,15 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         .observe(on: RxScheduler.asyncMain)
         .bind(with: self) { owner, response in
             let (state, audioId) = response
+
+            guard let audioURL = BBDiskCacheStorage<String, URL>.read(forkey: audioId) else {
+                return
+            }
             switch state {
             case .inital:
-                owner.playerManager?.pauseAudioPlayback()
+                BBRecorderManager.shared.stopPlayback()
             case .play:
-                owner.playerManager?.playAudio(from: audioId)
+                try? BBRecorderManager.shared.play(audioURL)
             default:
                 break
             }

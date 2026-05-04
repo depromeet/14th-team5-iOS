@@ -13,9 +13,14 @@ import RxSwift
 // MARK: - Default Interceptor
 
 public final class BBNetworkDefaultInterceptor {
-    public init() { }
+    
+    private let config: any BBNetworkConfigurable
     private let session: BBNetworkSession = .refresh
     private let limitRetryCount: Int = 2
+    
+    public init(config: any BBNetworkConfigurable = BBNetworkDefaultConfiguration()) {
+        self.config = config
+    }
 }
 
 extension BBNetworkDefaultInterceptor: RequestInterceptor {
@@ -90,7 +95,7 @@ extension BBNetworkDefaultInterceptor {
             headers: .unAuthorized
         )
         
-        guard let urlRequest = try? endpoint.urlRequest() else {
+        guard let urlRequest = try? endpoint.urlRequest(config) else {
             return
         }
         let _ = session.request(with: urlRequest, completion: completion)

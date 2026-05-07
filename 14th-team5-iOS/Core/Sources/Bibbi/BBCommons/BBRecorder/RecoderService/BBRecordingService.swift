@@ -12,7 +12,7 @@ import AVFoundation
 
 
 public final class BBRecordingService: BBAudioRecordable {
-    private var audioRecoder: AVAudioRecorder?
+    private var audioRecorder: AVAudioRecorder?
     private let audioEngine: AVAudioEngine
     
     
@@ -21,34 +21,49 @@ public final class BBRecordingService: BBAudioRecordable {
     }
     
     
-    public var isRecoding: Bool {
-        return audioRecoder?.isRecording ?? false
+    public var isRecording: Bool {
+        return audioRecorder?.isRecording ?? false
     }
     
-    private func makeRecodingFileURL() -> URL {
+    private func makeRecordingFileURL() -> URL {
         let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         
         return documents.appendingPathComponent(UUID().uuidString + ".m4a")
     }
     
     public func startRecording() throws -> URL {
-        let url = makeRecodingFileURL()
+        let url = makeRecordingFileURL()
         let settings = BBRecorderOption.default(inputNode: audioEngine.inputNode)
             .asFormat()
         
-        audioRecoder = try AVAudioRecorder(url: url, settings: settings)
-        audioRecoder?.isMeteringEnabled = true
-        audioRecoder?.record()
+        audioRecorder = try AVAudioRecorder(url: url, settings: settings)
+        audioRecorder?.isMeteringEnabled = true
+        
+        guard audioRecorder?.prepareToRecord() == true else {
+            throw NSError(
+                domain: "BBRecordingService",
+                code: -1,
+                userInfo: [NSLocalizedDescriptionKey: "녹음 준비 실패"]
+            )
+        }
+        
+        guard audioRecorder?.record() == true else {
+            throw NSError(
+                domain: "BBRecordingService",
+                code: -2,
+                userInfo: [NSLocalizedDescriptionKey: "녹음 시작 실패"]
+            )
+        }
         
         return url
     }
     
     public func stopRecording() throws {
-        audioRecoder?.stop()
-        audioRecoder = nil
+        audioRecorder?.stop()
+        audioRecorder = nil
     }
     
     public func pauseRecording() {
-        audioRecoder?.pause()
+        audioRecorder?.pause()
     }
 }

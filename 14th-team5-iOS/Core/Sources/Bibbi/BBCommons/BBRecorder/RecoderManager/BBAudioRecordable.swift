@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol BBAudioRecordable {
-    var isRecoding: Bool { get }
+    var isRecording: Bool { get }
     func startRecording() throws -> URL
     func stopRecording() throws
     func pauseRecording()

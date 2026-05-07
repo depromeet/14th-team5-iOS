@@ -19,13 +19,12 @@ public class BBRecorderManager: ReactiveCompatible {
     public let monitoringService: BBAudioMonitorable
     public let playbackService: BBAudioPlayable
     
-    public let recorderCore: BBRecorderCore = BBRecorderCore()
-    
     public var inputNode: AVAudioInputNode {
         return audioEngine.inputNode
     }
     
     private var currentRecordingURL: URL?
+    private var interruptionObserver: NSObjectProtocol?
     
     private init(
         sessionManager: BBAudioSessionManageable? = nil,
@@ -37,10 +36,68 @@ public class BBRecorderManager: ReactiveCompatible {
         self.recordingService = recordingService ?? BBRecordingService(audioEngine: audioEngine)
         self.monitoringService = monitoringService ?? BBMonitoringService(audioEngine: audioEngine)
         self.playbackService = playbackService ?? BBPlaybackService()
+        
+        setupInterruptionHandling()
     }
     
-    @objc public func startRecoding() {
+    deinit {
+        cleanup()
+    }
         
+    private func setupInterruptionHandling() {
+        interruptionObserver = NotificationCenter.default.addObserver(
+            forName: AVAudioSession.interruptionNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            self?.handleInterruption(notification)
+        }
+    }
+    
+    private func handleInterruption(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+              let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
+            return
+        }
+        
+        switch type {
+        case .began:
+            handleInterruptionBegan()
+            
+        case .ended:
+            handleInterruptionEnded(userInfo: userInfo)
+            
+        @unknown default:
+            break
+        }
+    }
+    
+    private func handleInterruptionBegan() {
+        if isRecording {
+            pauseRecording()
+        }
+        if isPlaying {
+            pausePlayback()
+        }
+    }
+    
+    private func handleInterruptionEnded(userInfo: [AnyHashable: Any]) {
+        guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else {
+            return
+        }
+        let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
+        
+        if options.contains(.shouldResume) {
+            do {
+                try sessionManager.activateSession()
+            } catch {
+                print("인터럽션 후 세션 재활성화 실패: \(error)")
+            }
+        }
+    }
+    
+    @objc public func startRecording() {
         do {
             try sessionManager.setupSession()
             try sessionManager.activateSession()
@@ -48,24 +105,18 @@ public class BBRecorderManager: ReactiveCompatible {
             let url = try recordingService.startRecording()
             currentRecordingURL = url
             
-            if !recorderCore.isRecording {
-                recorderCore.audioRecorder.record()
-            }
         } catch {
             print("녹음 시작 실패: \(error)")
+            try? sessionManager.deactivateSession()
         }
     }
     
-    @objc public func stopRecoding() {
+    @objc public func stopRecording() {
         do {
             try recordingService.stopRecording()
-            try sessionManager.deactivateSession()
-            
             currentRecordingURL = nil
             
-            if recorderCore.isRecording {
-                recorderCore.audioRecorder.stop()
-            }
+            try sessionManager.deactivateSession()
         } catch {
             print("녹음 중지 실패: \(error)")
         }
@@ -76,7 +127,7 @@ public class BBRecorderManager: ReactiveCompatible {
     }
     
     public var isRecording: Bool {
-        return recordingService.isRecoding
+        return recordingService.isRecording
     }
     
     public func play(_ url: URL) throws {
@@ -87,6 +138,7 @@ public class BBRecorderManager: ReactiveCompatible {
     
     public func stopPlayback() {
         playbackService.stop()
+        try? sessionManager.deactivateSession()
     }
     
     public func pausePlayback() {
@@ -108,7 +160,7 @@ public class BBRecorderManager: ReactiveCompatible {
     
     public func cleanup() {
         if isRecording {
-            stopRecoding()
+            stopRecording()
         }
         
         if isPlaying {
@@ -116,6 +168,11 @@ public class BBRecorderManager: ReactiveCompatible {
         }
         
         stopMonitoring()
+        
+        if let observer = interruptionObserver {
+            NotificationCenter.default.removeObserver(observer)
+            interruptionObserver = nil
+        }
         
         try? sessionManager.deactivateSession()
     }

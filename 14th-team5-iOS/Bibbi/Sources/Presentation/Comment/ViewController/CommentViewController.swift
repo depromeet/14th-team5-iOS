@@ -76,6 +76,22 @@ final public class CommentViewController: ReactorViewController<CommentViewReact
             }
             .disposed(by: disposeBag)
         
+        commentTableView.rx.didEndDisplayingCell
+            .bind(with: self) { owner, event in
+                guard let commentCell = event.cell as? CommentCell,
+                      let reactor = commentCell.reactor else {
+                    return
+                }
+                
+                commentCell.commentEqualizerView.invalidateEqaulizerLayout()
+                
+                if reactor.currentState.equalizerState == .play {
+                    BBRecorderManager.shared.stopPlayback()
+                    reactor.action.onNext(.didChangedInitalLayout)
+                }
+            }
+            .disposed(by: disposeBag)
+        
         BBRecorderManager.shared.rx.requestMicrophonePermission
             .observe(on: MainScheduler.instance)
             .bind(with: self) { owner, isPermission in

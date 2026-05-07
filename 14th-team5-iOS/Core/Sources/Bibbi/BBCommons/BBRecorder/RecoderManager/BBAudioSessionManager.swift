@@ -13,7 +13,7 @@ import AVFoundation
 public final class BBAudioSessionManager: BBAudioSessionManageable {
     
     //MARK: Property
-    private let session: AVAudioSession = AVAudioSession()
+    private let session: AVAudioSession = AVAudioSession.sharedInstance()
     
     //MARK: Helpers
     public func setupSession() throws {

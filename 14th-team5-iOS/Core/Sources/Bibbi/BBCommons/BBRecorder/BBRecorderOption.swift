@@ -114,14 +114,4 @@ public extension BBRecorderOption {
             .qualityKey(.high),
         ]
     }
-    
-    ///  기본 옵션으로 설정하는 메서드
-    static func `default`() -> [BBRecorderOption] {
-        return [
-            .formatIDKey(kAudioFormatMPEG4AAC),
-            .sampleRate(44100.0),
-            .channelsKey(2),
-            .qualityKey(.high),
-        ]
-    }
 }

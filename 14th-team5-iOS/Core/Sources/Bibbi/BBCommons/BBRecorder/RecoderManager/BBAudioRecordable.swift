@@ -6,9 +6,11 @@
 //
 
 import Foundation
+import AVFoundation
 
 public protocol BBAudioRecordable {
     var isRecording: Bool { get }
+    var audioRecorder: AVAudioRecorder? { get }
     func startRecording() throws -> URL
     func stopRecording() throws
     func pauseRecording()

@@ -111,11 +111,18 @@ extension Reactive where Base: UIImageView {
 
 public extension Reactive where Base: BBRecorderManager {
     var requestCurrentTime: Observable<String> {
-        return Observable.create { observer in
+        return Observable.create { [weak base] observer in
+            guard let base = base else {
+                return Disposables.create()
+            }
+            
+            let startTime = Date()
             let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak base] _ in
-                guard let currentTime = base?.recorderCore.audioRecorder.currentTime else {
+                guard let base = base, base.isRecording else {
                     return
                 }
+                
+                let currentTime = Date().timeIntervalSince(startTime)
                 
                 let recordMinutes = Int(currentTime) / 60
                 let recordSeconds = Int(currentTime) % 60

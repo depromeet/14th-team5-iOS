@@ -118,14 +118,14 @@ final public class OnBoardingViewController: BaseViewController<OnBoardingReacto
             .disposed(by: disposeBag)
         
         nextButton.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.permissionTapped }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.permissionTappedFinish }
             .distinctUntilChanged()
-            .observe(on: RxSchedulers.main)
+            .observe(on: RxScheduler.main)
             .withUnretained(self)
             .bind(onNext: {
                 UserDefaults.standard.finishTutorial = $0.1

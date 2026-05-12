@@ -12,7 +12,7 @@ import AVFoundation
 
 
 public final class BBRecordingService: BBAudioRecordable {
-    private var audioRecorder: AVAudioRecorder?
+    public private(set) var audioRecorder: AVAudioRecorder?
     private let audioEngine: AVAudioEngine
     
     

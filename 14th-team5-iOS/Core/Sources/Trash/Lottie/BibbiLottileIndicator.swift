@@ -35,17 +35,6 @@ public class BibbiLoadIndicator {
         
         started
             .observe(on: MainScheduler.instance)
-            .debug("Show load indicator")
-//            .filter { _ in
-//                if let keyWindowScene = UIApplication.shared.connectedScenes
-//                    .compactMap({ $0 as? UIWindowScene })
-//                    .first(where: { $0.activationState == .foregroundActive }),
-//                   let _ = keyWindowScene.windows.first(where: { $0.isKeyWindow }) {
-//                    return true
-//                } else {
-//                    return false
-//                }
-//            }
             .map { ($0, UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first?.windows.first(where: { $0.isKeyWindow })!) }
             .do(onNext: { [weak self] in self?.loadingView.showLottieView.accept($0.0) })
             .map({ $0.1! })

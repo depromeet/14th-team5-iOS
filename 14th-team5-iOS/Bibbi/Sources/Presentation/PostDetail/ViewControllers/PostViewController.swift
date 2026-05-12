@@ -119,8 +119,8 @@ final class PostViewController: BaseViewController<PostReactor> {
             .disposed(by: disposeBag)
         
         collectionView.rx.contentOffset
-            .debounce(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
-            .map { [unowned self] in 
+            .debounce(RxInterval._300milliseconds, scheduler: MainScheduler.instance)
+            .map { [unowned self] in
                 UIView.animate(withDuration: 0.3) {
                     self.reactionViewController.view.alpha = 1
                 }

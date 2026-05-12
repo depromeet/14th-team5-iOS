@@ -80,13 +80,13 @@ extension MainFamilyViewController {
             .disposed(by: disposeBag)
         
         inviteFamilyView.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.tapInviteFamily }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         familyCollectionView.rx.modelSelected(FamilySection.Item.self)
-            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .compactMap { item -> MemberInfoEntity? in
                 switch item {
                 case let .main(reactor): return reactor.currentState.profileData

@@ -260,14 +260,6 @@ extension FamilyNameSettingViewController {
 
 //MARK: Delegate Extensions
 extension FamilyNameSettingViewController: BBAlertDelegate {
-    func willShowAlert(_ alert: Core.BBAlert) { }
-    
-    func didShowAlert(_ alert: Core.BBAlert) { }
-    
-    func willCloseAlert(_ alert: Core.BBAlert) { }
-    
-    func didCloseAlert(_ alert: Core.BBAlert) { }
-    
     func didTapAlertButton(_ alert: BBAlert?, index: Int?, button: BBButton) {
         if index == 0 {
             alert?.close()

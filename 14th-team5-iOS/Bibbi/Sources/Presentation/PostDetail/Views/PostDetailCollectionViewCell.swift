@@ -202,7 +202,7 @@ extension PostDetailCollectionViewCell {
             .disposed(by: disposeBag)
         
         containerView.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.didTapProfileImageView }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)

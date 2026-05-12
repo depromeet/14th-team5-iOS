@@ -11,18 +11,22 @@ import AVFoundation
 
 public class BBRecorderCore {
     
-    public init() { }
+    private let inputNode: AVAudioInputNode
+    
+    public init(inputNode: AVAudioInputNode) {
+        self.inputNode = inputNode
+    }
     
     /// FileManager Documents Paths URL 가져오는 Property 입니다.
-    public static var getDocumentsPath: URL = {
+    public static var getDocumentsPath: URL {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         let fileName = UUID().uuidString + ".m4a"
         return paths[0].appendingPathComponent(fileName)
-    }()
+    }
     
     /// `AVAudioRecorder` 생성자 Property 입니다.
     public lazy var audioRecorder: AVAudioRecorder = {
-        return try! AVAudioRecorder(url: Self.getDocumentsPath, settings: BBRecorderOption.default().asFormat())
+        return try! AVAudioRecorder(url: Self.getDocumentsPath, settings: BBRecorderOption.default(inputNode: inputNode).asFormat())
     }()
     
     /// 오디오 레코더가 녹음 중인지 여부를 나타내는 Boolean입니다.

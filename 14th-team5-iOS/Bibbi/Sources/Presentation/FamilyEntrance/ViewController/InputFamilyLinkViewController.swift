@@ -110,13 +110,13 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
             .disposed(by: disposeBag)
         
         joinFamilyButton.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.tapJoinFamily }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         backButton.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.tapPopButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -135,7 +135,7 @@ final class InputFamilyLinkViewController: BaseViewController<InputFamilyLinkRea
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$showToastMessage)
-            .observe(on: RxSchedulers.main)
+            .observe(on: RxScheduler.main)
             .filter { $0.count > 0 }
             .withUnretained(self)
             .bind(onNext: { $0.0.makeBibbiToastView(text: $0.1, image: DesignSystemAsset.warning.image, offset: $0.0.keyboardHeight + 90) })

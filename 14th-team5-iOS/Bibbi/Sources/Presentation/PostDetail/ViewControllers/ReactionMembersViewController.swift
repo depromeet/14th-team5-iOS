@@ -55,7 +55,7 @@ final class ReactionMembersViewController: BaseViewController<ReactionMemberView
         
         closeButton.rx.tap
             .withUnretained(self)
-            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
+            .throttle(RxInterval._300milliseconds, scheduler: MainScheduler.instance)
             .bind(onNext: { $0.0.dismiss(animated: true) })
             .disposed(by: disposeBag)
     }

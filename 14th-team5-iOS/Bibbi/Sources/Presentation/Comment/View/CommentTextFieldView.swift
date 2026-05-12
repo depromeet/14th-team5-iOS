@@ -50,11 +50,6 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
     
     private func bindInput(reactor: CommentTextFieldReactor) {
         
-        let recorderURL = BBRecorderManager.shared.recorderCore.audioRecorder.rx.audioRecorderDidFinishRecording
-            .distinctUntilChanged()
-            .publish()
-            .refCount()
-        
         textFieldView.rx.text
             .orEmpty
             .map { Reactor.Action.inputText($0) }
@@ -69,9 +64,16 @@ public final class CommentTextFieldView: BaseView<CommentTextFieldReactor> {
         
         confirmButton.rx.tap
             .throttle(.milliseconds(300), scheduler: RxScheduler.main)
-            .do(onNext: { BBRecorderManager.shared.stopRecoding() })
-            .flatMapLatest { recorderURL }
-            .compactMap { try? Data(contentsOf: $0)}
+            .withUnretained(self)
+            .flatMapLatest { _, _ -> Observable<URL> in
+                guard let recorder = BBRecorderManager.shared.audioRecorder else {
+                    return .empty()
+                }
+                let finished = recorder.rx.audioRecorderDidFinishRecording.take(1)
+                BBRecorderManager.shared.stopRecording()
+                return finished
+            }
+            .compactMap { try? Data(contentsOf: $0) }
             .map { Reactor.Action.didTappedRecordConfirmButton($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -228,12 +230,12 @@ extension CommentTextFieldView {
             recordButton.setBackgroundImage(DesignSystemAsset.voiceOff.image, for: .normal)
             textFieldView.isHidden = true
             equalizerView.isHidden = false
-            BBRecorderManager.shared.startRecoding()
+            BBRecorderManager.shared.startRecording()
         case .inital:
             recordButton.setBackgroundImage(DesignSystemAsset.voice.image, for: .normal)
             textFieldView.isHidden = false
             equalizerView.isHidden = true
-            BBRecorderManager.shared.stopRecoding()
+            BBRecorderManager.shared.stopRecording()
         default:
             break
         }

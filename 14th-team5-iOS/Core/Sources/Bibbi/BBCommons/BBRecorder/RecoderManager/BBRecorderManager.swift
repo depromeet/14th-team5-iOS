@@ -23,6 +23,10 @@ public class BBRecorderManager: ReactiveCompatible {
         return audioEngine.inputNode
     }
     
+    public var audioRecorder: AVAudioRecorder? {
+        return recordingService.audioRecorder
+    }
+    
     private var currentRecordingURL: URL?
     private var interruptionObserver: NSObjectProtocol?
     

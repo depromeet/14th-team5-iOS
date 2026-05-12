@@ -96,7 +96,7 @@ extension MainPostViewController {
             .disposed(by: disposeBag)
 
         postCollectionView.rx.itemSelected
-            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .withUnretained(self)
             .bind(onNext: {
                 let vc = PostDetailViewControllerWrapper(

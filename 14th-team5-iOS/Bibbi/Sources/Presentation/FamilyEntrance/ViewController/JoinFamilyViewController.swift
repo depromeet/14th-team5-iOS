@@ -81,7 +81,7 @@ final class JoinFamilyViewController: BaseViewController<JoinFamilyReactor> {
             .do(onNext: {
                 BBLogManager.analytics(logType: BBEventAnalyticsLog.clickFamilyButton(entry: .createFamilyGroup))
             })
-            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .withUnretained(self)
             .bind(onNext: { $0.0.newGroupAlertController()})
             .disposed(by: disposeBag)

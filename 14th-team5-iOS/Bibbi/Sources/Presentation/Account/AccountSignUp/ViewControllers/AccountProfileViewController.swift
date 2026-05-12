@@ -52,14 +52,14 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
         
         
         nextButton.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .map { _ in Reactor.Action.didTapCompletehButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         
         profileButton.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .withUnretained(self)
             .do { _ in BBLogManager.analytics(logType: BBEventAnalyticsLog.clickAccountButton(entry: .profileNickNameEdit))}
             .bind(onNext: { $0.0.createAlertController(owner: $0.0) })
@@ -82,7 +82,7 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
     private func bindOutput(reactor: AccountSignUpReactor) {
         reactor.state.map { $0.nickname }
             .withUnretained(self)
-            .observe(on: RxSchedulers.main)
+            .observe(on: RxScheduler.main)
             .bind(onNext: { $0.0.setProfilewView(with: $0.1) })
             .disposed(by: disposeBag)
         
@@ -93,7 +93,7 @@ final class AccountProfileViewController: BaseViewController<AccountSignUpReacto
         
         reactor.state.map { $0.didTapCompletehButtonFinish }
             .withUnretained(self)
-            .observe(on: RxSchedulers.main)
+            .observe(on: RxScheduler.main)
             .bind(onNext: { $0.0.showNextPage(accessToken: $0.1) })
             .disposed(by: disposeBag)
         

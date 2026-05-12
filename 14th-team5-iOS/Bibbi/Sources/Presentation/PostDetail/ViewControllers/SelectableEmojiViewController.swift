@@ -102,7 +102,7 @@ extension SelectableEmojiViewController {
         
         Observable.zip(selectableEmojiCollectionView.rx.itemSelected,
                        selectableEmojiCollectionView.rx.modelSelected(SelectableReactionSection.Item.self))
-        .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
+        .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
         .map { (indexPath, selectedItem) in
             switch selectedItem {
             case .standard(let emojiData):

@@ -167,7 +167,7 @@ extension MainViewController {
         
         
         contributorView.infoButton.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
+            .throttle(RxInterval._300milliseconds, scheduler: MainScheduler.instance)
             .withUnretained(self)
             .bind(onNext: {
                 $0.0.makeDescriptionPopoverView(
@@ -181,7 +181,6 @@ extension MainViewController {
             .disposed(by: disposeBag)
         
         pageViewController.currentFeed
-            .debug("feedchanged")
             .distinctUntilChanged()
             .bind(to: segmentControl.rx.setSelectedType)
             .disposed(by: disposeBag)

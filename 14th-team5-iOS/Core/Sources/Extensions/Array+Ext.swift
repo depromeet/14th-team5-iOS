@@ -17,3 +17,14 @@ extension Array {
         self = [element]
     }
 }
+
+
+extension Array where Element == BBRecorderOption {
+    func asFormat() -> [String: Any] {
+        var format: [String: Any] = [:]
+        for option in self {
+            format[option.key] = option.value
+        }
+        return format
+    }
+}

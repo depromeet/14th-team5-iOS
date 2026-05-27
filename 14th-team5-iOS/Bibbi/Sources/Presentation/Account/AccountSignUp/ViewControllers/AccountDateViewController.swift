@@ -96,7 +96,7 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
             .disposed(by: disposeBag)
         
         nextButton.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: RxSchedulers.main)
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.didTapDateNextButton }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -105,7 +105,7 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
     private func bindOutput(reactor: AccountSignUpReactor) {
         reactor.state.map { $0.nickname }
             .withUnretained(self)
-            .observe(on: RxSchedulers.main)
+            .observe(on: RxScheduler.main)
             .bind(onNext: { $0.0.setTitleLabel(with: $0.1) })
             .disposed(by: disposeBag)
         
@@ -129,7 +129,7 @@ final class AccountDateViewController: BaseViewController<AccountSignUpReactor> 
         
         reactor.state.map { $0.isValidDateButton }
             .withUnretained(self)
-            .observe(on: RxSchedulers.main)
+            .observe(on: RxScheduler.main)
             .bind(onNext: { $0.0.validationButton($0.1) })
             .disposed(by: disposeBag)
     }

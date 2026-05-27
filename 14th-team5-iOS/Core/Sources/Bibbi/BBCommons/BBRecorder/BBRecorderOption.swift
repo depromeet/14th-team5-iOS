@@ -97,30 +97,21 @@ public extension BBRecorderOption {
         return endianKey
     }
     
-    
-    
-    
-    /// 기본 옵션 메서드
-    static func `default`() -> [BBRecorderOption] {
+    /// 오디오 입력 노드의 포맷을 기반으로 녹음 옵션을 생성하는 메서드
+    static func `default`(inputNode: AVAudioInputNode) -> [BBRecorderOption] {
+        let format = inputNode.outputFormat(forBus: 0)
+        
+        let validSampleRates: [Double] = [8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000]
+        let safeSampleRate = validSampleRates.min(by: { abs($0 - format.sampleRate) < abs($1 - format.sampleRate) }) ?? 44100.0
+        
+        let safeChannelCount = min(Int(format.channelCount), 2)
+        let finalChannelCount = max(safeChannelCount, 1)
+        
         return [
             .formatIDKey(kAudioFormatMPEG4AAC),
-            .sampleRate(44100),
-            .channelsKey(1),
+            .sampleRate(safeSampleRate),
+            .channelsKey(finalChannelCount),
             .qualityKey(.high),
-            .linearPCMBitDepthKey(16),
-            .linearPCMIsBigEndianKey(false),
-            .linearPCMIsFloatKey(false)
         ]
-    }
-}
-
-
-extension Array where Element == BBRecorderOption {
-    func asFormat() -> [String: Any] {
-        var format: [String: Any] = [:]
-        for option in self {
-            format[option.key] = option.value
-        }
-        return format
     }
 }

@@ -18,6 +18,7 @@ import Then
 final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     
     // MARK: - Views
+    public let commentEqualizerView: BBEqualizerView = BBEqualizerView(state: .inital)
     
     private let profileBackground: UIView = UIView()
     private let profilePlaceholder: UILabel = BBLabel(.head2Bold, textAlignment: .center)
@@ -27,12 +28,10 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     private let labelStack: UIStackView = UIStackView()
     private let nameLabel: BBLabel = BBLabel(.body2Bold, textColor: .gray100)
     private let createdAtLabel: BBLabel = BBLabel(.body2Regular, textColor: .gray500)
-    private let commentEqualizerView: BBEqualizerView = BBEqualizerView(state: .inital)
     private let voicePlayButton: UIButton = UIButton(type: .custom)
     private let voicePlayContainerView: UIView = UIView()
     private let voiceCotainerView: UIView = UIView()
     private let commentLabel: BBLabel = BBLabel(.body1Regular, textColor: .gray100)
-    public weak var playerManager: BBRecorderManager?
     private var hasErrorOccurred = false
     
     // MARK: - Properties
@@ -43,12 +42,13 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
     // MARK: - Helpers
     public override func prepareForReuse() {
         super.prepareForReuse()
+        commentEqualizerView.invalidateEqaulizerLayout()
+        commentEqualizerView.resetEqualizerLayout()
         
         nameLabel.text = ""
         createdAtLabel.text = ""
         profileImage.image = nil
-        commentEqualizerView.resetEqualizerLayout()
-        playerManager = nil
+        hasErrorOccurred = false
         disposeBag = DisposeBag()
     }
     
@@ -72,12 +72,6 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
         
-        self.rx.deallocated
-            .bind(with: self, onNext: { owner, _ in
-                owner.commentEqualizerView.invalidateEqaulizerLayout()
-                owner.playerManager = nil
-            })
-            .disposed(by: disposeBag)
         
         profileButton.rx.tap
             .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
@@ -249,17 +243,27 @@ final public class CommentCell: BaseTableViewCell<CommentCellReactor> {
         .observe(on: RxScheduler.asyncMain)
         .bind(with: self) { owner, response in
             let (state, audioId) = response
+
+            guard let audioURL = BBDiskCacheStorage<String, URL>.read(forkey: audioId) else {
+                owner.showErrorToast("오디오 파일을 찾을 수 없습니다")
+                return
+            }
             switch state {
             case .inital:
-                owner.playerManager?.pauseAudioPlayback()
+                BBRecorderManager.shared.stopPlayback()
             case .play:
-                owner.playerManager?.playAudio(from: audioId)
+                do {
+                    try BBRecorderManager.shared.play(audioURL)
+                } catch {
+                    owner.reactor?.action.onNext(.didChangedInitalLayout)
+                    owner.commentEqualizerView.resetEqualizerLayout()
+                    owner.showErrorToast("재생에 실패했습니다")
+                }
             default:
                 break
             }
         }
         .disposed(by: disposeBag)
-            
     }
     
     public override func setupUI() {

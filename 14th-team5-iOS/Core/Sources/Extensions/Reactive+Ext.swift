@@ -101,7 +101,6 @@ extension Reactive where Base: UIImageView {
     }
     
     public var kfImage: Binder<URL> {
-        // TODO: - 이미지 캐시, 트랜지션 효과 추가 구현하기
         Binder(self.base) { imageView, url in
             imageView.kf.setImage(with: url)
         }
@@ -112,11 +111,18 @@ extension Reactive where Base: UIImageView {
 
 public extension Reactive where Base: BBRecorderManager {
     var requestCurrentTime: Observable<String> {
-        return Observable.create { observer in
+        return Observable.create { [weak base] observer in
+            guard let base = base else {
+                return Disposables.create()
+            }
+            
+            let startTime = Date()
             let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak base] _ in
-                guard let currentTime = base?.recorderCore.audioRecorder.currentTime else {
+                guard let base = base, base.isRecording else {
                     return
                 }
+                
+                let currentTime = Date().timeIntervalSince(startTime)
                 
                 let recordMinutes = Int(currentTime) / 60
                 let recordSeconds = Int(currentTime) % 60
@@ -139,10 +145,7 @@ public extension Reactive where Base: BBRecorderManager {
             guard let base = base else { return Disposables.create() }
             var decibles: [CGFloat] = []
             
-            let engine = AVAudioEngine()
-            let inputNode = engine.inputNode
-            let inputFormat = inputNode.outputFormat(forBus: 0)
-            let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: inputFormat.sampleRate, channels: inputFormat.channelCount, interleaved: true)
+            let format = base.inputNode.outputFormat(forBus: 0)
             
             base.inputNode.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, time in
                 let normlizedDecibel = buffer.normalizeDecible()

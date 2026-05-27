@@ -118,13 +118,13 @@ extension FamilyEntranceViewController {
             .disposed(by: disposeBag)
         
         showHomeButton.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.showHome }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         showCodeButton.rx.tap
-            .throttle(RxConst.milliseconds300Interval, scheduler: MainScheduler.instance)
+            .throttle(RxInterval._300milliseconds, scheduler: RxScheduler.main)
             .map { Reactor.Action.joinFamily }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -134,7 +134,7 @@ extension FamilyEntranceViewController {
         reactor.state
             .compactMap { $0.profiles }
             .distinctUntilChanged()
-            .observe(on: RxSchedulers.main)
+            .observe(on: RxScheduler.main)
             .withUnretained(self)
             .bind(onNext: { $0.0.setProfileStackView(profiles: $0.1) })
             .disposed(by: disposeBag)
